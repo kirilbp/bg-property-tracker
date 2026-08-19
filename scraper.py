@@ -21,23 +21,24 @@ OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history.json"
 LEADS_FILE = OUT_DIR / "leads.json"
 
-# Only match real "for sale" detail pages, not rental/nav links
+BGN_TO_EUR = 1.95583  # fixed peg, official rate
+
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
+BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
+SQM_RE = re.compile(r"(\d+)\s?\u043c\s?2")
+DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
-    """Walk up from the link one level at a time and stop as soon as we
-    reach an ancestor whose text contains a price. That keeps us inside
-    this one listing's own card instead of spilling into neighbours."""
     node = link_tag
     for _ in range(max_levels):
         if node.parent is None:
             break
         node = node.parent
         text = node.get_text(" ", strip=True)
-        if re.search(r"[\d\s]{4,10}\s?\u20ac", text):
+        if BGN_RE.search(text):
             return node
-    return node
+    return None  # no price found nearby at all -> not a real listing card
 
 
 def fetch_listings(url):
@@ -55,10 +56,22 @@ def fetch_listings(url):
             continue
 
         container = smallest_container_with_price(a)
+        if container is None:
+            continue  # skip nav/menu links that happened to match the URL pattern
+
         text = container.get_text(" ", strip=True)
 
-        price_match = re.search(r"([\d\s]{4,10})\s?\u20ac", text)
-        sqm_match = re.search(r"(\d+)\s?\u043c2", text)
+        bgn_match = BGN_RE.search(text)
+        sqm_match = SQM_RE.search(text)
+        desc_match = DESC_RE.search(text)
+        if not bgn_match:
+            continue
+
+        price_bgn = int(re.sub(r"\D", "", bgn_match.group(1)))
+        if price_bgn < 1000:
+            continue  # too small to be a real price, probably noise
+        price_eur = round(price_bgn / BGN_TO_EUR)
+        sqm = int(sqm_match.group(1)) if sqm_match else None
 
         img = container.find("img")
         img_url = None
@@ -68,19 +81,15 @@ def fetch_listings(url):
             img_url = "https://www.imoti.net" + img_url
 
         full_url = a["href"] if a["href"].startswith("http") else "https://www.imoti.net" + a["href"]
-        price = int(re.sub(r"\D", "", price_match.group(1))) if price_match else None
-        sqm = int(sqm_match.group(1)) if sqm_match else None
-
-        # Prefer the link's own title/text for the label, it's usually short and clean
-        label = a.get_text(" ", strip=True) or text[:120]
+        title = desc_match.group(1).strip() if desc_match else a.get_text(" ", strip=True)[:100]
 
         seen[listing_id] = {
             "id": listing_id,
             "url": full_url,
             "photo": img_url,
-            "price_eur": price,
+            "price_eur": price_eur,
             "sqm": sqm,
-            "title": label[:120],
+            "title": title,
         }
     return list(seen.values())
 
