@@ -21,7 +21,23 @@ OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history.json"
 LEADS_FILE = OUT_DIR / "leads.json"
 
-LISTING_LINK_RE = re.compile(r"/en/obiava/[^\"'#]+?/(\d+)/")
+# Only match real "for sale" detail pages, not rental/nav links
+LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
+
+
+def smallest_container_with_price(link_tag, max_levels=6):
+    """Walk up from the link one level at a time and stop as soon as we
+    reach an ancestor whose text contains a price. That keeps us inside
+    this one listing's own card instead of spilling into neighbours."""
+    node = link_tag
+    for _ in range(max_levels):
+        if node.parent is None:
+            break
+        node = node.parent
+        text = node.get_text(" ", strip=True)
+        if re.search(r"[\d\s]{4,10}\s?\u20ac", text):
+            return node
+    return node
 
 
 def fetch_listings(url):
@@ -38,21 +54,25 @@ def fetch_listings(url):
         if listing_id in seen:
             continue
 
-        container = a
-        for _ in range(4):
-            if container.parent:
-                container = container.parent
-
+        container = smallest_container_with_price(a)
         text = container.get_text(" ", strip=True)
+
         price_match = re.search(r"([\d\s]{4,10})\s?\u20ac", text)
         sqm_match = re.search(r"(\d+)\s?\u043c2", text)
+
         img = container.find("img")
-        img_url = img["src"] if img and img.get("src") else None
+        img_url = None
+        if img:
+            img_url = img.get("src") or img.get("data-src")
         if img_url and img_url.startswith("/"):
             img_url = "https://www.imoti.net" + img_url
+
         full_url = a["href"] if a["href"].startswith("http") else "https://www.imoti.net" + a["href"]
         price = int(re.sub(r"\D", "", price_match.group(1))) if price_match else None
         sqm = int(sqm_match.group(1)) if sqm_match else None
+
+        # Prefer the link's own title/text for the label, it's usually short and clean
+        label = a.get_text(" ", strip=True) or text[:120]
 
         seen[listing_id] = {
             "id": listing_id,
@@ -60,7 +80,7 @@ def fetch_listings(url):
             "photo": img_url,
             "price_eur": price,
             "sqm": sqm,
-            "title": text[:120],
+            "title": label[:120],
         }
     return list(seen.values())
 
