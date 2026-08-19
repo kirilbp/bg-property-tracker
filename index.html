@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BG Property Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f8fafc;
+    margin: 0;
+    color: #0f172a;
+  }
+  header {
+    padding: 24px 20px 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: #64748b; font-size: 14px; margin: 0; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
+  .card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .filters label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
+  .filters input, .filters select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .count { font-size: 13px; color: #64748b; margin: 12px 0; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .listing {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.15s;
+  }
+  .listing:hover { border-color: #94a3b8; }
+  .listing img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: #e2e8f0;
+    display: block;
+  }
+  .listing-body { padding: 12px; }
+  .listing-title { font-weight: 600; font-size: 14px; margin: 0 0 4px; }
+  .listing-area { font-size: 12px; color: #64748b; margin: 0 0 8px; }
+  .listing-price-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .listing-price { font-weight: 700; font-size: 15px; }
+  .listing-persqm { font-size: 12px; color: #94a3b8; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+  }
+  .badge-hot { background: #fef2f2; color: #b91c1c; }
+  .badge-warm { background: #fffbeb; color: #b45309; }
+  .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
+  #chart-wrap { height: 260px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏠 BG Property Tracker</h1>
+  <p class="subtitle" id="subtitle">Loading live listings…</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div id="chart-wrap"><canvas id="areaChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="filters">
+      <div>
+        <label>Min price (€)</label>
+        <input type="number" id="minPrice" placeholder="0" />
+      </div>
+      <div>
+        <label>Max price (€)</label>
+        <input type="number" id="maxPrice" placeholder="No limit" />
+      </div>
+      <div>
+        <label>Area</label>
+        <select id="areaFilter"><option value="">All areas</option></select>
+      </div>
+      <div>
+        <label>Sort by</label>
+        <select id="sortBy">
+          <option value="price-asc">Price (low to high)</option>
+          <option value="price-desc">Price (high to low)</option>
+          <option value="persqm-asc">€/m² (low to high)</option>
+          <option value="score-desc">Motivation score</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
+
+</div>
+
+<script>
+const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
+
+function extractArea(title) {
+  const parts = title.split(/Sofia,\s*/i);
+  return parts.length > 1 ? parts[1].trim() : 'Sofia';
+}
+
+let ALL_LISTINGS = [];
+let chart = null;
+
+async function loadData() {
+  try {
+    const res = await fetch('data/leads.json?_=' + Date.now());
+    const data = await res.json();
+    ALL_LISTINGS = data.map(l => ({
+      ...l,
+      area: extractArea(l.title),
+      pricePerSqm: l.sqm ? l.price_eur / l.sqm : null
+    }));
+    document.getElementById('subtitle').textContent =
+      `${ALL_LISTINGS.length} live listings from imoti.net · auto-updates every 6 hours`;
+    populateAreaFilter();
+    renderChart();
+    render();
+  } catch (e) {
+    document.getElementById('subtitle').textContent = 'Could not load listings data.';
+    console.error(e);
+  }
+}
+
+function populateAreaFilter() {
+  const areas = [...new Set(ALL_LISTINGS.map(l => l.area))].sort();
+  const select = document.getElementById('areaFilter');
+  areas.forEach(area => {
+    const opt = document.createElement('option');
+    opt.value = area;
+    opt.textContent = area;
+    select.appendChild(opt);
+  });
+}
+
+function renderChart() {
+  const byArea = {};
+  ALL_LISTINGS.forEach(l => {
+    if (!l.pricePerSqm) return;
+    if (!byArea[l.area]) byArea[l.area] = [];
+    byArea[l.area].push(l.pricePerSqm);
+  });
+  const rows = Object.entries(byArea)
+    .map(([area, vals]) => ({ area, avg: vals.reduce((a,b)=>a+b,0) / vals.length }))
+    .sort((a, b) => b.avg - a.avg);
+
+  const ctx = document.getElementById('areaChart');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.area),
+      datasets: [{
+        label: 'Avg €/m²',
+        data: rows.map(r => Math.round(r.avg)),
+        backgroundColor: '#0ea5e9',
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true } }
+    }
+  });
+}
+
+function render() {
+  const min = parseFloat(document.getElementById('minPrice').value) || 0;
+  const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+  const area = document.getElementById('areaFilter').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  let filtered = ALL_LISTINGS.filter(l =>
+    l.price_eur >= min &&
+    l.price_eur <= max &&
+    (area === '' || l.area === area)
+  );
+
+  filtered.sort((a, b) => {
+    if (sortBy === 'price-asc') return a.price_eur - b.price_eur;
+    if (sortBy === 'price-desc') return b.price_eur - a.price_eur;
+    if (sortBy === 'persqm-asc') return (a.pricePerSqm||Infinity) - (b.pricePerSqm||Infinity);
+    if (sortBy === 'score-desc') return b.score - a.score;
+    return 0;
+  });
+
+  document.getElementById('count').textContent =
+    `${filtered.length} of ${ALL_LISTINGS.length} listings`;
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  grid.innerHTML = '';
+
+  if (filtered.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  filtered.forEach(l => {
+    const a = document.createElement('a');
+    a.href = l.url;
+    a.target = '_blank';
+    a.rel = 'noreferrer';
+    a.className = 'listing';
+
+    let badge = '';
+    if (l.score >= 65) badge = '<span class="badge badge-hot">🔥 Hot deal</span>';
+    else if (l.score >= 35) badge = '<span class="badge badge-warm">Warm</span>';
+
+    a.innerHTML = `
+      <img src="${l.photo || ''}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'" />
+      <div class="listing-body">
+        ${badge}
+        <p class="listing-title">${l.title}</p>
+        <p class="listing-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        <div class="listing-price-row">
+          <span class="listing-price">€${fmt(l.price_eur)}</span>
+          <span class="listing-persqm">${l.pricePerSqm ? '€' + fmt(l.pricePerSqm) + '/m²' : ''}</span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(a);
+  });
+}
+
+document.getElementById('minPrice').addEventListener('input', render);
+document.getElementById('maxPrice').addEventListener('input', render);
+document.getElementById('areaFilter').addEventListener('change', render);
+document.getElementById('sortBy').addEventListener('change', render);
+
+loadData();
+</script>
+
+</body>
+</html>
