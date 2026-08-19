@@ -18,6 +18,13 @@
   .subtitle { color: #64748b; font-size: 14px; margin: 0; }
   .container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
   .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+  .market-card { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .market-stat { flex: 1; min-width: 140px; }
+  .market-stat .label { font-size: 12px; color: #64748b; margin: 0 0 2px; }
+  .market-stat .value { font-size: 20px; font-weight: 700; margin: 0; }
+  .market-stat .value.up { color: #b91c1c; }
+  .market-source { font-size: 11px; color: #94a3b8; margin-top: 10px; width: 100%; }
+  .market-source a { color: #64748b; }
   .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
   .filters label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
   .filters input, .filters select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
@@ -58,6 +65,27 @@
 </header>
 
 <div class="container">
+
+  <div class="card market-card">
+    <div class="market-stat">
+      <p class="label">Bulgaria HPI, year-on-year</p>
+      <p class="value up">+12.6%</p>
+    </div>
+    <div class="market-stat">
+      <p class="label">Sofia avg. asking price</p>
+      <p class="value">~€2,500/m²</p>
+    </div>
+    <div class="market-stat">
+      <p class="label">Sofia, year-on-year</p>
+      <p class="value up">+18%</p>
+    </div>
+    <p class="market-source">
+      Official Bulgaria-wide figure: National Statistical Institute, Q4 2025 House Price Index (registered sale prices).
+      Sofia asking-price figures: Bulgarian Properties market report, Feb 2026.
+      This card is updated manually, not live — verify current figures at
+      <a href="https://www.nsi.bg/en/statistical-data/98" target="_blank" rel="noreferrer">nsi.bg</a>.
+    </p>
+  </div>
 
   <div class="card">
     <div id="chart-wrap"><canvas id="areaChart"></canvas></div>
