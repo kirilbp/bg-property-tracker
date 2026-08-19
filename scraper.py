@@ -3,6 +3,11 @@ Scrapes current Sofia listings from imoti.net, keeps a history of every time
 each listing was seen, and works out price drops and days-on-market from
 that history. Designed to be re-run automatically (see the GitHub Actions
 workflow file) so the history builds up over days and weeks.
+
+This version is deliberately cautious: if it can't confidently isolate a
+single listing's own price/photo (e.g. inside a shared carousel widget), it
+skips that listing entirely rather than guessing. Fewer, correct listings
+beat many, wrong ones.
 """
 
 import re
@@ -22,6 +27,8 @@ HISTORY_FILE = OUT_DIR / "history.json"
 LEADS_FILE = OUT_DIR / "leads.json"
 
 BGN_TO_EUR = 1.95583  # fixed peg, official rate
+MAX_CARD_TEXT_LENGTH = 400  # a genuine single listing card's text is short;
+                             # anything longer is a shared/carousel container
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -30,6 +37,11 @@ DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
+    """Walk up from the link one level at a time. As soon as we reach an
+    ancestor that mentions a price, decide immediately: if it's a small,
+    single-card-sized block, use it. If it's suspiciously large, it's a
+    shared container spanning multiple listings, so give up on this one
+    rather than risk mixing data between listings."""
     node = link_tag
     for _ in range(max_levels):
         if node.parent is None:
@@ -37,8 +49,8 @@ def smallest_container_with_price(link_tag, max_levels=6):
         node = node.parent
         text = node.get_text(" ", strip=True)
         if BGN_RE.search(text):
-            return node
-    return None  # no price found nearby at all -> not a real listing card
+            return node if len(text) <= MAX_CARD_TEXT_LENGTH else None
+    return None
 
 
 def fetch_listings(url):
@@ -57,7 +69,7 @@ def fetch_listings(url):
 
         container = smallest_container_with_price(a)
         if container is None:
-            continue  # skip nav/menu links that happened to match the URL pattern
+            continue
 
         text = container.get_text(" ", strip=True)
 
@@ -69,7 +81,7 @@ def fetch_listings(url):
 
         price_bgn = int(re.sub(r"\D", "", bgn_match.group(1)))
         if price_bgn < 1000:
-            continue  # too small to be a real price, probably noise
+            continue
         price_eur = round(price_bgn / BGN_TO_EUR)
         sqm = int(sqm_match.group(1)) if sqm_match else None
 
@@ -81,7 +93,9 @@ def fetch_listings(url):
             img_url = "https://www.imoti.net" + img_url
 
         full_url = a["href"] if a["href"].startswith("http") else "https://www.imoti.net" + a["href"]
-        title = desc_match.group(1).strip() if desc_match else a.get_text(" ", strip=True)[:100]
+        title = desc_match.group(1).strip() if desc_match else None
+        if not title:
+            continue  # if we can't confidently read a description, skip it too
 
         seen[listing_id] = {
             "id": listing_id,
@@ -125,7 +139,7 @@ def compute_leads(history):
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
         first_seen = datetime.fromisoformat(rec["first_seen"])
         days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(drop_pct / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
         leads.append({
             **rec["latest"],
             "price_eur": last_price,
