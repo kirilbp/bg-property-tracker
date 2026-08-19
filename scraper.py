@@ -1,12 +1,8 @@
 """
 Scrapes current Sofia listings from imoti.net, keeps a history of every time
-each listing was seen, and works out price drops and days-on-market from
-that history.
-
-Note: each genuine listing card normally mentions BGN twice -- once for the
-total price, once for the price-per-square-metre -- so "more than 2 price
-mentions" (not "more than 1") is the signal that a container spans multiple
-listings rather than being a single card.
+each listing was seen, and works out:
+  - price drops and days-on-market from that history
+  - each listing's price per m2 vs the average for its area, as a %
 """
 
 import re
@@ -27,12 +23,17 @@ LEADS_FILE = OUT_DIR / "leads.json"
 
 BGN_TO_EUR = 1.95583
 MAX_CARD_TEXT_LENGTH = 400
-MAX_PRICE_MENTIONS = 2  # total price + price-per-sqm is normal for one card
+MAX_PRICE_MENTIONS = 2
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
 SQM_RE = re.compile(r"(\d+)\s?\u043c\s?2")
 DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
+
+
+def extract_area(title):
+    parts = re.split(r"Sofia,\s*", title, flags=re.IGNORECASE)
+    return parts[1].strip() if len(parts) > 1 else "Sofia"
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
@@ -52,15 +53,11 @@ def smallest_container_with_price(link_tag, max_levels=6):
 
 def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
-    print(f"DEBUG: HTTP status code = {resp.status_code}")
-    print(f"DEBUG: response length = {len(resp.text)} characters")
-
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
-    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
 
     seen = {}
     for a in matching_links:
@@ -142,13 +139,37 @@ def compute_leads(history):
         first_seen = datetime.fromisoformat(rec["first_seen"])
         days_on_market = (datetime.now(timezone.utc) - first_seen).days
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
+        latest = rec["latest"]
+        area = extract_area(latest["title"])
+        price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
+
         leads.append({
-            **rec["latest"],
+            **latest,
             "price_eur": last_price,
+            "area": area,
+            "price_per_sqm": price_per_sqm,
+            "price_history": prices,
             "drop_pct": drop_pct,
             "days_on_market": days_on_market,
             "score": score,
         })
+
+    area_totals = {}
+    for l in leads:
+        if l["price_per_sqm"]:
+            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
+    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
+
+    for l in leads:
+        if l["price_per_sqm"] and l["area"] in area_avg:
+            avg = area_avg[l["area"]]
+            l["area_avg_price_per_sqm"] = round(avg)
+            l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
+        else:
+            l["area_avg_price_per_sqm"] = None
+            l["pct_vs_area_avg"] = None
+
     leads.sort(key=lambda x: x["score"], reverse=True)
     return leads
 
@@ -159,9 +180,4 @@ def main():
     history = update_history(history, listings)
     save_history(history)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
-
-
-if __name__ == "__main__":
-    main()
+    LEADS_FILE.write_text(json.dumps(leads,
