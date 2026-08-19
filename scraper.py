@@ -1,13 +1,8 @@
 """
 Scrapes current Sofia listings from imoti.net, keeps a history of every time
 each listing was seen, and works out price drops and days-on-market from
-that history. Designed to be re-run automatically (see the GitHub Actions
-workflow file) so the history builds up over days and weeks.
-
-This version is deliberately cautious: if it can't confidently isolate a
-single listing's own price/photo (e.g. inside a shared carousel widget, or
-a box mentioning more than one price), it skips that listing entirely
-rather than guessing. Fewer, correct listings beat many, wrong ones.
+that history. This version prints extra debug info so we can see exactly
+what the server received if something looks wrong.
 """
 
 import re
@@ -18,7 +13,12 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+}
 SEARCH_URL = "https://www.imoti.net/en/obiavi/r/prodava/sofia"
 
 OUT_DIR = Path(__file__).parent / "data"
@@ -36,11 +36,6 @@ DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
-    """Walk up from the link one level at a time. Accept the first ancestor
-    that mentions exactly one price and is small enough to plausibly be a
-    single listing card. If an ancestor mentions more than one price, this
-    is a shared box covering multiple listings -- give up on this link
-    entirely rather than risk mixing data between listings."""
     node = link_tag
     for _ in range(max_levels):
         if node.parent is None:
@@ -57,14 +52,22 @@ def smallest_container_with_price(link_tag, max_levels=6):
 
 def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
+    print(f"DEBUG: HTTP status code = {resp.status_code}")
+    print(f"DEBUG: response length = {len(resp.text)} characters")
+    print(f"DEBUG: first 300 characters of response:\n{resp.text[:300]}")
+
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
+    all_links = soup.find_all("a", href=True)
+    print(f"DEBUG: total <a> links found on page = {len(all_links)}")
+
+    matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
+    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
+
     seen = {}
-    for a in soup.find_all("a", href=True):
+    for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
-        if not match:
-            continue
         listing_id = match.group(1)
         if listing_id in seen:
             continue
