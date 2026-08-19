@@ -13,12 +13,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.imoti.net/en/obiavi/r/prodava/sofia"
 
 OUT_DIR = Path(__file__).parent / "data"
@@ -54,7 +49,6 @@ def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
     print(f"DEBUG: HTTP status code = {resp.status_code}")
     print(f"DEBUG: response length = {len(resp.text)} characters")
-    print(f"DEBUG: first 300 characters of response:\n{resp.text[:300]}")
 
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
