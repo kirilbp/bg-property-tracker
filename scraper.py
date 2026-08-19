@@ -1,8 +1,12 @@
 """
 Scrapes current Sofia listings from imoti.net, keeps a history of every time
 each listing was seen, and works out price drops and days-on-market from
-that history. This version prints extra debug info so we can see exactly
-what the server received if something looks wrong.
+that history.
+
+Note: each genuine listing card normally mentions BGN twice -- once for the
+total price, once for the price-per-square-metre -- so "more than 2 price
+mentions" (not "more than 1") is the signal that a container spans multiple
+listings rather than being a single card.
 """
 
 import re
@@ -23,6 +27,7 @@ LEADS_FILE = OUT_DIR / "leads.json"
 
 BGN_TO_EUR = 1.95583
 MAX_CARD_TEXT_LENGTH = 400
+MAX_PRICE_MENTIONS = 2  # total price + price-per-sqm is normal for one card
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -38,9 +43,9 @@ def smallest_container_with_price(link_tag, max_levels=6):
         node = node.parent
         text = node.get_text(" ", strip=True)
         matches = BGN_RE.findall(text)
-        if len(matches) > 1:
+        if len(matches) > MAX_PRICE_MENTIONS:
             return None
-        if len(matches) == 1 and len(text) <= MAX_CARD_TEXT_LENGTH:
+        if 1 <= len(matches) <= MAX_PRICE_MENTIONS and len(text) <= MAX_CARD_TEXT_LENGTH:
             return node
     return None
 
@@ -54,8 +59,6 @@ def fetch_listings(url):
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
-    print(f"DEBUG: total <a> links found on page = {len(all_links)}")
-
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
     print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
 
