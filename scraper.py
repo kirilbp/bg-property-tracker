@@ -5,9 +5,9 @@ that history. Designed to be re-run automatically (see the GitHub Actions
 workflow file) so the history builds up over days and weeks.
 
 This version is deliberately cautious: if it can't confidently isolate a
-single listing's own price/photo (e.g. inside a shared carousel widget), it
-skips that listing entirely rather than guessing. Fewer, correct listings
-beat many, wrong ones.
+single listing's own price/photo (e.g. inside a shared carousel widget, or
+a box mentioning more than one price), it skips that listing entirely
+rather than guessing. Fewer, correct listings beat many, wrong ones.
 """
 
 import re
@@ -26,9 +26,8 @@ OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history.json"
 LEADS_FILE = OUT_DIR / "leads.json"
 
-BGN_TO_EUR = 1.95583  # fixed peg, official rate
-MAX_CARD_TEXT_LENGTH = 400  # a genuine single listing card's text is short;
-                             # anything longer is a shared/carousel container
+BGN_TO_EUR = 1.95583
+MAX_CARD_TEXT_LENGTH = 400
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -37,19 +36,22 @@ DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
-    """Walk up from the link one level at a time. As soon as we reach an
-    ancestor that mentions a price, decide immediately: if it's a small,
-    single-card-sized block, use it. If it's suspiciously large, it's a
-    shared container spanning multiple listings, so give up on this one
-    rather than risk mixing data between listings."""
+    """Walk up from the link one level at a time. Accept the first ancestor
+    that mentions exactly one price and is small enough to plausibly be a
+    single listing card. If an ancestor mentions more than one price, this
+    is a shared box covering multiple listings -- give up on this link
+    entirely rather than risk mixing data between listings."""
     node = link_tag
     for _ in range(max_levels):
         if node.parent is None:
             break
         node = node.parent
         text = node.get_text(" ", strip=True)
-        if BGN_RE.search(text):
-            return node if len(text) <= MAX_CARD_TEXT_LENGTH else None
+        matches = BGN_RE.findall(text)
+        if len(matches) > 1:
+            return None
+        if len(matches) == 1 and len(text) <= MAX_CARD_TEXT_LENGTH:
+            return node
     return None
 
 
@@ -95,7 +97,7 @@ def fetch_listings(url):
         full_url = a["href"] if a["href"].startswith("http") else "https://www.imoti.net" + a["href"]
         title = desc_match.group(1).strip() if desc_match else None
         if not title:
-            continue  # if we can't confidently read a description, skip it too
+            continue
 
         seen[listing_id] = {
             "id": listing_id,
