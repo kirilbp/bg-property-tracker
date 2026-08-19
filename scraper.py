@@ -180,4 +180,9 @@ def main():
     history = update_history(history, listings)
     save_history(history)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads,
+    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
+
+
+if __name__ == "__main__":
+    main()
