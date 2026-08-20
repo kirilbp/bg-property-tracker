@@ -1,9 +1,5 @@
 """
-Scrapes current Sofia apartment listings from alo.bg. Same approach as
-scraper.py (find listing links, climb to the smallest container that has
-exactly one price mention, skip anything ambiguous), adapted to alo.bg's
-page structure -- which conveniently gives price directly in EUR and even
-pre-calculates price-per-m2, so there's no BGN conversion needed here.
+Scrapes current Sofia apartment listings from alo.bg.
 """
 
 import re
@@ -50,6 +46,9 @@ def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
     print(f"DEBUG: HTTP status code = {resp.status_code}")
     print(f"DEBUG: response length = {len(resp.text)} characters")
+    print(f"DEBUG: first 800 characters of response:\n{resp.text[:800]}")
+    print(f"DEBUG: occurrences of the word 'Цена' in response = {resp.text.count('Цена')}")
+    print(f"DEBUG: occurrences of 'alo.bg' hrefs in response = {resp.text.count('alo.bg/')}")
 
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -59,14 +58,6 @@ def fetch_listings(url):
 
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
     print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
-
-    if matching_links:
-        sample_href = matching_links[0]["href"]
-        print(f"DEBUG: sample matched href = {sample_href}")
-    else:
-        # show a few raw hrefs so we can see what the real links look like
-        sample_hrefs = [a["href"] for a in all_links if "alo.bg" in a["href"]][:10]
-        print(f"DEBUG: sample alo.bg hrefs seen on page = {sample_hrefs}")
 
     seen = {}
     for a in matching_links:
