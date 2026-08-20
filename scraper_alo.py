@@ -37,7 +37,7 @@ def smallest_container_with_price(link_tag, max_levels=6, debug=False):
         text = node.get_text(" ", strip=True)
         matches = PRICE_RE.findall(text)
         if debug:
-            print(f"DEBUG:   level {i+1}: {len(matches)} price matches, text length {len(text)}")
+            print("DEBUG:   level " + str(i + 1) + ": " + str(len(matches)) + " price matches, text length " + str(len(text)))
         if len(matches) > MAX_PRICE_MENTIONS:
             if debug:
                 print("DEBUG:   -> too many price mentions, giving up on this link")
@@ -53,14 +53,14 @@ def smallest_container_with_price(link_tag, max_levels=6, debug=False):
 
 def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
-    print(f"DEBUG: HTTP status code = {resp.status_code}")
+    print("DEBUG: HTTP status code = " + str(resp.status_code))
 
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
-    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
+    print("DEBUG: links matching listing URL pattern = " + str(len(matching_links)))
 
     seen = {}
     debug_count = 0
@@ -72,8 +72,8 @@ def fetch_listings(url):
 
         show_debug = debug_count < 3
         if show_debug:
-            print(f"DEBUG: trying link href={a['href']}")
-            debug_count += 1
+            print("DEBUG: trying link href=" + a["href"])
+            debug_count = debug_count + 1
 
         container = smallest_container_with_price(a, debug=show_debug)
         if container is None:
@@ -136,4 +136,65 @@ def update_history(history, listings):
     for l in listings:
         lid = l["id"]
         if lid not in history:
-            history[lid] =
+            history[lid] = {"first_seen": now, "snapshots": []}
+        history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
+        history[lid]["latest"] = l
+    return history
+
+
+def compute_leads(history):
+    leads = []
+    for lid, rec in history.items():
+        prices = [s["price_eur"] for s in rec["snapshots"] if s["price_eur"]]
+        if not prices:
+            continue
+        first_price = prices[0]
+        last_price = prices[-1]
+        drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
+        first_seen = datetime.fromisoformat(rec["first_seen"])
+        days_on_market = (datetime.now(timezone.utc) - first_seen).days
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
+        latest = rec["latest"]
+        price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
+
+        entry = dict(latest)
+        entry["price_eur"] = last_price
+        entry["price_per_sqm"] = price_per_sqm
+        entry["drop_pct"] = drop_pct
+        entry["days_on_market"] = days_on_market
+        entry["score"] = score
+        leads.append(entry)
+
+    area_totals = {}
+    for l in leads:
+        if l["price_per_sqm"]:
+            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
+    area_avg = {}
+    for area, v in area_totals.items():
+        area_avg[area] = sum(v) / len(v)
+
+    for l in leads:
+        if l["price_per_sqm"] and l["area"] in area_avg:
+            avg = area_avg[l["area"]]
+            l["area_avg_price_per_sqm"] = round(avg)
+            l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
+        else:
+            l["area_avg_price_per_sqm"] = None
+            l["pct_vs_area_avg"] = None
+
+    leads.sort(key=lambda x: x["score"], reverse=True)
+    return leads
+
+
+def main():
+    listings = fetch_listings(SEARCH_URL)
+    history = load_history()
+    history = update_history(history, listings)
+    save_history(history)
+    leads = compute_leads(history)
+    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("Found " + str(len(listings)) + " listings, " + str(len(leads)) + " tracked leads")
+
+
+main()
