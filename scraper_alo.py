@@ -48,11 +48,25 @@ def smallest_container_with_price(link_tag, max_levels=6):
 
 def fetch_listings(url):
     resp = requests.get(url, headers=HEADERS, timeout=20)
+    print(f"DEBUG: HTTP status code = {resp.status_code}")
+    print(f"DEBUG: response length = {len(resp.text)} characters")
+
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
+    print(f"DEBUG: total <a> links found on page = {len(all_links)}")
+
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
+    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
+
+    if matching_links:
+        sample_href = matching_links[0]["href"]
+        print(f"DEBUG: sample matched href = {sample_href}")
+    else:
+        # show a few raw hrefs so we can see what the real links look like
+        sample_hrefs = [a["href"] for a in all_links if "alo.bg" in a["href"]][:10]
+        print(f"DEBUG: sample alo.bg hrefs seen on page = {sample_hrefs}")
 
     seen = {}
     for a in matching_links:
