@@ -19,7 +19,7 @@ OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history_alo.json"
 LEADS_FILE = OUT_DIR / "leads_alo.json"
 
-MAX_CARD_TEXT_LENGTH = 500
+MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
 
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
