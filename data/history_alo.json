@@ -5,12 +5,16 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 207000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 207000
       }
     ],
     "latest": {
       "id": "alo_11054526",
       "url": "https://www.alo.bg/sobstvenik-prodava-2-staen-apartament-ot-62-42-kv-m-v-gr-sofiya-kv-goce-delchev-11054526",
-      "photo": "user_files/a/alexn/11054526_145539091_medium.jpg",
+      "photo": "https://www.alo.bg/user_files/a/alexn/11054526_145539091_medium.jpg",
       "price_eur": 207000,
       "sqm": 62,
       "area": "Гоце Делчев",
@@ -24,15 +28,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 173612
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 173612
       }
     ],
     "latest": {
       "id": "alo_11319497",
       "url": "https://www.alo.bg/solana-rezidans-nova-jilishtna-sgrada-do-metro-i-nbu-v-kv-ovcha-kupel-11319497",
-      "photo": "user_files/b/bulgarianproperties/1721306062_avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/b/bulgarianproperties/1721306062_avatar.jpg",
       "price_eur": 173612,
       "sqm": 74,
-      "area": "Овча купел Овча Купел",
+      "area": "Овча Купел",
       "title": "BULGARIAN PROPERTIES вчера Солана Резидънс - нова жилищна сграда до метро и НБУ в кв. Овча купел Овч",
       "portal": "alo.bg"
     }
@@ -43,12 +51,16 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 265000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 265000
       }
     ],
     "latest": {
       "id": "alo_11361372",
       "url": "https://www.alo.bg/tristaen-apartament-centar-11361372",
-      "photo": "user_files/a/atlasimotibg/avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/a/atlasimotibg/avatar.jpg",
       "price_eur": 265000,
       "sqm": 98,
       "area": "Яворов",
@@ -62,15 +74,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 136999
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 136999
       }
     ],
     "latest": {
       "id": "alo_11364584",
       "url": "https://www.alo.bg/ednostaen-apartament-vav-vrabnica-1-11364584",
-      "photo": "user_files/a/avpartners2019/avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/a/avpartners2019/avatar.jpg",
       "price_eur": 136999,
       "sqm": 45,
-      "area": "мент във Връбница 1 Връбница 1",
+      "area": "Sofia",
       "title": "”ЕЙ ВИ ПАРТНЪРС” ООД вчера Едностаен апартамент във Връбница 1 Връбница 1, София Цена: 136 999 € за ",
       "portal": "alo.bg"
     }
@@ -81,15 +97,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 200000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 200000
       }
     ],
     "latest": {
       "id": "alo_11230318",
       "url": "https://www.alo.bg/tristaen-apartament-v-nadejda-1-11230318",
-      "photo": "user_files/a/avpartners2019/avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/a/avpartners2019/avatar.jpg",
       "price_eur": 200000,
       "sqm": 93,
-      "area": "артамент в Надежда 1 Надежда 1",
+      "area": "Sofia",
       "title": "”ЕЙ ВИ ПАРТНЪРС” ООД вчера Тристаен апартамент в Надежда 1 Надежда 1, София Цена: 200 000 € за кв.м:",
       "portal": "alo.bg"
     }
@@ -100,15 +120,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 130000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 130000
       }
     ],
     "latest": {
       "id": "alo_11208337",
       "url": "https://www.alo.bg/otlichna-cena-novo-stroitelstvo-11208337",
-      "photo": "user_files/h/homelight/1701431176_avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/h/homelight/1701431176_avatar.jpg",
       "price_eur": 130000,
       "sqm": 64,
-      "area": "о строителство Малинова Долина",
+      "area": "Малинова Долина",
       "title": "Homelight вчера Отлична цена | ново строителство Малинова Долина, София Цена: 130 000 € за кв.м: 203",
       "portal": "alo.bg"
     }
@@ -119,15 +143,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 115500
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 115500
       }
     ],
     "latest": {
       "id": "alo_11217229",
       "url": "https://www.alo.bg/ednostaen-apartament-v-drujba-1-11217229",
-      "photo": "user_files/a/avpartners2019/avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/a/avpartners2019/avatar.jpg",
       "price_eur": 115500,
       "sqm": 42,
-      "area": "апартамент в Дружба 1 Дружба 1",
+      "area": "Sofia",
       "title": "”ЕЙ ВИ ПАРТНЪРС” ООД вчера Едностаен апартамент в Дружба 1 Дружба 1, София Цена: 115 500 € за кв.м: ",
       "portal": "alo.bg"
     }
@@ -138,12 +166,16 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 185874
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 185874
       }
     ],
     "latest": {
       "id": "alo_8457268",
       "url": "https://www.alo.bg/central-park-7-sgradi-s-12-dka-park-sgradi-a-b-i-v-sa-s-akt-16-a-e-i-j-s-akt-14-8457268",
-      "photo": "user_files/b/bulgarianproperties/1721306062_avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/b/bulgarianproperties/1721306062_avatar.jpg",
       "price_eur": 185874,
       "sqm": 71,
       "area": "Банишора",
@@ -157,12 +189,16 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 280000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 280000
       }
     ],
     "latest": {
       "id": "alo_10714776",
       "url": "https://www.alo.bg/prodajba-na-apartament-direktno-ot-stroitelya-bez-posrednici-i-bez-dopalnitelni-taksi-10714776",
-      "photo": "user_files/v/vitiniaestate/10714776_141291110_medium.jpg",
+      "photo": "https://www.alo.bg/user_files/v/vitiniaestate/10714776_141291110_medium.jpg",
       "price_eur": 280000,
       "sqm": 134,
       "area": "Левски",
@@ -176,15 +212,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 208000
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 208000
       }
     ],
     "latest": {
       "id": "alo_11362487",
       "url": "https://www.alo.bg/tristaen-apartament-v-slatina-11362487",
-      "photo": "user_files/a/avpartners2019/avatar.jpg",
+      "photo": "https://www.alo.bg/user_files/a/avpartners2019/avatar.jpg",
       "price_eur": 208000,
       "sqm": 77,
-      "area": "н апартамент в Слатина Слатина",
+      "area": "Слатина Слатина",
       "title": "”ЕЙ ВИ ПАРТНЪРС” ООД преди 2 дни Тристаен апартамент в Слатина Слатина, София Цена: 208 000 € за кв.",
       "portal": "alo.bg"
     }
@@ -195,15 +235,19 @@
       {
         "seen_at": "2026-08-20T05:15:50.785407+00:00",
         "price_eur": 349900
+      },
+      {
+        "seen_at": "2026-08-20T05:24:59.662225+00:00",
+        "price_eur": 349900
       }
     ],
     "latest": {
       "id": "alo_11361567",
       "url": "https://www.alo.bg/tristaen-apartament-11361567",
-      "photo": "user_files/i/irinopolisimoti/11361567_145788730_medium.jpg",
+      "photo": "https://www.alo.bg/user_files/i/irinopolisimoti/11361567_145788730_medium.jpg",
       "price_eur": 349900,
       "sqm": 90,
-      "area": "ни Тристаен апартамент Бъкстон",
+      "area": "Бъкстон",
       "title": "Иринополис имоти преди 2 дни Тристаен апартамент Бъкстон, София Цена: 349 900 € за кв.м: 3887.78 €/к",
       "portal": "alo.bg"
     }
