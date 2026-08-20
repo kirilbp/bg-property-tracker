@@ -1,8 +1,5 @@
 """
-Scrapes current Sofia apartment listings from alo.bg. Same approach as
-scraper.py, adapted to alo.bg's page structure, which gives price directly
-in EUR (no BGN conversion needed) and uses relative links (no domain
-prefix), unlike imoti.net's absolute ones.
+Scrapes current Sofia apartment listings from alo.bg.
 """
 
 import re
@@ -31,18 +28,26 @@ SQM_RE = re.compile(r"\u041a\u0432\u0430\u0434\u0440\u0430\u0442\u0443\u0440\u04
 AREA_RE = re.compile(r"([\u0410-\u042f\u0430-\u044f\w\s]{2,30}),\s*\u0421\u043e\u0444\u0438\u044f")
 
 
-def smallest_container_with_price(link_tag, max_levels=6):
+def smallest_container_with_price(link_tag, max_levels=6, debug=False):
     node = link_tag
-    for _ in range(max_levels):
+    for i in range(max_levels):
         if node.parent is None:
             break
         node = node.parent
         text = node.get_text(" ", strip=True)
         matches = PRICE_RE.findall(text)
+        if debug:
+            print(f"DEBUG:   level {i+1}: {len(matches)} price matches, text length {len(text)}")
         if len(matches) > MAX_PRICE_MENTIONS:
+            if debug:
+                print("DEBUG:   -> too many price mentions, giving up on this link")
             return None
         if len(matches) == 1 and len(text) <= MAX_CARD_TEXT_LENGTH:
+            if debug:
+                print("DEBUG:   -> accepted this container")
             return node
+    if debug:
+        print("DEBUG:   -> ran out of levels, no container found")
     return None
 
 
@@ -58,13 +63,19 @@ def fetch_listings(url):
     print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
 
     seen = {}
+    debug_count = 0
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
         if listing_id in seen:
             continue
 
-        container = smallest_container_with_price(a)
+        show_debug = debug_count < 3
+        if show_debug:
+            print(f"DEBUG: trying link href={a['href']}")
+            debug_count += 1
+
+        container = smallest_container_with_price(a, debug=show_debug)
         if container is None:
             continue
 
@@ -125,64 +136,4 @@ def update_history(history, listings):
     for l in listings:
         lid = l["id"]
         if lid not in history:
-            history[lid] = {"first_seen": now, "snapshots": []}
-        history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
-    return history
-
-
-def compute_leads(history):
-    leads = []
-    for lid, rec in history.items():
-        prices = [s["price_eur"] for s in rec["snapshots"] if s["price_eur"]]
-        if not prices:
-            continue
-        first_price, last_price = prices[0], prices[-1]
-        drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-        first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
-
-        latest = rec["latest"]
-        price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
-
-        leads.append({
-            **latest,
-            "price_eur": last_price,
-            "price_per_sqm": price_per_sqm,
-            "drop_pct": drop_pct,
-            "days_on_market": days_on_market,
-            "score": score,
-        })
-
-    area_totals = {}
-    for l in leads:
-        if l["price_per_sqm"]:
-            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
-    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
-
-    for l in leads:
-        if l["price_per_sqm"] and l["area"] in area_avg:
-            avg = area_avg[l["area"]]
-            l["area_avg_price_per_sqm"] = round(avg)
-            l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
-        else:
-            l["area_avg_price_per_sqm"] = None
-            l["pct_vs_area_avg"] = None
-
-    leads.sort(key=lambda x: x["score"], reverse=True)
-    return leads
-
-
-def main():
-    listings = fetch_listings(SEARCH_URL)
-    history = load_history()
-    history = update_history(history, listings)
-    save_history(history)
-    leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
-
-
-if __name__ == "__main__":
-    main()
+            history[lid] =
