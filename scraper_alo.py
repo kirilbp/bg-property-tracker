@@ -25,8 +25,10 @@ MAX_PRICE_MENTIONS = 1
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
 PRICE_RE = re.compile(r"Цена:\s*([\d\s]+)\s?€")
 SQM_RE = re.compile(r"Квадратура:\s*([\d.,]+)\s?кв\.?м")
-AREA_PART = r"[А-Я][а-я0-9]*"
-AREA_RE = re.compile("((?:" + AREA_PART + r"\s+){0,3}" + AREA_PART + r"),\s*София")
+AREA_WORD = r"[А-Я][а-я]*"
+AREA_RE = re.compile(
+    "((?:" + AREA_WORD + r"\s+){0,3}" + AREA_WORD + r"(?:\s+\d+)?),\s*София"
+)
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
