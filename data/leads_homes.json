@@ -12,8 +12,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2778,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 3190,
+    "pct_vs_area_avg": -12.9
   },
   {
     "id": "homes_1700397",
@@ -28,8 +28,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": 5.4
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": 7.0
   },
   {
     "id": "homes_1700396",
@@ -44,8 +44,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": 5.4
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": 7.0
   },
   {
     "id": "homes_1700395",
@@ -60,8 +60,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": 2.1
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": 3.7
   },
   {
     "id": "homes_1700394",
@@ -76,8 +76,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": -3.3
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -1.8
   },
   {
     "id": "homes_1700393",
@@ -92,8 +92,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": -2.2
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -0.8
   },
   {
     "id": "homes_1700392",
@@ -108,8 +108,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": 8.2
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": 9.8
   },
   {
     "id": "homes_1700391",
@@ -124,8 +124,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": -8.7
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -7.3
   },
   {
     "id": "homes_1700390",
@@ -140,8 +140,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 4744,
-    "pct_vs_area_avg": -6.8
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -5.4
   },
   {
     "id": "homes_1700388",
@@ -156,8 +156,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2600,
-    "pct_vs_area_avg": -6.5
+    "area_avg_price_per_sqm": 2491,
+    "pct_vs_area_avg": -2.4
   },
   {
     "id": "homes_1700386",
@@ -428,8 +428,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2600,
-    "pct_vs_area_avg": 6.5
+    "area_avg_price_per_sqm": 2491,
+    "pct_vs_area_avg": 11.1
   },
   {
     "id": "homes_1675314",
@@ -444,8 +444,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2417,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 2511,
+    "pct_vs_area_avg": -3.8
   },
   {
     "id": "homes_1675312",
@@ -460,8 +460,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2417,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 2511,
+    "pct_vs_area_avg": -3.8
   },
   {
     "id": "homes_1675313",
@@ -476,8 +476,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2417,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 2511,
+    "pct_vs_area_avg": -3.8
   },
   {
     "id": "homes_1700188",
@@ -524,8 +524,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3965,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 4732,
+    "pct_vs_area_avg": -16.2
   },
   {
     "id": "homes_1653627",
@@ -572,8 +572,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2630,
-    "pct_vs_area_avg": -2.6
+    "area_avg_price_per_sqm": 2735,
+    "pct_vs_area_avg": -6.4
   },
   {
     "id": "homes_1690811",
@@ -636,7 +636,343 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2630,
-    "pct_vs_area_avg": 2.6
+    "area_avg_price_per_sqm": 2735,
+    "pct_vs_area_avg": -1.4
+  },
+  {
+    "id": "homes_960560",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-200m2-sofiya-zhk.-iztok/as960560",
+    "photo": null,
+    "price_eur": 550000,
+    "sqm": 200,
+    "area": "жк. Изток",
+    "title": "Четиристаен, 200m², жк. Изток, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2750,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2750,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692506",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-36m2-sofiya-zhk.-nadezhda-1/as1692506",
+    "photo": "https://g1.homes.bg/2026-08-01_2/120289142b.jpg",
+    "price_eur": 139000,
+    "sqm": 36,
+    "area": "жк. Надежда 1",
+    "title": "Едностаен, 36m², жк. Надежда 1, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3861,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3861,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1700143",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-75m2-sofiya-kv.-obelya/as1700143",
+    "photo": "https://g1.homes.bg/2026-08-20_2/120553168b.jpg",
+    "price_eur": 135000,
+    "sqm": 75,
+    "area": "кв. Обеля",
+    "title": "Двустаен, 75m², кв. Обеля, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 1800,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 1800,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1700108",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-165m2-sofiya-centyr/as1700108",
+    "photo": "https://g1.homes.bg/2026-08-20_2/120553197b.jpg",
+    "price_eur": 459900,
+    "sqm": 165,
+    "area": "Център",
+    "title": "Четиристаен, 165m²,  Център, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2787,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -40.4
+  },
+  {
+    "id": "homes_1700112",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-141m2-sofiya-centyr/as1700112",
+    "photo": "https://g1.homes.bg/2026-08-20_2/120553259b.jpg",
+    "price_eur": 359900,
+    "sqm": 141,
+    "area": "Център",
+    "title": "Тристаен, 141m²,  Център, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2552,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -45.4
+  },
+  {
+    "id": "homes_1700114",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-165m2-sofiya-centyr/as1700114",
+    "photo": "https://g1.homes.bg/2026-08-20_2/120553298b.jpg",
+    "price_eur": 459900,
+    "sqm": 165,
+    "area": "Център",
+    "title": "Тристаен, 165m²,  Център, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2787,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": -40.4
+  },
+  {
+    "id": "homes_1694127",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-127m2-sofiya-zhk.-levski/as1694127",
+    "photo": "https://g1.homes.bg/2026-08-15_2/120434536b.jpg",
+    "price_eur": 204192,
+    "sqm": 127,
+    "area": "жк. Левски",
+    "title": "Тристаен, 127m², жк. Левски, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 1608,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 1608,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1694129",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-138m2-sofiya-zhk.-lozenec/as1694129",
+    "photo": "https://g1.homes.bg/2026-08-15_2/120434546b.jpg",
+    "price_eur": 497000,
+    "sqm": 138,
+    "area": "жк. Лозенец",
+    "title": "Тристаен, 138m², жк. Лозенец, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3601,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3190,
+    "pct_vs_area_avg": 12.9
+  },
+  {
+    "id": "homes_1693721",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-100m2-sofiya-zhk.-ivan-vazov/as1693721",
+    "photo": "https://g1.homes.bg/2026-08-12_1/120421453b.jpg",
+    "price_eur": 550000,
+    "sqm": 100,
+    "area": "жк. Иван Вазов",
+    "title": "Тристаен, 100m², жк. Иван Вазов, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 5500,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4732,
+    "pct_vs_area_avg": 16.2
+  },
+  {
+    "id": "homes_1693724",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-60m2-sofiya-centyr/as1693724",
+    "photo": "https://g1.homes.bg/2026-08-11_2/120407282b.jpg",
+    "price_eur": 600000,
+    "sqm": 60,
+    "area": "Център",
+    "title": "Двустаен, 60m²,  Център, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 10000,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4673,
+    "pct_vs_area_avg": 114.0
+  },
+  {
+    "id": "homes_1693672",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-68m2-sofiya-zhk.-ovcha-kupel/as1693672",
+    "photo": "https://g1.homes.bg/2026-08-11_2/120407303b.jpg",
+    "price_eur": 154640,
+    "sqm": 68,
+    "area": "жк. Овча Купел",
+    "title": "Двустаен, 68m², жк. Овча Купел, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2274,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2491,
+    "pct_vs_area_avg": -8.7
+  },
+  {
+    "id": "homes_1692582",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-65m2-sofiya-zhk.-sveta-troica/as1692582",
+    "photo": "https://g1.homes.bg/2026-08-03_1/120297443b.jpg",
+    "price_eur": 200000,
+    "sqm": 65,
+    "area": "жк. Света Троица",
+    "title": "Двустаен, 65m², жк. Света Троица, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3077,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3077,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692584",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-80m2-sofiya-zhk.-razsadnika/as1692584",
+    "photo": "https://g1.homes.bg/2026-08-03_1/120297457b.jpg",
+    "price_eur": 283000,
+    "sqm": 80,
+    "area": "жк. Разсадника",
+    "title": "Двустаен, 80m², жк. Разсадника, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3538,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3538,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692585",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-85m2-sofiya-zhk.-krasna-polyana/as1692585",
+    "photo": "https://g1.homes.bg/2026-08-03_1/120297462b.jpg",
+    "price_eur": 285000,
+    "sqm": 85,
+    "area": "жк. Красна Поляна",
+    "title": "Тристаен, 85m², жк. Красна Поляна, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3353,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3007,
+    "pct_vs_area_avg": 11.5
+  },
+  {
+    "id": "homes_1692589",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-62m2-sofiya-zhk.-krasna-polyana/as1692589",
+    "photo": "https://g1.homes.bg/2026-08-03_2/120298373b.jpg",
+    "price_eur": 165000,
+    "sqm": 62,
+    "area": "жк. Красна Поляна",
+    "title": "Двустаен, 62m², жк. Красна Поляна, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2661,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3007,
+    "pct_vs_area_avg": -11.5
+  },
+  {
+    "id": "homes_1692617",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-100m2-sofiya-zhk.-banishora/as1692617",
+    "photo": "https://g1.homes.bg/2026-08-03_2/120298380b.jpg",
+    "price_eur": 300000,
+    "sqm": 100,
+    "area": "жк. Банишора",
+    "title": "Тристаен, 100m², жк. Банишора, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3000,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3000,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692096",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-84m2-sofiya-zhk.-mladost-2/as1692096",
+    "photo": "https://g1.homes.bg/2026-08-03_1/120297518b.jpg",
+    "price_eur": 279990,
+    "sqm": 84,
+    "area": "жк. Младост 2",
+    "title": "Тристаен, 84m², жк. Младост 2, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3333,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3333,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692098",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-68m2-sofiya-zhk.-mladost-3/as1692098",
+    "photo": "https://g1.homes.bg/2026-07-30_2/120261958b.jpg",
+    "price_eur": 189999,
+    "sqm": 68,
+    "area": "жк. Младост 3",
+    "title": "Тристаен, 68m², жк. Младост 3, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2794,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2511,
+    "pct_vs_area_avg": 11.3
+  },
+  {
+    "id": "homes_1691735",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-117m2-sofiya-kv.-manastirski-livadi/as1691735",
+    "photo": "https://g1.homes.bg/2026-08-02_1/120293263b.jpg",
+    "price_eur": 345000,
+    "sqm": 117,
+    "area": "кв. Манастирски Ливади",
+    "title": "Тристаен, 117m², кв. Манастирски Ливади, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2949,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2949,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1692079",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-66m2-sofiya-kv.-malinova-dolina/as1692079",
+    "photo": "https://g1.homes.bg/2026-07-31_2/120277866b.jpg",
+    "price_eur": 177000,
+    "sqm": 66,
+    "area": "кв. Малинова Долина",
+    "title": "Двустаен, 66m², кв. Малинова Долина, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2682,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2735,
+    "pct_vs_area_avg": -1.9
+  },
+  {
+    "id": "homes_1692083",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-70m2-sofiya-kv.-malinova-dolina/as1692083",
+    "photo": "https://g1.homes.bg/2026-07-30_2/120261800b.jpg",
+    "price_eur": 210000,
+    "sqm": 70,
+    "area": "кв. Малинова Долина",
+    "title": "Двустаен, 70m², кв. Малинова Долина, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3000,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2735,
+    "pct_vs_area_avg": 9.7
   }
 ]
