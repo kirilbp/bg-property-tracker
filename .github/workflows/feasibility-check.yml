@@ -17,4 +17,4 @@ jobs:
 
       - run: python scraper_alo.py
 
-      - run: cat data/leads_alo.json
+      - run: python -c "import json; leads = json.load(open('data/leads_alo.json')); [print(l['id'], '->', repr(l['area'])) for l in leads]"

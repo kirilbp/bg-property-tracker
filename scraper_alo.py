@@ -31,6 +31,16 @@ AREA_RE = re.compile(
 )
 
 
+def dedup_area(area):
+    words = area.split()
+    if len(words) > 1:
+        first = words[0]
+        for i in range(len(words) - 1, 0, -1):
+            if words[i] == first:
+                return " ".join(words[i:])
+    return area
+
+
 def smallest_container_with_price(link_tag, max_levels=6):
     node = link_tag
     for i in range(max_levels):
@@ -87,7 +97,7 @@ def fetch_listings(url):
             except ValueError:
                 sqm = None
 
-        area = area_match.group(1).strip() if area_match else "Sofia"
+        area = dedup_area(area_match.group(1).strip()) if area_match else "Sofia"
 
         img = container.find("img")
         img_url = img.get("src") if img else None
