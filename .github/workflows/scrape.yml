@@ -24,6 +24,8 @@ jobs:
 
       - run: python scraper_alo.py
 
+      - run: python scraper_homes.py
+
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
