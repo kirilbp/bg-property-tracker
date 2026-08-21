@@ -47,6 +47,7 @@
   .badge-below { background: #f0fdf4; color: #15803d; }
   .badge-above { background: #fef2f2; color: #b91c1c; }
   .badge-drop { background: #eff6ff; color: #1d4ed8; }
+  .badge-portal { background: #f1f5f9; color: #475569; }
   .registry-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 12px; color: #64748b; text-decoration: none;
@@ -137,11 +138,18 @@ let chart = null;
 
 async function loadData() {
   try {
-    const res = await fetch('data/leads.json?_=' + Date.now());
-    const data = await res.json();
-    ALL_LISTINGS = data;
+    const [imotiRes, aloRes] = await Promise.all([
+      fetch('data/leads.json?_=' + Date.now()),
+      fetch('data/leads_alo.json?_=' + Date.now()),
+    ]);
+    const imoti = await imotiRes.json();
+    const alo = await aloRes.json();
+
+    imoti.forEach(l => { if (!l.portal) l.portal = 'imoti.net'; });
+
+    ALL_LISTINGS = [...imoti, ...alo];
     document.getElementById('subtitle').textContent =
-      `${ALL_LISTINGS.length} live listings from imoti.net · auto-updates every 6 hours`;
+      `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
     renderChart();
     render();
@@ -236,7 +244,7 @@ function render() {
     const card = document.createElement('div');
     card.className = 'listing';
 
-    let badges = '';
+    let badges = `<span class="badge badge-portal">${l.portal}</span>`;
     if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
     else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
 

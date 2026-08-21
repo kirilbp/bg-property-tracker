@@ -103,6 +103,7 @@ def fetch_listings(url):
             "price_eur": price_eur,
             "sqm": sqm,
             "title": title,
+            "portal": "imoti.net",
         }
     return list(seen.values())
 
