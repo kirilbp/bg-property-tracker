@@ -15,4 +15,6 @@ jobs:
 
       - run: pip install requests beautifulsoup4
 
-      - run: python feasibility_check.py
+      - run: python scraper_homes.py
+
+      - run: cat data/leads_homes.json
