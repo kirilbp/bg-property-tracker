@@ -1733,5 +1733,765 @@
       "title": "Тристаен, 96m², жк. Хиподрума, София",
       "portal": "homes.bg"
     }
+  },
+  "homes_1700456": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 165000
+      }
+    ],
+    "latest": {
+      "id": "homes_1700456",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-63m2-sofiya-zhk.-ljulin-10/as1700456",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120581141b.jpg",
+      "price_eur": 165000,
+      "sqm": 63,
+      "area": "жк. Люлин 10",
+      "title": "Двустаен, 63m², жк. Люлин 10, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700450": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 299990
+      }
+    ],
+    "latest": {
+      "id": "homes_1700450",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/mnogostaen-111m2-sofiya-studentski-grad/as1700450",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580088b.jpg",
+      "price_eur": 299990,
+      "sqm": 111,
+      "area": "Студентски Град",
+      "title": "Многостаен, 111m²,  Студентски Град, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700449": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 260000
+      }
+    ],
+    "latest": {
+      "id": "homes_1700449",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-88m2-sofiya-zhk.-mladost-3/as1700449",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580067b.jpg",
+      "price_eur": 260000,
+      "sqm": 88,
+      "area": "жк. Младост 3",
+      "title": "Тристаен, 88m², жк. Младост 3, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1661093": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 245000
+      }
+    ],
+    "latest": {
+      "id": "homes_1661093",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-100m2-sofiya-zhk.-bykston/as1661093",
+      "photo": "https://g1.homes.bg/2025-11-30_2/116533329b.jpg",
+      "price_eur": 245000,
+      "sqm": 100,
+      "area": "жк. Бъкстон",
+      "title": "Тристаен, 100m², жк. Бъкстон, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1656089": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 130000
+      }
+    ],
+    "latest": {
+      "id": "homes_1656089",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-46m2-sofiya-zhk.-bykston/as1656089",
+      "photo": "https://g1.homes.bg/2025-10-23_1/116175487b.jpg",
+      "price_eur": 130000,
+      "sqm": 46,
+      "area": "жк. Бъкстон",
+      "title": "Двустаен, 46m², жк. Бъкстон, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1663998": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 195000
+      }
+    ],
+    "latest": {
+      "id": "homes_1663998",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-63m2-sofiya-zhk.-bykston/as1663998",
+      "photo": "https://g1.homes.bg/2025-12-18_2/116923141b.jpg",
+      "price_eur": 195000,
+      "sqm": 63,
+      "area": "жк. Бъкстон",
+      "title": "Двустаен, 63m², жк. Бъкстон, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1687035": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 335000
+      }
+    ],
+    "latest": {
+      "id": "homes_1687035",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-108m2-sofiya-zhk.-bykston/as1687035",
+      "photo": "https://g1.homes.bg/2026-06-15_1/119642432b.jpg",
+      "price_eur": 335000,
+      "sqm": 108,
+      "area": "жк. Бъкстон",
+      "title": "Четиристаен, 108m², жк. Бъкстон, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1680033": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 145000
+      }
+    ],
+    "latest": {
+      "id": "homes_1680033",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-60m2-sofiya-zhk.-hadzhi-dimityr/as1680033",
+      "photo": "https://g1.homes.bg/2026-04-16_2/118514464b.jpg",
+      "price_eur": 145000,
+      "sqm": 60,
+      "area": "жк. Хаджи Димитър",
+      "title": "Двустаен, 60m², жк. Хаджи Димитър, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1683987": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 180000
+      }
+    ],
+    "latest": {
+      "id": "homes_1683987",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-95m2-sofiya-zhk.-krasna-polyana/as1683987",
+      "photo": "https://g1.homes.bg/2026-05-18_2/119214885b.jpg",
+      "price_eur": 180000,
+      "sqm": 95,
+      "area": "жк. Красна Поляна",
+      "title": "Тристаен, 95m², жк. Красна Поляна, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1687170": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 175000
+      }
+    ],
+    "latest": {
+      "id": "homes_1687170",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-80m2-sofiya-zhk.-hadzhi-dimityr/as1687170",
+      "photo": "https://g1.homes.bg/2026-06-16_2/119656076b.jpg",
+      "price_eur": 175000,
+      "sqm": 80,
+      "area": "жк. Хаджи Димитър",
+      "title": "Тристаен, 80m², жк. Хаджи Димитър, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1687418": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 102500
+      }
+    ],
+    "latest": {
+      "id": "homes_1687418",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-45m2-sofiya-zhk.-obelya-2/as1687418",
+      "photo": "https://g1.homes.bg/2026-06-18_2/119686052b.jpg",
+      "price_eur": 102500,
+      "sqm": 45,
+      "area": "жк. Обеля 2",
+      "title": "Едностаен, 45m², жк. Обеля 2, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1671944": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 108000
+      }
+    ],
+    "latest": {
+      "id": "homes_1671944",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-47m2-sofiya-zhk.-ljulin-1/as1671944",
+      "photo": "https://g1.homes.bg/2026-02-17_2/117742559b.jpg",
+      "price_eur": 108000,
+      "sqm": 47,
+      "area": "жк. Люлин 1",
+      "title": "Едностаен, 47m², жк. Люлин 1, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1671942": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 108000
+      }
+    ],
+    "latest": {
+      "id": "homes_1671942",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-45m2-sofiya-zhk.-ljulin-9/as1671942",
+      "photo": "https://g1.homes.bg/2026-02-17_2/117742091b.jpg",
+      "price_eur": 108000,
+      "sqm": 45,
+      "area": "жк. Люлин 9",
+      "title": "Едностаен, 45m², жк. Люлин 9, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700444": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 420000
+      }
+    ],
+    "latest": {
+      "id": "homes_1700444",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-117m2-sofiya-zhk.-lozenec/as1700444",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120576480b.jpg",
+      "price_eur": 420000,
+      "sqm": 117,
+      "area": "жк. Лозенец",
+      "title": "Тристаен, 117m², жк. Лозенец, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700443": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 216299
+      }
+    ],
+    "latest": {
+      "id": "homes_1700443",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-78m2-sofiya-kv.-vitosha/as1700443",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120576312b.jpg",
+      "price_eur": 216299,
+      "sqm": 78,
+      "area": "кв. Витоша",
+      "title": "Двустаен, 78m², кв. Витоша, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700442": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 499500
+      }
+    ],
+    "latest": {
+      "id": "homes_1700442",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-179m2-sofiya-kv.-boyana/as1700442",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120576153b.jpg",
+      "price_eur": 499500,
+      "sqm": 179,
+      "area": "кв. Бояна",
+      "title": "Четиристаен, 179m², кв. Бояна, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692896": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 199800
+      }
+    ],
+    "latest": {
+      "id": "homes_1692896",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-81m2-sofiya-kv.-manastirski-livadi/as1692896",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120577799b.jpg",
+      "price_eur": 199800,
+      "sqm": 81,
+      "area": "кв. Манастирски Ливади",
+      "title": "Двустаен, 81m², кв. Манастирски Ливади, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1700302": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 249990
+      }
+    ],
+    "latest": {
+      "id": "homes_1700302",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-64m2-sofiya-kv.-vitosha/as1700302",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120577789b.jpg",
+      "price_eur": 249990,
+      "sqm": 64,
+      "area": "кв. Витоша",
+      "title": "Двустаен, 64m², кв. Витоша, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1681674": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 146000
+      }
+    ],
+    "latest": {
+      "id": "homes_1681674",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-66m2-sofiya-kv.-moderno-predgradie/as1681674",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120576400b.jpg",
+      "price_eur": 146000,
+      "sqm": 66,
+      "area": "кв. Модерно Предградие",
+      "title": "Тристаен, 66m², кв. Модерно Предградие, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1686026": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 155400
+      }
+    ],
+    "latest": {
+      "id": "homes_1686026",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-74m2-sofiya-zhk.-banishora/as1686026",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120576410b.jpg",
+      "price_eur": 155400,
+      "sqm": 74,
+      "area": "жк. Банишора",
+      "title": "Двустаен, 74m², жк. Банишора, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1661416": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 246000
+      }
+    ],
+    "latest": {
+      "id": "homes_1661416",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-67m2-sofiya-zhk.-geo-milev/as1661416",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120581135b.jpg",
+      "price_eur": 246000,
+      "sqm": 67,
+      "area": "жк. Гео Милев",
+      "title": "Двустаен, 67m², жк. Гео Милев, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1622476": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 236000
+      }
+    ],
+    "latest": {
+      "id": "homes_1622476",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-80m2-sofiya-zhk.-ljulin-8/as1622476",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120581241b.jpg",
+      "price_eur": 236000,
+      "sqm": 80,
+      "area": "жк. Люлин 8",
+      "title": "Тристаен, 80m², жк. Люлин 8, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1642018": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 258340
+      }
+    ],
+    "latest": {
+      "id": "homes_1642018",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-99m2-sofiya-kv.-boyana/as1642018",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579576b.jpg",
+      "price_eur": 258340,
+      "sqm": 99,
+      "area": "кв. Бояна",
+      "title": "Тристаен, 99m², кв. Бояна, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1616735": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 425000
+      }
+    ],
+    "latest": {
+      "id": "homes_1616735",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-103m2-sofiya-centyr/as1616735",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579711b.jpg",
+      "price_eur": 425000,
+      "sqm": 103,
+      "area": "Център",
+      "title": "Тристаен, 103m²,  Център, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1615459": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 250500
+      }
+    ],
+    "latest": {
+      "id": "homes_1615459",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-121m2-sofiya-kv.-malinova-dolina/as1615459",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579976b.jpg",
+      "price_eur": 250500,
+      "sqm": 121,
+      "area": "кв. Малинова Долина",
+      "title": "Тристаен, 121m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1658125": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 199000
+      }
+    ],
+    "latest": {
+      "id": "homes_1658125",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-70m2-sofiya-zhk.-mladost-4/as1658125",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579526b.jpg",
+      "price_eur": 199000,
+      "sqm": 70,
+      "area": "жк. Младост 4",
+      "title": "Двустаен, 70m², жк. Младост 4, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1659530": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 567450
+      }
+    ],
+    "latest": {
+      "id": "homes_1659530",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-117m2-sofiya-centyr/as1659530",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579779b.jpg",
+      "price_eur": 567450,
+      "sqm": 117,
+      "area": "Център",
+      "title": "Четиристаен, 117m²,  Център, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1615660": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 226900
+      }
+    ],
+    "latest": {
+      "id": "homes_1615660",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-124m2-sofiya-zhk.-mladost-4/as1615660",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579824b.jpg",
+      "price_eur": 226900,
+      "sqm": 124,
+      "area": "жк. Младост 4",
+      "title": "Тристаен, 124m², жк. Младост 4, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1615656": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 223000
+      }
+    ],
+    "latest": {
+      "id": "homes_1615656",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-142m2-sofiya-zhk.-mladost-4/as1615656",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579916b.jpg",
+      "price_eur": 223000,
+      "sqm": 142,
+      "area": "жк. Младост 4",
+      "title": "Тристаен, 142m², жк. Младост 4, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1613188": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 176000
+      }
+    ],
+    "latest": {
+      "id": "homes_1613188",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-61m2-sofiya-zhk.-razsadnika/as1613188",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580063b.jpg",
+      "price_eur": 176000,
+      "sqm": 61,
+      "area": "жк. Разсадника",
+      "title": "Двустаен, 61m², жк. Разсадника, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1615658": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 279000
+      }
+    ],
+    "latest": {
+      "id": "homes_1615658",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-147m2-sofiya-zhk.-mladost-4/as1615658",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579995b.jpg",
+      "price_eur": 279000,
+      "sqm": 147,
+      "area": "жк. Младост 4",
+      "title": "Тристаен, 147m², жк. Младост 4, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1611800": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 342500
+      }
+    ],
+    "latest": {
+      "id": "homes_1611800",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-126m2-sofiya-zhk.-poligona/as1611800",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579456b.jpg",
+      "price_eur": 342500,
+      "sqm": 126,
+      "area": "жк. Полигона",
+      "title": "Тристаен, 126m², жк. Полигона, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1656777": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 179000
+      }
+    ],
+    "latest": {
+      "id": "homes_1656777",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-88m2-sofiya-bankya/as1656777",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579495b.jpg",
+      "price_eur": 179000,
+      "sqm": 88,
+      "area": "Банкя",
+      "title": "Двустаен, 88m²,  Банкя, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1612248": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 375000
+      }
+    ],
+    "latest": {
+      "id": "homes_1612248",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-129m2-sofiya-zhk.-goce-delchev/as1612248",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579504b.jpg",
+      "price_eur": 375000,
+      "sqm": 129,
+      "area": "жк. Гоце Делчев",
+      "title": "Тристаен, 129m², жк. Гоце Делчев, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1642019": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 269000
+      }
+    ],
+    "latest": {
+      "id": "homes_1642019",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-105m2-sofiya-kv.-boyana/as1642019",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579627b.jpg",
+      "price_eur": 269000,
+      "sqm": 105,
+      "area": "кв. Бояна",
+      "title": "Тристаен, 105m², кв. Бояна, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1617016": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 178990
+      }
+    ],
+    "latest": {
+      "id": "homes_1617016",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-88m2-sofiya-zhk.-druzhba-1/as1617016",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580164b.jpg",
+      "price_eur": 178990,
+      "sqm": 88,
+      "area": "жк. Дружба 1",
+      "title": "Тристаен, 88m², жк. Дружба 1, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1616738": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 121700
+      }
+    ],
+    "latest": {
+      "id": "homes_1616738",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-48m2-sofiya-zhk.-nadezhda-1/as1616738",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580052b.jpg",
+      "price_eur": 121700,
+      "sqm": 48,
+      "area": "жк. Надежда 1",
+      "title": "Двустаен, 48m², жк. Надежда 1, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1661389": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 197316
+      }
+    ],
+    "latest": {
+      "id": "homes_1661389",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-94m2-sofiya-zhk.-nadezhda-2/as1661389",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120580117b.jpg",
+      "price_eur": 197316,
+      "sqm": 94,
+      "area": "жк. Надежда 2",
+      "title": "Тристаен, 94m², жк. Надежда 2, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1677202": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 182500
+      }
+    ],
+    "latest": {
+      "id": "homes_1677202",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-73m2-sofiya-zhk.-banishora/as1677202",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579027b.jpg",
+      "price_eur": 182500,
+      "sqm": 73,
+      "area": "жк. Банишора",
+      "title": "Двустаен, 73m², жк. Банишора, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1667967": {
+    "first_seen": "2026-08-21T19:16:17.993566+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-21T19:16:17.993566+00:00",
+        "price_eur": 569990
+      }
+    ],
+    "latest": {
+      "id": "homes_1667967",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-171m2-sofiya-kv.-krystova-vada/as1667967",
+      "photo": "https://g1.homes.bg/2026-08-21_2/120579097b.jpg",
+      "price_eur": 569990,
+      "sqm": 171,
+      "area": "кв. Кръстова Вада",
+      "title": "Четиристаен, 171m², кв. Кръстова Вада, София",
+      "portal": "homes.bg"
+    }
   }
 }
