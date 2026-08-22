@@ -1,9 +1,9 @@
 """
-Round 1: check whether bazar.bg is reachable via plain requests, and discover
-the URL for its Sofia apartments-for-sale category (it's a general classifieds
-site, not property-only, so we need the real estate sub-section).
+Round 2: explore bazar.bg's /obiavi/imoti category page to find how to filter
+to Sofia + apartments + for-sale (query params, sub-category links, etc).
 """
 
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,47 +13,44 @@ HEADERS = {
     "Accept-Language": "bg-BG,bg;q=0.9,en;q=0.8",
 }
 
-BLOCK_MARKERS = ["captcha", "access denied", "cloudflare", "just a moment", "attention required"]
-
 
 def check(url):
     print("=" * 70)
     print("GET", url)
-    try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        print("status:", r.status_code, "length:", len(r.text))
-        lower = r.text.lower()
-        markers = [m for m in BLOCK_MARKERS if m in lower]
-        if markers:
-            print("BLOCK MARKERS FOUND:", markers)
-        return r
-    except Exception as e:
-        print("ERROR:", e)
-        return None
+    r = requests.get(url, headers=HEADERS, timeout=15)
+    print("status:", r.status_code, "length:", len(r.text))
+    return r
 
 
 def main():
-    r = check("https://bazar.bg/")
-    if r is None or r.status_code != 200:
-        print("Homepage not reachable via plain requests.")
-        return
-
+    r = check("https://bazar.bg/obiavi/imoti")
     soup = BeautifulSoup(r.text, "html.parser")
-    print("\n--- links mentioning 'imot' (real estate) in href or text ---")
+
+    print("\n--- all links under /obiavi/imoti (sub-categories/filters) ---")
     seen = set()
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        text = a.get_text(strip=True)
-        if "imot" in href.lower() or "imot" in text.lower():
-            key = href
-            if key not in seen:
-                seen.add(key)
+        if "/obiavi/imoti" in href or "imoti" in href.lower():
+            text = a.get_text(strip=True)
+            if href not in seen:
+                seen.add(href)
                 print(repr(href), "|", repr(text[:60]))
-        if len(seen) >= 30:
+        if len(seen) >= 60:
             break
 
-    print("\n--- title ---")
-    print(soup.title.string if soup.title else None)
+    print("\n--- form elements (selects/inputs) that might be filters ---")
+    for form in soup.find_all("form"):
+        print("FORM action=", form.get("action"), "method=", form.get("method"))
+        for sel in form.find_all("select"):
+            print("  select name=", sel.get("name"))
+            for opt in sel.find_all("option")[:15]:
+                print("    option value=", repr(opt.get("value")), "text=", repr(opt.get_text(strip=True)))
+
+    print("\n--- search for 'sofia' or 'apartament' anywhere in href attributes ---")
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if re.search(r"sofia|apartament", href, re.I):
+            print(repr(href), "|", repr(a.get_text(strip=True)[:60]))
 
 
 if __name__ == "__main__":
