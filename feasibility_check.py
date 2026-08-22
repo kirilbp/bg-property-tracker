@@ -1,8 +1,9 @@
 """
-Round 3: inspect the HTML structure around a real imot.bg listing card on
-the Sofia sales page, to figure out how to extract price/sqm/area/photo.
+Round 4: inspect the HTML structure around a REAL classified listing card
+(not a "new building" promo card) on imot.bg's Sofia sales page.
 """
 
+import json
 from playwright.sync_api import sync_playwright
 
 
@@ -18,29 +19,30 @@ def main():
         page.goto("https://www.imot.bg/obiavi/prodazhbi/grad-sofiya", wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
 
-        # Find the first real listing link and walk up its ancestors, printing
-        # each ancestor's outerHTML length and text, to find the smallest
-        # container that holds price + size + area for that one listing.
-        info = page.evaluate("""
+        info = page.evaluate(r"""
         () => {
-          const links = Array.from(document.querySelectorAll('a[href*="/obiava-"]'));
-          if (links.length === 0) return null;
+          const idRe = /\/obiava-\d[a-z]\d{10,}-/;
+          const links = Array.from(document.querySelectorAll('a[href*="/obiava-"]'))
+            .filter(a => idRe.test(a.getAttribute('href')));
+          if (links.length === 0) return { error: 'no matching links', count: 0 };
+
           const link = links[0];
           const results = [];
           let node = link;
-          for (let i = 0; i < 8 && node.parentElement; i++) {
+          for (let i = 0; i < 6 && node.parentElement; i++) {
             node = node.parentElement;
+            const priceMatches = (node.innerText.match(/[\d\s]{3,10}\s?€/g) || []);
             results.push({
               tag: node.tagName,
               className: node.className,
               textLen: node.innerText.length,
-              text: node.innerText.slice(0, 400),
+              priceMentions: priceMatches.length,
+              text: node.innerText.slice(0, 500),
             });
           }
-          return { href: link.getAttribute('href'), linkText: link.innerText.slice(0,200), ancestors: results };
+          return { href: link.getAttribute('href'), totalMatchingLinks: links.length, ancestors: results };
         }
         """)
-        import json
         print(json.dumps(info, ensure_ascii=False, indent=2))
 
         browser.close()
