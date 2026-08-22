@@ -10,10 +10,10 @@
     "portal": "homes.bg",
     "price_per_sqm": 2778,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 3792,
-    "pct_vs_area_avg": -26.7
+    "area_avg_price_per_sqm": 3743,
+    "pct_vs_area_avg": -25.8
   },
   {
     "id": "homes_1700397",
@@ -26,7 +26,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 5000,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": 7.3
@@ -42,7 +42,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 5000,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": 7.3
@@ -58,7 +58,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 4845,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": 4.0
@@ -74,7 +74,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 4588,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": -1.6
@@ -90,7 +90,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 4638,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": -0.5
@@ -106,7 +106,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 5132,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": 10.1
@@ -122,7 +122,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 4330,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": -7.1
@@ -138,7 +138,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 4420,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4660,
     "pct_vs_area_avg": -5.2
@@ -154,7 +154,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2431,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2554,
     "pct_vs_area_avg": -4.8
@@ -170,7 +170,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 1954,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2757,
     "pct_vs_area_avg": -29.1
@@ -186,7 +186,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 3560,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2757,
     "pct_vs_area_avg": 29.1
@@ -202,7 +202,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2317,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2317,
     "pct_vs_area_avg": 0.0
@@ -218,7 +218,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2389,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -12.0
@@ -234,7 +234,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2351,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -13.4
@@ -250,7 +250,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2289,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -15.7
@@ -266,7 +266,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2311,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -14.9
@@ -282,7 +282,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2329,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -14.2
@@ -298,7 +298,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2694,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -0.8
@@ -314,7 +314,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2494,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2715,
     "pct_vs_area_avg": -8.1
@@ -322,7 +322,7 @@
   {
     "id": "homes_1686811",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-117m2-sofiya-zhk.-hadzhi-dimityr/as1686811",
-    "photo": "https://g1.homes.bg/2026-08-21_1/120570167b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_1/120596128b.jpg",
     "price_eur": 309800,
     "sqm": 117,
     "area": "жк. Хаджи Димитър",
@@ -330,7 +330,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2648,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2601,
     "pct_vs_area_avg": 1.8
@@ -346,7 +346,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 3106,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2601,
     "pct_vs_area_avg": 19.4
@@ -362,10 +362,10 @@
     "portal": "homes.bg",
     "price_per_sqm": 3342,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2915,
-    "pct_vs_area_avg": 14.6
+    "area_avg_price_per_sqm": 2907,
+    "pct_vs_area_avg": 15.0
   },
   {
     "id": "homes_1686810",
@@ -378,10 +378,10 @@
     "portal": "homes.bg",
     "price_per_sqm": 2488,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2915,
-    "pct_vs_area_avg": -14.6
+    "area_avg_price_per_sqm": 2907,
+    "pct_vs_area_avg": -14.4
   },
   {
     "id": "homes_1686812",
@@ -394,7 +394,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2644,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2601,
     "pct_vs_area_avg": 1.7
@@ -410,7 +410,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2591,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2591,
     "pct_vs_area_avg": 0.0
@@ -426,7 +426,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2769,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2554,
     "pct_vs_area_avg": 8.4
@@ -442,7 +442,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2417,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2600,
     "pct_vs_area_avg": -7.0
@@ -458,7 +458,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2417,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2600,
     "pct_vs_area_avg": -7.0
@@ -474,7 +474,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2417,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2600,
     "pct_vs_area_avg": -7.0
@@ -490,7 +490,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 3113,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 3113,
     "pct_vs_area_avg": 0.0
@@ -506,7 +506,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2765,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2765,
     "pct_vs_area_avg": 0.0
@@ -522,7 +522,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 3965,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 5622,
     "pct_vs_area_avg": -29.5
@@ -538,7 +538,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2982,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2445,
     "pct_vs_area_avg": 22.0
@@ -554,7 +554,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2283,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2158,
     "pct_vs_area_avg": 5.8
@@ -570,7 +570,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2561,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2561,
     "pct_vs_area_avg": 0.0
@@ -586,7 +586,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2045,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2045,
     "pct_vs_area_avg": 0.0
@@ -602,7 +602,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 690,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 1320,
     "pct_vs_area_avg": -47.7
@@ -618,7 +618,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2833,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2445,
     "pct_vs_area_avg": 15.9
@@ -634,7 +634,7 @@
     "portal": "homes.bg",
     "price_per_sqm": 2698,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2561,
     "pct_vs_area_avg": 5.4
@@ -764,8 +764,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3792,
-    "pct_vs_area_avg": -5.0
+    "area_avg_price_per_sqm": 3743,
+    "pct_vs_area_avg": -3.8
   },
   {
     "id": "homes_1693721",
@@ -1388,8 +1388,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3792,
-    "pct_vs_area_avg": -5.3
+    "area_avg_price_per_sqm": 3743,
+    "pct_vs_area_avg": -4.1
   },
   {
     "id": "homes_1700443",
@@ -1916,8 +1916,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3792,
-    "pct_vs_area_avg": 37.1
+    "area_avg_price_per_sqm": 3743,
+    "pct_vs_area_avg": 38.9
   },
   {
     "id": "homes_1700511",
@@ -2206,5 +2206,53 @@
     "score": 0,
     "area_avg_price_per_sqm": 2445,
     "pct_vs_area_avg": -19.2
+  },
+  {
+    "id": "homes_1700541",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-79m2-sofiya-zhk.-lozenec/as1700541",
+    "photo": "https://g1.homes.bg/2026-08-22_1/120598286b.jpg",
+    "price_eur": 280000,
+    "sqm": 79,
+    "area": "жк. Лозенец",
+    "title": "Двустаен, 79m², жк. Лозенец, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 3544,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3743,
+    "pct_vs_area_avg": -5.3
+  },
+  {
+    "id": "homes_1698266",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-51m2-sofiya-zhk.-ljulin-3/as1698266",
+    "photo": "https://g1.homes.bg/2026-08-17_2/120474927b.jpg",
+    "price_eur": 115900,
+    "sqm": 51,
+    "area": "жк. Люлин 3",
+    "title": "Двустаен, 51m², жк. Люлин 3, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2273,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2273,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "homes_1691690",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-69m2-sofiya-kv.-poduyane/as1691690",
+    "photo": "https://g1.homes.bg/2026-08-22_1/120596138b.jpg",
+    "price_eur": 199500,
+    "sqm": 69,
+    "area": "кв. Подуяне",
+    "title": "Двустаен, 69m², кв. Подуяне, София",
+    "portal": "homes.bg",
+    "price_per_sqm": 2891,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2907,
+    "pct_vs_area_avg": -0.6
   }
 ]

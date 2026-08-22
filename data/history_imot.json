@@ -1,0 +1,762 @@
+{
+  "imot_1b178606167831728": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 176000
+      }
+    ],
+    "latest": {
+      "id": "imot_1b178606167831728",
+      "url": "https://www.imot.bg/obiava-1b178606167831728-prodava-dvustaen-apartament-grad-sofiya-malinova-dolina",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/728/1b178606167831728_Do.jpg",
+      "price_eur": 176000,
+      "sqm": 58,
+      "area": "Малинова долина",
+      "title": "Продава 2-СТАЕН, Малинова долина",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178298879796240": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 278800
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178298879796240",
+      "url": "https://www.imot.bg/obiava-1c178298879796240-prodava-tristaen-apartament-grad-sofiya-dianabad-bul-d-r-g-m-dimitrov",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/240/1c178298879796240_ot.jpg",
+      "price_eur": 278800,
+      "sqm": 84,
+      "area": "Дианабад",
+      "title": "Продава 3-СТАЕН, Дианабад",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178655076438132": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 278800
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178655076438132",
+      "url": "https://www.imot.bg/obiava-1c178655076438132-prodava-tristaen-apartament-grad-sofiya-darvenitsa",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/132/1c178655076438132_9A.jpg",
+      "price_eur": 278800,
+      "sqm": 84,
+      "area": "Дървеница",
+      "title": "Продава 3-СТАЕН, Дървеница",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178584685756512": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 358000
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178584685756512",
+      "url": "https://www.imot.bg/obiava-1c178584685756512-prodava-tristaen-apartament-grad-sofiya-krastova-vada-bul-cherni-vrah",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/512/1c178584685756512_aY.jpg",
+      "price_eur": 358000,
+      "sqm": 100,
+      "area": "Кръстова вада",
+      "title": "Продава 3-СТАЕН, Кръстова вада",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178500328560888": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 278800
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178500328560888",
+      "url": "https://www.imot.bg/obiava-1c178500328560888-prodava-tristaen-apartament-grad-sofiya-musagenitsa",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/888/1c178500328560888_2O.jpg",
+      "price_eur": 278800,
+      "sqm": 84,
+      "area": "Мусагеница",
+      "title": "Продава 3-СТАЕН, Мусагеница",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178661931442881": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 265000
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178661931442881",
+      "url": "https://www.imot.bg/obiava-1c178661931442881-prodava-tristaen-apartament-grad-sofiya-strelbishte-ul-zlatishki-prohod",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/881/1c178661931442881_Dh.jpg",
+      "price_eur": 265000,
+      "sqm": 85,
+      "area": "Стрелбище",
+      "title": "Продава 3-СТАЕН, Стрелбище",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1c178729868071634": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 163500
+      }
+    ],
+    "latest": {
+      "id": "imot_1c178729868071634",
+      "url": "https://www.imot.bg/obiava-1c178729868071634-prodava-tristaen-apartament-grad-sofiya-suhata-reka",
+      "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/634/1c178729868071634_m5.jpg",
+      "price_eur": 163500,
+      "sqm": 79,
+      "area": "Сухата река",
+      "title": "Продава 3-СТАЕН, Сухата река",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1f176552454594253": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 649000
+      }
+    ],
+    "latest": {
+      "id": "imot_1f176552454594253",
+      "url": "https://www.imot.bg/obiava-1f176552454594253-prodava-mezonet-grad-sofiya-manastirski-livadi",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/253/1f176552454594253_Nz.jpg",
+      "price_eur": 649000,
+      "sqm": 251,
+      "area": "Манастирски ливади",
+      "title": "Продава МЕЗОНЕТ, Манастирски ливади",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1j178732800219528": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 585000
+      }
+    ],
+    "latest": {
+      "id": "imot_1j178732800219528",
+      "url": "https://www.imot.bg/obiava-1j178732800219528-prodava-kashta-grad-sofiya-v-z-malinova-dolina-gerena",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/528/1j178732800219528_Uh.jpg",
+      "price_eur": 585000,
+      "sqm": 281,
+      "area": "в.з.Малинова долина - Герена",
+      "title": "Продава КЪЩА, в.з.Малинова долина - Герена",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1j176552437350307": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 649000
+      }
+    ],
+    "latest": {
+      "id": "imot_1j176552437350307",
+      "url": "https://www.imot.bg/obiava-1j176552437350307-prodava-kashta-grad-sofiya-manastirski-livadi",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/307/1j176552437350307_rG.jpg",
+      "price_eur": 649000,
+      "sqm": 251,
+      "area": "Манастирски ливади",
+      "title": "Продава КЪЩА, Манастирски ливади",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178040455315934": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 124990
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178040455315934",
+      "url": "https://www.imot.bg/obiava-1a178040455315934-prodava-ednostaen-apartament-grad-sofiya-banishora",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/934/1a178040455315934_7l.jpg",
+      "price_eur": 124990,
+      "sqm": 40,
+      "area": "Банишора",
+      "title": "Продава 1-СТАЕН, Банишора",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178635524864690": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 144999
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178635524864690",
+      "url": "https://www.imot.bg/obiava-1a178635524864690-prodava-ednostaen-apartament-grad-sofiya-belite-brezi",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/690/1a178635524864690_OL.jpg",
+      "price_eur": 144999,
+      "sqm": 43,
+      "area": "Белите брези",
+      "title": "Продава 1-СТАЕН, Белите брези",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178714713450429": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 92999
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178714713450429",
+      "url": "https://www.imot.bg/obiava-1a178714713450429-prodava-ednostaen-apartament-grad-sofiya-benkovski",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/429/1a178714713450429_yu.jpg",
+      "price_eur": 92999,
+      "sqm": 37,
+      "area": "Бенковски",
+      "title": "Продава 1-СТАЕН, Бенковски",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a176959443896121": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 151664
+      }
+    ],
+    "latest": {
+      "id": "imot_1a176959443896121",
+      "url": "https://www.imot.bg/obiava-1a176959443896121-prodava-ednostaen-apartament-grad-sofiya-boyana",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/121/1a176959443896121_z7.jpg",
+      "price_eur": 151664,
+      "sqm": 61,
+      "area": "Бояна",
+      "title": "Продава 1-СТАЕН, Бояна",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178542044874881": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 112000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178542044874881",
+      "url": "https://www.imot.bg/obiava-1a178542044874881-prodava-ednostaen-apartament-grad-sofiya-vitosha",
+      "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/881/1a178542044874881_bw.jpg",
+      "price_eur": 112000,
+      "sqm": 45,
+      "area": "Витоша",
+      "title": "Продава 1-СТАЕН, Витоша",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178515121683972": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 115000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178515121683972",
+      "url": "https://www.imot.bg/obiava-1a178515121683972-prodava-ednostaen-apartament-grad-sofiya-vitosha",
+      "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/972/1a178515121683972_hX.jpg",
+      "price_eur": 115000,
+      "sqm": 44,
+      "area": "Витоша",
+      "title": "Продава 1-СТАЕН, Витоша",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178695096837988": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178695096837988",
+      "url": "https://www.imot.bg/obiava-1a178695096837988-prodava-ednostaen-apartament-grad-sofiya-vitosha",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/988/1a178695096837988_jh.jpg",
+      "price_eur": 125000,
+      "sqm": 45,
+      "area": "Витоша",
+      "title": "Продава 1-СТАЕН, Витоша",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178643761925256": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 130000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178643761925256",
+      "url": "https://www.imot.bg/obiava-1a178643761925256-prodava-ednostaen-apartament-grad-sofiya-gevgeliyski",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/256/1a178643761925256_SH.jpg",
+      "price_eur": 130000,
+      "sqm": 44,
+      "area": "Гевгелийски",
+      "title": "Продава 1-СТАЕН, Гевгелийски",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178040400198027": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 114999
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178040400198027",
+      "url": "https://www.imot.bg/obiava-1a178040400198027-prodava-ednostaen-apartament-grad-sofiya-geo-milev",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/027/1a178040400198027_Qr.jpg",
+      "price_eur": 114999,
+      "sqm": 30,
+      "area": "Гео Милев",
+      "title": "Продава 1-СТАЕН, Гео Милев",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178634371887119": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 62500
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178634371887119",
+      "url": "https://www.imot.bg/obiava-1a178634371887119-prodava-ednostaen-apartament-grad-sofiya-gorna-banya",
+      "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/119/1a178634371887119_7a.jpg",
+      "price_eur": 62500,
+      "sqm": 45,
+      "area": "Горна баня",
+      "title": "Продава 1-СТАЕН, Горна баня",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a175629954701433": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 86435
+      }
+    ],
+    "latest": {
+      "id": "imot_1a175629954701433",
+      "url": "https://www.imot.bg/obiava-1a175629954701433-prodava-ednostaen-apartament-grad-sofiya-gorublyane",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/433/1a175629954701433_6q.jpg",
+      "price_eur": 86435,
+      "sqm": 40,
+      "area": "Горубляне",
+      "title": "Продава 1-СТАЕН, Горубляне",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178592142148314": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 80000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178592142148314",
+      "url": "https://www.imot.bg/obiava-1a178592142148314-prodava-ednostaen-apartament-grad-sofiya-doktorski-pametnik",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/314/1a178592142148314_kC.jpg",
+      "price_eur": 80000,
+      "sqm": 20,
+      "area": "Докторски паметник",
+      "title": "Продава 1-СТАЕН, Докторски паметник",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a177217808203012": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 143000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a177217808203012",
+      "url": "https://www.imot.bg/obiava-1a177217808203012-prodava-ednostaen-apartament-grad-sofiya-dragalevtsi",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/012/1a177217808203012_LT.jpg",
+      "price_eur": 143000,
+      "sqm": 64,
+      "area": "Драгалевци",
+      "title": "Продава 1-СТАЕН, Драгалевци",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178357518871328": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 114900
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178357518871328",
+      "url": "https://www.imot.bg/obiava-1a178357518871328-prodava-ednostaen-apartament-grad-sofiya-druzhba-1",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/328/1a178357518871328_rX.jpg",
+      "price_eur": 114900,
+      "sqm": 46,
+      "area": "Дружба 1",
+      "title": "Продава 1-СТАЕН, Дружба 1",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a172656255731955": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 115000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a172656255731955",
+      "url": "https://www.imot.bg/obiava-1a172656255731955-prodava-ednostaen-apartament-grad-sofiya-druzhba-1",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/955/1a172656255731955_Lq.jpg",
+      "price_eur": 115000,
+      "sqm": 42,
+      "area": "Дружба 1",
+      "title": "Продава 1-СТАЕН, Дружба 1",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178152902529908": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 85000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178152902529908",
+      "url": "https://www.imot.bg/obiava-1a178152902529908-prodava-ednostaen-apartament-grad-sofiya-zapaden-park-bul-al-stamboliyski",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/908/1a178152902529908_jw.jpg",
+      "price_eur": 85000,
+      "sqm": 30,
+      "area": "Западен парк",
+      "title": "Продава 1-СТАЕН, Западен парк",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178695224998768": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 120500
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178695224998768",
+      "url": "https://www.imot.bg/obiava-1a178695224998768-prodava-ednostaen-apartament-grad-sofiya-zapaden-park",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/768/1a178695224998768_nz.jpg",
+      "price_eur": 120500,
+      "sqm": 45,
+      "area": "Западен парк",
+      "title": "Продава 1-СТАЕН, Западен парк",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178654466621308": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 108000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178654466621308",
+      "url": "https://www.imot.bg/obiava-1a178654466621308-prodava-ednostaen-apartament-grad-sofiya-krasna-polyana-1",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/308/1a178654466621308_A4.jpg",
+      "price_eur": 108000,
+      "sqm": 44,
+      "area": "Красна поляна 1",
+      "title": "Продава 1-СТАЕН, Красна поляна 1",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178636268168477": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 128900
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178636268168477",
+      "url": "https://www.imot.bg/obiava-1a178636268168477-prodava-ednostaen-apartament-grad-sofiya-krasna-polyana-3-ul-dobrotich",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/477/1a178636268168477_ek.jpg",
+      "price_eur": 128900,
+      "sqm": 45,
+      "area": "Красна поляна 3",
+      "title": "Продава 1-СТАЕН, Красна поляна 3",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a175335910662394": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 94000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a175335910662394",
+      "url": "https://www.imot.bg/obiava-1a175335910662394-prodava-ednostaen-apartament-grad-sofiya-levski-g",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/394/1a175335910662394_QE.jpg",
+      "price_eur": 94000,
+      "sqm": 49,
+      "area": "Левски Г",
+      "title": "Продава 1-СТАЕН, Левски Г",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a176916093559927": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 146230
+      }
+    ],
+    "latest": {
+      "id": "imot_1a176916093559927",
+      "url": "https://www.imot.bg/obiava-1a176916093559927-prodava-ednostaen-apartament-grad-sofiya-levski-g",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/927/1a176916093559927_ik.jpg",
+      "price_eur": 146230,
+      "sqm": 69,
+      "area": "Левски Г",
+      "title": "Продава 1-СТАЕН, Левски Г",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178609075843813": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 55000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178609075843813",
+      "url": "https://www.imot.bg/obiava-1a178609075843813-prodava-ednostaen-apartament-grad-sofiya-lozenets-ul-tsvetna-gradina",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/813/1a178609075843813_fy.jpg",
+      "price_eur": 55000,
+      "sqm": 16,
+      "area": "Лозенец",
+      "title": "Продава 1-СТАЕН, Лозенец",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178602825186764": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 169999
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178602825186764",
+      "url": "https://www.imot.bg/obiava-1a178602825186764-prodava-ednostaen-apartament-grad-sofiya-lozenets",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/764/1a178602825186764_vU.jpg",
+      "price_eur": 169999,
+      "sqm": 51,
+      "area": "Лозенец",
+      "title": "Продава 1-СТАЕН, Лозенец",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a177755940639397": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 109900
+      }
+    ],
+    "latest": {
+      "id": "imot_1a177755940639397",
+      "url": "https://www.imot.bg/obiava-1a177755940639397-prodava-ednostaen-apartament-grad-sofiya-lyulin-3-ul-matey-preobrazhenski",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/397/1a177755940639397_PU.jpg",
+      "price_eur": 109900,
+      "sqm": 42,
+      "area": "Люлин 3",
+      "title": "Продава 1-СТАЕН, Люлин 3",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178404042387431": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 120000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178404042387431",
+      "url": "https://www.imot.bg/obiava-1a178404042387431-prodava-ednostaen-apartament-grad-sofiya-lyulin-4",
+      "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/431/1a178404042387431_fu.jpg",
+      "price_eur": 120000,
+      "sqm": 46,
+      "area": "Люлин 4",
+      "title": "Продава 1-СТАЕН, Люлин 4",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178585078539026": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 120000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178585078539026",
+      "url": "https://www.imot.bg/obiava-1a178585078539026-prodava-ednostaen-apartament-grad-sofiya-lyulin-6",
+      "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/026/1a178585078539026_H0.jpg",
+      "price_eur": 120000,
+      "sqm": 44,
+      "area": "Люлин 6",
+      "title": "Продава 1-СТАЕН, Люлин 6",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a175889885129122": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a175889885129122",
+      "url": "https://www.imot.bg/obiava-1a175889885129122-prodava-ednostaen-apartament-grad-sofiya-lyulin-9-bul-slivnitsa",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/122/1a175889885129122_dB.jpg",
+      "price_eur": 90000,
+      "sqm": 45,
+      "area": "Люлин 9",
+      "title": "Продава 1-СТАЕН, Люлин 9",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178481256291709": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 105900
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178481256291709",
+      "url": "https://www.imot.bg/obiava-1a178481256291709-prodava-ednostaen-apartament-grad-sofiya-lyulin-9-ul-gen-asen-nikolov",
+      "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/709/1a178481256291709_p4.jpg",
+      "price_eur": 105900,
+      "sqm": 45,
+      "area": "Люлин 9",
+      "title": "Продава 1-СТАЕН, Люлин 9",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178100320610221": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 117000
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178100320610221",
+      "url": "https://www.imot.bg/obiava-1a178100320610221-prodava-ednostaen-apartament-grad-sofiya-lyulin-9",
+      "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/221/1a178100320610221_e6.jpg",
+      "price_eur": 117000,
+      "sqm": 45,
+      "area": "Люлин 9",
+      "title": "Продава 1-СТАЕН, Люлин 9",
+      "portal": "imot.bg"
+    }
+  },
+  "imot_1a178653479774133": {
+    "first_seen": "2026-08-22T06:15:55.008769+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T06:15:55.008769+00:00",
+        "price_eur": 73100
+      }
+    ],
+    "latest": {
+      "id": "imot_1a178653479774133",
+      "url": "https://www.imot.bg/obiava-1a178653479774133-prodava-ednostaen-apartament-grad-sofiya-malinova-dolina",
+      "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/133/1a178653479774133_Zx.jpg",
+      "price_eur": 73100,
+      "sqm": 39,
+      "area": "Малинова долина",
+      "title": "Продава 1-СТАЕН, Малинова долина",
+      "portal": "imot.bg"
+    }
+  }
+}
