@@ -12,6 +12,13 @@ follows a consistent per-line layout:
     line 1: "град София, <area>"
     line 2: "<price> €"
     line 3: "<sqm> кв.м, <floor/description/phone...>"
+
+Search results are paginated at /obiavi/prodazhbi/grad-sofiya/p-N (confirmed
+via the site's own pagination links). The scraper originally only fetched
+page 1 (~46 listings) even though imot.bg's own UI shows 1000+ Sofia sale
+listings - fixed by paging through p-2, p-3, ... until a page comes back
+with no listings, same "stop on empty page" pattern as scraper_bazar.py and
+scraper_imoti_bg.py.
 """
 
 import re
@@ -34,24 +41,13 @@ LEADS_FILE = OUT_DIR / "leads_imot.json"
 
 MAX_CARD_TEXT_LENGTH = 800
 MAX_PRICE_MENTIONS = 1
+MAX_PAGES = 30
 
 LISTING_LINK_RE = re.compile(r"/obiava-(\d[a-z]\d{10,})-")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
 AREA_LINE_RE = re.compile(r"^град София,\s*(.+)$")
 PRICE_LINE_RE = re.compile(r"^([\d\s]{3,10})\s?€$")
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
-
-
-def fetch_html(url):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
-        page = context.new_page()
-        page.goto(url, wait_until="domcontentloaded", timeout=30000)
-        page.wait_for_timeout(1500)
-        html = page.content()
-        browser.close()
-    return html
 
 
 def smallest_container_with_price(link_tag, max_levels=8):
@@ -69,16 +65,12 @@ def smallest_container_with_price(link_tag, max_levels=8):
     return None
 
 
-def fetch_listings(url):
-    html = fetch_html(url)
-    print(f"DEBUG: fetched HTML length = {len(html)}")
+def parse_listings_page(html, seen):
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
-    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
 
-    seen = {}
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -145,6 +137,29 @@ def fetch_listings(url):
             "title": title[:150],
             "portal": "imot.bg",
         }
+    return len(matching_links)
+
+
+def fetch_listings():
+    seen = {}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
+        page = context.new_page()
+
+        for page_num in range(1, MAX_PAGES + 1):
+            url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}/p-{page_num}"
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(1500)
+            html = page.content()
+            print(f"DEBUG: page {page_num} fetched HTML length = {len(html)}")
+
+            link_count = parse_listings_page(html, seen)
+            print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+            if link_count == 0:
+                break
+
+        browser.close()
     return list(seen.values())
 
 
@@ -212,7 +227,7 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings(SEARCH_URL)
+    listings = fetch_listings()
     history = load_history()
     history = update_history(history, listings)
     save_history(history)
