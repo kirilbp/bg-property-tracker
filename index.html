@@ -69,7 +69,7 @@
   .listing:hover { border-color: #94a3b8; }
   .listing img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #e2e8f0; display: block; }
   .listing-body { padding: 12px; }
-  .listing-link { text-decoration: none; color: inherit; display: block; }
+  .listing-link { cursor: pointer; text-decoration: none; color: inherit; display: block; }
   .listing-title { font-weight: 600; font-size: 14px; margin: 0 0 4px; }
   .listing-area { font-size: 12px; color: #64748b; margin: 0 0 8px; }
   .listing-price-row { display: flex; justify-content: space-between; align-items: baseline; }
@@ -112,6 +112,32 @@
   .help-section { margin-bottom: 20px; }
   .help-section h3 { font-size: 15px; margin: 0 0 6px; }
   .help-section p, .help-section li { font-size: 14px; color: #334155; line-height: 1.6; }
+
+  /* Listing detail page */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
+    color: #2563eb; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 16px;
+  }
+  .back-btn:hover { color: #1d4ed8; }
+  .detail-grid { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; background: #e2e8f0; display: block; }
+  .detail-title { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+  .detail-area { font-size: 14px; color: #64748b; margin: 0 0 16px; }
+  .detail-price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  .detail-price { font-size: 28px; font-weight: 700; }
+  .detail-persqm { font-size: 15px; color: #64748b; }
+  .detail-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin: 16px 0; }
+  .detail-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
+  .detail-stat .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
+  .detail-stat .value { font-size: 15px; font-weight: 700; margin: 0; }
+  .detail-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .source-link {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-size: 13px; font-weight: 600; color: #475569; background: #f1f5f9;
+    padding: 8px 14px; border-radius: 8px;
+  }
+  .source-link:hover { background: #e2e8f0; }
 </style>
 </head>
 <body>
@@ -266,6 +292,12 @@
         </div>
       </section>
 
+      <!-- Listing detail -->
+      <section class="page" id="section-listing">
+        <button class="back-btn" id="backBtn">← Back to listings</button>
+        <div class="card" id="listingDetailBody"></div>
+      </section>
+
     </div>
   </div>
 </div>
@@ -329,6 +361,9 @@ async function loadData() {
     renderHome();
     renderDashboard();
     render();
+
+    const m = location.hash.match(/^#\/listing\/(.+)$/);
+    if (m) showListingDetail(decodeURIComponent(m[1]));
   } catch (e) {
     document.getElementById('subtitle').textContent = 'Could not load listings data.';
     console.error(e);
@@ -409,10 +444,7 @@ function renderChart() {
   });
 }
 
-function createListingCard(l) {
-  const card = document.createElement('div');
-  card.className = 'listing';
-
+function buildBadgesHtml(l) {
   let badges = `<span class="badge badge-portal">${l.portal}</span>`;
   if (l.unverified) {
     badges += '<span class="badge badge-unverified" title="Price/m² is far enough from the area average that it may be a data error - double-check against the listing page.">⚠️ Unverified price</span>';
@@ -431,9 +463,16 @@ function createListingCard(l) {
   if (l.drop_pct > 0) {
     badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen</span>`;
   }
+  return badges;
+}
+
+function createListingCard(l) {
+  const card = document.createElement('div');
+  card.className = 'listing';
+  const badges = buildBadgesHtml(l);
 
   card.innerHTML = `
-    <a class="listing-link" href="${l.url}" target="_blank" rel="noreferrer">
+    <div class="listing-link" data-listing-id="${l.id}">
       <img src="${l.photo || ''}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'" />
       <div class="listing-body">
         <div class="badges">${badges}</div>
@@ -444,7 +483,7 @@ function createListingCard(l) {
           <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
       </div>
-    </a>
+    </div>
     <div class="listing-body" style="padding-top:0;">
       <a class="registry-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">
         🏛 Check land registry →
@@ -511,10 +550,53 @@ function renderFromStart() {
   render();
 }
 
+function renderListingDetail(l) {
+  const badges = buildBadgesHtml(l);
+  const hasHistory = Array.isArray(l.price_history) && l.price_history.length > 1;
+
+  document.getElementById('listingDetailBody').innerHTML = `
+    <div class="detail-grid">
+      <img class="detail-photo" src="${l.photo || ''}" alt="${l.title}" onerror="this.style.display='none'" />
+      <div>
+        <div class="badges">${badges}</div>
+        <h1 class="detail-title">${l.title}</h1>
+        <p class="detail-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        <div class="detail-price-row">
+          <span class="detail-price">€${fmt(l.price_eur)}</span>
+          <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+        </div>
+        <div class="detail-stats">
+          <div class="detail-stat"><p class="label">Motivation score</p><p class="value">${l.score ?? '–'}</p></div>
+          <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
+          <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
+          <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
+        </div>
+        ${hasHistory ? `<p class="listing-area">Price history: ${l.price_history.map(p => '€' + fmt(p)).join(' → ')}</p>` : ''}
+        <div class="detail-links">
+          <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
+          <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showListingDetail(id) {
+  const l = ALL_LISTINGS.find(x => x.id === id);
+  if (!l) return;
+  renderListingDetail(l);
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('section-listing').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (location.hash !== '#/listing/' + id) location.hash = '#/listing/' + id;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
 function showSection(name) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
+  if (location.hash) history.pushState('', document.title, window.location.pathname + window.location.search);
   if (name === 'market') {
     if (!chartInitialized) { renderChart(); chartInitialized = true; }
     else if (chart) chart.resize();
@@ -527,6 +609,17 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 });
 document.getElementById('goToLeadsBtn').addEventListener('click', () => showSection('leads'));
 document.getElementById('goToLeadsBtn2').addEventListener('click', () => showSection('leads'));
+document.getElementById('backBtn').addEventListener('click', () => showSection('leads'));
+
+document.addEventListener('click', (e) => {
+  const card = e.target.closest('.listing-link[data-listing-id]');
+  if (card) showListingDetail(card.dataset.listingId);
+});
+
+window.addEventListener('hashchange', () => {
+  const m = location.hash.match(/^#\/listing\/(.+)$/);
+  if (m) showListingDetail(decodeURIComponent(m[1]));
+});
 
 document.getElementById('minPrice').addEventListener('input', renderFromStart);
 document.getElementById('maxPrice').addEventListener('input', renderFromStart);
