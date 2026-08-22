@@ -14,10 +14,18 @@ live site that hasMoreItems is still True well past page 2 (checked through
 page 7), so real results were being cut off early. Raised the cap to a
 generous safety limit and let hasMoreItems be the real stopping condition,
 same pattern as the other scrapers' "stop on empty page".
+
+A page fetch retries a few times with backoff before being treated as the
+end of pagination, so a transient failure doesn't get mistaken for having
+reached the last page - and, since scrape.yml runs all 5 scrapers
+sequentially with a single git commit step at the end, an uncaught
+exception here would otherwise silently discard every other scraper's
+output for that run too.
 """
 
 import json
 import re
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -26,6 +34,8 @@ import requests
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
 PAGES_TO_FETCH = 100
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -51,17 +61,30 @@ def extract_area(location):
     return area or "Sofia"
 
 
+def fetch_with_retries(session, url):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = session.get(url, headers=HEADERS, timeout=20)
+            resp.raise_for_status()
+            return resp.text
+        except requests.RequestException as e:
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    return None
+
+
 def fetch_listings():
     session = requests.Session()
     seen = {}
 
     for page in range(1, PAGES_TO_FETCH + 1):
         url = BASE_URL + ("/" if page == 1 else f"/?page={page}")
-        resp = session.get(url, headers=HEADERS, timeout=20)
-        print(f"DEBUG: page {page} HTTP status code = {resp.status_code}")
-        resp.raise_for_status()
+        text = fetch_with_retries(session, url)
+        if text is None:
+            break
 
-        match = STATE_RE.search(resp.text)
+        match = STATE_RE.search(text)
         if not match:
             print(f"DEBUG: no __PRELOADED_STATE__ found on page {page}")
             continue

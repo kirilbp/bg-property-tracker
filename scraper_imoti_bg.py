@@ -26,10 +26,18 @@ layout:
     line 1: property type (e.g. "Тристаен апартамент")
     line 2: "София, <area>"
     line 3: "<sqm> кв.м."
+
+A page fetch retries a few times with backoff before being treated as the
+end of pagination, so a transient failure doesn't get mistaken for having
+reached the last page - and, since scrape.yml runs all 5 scrapers
+sequentially with a single git commit step at the end, an uncaught
+exception here would otherwise silently discard every other scraper's
+output for that run too.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin
@@ -53,6 +61,8 @@ LEADS_FILE = OUT_DIR / "leads_imoti_bg.json"
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 12
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 APARTMENT_SLUGS = [
     "едностаен-апартамент", "двустаен-апартамент", "тристаен-апартамент",
@@ -68,9 +78,16 @@ SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м\.?")
 
 
 def fetch_html(url):
-    r = requests.get(url, headers=HEADERS, timeout=20)
-    r.raise_for_status()
-    return r.text
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=20)
+            r.raise_for_status()
+            return r.text
+        except requests.RequestException as e:
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    return None
 
 
 def smallest_container_with_price(link_tag, max_levels=9):
@@ -95,6 +112,8 @@ def smallest_container_with_price(link_tag, max_levels=9):
 
 def fetch_listings_page(url):
     html = fetch_html(url)
+    if html is None:
+        return None
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)

@@ -11,6 +11,14 @@ MAX_PAGES as a safety limit. Learned from scraper.py's imoti.net fix: a
 delay between requests is needed to avoid getting rate-limited (HTTP 403)
 partway through, and a failed request is treated as "no more listings"
 (stop and keep what was collected) rather than crashing the whole run.
+
+Found in production (not in earlier live testing) that a single request can
+also fail transiently - e.g. a connect timeout with no HTTP response at all,
+unrelated to any real block - and treating that identically to "no more
+listings" cut a real run off at page 21 of ~166, keeping only 613 of the
+site's ~9995 listings. A page fetch now retries a few times with backoff
+before being treated as the end of pagination, so a one-off network blip
+doesn't get mistaken for having reached the last page.
 """
 
 import re
@@ -35,6 +43,8 @@ MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 350
 REQUEST_DELAY_SECONDS = 1.0
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
 # alo.bg's regular listing cards ("listtop-item") format this "Цена:" tight,
@@ -75,15 +85,25 @@ def smallest_container_with_price(link_tag, max_levels=6):
     return None
 
 
+def fetch_with_retries(url):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=20)
+            resp.raise_for_status()
+            return resp.text
+        except requests.RequestException as e:
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    return None
+
+
 def fetch_listings_page(url, seen):
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=20)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        print(f"DEBUG: request failed for {url}: {e}")
+    html = fetch_with_retries(url)
+    if html is None:
         return None
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]

@@ -19,6 +19,12 @@ scraper stops there and keeps whatever it already collected (~5900+
 listings in practice, vs. the site's ~11880 across all 396 pages) rather
 than crashing and losing the whole run. Going further would require
 IP rotation/session-cycling, which isn't worth building for this.
+
+A page fetch retries a few times with backoff before being treated as the
+end of pagination, so a one-off transient failure (a connect timeout, not
+a real block) doesn't get mistaken for having reached the last page - the
+persistent page-200 block above still stops the run the same way, just
+after retries confirm it isn't transient.
 """
 
 import re
@@ -43,6 +49,8 @@ MAX_CARD_TEXT_LENGTH = 400
 MAX_PRICE_MENTIONS = 2
 MAX_PAGES = 420
 REQUEST_DELAY_SECONDS = 1.0
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -70,14 +78,24 @@ def smallest_container_with_price(link_tag, max_levels=6):
     return None
 
 
+def fetch_with_retries(url):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=20)
+            resp.raise_for_status()
+            return resp.text
+        except requests.RequestException as e:
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    return None
+
+
 def fetch_listings_page(url, seen):
-    try:
-        resp = requests.get(url, headers=HEADERS, timeout=20)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        print(f"DEBUG: request failed for {url}: {e}")
+    html = fetch_with_retries(url)
+    if html is None:
         return None
-    soup = BeautifulSoup(resp.text, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
