@@ -21,5 +21,4 @@ jobs:
       - run: python scraper_homes.py
       - run: python scraper_olx.py
 
-      - run: python ../sample_results.py
-        working-directory: .
+      - run: python sample_results.py
