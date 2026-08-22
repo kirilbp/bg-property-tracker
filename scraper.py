@@ -10,11 +10,17 @@ The scraper originally only fetched page 1 with no pagination loop at all -
 fixed by paging through page=2, page=3, ... until a page comes back with no
 listings, same "stop on empty page" pattern as scraper_bazar.py,
 scraper_imot.py, and scraper_imoti_bg.py, capped at MAX_PAGES as a safety
-limit.
+limit. A REQUEST_DELAY between pages is required - fetching ~200 pages back
+to back with no delay at all got the scraper rate-limited (HTTP 403) by the
+site partway through; a small delay avoids that. If a page still comes back
+non-200 (rate-limited despite the delay, or a real transient error), that's
+treated as "no more listings" - the scraper stops and keeps whatever it
+already collected, rather than crashing and losing the whole run.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,6 +39,7 @@ BGN_TO_EUR = 1.95583
 MAX_CARD_TEXT_LENGTH = 400
 MAX_PRICE_MENTIONS = 2
 MAX_PAGES = 420
+REQUEST_DELAY_SECONDS = 1.0
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -61,8 +68,12 @@ def smallest_container_with_price(link_tag, max_levels=6):
 
 
 def fetch_listings_page(url, seen):
-    resp = requests.get(url, headers=HEADERS, timeout=20)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"DEBUG: request failed for {url}: {e}")
+        return None
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
@@ -119,10 +130,12 @@ def fetch_listings_page(url, seen):
 def fetch_listings():
     seen = {}
     for page_num in range(1, MAX_PAGES + 1):
+        if page_num > 1:
+            time.sleep(REQUEST_DELAY_SECONDS)
         url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
         link_count = fetch_listings_page(url, seen)
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
-        if link_count == 0:
+        if not link_count:
             break
     return list(seen.values())
 
