@@ -19,6 +19,12 @@ right before it. bazar.bg's listing grid doesn't show square meters (only
 the individual listing page does), so sqm/price_per_sqm are left null here
 - the same graceful degradation compute_leads() already applies to any
 listing missing sqm.
+
+Search results are paginated with ?page=N, and MAX_PAGES was originally
+hard-capped at 3 - confirmed against the live site that real listings
+continue at least through page 10 (the site's own paginator), so raised
+the cap and let the existing "stop on empty page" logic be the real
+stopping condition, same pattern as the other scrapers.
 """
 
 import re
@@ -44,7 +50,7 @@ LEADS_FILE = OUT_DIR / "leads_bazar.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
-MAX_PAGES = 3
+MAX_PAGES = 60
 
 LISTING_LINK_RE = re.compile(r"obiava-(\d+)")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
