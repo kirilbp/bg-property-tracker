@@ -61,7 +61,10 @@ def fetch_html(url):
             )
             if at_bottom:
                 break
-        page.wait_for_timeout(2000)
+        try:
+            page.wait_for_load_state("networkidle", timeout=5000)
+        except Exception:
+            pass
         html = page.content()
         browser.close()
     return html
