@@ -3,10 +3,27 @@ Scrapes current Sofia listings from imoti.net, keeps a history of every time
 each listing was seen, and works out:
   - price drops and days-on-market from that history
   - each listing's price per m2 vs the average for its area, as a %
+
+Search results are paginated with ?page=N (confirmed via the site's own
+paginator, which lists a "last page" link up to page 396 at 30 items/page).
+The scraper originally only fetched page 1 with no pagination loop at all -
+fixed by paging through page=2, page=3, ... until a page comes back with no
+listings, same "stop on empty page" pattern as scraper_bazar.py,
+scraper_imot.py, and scraper_imoti_bg.py, capped at MAX_PAGES as a safety
+limit. Confirmed against the live site that imoti.net hard-blocks (HTTP 403)
+at page 200 regardless of pacing - the same block hit with no delay and
+with a 1s REQUEST_DELAY between requests, so it's a fixed per-session page
+depth limit rather than a request-rate throttle a delay can avoid. A page
+request failure (403 or otherwise) is treated as "no more listings" - the
+scraper stops there and keeps whatever it already collected (~5900+
+listings in practice, vs. the site's ~11880 across all 396 pages) rather
+than crashing and losing the whole run. Going further would require
+IP rotation/session-cycling, which isn't worth building for this.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -24,6 +41,8 @@ LEADS_FILE = OUT_DIR / "leads.json"
 BGN_TO_EUR = 1.95583
 MAX_CARD_TEXT_LENGTH = 400
 MAX_PRICE_MENTIONS = 2
+MAX_PAGES = 420
+REQUEST_DELAY_SECONDS = 1.0
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -51,15 +70,18 @@ def smallest_container_with_price(link_tag, max_levels=6):
     return None
 
 
-def fetch_listings(url):
-    resp = requests.get(url, headers=HEADERS, timeout=20)
-    resp.raise_for_status()
+def fetch_listings_page(url, seen):
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"DEBUG: request failed for {url}: {e}")
+        return None
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
 
-    seen = {}
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -105,6 +127,19 @@ def fetch_listings(url):
             "title": title,
             "portal": "imoti.net",
         }
+    return len(matching_links)
+
+
+def fetch_listings():
+    seen = {}
+    for page_num in range(1, MAX_PAGES + 1):
+        if page_num > 1:
+            time.sleep(REQUEST_DELAY_SECONDS)
+        url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
+        link_count = fetch_listings_page(url, seen)
+        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+        if not link_count:
+            break
     return list(seen.values())
 
 
@@ -176,7 +211,7 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings(SEARCH_URL)
+    listings = fetch_listings()
     history = load_history()
     history = update_history(history, listings)
     save_history(history)
