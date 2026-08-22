@@ -1,9 +1,8 @@
 """
-Round 2: explore bazar.bg's /obiavi/imoti category page to find how to filter
-to Sofia + apartments + for-sale (query params, sub-category links, etc).
+Round 3: explore bazar.bg's /obiavi/prodazhba-imoti (for-sale) page to find how
+it links to city-filtered and apartment-only combined URLs.
 """
 
-import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -23,34 +22,39 @@ def check(url):
 
 
 def main():
-    r = check("https://bazar.bg/obiavi/imoti")
+    r = check("https://bazar.bg/obiavi/prodazhba-imoti")
     soup = BeautifulSoup(r.text, "html.parser")
 
-    print("\n--- all links under /obiavi/imoti (sub-categories/filters) ---")
+    print("\n--- links containing 'sofia' or 'apartament' ---")
     seen = set()
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "/obiavi/imoti" in href or "imoti" in href.lower():
+        if "sofia" in href.lower() or "apartament" in href.lower():
             text = a.get_text(strip=True)
             if href not in seen:
                 seen.add(href)
-                print(repr(href), "|", repr(text[:60]))
-        if len(seen) >= 60:
-            break
+                print(repr(href), "|", repr(text[:70]))
 
-    print("\n--- form elements (selects/inputs) that might be filters ---")
-    for form in soup.find_all("form"):
-        print("FORM action=", form.get("action"), "method=", form.get("method"))
-        for sel in form.find_all("select"):
-            print("  select name=", sel.get("name"))
-            for opt in sel.find_all("option")[:15]:
-                print("    option value=", repr(opt.get("value")), "text=", repr(opt.get_text(strip=True)))
+    print("\n--- nav/breadcrumb/category links near top of page (first 400 chars of body classes/nav) ---")
+    nav = soup.find("nav")
+    if nav:
+        print(nav.get_text(" ", strip=True)[:500])
 
-    print("\n--- search for 'sofia' or 'apartament' anywhere in href attributes ---")
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if re.search(r"sofia|apartament", href, re.I):
-            print(repr(href), "|", repr(a.get_text(strip=True)[:60]))
+    # Try some plausible combined URLs directly.
+    for guess in [
+        "https://bazar.bg/obiavi/prodazhba-apartamenti",
+        "https://bazar.bg/obiavi/prodazhba-imoti/sofia",
+        "https://bazar.bg/obiavi/apartamenti/sofia",
+        "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia",
+        "https://bazar.bg/obiavi/prodazhba-apartamenti-sofia",
+    ]:
+        rr = check(guess)
+        if rr is not None and rr.status_code == 200:
+            s2 = BeautifulSoup(rr.text, "html.parser")
+            title = s2.title.string if s2.title else None
+            h1 = s2.find("h1")
+            print("  title:", title)
+            print("  h1:", h1.get_text(strip=True) if h1 else None)
 
 
 if __name__ == "__main__":
