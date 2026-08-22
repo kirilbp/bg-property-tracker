@@ -1,0 +1,35 @@
+name: TEMP test real-date fix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/bg-property-tracker-setup-30c2rp
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4 playwright
+      - run: playwright install --with-deps chromium
+
+      - run: python scraper_homes.py
+      - run: python scraper_olx.py
+
+      - name: sample results
+        run: |
+          python3 -c "
+import json
+for name in ['leads_homes.json', 'leads_olx.json']:
+    data = json.load(open('data/' + name, encoding='utf-8'))
+    print(f'=== {name}: {len(data)} leads ===')
+    for l in data[:5]:
+        print(f\"  id={l['id']} days_on_market={l.get('days_on_market')} score={l.get('score')} site_updated_at={l.get('site_updated_at')} photos={len(l.get('photos') or [])} has_description={bool(l.get('description'))}\")
+    zero_days = sum(1 for l in data if l.get('days_on_market') == 0)
+    print(f'  listings with days_on_market == 0: {zero_days}/{len(data)}')
+"
