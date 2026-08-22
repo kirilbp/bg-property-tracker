@@ -1,0 +1,37 @@
+# scraper.py (imoti.net) and scraper_alo.py (alo.bg) each cover ~10,000
+# listings across 300+ paginated requests - a full run of either takes
+# several minutes, so they run here on their own 24h schedule instead of
+# in the main 6-hourly scrape.yml.
+name: Scrape large property listing sites
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python scraper.py
+
+      - run: python scraper_alo.py
+
+      - run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Update listings (large sites)"
+          git pull --rebase origin main
+          git push
