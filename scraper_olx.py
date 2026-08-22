@@ -49,6 +49,16 @@ def fetch_html(url):
         page = context.new_page()
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
+        # Listing photos are lazy-loaded as cards enter the viewport, so scroll
+        # through the whole page to force them all to load before reading src.
+        prev_height = 0
+        for _ in range(15):
+            page.mouse.wheel(0, 2000)
+            page.wait_for_timeout(400)
+            height = page.evaluate("document.body.scrollHeight")
+            if height == prev_height:
+                break
+            prev_height = height
         html = page.content()
         browser.close()
     return html
