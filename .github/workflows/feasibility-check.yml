@@ -15,4 +15,21 @@ jobs:
 
       - run: pip install requests beautifulsoup4
 
-      - run: python feasibility_check.py
+      - run: python scraper_bazar.py
+
+      - run: cat data/leads_bazar.json
+
+      - name: Category-filtering sanity check
+        run: |
+          python3 -c "
+          import json, re
+          leads = json.load(open('data/leads_bazar.json'))
+          print(f'total leads: {len(leads)}')
+          bad = [l for l in leads if not re.search(r'СТАЕН|МЕЗОНЕТ|МНОГОСТАЕН|апартамент|Апартамент', l['title'], re.I)]
+          print(f'titles NOT matching apartment/room-count pattern: {len(bad)}')
+          for l in bad[:20]:
+              print('  SUSPECT:', l['id'], repr(l['title']))
+          areas = set(l['area'] for l in leads)
+          print('unique areas:', len(areas))
+          print('sample areas:', list(areas)[:15])
+          "
