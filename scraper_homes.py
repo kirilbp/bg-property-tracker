@@ -7,6 +7,13 @@ by their own frontend - no HTML/regex scraping needed, just pull the JSON.
 The homepage's default search is already "Apartments for sale - Sofia"
 (confirmed via searchCriteria in that JSON), and further pages are fetched
 with ?page=N.
+
+The pagination loop already stops on the API's own hasMoreItems=False, but
+was also hard-capped at PAGES_TO_FETCH=2 regardless - confirmed against the
+live site that hasMoreItems is still True well past page 2 (checked through
+page 7), so real results were being cut off early. Raised the cap to a
+generous safety limit and let hasMoreItems be the real stopping condition,
+same pattern as the other scrapers' "stop on empty page".
 """
 
 import json
@@ -18,7 +25,7 @@ import requests
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
-PAGES_TO_FETCH = 2
+PAGES_TO_FETCH = 100
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
