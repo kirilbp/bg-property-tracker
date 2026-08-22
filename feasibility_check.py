@@ -1,11 +1,11 @@
 """
-One-off feasibility check: can a plain requests-based fetch reach imoti.bg's
-Sofia apartment-for-sale search page, or does it get blocked?
-Not part of the scraper suite - run manually, then deleted.
+Round 2: find imoti.bg's real listing link pattern and Sofia sales search
+URL, and inspect one listing card's HTML structure.
 """
 
 import re
 import requests
+from bs4 import BeautifulSoup
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -13,35 +13,39 @@ HEADERS = {
     "Accept-Language": "bg-BG,bg;q=0.9,en;q=0.8",
 }
 
-BLOCK_MARKERS = [
-    "captcha", "cloudflare", "access denied", "just a moment",
-    "не е намерена", "403 forbidden", "attention required", "are you human",
-]
+KEYWORDS = ["sofia", "apartament", "prodaj", "prodazh", "obiava", "imot"]
 
-SITES = [
-    ("Homepage", "https://www.imoti.bg/"),
-    ("Guessed Sofia sales 1", "https://www.imoti.bg/obiavi/prodazhba/sofia/apartamenti"),
-    ("Guessed Sofia sales 2", "https://www.imoti.bg/sofia/prodazhba/apartamenti"),
-]
+
+def dump_links(url):
+    print("=" * 70)
+    print("FETCHING:", url)
+    resp = requests.get(url, headers=HEADERS, timeout=20)
+    print(f"status: {resp.status_code}  len: {len(resp.text)}")
+    soup = BeautifulSoup(resp.text, "html.parser")
+    title = soup.find("title")
+    print("title:", title.get_text() if title else None)
+
+    links = set()
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if any(k in href.lower() for k in KEYWORDS):
+            links.add(href)
+    print(f"found {len(links)} relevant links:")
+    for l in sorted(links)[:50]:
+        print("  ", l)
+    return resp.text, soup
 
 
 def main():
-    for name, url in SITES:
-        print("=" * 70)
-        print(f"{name}  ->  {url}")
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=20, allow_redirects=True)
-            text = resp.text
-            print(f"status: {resp.status_code}  final_url: {resp.url}  len: {len(text)}")
-            lower = text.lower()
-            hits = [m for m in BLOCK_MARKERS if m in lower]
-            if hits:
-                print(f"  BLOCK MARKERS FOUND: {hits}")
-            price_hits = len(re.findall(r"[\d\s]{3,10}\s?(лв|eur|€)", text, re.IGNORECASE))
-            print(f"  price-like patterns: {price_hits}")
-            print(f"  snippet: {text[:400].strip().replace(chr(10), ' ')}")
-        except Exception as e:
-            print(f"  ERROR: {type(e).__name__}: {e}")
+    text, soup = dump_links("https://www.imoti.bg/")
+
+    print()
+    print("### robots.txt ###")
+    try:
+        r = requests.get("https://www.imoti.bg/robots.txt", headers=HEADERS, timeout=15)
+        print(r.text[:1500])
+    except Exception as e:
+        print("ERROR:", e)
 
 
 if __name__ == "__main__":
