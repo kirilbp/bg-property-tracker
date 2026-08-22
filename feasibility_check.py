@@ -1,9 +1,9 @@
 """
-Round 5: fix two bugs found in round 4 - (1) a JS-dispatched .click() on the
-select2 list item doesn't fire select2's real mouse event handlers, so use a
-real Playwright click on the exact-match locator instead; (2) a cookie-
-consent banner intercepts pointer events on the search button, so dismiss it
-first. Then complete the full click flow and inspect results.
+Round 6: fix cookie-banner dismissal - round 5's substring text match
+('Съгласен') likely hit the newsletter agreement checkbox label instead of
+the actual cookie banner button, leaving the page in a broken state. Target
+the banner specifically by its known wrapper class (.cc_banner-wrapper) and
+verify the select2 dropdown is still present before continuing.
 """
 
 import re
@@ -22,25 +22,29 @@ def main():
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
 
-        print("Step 0: dismiss cookie-consent banner if present")
-        for text in ["Приемам", "Разбрах", "Съгласен", "OK", "Приеми"]:
-            btn = page.locator(f"button:has-text('{text}'), a:has-text('{text}')")
-            if btn.count() > 0:
-                try:
-                    btn.first.click(timeout=3000)
-                    print("  dismissed via button text:", text)
-                    break
-                except Exception as e:
-                    print("  click failed for", text, e)
-        page.evaluate("() => { const b = document.querySelector('.cc_banner-wrapper'); if (b) b.remove(); }")
+        print("Step 0: dismiss cookie-consent banner (scoped to .cc_banner-wrapper only)")
+        banner = page.locator(".cc_banner-wrapper")
+        print("banner present:", banner.count())
+        if banner.count() > 0:
+            btn_texts = page.evaluate("""
+            () => Array.from(document.querySelectorAll('.cc_banner-wrapper button, .cc_banner-wrapper a'))
+              .map(b => b.textContent.trim())
+            """)
+            print("banner buttons/links:", btn_texts)
+            removed = page.evaluate("""
+            () => { const b = document.querySelector('.cc_banner-wrapper'); if (b) { b.remove(); return true; } return false; }
+            """)
+            print("banner force-removed via JS:", removed)
         page.wait_for_timeout(300)
 
+        print("\nverify select2 dropdown element still present:")
+        print("count:", page.locator("#s2id_district_id").count())
+
         print("\nStep 1: open the select2 location dropdown")
-        page.click("#s2id_district_id .select2-choice")
+        page.click("#s2id_district_id .select2-choice", timeout=10000)
         page.wait_for_timeout(500)
 
         print("Step 2: real Playwright click on the exact 'София' list item")
-        # Use exact text match via get_by_text(exact=True) restricted to the results list.
         sofia_item = page.locator("#select2-results-1 li").filter(has_text=re.compile(r"^София$"))
         print("matches for exact 'София':", sofia_item.count())
         sofia_item.first.click(timeout=5000)
