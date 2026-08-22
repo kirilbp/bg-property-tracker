@@ -21,8 +21,11 @@ def main():
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
-        # Cloudflare's JS challenge typically resolves within a few seconds.
-        page.wait_for_timeout(6000)
+        # Round 1 (6s wait) still showed the Cloudflare challenge page - give it
+        # much longer in case this is a heavier "managed challenge" than the
+        # simple JS challenge that resolved quickly for imot.bg/OLX.bg.
+        page.wait_for_timeout(20000)
+        print("navigator.webdriver:", page.evaluate("() => navigator.webdriver"))
 
         print("page url:", page.url)
         print("page title:", page.title())
