@@ -74,7 +74,12 @@ def fetch_html(url):
 
 
 def smallest_container_with_price(link_tag, max_levels=9):
+    # imoti.bg's price sits in a deeper single-purpose element than the area
+    # line, so unlike the other scrapers the first ancestor with exactly one
+    # price mention is too small to also contain the area - keep climbing
+    # and return the largest ancestor that still satisfies the constraints.
     node = link_tag
+    best = None
     for _ in range(max_levels):
         if node.parent is None:
             break
@@ -82,10 +87,10 @@ def smallest_container_with_price(link_tag, max_levels=9):
         text = node.get_text(" ", strip=True)
         matches = PRICE_RE.findall(text)
         if len(matches) > MAX_PRICE_MENTIONS:
-            return None
+            break
         if 1 <= len(matches) <= MAX_PRICE_MENTIONS and len(text) <= MAX_CARD_TEXT_LENGTH:
-            return node
-    return None
+            best = node
+    return best
 
 
 def fetch_listings_page(url):
