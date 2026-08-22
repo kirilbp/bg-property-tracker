@@ -10,7 +10,7 @@ scraper.py, scraper_alo.py, and scraper_imot.py. Within that card the text
 follows a consistent per-line layout:
     line 0: title (free text, e.g. "Двустаен апартамент в Младост")
     line 1: "<price> €"
-    line 2: "гр. София, <area> - <date>"
+    line 2: "гр. София, <area> - Обновено на <date>" (or Днес/Вчера etc.)
     line 3: "<sqm> кв.м - <price per sqm>"
 """
 
@@ -38,7 +38,7 @@ MAX_PRICE_MENTIONS = 1
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
 PRICE_LINE_RE = re.compile(r"^([\d\s]{3,10})\s?€$")
-AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+?)\s*-\s*\d")
+AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+?)\s-\s")
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
 
 
