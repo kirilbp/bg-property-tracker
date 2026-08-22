@@ -48,6 +48,7 @@
   .badge-above { background: #fef2f2; color: #b91c1c; }
   .badge-drop { background: #eff6ff; color: #1d4ed8; }
   .badge-portal { background: #f1f5f9; color: #475569; }
+  .badge-unverified { background: #fef3c7; color: #92400e; }
   .registry-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 12px; color: #64748b; text-decoration: none;
@@ -132,6 +133,12 @@
 <script>
 const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
 const REGISTRY_URL = 'https://portal.registryagency.bg/';
+// A listing's price/m² this far off its area average (computed per source
+// portal, in each scraper's compute_leads()) is more likely a data glitch
+// than a real deal - e.g. a price accidentally parsed as a monthly rent, or
+// a currency/decimal slip. Flag it as unverified rather than trust it at
+// face value; never drop it from the results.
+const UNVERIFIED_PCT_THRESHOLD = 60;
 
 let ALL_LISTINGS = [];
 let chart = null;
@@ -158,6 +165,10 @@ async function loadData() {
     imoti.forEach(l => { if (!l.portal) l.portal = 'imoti.net'; });
 
     ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar, ...imotibg];
+    ALL_LISTINGS.forEach(l => {
+      l.unverified = l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined &&
+        Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
+    });
     document.getElementById('subtitle').textContent =
       `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
@@ -255,6 +266,9 @@ function render() {
     card.className = 'listing';
 
     let badges = `<span class="badge badge-portal">${l.portal}</span>`;
+    if (l.unverified) {
+      badges += '<span class="badge badge-unverified" title="Price/m² is far enough from the area average that it may be a data error - double-check against the listing page.">⚠️ Unverified price</span>';
+    }
     if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
     else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
 
