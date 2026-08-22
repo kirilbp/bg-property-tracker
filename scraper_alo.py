@@ -1,9 +1,21 @@
 """
 Scrapes current Sofia apartment listings from alo.bg.
+
+Search results are paginated with &page=N (confirmed via the site's own
+paginator; alo.bg itself states ~9995 apartment listings for this search at
+30/page, i.e. ~333 pages). The scraper originally only fetched page 1 with
+no pagination loop at all - fixed by paging through page=2, page=3, ...
+until a page comes back with no listings, same "stop on empty page" pattern
+as scraper_bazar.py, scraper_imot.py, and scraper_imoti_bg.py, capped at
+MAX_PAGES as a safety limit. Learned from scraper.py's imoti.net fix: a
+delay between requests is needed to avoid getting rate-limited (HTTP 403)
+partway through, and a failed request is treated as "no more listings"
+(stop and keep what was collected) rather than crashing the whole run.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +33,8 @@ LEADS_FILE = OUT_DIR / "leads_alo.json"
 
 MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
+MAX_PAGES = 350
+REQUEST_DELAY_SECONDS = 1.0
 
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
 PRICE_RE = re.compile(r"Цена:\s*([\d\s]+)\s?€")
@@ -56,18 +70,19 @@ def smallest_container_with_price(link_tag, max_levels=6):
     return None
 
 
-def fetch_listings(url):
-    resp = requests.get(url, headers=HEADERS, timeout=20)
-    print("DEBUG: HTTP status code = " + str(resp.status_code))
+def fetch_listings_page(url, seen):
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"DEBUG: request failed for {url}: {e}")
+        return None
 
-    resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
-    print("DEBUG: links matching listing URL pattern = " + str(len(matching_links)))
 
-    seen = {}
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -122,8 +137,22 @@ def fetch_listings(url):
             "title": title[:120],
             "portal": "alo.bg",
         }
+    return len(matching_links)
+
+
+def fetch_listings():
+    seen = {}
+    for page_num in range(1, MAX_PAGES + 1):
+        if page_num > 1:
+            time.sleep(REQUEST_DELAY_SECONDS)
+        url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}&page={page_num}"
+        link_count = fetch_listings_page(url, seen)
+        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+        if not link_count:
+            break
     return list(seen.values())
-    
+
+
 def load_history():
     if HISTORY_FILE.exists():
         return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
@@ -191,7 +220,7 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings(SEARCH_URL)
+    listings = fetch_listings()
     history = load_history()
     history = update_history(history, listings)
     save_history(history)
