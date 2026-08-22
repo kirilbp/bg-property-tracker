@@ -1,8 +1,6 @@
 """
-One-off feasibility check: can a headless browser (Playwright) get past
-imot.bg's bot detection where plain requests-based fetching is blocked?
-Not part of the scraper suite - run manually via a temporary workflow,
-then deleted.
+Round 2: find imot.bg's real Sofia apartments-for-sale search URL, following
+the /obiavi/prodazhbi link pattern found on the homepage.
 """
 
 import re
@@ -11,7 +9,6 @@ from playwright.sync_api import sync_playwright
 BLOCK_MARKERS = [
     "captcha", "cloudflare", "access denied", "just a moment",
     "не е намерена", "403 forbidden", "attention required", "are you human",
-    "pardon our interruption", "verify you are human",
 ]
 
 
@@ -20,30 +17,22 @@ def check(page, url, label):
     print(f"{label}  ->  {url}")
     resp = page.goto(url, wait_until="domcontentloaded", timeout=30000)
     print(f"status: {resp.status if resp else None}  final_url: {page.url}")
-    page.wait_for_timeout(2000)
+    page.wait_for_timeout(1500)
     html = page.content()
-    print(f"html length: {len(html)}")
-    print(f"title: {page.title()}")
+    print(f"html length: {len(html)}  title: {page.title()}")
     lower = html.lower()
     hits = [m for m in BLOCK_MARKERS if m in lower]
     if hits:
         print(f"  BLOCK MARKERS FOUND: {hits}")
-    else:
-        print("  no block markers found")
-    price_hits = len(re.findall(r"[\d\s]{3,12}\s?(лв|eur|€)", html, re.IGNORECASE))
-    print(f"  price-like patterns: {price_hits}")
-    links = page.eval_on_selector_all(
-        "a[href]", "els => els.map(e => e.getAttribute('href'))"
-    )
+    links = page.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))")
     relevant = sorted(set(
         h for h in links
-        if h and any(k in h.lower() for k in ["sofia", "sofiya", "apartament", "prodazh", "prodaj"])
+        if h and ("sofia" in h.lower() or "sofiya" in h.lower())
     ))
-    print(f"  relevant links found: {len(relevant)}")
-    for l in relevant[:30]:
+    print(f"  sofia-relevant links: {len(relevant)}")
+    for l in relevant[:40]:
         print("    ", l)
-    print(f"  snippet: {html[:600]}")
-    return html
+    return page.url, html
 
 
 def main():
@@ -56,8 +45,9 @@ def main():
         )
         page = context.new_page()
 
-        check(page, "https://www.imot.bg/", "Homepage")
-        check(page, "https://www.imot.bg/pcgi/imot.cgi?act=3&slink=&f1=1", "Guessed search 1")
+        check(page, "https://www.imot.bg/obiavi/prodazhbi", "Sales category root")
+        check(page, "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya", "Guessed Sofia sales")
+        check(page, "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya/dvustaen", "Guessed Sofia 2-room sales")
 
         browser.close()
 
