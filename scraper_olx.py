@@ -50,15 +50,18 @@ def fetch_html(url):
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
         # Listing photos are lazy-loaded as cards enter the viewport, so scroll
-        # all the way to the bottom to force them all to load before reading src.
-        for _ in range(25):
-            page.mouse.wheel(0, 2000)
-            page.wait_for_timeout(300)
+        # all the way to the bottom (slowly, so each batch has time to actually
+        # finish loading, not just get requested) to force them all in before
+        # reading src.
+        for _ in range(35):
+            page.mouse.wheel(0, 1200)
+            page.wait_for_timeout(500)
             at_bottom = page.evaluate(
                 "window.innerHeight + window.scrollY >= document.body.scrollHeight - 10"
             )
             if at_bottom:
                 break
+        page.wait_for_timeout(2000)
         html = page.content()
         browser.close()
     return html
