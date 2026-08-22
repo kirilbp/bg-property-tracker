@@ -1,7 +1,8 @@
 """
-Round 1: reconnaissance on imoti.bg's homepage/search UI to find the location
-dropdown's actual DOM structure (buttons, list items, data attributes) so we
-can script real clicks on it (open dropdown -> click "Sofia" -> click submit).
+Round 2: inspect the full search form on imoti.bg's homepage - action/method,
+all fields (district_id, type_id, deal-type toggle for sales vs rent), and
+the actual submit control (may be icon-only, hence missed by text-based
+button search in round 1).
 """
 
 from playwright.sync_api import sync_playwright
@@ -19,56 +20,36 @@ def main():
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(2000)
 
-        print("page title:", page.title())
-        print("page url:", page.url)
-
-        # Dump all elements that look like a location/city selector.
-        print("\n--- elements mentioning 'sofia' / 'sofiya' / 'grad' / 'lokation' / 'location' (case-insensitive) in text or attrs ---")
-        candidates = page.evaluate("""
-        () => {
-          const out = [];
-          const all = document.querySelectorAll('*');
-          const kw = /sofia|sofiya|софия|grad|lokat|location|city|населено/i;
-          for (const el of all) {
-            const text = (el.textContent || '').trim();
-            const attrs = Array.from(el.attributes || []).map(a => a.name + '=' + a.value).join(' ');
-            if ((text.length > 0 && text.length < 60 && kw.test(text)) || kw.test(attrs)) {
-              out.push({
-                tag: el.tagName,
-                id: el.id,
-                cls: el.className && el.className.toString ? el.className.toString().slice(0,80) : '',
-                text: text.slice(0, 60),
-                attrs: attrs.slice(0, 150)
-              });
-            }
-            if (out.length >= 60) break;
-          }
-          return out;
-        }
-        """)
-        for c in candidates:
-            print(c)
-
-        print("\n--- all <select> elements ---")
-        selects = page.evaluate("""
-        () => Array.from(document.querySelectorAll('select')).map(s => ({
-          id: s.id, name: s.name,
-          options: Array.from(s.options).slice(0, 10).map(o => o.value + '|' + o.text)
+        print("--- forms on page ---")
+        forms = page.evaluate("""
+        () => Array.from(document.querySelectorAll('form')).map(f => ({
+          id: f.id, action: f.action, method: f.method,
+          html_snippet: f.outerHTML.slice(0, 3000)
         }))
         """)
-        for s in selects:
-            print(s)
+        for i, f in enumerate(forms):
+            print(f"FORM #{i}: id={f['id']} action={f['action']} method={f['method']}")
+            print(f['html_snippet'])
+            print("-" * 80)
 
-        print("\n--- all <button> and role=button elements with short text ---")
-        buttons = page.evaluate("""
-        () => Array.from(document.querySelectorAll('button, [role=button], input[type=submit]')).map(b => ({
-          tag: b.tagName, id: b.id,
-          cls: b.className && b.className.toString ? b.className.toString().slice(0,80) : '',
-          text: (b.textContent || b.value || '').trim().slice(0, 40)
-        })).filter(b => b.text.length > 0 && b.text.length < 40)
+        print("\n--- ALL clickable elements with no/short text (icon buttons, submit inputs, links) near the district_id select ---")
+        near = page.evaluate("""
+        () => {
+          const sel = document.getElementById('district_id');
+          if (!sel) return 'no district_id select found';
+          let container = sel.closest('form') || sel.parentElement.parentElement.parentElement;
+          const clickable = container.querySelectorAll('button, a, input[type=submit], input[type=button], [onclick], [role=button]');
+          return Array.from(clickable).map(el => ({
+            tag: el.tagName,
+            type: el.type || '',
+            cls: el.className && el.className.toString ? el.className.toString().slice(0,80) : '',
+            text: (el.textContent || el.value || '').trim().slice(0, 40),
+            href: el.href || ''
+          }));
+        }
         """)
-        for b in buttons[:40]:
-            print(b)
+        for n in near:
+            print(n)
 
         browser.close()
 
