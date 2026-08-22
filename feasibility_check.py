@@ -1,10 +1,14 @@
 """
-Round 2: inspect the full search form on imoti.bg's homepage - action/method,
-all fields (district_id, type_id, deal-type toggle for sales vs rent), and
-the actual submit control (may be icon-only, hence missed by text-based
-button search in round 1).
+Round 3: simulate the real click flow on imoti.bg's homepage search form -
+open the select2 location dropdown, click "София" (the city option, not
+"София област"), keep "Продажба" (sell) selected, click the real "Търси"
+button, then inspect the resulting page: URL, listing count, neighbourhood
+diversity, pagination depth. This is the actual test of whether Sofia
+filtering produces genuine results or the same thin nationwide batch as
+before.
 """
 
+import re
 from playwright.sync_api import sync_playwright
 
 URL = "https://imoti.bg"
@@ -18,38 +22,66 @@ def main():
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1500)
 
-        print("--- forms on page ---")
-        forms = page.evaluate("""
-        () => Array.from(document.querySelectorAll('form')).map(f => ({
-          id: f.id, action: f.action, method: f.method,
-          html_snippet: f.outerHTML.slice(0, 3000)
-        }))
+        print("Step 1: open the select2 location dropdown")
+        page.click("#s2id_district_id .select2-choice")
+        page.wait_for_timeout(500)
+
+        print("Step 2: type 'София' into the select2 search box")
+        page.fill("#s2id_autogen1_search", "София")
+        page.wait_for_timeout(800)
+
+        print("Step 3: dump visible dropdown results")
+        results = page.evaluate("""
+        () => Array.from(document.querySelectorAll('.select2-results li')).map(li => li.textContent.trim())
         """)
-        for i, f in enumerate(forms):
-            print(f"FORM #{i}: id={f['id']} action={f['action']} method={f['method']}")
-            print(f['html_snippet'])
-            print("-" * 80)
+        print("visible options:", results)
 
-        print("\n--- ALL clickable elements with no/short text (icon buttons, submit inputs, links) near the district_id select ---")
-        near = page.evaluate("""
+        print("Step 4: click the exact 'София' result (not 'София област')")
+        # select2 renders results as <li><div>Text</div></li>; match exact text.
+        clicked = page.evaluate("""
         () => {
-          const sel = document.getElementById('district_id');
-          if (!sel) return 'no district_id select found';
-          let container = sel.closest('form') || sel.parentElement.parentElement.parentElement;
-          const clickable = container.querySelectorAll('button, a, input[type=submit], input[type=button], [onclick], [role=button]');
-          return Array.from(clickable).map(el => ({
-            tag: el.tagName,
-            type: el.type || '',
-            cls: el.className && el.className.toString ? el.className.toString().slice(0,80) : '',
-            text: (el.textContent || el.value || '').trim().slice(0, 40),
-            href: el.href || ''
-          }));
+          const items = Array.from(document.querySelectorAll('.select2-results li'));
+          const exact = items.find(li => li.textContent.trim() === 'София');
+          if (exact) { exact.querySelector('div, span, .select2-result-label')?.click() || exact.click(); return true; }
+          return false;
         }
         """)
-        for n in near:
-            print(n)
+        print("clicked exact match via JS:", clicked)
+        page.wait_for_timeout(500)
+
+        selected_text = page.evaluate("() => document.getElementById('select2-chosen-1')?.textContent")
+        print("select2 now shows:", selected_text)
+        district_value = page.eval_on_selector("#district_id", "el => el.value")
+        print("underlying select value:", district_value)
+
+        print("\nStep 5: click the real 'Търси' search button")
+        with page.expect_navigation(wait_until="domcontentloaded", timeout=15000):
+            page.click("a.button.button-primary:has-text('Търси')")
+        page.wait_for_timeout(1500)
+
+        print("\nresulting URL:", page.url)
+        print("resulting title:", page.title())
+
+        html = page.content()
+        listing_link_count = len(re.findall(r'href="https://imoti\.bg/(продажби|наеми)/[^"]+"', html))
+        print("listing-detail links found on results page:", listing_link_count)
+
+        # sample some listing titles/areas from the page text
+        sample = page.evaluate("""
+        () => Array.from(document.querySelectorAll('a[href*="/продажби/"], a[href*="/наеми/"]'))
+          .map(a => a.textContent.trim()).filter(t => t.length > 10).slice(0, 20)
+        """)
+        print("\nsample listing texts:")
+        for s in sample:
+            print(" ", repr(s))
+
+        # pagination check
+        page_links = page.evaluate("""
+        () => Array.from(document.querySelectorAll('a[href*="page="], .pagination a')).map(a => a.textContent.trim()).slice(0, 20)
+        """)
+        print("\npagination elements:", page_links)
 
         browser.close()
 
