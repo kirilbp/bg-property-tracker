@@ -33,6 +33,8 @@ jobs:
 
       - run: python scraper_bazar.py
 
+      - run: python scraper_imoti_bg.py
+
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"

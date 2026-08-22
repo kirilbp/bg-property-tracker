@@ -138,13 +138,14 @@ let chart = null;
 
 async function loadData() {
   try {
-    const [imotiRes, aloRes, homesRes, imotBgRes, olxRes, bazarRes] = await Promise.all([
+    const [imotiRes, aloRes, homesRes, imotBgRes, olxRes, bazarRes, imotibgRes] = await Promise.all([
       fetch('data/leads.json?_=' + Date.now()),
       fetch('data/leads_alo.json?_=' + Date.now()),
       fetch('data/leads_homes.json?_=' + Date.now()),
       fetch('data/leads_imot.json?_=' + Date.now()),
       fetch('data/leads_olx.json?_=' + Date.now()),
       fetch('data/leads_bazar.json?_=' + Date.now()),
+      fetch('data/leads_imoti_bg.json?_=' + Date.now()),
     ]);
     const imoti = await imotiRes.json();
     const alo = await aloRes.json();
@@ -152,12 +153,13 @@ async function loadData() {
     const imotBg = await imotBgRes.json();
     const olx = await olxRes.json();
     const bazar = await bazarRes.json();
+    const imotibg = await imotibgRes.json();
 
     imoti.forEach(l => { if (!l.portal) l.portal = 'imoti.net'; });
 
-    ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar];
+    ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar, ...imotibg];
     document.getElementById('subtitle').textContent =
-      `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg) · auto-updates every 6 hours`;
+      `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
     renderChart();
     render();
