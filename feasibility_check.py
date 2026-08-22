@@ -1,9 +1,7 @@
 """
-Round 6: fix cookie-banner dismissal - round 5's substring text match
-('Съгласен') likely hit the newsletter agreement checkbox label instead of
-the actual cookie banner button, leaving the page in a broken state. Target
-the banner specifically by its known wrapper class (.cc_banner-wrapper) and
-verify the select2 dropdown is still present before continuing.
+Round 7: with the click flow confirmed working, pull actual listing card
+content (title, area, price) from the Sofia-filtered results page to verify
+data richness and diversity - not just the raw link count.
 """
 
 import re
@@ -22,63 +20,43 @@ def main():
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
 
-        print("Step 0: dismiss cookie-consent banner (scoped to .cc_banner-wrapper only)")
-        banner = page.locator(".cc_banner-wrapper")
-        print("banner present:", banner.count())
-        if banner.count() > 0:
-            btn_texts = page.evaluate("""
-            () => Array.from(document.querySelectorAll('.cc_banner-wrapper button, .cc_banner-wrapper a'))
-              .map(b => b.textContent.trim())
-            """)
-            print("banner buttons/links:", btn_texts)
-            removed = page.evaluate("""
-            () => { const b = document.querySelector('.cc_banner-wrapper'); if (b) { b.remove(); return true; } return false; }
-            """)
-            print("banner force-removed via JS:", removed)
+        page.evaluate("() => { const b = document.querySelector('.cc_banner-wrapper'); if (b) b.remove(); }")
         page.wait_for_timeout(300)
 
-        print("\nverify select2 dropdown element still present:")
-        print("count:", page.locator("#s2id_district_id").count())
-
-        print("\nStep 1: open the select2 location dropdown")
         page.click("#s2id_district_id .select2-choice", timeout=10000)
         page.wait_for_timeout(500)
-
-        print("Step 2: real Playwright click on the exact 'София' list item")
         sofia_item = page.locator("#select2-results-1 li").filter(has_text=re.compile(r"^София$"))
-        print("matches for exact 'София':", sofia_item.count())
         sofia_item.first.click(timeout=5000)
         page.wait_for_timeout(500)
 
-        selected_text = page.evaluate("() => document.getElementById('select2-chosen-1')?.textContent")
-        print("select2 now shows:", selected_text)
-        district_value = page.eval_on_selector("#district_id", "el => el.value")
-        print("underlying select value:", district_value)
-
-        print("\nStep 3: click the real 'Търси' search button")
         with page.expect_navigation(wait_until="domcontentloaded", timeout=15000):
             page.click("#btnSearch2", force=True)
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(2000)
 
-        print("\nresulting URL:", page.url)
-        print("resulting title:", page.title())
+        print("resulting URL:", page.url)
 
-        html = page.content()
-        listing_link_count = len(re.findall(r'href="https://imoti\.bg/(продажби|наеми)/[^"]+"', html))
-        print("listing-detail links found on results page:", listing_link_count)
+        # Climb from each listing link to a reasonably sized card and dump its text.
+        links = page.locator('a[href*="/продажби/"], a[href*="/наеми/"]')
+        n = links.count()
+        print("total matching links:", n)
 
-        sample = page.evaluate("""
-        () => Array.from(document.querySelectorAll('a[href*="/продажби/"], a[href*="/наеми/"]'))
-          .map(a => a.textContent.trim()).filter(t => t.length > 10).slice(0, 25)
-        """)
-        print("\nsample listing texts:")
-        for s in sample:
-            print(" ", repr(s))
+        seen_hrefs = set()
+        shown = 0
+        for i in range(n):
+            href = links.nth(i).get_attribute("href")
+            if not href or href in seen_hrefs:
+                continue
+            seen_hrefs.add(href)
+            text = links.nth(i).inner_text().strip()
+            if len(text) > 15:
+                print("=" * 60)
+                print("href:", href)
+                print("text:", repr(text))
+                shown += 1
+            if shown >= 15:
+                break
 
-        page_links = page.evaluate("""
-        () => Array.from(document.querySelectorAll('a[href*="page="], .pagination a')).map(a => a.textContent.trim()).slice(0, 20)
-        """)
-        print("\npagination elements:", page_links)
+        print("\nunique hrefs total:", len(seen_hrefs))
 
         browser.close()
 
