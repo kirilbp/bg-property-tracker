@@ -21,6 +21,20 @@ reached the last page - and, since scrape.yml runs all 5 scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
+
+Each offer's raw JSON also carries a full "description" and a "photos"
+array (not just the single cover "photo") - both previously discarded
+even though already present in every fetch, now captured and surfaced on
+the listing detail page. There's also a "time" field, initially assumed
+to be a real "last updated" signal (like olx.bg's, see scraper_olx.py) -
+but sampling 280 live offers found 100% of them reporting "днес" (today)
+with zero variation, meaning homes.bg apparently marks every actively
+displayed listing as "today" regardless of true listing age. Using it
+for days_on_market would make every homes.bg listing permanently show 0
+days, which is worse than not using it at all - it would mask exactly
+the stagnant, long-listed properties this tool exists to surface. So
+days_on_market here stays purely tracking-based (time since we first
+scraped the listing), same as before.
 """
 
 import json
@@ -106,10 +120,19 @@ def fetch_listings():
             if photo:
                 photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
 
+            photos = []
+            for p in offer.get("photos") or []:
+                if isinstance(p, dict) and p.get("path") and p.get("name"):
+                    photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
+            if not photos and photo_url:
+                photos = [photo_url]
+
             seen[listing_id] = {
                 "id": listing_id,
                 "url": BASE_URL + offer["viewHref"],
                 "photo": photo_url,
+                "photos": photos,
+                "description": offer.get("description") or None,
                 "price_eur": parse_price_eur(offer["price"]),
                 "sqm": sqm,
                 "area": extract_area(offer.get("location", "")),
