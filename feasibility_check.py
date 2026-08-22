@@ -1,7 +1,7 @@
 """
-Round 5: fix listing-link detection (hrefs are absolute, not relative) and
-inspect the actual listing card markup on bazar.bg's Sofia apartments-for-sale
-page.
+Round 6: widen the card climb to find sqm/rooms info, sample more listings to
+verify category filtering (all titles/areas genuinely Sofia apartments), and
+check pagination.
 """
 
 import re
@@ -15,6 +15,7 @@ HEADERS = {
 }
 
 URL = "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia"
+LISTING_RE = re.compile(r"obiava-(\d+)")
 
 
 def main():
@@ -22,11 +23,11 @@ def main():
     print("status:", r.status_code, "length:", len(r.text))
     soup = BeautifulSoup(r.text, "html.parser")
 
-    LISTING_RE = re.compile(r"obiava-(\d+)")
     links = [a for a in soup.find_all("a", href=True) if LISTING_RE.search(a["href"])]
     print(f"total listing links found: {len(links)}")
 
     seen_ids = set()
+    all_titles = []
     shown = 0
     for a in links:
         m = LISTING_RE.search(a["href"])
@@ -37,30 +38,39 @@ def main():
 
         node = a
         card = None
-        for _ in range(6):
+        for _ in range(9):
             if node.parent is None:
                 break
             node = node.parent
             text = node.get_text(" ", strip=True)
-            if 40 <= len(text) <= 600:
+            if 40 <= len(text) <= 900:
                 card = node
-                break
+                # keep climbing a bit more to see if a bigger card captures sqm too;
+                # but stop once we clearly exceed one listing (multiple price/€ signs)
+                euro_count = text.count("€")
+                if euro_count > 1:
+                    card = None
+                    break
 
-        print("=" * 70)
-        print("id:", lid, "href:", a["href"])
         if card is not None:
             lines = [l.strip() for l in card.get_text("\n", strip=True).split("\n") if l.strip()]
-            for l in lines:
-                print("   ", repr(l))
-            imgs = card.find_all("img")
-            for img in imgs:
-                print("    img src=", img.get("src"), "data-src=", img.get("data-src"))
-        else:
-            print("   (no card found)")
-
+            title = lines[0] if lines else ""
+            all_titles.append(title)
+            if shown < 10:
+                print("=" * 70)
+                print("id:", lid)
+                for l in lines:
+                    print("   ", repr(l))
         shown += 1
-        if shown >= 8:
-            break
+
+    print("\n--- ALL sampled titles (category-filtering sanity check) ---")
+    for t in all_titles:
+        print(" ", repr(t))
+
+    print("\n--- pagination check ---")
+    for a in soup.find_all("a", href=True):
+        if "page=" in a["href"]:
+            print(repr(a["href"]), "|", repr(a.get_text(strip=True)))
 
 
 if __name__ == "__main__":
