@@ -83,6 +83,12 @@ def fetch_listings_page(url, seen):
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
 
+    page_ids = {LISTING_LINK_RE.search(a["href"]).group(1) for a in matching_links}
+    already_seen_count = sum(1 for pid in page_ids if pid in seen)
+    container_fail_count = 0
+    parse_fail_count = 0
+    added_count = 0
+
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -91,6 +97,7 @@ def fetch_listings_page(url, seen):
 
         container = smallest_container_with_price(a)
         if container is None:
+            container_fail_count += 1
             continue
 
         text = container.get_text(" ", strip=True)
@@ -99,10 +106,12 @@ def fetch_listings_page(url, seen):
         sqm_match = SQM_RE.search(text)
         area_match = AREA_RE.search(text)
         if not price_match:
+            parse_fail_count += 1
             continue
 
         price_eur = int(re.sub(r"\D", "", price_match.group(1)))
         if price_eur < 1000:
+            parse_fail_count += 1
             continue
         sqm = None
         if sqm_match:
@@ -137,6 +146,10 @@ def fetch_listings_page(url, seen):
             "title": title[:120],
             "portal": "alo.bg",
         }
+        added_count += 1
+    print(f"DEBUG: page detail - raw_links={len(matching_links)} unique_ids_on_page={len(page_ids)} "
+          f"already_in_seen={already_seen_count} container_fail={container_fail_count} "
+          f"parse_fail={parse_fail_count} added={added_count}")
     return len(matching_links)
 
 
