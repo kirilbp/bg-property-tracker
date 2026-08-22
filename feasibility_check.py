@@ -1,38 +1,9 @@
 """
-Round 2: find imot.bg's real Sofia apartments-for-sale search URL, following
-the /obiavi/prodazhbi link pattern found on the homepage.
+Round 3: inspect the HTML structure around a real imot.bg listing card on
+the Sofia sales page, to figure out how to extract price/sqm/area/photo.
 """
 
-import re
 from playwright.sync_api import sync_playwright
-
-BLOCK_MARKERS = [
-    "captcha", "cloudflare", "access denied", "just a moment",
-    "не е намерена", "403 forbidden", "attention required", "are you human",
-]
-
-
-def check(page, url, label):
-    print("=" * 70)
-    print(f"{label}  ->  {url}")
-    resp = page.goto(url, wait_until="domcontentloaded", timeout=30000)
-    print(f"status: {resp.status if resp else None}  final_url: {page.url}")
-    page.wait_for_timeout(1500)
-    html = page.content()
-    print(f"html length: {len(html)}  title: {page.title()}")
-    lower = html.lower()
-    hits = [m for m in BLOCK_MARKERS if m in lower]
-    if hits:
-        print(f"  BLOCK MARKERS FOUND: {hits}")
-    links = page.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))")
-    relevant = sorted(set(
-        h for h in links
-        if h and ("sofia" in h.lower() or "sofiya" in h.lower())
-    ))
-    print(f"  sofia-relevant links: {len(relevant)}")
-    for l in relevant[:40]:
-        print("    ", l)
-    return page.url, html
 
 
 def main():
@@ -44,10 +15,33 @@ def main():
             locale="bg-BG",
         )
         page = context.new_page()
+        page.goto("https://www.imot.bg/obiavi/prodazhbi/grad-sofiya", wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_timeout(1500)
 
-        check(page, "https://www.imot.bg/obiavi/prodazhbi", "Sales category root")
-        check(page, "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya", "Guessed Sofia sales")
-        check(page, "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya/dvustaen", "Guessed Sofia 2-room sales")
+        # Find the first real listing link and walk up its ancestors, printing
+        # each ancestor's outerHTML length and text, to find the smallest
+        # container that holds price + size + area for that one listing.
+        info = page.evaluate("""
+        () => {
+          const links = Array.from(document.querySelectorAll('a[href*="/obiava-"]'));
+          if (links.length === 0) return null;
+          const link = links[0];
+          const results = [];
+          let node = link;
+          for (let i = 0; i < 8 && node.parentElement; i++) {
+            node = node.parentElement;
+            results.push({
+              tag: node.tagName,
+              className: node.className,
+              textLen: node.innerText.length,
+              text: node.innerText.slice(0, 400),
+            });
+          }
+          return { href: link.getAttribute('href'), linkText: link.innerText.slice(0,200), ancestors: results };
+        }
+        """)
+        import json
+        print(json.dumps(info, ensure_ascii=False, indent=2))
 
         browser.close()
 
