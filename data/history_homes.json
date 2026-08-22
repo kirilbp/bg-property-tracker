@@ -1227,6 +1227,10 @@
       {
         "seen_at": "2026-08-21T14:05:45.809709+00:00",
         "price_eur": 135000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 135000
       }
     ],
     "latest": {
@@ -1250,6 +1254,10 @@
       {
         "seen_at": "2026-08-21T14:05:45.809709+00:00",
         "price_eur": 459900
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 459900
       }
     ],
     "latest": {
@@ -1272,6 +1280,10 @@
       },
       {
         "seen_at": "2026-08-21T14:05:45.809709+00:00",
+        "price_eur": 359900
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 359900
       }
     ],
@@ -1541,6 +1553,10 @@
       {
         "seen_at": "2026-08-21T08:04:20.517345+00:00",
         "price_eur": 279990
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 279990
       }
     ],
     "latest": {
@@ -1559,6 +1575,10 @@
     "snapshots": [
       {
         "seen_at": "2026-08-21T08:04:20.517345+00:00",
+        "price_eur": 189999
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 189999
       }
     ],
@@ -1598,6 +1618,10 @@
       {
         "seen_at": "2026-08-21T08:04:20.517345+00:00",
         "price_eur": 177000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 177000
       }
     ],
     "latest": {
@@ -1616,6 +1640,10 @@
     "snapshots": [
       {
         "seen_at": "2026-08-21T08:04:20.517345+00:00",
+        "price_eur": 210000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 210000
       }
     ],
@@ -2628,6 +2656,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 258000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 258000
       }
     ],
     "latest": {
@@ -2650,6 +2682,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 233000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 233000
       }
     ],
@@ -2674,6 +2710,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 234000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 234000
       }
     ],
     "latest": {
@@ -2696,6 +2736,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 208000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 208000
       }
     ],
@@ -2720,6 +2764,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 500000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 500000
       }
     ],
     "latest": {
@@ -2742,6 +2790,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 339500
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 339500
       }
     ],
@@ -2766,6 +2818,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 390000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 390000
       }
     ],
     "latest": {
@@ -2788,6 +2844,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 228000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 228000
       }
     ],
@@ -2812,6 +2872,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 249000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 249000
       }
     ],
     "latest": {
@@ -2834,6 +2898,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 170000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 170000
       }
     ],
@@ -2858,6 +2926,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 387000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 387000
       }
     ],
     "latest": {
@@ -2880,6 +2952,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 230000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 230000
       }
     ],
@@ -2904,6 +2980,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 143000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 143000
       }
     ],
     "latest": {
@@ -2926,6 +3006,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 590000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 590000
       }
     ],
@@ -2950,6 +3034,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 260000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 260000
       }
     ],
     "latest": {
@@ -2972,6 +3060,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 567450
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 567450
       }
     ],
@@ -2996,6 +3088,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 435000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 435000
       }
     ],
     "latest": {
@@ -3018,6 +3114,10 @@
       },
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 285387
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 285387
       }
     ],
@@ -3183,6 +3283,10 @@
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
         "price_eur": 280000
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 280000
       }
     ],
     "latest": {
@@ -3201,6 +3305,10 @@
     "snapshots": [
       {
         "seen_at": "2026-08-22T06:15:50.316419+00:00",
+        "price_eur": 115900
+      },
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
         "price_eur": 115900
       }
     ],
@@ -3231,6 +3339,253 @@
       "sqm": 69,
       "area": "кв. Подуяне",
       "title": "Двустаен, 69m², кв. Подуяне, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692084": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 200000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692084",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-70m2-sofiya-studentski-grad/as1692084",
+      "photo": "https://g1.homes.bg/2026-07-30_2/120261808b.jpg",
+      "price_eur": 200000,
+      "sqm": 70,
+      "area": "Студентски Град",
+      "title": "Двустаен, 70m²,  Студентски Град, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692525": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 230000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692525",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-68m2-sofiya-zhk.-strelbishte/as1692525",
+      "photo": "https://g1.homes.bg/2026-08-02_1/120293316b.jpg",
+      "price_eur": 230000,
+      "sqm": 68,
+      "area": "жк. Стрелбище",
+      "title": "Двустаен, 68m², жк. Стрелбище, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692530": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 288000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692530",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-88m2-sofiya-zhk.-belite-brezi/as1692530",
+      "photo": "https://g1.homes.bg/2026-08-02_2/120293683b.jpg",
+      "price_eur": 288000,
+      "sqm": 88,
+      "area": "жк. Белите Брези",
+      "title": "Тристаен, 88m², жк. Белите Брези, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692396": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 195000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692396",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-74m2-sofiya-kv.-malinova-dolina/as1692396",
+      "photo": "https://g1.homes.bg/2026-07-31_2/120277948b.jpg",
+      "price_eur": 195000,
+      "sqm": 74,
+      "area": "кв. Малинова Долина",
+      "title": "Двустаен, 74m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692397": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 155000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692397",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-50m2-sofiya-kv.-malinova-dolina/as1692397",
+      "photo": "https://g1.homes.bg/2026-07-31_2/120277954b.jpg",
+      "price_eur": 155000,
+      "sqm": 50,
+      "area": "кв. Малинова Долина",
+      "title": "Едностаен, 50m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692567": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 330000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692567",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-120m2-sofiya-kv.-malinova-dolina/as1692567",
+      "photo": "https://g1.homes.bg/2026-08-02_2/120297192b.jpg",
+      "price_eur": 330000,
+      "sqm": 120,
+      "area": "кв. Малинова Долина",
+      "title": "Тристаен, 120m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692569": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 192000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692569",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-68m2-sofiya-kv.-malinova-dolina/as1692569",
+      "photo": "https://g1.homes.bg/2026-08-02_2/120297202b.jpg",
+      "price_eur": 192000,
+      "sqm": 68,
+      "area": "кв. Малинова Долина",
+      "title": "Двустаен, 68m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692575": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 448900
+      }
+    ],
+    "latest": {
+      "id": "homes_1692575",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-131m2-sofiya-kv.-malinova-dolina/as1692575",
+      "photo": "https://g1.homes.bg/2026-08-20_2/120553492b.jpg",
+      "price_eur": 448900,
+      "sqm": 131,
+      "area": "кв. Малинова Долина",
+      "title": "Четиристаен, 131m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692641": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 368000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692641",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-90m2-sofiya-studentski-grad/as1692641",
+      "photo": "https://g1.homes.bg/2026-08-10_2/120393360b.jpg",
+      "price_eur": 368000,
+      "sqm": 90,
+      "area": "Студентски Град",
+      "title": "Двустаен, 90m²,  Студентски Град, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692103": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 358000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692103",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-84m2-sofiya-zhk.-dianabad/as1692103",
+      "photo": "https://g1.homes.bg/2026-08-08_2/120375883b.jpg",
+      "price_eur": 358000,
+      "sqm": 84,
+      "area": "жк. Дианабад",
+      "title": "Тристаен, 84m², жк. Дианабад, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1692393": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 290000
+      }
+    ],
+    "latest": {
+      "id": "homes_1692393",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-92m2-sofiya-kv.-malinova-dolina/as1692393",
+      "photo": "https://g1.homes.bg/2026-07-31_2/120277910b.jpg",
+      "price_eur": 290000,
+      "sqm": 92,
+      "area": "кв. Малинова Долина",
+      "title": "Тристаен, 92m², кв. Малинова Долина, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1690180": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 270000
+      }
+    ],
+    "latest": {
+      "id": "homes_1690180",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-64m2-sofiya-zhk.-mladost-1/as1690180",
+      "photo": "https://g1.homes.bg/2026-08-11_2/120407341b.jpg",
+      "price_eur": 270000,
+      "sqm": 64,
+      "area": "жк. Младост 1",
+      "title": "Тристаен, 64m², жк. Младост 1, София",
+      "portal": "homes.bg"
+    }
+  },
+  "homes_1691101": {
+    "first_seen": "2026-08-22T07:45:31.538893+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T07:45:31.538893+00:00",
+        "price_eur": 122000
+      }
+    ],
+    "latest": {
+      "id": "homes_1691101",
+      "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-50m2-sofiya-zhk.-obelya-2/as1691101",
+      "photo": "https://g1.homes.bg/2026-07-22_2/120165728b.jpg",
+      "price_eur": 122000,
+      "sqm": 50,
+      "area": "жк. Обеля 2",
+      "title": "Двустаен, 50m², жк. Обеля 2, София",
       "portal": "homes.bg"
     }
   }
