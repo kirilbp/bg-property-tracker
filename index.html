@@ -311,6 +311,11 @@
 
 <script>
 const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
+// Descriptions are long free-text pulled straight from source portals - unlike
+// the short scraped fields elsewhere on this page, they're likely enough to
+// contain a stray quote or angle bracket that inserting them into innerHTML
+// unescaped could break the surrounding markup (not just look wrong).
+const escapeHtml = s => (s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const REGISTRY_URL = 'https://portal.registryagency.bg/';
 // A listing's price/m² this far off its area average (computed per source
 // portal, in each scraper's compute_leads()) is more likely a data glitch
@@ -590,7 +595,7 @@ function renderListingDetail(l) {
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
         ${hasHistory ? `<p class="listing-area">Price history: ${l.price_history.map(p => '€' + fmt(p)).join(' → ')}</p>` : ''}
-        ${l.description ? `<p class="detail-description">${l.description}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
+        ${l.description ? `<p class="detail-description">${escapeHtml(l.description)}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
         <div class="detail-links">
           <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
           <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
