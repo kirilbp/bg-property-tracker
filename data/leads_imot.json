@@ -12,8 +12,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2454,
-    "pct_vs_area_avg": 23.6
+    "area_avg_price_per_sqm": 2346,
+    "pct_vs_area_avg": 29.3
   },
   {
     "id": "imot_1c178298879796240",
@@ -636,8 +636,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2454,
-    "pct_vs_area_avg": -23.6
+    "area_avg_price_per_sqm": 2346,
+    "pct_vs_area_avg": -20.1
   },
   {
     "id": "imot_1c176021032355183",
@@ -670,5 +670,69 @@
     "score": 0,
     "area_avg_price_per_sqm": 341,
     "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imot_1b178723704710366",
+    "url": "https://www.imot.bg/obiava-1b178723704710366-prodava-dvustaen-apartament-grad-sofiya-zona-b-5",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/366/1b178723704710366_Ss.jpg",
+    "price_eur": 195000,
+    "sqm": 70,
+    "area": "Зона Б-5",
+    "title": "Продава 2-СТАЕН, Зона Б-5",
+    "portal": "imot.bg",
+    "price_per_sqm": 2786,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2786,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imot_1b178133463756777",
+    "url": "https://www.imot.bg/obiava-1b178133463756777-prodava-dvustaen-apartament-grad-sofiya-malinova-dolina",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/777/1b178133463756777_fL.jpg",
+    "price_eur": 208000,
+    "sqm": 73,
+    "area": "Малинова долина",
+    "title": "Продава 2-СТАЕН, Малинова долина",
+    "portal": "imot.bg",
+    "price_per_sqm": 2849,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2346,
+    "pct_vs_area_avg": 21.4
+  },
+  {
+    "id": "imot_1a178653445874415",
+    "url": "https://www.imot.bg/obiava-1a178653445874415-prodava-ednostaen-apartament-grad-sofiya-malinova-dolina",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/415/1a178653445874415_5R.jpg",
+    "price_eur": 92700,
+    "sqm": 46,
+    "area": "Малинова долина",
+    "title": "Продава 1-СТАЕН, Малинова долина",
+    "portal": "imot.bg",
+    "price_per_sqm": 2015,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2346,
+    "pct_vs_area_avg": -14.1
+  },
+  {
+    "id": "imot_1a178653369297795",
+    "url": "https://www.imot.bg/obiava-1a178653369297795-prodava-ednostaen-apartament-grad-sofiya-malinova-dolina",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/795/1a178653369297795_Mi.jpg",
+    "price_eur": 96000,
+    "sqm": 49,
+    "area": "Малинова долина",
+    "title": "Продава 1-СТАЕН, Малинова долина",
+    "portal": "imot.bg",
+    "price_per_sqm": 1959,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2346,
+    "pct_vs_area_avg": -16.5
   }
 ]
