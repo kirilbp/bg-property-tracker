@@ -1,10 +1,9 @@
 """
-Round 4: simulate the real click flow on imoti.bg's homepage search form -
-open the select2 location dropdown (its search box is readonly, so this is
-click-only, no typing needed), click "София" (the city option, not "София
-област"), keep "Продажба" (sell) selected, click the real "Търси" button,
-then inspect the resulting page: URL, listing count, neighbourhood
-diversity, pagination depth.
+Round 5: fix two bugs found in round 4 - (1) a JS-dispatched .click() on the
+select2 list item doesn't fire select2's real mouse event handlers, so use a
+real Playwright click on the exact-match locator instead; (2) a cookie-
+consent banner intercepts pointer events on the search button, so dismiss it
+first. Then complete the full click flow and inspect results.
 """
 
 import re
@@ -23,27 +22,28 @@ def main():
         page.goto(URL, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(1500)
 
-        print("Step 1: open the select2 location dropdown")
+        print("Step 0: dismiss cookie-consent banner if present")
+        for text in ["Приемам", "Разбрах", "Съгласен", "OK", "Приеми"]:
+            btn = page.locator(f"button:has-text('{text}'), a:has-text('{text}')")
+            if btn.count() > 0:
+                try:
+                    btn.first.click(timeout=3000)
+                    print("  dismissed via button text:", text)
+                    break
+                except Exception as e:
+                    print("  click failed for", text, e)
+        page.evaluate("() => { const b = document.querySelector('.cc_banner-wrapper'); if (b) b.remove(); }")
+        page.wait_for_timeout(300)
+
+        print("\nStep 1: open the select2 location dropdown")
         page.click("#s2id_district_id .select2-choice")
         page.wait_for_timeout(500)
 
-        print("Step 2: dump visible dropdown results (no typing - search box is readonly)")
-        results = page.evaluate("""
-        () => Array.from(document.querySelectorAll('.select2-results li')).map(li => li.textContent.trim())
-        """)
-        print("visible options (first 20):", results[:20])
-        print("total options visible:", len(results))
-
-        print("\nStep 3: click the exact 'София' result (city, not 'София област')")
-        clicked = page.evaluate("""
-        () => {
-          const items = Array.from(document.querySelectorAll('.select2-results li'));
-          const exact = items.find(li => li.textContent.trim() === 'София');
-          if (exact) { exact.click(); return true; }
-          return false;
-        }
-        """)
-        print("clicked exact match via JS:", clicked)
+        print("Step 2: real Playwright click on the exact 'София' list item")
+        # Use exact text match via get_by_text(exact=True) restricted to the results list.
+        sofia_item = page.locator("#select2-results-1 li").filter(has_text=re.compile(r"^София$"))
+        print("matches for exact 'София':", sofia_item.count())
+        sofia_item.first.click(timeout=5000)
         page.wait_for_timeout(500)
 
         selected_text = page.evaluate("() => document.getElementById('select2-chosen-1')?.textContent")
@@ -51,9 +51,9 @@ def main():
         district_value = page.eval_on_selector("#district_id", "el => el.value")
         print("underlying select value:", district_value)
 
-        print("\nStep 4: click the real 'Търси' search button")
+        print("\nStep 3: click the real 'Търси' search button")
         with page.expect_navigation(wait_until="domcontentloaded", timeout=15000):
-            page.click("a.button.button-primary:has-text('Търси')")
+            page.click("#btnSearch2", force=True)
         page.wait_for_timeout(1500)
 
         print("\nresulting URL:", page.url)
