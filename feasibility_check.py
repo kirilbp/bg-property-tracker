@@ -1,17 +1,16 @@
 """
-Diagnose why scraper_alo.py's smallest_container_with_price() fails for the
-vast majority of alo.bg listings (only ~1-4 out of ~30 unique listings per
-page succeed, per DEBUG output from the live pagination test). For each of
-the first several failing listing links, print the price-mention count and
-text length at each ancestor level up to 10 levels, to see whether it's a
-too-low max_levels, a regex mismatch, or something else.
+Round 2: compare alo.bg's page 1 (default, no &page= param) vs a later
+&page=N page's DOM structure for the same listing-card extraction logic,
+to see whether they differ - page 1 succeeded at level 2 in round 1, but
+the real scraper's paginated runs (page 2+) showed massive container-fail
+rates.
 """
 
 import re
 import requests
 from bs4 import BeautifulSoup
 
-SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=22&location_ids=4342"
+BASE_SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=22&location_ids=4342"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
@@ -19,8 +18,10 @@ PRICE_RE = re.compile(r"Цена:\s*([\d\s]+)\s?€")
 MAX_CARD_TEXT_LENGTH = 1500
 
 
-def main():
-    resp = requests.get(SEARCH_URL, headers=HEADERS, timeout=20)
+def diagnose(url, label):
+    print(f"\n\n##### {label}: {url} #####")
+    resp = requests.get(url, headers=HEADERS, timeout=20)
+    print("status:", resp.status_code, "html length:", len(resp.text))
     soup = BeautifulSoup(resp.text, "html.parser")
 
     all_links = soup.find_all("a", href=True)
@@ -37,21 +38,26 @@ def main():
 
         node = a
         print(f"\n=== listing {listing_id} (href={a['href']!r}) ===")
-        for level in range(1, 11):
+        for level in range(1, 8):
             if node.parent is None:
                 print(f"  level {level}: no parent, stopping")
                 break
             node = node.parent
             text = node.get_text(" ", strip=True)
             matches = PRICE_RE.findall(text)
-            print(f"  level {level}: tag={node.name} price_matches={len(matches)} text_len={len(text)} "
-                  f"ok={1 <= len(matches) <= 1 and len(text) <= MAX_CARD_TEXT_LENGTH}")
-            if len(matches) >= 1:
-                print(f"    matched price(s): {matches}")
+            ok = 1 <= len(matches) <= 1 and len(text) <= MAX_CARD_TEXT_LENGTH
+            print(f"  level {level}: tag={node.name} class={node.get('class')} price_matches={len(matches)} text_len={len(text)} ok={ok}")
+            if ok:
+                break
 
         diagnosed += 1
-        if diagnosed >= 4:
+        if diagnosed >= 3:
             break
+
+
+def main():
+    diagnose(BASE_SEARCH_URL, "page 1 (no param)")
+    diagnose(f"{BASE_SEARCH_URL}&page=5", "page 5 (paginated)")
 
 
 if __name__ == "__main__":
