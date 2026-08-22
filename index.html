@@ -13,10 +13,10 @@
     margin: 0;
     color: #0f172a;
   }
-  header { padding: 24px 20px 12px; max-width: 1100px; margin: 0 auto; }
+  header { padding: 24px 20px 12px; max-width: 1600px; margin: 0 auto; }
   h1 { font-size: 22px; margin: 0 0 4px; }
   .subtitle { color: #64748b; font-size: 14px; margin: 0; }
-  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
+  .container { max-width: 1600px; margin: 0 auto; padding: 0 20px 40px; }
   .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
   .market-card { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
   .market-stat { flex: 1; min-width: 140px; }
@@ -29,7 +29,18 @@
   .filters label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
   .filters input, .filters select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
   .count { font-size: 13px; color: #64748b; margin: 12px 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  @media (max-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .grid { grid-template-columns: repeat(1, 1fr); } }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 24px 0; }
+  .pagination button {
+    padding: 8px 16px; border: 1px solid #cbd5e1; border-radius: 8px;
+    background: white; color: #0f172a; font-size: 14px; cursor: pointer;
+  }
+  .pagination button:disabled { color: #cbd5e1; cursor: not-allowed; }
+  .pagination button:not(:disabled):hover { border-color: #94a3b8; }
+  .pagination .page-info { font-size: 13px; color: #64748b; }
   .listing { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
   .listing:hover { border-color: #94a3b8; }
   .listing img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #e2e8f0; display: block; }
@@ -56,7 +67,7 @@
   }
   .registry-link:hover { color: #0ea5e9; }
   .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
-  #chart-wrap { height: 260px; }
+  #chart-wrap { height: 320px; }
 </style>
 </head>
 <body>
@@ -127,6 +138,11 @@
   <p class="count" id="count"></p>
   <div class="grid" id="grid"></div>
   <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
+  <div class="pagination" id="pagination" style="display:none;">
+    <button id="prevPage">← Prev</button>
+    <span class="page-info" id="pageInfo"></span>
+    <button id="nextPage">Next →</button>
+  </div>
 
 </div>
 
@@ -139,9 +155,11 @@ const REGISTRY_URL = 'https://portal.registryagency.bg/';
 // a currency/decimal slip. Flag it as unverified rather than trust it at
 // face value; never drop it from the results.
 const UNVERIFIED_PCT_THRESHOLD = 60;
+const PAGE_SIZE = 100;
 
 let ALL_LISTINGS = [];
 let chart = null;
+let currentPage = 1;
 
 async function loadData() {
   try {
@@ -216,11 +234,10 @@ function renderChart() {
       }]
     },
     options: {
-      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true } }
+      scales: { y: { beginAtZero: true } }
     }
   });
 }
@@ -248,20 +265,33 @@ function render() {
     return 0;
   });
 
-  document.getElementById('count').textContent =
-    `${filtered.length} of ${ALL_LISTINGS.length} listings`;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  document.getElementById('count').textContent = filtered.length === 0
+    ? `0 of ${ALL_LISTINGS.length} listings`
+    : `Showing ${fmt(pageStart + 1)}-${fmt(pageStart + pageItems.length)} of ${fmt(filtered.length)} listings`;
 
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
+  const pagination = document.getElementById('pagination');
   grid.innerHTML = '';
 
   if (filtered.length === 0) {
     empty.style.display = 'block';
+    pagination.style.display = 'none';
     return;
   }
   empty.style.display = 'none';
+  pagination.style.display = totalPages > 1 ? 'flex' : 'none';
+  document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('prevPage').disabled = currentPage <= 1;
+  document.getElementById('nextPage').disabled = currentPage >= totalPages;
 
-  filtered.forEach(l => {
+  pageItems.forEach(l => {
     const card = document.createElement('div');
     card.className = 'listing';
 
@@ -307,11 +337,18 @@ function render() {
   });
 }
 
-document.getElementById('minPrice').addEventListener('input', render);
-document.getElementById('maxPrice').addEventListener('input', render);
-document.getElementById('minSqm').addEventListener('input', render);
-document.getElementById('areaFilter').addEventListener('change', render);
-document.getElementById('sortBy').addEventListener('change', render);
+function renderFromStart() {
+  currentPage = 1;
+  render();
+}
+
+document.getElementById('minPrice').addEventListener('input', renderFromStart);
+document.getElementById('maxPrice').addEventListener('input', renderFromStart);
+document.getElementById('minSqm').addEventListener('input', renderFromStart);
+document.getElementById('areaFilter').addEventListener('change', renderFromStart);
+document.getElementById('sortBy').addEventListener('change', renderFromStart);
+document.getElementById('prevPage').addEventListener('click', () => { currentPage--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+document.getElementById('nextPage').addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
 loadData();
 </script>
