@@ -19,10 +19,18 @@ page 1 (~46 listings) even though imot.bg's own UI shows 1000+ Sofia sale
 listings - fixed by paging through p-2, p-3, ... until a page comes back
 with no listings, same "stop on empty page" pattern as scraper_bazar.py and
 scraper_imoti_bg.py.
+
+A page navigation retries a few times with backoff before being treated as
+the end of pagination, so a transient failure doesn't get mistaken for
+having reached the last page - and, since scrape.yml runs all 5 scrapers
+sequentially with a single git commit step at the end, an uncaught
+exception here would otherwise silently discard every other scraper's
+output for that run too.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -42,6 +50,8 @@ LEADS_FILE = OUT_DIR / "leads_imot.json"
 MAX_CARD_TEXT_LENGTH = 800
 MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 30
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"/obiava-(\d[a-z]\d{10,})-")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -140,6 +150,19 @@ def parse_listings_page(html, seen):
     return len(matching_links)
 
 
+def goto_with_retries(page, url):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(1500)
+            return page.content()
+        except Exception as e:
+            print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
+    return None
+
+
 def fetch_listings():
     seen = {}
     with sync_playwright() as p:
@@ -149,9 +172,9 @@ def fetch_listings():
 
         for page_num in range(1, MAX_PAGES + 1):
             url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}/p-{page_num}"
-            page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            page.wait_for_timeout(1500)
-            html = page.content()
+            html = goto_with_retries(page, url)
+            if html is None:
+                break
             print(f"DEBUG: page {page_num} fetched HTML length = {len(html)}")
 
             link_count = parse_listings_page(html, seen)

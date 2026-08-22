@@ -21,10 +21,18 @@ with no pagination loop at all - fixed by paging through page=2, page=3,
 pattern as the other scrapers, reusing one browser/page across all
 requests (same approach as scraper_imot.py) rather than relaunching
 Chromium per page.
+
+A page navigation retries a few times with backoff before being treated as
+the end of pagination, so a transient failure doesn't get mistaken for
+having reached the last page - and, since scrape.yml runs all 5 scrapers
+sequentially with a single git commit step at the end, an uncaught
+exception here would otherwise silently discard every other scraper's
+output for that run too.
 """
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,6 +52,8 @@ LEADS_FILE = OUT_DIR / "leads_olx.json"
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 40
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -89,8 +99,21 @@ def smallest_container_with_price(link_tag, max_levels=8):
     return None
 
 
+def fetch_html_with_retries(page, url):
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return fetch_html(page, url)
+        except Exception as e:
+            print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
+    return None
+
+
 def fetch_listings_page(page, url, seen):
-    html = fetch_html(page, url)
+    html = fetch_html_with_retries(page, url)
+    if html is None:
+        return None
     print(f"DEBUG: fetched HTML length = {len(html)}")
     soup = BeautifulSoup(html, "html.parser")
 
