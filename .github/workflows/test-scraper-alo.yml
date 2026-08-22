@@ -1,0 +1,19 @@
+name: Test scraper_alo.py pagination fix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python scraper_alo.py
+      - run: python -c "import json; h=json.load(open('data/history_alo.json')); print('unique listings in history:', len(h))"
