@@ -13,11 +13,35 @@
     margin: 0;
     color: #0f172a;
   }
+  .app { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px; flex-shrink: 0; background: #1e3a8a; color: #e0e7ff;
+    display: flex; flex-direction: column; padding: 20px 0;
+  }
+  .sidebar-brand { display: flex; align-items: center; gap: 8px; padding: 0 20px 20px; font-weight: 700; font-size: 16px; color: white; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 20px; margin: 2px 10px;
+    border-radius: 8px; cursor: pointer; font-size: 14px; color: #c7d2fe;
+    background: none; border: none; width: calc(100% - 20px); text-align: left;
+  }
+  .nav-item .icon { font-size: 16px; width: 18px; text-align: center; }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-item.active { background: #2563eb; color: white; font-weight: 600; }
+
+  /* Main area */
+  .main { flex: 1; min-width: 0; }
   header { padding: 24px 20px 12px; max-width: 1600px; margin: 0 auto; }
   h1 { font-size: 22px; margin: 0 0 4px; }
   .subtitle { color: #64748b; font-size: 14px; margin: 0; }
   .container { max-width: 1600px; margin: 0 auto; padding: 0 20px 40px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
   .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+  .card h2 { font-size: 16px; margin: 0 0 4px; }
+  .card .card-sub { color: #64748b; font-size: 13px; margin: 0 0 16px; }
   .market-card { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
   .market-stat { flex: 1; min-width: 140px; }
   .market-stat .label { font-size: 12px; color: #64748b; margin: 0 0 2px; }
@@ -68,82 +92,182 @@
   .registry-link:hover { color: #0ea5e9; }
   .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
   #chart-wrap { height: 320px; }
+
+  /* Home page */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .stat-tile { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+  .stat-tile .stat-value { font-size: 24px; font-weight: 700; margin: 0 0 2px; }
+  .stat-tile .stat-label { font-size: 13px; color: #64748b; margin: 0; }
+  .portal-list { display: flex; flex-direction: column; gap: 2px; }
+  .portal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  .portal-row:last-child { border-bottom: none; }
+  .portal-count { font-weight: 700; color: #1e3a8a; background: #eff6ff; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+  .cta-btn {
+    display: inline-block; background: #2563eb; color: white; text-decoration: none;
+    padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer;
+  }
+  .cta-btn:hover { background: #1d4ed8; }
+
+  /* Help page */
+  .help-section { margin-bottom: 20px; }
+  .help-section h3 { font-size: 15px; margin: 0 0 6px; }
+  .help-section p, .help-section li { font-size: 14px; color: #334155; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🏠 BG Property Tracker</h1>
-  <p class="subtitle" id="subtitle">Loading live listings…</p>
-</header>
+<div class="app">
 
-<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-brand">🏠 Property Tracker</div>
+    <button class="nav-item active" data-section="home"><span class="icon">🏡</span> Home</button>
+    <button class="nav-item" data-section="leads"><span class="icon">🎯</span> Lead Generators</button>
+    <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
+    <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
+    <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
+  </aside>
 
-  <div class="card market-card">
-    <div class="market-stat">
-      <p class="label">Bulgaria HPI, year-on-year</p>
-      <p class="value up">+12.6%</p>
+  <div class="main">
+    <header>
+      <h1 id="greeting">🏠 BG Property Tracker</h1>
+      <p class="subtitle" id="subtitle">Loading live listings…</p>
+    </header>
+
+    <div class="container">
+
+      <!-- Home -->
+      <section class="page active" id="section-home">
+        <div class="stat-row" id="homeStats"></div>
+        <div class="card">
+          <h2>Listings by source</h2>
+          <p class="card-sub">All 7 portals are scraped automatically and de-duplicated into one list.</p>
+          <div class="portal-list" id="portalList"></div>
+        </div>
+        <div class="card">
+          <h2>Ready to browse?</h2>
+          <p class="card-sub">Filter by price, size and area, and sort by motivation score to find the best leads.</p>
+          <button class="cta-btn" id="goToLeadsBtn">Browse listings →</button>
+        </div>
+      </section>
+
+      <!-- Lead Generators -->
+      <section class="page" id="section-leads">
+        <div class="card">
+          <div class="filters">
+            <div>
+              <label>Min price (€)</label>
+              <input type="number" id="minPrice" placeholder="0" />
+            </div>
+            <div>
+              <label>Max price (€)</label>
+              <input type="number" id="maxPrice" placeholder="No limit" />
+            </div>
+            <div>
+              <label>Min size (m²)</label>
+              <input type="number" id="minSqm" placeholder="0" />
+            </div>
+            <div>
+              <label>Area</label>
+              <select id="areaFilter"><option value="">All areas</option></select>
+            </div>
+            <div>
+              <label>Sort by</label>
+              <select id="sortBy">
+                <option value="price-asc">Price (low to high)</option>
+                <option value="price-desc">Price (high to low)</option>
+                <option value="persqm-asc">€/m² (low to high)</option>
+                <option value="vsavg-asc">Most below area average</option>
+                <option value="score-desc">Motivation score</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <p class="count" id="count"></p>
+        <div class="grid" id="grid"></div>
+        <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
+        <div class="pagination" id="pagination" style="display:none;">
+          <button id="prevPage">← Prev</button>
+          <span class="page-info" id="pageInfo"></span>
+          <button id="nextPage">Next →</button>
+        </div>
+      </section>
+
+      <!-- Dashboard -->
+      <section class="page" id="section-dashboard">
+        <div class="card">
+          <h2>🔥 Hottest deals right now</h2>
+          <p class="card-sub">Top 6 listings by motivation score (price drops + days on market).</p>
+          <div class="grid" id="hotGrid"></div>
+        </div>
+        <div class="card">
+          <h2>Ready for more?</h2>
+          <button class="cta-btn" id="goToLeadsBtn2">View all leads →</button>
+        </div>
+      </section>
+
+      <!-- Market Data -->
+      <section class="page" id="section-market">
+        <div class="card market-card">
+          <div class="market-stat">
+            <p class="label">Bulgaria HPI, year-on-year</p>
+            <p class="value up">+12.6%</p>
+          </div>
+          <div class="market-stat">
+            <p class="label">Sofia avg. asking price</p>
+            <p class="value">~€2,500/m²</p>
+          </div>
+          <div class="market-stat">
+            <p class="label">Sofia, year-on-year</p>
+            <p class="value up">+18%</p>
+          </div>
+          <p class="market-source">
+            Official Bulgaria-wide figure: National Statistical Institute, Q4 2025 House Price Index (registered sale prices).
+            Sofia asking-price figures: Bulgarian Properties market report, Feb 2026.
+            This card is updated manually, not live — verify current figures at
+            <a href="https://www.nsi.bg/en/statistical-data/98" target="_blank" rel="noreferrer">nsi.bg</a>.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Avg. €/m² by area</h2>
+          <p class="card-sub">Computed live from all currently tracked listings.</p>
+          <div id="chart-wrap"><canvas id="areaChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- Help -->
+      <section class="page" id="section-help">
+        <div class="card">
+          <div class="help-section">
+            <h3>What is this?</h3>
+            <p>BG Property Tracker scrapes apartment-for-sale listings across Sofia from 7 portals, tracks each listing's price history over time, and surfaces the ones most likely to be a motivated-seller deal.</p>
+          </div>
+          <div class="help-section">
+            <h3>Sources</h3>
+            <p>imoti.net, alo.bg, homes.bg, imot.bg, olx.bg, bazar.bg, imoti.bg. imoti.net and alo.bg refresh every 24 hours (they're large sites with 300+ pages each); the other 5 refresh every 6 hours.</p>
+          </div>
+          <div class="help-section">
+            <h3>Motivation score</h3>
+            <p>A 0–100 score combining how much a listing's price has dropped since first seen and how long it's been on the market. Higher usually means a more motivated seller.</p>
+          </div>
+          <div class="help-section">
+            <h3>Badges</h3>
+            <ul>
+              <li><strong>🔥 Hot deal / Warm</strong> — motivation score thresholds.</li>
+              <li><strong>X% below/above area avg</strong> — this listing's €/m² vs. the average for its area, across all sources.</li>
+              <li><strong>⚠️ Unverified price</strong> — the €/m² is far enough from the area average that it might be a data error (e.g. a misparsed price) rather than a real deal. Worth double-checking against the original listing.</li>
+              <li><strong>↓ X% since first seen</strong> — price has dropped since this listing was first scraped.</li>
+            </ul>
+          </div>
+          <div class="help-section">
+            <h3>Land registry</h3>
+            <p>The "Check land registry" link opens Bulgaria's official land registry portal. You'll need the exact address from the listing page, a free account, and pay a small fee per search — this app doesn't automate that lookup.</p>
+          </div>
+        </div>
+      </section>
+
     </div>
-    <div class="market-stat">
-      <p class="label">Sofia avg. asking price</p>
-      <p class="value">~€2,500/m²</p>
-    </div>
-    <div class="market-stat">
-      <p class="label">Sofia, year-on-year</p>
-      <p class="value up">+18%</p>
-    </div>
-    <p class="market-source">
-      Official Bulgaria-wide figure: National Statistical Institute, Q4 2025 House Price Index (registered sale prices).
-      Sofia asking-price figures: Bulgarian Properties market report, Feb 2026.
-      This card is updated manually, not live — verify current figures at
-      <a href="https://www.nsi.bg/en/statistical-data/98" target="_blank" rel="noreferrer">nsi.bg</a>.
-    </p>
   </div>
-
-  <div class="card">
-    <div id="chart-wrap"><canvas id="areaChart"></canvas></div>
-  </div>
-
-  <div class="card">
-    <div class="filters">
-      <div>
-        <label>Min price (€)</label>
-        <input type="number" id="minPrice" placeholder="0" />
-      </div>
-      <div>
-        <label>Max price (€)</label>
-        <input type="number" id="maxPrice" placeholder="No limit" />
-      </div>
-      <div>
-        <label>Min size (m²)</label>
-        <input type="number" id="minSqm" placeholder="0" />
-      </div>
-      <div>
-        <label>Area</label>
-        <select id="areaFilter"><option value="">All areas</option></select>
-      </div>
-      <div>
-        <label>Sort by</label>
-        <select id="sortBy">
-          <option value="price-asc">Price (low to high)</option>
-          <option value="price-desc">Price (high to low)</option>
-          <option value="persqm-asc">€/m² (low to high)</option>
-          <option value="vsavg-asc">Most below area average</option>
-          <option value="score-desc">Motivation score</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <p class="count" id="count"></p>
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
-  <div class="pagination" id="pagination" style="display:none;">
-    <button id="prevPage">← Prev</button>
-    <span class="page-info" id="pageInfo"></span>
-    <button id="nextPage">Next →</button>
-  </div>
-
 </div>
 
 <script>
@@ -158,8 +282,16 @@ const UNVERIFIED_PCT_THRESHOLD = 60;
 const PAGE_SIZE = 100;
 
 let ALL_LISTINGS = [];
+let PORTAL_COUNTS = {};
 let chart = null;
+let chartInitialized = false;
 let currentPage = 1;
+
+function setGreeting() {
+  const hour = new Date().getHours();
+  const time = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
+  document.getElementById('greeting').textContent = `🏠 Good ${time}`;
+}
 
 async function loadData() {
   try {
@@ -187,10 +319,15 @@ async function loadData() {
       l.unverified = l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined &&
         Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
     });
+    PORTAL_COUNTS = {
+      'imoti.net': imoti.length, 'alo.bg': alo.length, 'homes.bg': homes.length,
+      'imot.bg': imotBg.length, 'olx.bg': olx.length, 'bazar.bg': bazar.length, 'imoti.bg': imotibg.length,
+    };
     document.getElementById('subtitle').textContent =
       `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
-    renderChart();
+    renderHome();
+    renderDashboard();
     render();
   } catch (e) {
     document.getElementById('subtitle').textContent = 'Could not load listings data.';
@@ -207,6 +344,36 @@ function populateAreaFilter() {
     opt.textContent = area;
     select.appendChild(opt);
   });
+}
+
+function renderHome() {
+  const hot = ALL_LISTINGS.filter(l => l.score >= 65).length;
+  const stats = [
+    { value: fmt(ALL_LISTINGS.length), label: 'Total listings' },
+    { value: fmt(hot), label: '🔥 Hot deals' },
+    { value: '7', label: 'Portals tracked' },
+  ];
+  document.getElementById('homeStats').innerHTML = stats.map(s => `
+    <div class="stat-tile">
+      <p class="stat-value">${s.value}</p>
+      <p class="stat-label">${s.label}</p>
+    </div>
+  `).join('');
+
+  const portalList = document.getElementById('portalList');
+  portalList.innerHTML = Object.entries(PORTAL_COUNTS).map(([portal, count]) => `
+    <div class="portal-row">
+      <span>${portal}</span>
+      <span class="portal-count">${fmt(count)}</span>
+    </div>
+  `).join('');
+}
+
+function renderDashboard() {
+  const top = [...ALL_LISTINGS].sort((a, b) => b.score - a.score).slice(0, 6);
+  const hotGrid = document.getElementById('hotGrid');
+  hotGrid.innerHTML = '';
+  top.forEach(l => hotGrid.appendChild(createListingCard(l)));
 }
 
 function renderChart() {
@@ -240,6 +407,51 @@ function renderChart() {
       scales: { y: { beginAtZero: true } }
     }
   });
+}
+
+function createListingCard(l) {
+  const card = document.createElement('div');
+  card.className = 'listing';
+
+  let badges = `<span class="badge badge-portal">${l.portal}</span>`;
+  if (l.unverified) {
+    badges += '<span class="badge badge-unverified" title="Price/m² is far enough from the area average that it may be a data error - double-check against the listing page.">⚠️ Unverified price</span>';
+  }
+  if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
+  else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
+
+  if (l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined) {
+    if (l.pct_vs_area_avg < 0) {
+      badges += `<span class="badge badge-below">${Math.abs(l.pct_vs_area_avg)}% below area avg</span>`;
+    } else if (l.pct_vs_area_avg > 0) {
+      badges += `<span class="badge badge-above">${l.pct_vs_area_avg}% above area avg</span>`;
+    }
+  }
+
+  if (l.drop_pct > 0) {
+    badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen</span>`;
+  }
+
+  card.innerHTML = `
+    <a class="listing-link" href="${l.url}" target="_blank" rel="noreferrer">
+      <img src="${l.photo || ''}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'" />
+      <div class="listing-body">
+        <div class="badges">${badges}</div>
+        <p class="listing-title">${l.title}</p>
+        <p class="listing-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        <div class="listing-price-row">
+          <span class="listing-price">€${fmt(l.price_eur)}</span>
+          <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+        </div>
+      </div>
+    </a>
+    <div class="listing-body" style="padding-top:0;">
+      <a class="registry-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">
+        🏛 Check land registry →
+      </a>
+    </div>
+  `;
+  return card;
 }
 
 function render() {
@@ -291,56 +503,30 @@ function render() {
   document.getElementById('prevPage').disabled = currentPage <= 1;
   document.getElementById('nextPage').disabled = currentPage >= totalPages;
 
-  pageItems.forEach(l => {
-    const card = document.createElement('div');
-    card.className = 'listing';
-
-    let badges = `<span class="badge badge-portal">${l.portal}</span>`;
-    if (l.unverified) {
-      badges += '<span class="badge badge-unverified" title="Price/m² is far enough from the area average that it may be a data error - double-check against the listing page.">⚠️ Unverified price</span>';
-    }
-    if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
-    else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
-
-    if (l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined) {
-      if (l.pct_vs_area_avg < 0) {
-        badges += `<span class="badge badge-below">${Math.abs(l.pct_vs_area_avg)}% below area avg</span>`;
-      } else if (l.pct_vs_area_avg > 0) {
-        badges += `<span class="badge badge-above">${l.pct_vs_area_avg}% above area avg</span>`;
-      }
-    }
-
-    if (l.drop_pct > 0) {
-      badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen</span>`;
-    }
-
-    card.innerHTML = `
-      <a class="listing-link" href="${l.url}" target="_blank" rel="noreferrer">
-        <img src="${l.photo || ''}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'" />
-        <div class="listing-body">
-          <div class="badges">${badges}</div>
-          <p class="listing-title">${l.title}</p>
-          <p class="listing-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
-          <div class="listing-price-row">
-            <span class="listing-price">€${fmt(l.price_eur)}</span>
-            <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
-          </div>
-        </div>
-      </a>
-      <div class="listing-body" style="padding-top:0;">
-        <a class="registry-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">
-          🏛 Check land registry →
-        </a>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
+  pageItems.forEach(l => grid.appendChild(createListingCard(l)));
 }
 
 function renderFromStart() {
   currentPage = 1;
   render();
 }
+
+function showSection(name) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
+  if (name === 'market') {
+    if (!chartInitialized) { renderChart(); chartInitialized = true; }
+    else if (chart) chart.resize();
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => showSection(btn.dataset.section));
+});
+document.getElementById('goToLeadsBtn').addEventListener('click', () => showSection('leads'));
+document.getElementById('goToLeadsBtn2').addEventListener('click', () => showSection('leads'));
 
 document.getElementById('minPrice').addEventListener('input', renderFromStart);
 document.getElementById('maxPrice').addEventListener('input', renderFromStart);
@@ -350,6 +536,7 @@ document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('prevPage').addEventListener('click', () => { currentPage--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 document.getElementById('nextPage').addEventListener('click', () => { currentPage++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
+setGreeting();
 loadData();
 </script>
 
