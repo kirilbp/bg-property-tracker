@@ -734,5 +734,21 @@
     "score": 0,
     "area_avg_price_per_sqm": 2346,
     "pct_vs_area_avg": -16.5
+  },
+  {
+    "id": "imot_1a178375789785337",
+    "url": "https://www.imot.bg/obiava-1a178375789785337-prodava-ednostaen-apartament-grad-sofiya-borovo",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/337/1a178375789785337_tG.jpg",
+    "price_eur": 192945,
+    "sqm": 41,
+    "area": "Борово",
+    "title": "Продава 1-СТАЕН, Борово",
+    "portal": "imot.bg",
+    "price_per_sqm": 4706,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 4706,
+    "pct_vs_area_avg": 0.0
   }
 ]

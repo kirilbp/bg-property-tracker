@@ -24,6 +24,10 @@
       {
         "seen_at": "2026-08-22T11:04:50.378901+00:00",
         "price_eur": 148000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 148000
       }
     ],
     "latest": {
@@ -50,6 +54,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 435000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 435000
       }
     ],
@@ -78,6 +86,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 115900
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 115900
       }
     ],
     "latest": {
@@ -104,6 +116,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 59000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 59000
       }
     ],
@@ -132,6 +148,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 375000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 375000
       }
     ],
     "latest": {
@@ -159,12 +179,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 199900
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 199900
       }
     ],
     "latest": {
       "id": "olx_a3Nwe",
       "url": "https://www.olx.bg/d/ad/tristaen-apartament-kvartal-vitosha-CID368-IDa3Nwe.html?search_reason=search%7Corganic",
-      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/k52ffipf89cj1-BG/image;s=216x152;q=50",
+      "photo": null,
       "price_eur": 199900,
       "sqm": 75,
       "area": "7-ми 11-ти километър",
@@ -186,12 +210,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 105000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 105000
       }
     ],
     "latest": {
       "id": "olx_a3XlJ",
       "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-ovcha-kupel-CID368-IDa3XlJ.html?search_reason=search%7Corganic",
-      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/byus2h3wr9r92-BG/image;s=216x152;q=50",
+      "photo": null,
       "price_eur": 105000,
       "sqm": 65,
       "area": "Овча купел",
@@ -212,6 +240,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 125000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 125000
       }
     ],
@@ -240,12 +272,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 145000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 145000
       }
     ],
     "latest": {
       "id": "olx_a3V1p",
       "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-geo-milev-CID368-IDa3V1p.html?search_reason=search%7Corganic",
-      "photo": null,
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/r0r7ln6vv1uz-BG/image;s=216x152;q=50",
       "price_eur": 145000,
       "sqm": 73,
       "area": "Гео Милев",
@@ -266,6 +302,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 175000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 175000
       }
     ],
@@ -294,12 +334,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 208000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 208000
       }
     ],
     "latest": {
       "id": "olx_9Zpps",
       "url": "https://www.olx.bg/d/ad/prodava-2-staen-apartament-v-sofiya-kv-druzhba-1-do-park-s-ezero-CID368-ID9Zpps.html?search_reason=search%7Corganic",
-      "photo": null,
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/heg8uhkt7ngb1-BG/image;s=216x152;q=50",
       "price_eur": 208000,
       "sqm": 65,
       "area": "Лозенец",
@@ -382,6 +426,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 110000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 110000
       }
     ],
     "latest": {
@@ -408,6 +456,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 150000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 150000
       }
     ],
@@ -490,6 +542,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 139000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 139000
       }
     ],
     "latest": {
@@ -567,6 +623,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 105000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 105000
       }
     ],
     "latest": {
@@ -593,6 +653,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 149000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 149000
       }
     ],
@@ -663,12 +727,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 245000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 245000
       }
     ],
     "latest": {
       "id": "olx_a4pFG",
       "url": "https://www.olx.bg/d/ad/prodava-se-tristaen-apartament-CID368-IDa4pFG.html?search_reason=search%7Corganic",
-      "photo": null,
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/765aub96pfzw2-BG/image;s=216x152;q=50",
       "price_eur": 245000,
       "sqm": 84,
       "area": "Левски",
@@ -709,12 +777,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 95000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 95000
       }
     ],
     "latest": {
       "id": "olx_a4upZ",
       "url": "https://www.olx.bg/d/ad/ednostaen-apartament-s-prostorna-terasa-v-zh-k-druzhba-1-CID368-IDa4upZ.html?search_reason=search%7Corganic",
-      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/q1oq3q5e62ky2-BG/image;s=216x152;q=50",
+      "photo": null,
       "price_eur": 95000,
       "sqm": 45,
       "area": "Дружба 1",
@@ -735,6 +807,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 60000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 60000
       }
     ],
@@ -762,6 +838,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 15000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 15000
       }
     ],
@@ -863,6 +943,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 396000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 396000
       }
     ],
     "latest": {
@@ -917,12 +1001,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 249000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 249000
       }
     ],
     "latest": {
       "id": "olx_a4e42",
       "url": "https://www.olx.bg/d/ad/dvustaen-apartament-za-prodazhba-v-zh-k-mladost-1-CID368-IDa4e42.html?search_reason=search%7Corganic",
-      "photo": null,
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/ktr1sqrn0l5i1-BG/image;s=216x152;q=50",
       "price_eur": 249000,
       "sqm": 62,
       "area": "Младост 1",
@@ -1116,11 +1204,15 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 135000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 135000
       }
     ],
     "latest": {
       "id": "olx_a2C2L",
-      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-kv-oborische-do-park-zaimov-CID368-IDa2C2L.html?search_reason=search%7Corganic",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-kv-oborische-do-park-zaimov-CID368-IDa2C2L.html?search_reason=search%7Cpromoted",
       "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/atxnxc59ye5l3-BG/image;s=216x152;q=50",
       "price_eur": 135000,
       "sqm": 55,
@@ -1142,6 +1234,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 243000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 243000
       }
     ],
@@ -1246,6 +1342,10 @@
       {
         "seen_at": "2026-08-22T11:43:31.394794+00:00",
         "price_eur": 127000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 127000
       }
     ],
     "latest": {
@@ -1310,6 +1410,10 @@
       },
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 395000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 395000
       }
     ],
@@ -1380,11 +1484,15 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 16500
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 16500
       }
     ],
     "latest": {
       "id": "olx_a4Hw9",
-      "url": "https://www.olx.bg/d/ad/prodava-se-napalno-oborudvan-mnogokomponenten-targovski-biznes-v-sofiya-zh-k-lyulin-CID368-IDa4Hw9.html?search_reason=search%7Corganic",
+      "url": "https://www.olx.bg/d/ad/prodava-se-napalno-oborudvan-mnogokomponenten-targovski-biznes-v-sofiya-zh-k-lyulin-CID368-IDa4Hw9.html?search_reason=search%7Cpromoted",
       "photo": null,
       "price_eur": 16500,
       "sqm": 33,
@@ -1403,12 +1511,16 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 456000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 456000
       }
     ],
     "latest": {
       "id": "olx_a4epc",
       "url": "https://www.olx.bg/d/ad/ekskluzivno-partsel-do-forest-park-i-anglo-amerikanskoto-uchilische-m-t-CID368-IDa4epc.html?search_reason=search%7Corganic",
-      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/cjleeljv8qw91-BG/image;s=216x152;q=50",
+      "photo": null,
       "price_eur": 456000,
       "sqm": 4000,
       "area": "м-т Детски град",
@@ -1593,6 +1705,10 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 135000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 135000
       }
     ],
     "latest": {
@@ -1650,11 +1766,15 @@
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
         "price_eur": 108900
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 108900
       }
     ],
     "latest": {
       "id": "olx_a4HBh",
-      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-nadezhda-1-CID368-IDa4HBh.html?search_reason=search%7Corganic",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-nadezhda-1-CID368-IDa4HBh.html?search_reason=search%7Cpromoted",
       "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/6g4q2611cy863-BG/image;s=216x152;q=50",
       "price_eur": 108900,
       "sqm": 42,
@@ -1687,6 +1807,10 @@
     "snapshots": [
       {
         "seen_at": "2026-08-22T12:42:02.105147+00:00",
+        "price_eur": 370000
+      },
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
         "price_eur": 370000
       }
     ],
@@ -1736,6 +1860,329 @@
       "sqm": 1500,
       "area": "Горубляне",
       "title": "Парцел за жилищно строителство в кв. Горубляне, Горубляне",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4JXR": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 268000
+      }
+    ],
+    "latest": {
+      "id": "olx_a4JXR",
+      "url": "https://www.olx.bg/d/ad/prodavam-apartament-v-mladost-2-CID368-IDa4JXR.html?search_reason=search%7Cpromoted",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/roacazy7dsw82-BG/image;s=216x152;q=50",
+      "price_eur": 268000,
+      "sqm": 68,
+      "area": "Младост 2",
+      "title": "Продавам апартамент в Младост 2, Младост 2",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XJA": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 99000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XJA",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-nadezhda-3-CID368-IDa3XJA.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/35wify7ac0dz-BG/image;s=216x152;q=50",
+      "price_eur": 99000,
+      "sqm": 65,
+      "area": "Надежда 3",
+      "title": "Двустаен апартамент в Надежда 3, Надежда 3",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4eJB": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 300000
+      }
+    ],
+    "latest": {
+      "id": "olx_a4eJB",
+      "url": "https://www.olx.bg/d/ad/tristaen-apartament-s-prostorna-terasa-novo-stroitelstvo-v-kv-lagera-CID368-IDa4eJB.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/w626a6r3s53k3-BG/image;s=216x152;q=50",
+      "price_eur": 300000,
+      "sqm": 146,
+      "area": "Лагера",
+      "title": "Тристаен апартамент с просторна тераса ново строителство в кв. Лагера, Лагера",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XFy": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 79000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XFy",
+      "url": "https://www.olx.bg/d/ad/ednostaen-apartament-v-lyulin-7-CID368-IDa3XFy.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/3vh1wgc00h2o1-BG/image;s=216x152;q=50",
+      "price_eur": 79000,
+      "sqm": 46,
+      "area": "Люлин 7",
+      "title": "Едностаен апартамент в Люлин 7, Люлин 7",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4eGe": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 316666
+      }
+    ],
+    "latest": {
+      "id": "olx_a4eGe",
+      "url": "https://www.olx.bg/d/ad/chetiristaen-apartament-do-voennomeditsinska-akademiya-kv-lagera-CID368-IDa4eGe.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/8k6rsxi6w2m02-BG/image;s=216x152;q=50",
+      "price_eur": 316666,
+      "sqm": 168,
+      "area": "Лагера",
+      "title": "Четиристаен апартамент до Военномедицинска академия, кв. Лагера, Лагера",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_9UCuv": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 170000
+      }
+    ],
+    "latest": {
+      "id": "olx_9UCuv",
+      "url": "https://www.olx.bg/d/ad/yuzhen-dvustaen-obzaveden-ot-sobstvenik-CID368-ID9UCuv.html?search_reason=search%7Cpromoted",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/j0ebeiydih17-BG/image;s=216x152;q=50",
+      "price_eur": 170000,
+      "sqm": 63,
+      "area": "Хаджи Димитър",
+      "title": "южен двустаен обзаведен от собственик, Хаджи Димитър",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XLw": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 100000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XLw",
+      "url": "https://www.olx.bg/d/ad/ednostaen-apartament-v-darvenitsa-CID368-IDa3XLw.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/tknon8z2e3w92-BG/image;s=216x152;q=50",
+      "price_eur": 100000,
+      "sqm": 44,
+      "area": "Дървеница",
+      "title": "Едностаен апартамент в Дървеница, Дървеница",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XH1": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 119000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XH1",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-svoboda-CID368-IDa3XH1.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/chx7glradzwk-BG/image;s=216x152;q=50",
+      "price_eur": 119000,
+      "sqm": 64,
+      "area": "Свобода",
+      "title": "Двустаен апартамент в Свобода, Свобода",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XFQ": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XFQ",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-vav-vitosha-CID368-IDa3XFQ.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/uxtx7atkikx71-BG/image;s=216x152;q=50",
+      "price_eur": 150000,
+      "sqm": 62,
+      "area": "Витоша",
+      "title": "Двустаен апартамент във Витоша, Витоша",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XMq": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XMq",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-vav-vitosha-CID368-IDa3XMq.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/o3ojo0syzd9w2-BG/image;s=216x152;q=50",
+      "price_eur": 150000,
+      "sqm": 72,
+      "area": "Витоша",
+      "title": "Двустаен апартамент във Витоша, Витоша",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4HY3": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 173000
+      }
+    ],
+    "latest": {
+      "id": "olx_a4HY3",
+      "url": "https://www.olx.bg/d/ad/tristaen-apartament-lyulin-10-CID368-IDa4HY3.html?search_reason=search%7Cpromoted",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/i60k7ka1tlkt3-BG/image;s=216x152;q=50",
+      "price_eur": 173000,
+      "sqm": 86,
+      "area": "Люлин 10",
+      "title": "Тристаен апартамент Люлин 10, Люлин 10",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4HDw": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "latest": {
+      "id": "olx_a4HDw",
+      "url": "https://www.olx.bg/d/ad/ednostaen-apartament-v-sudentski-grad-do-nsa-CID368-IDa4HDw.html?search_reason=search%7Cpromoted",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/ri4627hxu6ea1-BG/image;s=216x152;q=50",
+      "price_eur": 150000,
+      "sqm": 42,
+      "area": "Малинова долина",
+      "title": "Едностаен апартамент в Судентски град до НСА, Малинова долина",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a4caT": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 810000
+      }
+    ],
+    "latest": {
+      "id": "olx_a4caT",
+      "url": "https://www.olx.bg/d/ad/kascha-za-prodazhba-v-m-t-detski-grad-s-pancharevo-CID368-IDa4caT.html?search_reason=search%7Cpromoted",
+      "photo": null,
+      "price_eur": 810000,
+      "sqm": 261,
+      "area": "Sofia",
+      "title": "Къща за продажба в м-т Детски град, с. Панчарево, Sofia",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XM6": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 119000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XM6",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-zona-b-19-CID368-IDa3XM6.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/iaqbxi0lkd413-BG/image;s=216x152;q=50",
+      "price_eur": 119000,
+      "sqm": 84,
+      "area": "Зона Б-19",
+      "title": "Двустаен апартамент в Зона Б-19, Зона Б-19",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XFj": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 140000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XFj",
+      "url": "https://www.olx.bg/d/ad/dvustaen-apartament-v-geo-milev-CID368-IDa3XFj.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/ako052q5wy0b1-BG/image;s=216x152;q=50",
+      "price_eur": 140000,
+      "sqm": 80,
+      "area": "Гео Милев",
+      "title": "Двустаен апартамент в Гео Милев, Гео Милев",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XHn": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 149000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XHn",
+      "url": "https://www.olx.bg/d/ad/tristaen-apartament-v-hadzhi-dimitar-CID368-IDa3XHn.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/0wpa9fombn1j3-BG/image;s=216x152;q=50",
+      "price_eur": 149000,
+      "sqm": 90,
+      "area": "Хаджи Димитър",
+      "title": "Тристаен апартамент в Хаджи Димитър, Хаджи Димитър",
+      "portal": "olx.bg"
+    }
+  },
+  "olx_a3XNh": {
+    "first_seen": "2026-08-22T13:42:56.183201+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-22T13:42:56.183201+00:00",
+        "price_eur": 95000
+      }
+    ],
+    "latest": {
+      "id": "olx_a3XNh",
+      "url": "https://www.olx.bg/d/ad/ednostaen-apartament-v-belite-brezi-CID368-IDa3XNh.html?search_reason=search%7Corganic",
+      "photo": "https://frankfurt.apollo.olxcdn.com:443/v1/files/tsxio3fsyq2u2-BG/image;s=216x152;q=50",
+      "price_eur": 95000,
+      "sqm": 53,
+      "area": "Белите брези",
+      "title": "Едностаен апартамент в Белите брези, Белите брези",
       "portal": "olx.bg"
     }
   }
