@@ -10,12 +10,15 @@ The scraper originally only fetched page 1 with no pagination loop at all -
 fixed by paging through page=2, page=3, ... until a page comes back with no
 listings, same "stop on empty page" pattern as scraper_bazar.py,
 scraper_imot.py, and scraper_imoti_bg.py, capped at MAX_PAGES as a safety
-limit. A REQUEST_DELAY between pages is required - fetching ~200 pages back
-to back with no delay at all got the scraper rate-limited (HTTP 403) by the
-site partway through; a small delay avoids that. If a page still comes back
-non-200 (rate-limited despite the delay, or a real transient error), that's
-treated as "no more listings" - the scraper stops and keeps whatever it
-already collected, rather than crashing and losing the whole run.
+limit. Confirmed against the live site that imoti.net hard-blocks (HTTP 403)
+at page 200 regardless of pacing - the same block hit with no delay and
+with a 1s REQUEST_DELAY between requests, so it's a fixed per-session page
+depth limit rather than a request-rate throttle a delay can avoid. A page
+request failure (403 or otherwise) is treated as "no more listings" - the
+scraper stops there and keeps whatever it already collected (~5900+
+listings in practice, vs. the site's ~11880 across all 396 pages) rather
+than crashing and losing the whole run. Going further would require
+IP rotation/session-cycling, which isn't worth building for this.
 """
 
 import re
