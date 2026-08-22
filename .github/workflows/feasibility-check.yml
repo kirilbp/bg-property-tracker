@@ -13,7 +13,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright
+      - run: pip install playwright beautifulsoup4
       - run: playwright install --with-deps chromium
 
-      - run: python feasibility_check.py
+      - run: python scraper_olx.py
+
+      - run: cat data/leads_olx.json
