@@ -119,10 +119,12 @@ def fetch_listings(url):
                     pass
                 break
 
-        img = container.find("img")
         img_url = None
-        if img:
-            img_url = img.get("src") or img.get("data-src")
+        for img in container.find_all("img"):
+            candidate = img.get("data-src") or img.get("src")
+            if candidate and "icons/" not in candidate:
+                img_url = candidate
+                break
         if img_url:
             if img_url.startswith("//"):
                 img_url = "https:" + img_url
