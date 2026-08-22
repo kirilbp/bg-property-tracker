@@ -145,6 +145,15 @@
     padding: 8px 14px; border-radius: 8px;
   }
   .source-link:hover { background: #e2e8f0; }
+
+  .badge-alt-portal { background: #eef2ff; color: #4338ca; }
+  .source-switcher { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+  .source-switcher-btn {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: white;
+    color: #475569; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .source-switcher-btn:hover { border-color: #94a3b8; }
+  .source-switcher-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
 </style>
 </head>
 <body>
@@ -296,6 +305,10 @@
             <h3>Land registry</h3>
             <p>The "Check land registry" link opens Bulgaria's official land registry portal. You'll need the exact address from the listing page, a free account, and pay a small fee per search — this app doesn't automate that lookup.</p>
           </div>
+          <div class="help-section">
+            <h3>Duplicate listings</h3>
+            <p>The same apartment is often cross-posted to several portals. Listings that match closely enough on price, size, and area are automatically combined into one card — the "+ portal" badges show where else it's listed, and its detail page has a small button per source to switch between each portal's own photos, price, and description. This is a best-effort match (no photo comparison, just price/size/area), so it can occasionally miss a real duplicate or, rarely, combine two coincidentally similar listings.</p>
+          </div>
         </div>
       </section>
 
@@ -326,10 +339,160 @@ const UNVERIFIED_PCT_THRESHOLD = 60;
 const PAGE_SIZE = 100;
 
 let ALL_LISTINGS = [];
+let MERGED_LISTINGS = [];
 let PORTAL_COUNTS = {};
 let chart = null;
 let chartInitialized = false;
 let currentPage = 1;
+let detailSourceIndex = 0;
+
+// --- Cross-portal duplicate detection ---------------------------------------
+// Each portal is scraped independently with no shared ID between sites, so
+// the same real-world apartment cross-posted to several portals shows up as
+// several unrelated-looking listings. Match candidates on price (portals
+// copy the same asking price, so this should agree to the euro - allowing
+// $1 of slack for BGN->EUR rounding on portals that convert from leva) and
+// sqm (exact when both sides have it - many bazar.bg listings don't, so
+// missing sqm on either side doesn't block a match on its own) and area
+// (fuzzy: imoti.net's area names are already in Latin script since it's
+// scraped via the site's English UI, everyone else's are Cyrillic, so both
+// sides are transliterated to Latin and compared as a loose substring match
+// rather than requiring an exact string). This is a heuristic, not a
+// certainty - no photo/image comparison is done (would mean downloading
+// and hashing every listing's photos, a much bigger undertaking), so it can
+// occasionally miss a real duplicate or, in rare cases, merge two distinct
+// but coincidentally identical-priced/sized units in the same area.
+const CYR_TO_LAT = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y',
+  к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u',
+  ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sht', ъ: 'a', ь: '', ю: 'yu', я: 'ya',
+};
+
+function transliterate(s) {
+  return s.split('').map(c => CYR_TO_LAT[c] ?? c).join('');
+}
+
+function normalizeArea(area) {
+  if (!area) return '';
+  let s = transliterate(area.toLowerCase().trim());
+  // Strip cosmetic prefixes only ("zh.k. Lyulin 5" / "kv. Lyulin 5" / "v Lyulin 5"
+  // all mean the same thing as "Lyulin 5") - crucially this does NOT strip the
+  // trailing sub-district number, because e.g. Lyulin 5 and Lyulin 7 are
+  // genuinely different neighborhoods, not formatting variants of each other.
+  for (let i = 0; i < 3; i++) {
+    s = s.replace(/^(v|kv\.?|zh\.?k?\.?)\s+/, '').trim();
+  }
+  return s;
+}
+
+// Deliberately exact-match only, no substring/prefix fallback: imoti.net
+// (the only portal scraped via its English UI) reports just the general
+// district name ("Lyulin") while every other portal reports the specific
+// numbered sub-district ("Lyulin 5", "Lyulin 7", ...) - a substring check
+// would treat "Lyulin" as matching ALL of Lyulin 1 through 10 as if they
+// were the same place, which is wrong; they're different neighborhoods.
+// The tradeoff is that imoti.net listings match less often than they
+// otherwise could - that's the safe direction to be wrong in here.
+function areasMatch(a1, a2) {
+  const n1 = normalizeArea(a1), n2 = normalizeArea(a2);
+  return !!n1 && n1 === n2;
+}
+
+function pricesMatch(p1, p2) {
+  if (!p1 || !p2) return false;
+  return Math.abs(p1 - p2) <= 1;
+}
+
+// Two-pass grouping, not a single fuzzy transitive-closure pass: a listing
+// with no recorded sqm (common on bazar.bg/alo.bg) matching two OTHER
+// listings individually doesn't mean those two match each other - e.g. a
+// sqm-less listing at "Lyulin, €150,000" could satisfy price+area against
+// both a real 66sqm unit and a real 94sqm unit without those two ever
+// being the same property. Pass 1 clusters only listings that have a real
+// sqm value, using a strict pairwise check on real numbers both sides, so
+// there's no missing-value bridge for two unrelated clusters to merge
+// through. Pass 2 then lets sqm-less listings attach onto an
+// already-decided pass-1 cluster (never creating a new bridge between two
+// of them), or stand alone if nothing matches.
+function groupListings(all) {
+  const withSqm = all.filter(l => l.sqm);
+  const withoutSqm = all.filter(l => !l.sqm);
+
+  const priceBuckets = new Map();
+  withSqm.forEach(l => {
+    const key = Math.round(l.price_eur || 0);
+    if (!priceBuckets.has(key)) priceBuckets.set(key, []);
+    priceBuckets.get(key).push(l);
+  });
+
+  const parent = new Map();
+  withSqm.forEach(l => parent.set(l.id, l.id));
+  function find(x) {
+    while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); }
+    return x;
+  }
+  function union(a, b) {
+    const ra = find(a), rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  }
+
+  withSqm.forEach(l => {
+    const key = Math.round(l.price_eur || 0);
+    for (const dk of [-1, 0, 1]) {
+      const bucket = priceBuckets.get(key + dk);
+      if (!bucket) continue;
+      for (const other of bucket) {
+        if (other === l || l.portal === other.portal) continue;
+        if (pricesMatch(l.price_eur, other.price_eur) &&
+            Math.abs(l.sqm - other.sqm) <= 1 &&
+            areasMatch(l.area, other.area)) {
+          union(l.id, other.id);
+        }
+      }
+    }
+  });
+
+  const groupsByRoot = new Map();
+  withSqm.forEach(l => {
+    const root = find(l.id);
+    if (!groupsByRoot.has(root)) groupsByRoot.set(root, []);
+    groupsByRoot.get(root).push(l);
+  });
+  const groups = Array.from(groupsByRoot.values());
+
+  const groupBuckets = new Map();
+  groups.forEach(g => {
+    const key = Math.round(g[0].price_eur || 0);
+    if (!groupBuckets.has(key)) groupBuckets.set(key, []);
+    groupBuckets.get(key).push(g);
+  });
+
+  const soloSqmless = [];
+  withoutSqm.forEach(l => {
+    const key = Math.round(l.price_eur || 0);
+    let attached = false;
+    for (const dk of [-1, 0, 1]) {
+      const candidates = groupBuckets.get(key + dk);
+      if (!candidates) continue;
+      for (const group of candidates) {
+        if (group.some(m => m.portal === l.portal)) continue;
+        const rep = group[0];
+        if (pricesMatch(l.price_eur, rep.price_eur) && areasMatch(l.area, rep.area)) {
+          group.push(l);
+          attached = true;
+          break;
+        }
+      }
+      if (attached) break;
+    }
+    if (!attached) soloSqmless.push([l]);
+  });
+
+  return [...groups, ...soloSqmless].map(sources => {
+    const sorted = [...sources].sort((a, b) => (b.score || 0) - (a.score || 0));
+    return { ...sorted[0], sources: sorted };
+  });
+}
 
 function setGreeting() {
   const hour = new Date().getHours();
@@ -367,8 +530,12 @@ async function loadData() {
       'imoti.net': imoti.length, 'alo.bg': alo.length, 'homes.bg': homes.length,
       'imot.bg': imotBg.length, 'olx.bg': olx.length, 'bazar.bg': bazar.length, 'imoti.bg': imotibg.length,
     };
+    MERGED_LISTINGS = groupListings(ALL_LISTINGS);
+    const duplicatesMerged = ALL_LISTINGS.length - MERGED_LISTINGS.length;
     document.getElementById('subtitle').textContent =
-      `${ALL_LISTINGS.length} live listings (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
+      `${fmt(MERGED_LISTINGS.length)} unique listings` +
+      (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
+      ` (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
     renderHome();
     renderDashboard();
@@ -383,7 +550,7 @@ async function loadData() {
 }
 
 function populateAreaFilter() {
-  const areas = [...new Set(ALL_LISTINGS.map(l => l.area))].sort();
+  const areas = [...new Set(MERGED_LISTINGS.map(l => l.area))].sort();
   const select = document.getElementById('areaFilter');
   areas.forEach(area => {
     const opt = document.createElement('option');
@@ -394,9 +561,9 @@ function populateAreaFilter() {
 }
 
 function renderHome() {
-  const hot = ALL_LISTINGS.filter(l => l.score >= 65).length;
+  const hot = MERGED_LISTINGS.filter(l => l.score >= 65).length;
   const stats = [
-    { value: fmt(ALL_LISTINGS.length), label: 'Total listings' },
+    { value: fmt(MERGED_LISTINGS.length), label: 'Total listings' },
     { value: fmt(hot), label: '🔥 Hot deals' },
     { value: '7', label: 'Portals tracked' },
   ];
@@ -417,7 +584,7 @@ function renderHome() {
 }
 
 function renderDashboard() {
-  const top = [...ALL_LISTINGS].sort((a, b) => b.score - a.score).slice(0, 6);
+  const top = [...MERGED_LISTINGS].sort((a, b) => b.score - a.score).slice(0, 6);
   const hotGrid = document.getElementById('hotGrid');
   hotGrid.innerHTML = '';
   top.forEach(l => hotGrid.appendChild(createListingCard(l)));
@@ -425,7 +592,7 @@ function renderDashboard() {
 
 function renderChart() {
   const byArea = {};
-  ALL_LISTINGS.forEach(l => {
+  MERGED_LISTINGS.forEach(l => {
     if (!l.price_per_sqm) return;
     if (!byArea[l.area]) byArea[l.area] = [];
     byArea[l.area].push(l.price_per_sqm);
@@ -481,7 +648,12 @@ function buildBadgesHtml(l) {
 function createListingCard(l) {
   const card = document.createElement('div');
   card.className = 'listing';
-  const badges = buildBadgesHtml(l);
+  let badges = buildBadgesHtml(l);
+  if (l.sources && l.sources.length > 1) {
+    l.sources.filter(s => s.portal !== l.portal).forEach(s => {
+      badges += `<span class="badge badge-alt-portal" title="Also listed on ${s.portal}">+ ${s.portal}</span>`;
+    });
+  }
 
   card.innerHTML = `
     <div class="listing-link" data-listing-id="${l.id}">
@@ -512,7 +684,7 @@ function render() {
   const area = document.getElementById('areaFilter').value;
   const sortBy = document.getElementById('sortBy').value;
 
-  let filtered = ALL_LISTINGS.filter(l =>
+  let filtered = MERGED_LISTINGS.filter(l =>
     l.price_eur >= min &&
     l.price_eur <= max &&
     (l.sqm || 0) >= minSqm &&
@@ -535,7 +707,7 @@ function render() {
   const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
   document.getElementById('count').textContent = filtered.length === 0
-    ? `0 of ${ALL_LISTINGS.length} listings`
+    ? `0 of ${MERGED_LISTINGS.length} listings`
     : `Showing ${fmt(pageStart + 1)}-${fmt(pageStart + pageItems.length)} of ${fmt(filtered.length)} listings`;
 
   const grid = document.getElementById('grid');
@@ -562,7 +734,8 @@ function renderFromStart() {
   render();
 }
 
-function renderListingDetail(l) {
+function renderListingDetail(merged) {
+  const l = merged.sources[detailSourceIndex] || merged.sources[0];
   const badges = buildBadgesHtml(l);
   const hasHistory = Array.isArray(l.price_history) && l.price_history.length > 1;
   const photos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : (l.photo ? [l.photo] : []);
@@ -574,7 +747,18 @@ function renderListingDetail(l) {
     </div>
   ` : '';
 
+  const switcherHtml = merged.sources.length > 1 ? `
+    <div class="source-switcher">
+      ${merged.sources.map((s, i) => `
+        <button class="source-switcher-btn${i === detailSourceIndex ? ' active' : ''}" data-source-index="${i}">
+          ${s.portal} · €${fmt(s.price_eur)}
+        </button>
+      `).join('')}
+    </div>
+  ` : '';
+
   document.getElementById('listingDetailBody').innerHTML = `
+    ${switcherHtml}
     <div class="detail-grid">
       <div>
         <img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${l.title}" onerror="this.style.display='none'" />
@@ -610,12 +794,21 @@ function renderListingDetail(l) {
       document.querySelectorAll('.detail-thumb').forEach(t => t.classList.toggle('active', t === thumb));
     });
   });
+
+  document.getElementById('listingDetailBody').querySelectorAll('.source-switcher-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      detailSourceIndex = parseInt(btn.dataset.sourceIndex, 10);
+      renderListingDetail(merged);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  });
 }
 
 function showListingDetail(id) {
-  const l = ALL_LISTINGS.find(x => x.id === id);
-  if (!l) return;
-  renderListingDetail(l);
+  const merged = MERGED_LISTINGS.find(x => x.id === id);
+  if (!merged) return;
+  detailSourceIndex = 0;
+  renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
