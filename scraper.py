@@ -3,6 +3,14 @@ Scrapes current Sofia listings from imoti.net, keeps a history of every time
 each listing was seen, and works out:
   - price drops and days-on-market from that history
   - each listing's price per m2 vs the average for its area, as a %
+
+Search results are paginated with ?page=N (confirmed via the site's own
+paginator, which lists a "last page" link up to page 396 at 30 items/page).
+The scraper originally only fetched page 1 with no pagination loop at all -
+fixed by paging through page=2, page=3, ... until a page comes back with no
+listings, same "stop on empty page" pattern as scraper_bazar.py,
+scraper_imot.py, and scraper_imoti_bg.py, capped at MAX_PAGES as a safety
+limit.
 """
 
 import re
@@ -24,6 +32,7 @@ LEADS_FILE = OUT_DIR / "leads.json"
 BGN_TO_EUR = 1.95583
 MAX_CARD_TEXT_LENGTH = 400
 MAX_PRICE_MENTIONS = 2
+MAX_PAGES = 420
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -51,7 +60,7 @@ def smallest_container_with_price(link_tag, max_levels=6):
     return None
 
 
-def fetch_listings(url):
+def fetch_listings_page(url, seen):
     resp = requests.get(url, headers=HEADERS, timeout=20)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -59,7 +68,6 @@ def fetch_listings(url):
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
 
-    seen = {}
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -105,6 +113,17 @@ def fetch_listings(url):
             "title": title,
             "portal": "imoti.net",
         }
+    return len(matching_links)
+
+
+def fetch_listings():
+    seen = {}
+    for page_num in range(1, MAX_PAGES + 1):
+        url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
+        link_count = fetch_listings_page(url, seen)
+        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+        if link_count == 0:
+            break
     return list(seen.values())
 
 
@@ -176,7 +195,7 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings(SEARCH_URL)
+    listings = fetch_listings()
     history = load_history()
     history = update_history(history, listings)
     save_history(history)
