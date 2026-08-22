@@ -1,6 +1,6 @@
 """
-Round 4: inspect the HTML structure around a REAL classified listing card
-(not a "new building" promo card) on imot.bg's Sofia sales page.
+Round 5: inspect all <img> tags inside a real listing card to find the
+actual photo thumbnail (not the "TOP" ranking badge icon).
 """
 
 import json
@@ -24,23 +24,21 @@ def main():
           const idRe = /\/obiava-\d[a-z]\d{10,}-/;
           const links = Array.from(document.querySelectorAll('a[href*="/obiava-"]'))
             .filter(a => idRe.test(a.getAttribute('href')));
-          if (links.length === 0) return { error: 'no matching links', count: 0 };
-
-          const link = links[0];
-          const results = [];
-          let node = link;
-          for (let i = 0; i < 6 && node.parentElement; i++) {
-            node = node.parentElement;
-            const priceMatches = (node.innerText.match(/[\d\s]{3,10}\s?€/g) || []);
-            results.push({
-              tag: node.tagName,
-              className: node.className,
-              textLen: node.innerText.length,
-              priceMentions: priceMatches.length,
-              text: node.innerText.slice(0, 500),
-            });
+          const out = [];
+          for (let i = 0; i < Math.min(3, links.length); i++) {
+            const link = links[i];
+            let node = link;
+            for (let j = 0; j < 4 && node.parentElement; j++) node = node.parentElement;
+            const imgs = Array.from(node.querySelectorAll('img')).map(img => ({
+              src: img.getAttribute('src'),
+              dataSrc: img.getAttribute('data-src'),
+              className: img.className,
+              width: img.getAttribute('width'),
+              height: img.getAttribute('height'),
+            }));
+            out.push({ href: link.getAttribute('href'), containerClass: node.className, imgs });
           }
-          return { href: link.getAttribute('href'), totalMatchingLinks: links.length, ancestors: results };
+          return out;
         }
         """)
         print(json.dumps(info, ensure_ascii=False, indent=2))
