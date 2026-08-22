@@ -1,51 +1,57 @@
 """
-Round 11: test whether the Sofia-filtered sales URL discovered via the click
-flow (https://imoti.bg/продажби/di:софия/cu:BGN) is bookmarkable/stateless -
-i.e. whether it can be fetched directly (plain requests, or a fresh
-Playwright navigation with no prior click flow) without needing to repeat
-the select2+search click simulation on every scrape run. If so, the
-production scraper can skip the fragile click flow entirely for pages 2+
-(and possibly page 1 too).
+Round 1: check whether imoti.info is reachable via headless Chromium
+(Playwright) despite previously returning a Cloudflare "Just a moment..."
+challenge page to plain requests - same approach that worked for imot.bg and
+OLX.bg. Also try to find the Sofia apartments-for-sale search URL.
 """
 
-import requests
 from playwright.sync_api import sync_playwright
 
-DIRECT_URL = "https://imoti.bg/продажби/di:софия/cu:BGN"
+URL = "https://imoti.info"
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-
-def check_requests():
-    print("=== plain requests.get ===")
-    try:
-        r = requests.get(DIRECT_URL, headers={"User-Agent": USER_AGENT, "Accept-Language": "bg-BG,bg;q=0.9"}, timeout=15)
-        print("status:", r.status_code, "length:", len(r.text))
-        print("contains 'Надежда' (a real Sofia area seen before):", "Надежда" in r.text)
-        print("contains listing href pattern:", "-апартамент/софия/" in r.text)
-    except Exception as e:
-        print("ERROR:", e)
+BLOCK_MARKERS = ["just a moment", "checking your browser", "cf-browser-verification",
+                  "cloudflare", "attention required", "captcha"]
 
 
-def check_playwright_direct():
-    print("\n=== fresh Playwright navigation, no click flow ===")
+def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
-        page.goto(DIRECT_URL, wait_until="domcontentloaded", timeout=30000)
-        page.wait_for_timeout(2000)
-        print("final URL:", page.url)
-        print("title:", page.title())
+        page.goto(URL, wait_until="domcontentloaded", timeout=30000)
+        # Cloudflare's JS challenge typically resolves within a few seconds.
+        page.wait_for_timeout(6000)
+
+        print("page url:", page.url)
+        print("page title:", page.title())
+
         html = page.content()
-        print("contains 'Надежда':", "Надежда" in html)
-        print("contains listing href pattern:", "-апартамент/софия/" in html)
+        print("html length:", len(html))
+        lower = html.lower()
+        markers = [m for m in BLOCK_MARKERS if m in lower]
+        print("block markers found:", markers)
+
+        print("\n--- links mentioning 'sofia'/'sofiya'/'софия' or 'apartament' ---")
+        links = page.eval_on_selector_all("a[href]", """
+        els => els.map(a => ({href: a.getAttribute('href'), text: a.textContent.trim().slice(0,60)}))
+        """)
+        seen = set()
+        count = 0
+        for l in links:
+            href = l["href"] or ""
+            text = l["text"] or ""
+            if any(k in (href + text).lower() for k in ["sofia", "sofiya", "софия", "apartament", "апартамент"]):
+                key = href
+                if key not in seen:
+                    seen.add(key)
+                    print(repr(href), "|", repr(text))
+                    count += 1
+            if count >= 30:
+                break
+
         browser.close()
-
-
-def main():
-    check_requests()
-    check_playwright_direct()
 
 
 if __name__ == "__main__":
