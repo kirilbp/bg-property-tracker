@@ -1,5 +1,6 @@
 """
-Round 2: find OLX.bg's real real-estate/Sofia category navigation links.
+Round 3: drill into OLX.bg's real-estate category to find sale/apartment/
+Sofia subcategory links and inspect one real listing card's structure.
 """
 
 import json
@@ -15,28 +16,37 @@ def main():
             locale="bg-BG",
         )
         page = context.new_page()
-        page.goto("https://www.olx.bg/", wait_until="domcontentloaded", timeout=30000)
+        page.goto("https://www.olx.bg/nedvizhimi-imoti/", wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(2000)
+
+        print("title:", page.title())
+        print("final url:", page.url)
 
         links = page.eval_on_selector_all(
             "a[href]",
             "els => els.map(e => ({href: e.getAttribute('href'), text: e.innerText.trim()}))"
         )
-        # dedupe, keep only nav-looking ones (short text, category-ish paths)
         seen = set()
         candidates = []
         for l in links:
             href = l["href"] or ""
             text = l["text"] or ""
-            if href in seen:
+            if href in seen or not href.startswith("/nedvizhimi-imoti"):
                 continue
             seen.add(href)
-            if href.startswith("/") and not href.startswith("/d/ad/") and len(href) < 60:
-                candidates.append((href, text))
+            candidates.append((href, text))
 
-        print(f"total unique nav-like links: {len(candidates)}")
+        print(f"\nreal-estate subcategory/filter links: {len(candidates)}")
         for href, text in sorted(candidates):
-            print(f"  {href!r:55s} text={text!r}")
+            print(f"  {href!r:60s} text={text!r}")
+
+        # also grab a sample of actual ad links + prices from this general page
+        ad_links = page.eval_on_selector_all(
+            "a[href*='/d/ad/']", "els => els.slice(0,10).map(e => e.getAttribute('href'))"
+        )
+        print(f"\nsample ad links on /nedvizhimi-imoti/: {len(ad_links)}")
+        for l in ad_links:
+            print("  ", l)
 
         browser.close()
 
