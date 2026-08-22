@@ -1,5 +1,21 @@
 [
   {
+    "id": "imot_1b178506444161565",
+    "url": "https://www.imot.bg/obiava-1b178506444161565-prodava-dvustaen-apartament-grad-sofiya-mladost-4",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/565/1b178506444161565_Et.jpg",
+    "price_eur": 238000,
+    "sqm": 84,
+    "area": "Младост 4",
+    "title": "Продава 2-СТАЕН, Младост 4",
+    "portal": "imot.bg",
+    "price_per_sqm": 2833,
+    "drop_pct": 0.8,
+    "days_on_market": 0,
+    "score": 2,
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": -4.1
+  },
+  {
     "id": "imot_1b178606167831728",
     "url": "https://www.imot.bg/obiava-1b178606167831728-prodava-dvustaen-apartament-grad-sofiya-malinova-dolina",
     "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/728/1b178606167831728_Do.jpg",
@@ -508,8 +524,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -12.7
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -13.4
   },
   {
     "id": "imot_1a178602825186764",
@@ -524,8 +540,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -15.4
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -16.1
   },
   {
     "id": "imot_1a177755940639397",
@@ -652,8 +668,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 23.8
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 22.8
   },
   {
     "id": "imot_1r178610440988311",
@@ -1100,7 +1116,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -3.1
   },
   {
@@ -4924,8 +4940,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 2.9
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 2.0
   },
   {
     "id": "imot_1b178705536086742",
@@ -4940,8 +4956,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -6.7
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -7.5
   },
   {
     "id": "imot_1b178117815461123",
@@ -4956,8 +4972,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 7.6
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 6.7
   },
   {
     "id": "imot_1b178695019772634",
@@ -4972,8 +4988,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -19.8
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -20.5
   },
   {
     "id": "imot_1b178670614810920",
@@ -4988,8 +5004,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 10.0
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 9.1
   },
   {
     "id": "imot_1b176623698615751",
@@ -5004,8 +5020,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -8.3
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -9.1
   },
   {
     "id": "imot_1b177415795670067",
@@ -5020,8 +5036,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 14.2
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 13.3
   },
   {
     "id": "imot_1b177859910602059",
@@ -5036,8 +5052,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 14.2
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 13.3
   },
   {
     "id": "imot_1b177151697807064",
@@ -5052,8 +5068,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -46.3
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -46.7
   },
   {
     "id": "imot_1b178696645111374",
@@ -5068,8 +5084,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 73.1
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 71.7
   },
   {
     "id": "imot_1b177566042718864",
@@ -5084,8 +5100,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -35.3
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -35.8
   },
   {
     "id": "imot_1b178582943647516",
@@ -5100,8 +5116,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -11.1
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -11.9
   },
   {
     "id": "imot_1b177908955034690",
@@ -5116,8 +5132,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 6.6
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 5.7
   },
   {
     "id": "imot_1b178524657386573",
@@ -5132,8 +5148,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 19.0
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 18.0
   },
   {
     "id": "imot_1b178678943169865",
@@ -8444,7 +8460,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -22.1
   },
   {
@@ -8460,7 +8476,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -19.2
   },
   {
@@ -8476,7 +8492,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -12.6
   },
   {
@@ -8492,7 +8508,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -3.1
   },
   {
@@ -8508,7 +8524,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -17.6
   },
   {
@@ -8524,8 +8540,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": 15.7
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": 15.8
   },
   {
     "id": "imot_1b178740757147861",
@@ -8540,8 +8556,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": -5.8
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": -5.7
   },
   {
     "id": "imot_1b177918367283913",
@@ -8556,7 +8572,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -13.7
   },
   {
@@ -8572,7 +8588,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": -12.2
   },
   {
@@ -8588,7 +8604,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": 3.3
   },
   {
@@ -8604,8 +8620,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": -17.3
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": -17.2
   },
   {
     "id": "imot_1b178646042320419",
@@ -8620,24 +8636,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": 11.7
-  },
-  {
-    "id": "imot_1b178506444161565",
-    "url": "https://www.imot.bg/obiava-1b178506444161565-prodava-dvustaen-apartament-grad-sofiya-mladost-4",
-    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/565/1b178506444161565_Et.jpg",
-    "price_eur": 240000,
-    "sqm": 84,
-    "area": "Младост 4",
-    "title": "Продава 2-СТАЕН, Младост 4",
-    "portal": "imot.bg",
-    "price_per_sqm": 2857,
-    "drop_pct": 0.0,
-    "days_on_market": 0,
-    "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": -3.4
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": 11.8
   },
   {
     "id": "imot_1b178306619914296",
@@ -8652,8 +8652,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": 14.3
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": 14.4
   },
   {
     "id": "imot_1b178465133353014",
@@ -8668,7 +8668,7 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
+    "area_avg_price_per_sqm": 2955,
     "pct_vs_area_avg": 40.9
   },
   {
@@ -8684,8 +8684,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2957,
-    "pct_vs_area_avg": 44.3
+    "area_avg_price_per_sqm": 2955,
+    "pct_vs_area_avg": 44.4
   },
   {
     "id": "imot_1b177867884378445",
@@ -15964,8 +15964,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 6.8
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 5.9
   },
   {
     "id": "imot_1c178524665182213",
@@ -15980,8 +15980,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 19.0
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 18.0
   },
   {
     "id": "imot_1c176120544305108",
@@ -15996,8 +15996,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 32.0
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 30.9
   },
   {
     "id": "imot_1c177754420676086",
@@ -16012,8 +16012,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -39.0
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -39.5
   },
   {
     "id": "imot_1c178677581595664",
@@ -16028,8 +16028,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": 19.8
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 18.8
   },
   {
     "id": "imot_1c178360416855368",
@@ -16044,8 +16044,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -19.2
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -19.9
   },
   {
     "id": "imot_1c178731716170695",
@@ -16060,8 +16060,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -8.9
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -9.6
   },
   {
     "id": "imot_1c177789072369973",
@@ -16076,8 +16076,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -14.1
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -14.8
   },
   {
     "id": "imot_1c131850995530637",
@@ -16092,7 +16092,39 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 3939,
-    "pct_vs_area_avg": -12.2
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -12.9
+  },
+  {
+    "id": "imot_1c178600279939059",
+    "url": "https://www.imot.bg/obiava-1c178600279939059-prodava-tristaen-apartament-grad-sofiya-lozenets-bul-cherni-vrah",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/059/1c178600279939059_Zd.jpg",
+    "price_eur": 450000,
+    "sqm": 122,
+    "area": "Лозенец",
+    "title": "Продава 3-СТАЕН, Лозенец",
+    "portal": "imot.bg",
+    "price_per_sqm": 3689,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": -7.1
+  },
+  {
+    "id": "imot_1c176891543437034",
+    "url": "https://www.imot.bg/obiava-1c176891543437034-prodava-tristaen-apartament-grad-sofiya-lozenets",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/034/1c176891543437034_K3.jpg",
+    "price_eur": 460000,
+    "sqm": 90,
+    "area": "Лозенец",
+    "title": "Продава 3-СТАЕН, Лозенец",
+    "portal": "imot.bg",
+    "price_per_sqm": 5111,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 3972,
+    "pct_vs_area_avg": 28.7
   }
 ]
