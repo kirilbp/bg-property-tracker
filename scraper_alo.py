@@ -244,6 +244,19 @@ def compute_leads(history):
         first_price = prices[0]
         last_price = prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
+
+        price_history = []
+        last_hist_price = None
+        for s in rec["snapshots"]:
+            p = s.get("price_eur")
+            if not p or p == last_hist_price:
+                continue
+            price_history.append({"date": s["seen_at"], "price_eur": p})
+            last_hist_price = p
+        price_drop_count = sum(
+            1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
+        )
+
         latest = rec["latest"]
         site_updated_at = latest.get("site_updated_at")
         reference_date = (
@@ -257,6 +270,8 @@ def compute_leads(history):
         entry = dict(latest)
         entry["price_eur"] = last_price
         entry["price_per_sqm"] = price_per_sqm
+        entry["price_history"] = price_history
+        entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
         entry["score"] = score
