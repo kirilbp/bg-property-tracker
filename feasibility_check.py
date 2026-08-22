@@ -1,11 +1,10 @@
 """
-Round 3: simulate the real click flow on imoti.bg's homepage search form -
-open the select2 location dropdown, click "София" (the city option, not
-"София област"), keep "Продажба" (sell) selected, click the real "Търси"
-button, then inspect the resulting page: URL, listing count, neighbourhood
-diversity, pagination depth. This is the actual test of whether Sofia
-filtering produces genuine results or the same thin nationwide batch as
-before.
+Round 4: simulate the real click flow on imoti.bg's homepage search form -
+open the select2 location dropdown (its search box is readonly, so this is
+click-only, no typing needed), click "София" (the city option, not "София
+област"), keep "Продажба" (sell) selected, click the real "Търси" button,
+then inspect the resulting page: URL, listing count, neighbourhood
+diversity, pagination depth.
 """
 
 import re
@@ -28,23 +27,19 @@ def main():
         page.click("#s2id_district_id .select2-choice")
         page.wait_for_timeout(500)
 
-        print("Step 2: type 'София' into the select2 search box")
-        page.fill("#s2id_autogen1_search", "София")
-        page.wait_for_timeout(800)
-
-        print("Step 3: dump visible dropdown results")
+        print("Step 2: dump visible dropdown results (no typing - search box is readonly)")
         results = page.evaluate("""
         () => Array.from(document.querySelectorAll('.select2-results li')).map(li => li.textContent.trim())
         """)
-        print("visible options:", results)
+        print("visible options (first 20):", results[:20])
+        print("total options visible:", len(results))
 
-        print("Step 4: click the exact 'София' result (not 'София област')")
-        # select2 renders results as <li><div>Text</div></li>; match exact text.
+        print("\nStep 3: click the exact 'София' result (city, not 'София област')")
         clicked = page.evaluate("""
         () => {
           const items = Array.from(document.querySelectorAll('.select2-results li'));
           const exact = items.find(li => li.textContent.trim() === 'София');
-          if (exact) { exact.querySelector('div, span, .select2-result-label')?.click() || exact.click(); return true; }
+          if (exact) { exact.click(); return true; }
           return false;
         }
         """)
@@ -56,7 +51,7 @@ def main():
         district_value = page.eval_on_selector("#district_id", "el => el.value")
         print("underlying select value:", district_value)
 
-        print("\nStep 5: click the real 'Търси' search button")
+        print("\nStep 4: click the real 'Търси' search button")
         with page.expect_navigation(wait_until="domcontentloaded", timeout=15000):
             page.click("a.button.button-primary:has-text('Търси')")
         page.wait_for_timeout(1500)
@@ -68,16 +63,14 @@ def main():
         listing_link_count = len(re.findall(r'href="https://imoti\.bg/(продажби|наеми)/[^"]+"', html))
         print("listing-detail links found on results page:", listing_link_count)
 
-        # sample some listing titles/areas from the page text
         sample = page.evaluate("""
         () => Array.from(document.querySelectorAll('a[href*="/продажби/"], a[href*="/наеми/"]'))
-          .map(a => a.textContent.trim()).filter(t => t.length > 10).slice(0, 20)
+          .map(a => a.textContent.trim()).filter(t => t.length > 10).slice(0, 25)
         """)
         print("\nsample listing texts:")
         for s in sample:
             print(" ", repr(s))
 
-        # pagination check
         page_links = page.evaluate("""
         () => Array.from(document.querySelectorAll('a[href*="page="], .pagination a')).map(a => a.textContent.trim()).slice(0, 20)
         """)
