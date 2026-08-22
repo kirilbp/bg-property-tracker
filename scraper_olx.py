@@ -12,6 +12,15 @@ follows a consistent per-line layout:
     line 1: "<price> €"
     line 2: "гр. София, <area> - Обновено на <date>" (or Днес/Вчера etc.)
     line 3: "<sqm> кв.м - <price per sqm>"
+
+Search results are paginated with ?page=N (confirmed via the site's own
+paginator, and the site itself states "Открихме повече от 1000 обяви" -
+found more than 1000 listings). The scraper originally only fetched page 1
+with no pagination loop at all - fixed by paging through page=2, page=3,
+... until a page comes back with no listings, same "stop on empty page"
+pattern as the other scrapers, reusing one browser/page across all
+requests (same approach as scraper_imot.py) rather than relaunching
+Chromium per page.
 """
 
 import re
@@ -34,6 +43,7 @@ LEADS_FILE = OUT_DIR / "leads_olx.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
+MAX_PAGES = 40
 
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -42,32 +52,26 @@ AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+?)\s-\s")
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
 
 
-def fetch_html(url):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
-        page = context.new_page()
-        page.goto(url, wait_until="domcontentloaded", timeout=30000)
-        page.wait_for_timeout(1500)
-        # Listing photos are lazy-loaded as cards enter the viewport, so scroll
-        # all the way to the bottom (slowly, so each batch has time to actually
-        # finish loading, not just get requested) to force them all in before
-        # reading src.
-        for _ in range(35):
-            page.mouse.wheel(0, 1200)
-            page.wait_for_timeout(500)
-            at_bottom = page.evaluate(
-                "window.innerHeight + window.scrollY >= document.body.scrollHeight - 10"
-            )
-            if at_bottom:
-                break
-        try:
-            page.wait_for_load_state("networkidle", timeout=5000)
-        except Exception:
-            pass
-        html = page.content()
-        browser.close()
-    return html
+def fetch_html(page, url):
+    page.goto(url, wait_until="domcontentloaded", timeout=30000)
+    page.wait_for_timeout(1500)
+    # Listing photos are lazy-loaded as cards enter the viewport, so scroll
+    # all the way to the bottom (slowly, so each batch has time to actually
+    # finish loading, not just get requested) to force them all in before
+    # reading src.
+    for _ in range(35):
+        page.mouse.wheel(0, 1200)
+        page.wait_for_timeout(500)
+        at_bottom = page.evaluate(
+            "window.innerHeight + window.scrollY >= document.body.scrollHeight - 10"
+        )
+        if at_bottom:
+            break
+    try:
+        page.wait_for_load_state("networkidle", timeout=5000)
+    except Exception:
+        pass
+    return page.content()
 
 
 def smallest_container_with_price(link_tag, max_levels=8):
@@ -85,16 +89,14 @@ def smallest_container_with_price(link_tag, max_levels=8):
     return None
 
 
-def fetch_listings(url):
-    html = fetch_html(url)
+def fetch_listings_page(page, url, seen):
+    html = fetch_html(page, url)
     print(f"DEBUG: fetched HTML length = {len(html)}")
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
     matching_links = [a for a in all_links if LISTING_LINK_RE.search(a["href"])]
-    print(f"DEBUG: links matching listing URL pattern = {len(matching_links)}")
 
-    seen = {}
     for a in matching_links:
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
@@ -156,6 +158,24 @@ def fetch_listings(url):
             "title": title[:150],
             "portal": "olx.bg",
         }
+    return len(matching_links)
+
+
+def fetch_listings():
+    seen = {}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
+        page = context.new_page()
+
+        for page_num in range(1, MAX_PAGES + 1):
+            url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
+            link_count = fetch_listings_page(page, url, seen)
+            print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+            if not link_count:
+                break
+
+        browser.close()
     return list(seen.values())
 
 
@@ -223,7 +243,7 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings(SEARCH_URL)
+    listings = fetch_listings()
     history = load_history()
     history = update_history(history, listings)
     save_history(history)
