@@ -28,12 +28,20 @@ having reached the last page - and, since scrape.yml runs all 5 scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
+
+Line 2's "Обновено на <date>" (confirmed live format: "20 август 2026 г.")
+or bare "Днес"/"Вчера" reflects when the listing was actually last updated
+on OLX, and was previously discarded entirely (only the area before it was
+kept). Now parsed into a real date, so days_on_market/motivation score are
+computed from that instead of purely from when we first scraped the
+listing - otherwise a listing that's actually been up for months shows as
+"0 days on market" just because we only just started tracking it.
 """
 
 import re
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -59,7 +67,33 @@ LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
 PRICE_LINE_RE = re.compile(r"^([\d\s]{3,10})\s?€$")
 AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+?)\s-\s")
+UPDATED_RE = re.compile(r"-\s*(Днес|Вчера|Обновено на\s+(\d{1,2})\s+(\S+)\s+(\d{4})\s*г\.?)", re.IGNORECASE)
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
+
+BG_MONTHS = {
+    "януари": 1, "февруари": 2, "март": 3, "април": 4, "май": 5, "юни": 6,
+    "юли": 7, "август": 8, "септември": 9, "октомври": 10, "ноември": 11, "декември": 12,
+}
+
+
+def parse_site_updated_at(line):
+    m = UPDATED_RE.search(line)
+    if not m:
+        return None
+    now = datetime.now(timezone.utc)
+    label = m.group(1).lower()
+    if label.startswith("днес"):
+        return now.isoformat()
+    if label.startswith("вчера"):
+        return (now - timedelta(days=1)).isoformat()
+    day, month_name, year = m.group(2), m.group(3).lower(), m.group(4)
+    month = BG_MONTHS.get(month_name)
+    if not month:
+        return None
+    try:
+        return datetime(int(year), month, int(day), tzinfo=timezone.utc).isoformat()
+    except ValueError:
+        return None
 
 
 def fetch_html(page, url):
@@ -144,10 +178,12 @@ def fetch_listings_page(page, url, seen):
             continue
 
         area = "Sofia"
+        site_updated_at = None
         for l in lines:
             m = AREA_LINE_RE.match(l)
             if m:
                 area = m.group(1).strip()
+                site_updated_at = parse_site_updated_at(l)
                 break
 
         sqm = None
@@ -180,6 +216,7 @@ def fetch_listings_page(page, url, seen):
             "area": area,
             "title": title[:150],
             "portal": "olx.bg",
+            "site_updated_at": site_updated_at,
         }
     return len(matching_links)
 
@@ -231,11 +268,13 @@ def compute_leads(history):
             continue
         first_price, last_price = prices[0], prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-        first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         latest = rec["latest"]
+        site_updated_at = latest.get("site_updated_at")
+        reference_date = datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
+        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)

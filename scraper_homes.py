@@ -21,12 +21,22 @@ reached the last page - and, since scrape.yml runs all 5 scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
+
+Each offer's raw JSON also carries a "time" field ("днес"/"вчера" for
+today/yesterday - other values not yet confirmed) that reflects when the
+listing was actually last updated on homes.bg, plus a full "description"
+and a "photos" array (not just the single cover "photo") - all previously
+discarded even though they were already present in every fetch. When
+"time" parses to a known value, days_on_market/motivation score are now
+computed from that real date instead of purely from when we first scraped
+the listing, so a listing that's actually been up for months doesn't show
+as "0 days on market" just because we only just started tracking it.
 """
 
 import json
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -59,6 +69,18 @@ def extract_area(location):
     parts = re.split(r",\s*София", location)
     area = parts[0].strip() if parts else location.strip()
     return area or "Sofia"
+
+
+def parse_site_updated_at(time_str):
+    if not time_str:
+        return None
+    t = time_str.strip().lower()
+    now = datetime.now(timezone.utc)
+    if t == "днес":
+        return now.isoformat()
+    if t == "вчера":
+        return (now - timedelta(days=1)).isoformat()
+    return None
 
 
 def fetch_with_retries(session, url):
@@ -106,10 +128,20 @@ def fetch_listings():
             if photo:
                 photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
 
+            photos = []
+            for p in offer.get("photos") or []:
+                if isinstance(p, dict) and p.get("path") and p.get("name"):
+                    photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
+            if not photos and photo_url:
+                photos = [photo_url]
+
             seen[listing_id] = {
                 "id": listing_id,
                 "url": BASE_URL + offer["viewHref"],
                 "photo": photo_url,
+                "photos": photos,
+                "description": offer.get("description") or None,
+                "site_updated_at": parse_site_updated_at(offer.get("time")),
                 "price_eur": parse_price_eur(offer["price"]),
                 "sqm": sqm,
                 "area": extract_area(offer.get("location", "")),
@@ -152,11 +184,13 @@ def compute_leads(history):
             continue
         first_price, last_price = prices[0], prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-        first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         latest = rec["latest"]
+        site_updated_at = latest.get("site_updated_at")
+        reference_date = datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
+        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)

@@ -131,6 +131,13 @@
   .detail-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
   .detail-stat .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
   .detail-stat .value { font-size: 15px; font-weight: 700; margin: 0; }
+  .detail-thumbs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .detail-thumb {
+    width: 64px; height: 48px; object-fit: cover; border-radius: 6px; cursor: pointer;
+    border: 2px solid transparent; background: #e2e8f0;
+  }
+  .detail-thumb.active { border-color: #2563eb; }
+  .detail-description { font-size: 14px; color: #334155; line-height: 1.6; margin-top: 16px; white-space: pre-line; }
   .detail-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
   .source-link {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
@@ -553,10 +560,21 @@ function renderFromStart() {
 function renderListingDetail(l) {
   const badges = buildBadgesHtml(l);
   const hasHistory = Array.isArray(l.price_history) && l.price_history.length > 1;
+  const photos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : (l.photo ? [l.photo] : []);
+  const mainPhoto = photos[0] || '';
+
+  const thumbsHtml = photos.length > 1 ? `
+    <div class="detail-thumbs">
+      ${photos.map((p, i) => `<img class="detail-thumb${i === 0 ? ' active' : ''}" src="${p}" data-photo-index="${i}" onerror="this.style.display='none'" />`).join('')}
+    </div>
+  ` : '';
 
   document.getElementById('listingDetailBody').innerHTML = `
     <div class="detail-grid">
-      <img class="detail-photo" src="${l.photo || ''}" alt="${l.title}" onerror="this.style.display='none'" />
+      <div>
+        <img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${l.title}" onerror="this.style.display='none'" />
+        ${thumbsHtml}
+      </div>
       <div>
         <div class="badges">${badges}</div>
         <h1 class="detail-title">${l.title}</h1>
@@ -572,6 +590,7 @@ function renderListingDetail(l) {
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
         ${hasHistory ? `<p class="listing-area">Price history: ${l.price_history.map(p => '€' + fmt(p)).join(' → ')}</p>` : ''}
+        ${l.description ? `<p class="detail-description">${l.description}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
         <div class="detail-links">
           <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
           <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
@@ -579,6 +598,13 @@ function renderListingDetail(l) {
       </div>
     </div>
   `;
+
+  document.getElementById('listingDetailBody').querySelectorAll('.detail-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      document.getElementById('detailMainPhoto').src = thumb.src;
+      document.querySelectorAll('.detail-thumb').forEach(t => t.classList.toggle('active', t === thumb));
+    });
+  });
 }
 
 function showListingDetail(id) {
