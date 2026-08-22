@@ -1,8 +1,9 @@
 """
-Round 3: explore bazar.bg's /obiavi/prodazhba-imoti (for-sale) page to find how
-it links to city-filtered and apartment-only combined URLs.
+Round 4: inspect the actual listing card markup on bazar.bg's Sofia
+apartments-for-sale page, to design the scraper's extraction logic.
 """
 
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,49 +13,60 @@ HEADERS = {
     "Accept-Language": "bg-BG,bg;q=0.9,en;q=0.8",
 }
 
-
-def check(url):
-    print("=" * 70)
-    print("GET", url)
-    r = requests.get(url, headers=HEADERS, timeout=15)
-    print("status:", r.status_code, "length:", len(r.text))
-    return r
+URL = "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia"
 
 
 def main():
-    r = check("https://bazar.bg/obiavi/prodazhba-imoti")
+    r = requests.get(URL, headers=HEADERS, timeout=15)
+    print("status:", r.status_code, "length:", len(r.text))
     soup = BeautifulSoup(r.text, "html.parser")
 
-    print("\n--- links containing 'sofia' or 'apartament' ---")
-    seen = set()
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "sofia" in href.lower() or "apartament" in href.lower():
-            text = a.get_text(strip=True)
-            if href not in seen:
-                seen.add(href)
-                print(repr(href), "|", repr(text[:70]))
+    # Listing detail links usually look like /obiava-<id>/<slug>
+    LISTING_RE = re.compile(r"^/obiava-(\d+)/")
+    links = [a for a in soup.find_all("a", href=True) if LISTING_RE.match(a["href"])]
+    print(f"total listing links found: {len(links)}")
 
-    print("\n--- nav/breadcrumb/category links near top of page (first 400 chars of body classes/nav) ---")
-    nav = soup.find("nav")
-    if nav:
-        print(nav.get_text(" ", strip=True)[:500])
+    seen_ids = set()
+    shown = 0
+    for a in links:
+        m = LISTING_RE.match(a["href"])
+        lid = m.group(1)
+        if lid in seen_ids:
+            continue
+        seen_ids.add(lid)
 
-    # Try some plausible combined URLs directly.
-    for guess in [
-        "https://bazar.bg/obiavi/prodazhba-apartamenti",
-        "https://bazar.bg/obiavi/prodazhba-imoti/sofia",
-        "https://bazar.bg/obiavi/apartamenti/sofia",
-        "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia",
-        "https://bazar.bg/obiavi/prodazhba-apartamenti-sofia",
-    ]:
-        rr = check(guess)
-        if rr is not None and rr.status_code == 200:
-            s2 = BeautifulSoup(rr.text, "html.parser")
-            title = s2.title.string if s2.title else None
-            h1 = s2.find("h1")
-            print("  title:", title)
-            print("  h1:", h1.get_text(strip=True) if h1 else None)
+        # climb up to find a reasonably-sized card container
+        node = a
+        card = None
+        for _ in range(6):
+            if node.parent is None:
+                break
+            node = node.parent
+            text = node.get_text(" ", strip=True)
+            if 40 <= len(text) <= 600:
+                card = node
+                break
+
+        print("=" * 70)
+        print("id:", lid, "href:", a["href"])
+        if card is not None:
+            lines = [l.strip() for l in card.get_text("\n", strip=True).split("\n") if l.strip()]
+            for l in lines:
+                print("   ", repr(l))
+        else:
+            print("   (no card found)")
+
+        shown += 1
+        if shown >= 8:
+            break
+
+    print("\n--- page listing-count text (sanity check on total for-sale-apartments-sofia count) ---")
+    h1 = soup.find("h1")
+    print("h1:", h1.get_text(strip=True) if h1 else None)
+    # look for a count string like "1 234 обяви" near top
+    body_text = soup.get_text(" ", strip=True)
+    m = re.search(r"[\d\s]{2,7}обяви", body_text)
+    print("count text near top:", m.group(0) if m else None)
 
 
 if __name__ == "__main__":
