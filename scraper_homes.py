@@ -22,21 +22,25 @@ sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
 
-Each offer's raw JSON also carries a "time" field ("днес"/"вчера" for
-today/yesterday - other values not yet confirmed) that reflects when the
-listing was actually last updated on homes.bg, plus a full "description"
-and a "photos" array (not just the single cover "photo") - all previously
-discarded even though they were already present in every fetch. When
-"time" parses to a known value, days_on_market/motivation score are now
-computed from that real date instead of purely from when we first scraped
-the listing, so a listing that's actually been up for months doesn't show
-as "0 days on market" just because we only just started tracking it.
+Each offer's raw JSON also carries a full "description" and a "photos"
+array (not just the single cover "photo") - both previously discarded
+even though already present in every fetch, now captured and surfaced on
+the listing detail page. There's also a "time" field, initially assumed
+to be a real "last updated" signal (like olx.bg's, see scraper_olx.py) -
+but sampling 280 live offers found 100% of them reporting "днес" (today)
+with zero variation, meaning homes.bg apparently marks every actively
+displayed listing as "today" regardless of true listing age. Using it
+for days_on_market would make every homes.bg listing permanently show 0
+days, which is worse than not using it at all - it would mask exactly
+the stagnant, long-listed properties this tool exists to surface. So
+days_on_market here stays purely tracking-based (time since we first
+scraped the listing), same as before.
 """
 
 import json
 import re
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -69,18 +73,6 @@ def extract_area(location):
     parts = re.split(r",\s*София", location)
     area = parts[0].strip() if parts else location.strip()
     return area or "Sofia"
-
-
-def parse_site_updated_at(time_str):
-    if not time_str:
-        return None
-    t = time_str.strip().lower()
-    now = datetime.now(timezone.utc)
-    if t == "днес":
-        return now.isoformat()
-    if t == "вчера":
-        return (now - timedelta(days=1)).isoformat()
-    return None
 
 
 def fetch_with_retries(session, url):
@@ -141,7 +133,6 @@ def fetch_listings():
                 "photo": photo_url,
                 "photos": photos,
                 "description": offer.get("description") or None,
-                "site_updated_at": parse_site_updated_at(offer.get("time")),
                 "price_eur": parse_price_eur(offer["price"]),
                 "sqm": sqm,
                 "area": extract_area(offer.get("location", "")),
@@ -184,13 +175,11 @@ def compute_leads(history):
             continue
         first_price, last_price = prices[0], prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-
-        latest = rec["latest"]
-        site_updated_at = latest.get("site_updated_at")
-        reference_date = datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
-        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        first_seen = datetime.fromisoformat(rec["first_seen"])
+        days_on_market = (datetime.now(timezone.utc) - first_seen).days
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
+        latest = rec["latest"]
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)
