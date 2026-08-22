@@ -31,6 +31,8 @@ jobs:
 
       - run: python scraper_olx.py
 
+      - run: python scraper_bazar.py
+
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
