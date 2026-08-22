@@ -1,7 +1,10 @@
 """
-Round 7: with the click flow confirmed working, pull actual listing card
-content (title, area, price) from the Sofia-filtered results page to verify
-data richness and diversity - not just the raw link count.
+Round 8: fix the listing selector - round 7's `a[href*="/продажби/"]` matched
+category/filter badge links (e.g. "tm:жилищни-имоти", "fi:3_68") as well as
+real listings, undercounting genuine results. Real individual listing pages
+have a numeric-id + .htm suffix (e.g. "...надежда-3-515750.htm", seen on the
+homepage). Use that pattern specifically to get an accurate count and sample
+real listing card content (title, area, price).
 """
 
 import re
@@ -10,6 +13,8 @@ from playwright.sync_api import sync_playwright
 URL = "https://imoti.bg"
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+LISTING_HREF_RE = re.compile(r"-\d{5,}\.htm(?:$|[?#])")
 
 
 def main():
@@ -35,28 +40,46 @@ def main():
 
         print("resulting URL:", page.url)
 
-        # Climb from each listing link to a reasonably sized card and dump its text.
-        links = page.locator('a[href*="/продажби/"], a[href*="/наеми/"]')
-        n = links.count()
-        print("total matching links:", n)
+        all_hrefs = page.evaluate("""
+        () => Array.from(document.querySelectorAll('a[href]')).map(a => a.getAttribute('href'))
+        """)
+        real_listing_hrefs = sorted(set(h for h in all_hrefs if h and LISTING_HREF_RE.search(h)))
+        print("real listing-detail hrefs (numeric id + .htm):", len(real_listing_hrefs))
+        for h in real_listing_hrefs[:10]:
+            print(" ", h)
 
-        seen_hrefs = set()
+        # For each real listing link, climb to its card and dump text.
+        print("\n--- sample card contents ---")
         shown = 0
-        for i in range(n):
-            href = links.nth(i).get_attribute("href")
-            if not href or href in seen_hrefs:
-                continue
-            seen_hrefs.add(href)
-            text = links.nth(i).inner_text().strip()
-            if len(text) > 15:
-                print("=" * 60)
-                print("href:", href)
-                print("text:", repr(text))
-                shown += 1
-            if shown >= 15:
-                break
+        for h in real_listing_hrefs[:15]:
+            loc = page.locator(f'a[href="{h}"]').first
+            try:
+                card_text = loc.evaluate("""
+                (el) => {
+                  let node = el;
+                  for (let i = 0; i < 6; i++) {
+                    if (!node.parentElement) break;
+                    node = node.parentElement;
+                    const t = node.textContent.trim();
+                    if (t.length > 30 && t.length < 400) return t;
+                  }
+                  return node.textContent.trim().slice(0, 400);
+                }
+                """)
+            except Exception as e:
+                card_text = f"(error: {e})"
+            print("=" * 60)
+            print("href:", h)
+            print("card text:", repr(card_text[:300]))
+            shown += 1
 
-        print("\nunique hrefs total:", len(seen_hrefs))
+        print("\ntotal real listings:", len(real_listing_hrefs))
+
+        # pagination
+        page_links = page.evaluate("""
+        () => Array.from(document.querySelectorAll('a')).filter(a => /page|стр/i.test(a.href) || /\\d+/.test(a.textContent.trim()) && a.textContent.trim().length < 4).map(a => a.textContent.trim() + '|' + a.href).slice(0, 20)
+        """)
+        print("\npossible pagination elements:", page_links)
 
         browser.close()
 
