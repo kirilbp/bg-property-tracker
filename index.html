@@ -51,6 +51,12 @@
   .market-stat .value.up { color: #b91c1c; }
   .market-source { font-size: 11px; color: #94a3b8; margin-top: 10px; width: 100%; }
   .market-source a { color: #64748b; }
+  .search-row { margin-bottom: 12px; }
+  .search-row input {
+    width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-size: 14px;
+  }
+  .search-row input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
   .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
   .filters label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
   .filters input, .filters select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
@@ -242,6 +248,9 @@
       <!-- Lead Generators -->
       <section class="page" id="section-leads">
         <div class="card">
+          <div class="search-row">
+            <input type="text" id="searchQuery" placeholder="Search by address, area, or keyword…" />
+          </div>
           <div class="filters">
             <div>
               <label>Min price (€)</label>
@@ -909,18 +918,33 @@ function createListingCard(l) {
   return card;
 }
 
+// No portal exposes a structured street-address field on most listings -
+// this matches against whatever free text is actually available (title,
+// area, description), across every merged source, not just the one
+// currently displayed - so a fragment like "Гурко 76" still matches even
+// if only one of several cross-posted duplicates happens to mention it.
+function listingMatchesSearch(l, q) {
+  if (!q) return true;
+  const sources = (l.sources && l.sources.length) ? l.sources : [l];
+  return sources.some(s =>
+    [s.title, s.area, s.description].some(field => field && field.toLowerCase().includes(q))
+  );
+}
+
 function render() {
   const min = parseFloat(document.getElementById('minPrice').value) || 0;
   const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
   const minSqm = parseFloat(document.getElementById('minSqm').value) || 0;
   const area = document.getElementById('areaFilter').value;
   const sortBy = document.getElementById('sortBy').value;
+  const searchQuery = (document.getElementById('searchQuery').value || '').trim().toLowerCase();
 
   let filtered = MERGED_LISTINGS.filter(l =>
     l.price_eur >= min &&
     l.price_eur <= max &&
     (l.sqm || 0) >= minSqm &&
-    (area === '' || l.area === area)
+    (area === '' || l.area === area) &&
+    listingMatchesSearch(l, searchQuery)
   );
 
   filtered.sort((a, b) => {
@@ -1201,6 +1225,7 @@ window.addEventListener('hashchange', () => {
   if (m) showListingDetail(decodeURIComponent(m[1]));
 });
 
+document.getElementById('searchQuery').addEventListener('input', renderFromStart);
 document.getElementById('minPrice').addEventListener('input', renderFromStart);
 document.getElementById('maxPrice').addEventListener('input', renderFromStart);
 document.getElementById('minSqm').addEventListener('input', renderFromStart);
