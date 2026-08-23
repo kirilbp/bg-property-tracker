@@ -15,8 +15,11 @@ with sync_playwright() as p:
     page.on("request", lambda req: all_requests.append(req.url))
 
     print(f"Navigating to {URL}")
-    page.goto(URL, wait_until="networkidle", timeout=30000)
+    page.goto(URL, wait_until="domcontentloaded", timeout=30000)
     page.wait_for_timeout(2000)
+    for _ in range(15):
+        page.mouse.wheel(0, 700)
+        page.wait_for_timeout(400)
 
     print("\n=== elements with 'map' in id or class ===")
     els = page.evaluate("""
