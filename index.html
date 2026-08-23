@@ -1020,7 +1020,12 @@ function renderListingDetail(merged) {
   const badges = buildBadgesHtml(l);
   const photos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : (l.photo ? [l.photo] : []);
   const mainPhoto = photos[0] || '';
-  const priceHistory = Array.isArray(l.price_history) ? l.price_history : [];
+  // Guard against stale committed data written by an older scraper version,
+  // where price_history was a flat array of raw price numbers rather than
+  // today's {date, price_eur} objects - a mismatch that otherwise renders
+  // as "€NaN"/"Invalid Date" instead of the intended empty-state message.
+  const priceHistory = (Array.isArray(l.price_history) ? l.price_history : [])
+    .filter(p => p && typeof p === 'object' && typeof p.price_eur === 'number' && p.date);
   const priceDropCount = l.price_drop_count ?? 0;
 
   const thumbsHtml = photos.length > 1 ? `
