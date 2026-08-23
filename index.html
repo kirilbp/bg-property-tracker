@@ -7,6 +7,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -206,6 +208,91 @@
   .radius-result .value { font-size: 15px; font-weight: 700; margin: 0; }
   .radius-map { height: 260px; border-radius: 8px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
+
+  /* Lead generators gallery */
+  .leadgen-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .leadgen-count { font-size: 13px; color: #64748b; }
+  .leadgen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .leadgen-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
+  .leadgen-card h3 { font-size: 15px; margin: 0 0 6px; }
+  .leadgen-card .leadgen-summary-line { font-size: 12px; color: #64748b; margin: 0 0 3px; }
+  .leadgen-card-body { flex: 1; }
+  .leadgen-check-btn {
+    display: block; width: 100%; text-align: center; background: #2563eb; color: white; border: none;
+    padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
+  }
+  .leadgen-check-btn:hover { background: #1d4ed8; }
+  .leadgen-icon-row { display: flex; gap: 8px; margin-top: 10px; }
+  .leadgen-icon-btn {
+    flex: 1; padding: 7px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;
+    cursor: pointer; font-size: 14px; color: #475569;
+  }
+  .leadgen-icon-btn:hover { border-color: #94a3b8; background: #f8fafc; }
+  .leadgen-icon-btn.danger:hover { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+  .leadgen-type-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .leadgen-type-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+  .leadgen-add-tile {
+    border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px; cursor: pointer; padding: 16px;
+    color: #2563eb; font-weight: 600; font-size: 14px; min-height: 200px; background: none;
+  }
+  .leadgen-add-tile:hover { border-color: #2563eb; background: #f8fafc; }
+  .leadgen-add-tile .plus-icon { font-size: 28px; }
+  .leadgen-empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
+  .leadgen-banner {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .leadgen-banner strong { color: #1e3a8a; }
+  .leadgen-banner button {
+    background: white; border: 1px solid #93c5fd; color: #1d4ed8; padding: 6px 12px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .leadgen-banner button:hover { background: #dbeafe; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 1000;
+    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-panel { background: white; border-radius: 14px; width: 100%; max-width: 640px; padding: 24px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .modal-header h2 { margin: 0; font-size: 18px; }
+  .modal-close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; line-height: 1; }
+  .modal-close-btn:hover { color: #0f172a; }
+  .modal-field { margin-bottom: 16px; }
+  .modal-field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+  .modal-field input[type="text"], .modal-field input[type="number"] {
+    width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+  }
+  .modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-hint { font-size: 12px; color: #94a3b8; margin: 4px 0 0; }
+  .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; max-height: 180px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
+  .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .area-mode-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+  .area-mode-tab-btn {
+    padding: 8px 14px; border: none; background: none; color: #64748b; font-size: 13px;
+    font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .area-mode-tab-btn:hover { color: #334155; }
+  .area-mode-tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .area-mode-content { display: none; }
+  .area-mode-content.active { display: block; }
+  .leadgen-map { height: 320px; border-radius: 8px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .modal-btn-secondary {
+    background: white; border: 1px solid #cbd5e1; color: #334155; padding: 9px 16px;
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .modal-btn-secondary:hover { border-color: #94a3b8; }
+  .modal-btn-primary {
+    background: #2563eb; border: none; color: white; padding: 9px 16px;
+    border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .modal-btn-primary:hover { background: #1d4ed8; }
+  .modal-error { color: #b91c1c; font-size: 13px; margin: -8px 0 14px; display: none; }
+  .modal-error.show { display: block; }
 </style>
 </head>
 <body>
@@ -215,7 +302,7 @@
   <aside class="sidebar">
     <div class="sidebar-brand">🏠 Property Tracker</div>
     <button class="nav-item active" data-section="home"><span class="icon">🏡</span> Home</button>
-    <button class="nav-item" data-section="leads"><span class="icon">🎯</span> Lead Generators</button>
+    <button class="nav-item" data-section="leadgen"><span class="icon">🎯</span> Lead Generators</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
@@ -245,9 +332,22 @@
         </div>
       </section>
 
-      <!-- Lead Generators -->
+      <!-- Lead Generators gallery -->
+      <section class="page" id="section-leadgen">
+        <div class="leadgen-toolbar">
+          <p class="leadgen-count" id="leadgenCount"></p>
+        </div>
+        <div class="leadgen-grid" id="leadgenGrid"></div>
+      </section>
+
+      <!-- Lead Generator results (browse-all or a specific generator's leads) -->
       <section class="page" id="section-leads">
+        <div class="leadgen-banner" id="leadgenBanner" style="display:none;">
+          <span>Showing leads for <strong id="leadgenBannerName"></strong></span>
+          <button id="leadgenBannerClearBtn">✕ Clear, show all listings</button>
+        </div>
         <div class="card">
+          <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:#2563eb; text-decoration:none;">← Back to Lead Generators</a>
           <div class="search-row">
             <input type="text" id="searchQuery" placeholder="Search by address, area, or keyword…" />
           </div>
@@ -375,6 +475,90 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="leadgenModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="leadgenModalTitle">Add New Lead Generator</h2>
+      <button class="modal-close-btn" id="leadgenModalCloseBtn">✕</button>
+    </div>
+    <p class="modal-error" id="leadgenModalError"></p>
+
+    <div class="modal-field">
+      <label>Name</label>
+      <input type="text" id="lgName" placeholder="e.g. Lyulin flips" />
+    </div>
+
+    <div class="modal-field-row">
+      <div class="modal-field">
+        <label>Min price (€)</label>
+        <input type="number" id="lgMinPrice" placeholder="No min" />
+      </div>
+      <div class="modal-field">
+        <label>Max price (€)</label>
+        <input type="number" id="lgMaxPrice" placeholder="No max" />
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label>Min size (m²)</label>
+      <input type="number" id="lgMinSqm" placeholder="No min" style="max-width:200px;" />
+    </div>
+
+    <div class="modal-field">
+      <label>Property types</label>
+      <div class="checkbox-grid">
+        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="apartment" checked /> Apartment</label>
+        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="house" /> House</label>
+        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="land" /> Land</label>
+        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="commercial" /> Commercial</label>
+      </div>
+      <p class="modal-hint">Leave all checked (or all unchecked) to include every type.</p>
+    </div>
+
+    <div class="modal-field">
+      <label>City</label>
+      <input type="text" id="lgCity" value="Sofia" />
+      <p class="modal-hint">Only Sofia has live listing data right now — another city will show zero results until that portal is added.</p>
+    </div>
+
+    <div class="modal-field">
+      <label>Area</label>
+      <div class="area-mode-tabs">
+        <button type="button" class="area-mode-tab-btn active" data-mode="neighborhood">Neighborhoods</button>
+        <button type="button" class="area-mode-tab-btn" data-mode="radius">Point + radius</button>
+        <button type="button" class="area-mode-tab-btn" data-mode="polygon">Draw an area</button>
+      </div>
+
+      <div class="area-mode-content active" data-mode-content="neighborhood">
+        <div class="checkbox-grid" id="lgNeighborhoods"></div>
+        <p class="modal-hint">Leave all unchecked to include every neighborhood.</p>
+      </div>
+
+      <div class="area-mode-content" data-mode-content="radius">
+        <div id="lgRadiusMap" class="leadgen-map"></div>
+        <p class="modal-hint">Click the map to place a point, then choose a radius.</p>
+        <div class="radius-btn-row" id="lgRadiusButtons" style="margin-top:10px;">
+          <button type="button" class="radius-btn" data-radius="250">250m</button>
+          <button type="button" class="radius-btn" data-radius="500">500m</button>
+          <button type="button" class="radius-btn" data-radius="1500">1500m</button>
+          <button type="button" class="radius-btn" data-radius="custom">Custom</button>
+        </div>
+        <input type="number" id="lgRadiusCustom" placeholder="Radius in meters" style="display:none; margin-top:8px; max-width:200px;" />
+      </div>
+
+      <div class="area-mode-content" data-mode-content="polygon">
+        <div id="lgPolygonMap" class="leadgen-map"></div>
+        <p class="modal-hint">Use the drawing tool (top-left of the map) to draw a boundary, then Save.</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="leadgenModalCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="leadgenModalSaveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
 // Descriptions are long free-text pulled straight from source portals - unlike
@@ -397,6 +581,29 @@ let PORTAL_COUNTS = {};
 let chart = null;
 let chartInitialized = false;
 let homeChart = null;
+
+// --- Lead generators (saved searches) ----------------------------------------
+// Stored in this browser's localStorage - there's no backend/login on this
+// site yet (a Supabase-backed version is planned later), so a saved lead
+// generator lives on this device/browser only, not synced anywhere. The
+// storage access is isolated behind loadLeadGenerators()/saveLeadGenerators()
+// so swapping in a real backend later only means rewriting those two
+// functions, not the UI around them.
+const LEAD_GEN_STORAGE_KEY = 'leadGenerators';
+const LEAD_GEN_MAX = 20;
+let LEAD_GENERATORS = [];
+let activeLeadGenerator = null;
+let editingLeadGeneratorId = null;
+let lgAreaMode = 'neighborhood';
+let lgRadiusCenter = null;
+let lgRadiusM = null;
+let lgPolygonLatLngs = null;
+let lgRadiusMap = null;
+let lgRadiusMapMarker = null;
+let lgRadiusMapCircle = null;
+let lgPolygonMap = null;
+let lgDrawnItems = null;
+
 let currentPage = 1;
 let detailSourceIndex = 0;
 let detailChart = null;
@@ -739,6 +946,7 @@ async function loadData() {
       (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
       ` (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
     populateAreaFilter();
+    populateLeadGenNeighborhoods();
     renderHome();
     renderDashboard();
     render();
@@ -760,6 +968,417 @@ function populateAreaFilter() {
     opt.textContent = area;
     select.appendChild(opt);
   });
+}
+
+// --- Lead generators -----------------------------------------------------
+
+function loadLeadGeneratorsFromStorage() {
+  try {
+    const raw = localStorage.getItem(LEAD_GEN_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error('Failed to load lead generators from storage', e);
+    return [];
+  }
+}
+
+function saveLeadGenerators(list) {
+  try {
+    localStorage.setItem(LEAD_GEN_STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.error('Failed to save lead generators to storage', e);
+  }
+}
+
+// Ray-casting point-in-polygon test; polygon is an array of [lat, lng] pairs.
+function pointInPolygon(lat, lng, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [latI, lngI] = polygon[i];
+    const [latJ, lngJ] = polygon[j];
+    const intersects = ((lngI > lng) !== (lngJ > lng)) &&
+      (lat < (latJ - latI) * (lng - lngI) / (lngJ - lngI) + latI);
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function matchesLeadGenerator(l, gen) {
+  if (!gen) return true;
+  const f = gen.filters || {};
+  if (f.minPrice != null && l.price_eur < f.minPrice) return false;
+  if (f.maxPrice != null && l.price_eur > f.maxPrice) return false;
+  if (f.minSqm != null && (l.sqm || 0) < f.minSqm) return false;
+  if (f.propertyTypes && f.propertyTypes.length && !f.propertyTypes.includes(l.category || 'apartment')) return false;
+
+  const area = gen.area || {};
+  if (area.mode === 'neighborhood') {
+    if (area.neighborhoods && area.neighborhoods.length && !area.neighborhoods.includes(l.area)) return false;
+  } else if (area.mode === 'radius') {
+    if (!area.center || l.lat == null || l.lng == null) return false;
+    if (haversineKm(area.center.lat, area.center.lng, l.lat, l.lng) > (area.radiusM || 0) / 1000) return false;
+  } else if (area.mode === 'polygon') {
+    if (!area.polygon || area.polygon.length < 3 || l.lat == null || l.lng == null) return false;
+    if (!pointInPolygon(l.lat, l.lng, area.polygon)) return false;
+  }
+  return true;
+}
+
+function populateLeadGenNeighborhoods() {
+  const areas = [...new Set(MERGED_LISTINGS.map(l => l.area))].sort();
+  const container = document.getElementById('lgNeighborhoods');
+  container.innerHTML = areas.map(area => `
+    <label class="checkbox-item"><input type="checkbox" value="${escapeHtml(area)}" /> ${escapeHtml(area)}</label>
+  `).join('');
+}
+
+function describeLeadGenerator(gen) {
+  const lines = [];
+  const f = gen.filters;
+  const priceParts = [];
+  if (f.minPrice) priceParts.push(`€${fmt(f.minPrice)}+`);
+  if (f.maxPrice) priceParts.push(`up to €${fmt(f.maxPrice)}`);
+  lines.push(priceParts.length ? priceParts.join(' · ') : 'Any price');
+  lines.push(f.minSqm ? `${f.minSqm}m² min` : 'Any size');
+
+  const area = gen.area;
+  if (area.mode === 'neighborhood') {
+    lines.push(area.neighborhoods && area.neighborhoods.length
+      ? `${area.city}: ${area.neighborhoods.join(', ')}`
+      : `${area.city}: all neighborhoods`);
+  } else if (area.mode === 'radius') {
+    lines.push(area.center ? `${area.city}: ${fmt(area.radiusM)}m radius from a point` : `${area.city}: point + radius`);
+  } else if (area.mode === 'polygon') {
+    lines.push(`${area.city}: custom drawn area`);
+  }
+  return lines;
+}
+
+function renderLeadGenGallery() {
+  const grid = document.getElementById('leadgenGrid');
+  document.getElementById('leadgenCount').textContent =
+    `${LEAD_GENERATORS.length} of ${LEAD_GEN_MAX} lead generators used`;
+
+  if (LEAD_GENERATORS.length === 0) {
+    grid.innerHTML = `
+      <button class="leadgen-add-tile" id="leadgenAddTile"><span class="plus-icon">+</span> Add New Lead Generator</button>
+    `;
+    document.getElementById('leadgenAddTile').addEventListener('click', () => openLeadGenModal(null));
+    return;
+  }
+
+  const cardsHtml = LEAD_GENERATORS.map(gen => {
+    const lines = describeLeadGenerator(gen);
+    const types = (gen.filters.propertyTypes && gen.filters.propertyTypes.length)
+      ? gen.filters.propertyTypes : ['apartment', 'house', 'land', 'commercial'];
+    return `
+      <div class="leadgen-card">
+        <div class="leadgen-card-body">
+          <h3>${escapeHtml(gen.name)}</h3>
+          ${lines.map(l => `<p class="leadgen-summary-line">${escapeHtml(l)}</p>`).join('')}
+          <div class="leadgen-type-row">
+            ${types.map(t => `<span class="leadgen-type-badge">${escapeHtml(t)}</span>`).join('')}
+          </div>
+        </div>
+        <button class="leadgen-check-btn" data-check-id="${gen.id}">Check Leads</button>
+        <div class="leadgen-icon-row">
+          <button class="leadgen-icon-btn" data-edit-id="${gen.id}" title="Edit">✏️</button>
+          <button class="leadgen-icon-btn" data-dup-id="${gen.id}" title="Duplicate">⧉</button>
+          <button class="leadgen-icon-btn danger" data-del-id="${gen.id}" title="Delete">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const addTileHtml = LEAD_GENERATORS.length < LEAD_GEN_MAX
+    ? `<button class="leadgen-add-tile" id="leadgenAddTile"><span class="plus-icon">+</span> Add New Lead Generator</button>`
+    : '';
+
+  grid.innerHTML = cardsHtml + addTileHtml;
+
+  const addTile = document.getElementById('leadgenAddTile');
+  if (addTile) addTile.addEventListener('click', () => openLeadGenModal(null));
+
+  grid.querySelectorAll('[data-check-id]').forEach(btn => btn.addEventListener('click', () => checkLeads(btn.dataset.checkId)));
+  grid.querySelectorAll('[data-edit-id]').forEach(btn => btn.addEventListener('click', () => openLeadGenModal(btn.dataset.editId)));
+  grid.querySelectorAll('[data-dup-id]').forEach(btn => btn.addEventListener('click', () => duplicateLeadGenerator(btn.dataset.dupId)));
+  grid.querySelectorAll('[data-del-id]').forEach(btn => btn.addEventListener('click', () => deleteLeadGenerator(btn.dataset.delId)));
+}
+
+function switchAreaModeTab(mode) {
+  lgAreaMode = mode;
+  document.querySelectorAll('.area-mode-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.area-mode-content').forEach(c => c.classList.toggle('active', c.dataset.modeContent === mode));
+  // Leaflet needs its container to have real, laid-out dimensions when the
+  // map is created (or invalidateSize() called after becoming visible) -
+  // deferring a tick lets the .active class's display:block apply first.
+  if (mode === 'radius') {
+    setTimeout(() => { initLgRadiusMap(); if (lgRadiusMap) lgRadiusMap.invalidateSize(); }, 0);
+  } else if (mode === 'polygon') {
+    setTimeout(() => { initLgPolygonMap(); if (lgPolygonMap) lgPolygonMap.invalidateSize(); }, 0);
+  }
+}
+
+function initLgRadiusMap() {
+  if (lgRadiusMap || typeof L === 'undefined') return;
+  const container = document.getElementById('lgRadiusMap');
+  if (!container) return;
+  const start = lgRadiusCenter || { lat: 42.6977, lng: 23.3219 };
+  lgRadiusMap = L.map(container).setView([start.lat, start.lng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(lgRadiusMap);
+  lgRadiusMap.on('click', (e) => {
+    lgRadiusCenter = { lat: e.latlng.lat, lng: e.latlng.lng };
+    updateLgRadiusMapMarker();
+  });
+  if (lgRadiusCenter) updateLgRadiusMapMarker();
+}
+
+function updateLgRadiusMapMarker() {
+  if (!lgRadiusMap || !lgRadiusCenter) return;
+  if (lgRadiusMapMarker) lgRadiusMap.removeLayer(lgRadiusMapMarker);
+  lgRadiusMapMarker = L.marker([lgRadiusCenter.lat, lgRadiusCenter.lng]).addTo(lgRadiusMap);
+  updateLgRadiusCircle();
+}
+
+function updateLgRadiusCircle() {
+  if (!lgRadiusMap || !lgRadiusCenter) return;
+  if (lgRadiusMapCircle) { lgRadiusMap.removeLayer(lgRadiusMapCircle); lgRadiusMapCircle = null; }
+  if (!lgRadiusM) return;
+  lgRadiusMapCircle = L.circle([lgRadiusCenter.lat, lgRadiusCenter.lng], {
+    radius: lgRadiusM, color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.08, weight: 2,
+  }).addTo(lgRadiusMap);
+  lgRadiusMap.fitBounds(lgRadiusMapCircle.getBounds(), { padding: [16, 16] });
+}
+
+function initLgPolygonMap() {
+  if (lgPolygonMap || typeof L === 'undefined' || typeof L.Control === 'undefined' || typeof L.Control.Draw === 'undefined') return;
+  const container = document.getElementById('lgPolygonMap');
+  if (!container) return;
+  lgPolygonMap = L.map(container).setView([42.6977, 23.3219], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(lgPolygonMap);
+
+  lgDrawnItems = new L.FeatureGroup();
+  lgPolygonMap.addLayer(lgDrawnItems);
+
+  const drawControl = new L.Control.Draw({
+    draw: {
+      polygon: { allowIntersection: false, showArea: true },
+      polyline: false, rectangle: false, circle: false, circlemarker: false, marker: false,
+    },
+    edit: { featureGroup: lgDrawnItems, remove: true },
+  });
+  lgPolygonMap.addControl(drawControl);
+
+  lgPolygonMap.on(L.Draw.Event.CREATED, (e) => {
+    lgDrawnItems.clearLayers(); // one boundary at a time
+    lgDrawnItems.addLayer(e.layer);
+    lgPolygonLatLngs = e.layer.getLatLngs()[0].map(p => [p.lat, p.lng]);
+  });
+  lgPolygonMap.on(L.Draw.Event.EDITED, (e) => {
+    e.layers.eachLayer(layer => {
+      lgPolygonLatLngs = layer.getLatLngs()[0].map(p => [p.lat, p.lng]);
+    });
+  });
+  lgPolygonMap.on(L.Draw.Event.DELETED, () => {
+    lgPolygonLatLngs = null;
+  });
+
+  if (lgPolygonLatLngs && lgPolygonLatLngs.length >= 3) {
+    const layer = L.polygon(lgPolygonLatLngs);
+    lgDrawnItems.addLayer(layer);
+    lgPolygonMap.fitBounds(layer.getBounds());
+  }
+}
+
+function resetLeadGenModalFields() {
+  document.getElementById('lgName').value = '';
+  document.getElementById('lgMinPrice').value = '';
+  document.getElementById('lgMaxPrice').value = '';
+  document.getElementById('lgMinSqm').value = '';
+  document.querySelectorAll('.lgPropertyType').forEach(cb => cb.checked = true);
+  document.getElementById('lgCity').value = 'Sofia';
+  document.getElementById('leadgenModalError').classList.remove('show');
+  lgRadiusCenter = null;
+  lgRadiusM = null;
+  lgPolygonLatLngs = null;
+  document.querySelectorAll('#lgNeighborhoods input').forEach(cb => cb.checked = false);
+  document.querySelectorAll('#lgRadiusButtons .radius-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('lgRadiusCustom').value = '';
+  document.getElementById('lgRadiusCustom').style.display = 'none';
+  if (lgRadiusMapMarker && lgRadiusMap) { lgRadiusMap.removeLayer(lgRadiusMapMarker); lgRadiusMapMarker = null; }
+  if (lgRadiusMapCircle && lgRadiusMap) { lgRadiusMap.removeLayer(lgRadiusMapCircle); lgRadiusMapCircle = null; }
+  if (lgDrawnItems) lgDrawnItems.clearLayers();
+  switchAreaModeTab('neighborhood');
+}
+
+function openLeadGenModal(genId) {
+  editingLeadGeneratorId = genId || null;
+  resetLeadGenModalFields();
+  const gen = genId ? LEAD_GENERATORS.find(g => g.id === genId) : null;
+  document.getElementById('leadgenModalTitle').textContent = gen ? 'Edit Lead Generator' : 'Add New Lead Generator';
+
+  if (gen) {
+    document.getElementById('lgName').value = gen.name;
+    document.getElementById('lgMinPrice').value = gen.filters.minPrice ?? '';
+    document.getElementById('lgMaxPrice').value = gen.filters.maxPrice ?? '';
+    document.getElementById('lgMinSqm').value = gen.filters.minSqm ?? '';
+    document.getElementById('lgCity').value = gen.area.city || 'Sofia';
+    const types = gen.filters.propertyTypes || [];
+    document.querySelectorAll('.lgPropertyType').forEach(cb => {
+      cb.checked = types.length === 0 || types.includes(cb.value);
+    });
+
+    if (gen.area.mode === 'neighborhood') {
+      document.querySelectorAll('#lgNeighborhoods input').forEach(cb => {
+        cb.checked = (gen.area.neighborhoods || []).includes(cb.value);
+      });
+      switchAreaModeTab('neighborhood');
+    } else if (gen.area.mode === 'radius') {
+      lgRadiusCenter = gen.area.center;
+      lgRadiusM = gen.area.radiusM;
+      switchAreaModeTab('radius');
+      setTimeout(() => {
+        const presetBtn = document.querySelector(`#lgRadiusButtons .radius-btn[data-radius="${lgRadiusM}"]`);
+        if (presetBtn) {
+          presetBtn.classList.add('active');
+        } else {
+          document.querySelector('#lgRadiusButtons .radius-btn[data-radius="custom"]').classList.add('active');
+          document.getElementById('lgRadiusCustom').style.display = 'block';
+          document.getElementById('lgRadiusCustom').value = lgRadiusM || '';
+        }
+        if (lgRadiusMap) updateLgRadiusMapMarker();
+      }, 50);
+    } else if (gen.area.mode === 'polygon') {
+      lgPolygonLatLngs = gen.area.polygon;
+      switchAreaModeTab('polygon');
+    }
+  }
+
+  document.getElementById('leadgenModalOverlay').classList.add('open');
+}
+
+function closeLeadGenModal() {
+  document.getElementById('leadgenModalOverlay').classList.remove('open');
+  editingLeadGeneratorId = null;
+}
+
+function saveLeadGenFromModal() {
+  const name = document.getElementById('lgName').value.trim();
+  const errorEl = document.getElementById('leadgenModalError');
+  if (!name) {
+    errorEl.textContent = 'Please give this lead generator a name.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if (!editingLeadGeneratorId && LEAD_GENERATORS.length >= LEAD_GEN_MAX) {
+    errorEl.textContent = `You've reached the ${LEAD_GEN_MAX} lead generator limit. Delete one to add another.`;
+    errorEl.classList.add('show');
+    return;
+  }
+  if (lgAreaMode === 'radius' && (!lgRadiusCenter || !lgRadiusM)) {
+    errorEl.textContent = 'Click the map to place a point and choose a radius.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if (lgAreaMode === 'polygon' && (!lgPolygonLatLngs || lgPolygonLatLngs.length < 3)) {
+    errorEl.textContent = 'Draw an area on the map first.';
+    errorEl.classList.add('show');
+    return;
+  }
+  errorEl.classList.remove('show');
+
+  const minPrice = parseFloat(document.getElementById('lgMinPrice').value) || null;
+  const maxPrice = parseFloat(document.getElementById('lgMaxPrice').value) || null;
+  const minSqm = parseFloat(document.getElementById('lgMinSqm').value) || null;
+  const checkedTypes = Array.from(document.querySelectorAll('.lgPropertyType:checked')).map(cb => cb.value);
+  const propertyTypes = (checkedTypes.length === 0 || checkedTypes.length === 4) ? [] : checkedTypes;
+  const city = document.getElementById('lgCity').value.trim() || 'Sofia';
+
+  const area = { mode: lgAreaMode, city };
+  if (lgAreaMode === 'neighborhood') {
+    area.neighborhoods = Array.from(document.querySelectorAll('#lgNeighborhoods input:checked')).map(cb => cb.value);
+  } else if (lgAreaMode === 'radius') {
+    area.center = lgRadiusCenter;
+    area.radiusM = lgRadiusM;
+  } else if (lgAreaMode === 'polygon') {
+    area.polygon = lgPolygonLatLngs;
+  }
+
+  const existing = editingLeadGeneratorId ? LEAD_GENERATORS.find(g => g.id === editingLeadGeneratorId) : null;
+  const gen = {
+    id: editingLeadGeneratorId || ('lg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
+    name,
+    createdAt: existing ? existing.createdAt : new Date().toISOString(),
+    filters: { minPrice, maxPrice, minSqm, propertyTypes },
+    area,
+  };
+
+  if (editingLeadGeneratorId) {
+    const idx = LEAD_GENERATORS.findIndex(g => g.id === editingLeadGeneratorId);
+    if (idx !== -1) LEAD_GENERATORS[idx] = gen;
+  } else {
+    LEAD_GENERATORS.push(gen);
+  }
+  saveLeadGenerators(LEAD_GENERATORS);
+  renderLeadGenGallery();
+  closeLeadGenModal();
+}
+
+function duplicateLeadGenerator(genId) {
+  if (LEAD_GENERATORS.length >= LEAD_GEN_MAX) {
+    alert(`You've reached the ${LEAD_GEN_MAX} lead generator limit. Delete one to duplicate another.`);
+    return;
+  }
+  const gen = LEAD_GENERATORS.find(g => g.id === genId);
+  if (!gen) return;
+  const copy = JSON.parse(JSON.stringify(gen));
+  copy.id = 'lg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  copy.name = gen.name + ' (copy)';
+  copy.createdAt = new Date().toISOString();
+  LEAD_GENERATORS.push(copy);
+  saveLeadGenerators(LEAD_GENERATORS);
+  renderLeadGenGallery();
+}
+
+function deleteLeadGenerator(genId) {
+  const gen = LEAD_GENERATORS.find(g => g.id === genId);
+  if (!gen) return;
+  if (!confirm(`Delete "${gen.name}"? This can't be undone.`)) return;
+  LEAD_GENERATORS = LEAD_GENERATORS.filter(g => g.id !== genId);
+  saveLeadGenerators(LEAD_GENERATORS);
+  renderLeadGenGallery();
+  if (activeLeadGenerator && activeLeadGenerator.id === genId) clearActiveLeadGenerator();
+}
+
+function checkLeads(genId) {
+  const gen = LEAD_GENERATORS.find(g => g.id === genId);
+  if (!gen) return;
+  activeLeadGenerator = gen;
+  document.getElementById('minPrice').value = gen.filters.minPrice ?? '';
+  document.getElementById('maxPrice').value = gen.filters.maxPrice ?? '';
+  document.getElementById('minSqm').value = gen.filters.minSqm ?? '';
+  document.getElementById('searchQuery').value = '';
+  document.getElementById('areaFilter').value = '';
+  document.getElementById('leadgenBanner').style.display = 'flex';
+  document.getElementById('leadgenBannerName').textContent = gen.name;
+  currentPage = 1;
+  showSection('leads');
+  render();
+}
+
+function clearActiveLeadGenerator() {
+  activeLeadGenerator = null;
+  document.getElementById('leadgenBanner').style.display = 'none';
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('minSqm').value = '';
+  renderFromStart();
 }
 
 function renderHome() {
@@ -944,7 +1563,8 @@ function render() {
     l.price_eur <= max &&
     (l.sqm || 0) >= minSqm &&
     (area === '' || l.area === area) &&
-    listingMatchesSearch(l, searchQuery)
+    listingMatchesSearch(l, searchQuery) &&
+    matchesLeadGenerator(l, activeLeadGenerator)
   );
 
   filtered.sort((a, b) => {
@@ -1233,6 +1853,47 @@ document.getElementById('areaFilter').addEventListener('change', renderFromStart
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
+
+document.getElementById('leadgenBannerClearBtn').addEventListener('click', clearActiveLeadGenerator);
+document.getElementById('backToLeadgenLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  showSection('leadgen');
+});
+
+document.getElementById('leadgenModalCloseBtn').addEventListener('click', closeLeadGenModal);
+document.getElementById('leadgenModalCancelBtn').addEventListener('click', closeLeadGenModal);
+document.getElementById('leadgenModalSaveBtn').addEventListener('click', saveLeadGenFromModal);
+document.getElementById('leadgenModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'leadgenModalOverlay') closeLeadGenModal();
+});
+
+document.querySelectorAll('.area-mode-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchAreaModeTab(btn.dataset.mode));
+});
+
+document.getElementById('lgRadiusButtons').addEventListener('click', (e) => {
+  const btn = e.target.closest('.radius-btn');
+  if (!btn) return;
+  document.querySelectorAll('#lgRadiusButtons .radius-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const customInput = document.getElementById('lgRadiusCustom');
+  if (btn.dataset.radius === 'custom') {
+    customInput.style.display = 'block';
+    customInput.focus();
+    lgRadiusM = parseInt(customInput.value, 10) || null;
+  } else {
+    customInput.style.display = 'none';
+    lgRadiusM = parseInt(btn.dataset.radius, 10);
+  }
+  updateLgRadiusCircle();
+});
+document.getElementById('lgRadiusCustom').addEventListener('input', () => {
+  lgRadiusM = parseInt(document.getElementById('lgRadiusCustom').value, 10) || null;
+  updateLgRadiusCircle();
+});
+
+LEAD_GENERATORS = loadLeadGeneratorsFromStorage();
+renderLeadGenGallery();
 
 setGreeting();
 loadData();
