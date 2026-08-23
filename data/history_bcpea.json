@@ -1,0 +1,830 @@
+{
+  "bcpea_91569": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 13920
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91569",
+      "url": "https://sales.bcpea.org/properties/91569",
+      "photo": null,
+      "price_eur": 13920,
+      "sqm": 15,
+      "area": "Болярци",
+      "title": "Парцел, Болярци",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T17:46:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91568": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 6201
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91568",
+      "url": "https://sales.bcpea.org/properties/91568",
+      "photo": null,
+      "price_eur": 6201,
+      "sqm": 13,
+      "area": "София",
+      "title": "Паркомясто, София",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T16:54:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91567": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 6201
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91567",
+      "url": "https://sales.bcpea.org/properties/91567",
+      "photo": null,
+      "price_eur": 6201,
+      "sqm": 13,
+      "area": "София",
+      "title": "Паркомясто, София",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T16:50:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91566": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 6201
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91566",
+      "url": "https://sales.bcpea.org/properties/91566",
+      "photo": null,
+      "price_eur": 6201,
+      "sqm": 13,
+      "area": "София",
+      "title": "Паркомясто, София",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T16:46:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91565": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 144
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91565",
+      "url": "https://sales.bcpea.org/properties/91565",
+      "photo": null,
+      "price_eur": 144,
+      "sqm": 840,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:53:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91564": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 472
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91564",
+      "url": "https://sales.bcpea.org/properties/91564",
+      "photo": null,
+      "price_eur": 472,
+      "sqm": 778,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:52:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91563": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 2104
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91563",
+      "url": "https://sales.bcpea.org/properties/91563",
+      "photo": null,
+      "price_eur": 2104,
+      "sqm": 679,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:51:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91562": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 1848
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91562",
+      "url": "https://sales.bcpea.org/properties/91562",
+      "photo": null,
+      "price_eur": 1848,
+      "sqm": 998,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:50:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91561": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 5712
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91561",
+      "url": "https://sales.bcpea.org/properties/91561",
+      "photo": null,
+      "price_eur": 5712,
+      "sqm": 418,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:49:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91560": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 4504
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91560",
+      "url": "https://sales.bcpea.org/properties/91560",
+      "photo": null,
+      "price_eur": 4504,
+      "sqm": 315,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:48:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91559": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 1856
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91559",
+      "url": "https://sales.bcpea.org/properties/91559",
+      "photo": null,
+      "price_eur": 1856,
+      "sqm": 0,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:48:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91558": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 1432
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91558",
+      "url": "https://sales.bcpea.org/properties/91558",
+      "photo": null,
+      "price_eur": 1432,
+      "sqm": 876,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:47:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91557": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 192
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91557",
+      "url": "https://sales.bcpea.org/properties/91557",
+      "photo": null,
+      "price_eur": 192,
+      "sqm": 527,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:46:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91556": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 512
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91556",
+      "url": "https://sales.bcpea.org/properties/91556",
+      "photo": null,
+      "price_eur": 512,
+      "sqm": 389,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:45:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91555": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 1112
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91555",
+      "url": "https://sales.bcpea.org/properties/91555",
+      "photo": null,
+      "price_eur": 1112,
+      "sqm": 11,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:44:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91554": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 4184
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91554",
+      "url": "https://sales.bcpea.org/properties/91554",
+      "photo": null,
+      "price_eur": 4184,
+      "sqm": 804,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:42:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91553": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 736
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91553",
+      "url": "https://sales.bcpea.org/properties/91553",
+      "photo": null,
+      "price_eur": 736,
+      "sqm": 201,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:42:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91552": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 3696
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91552",
+      "url": "https://sales.bcpea.org/properties/91552",
+      "photo": null,
+      "price_eur": 3696,
+      "sqm": 3,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:39:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91551": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 400
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91551",
+      "url": "https://sales.bcpea.org/properties/91551",
+      "photo": null,
+      "price_eur": 400,
+      "sqm": 70,
+      "area": "Царевец",
+      "title": "Земеделска земя, Царевец",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:39:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91550": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 4824
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91550",
+      "url": "https://sales.bcpea.org/properties/91550",
+      "photo": "https://sales.bcpea.org/upload/91550/456991/IMG_9246.JPG?w=270&h=270",
+      "price_eur": 4824,
+      "sqm": 21,
+      "area": "Свищов",
+      "title": "Гараж, Свищов",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T15:23:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91549": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 26015
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91549",
+      "url": "https://sales.bcpea.org/properties/91549",
+      "photo": null,
+      "price_eur": 26015,
+      "sqm": 192,
+      "area": "Недялско",
+      "title": "Други, Недялско",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T14:45:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91548": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 24186
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91548",
+      "url": "https://sales.bcpea.org/properties/91548",
+      "photo": null,
+      "price_eur": 24186,
+      "sqm": 933,
+      "area": "Недялско",
+      "title": "Други, Недялско",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T14:40:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91547": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 11029
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91547",
+      "url": "https://sales.bcpea.org/properties/91547",
+      "photo": null,
+      "price_eur": 11029,
+      "sqm": 576,
+      "area": "Белчин",
+      "title": "Парцел, Белчин",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T13:49:00+00:00",
+      "category": "land",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91546": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 112583
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91546",
+      "url": "https://sales.bcpea.org/properties/91546",
+      "photo": "https://sales.bcpea.org/upload/91546/456972/20260618_150405.jpg?w=270&h=270",
+      "price_eur": 112583,
+      "sqm": 102,
+      "area": "Самоков",
+      "title": "Етаж от къща, Самоков",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T13:42:00+00:00",
+      "category": "house",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91545": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 95200
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91545",
+      "url": "https://sales.bcpea.org/properties/91545",
+      "photo": "https://sales.bcpea.org/upload/91545/408989/1000002285.jpg?w=270&h=270",
+      "price_eur": 95200,
+      "sqm": 915,
+      "area": "Никопол",
+      "title": "Търговски имот, Никопол",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T13:27:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91544": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 26320
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91544",
+      "url": "https://sales.bcpea.org/properties/91544",
+      "photo": "https://sales.bcpea.org/upload/91544/456947/IMG_2577.JPG?w=270&h=270",
+      "price_eur": 26320,
+      "sqm": 40,
+      "area": "Обзор",
+      "title": "Други, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:53:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91543": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 375360
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91543",
+      "url": "https://sales.bcpea.org/properties/91543",
+      "photo": "https://sales.bcpea.org/upload/91543/456905/IMG_2590.JPG?w=270&h=270",
+      "price_eur": 375360,
+      "sqm": 390,
+      "area": "Обзор",
+      "title": "Магазин, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:48:00+00:00",
+      "category": "commercial",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91542": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 62160
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91542",
+      "url": "https://sales.bcpea.org/properties/91542",
+      "photo": "https://sales.bcpea.org/upload/91542/456890/IMG_2562.JPG?w=270&h=270",
+      "price_eur": 62160,
+      "sqm": 57,
+      "area": "Обзор",
+      "title": "Едностаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:45:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91541": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 97440
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91541",
+      "url": "https://sales.bcpea.org/properties/91541",
+      "photo": "https://sales.bcpea.org/upload/91541/456878/IMG_2549.JPG?w=270&h=270",
+      "price_eur": 97440,
+      "sqm": 93,
+      "area": "Обзор",
+      "title": "Тристаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:43:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91540": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 97440
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91540",
+      "url": "https://sales.bcpea.org/properties/91540",
+      "photo": "https://sales.bcpea.org/upload/91540/456864/IMG_2536.JPG?w=270&h=270",
+      "price_eur": 97440,
+      "sqm": 93,
+      "area": "Обзор",
+      "title": "Двустаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:38:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91539": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 62800
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91539",
+      "url": "https://sales.bcpea.org/properties/91539",
+      "photo": "https://sales.bcpea.org/upload/91539/456854/IMG_2525.JPG?w=270&h=270",
+      "price_eur": 62800,
+      "sqm": 57,
+      "area": "Обзор",
+      "title": "Едностаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:32:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91538": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 62800
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91538",
+      "url": "https://sales.bcpea.org/properties/91538",
+      "photo": "https://sales.bcpea.org/upload/91538/456845/IMG_2515.JPG?w=270&h=270",
+      "price_eur": 62800,
+      "sqm": 57,
+      "area": "Обзор",
+      "title": "Едностаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:31:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91537": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 76960
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91537",
+      "url": "https://sales.bcpea.org/properties/91537",
+      "photo": "https://sales.bcpea.org/upload/91537/456828/IMG_2473.JPG?w=270&h=270",
+      "price_eur": 76960,
+      "sqm": 79,
+      "area": "Обзор",
+      "title": "Двустаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:27:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91536": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 19552
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91536",
+      "url": "https://sales.bcpea.org/properties/91536",
+      "photo": "https://sales.bcpea.org/upload/91536/456791/PHOTO-2024-11-15-10-37-24.jpg?w=270&h=270",
+      "price_eur": 19552,
+      "sqm": 388,
+      "area": "Виница",
+      "title": "Други, Виница",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:18:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91535": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 76960
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91535",
+      "url": "https://sales.bcpea.org/properties/91535",
+      "photo": "https://sales.bcpea.org/upload/91535/456797/IMG_2699.JPG?w=270&h=270",
+      "price_eur": 76960,
+      "sqm": 79,
+      "area": "Обзор",
+      "title": "Двустаен апартамент, Обзор",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:18:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  },
+  "bcpea_91534": {
+    "first_seen": "2026-08-23T22:14:30.641353+00:00",
+    "snapshots": [
+      {
+        "seen_at": "2026-08-23T22:14:30.641353+00:00",
+        "price_eur": 13667
+      }
+    ],
+    "latest": {
+      "id": "bcpea_91534",
+      "url": "https://sales.bcpea.org/properties/91534",
+      "photo": "https://sales.bcpea.org/upload/91534/456773/DSC02640.JPG?w=270&h=270",
+      "price_eur": 13667,
+      "sqm": 950,
+      "area": "Драгойново",
+      "title": "Други, Драгойново",
+      "portal": "sales.bcpea.org",
+      "site_updated_at": "2026-08-21T12:13:00+00:00",
+      "category": "apartment",
+      "lat": null,
+      "lng": null
+    }
+  }
+}

@@ -226,8 +226,8 @@
     "drop_pct": 0.0,
     "days_on_market": 2,
     "score": 1,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 7.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 7.4
   },
   {
     "id": "homes_1700386",
@@ -617,8 +617,8 @@
     "drop_pct": 0.0,
     "days_on_market": 2,
     "score": 1,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 22.1
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 22.4
   },
   {
     "id": "homes_1675314",
@@ -761,15 +761,15 @@
   {
     "id": "homes_1653627",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-110m2-sofiya-zhk.-druzhba-2/as1653627",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607590b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614104b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607590b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607591b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607592b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607593b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607594b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607595b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607596b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614104b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614105b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614106b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614107b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614108b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614109b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614110b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 328000,
@@ -797,10 +797,10 @@
   {
     "id": "homes_1663694",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-53m2-sofiya-zhk.-druzhba-1/as1663694",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607616b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614130b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607616b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607617b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614130b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614131b.jpg"
     ],
     "description": "Тухла, Необзаведен",
     "price_eur": 121000,
@@ -828,11 +828,11 @@
   {
     "id": "homes_1693133",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-66m2-sofiya-kv.-malinova-dolina/as1693133",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607656b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614170b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607656b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607657b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607658b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614170b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614171b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614172b.jpg"
     ],
     "description": "Тухла",
     "price_eur": 169000,
@@ -860,11 +860,11 @@
   {
     "id": "homes_1690811",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/garazh-22m2-sofiya-kv.-orlandovci/as1690811",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607555b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614069b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607555b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607556b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607557b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614069b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614070b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614071b.jpg"
     ],
     "description": "Тухла",
     "price_eur": 45000,
@@ -892,18 +892,18 @@
   {
     "id": "homes_1686800",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/mezonet-390m2-sofiya-kv.-knyazhevo/as1686800",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607604b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614118b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607604b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607605b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607606b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607607b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607608b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607609b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607610b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607611b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607612b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607613b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614118b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614119b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614120b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614121b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614122b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614123b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614124b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614125b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614126b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614127b.jpg"
     ],
     "description": "Тухла, Необзаведен, Локално отопление",
     "price_eur": 269000,
@@ -931,15 +931,15 @@
   {
     "id": "homes_1689580",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-66m2-sofiya-zhk.-druzhba-2/as1689580",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607636b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614150b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607636b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607637b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607638b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607639b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607640b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607641b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607642b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614150b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614151b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614152b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614153b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614154b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614155b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614156b.jpg"
     ],
     "description": "Тухла, Полуобзаведен, ТЕЦ",
     "price_eur": 187000,
@@ -967,11 +967,11 @@
   {
     "id": "homes_1693135",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-139m2-sofiya-kv.-malinova-dolina/as1693135",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607662b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614176b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607662b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607663b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607664b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614176b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614177b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614178b.jpg"
     ],
     "description": "Тухла",
     "price_eur": 375000,
@@ -1361,8 +1361,8 @@
     "drop_pct": 0.0,
     "days_on_market": 2,
     "score": 1,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 0.3
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 0.5
   },
   {
     "id": "homes_1692582",
@@ -2113,8 +2113,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2399,
     "pct_vs_area_avg": 9.2
   },
@@ -2152,8 +2152,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2768,
     "pct_vs_area_avg": -2.3
   },
@@ -2191,8 +2191,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3137,
     "pct_vs_area_avg": -5.8
   },
@@ -2214,8 +2214,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2651,
     "pct_vs_area_avg": -7.6
   },
@@ -2237,8 +2237,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2651,
     "pct_vs_area_avg": 6.6
   },
@@ -2260,8 +2260,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2651,
     "pct_vs_area_avg": 16.8
   },
@@ -2283,8 +2283,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2651,
     "pct_vs_area_avg": 17.0
   },
@@ -2306,8 +2306,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2731,
     "pct_vs_area_avg": -11.5
   },
@@ -2329,8 +2329,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2429,
     "pct_vs_area_avg": -22.0
   },
@@ -2352,8 +2352,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2731,
     "pct_vs_area_avg": -19.9
   },
@@ -2375,8 +2375,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2021,
     "pct_vs_area_avg": 12.7
   },
@@ -2398,8 +2398,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2298,
     "pct_vs_area_avg": 0.0
   },
@@ -2421,8 +2421,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2566,
     "pct_vs_area_avg": -6.5
   },
@@ -2460,8 +2460,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 4119,
     "pct_vs_area_avg": -12.8
   },
@@ -2499,8 +2499,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2879,
     "pct_vs_area_avg": -3.7
   },
@@ -2538,8 +2538,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2663,
     "pct_vs_area_avg": 4.8
   },
@@ -2576,8 +2576,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2940,
     "pct_vs_area_avg": -16.1
   },
@@ -2615,8 +2615,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2879,
     "pct_vs_area_avg": 35.7
   },
@@ -2638,8 +2638,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2063,
     "pct_vs_area_avg": 7.2
   },
@@ -2669,8 +2669,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2572,
     "pct_vs_area_avg": -18.3
   },
@@ -2692,8 +2692,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3784,
     "pct_vs_area_avg": -3.0
   },
@@ -2715,8 +2715,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2506,
     "pct_vs_area_avg": 17.7
   },
@@ -2738,8 +2738,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2663,
     "pct_vs_area_avg": -2.0
   },
@@ -2761,8 +2761,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3963,
     "pct_vs_area_avg": 4.1
   },
@@ -2784,8 +2784,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2534,
     "pct_vs_area_avg": -18.3
   },
@@ -2807,8 +2807,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2529,
     "pct_vs_area_avg": 12.4
   },
@@ -2830,8 +2830,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3963,
     "pct_vs_area_avg": 22.4
   },
@@ -2853,8 +2853,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2529,
     "pct_vs_area_avg": -27.6
   },
@@ -2876,8 +2876,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2529,
     "pct_vs_area_avg": -37.9
   },
@@ -2899,8 +2899,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2909,
     "pct_vs_area_avg": -0.8
   },
@@ -2922,8 +2922,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2529,
     "pct_vs_area_avg": -25.0
   },
@@ -2945,8 +2945,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2516,
     "pct_vs_area_avg": 8.0
   },
@@ -2968,8 +2968,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2203,
     "pct_vs_area_avg": -7.7
   },
@@ -2991,8 +2991,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3579,
     "pct_vs_area_avg": -18.8
   },
@@ -3014,8 +3014,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2663,
     "pct_vs_area_avg": -3.8
   },
@@ -3037,8 +3037,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2470,
     "pct_vs_area_avg": -17.7
   },
@@ -3060,8 +3060,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2589,
     "pct_vs_area_avg": -2.1
   },
@@ -3083,8 +3083,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2677,
     "pct_vs_area_avg": -21.6
   },
@@ -3106,8 +3106,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 2572,
     "pct_vs_area_avg": -2.8
   },
@@ -3129,8 +3129,8 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
+    "days_on_market": 2,
+    "score": 1,
     "area_avg_price_per_sqm": 3382,
     "pct_vs_area_avg": -1.4
   },
@@ -3361,8 +3361,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 20.9
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 21.2
   },
   {
     "id": "homes_1700499",
@@ -3818,18 +3818,18 @@
   {
     "id": "homes_1634310",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-161m2-sofiya-zhk.-druzhba-2/as1634310",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607572b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614086b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607572b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607573b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607574b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607575b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607576b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607577b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607578b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607579b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607580b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607581b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614086b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614087b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614088b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614089b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614090b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614091b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614092b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614093b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614094b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614095b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 320360,
@@ -3857,18 +3857,18 @@
   {
     "id": "homes_1676456",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/mnogostaen-289m2-sofiya-zhk.-druzhba-2/as1676456",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607618b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614132b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607618b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607619b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607620b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607621b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607622b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607623b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607624b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607625b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607626b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607627b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614132b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614133b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614134b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614135b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614136b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614137b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614138b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614139b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614140b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614141b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 570780,
@@ -5107,8 +5107,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -29.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -29.4
   },
   {
     "id": "homes_1686455",
@@ -5826,8 +5826,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -10.4
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -10.2
   },
   {
     "id": "homes_1660861",
@@ -6852,8 +6852,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -10.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -10.3
   },
   {
     "id": "homes_1643254",
@@ -7124,8 +7124,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 28.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 28.5
   },
   {
     "id": "homes_1671603",
@@ -8526,8 +8526,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 6.0
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 6.2
   },
   {
     "id": "homes_1630317",
@@ -10028,8 +10028,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -0.8
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -0.6
   },
   {
     "id": "homes_1693660",
@@ -11623,8 +11623,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 1.9
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 2.2
   },
   {
     "id": "homes_1641567",
@@ -12558,8 +12558,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 17.6
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 17.9
   },
   {
     "id": "homes_1661382",
@@ -12590,8 +12590,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 15.6
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 15.8
   },
   {
     "id": "homes_1661242",
@@ -13970,8 +13970,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -12.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -12.0
   },
   {
     "id": "homes_1680554",
@@ -15242,8 +15242,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -7.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -6.9
   },
   {
     "id": "homes_1654125",
@@ -15320,8 +15320,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 10.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 10.5
   },
   {
     "id": "homes_1642593",
@@ -15457,8 +15457,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -15.7
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -15.5
   },
   {
     "id": "homes_1539638",
@@ -15601,8 +15601,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -14.1
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -13.9
   },
   {
     "id": "homes_1700142",
@@ -18621,8 +18621,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 6.4
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 6.7
   },
   {
     "id": "homes_1641575",
@@ -21104,8 +21104,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -27.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -27.0
   },
   {
     "id": "homes_1644851",
@@ -22142,8 +22142,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 7.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 7.5
   },
   {
     "id": "homes_1607586",
@@ -22211,8 +22211,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -40.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -40.4
   },
   {
     "id": "homes_1610098",
@@ -22243,8 +22243,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -20.1
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -19.9
   },
   {
     "id": "homes_1530277",
@@ -23009,8 +23009,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -6.9
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -6.7
   },
   {
     "id": "homes_1693661",
@@ -24550,8 +24550,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -10.7
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -10.5
   },
   {
     "id": "homes_1661025",
@@ -27063,8 +27063,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 7.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 7.7
   },
   {
     "id": "homes_1587331",
@@ -28921,8 +28921,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -16.9
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -16.7
   },
   {
     "id": "homes_1644849",
@@ -29220,8 +29220,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -7.4
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -7.1
   },
   {
     "id": "homes_1618158",
@@ -29255,8 +29255,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 11.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 11.7
   },
   {
     "id": "homes_1539639",
@@ -29506,11 +29506,11 @@
   {
     "id": "homes_1693132",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-40m2-sofiya-kv.-malinova-dolina/as1693132",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607653b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614167b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607653b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607654b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607655b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614167b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614168b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614169b.jpg"
     ],
     "description": "Тухла, Необзаведен",
     "price_eur": 118000,
@@ -29538,11 +29538,11 @@
   {
     "id": "homes_1693134",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-103m2-sofiya-kv.-malinova-dolina/as1693134",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607659b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614173b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607659b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607660b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607661b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614173b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614174b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614175b.jpg"
     ],
     "description": "Тухла",
     "price_eur": 263000,
@@ -29570,18 +29570,18 @@
   {
     "id": "homes_1634309",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-127m2-sofiya-zhk.-druzhba-2/as1634309",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607562b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614076b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607562b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607563b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607564b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607565b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607566b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607567b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607568b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607569b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607570b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607571b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614076b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614077b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614078b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614079b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614080b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614081b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614082b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614083b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614084b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614085b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 253420,
@@ -29609,16 +29609,16 @@
   {
     "id": "homes_1683395",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-65m2-sofiya-zhk.-druzhba-2/as1683395",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607582b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614096b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607582b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607583b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607584b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607585b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607586b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607587b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607588b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607589b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614096b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614097b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614098b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614099b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614100b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614101b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614102b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614103b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 193000,
@@ -29646,15 +29646,15 @@
   {
     "id": "homes_1688105",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-72m2-sofiya-zhk.-druzhba-2/as1688105",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607597b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614111b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607597b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607598b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607599b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607600b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607601b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607602b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607603b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614111b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614112b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614113b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614114b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614115b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614116b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614117b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 215000,
@@ -29682,14 +29682,14 @@
   {
     "id": "homes_1690222",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-42m2-sofiya-zhk.-mladost-4/as1690222",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607647b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614161b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607647b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607648b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607649b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607650b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607651b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607652b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614161b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614162b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614163b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614164b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614165b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614166b.jpg"
     ],
     "description": "Панел, Обзаведен, ТЕЦ",
     "price_eur": 129000,
@@ -29717,16 +29717,16 @@
   {
     "id": "homes_1681590",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-69m2-sofiya-zhk.-druzhba-2/as1681590",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607628b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614142b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607628b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607629b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607630b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607631b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607632b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607633b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607634b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607635b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614142b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614143b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614144b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614145b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614146b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614147b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614148b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614149b.jpg"
     ],
     "description": "Тухла, Обзаведен, ТЕЦ",
     "price_eur": 229980,
@@ -29754,10 +29754,10 @@
   {
     "id": "homes_1663693",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-66m2-sofiya-zhk.-druzhba-1/as1663693",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120607614b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120614128b.jpg",
     "photos": [
-      "https://g1.homes.bg/2026-08-22_2/120607614b.jpg",
-      "https://g1.homes.bg/2026-08-22_2/120607615b.jpg"
+      "https://g1.homes.bg/2026-08-23_2/120614128b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120614129b.jpg"
     ],
     "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 162000,
@@ -30849,8 +30849,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 17.6
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 17.9
   },
   {
     "id": "homes_1673964",
@@ -31263,8 +31263,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 11.3
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 11.5
   },
   {
     "id": "homes_1672008",
@@ -31332,8 +31332,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 11.5
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 11.8
   },
   {
     "id": "homes_1670572",
@@ -31608,8 +31608,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 9.9
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 10.1
   },
   {
     "id": "homes_1672002",
@@ -32206,8 +32206,8 @@
     "drop_pct": 0.0,
     "days_on_market": 1,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 9.0
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 9.2
   },
   {
     "id": "homes_1671813",
@@ -32979,7 +32979,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2572,
     "pct_vs_area_avg": -15.6
@@ -33017,7 +33017,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 3963,
     "pct_vs_area_avg": 14.6
@@ -33056,7 +33056,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 3963,
     "pct_vs_area_avg": -36.1
@@ -33094,7 +33094,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2525,
     "pct_vs_area_avg": -19.2
@@ -33133,7 +33133,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 4119,
     "pct_vs_area_avg": 8.8
@@ -33172,7 +33172,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2768,
     "pct_vs_area_avg": -9.7
@@ -33211,7 +33211,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2663,
     "pct_vs_area_avg": 4.8
@@ -33250,7 +33250,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2663,
     "pct_vs_area_avg": 4.8
@@ -33289,7 +33289,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2909,
     "pct_vs_area_avg": -22.5
@@ -33328,7 +33328,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2534,
     "pct_vs_area_avg": 31.6
@@ -33365,7 +33365,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2135,
     "pct_vs_area_avg": 50.3
@@ -33397,7 +33397,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2572,
     "pct_vs_area_avg": -30.4
@@ -33554,8 +33554,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 0.3
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 0.6
   },
   {
     "id": "homes_1700576",
@@ -33593,8 +33593,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 6.6
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 6.9
   },
   {
     "id": "homes_1700575",
@@ -33632,8 +33632,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 19.0
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 19.3
   },
   {
     "id": "homes_1700571",
@@ -36293,8 +36293,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -9.4
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -9.1
   },
   {
     "id": "homes_1655274",
@@ -36637,8 +36637,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": 1.2
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": 1.5
   },
   {
     "id": "homes_1696377",
@@ -38921,8 +38921,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2268,
-    "pct_vs_area_avg": -9.4
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -9.1
   },
   {
     "id": "homes_1655639",
@@ -40596,5 +40596,44 @@
     "score": 0,
     "area_avg_price_per_sqm": 2399,
     "pct_vs_area_avg": 19.1
+  },
+  {
+    "id": "homes_1641408",
+    "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-137m2-sofiya-zhk.-ovcha-kupel/as1641408",
+    "photo": "https://g1.homes.bg/2025-07-31_1/115128385b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2025-07-31_1/115128385b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128386b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128387b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128388b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128389b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128390b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128391b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128392b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128393b.jpg",
+      "https://g1.homes.bg/2025-07-31_1/115128394b.jpg"
+    ],
+    "description": "Тухла, Обзаведен, Електричество",
+    "price_eur": 280000,
+    "sqm": 137,
+    "area": "жк. Овча Купел",
+    "title": "Тристаен, 137m², жк. Овча Купел, София",
+    "portal": "homes.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
+    "price_per_sqm": 2044,
+    "price_history": [
+      {
+        "date": "2026-08-23T21:08:38.115662+00:00",
+        "price_eur": 280000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2263,
+    "pct_vs_area_avg": -9.7
   }
 ]

@@ -49592,7 +49592,7 @@
   {
     "id": "bazar_55775187",
     "url": "https://bazar.bg/obiava-55775187/prodava-3-staen-gr-sofiia-suhata-reka",
-    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/135/big1/1b178040842152135_a.jpg",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/135/big1/1b178040842152135_op.jpg",
     "price_eur": 188000,
     "sqm": null,
     "area": "Сухата река",
@@ -52092,6 +52092,470 @@
       {
         "date": "2026-08-23T20:00:50.937428+00:00",
         "price_eur": 165000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781651",
+    "url": "https://bazar.bg/obiava-55781651/prodava-2-staen-gr-sofiia-ivan-vazov",
+    "photo": "https://bazar.bg/img/gallery/noPhoto.svg",
+    "price_eur": 380000,
+    "sqm": null,
+    "area": "Иван Вазов",
+    "title": "Продава 2-СТАЕН, гр. София, Иван Вазов",
+    "portal": "bazar.bg",
+    "lat": 42.67587487075,
+    "lng": 23.31084769133,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 380000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55190688",
+    "url": "https://bazar.bg/obiava-55190688/prodava-2-staen-gr-sofiia-hadzhi-dimitar",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/392/big1/1b178343559474392_PE.jpg",
+    "price_eur": 204500,
+    "sqm": null,
+    "area": "Хаджи Димитър",
+    "title": "Продава 2-СТАЕН, гр. София, Хаджи Димитър",
+    "portal": "bazar.bg",
+    "lat": 42.7103205,
+    "lng": 23.3509255,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 204500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55190213",
+    "url": "https://bazar.bg/obiava-55190213/prodava-3-staen-gr-sofiia-hadzhi-dimitar",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/346/big1/1c178343349575346_xx.jpg",
+    "price_eur": 204500,
+    "sqm": null,
+    "area": "Хаджи Димитър",
+    "title": "Продава 3-СТАЕН, гр. София, Хаджи Димитър",
+    "portal": "bazar.bg",
+    "lat": 42.7103205,
+    "lng": 23.3509255,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 204500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781542",
+    "url": "https://bazar.bg/obiava-55781542/prodava-4-staen-gr-sofiia-boiana",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/535/big1/1d178751667822535_LG.jpg",
+    "price_eur": 630000,
+    "sqm": null,
+    "area": "Бояна",
+    "title": "Продава 4-СТАЕН, гр. София, Бояна",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 630000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781528",
+    "url": "https://bazar.bg/obiava-55781528/prodava-3-staen-gr-sofiia-lozenets",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/684/big1/1c178751627466684_qu.jpg",
+    "price_eur": 419950,
+    "sqm": null,
+    "area": "Лозенец",
+    "title": "Продава 3-СТАЕН, гр. София, Лозенец",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 419950
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781529",
+    "url": "https://bazar.bg/obiava-55781529/prodava-2-staen-gr-sofiia-krastova-vada",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/588/big1/1b178751623802588_uk.jpg",
+    "price_eur": 33428833,
+    "sqm": null,
+    "area": "Кръстова вада",
+    "title": "Продава 2-СТАЕН, гр. София, Кръстова вада",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 33428833
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781514",
+    "url": "https://bazar.bg/obiava-55781514/prodava-4-staen-gr-sofiia-krastova-vada",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/848/big1/1d178751619686848_fA.jpg",
+    "price_eur": 599200,
+    "sqm": null,
+    "area": "Кръстова вада",
+    "title": "Продава 4-СТАЕН, гр. София, Кръстова вада",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 599200
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781516",
+    "url": "https://bazar.bg/obiava-55781516/prodava-2-staen-gr-sofiia-krastova-vada",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/206/big1/1b178751606163206_Wb.jpg",
+    "price_eur": 359000,
+    "sqm": null,
+    "area": "Кръстова вада",
+    "title": "Продава 2-СТАЕН, гр. София, Кръстова вада",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 359000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781497",
+    "url": "https://bazar.bg/obiava-55781497/prodava-1-staen-gr-sofiia-simeonovo",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/429/big1/1a178751597221429_t2.jpg",
+    "price_eur": 159950,
+    "sqm": null,
+    "area": "Симеоново",
+    "title": "Продава 1-СТАЕН, гр. София, Симеоново",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 159950
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781502",
+    "url": "https://bazar.bg/obiava-55781502/prodava-4-staen-gr-sofiia-iztok",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/142/big/1d178751591609142_ag.jpg",
+    "price_eur": 489950,
+    "sqm": null,
+    "area": "Изток",
+    "title": "Продава 4-СТАЕН, гр. София, Изток",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 489950
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781498",
+    "url": "https://bazar.bg/obiava-55781498/prodava-2-staen-gr-sofiia-vitosha",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/687/big1/1b178491989089687_4j.jpg",
+    "price_eur": 186300,
+    "sqm": null,
+    "area": "Витоша",
+    "title": "Продава 2-СТАЕН, гр. София, Витоша",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 186300
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54327102",
+    "url": "https://bazar.bg/obiava-54327102/prodava-2-staen-gr-sofiia-mladost-4",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/780/big1/1b177727967001780_fb.jpg",
+    "price_eur": 210279,
+    "sqm": null,
+    "area": "Младост 4",
+    "title": "Продава 2-СТАЕН, гр. София, Младост 4",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 210279
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54326502",
+    "url": "https://bazar.bg/obiava-54326502/prodava-2-staen-gr-sofiia-lyulin-6",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/718/big1/1b177727693176718_6W.jpg",
+    "price_eur": 199900,
+    "sqm": null,
+    "area": "Люлин 6",
+    "title": "Продава 2-СТАЕН, гр. София, Люлин 6",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 199900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781501",
+    "url": "https://bazar.bg/obiava-55781501/prodava-4-staen-gr-sofiia-lozenets",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/496/big1/1d178751582375496_ge.jpg",
+    "price_eur": 1350000,
+    "sqm": null,
+    "area": "Лозенец",
+    "title": "Продава 4-СТАЕН, гр. София, Лозенец",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 1350000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781404",
+    "url": "https://bazar.bg/obiava-55781404/prodava-2-staen-gr-sofiia-nadezhda-4",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/297/big1/1b178751462674297_K9.jpg",
+    "price_eur": 139900,
+    "sqm": null,
+    "area": "Надежда 4",
+    "title": "Продава 2-СТАЕН, гр. София, Надежда 4",
+    "portal": "bazar.bg",
+    "lat": 42.7355709,
+    "lng": 23.3009074,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 139900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_43257579",
+    "url": "https://bazar.bg/obiava-43257579/kupuvam-apartament-v-nadezhda-triagalnika-tolstoy",
+    "photo": "https://cdn1.focus.bg/bazar/d9/pics/d971172a1bb5f876410fc13f74a67834.jpg",
+    "price_eur": 90000,
+    "sqm": null,
+    "area": "Надежда 1",
+    "title": "КУПУВАМ апартамент в \"Надежда\", \"Триъгълника\", \"Толстой\"",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54333000",
+    "url": "https://bazar.bg/obiava-54333000/prodava-1-staen-gr-sofiia-poligona",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/259/big1/1a177730369238259_n7.jpg",
+    "price_eur": 159000,
+    "sqm": null,
+    "area": "Полигона",
+    "title": "Продава 1-СТАЕН, гр. София, Полигона",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 159000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781249",
+    "url": "https://bazar.bg/obiava-55781249/prodava-2-staen-gr-sofiia-slatina",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/020/big1/1b178751310656020_JQ.jpg",
+    "price_eur": 260000,
+    "sqm": null,
+    "area": "Слатина",
+    "title": "Продава 2-СТАЕН, гр. София, Слатина",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 260000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55781153",
+    "url": "https://bazar.bg/obiava-55781153/prodava-2-staen-gr-sofiia-karpuzitsa",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/614/big1/1b178751248754614_xL.jpg",
+    "price_eur": 170000,
+    "sqm": null,
+    "area": "Карпузица",
+    "title": "Продава 2-СТАЕН, гр. София, Карпузица",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T22:13:14.712590+00:00",
+        "price_eur": 170000
       }
     ],
     "price_drop_count": 0,
