@@ -56,6 +56,34 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bazar_55325476",
+    "url": "https://bazar.bg/obiava-55325476/prodava-4-staen-gr-sofiia-tsentar",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/938/big1/1d178429808522938_Sz.jpg",
+    "price_eur": 525000,
+    "sqm": null,
+    "area": "Център",
+    "title": "Продава 4-СТАЕН, гр. София, Център",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-22T11:43:35.109353+00:00",
+        "price_eur": 535000
+      },
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 525000
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 1.9,
+    "days_on_market": 1,
+    "score": 5,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bazar_55620361",
     "url": "https://bazar.bg/obiava-55620361/prodava-2-staen-gr-sofiia-mladost-4",
     "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/565/big1/1b178506444161565_Et.jpg",
@@ -108,7 +136,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -2.9,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -134,7 +162,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -158,7 +186,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -184,7 +212,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -208,7 +236,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -234,7 +262,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -264,7 +292,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -2.9,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -290,7 +318,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -316,7 +344,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -340,7 +368,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -370,7 +398,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -4.3,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -394,7 +422,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -420,7 +448,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -444,7 +472,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -472,7 +500,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -1.6,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -502,7 +530,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -8.3,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -526,7 +554,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -552,7 +580,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -576,7 +604,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -600,7 +628,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -626,7 +654,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -650,7 +678,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -676,7 +704,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -702,7 +730,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -726,7 +754,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -752,7 +780,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -776,7 +804,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -800,7 +828,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -826,7 +854,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -850,7 +878,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -874,7 +902,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -898,7 +926,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -924,7 +952,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -948,7 +976,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -972,7 +1000,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -995,7 +1023,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1019,7 +1047,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1045,7 +1073,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1069,7 +1097,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1093,7 +1121,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1119,7 +1147,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1143,7 +1171,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1167,7 +1195,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1191,7 +1219,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1215,7 +1243,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1239,7 +1267,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1263,7 +1291,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1287,7 +1315,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1311,7 +1339,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1335,7 +1363,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1359,7 +1387,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1383,7 +1411,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1407,7 +1435,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1431,7 +1459,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1455,7 +1483,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1479,7 +1507,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1503,7 +1531,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1527,7 +1555,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1553,7 +1581,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1577,7 +1605,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1601,7 +1629,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1625,7 +1653,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1651,7 +1679,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1675,7 +1703,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1699,7 +1727,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1723,7 +1751,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1747,7 +1775,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1771,7 +1799,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1795,7 +1823,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1819,7 +1847,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1843,7 +1871,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1867,7 +1895,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1891,7 +1919,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1915,7 +1943,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1939,7 +1967,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1963,7 +1991,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1987,7 +2015,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2011,7 +2039,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2035,7 +2063,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2061,7 +2089,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2085,7 +2113,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2109,7 +2137,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2133,7 +2161,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2157,7 +2185,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2181,7 +2209,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2207,7 +2235,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2233,7 +2261,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2259,7 +2287,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2283,7 +2311,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2307,7 +2335,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2331,7 +2359,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2355,7 +2383,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2379,7 +2407,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2403,7 +2431,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2427,7 +2455,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2451,7 +2479,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2475,7 +2503,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2498,7 +2526,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2522,7 +2550,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2548,7 +2576,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2572,7 +2600,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2596,7 +2624,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2622,7 +2650,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2648,7 +2676,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2672,7 +2700,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2696,7 +2724,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2722,7 +2750,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2748,7 +2776,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2774,7 +2802,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2800,7 +2828,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2826,7 +2854,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2850,7 +2878,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2876,7 +2904,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2900,7 +2928,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2924,7 +2952,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2948,7 +2976,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2972,7 +3000,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -2996,7 +3024,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3020,7 +3048,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3044,7 +3072,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3070,7 +3098,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3094,7 +3122,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3120,7 +3148,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3144,7 +3172,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3168,7 +3196,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3194,7 +3222,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3218,7 +3246,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3244,7 +3272,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3270,7 +3298,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3296,7 +3324,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3322,7 +3350,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3348,7 +3376,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3374,7 +3402,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3398,7 +3426,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3422,7 +3450,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3446,7 +3474,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3470,7 +3498,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3494,7 +3522,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3520,7 +3548,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3544,7 +3572,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3568,7 +3596,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3592,7 +3620,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3618,7 +3646,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3641,7 +3669,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3667,7 +3695,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3691,7 +3719,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3715,7 +3743,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3739,7 +3767,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3763,7 +3791,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3787,7 +3815,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3811,7 +3839,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3835,7 +3863,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3859,7 +3887,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3883,7 +3911,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3907,7 +3935,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3931,7 +3959,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3957,7 +3985,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3983,7 +4011,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4009,7 +4037,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4033,7 +4061,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4057,7 +4085,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4081,7 +4109,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4105,7 +4133,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4129,7 +4157,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4153,7 +4181,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4179,7 +4207,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4203,7 +4231,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4227,7 +4255,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4253,7 +4281,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4277,7 +4305,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4301,7 +4329,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4325,7 +4353,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4349,7 +4377,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4373,7 +4401,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4397,7 +4425,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4421,7 +4449,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4445,7 +4473,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4468,7 +4496,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4492,7 +4520,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4516,7 +4544,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4540,7 +4568,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4564,7 +4592,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4590,7 +4618,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4616,7 +4644,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4640,7 +4668,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4664,7 +4692,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4688,7 +4716,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4712,7 +4740,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4738,7 +4766,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4762,7 +4790,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4786,7 +4814,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4810,7 +4838,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4834,7 +4862,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4858,7 +4886,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4882,7 +4910,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4906,31 +4934,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
-    "score": 0,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bazar_55325476",
-    "url": "https://bazar.bg/obiava-55325476/prodava-4-staen-gr-sofiia-tsentar",
-    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/938/big1/1d178429808522938_YV.jpg",
-    "price_eur": 535000,
-    "sqm": null,
-    "area": "Център",
-    "title": "Продава 4-СТАЕН, гр. София, Център",
-    "portal": "bazar.bg",
-    "category": "apartment",
-    "price_per_sqm": null,
-    "price_history": [
-      {
-        "date": "2026-08-22T11:43:35.109353+00:00",
-        "price_eur": 535000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4956,7 +4960,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -4980,7 +4984,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5004,7 +5008,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5028,7 +5032,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5052,7 +5056,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5076,7 +5080,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5100,7 +5104,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5124,7 +5128,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5148,7 +5152,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5174,7 +5178,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5198,7 +5202,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5222,7 +5226,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5246,7 +5250,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5270,7 +5274,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5296,7 +5300,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5320,7 +5324,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5344,7 +5348,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5368,7 +5372,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5394,7 +5398,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5420,7 +5424,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5444,7 +5448,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5468,7 +5472,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5492,7 +5496,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5516,7 +5520,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5540,7 +5544,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5564,7 +5568,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5588,7 +5592,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5612,7 +5616,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5636,7 +5640,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5660,7 +5664,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5684,7 +5688,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5708,7 +5712,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5732,7 +5736,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5756,7 +5760,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5780,7 +5784,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5804,7 +5808,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5828,7 +5832,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5852,7 +5856,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5878,7 +5882,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5904,7 +5908,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5930,7 +5934,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5956,7 +5960,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5980,7 +5984,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6006,7 +6010,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6030,7 +6034,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6056,7 +6060,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6082,7 +6086,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6106,7 +6110,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6130,7 +6134,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6156,7 +6160,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6180,7 +6184,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6204,7 +6208,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6228,7 +6232,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6254,7 +6258,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6278,7 +6282,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6302,7 +6306,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6326,7 +6330,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6350,7 +6354,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6374,7 +6378,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6398,7 +6402,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6422,7 +6426,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6448,7 +6452,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6472,7 +6476,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -25598,6 +25602,7 @@
     "area": "Овча купел 2",
     "title": "Продава 2-СТАЕН, гр. София, Овча купел 2",
     "portal": "bazar.bg",
+    "category": "apartment",
     "price_per_sqm": null,
     "price_history": [
       {
@@ -28961,7 +28966,7 @@
     "id": "bazar_55691101",
     "url": "https://bazar.bg/obiava-55691101/prodava-2-staen-gr-sofiia-lyulin-1",
     "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/824/big/1b178696585776824_u2.jpg",
-    "price_eur": 120000,
+    "price_eur": 119990,
     "sqm": null,
     "area": "Люлин 1",
     "title": "Продава 2-СТАЕН, гр. София, Люлин 1",
@@ -28974,9 +28979,13 @@
       {
         "date": "2026-08-22T17:40:00.477546+00:00",
         "price_eur": 120000
+      },
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 119990
       }
     ],
-    "price_drop_count": 0,
+    "price_drop_count": 1,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -49855,6 +49864,1186 @@
       {
         "date": "2026-08-23T11:05:28.897800+00:00",
         "price_eur": 435600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55778545",
+    "url": "https://bazar.bg/obiava-55778545/prodava-4-staen-gr-sofiia-obelia-2",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/100/big1/1d178472634800100_mO.jpg",
+    "price_eur": 245000,
+    "sqm": null,
+    "area": "Обеля 2",
+    "title": "Продава 4-СТАЕН, гр. София, Обеля 2",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 245000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55778544",
+    "url": "https://bazar.bg/obiava-55778544/prodava-mnogostaen-gr-sofiia-geo-milev",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/223/big1/1e178749273153223_1y.jpg",
+    "price_eur": 650000,
+    "sqm": null,
+    "area": "Гео Милев",
+    "title": "Продава МНОГОСТАЕН, гр. София, Гео Милев",
+    "portal": "bazar.bg",
+    "lat": 42.67687875255,
+    "lng": 23.37156236171,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 650000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55778426",
+    "url": "https://bazar.bg/obiava-55778426/prodava-3-staen-gr-sofiia-nadezhda-1",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/659/big1/1c178749202447659_Rg.jpg",
+    "price_eur": 242000,
+    "sqm": null,
+    "area": "Надежда 1",
+    "title": "Продава 3-СТАЕН, гр. София, Надежда 1",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 242000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54996393",
+    "url": "https://bazar.bg/obiava-54996393/prodava-2-staen-gr-sofiia-krasna-poliana-1",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/601/big1/1b178212115688601_j.jpg",
+    "price_eur": 159999,
+    "sqm": null,
+    "area": "Красна поляна 1",
+    "title": "Продава 2-СТАЕН, гр. София, Красна поляна 1",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 159999
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_53557002",
+    "url": "https://bazar.bg/obiava-53557002/prodava-1-staen-gr-sofiia-lozenets",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/853/big1/1a174970812664853_Wz.jpg",
+    "price_eur": 79999,
+    "sqm": null,
+    "area": "Лозенец",
+    "title": "Продава 1-СТАЕН, гр. София, Лозенец",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 79999
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52680156",
+    "url": "https://bazar.bg/obiava-52680156/prodava-unikalen-3-staen-109-kv-m-sklad-garazh-23-5-metra-central-park-bez-taksa",
+    "photo": "https://cdn7.focus.bg/bazar/21/pics/21a384ef06b5eaf6e4c05a9783bb1a6f.webp",
+    "price_eur": 330000,
+    "sqm": null,
+    "area": "Банишора",
+    "title": "Продава УНИКАЛЕН 3-СТАЕН 109 кв.м+Склад + Гараж 23,5 метра, CENTRAL PARK – Без такса",
+    "portal": "bazar.bg",
+    "lat": 42.711682552841,
+    "lng": 23.304812182081,
+    "category": "commercial",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 330000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55628067",
+    "url": "https://bazar.bg/obiava-55628067/prodava-3-staen-gr-sofiia-banishora",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/037/big1/1c178645628270037_A6.jpg",
+    "price_eur": 29999917,
+    "sqm": null,
+    "area": "Банишора",
+    "title": "Продава 3-СТАЕН, гр. София, Банишора",
+    "portal": "bazar.bg",
+    "lat": 42.7123393,
+    "lng": 23.3047857,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 29999917
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55775930",
+    "url": "https://bazar.bg/obiava-55775930/prodava-3-staen-gr-sofiia-malinova-dolina",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/094/big1/1c178747664913094_KJ.jpg",
+    "price_eur": 240000,
+    "sqm": null,
+    "area": "Малинова долина",
+    "title": "Продава 3-СТАЕН, гр. София, Малинова долина",
+    "portal": "bazar.bg",
+    "lat": 42.6361053,
+    "lng": 23.3371062,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 240000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777975",
+    "url": "https://bazar.bg/obiava-55777975/prodava-3-staen-gr-sofiia-mladost-4",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/310/big1/1c178137681321310_wC.jpg",
+    "price_eur": 294000,
+    "sqm": null,
+    "area": "Младост 4",
+    "title": "Продава 3-СТАЕН, гр. София, Младост 4",
+    "portal": "bazar.bg",
+    "lat": 42.62568487418,
+    "lng": 23.38212819161,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 294000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55778019",
+    "url": "https://bazar.bg/obiava-55778019/prodava-3-staen-gr-sofiia-krastova-vada",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/142/big1/1c178472626353142_4G.jpg",
+    "price_eur": 397600,
+    "sqm": null,
+    "area": "Кръстова вада",
+    "title": "Продава 3-СТАЕН, гр. София, Кръстова вада",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 397600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52161834",
+    "url": "https://bazar.bg/obiava-52161834/prodava-4-staen-gr-sofiia-strelbishte",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/700/big1/1d176127642148700_22.jpg",
+    "price_eur": 376900,
+    "sqm": null,
+    "area": "Стрелбище",
+    "title": "Продава 4-СТАЕН, гр. София, Стрелбище",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 376900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52161873",
+    "url": "https://bazar.bg/obiava-52161873/prodava-4-staen-gr-sofiia-ivan-vazov",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/693/big1/1d176127742537693_uP.jpg",
+    "price_eur": 376900,
+    "sqm": null,
+    "area": "Иван Вазов",
+    "title": "Продава 4-СТАЕН, гр. София, Иван Вазов",
+    "portal": "bazar.bg",
+    "lat": 42.6765273,
+    "lng": 23.3008167,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 376900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55168591",
+    "url": "https://bazar.bg/obiava-55168591/prodava-3-staen-gr-sofiia-ivan-vazov",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/700/big1/1c178331633283700_z9.jpg",
+    "price_eur": 376900,
+    "sqm": null,
+    "area": "Иван Вазов",
+    "title": "Продава 3-СТАЕН, гр. София, Иван Вазов",
+    "portal": "bazar.bg",
+    "lat": 42.6764563,
+    "lng": 23.3008435,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 376900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54081735",
+    "url": "https://bazar.bg/obiava-54081735/prodava-2-staen-gr-sofiia-krastova-vada",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/627/big1/1b177522691834627_nw.jpg",
+    "price_eur": 333000,
+    "sqm": null,
+    "area": "Кръстова вада",
+    "title": "Продава 2-СТАЕН, гр. София, Кръстова вада",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 333000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52161789",
+    "url": "https://bazar.bg/obiava-52161789/prodava-2-staen-gr-sofiia-strelbishte",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/866/big1/1b176127377743866_K9.jpg",
+    "price_eur": 204400,
+    "sqm": null,
+    "area": "Стрелбище",
+    "title": "Продава 2-СТАЕН, гр. София, Стрелбище",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 204400
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_51464594",
+    "url": "https://bazar.bg/obiava-51464594/prodava-2-staen-gr-sofiia-ivan-vazov",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/389/big1/1b175496974284389_Gp.jpg",
+    "price_eur": 219999,
+    "sqm": null,
+    "area": "Иван Вазов",
+    "title": "Продава 2-СТАЕН, гр. София, Иван Вазов",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 219999
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_53278607",
+    "url": "https://bazar.bg/obiava-53278607/prodava-1-staen-gr-sofiia-lyulin-7",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/232/big1/1a176975126427232_p7.jpg",
+    "price_eur": 94900,
+    "sqm": null,
+    "area": "Люлин 7",
+    "title": "Продава 1-СТАЕН, гр. София, Люлин 7",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 94900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52288194",
+    "url": "https://bazar.bg/obiava-52288194/prodava-2-staen-gr-sofiia-druzhba-1",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/449/big1/1b176224743281449_AO.jpg",
+    "price_eur": 198500,
+    "sqm": null,
+    "area": "Дружба 1",
+    "title": "Продава 2-СТАЕН, гр. София, Дружба 1",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 198500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52288138",
+    "url": "https://bazar.bg/obiava-52288138/prodava-2-staen-gr-sofiia-druzhba-1",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/741/big1/1b176224721268741_Af.jpg",
+    "price_eur": 189500,
+    "sqm": null,
+    "area": "Дружба 1",
+    "title": "Продава 2-СТАЕН, гр. София, Дружба 1",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 189500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54106978",
+    "url": "https://bazar.bg/obiava-54106978/prodava-2-staen-gr-sofiia-druzhba-1",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/274/big1/1b177546731807274_yt.jpg",
+    "price_eur": 179900,
+    "sqm": null,
+    "area": "Дружба 1",
+    "title": "Продава 2-СТАЕН, гр. София, Дружба 1",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 179900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55680507",
+    "url": "https://bazar.bg/obiava-55680507/prodava-2-staen-gr-sofiia-hadzhi-dimitar",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/254/big/1c176224464053254_Kj.jpg",
+    "price_eur": 160000,
+    "sqm": null,
+    "area": "Хаджи Димитър",
+    "title": "Продава 2-СТАЕН, гр. София, Хаджи Димитър",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 160000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777701",
+    "url": "https://bazar.bg/obiava-55777701/prodava-2-staen-gr-sofiia-orlandovtsi",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/778/big1/1b178748732666778_le.jpg",
+    "price_eur": 140000,
+    "sqm": null,
+    "area": "Орландовци",
+    "title": "Продава 2-СТАЕН, гр. София, Орландовци",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 140000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55399349",
+    "url": "https://bazar.bg/obiava-55399349/prodavam-napalno-obzaveden-ednostaen-apartament-v-dianabad-blizost-do-studentski-grad",
+    "photo": "https://cdn8.focus.bg/bazar/a1/pics/a1c77749e78d6f56b0b5af56fabe7550.webp",
+    "price_eur": 139900,
+    "sqm": null,
+    "area": "Дианабад",
+    "title": "Продавам напълно обзаведен едностаен апартамент в Дианабад близост до студентски град.",
+    "portal": "bazar.bg",
+    "lat": 42.658066457294,
+    "lng": 23.345947306979,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 139900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777601",
+    "url": "https://bazar.bg/obiava-55777601/prodava-2-staen-gr-sofiia-malinova-dolina",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/107/big1/1b178748661420107_nO.jpg",
+    "price_eur": 165000,
+    "sqm": null,
+    "area": "Малинова долина",
+    "title": "Продава 2-СТАЕН, гр. София, Малинова долина",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 165000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777573",
+    "url": "https://bazar.bg/obiava-55777573/prodava-2-staen-gr-sofiia-malinova-dolina",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/908/big1/1b178748643598908_5I.jpg",
+    "price_eur": 160000,
+    "sqm": null,
+    "area": "Малинова долина",
+    "title": "Продава 2-СТАЕН, гр. София, Малинова долина",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 160000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55754039",
+    "url": "https://bazar.bg/obiava-55754039/prodava-2-staen-gr-sofiia-nadezhda-3",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/422/big1/1b178733390093422_sQ.jpg",
+    "price_eur": 90000,
+    "sqm": null,
+    "area": "Надежда 3",
+    "title": "Продава 2-СТАЕН, гр. София, Надежда 3",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55754085",
+    "url": "https://bazar.bg/obiava-55754085/prodava-garsoniera",
+    "photo": "https://cdn6.focus.bg/bazar/00/pics/001ff9c0830fca9399c14941c2d0da85.webp",
+    "price_eur": 90000,
+    "sqm": null,
+    "area": "Надежда 3",
+    "title": "Продава гарсониера",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777193",
+    "url": "https://bazar.bg/obiava-55777193/prodava-3-staen-gr-sofiia-tsentar",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/553/big1/1c178748390266553_53.jpg",
+    "price_eur": 364900,
+    "sqm": null,
+    "area": "Център",
+    "title": "Продава 3-СТАЕН, гр. София, Център",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 364900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55020858",
+    "url": "https://bazar.bg/obiava-55020858/prodava-3-staen-gr-sofiia-tsentar",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/956/big1/1c178228267188956_D6.jpg",
+    "price_eur": 414900,
+    "sqm": null,
+    "area": "Център",
+    "title": "Продава 3-СТАЕН, гр. София, Център",
+    "portal": "bazar.bg",
+    "lat": 42.6882992,
+    "lng": 23.3309106,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 414900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_53718172",
+    "url": "https://bazar.bg/obiava-53718172/prodava-2-staen-gr-sofiia-botunets",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/370/big1/1b177270031824370_N2.jpg",
+    "price_eur": 79900,
+    "sqm": null,
+    "area": "Ботунец",
+    "title": "Продава 2-СТАЕН, гр. София, Ботунец",
+    "portal": "bazar.bg",
+    "lat": 42.7418324,
+    "lng": 23.5116831,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 79900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55419184",
+    "url": "https://bazar.bg/obiava-55419184/prodava-2-staen-gr-sofiia-tsentar",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/863/big1/1b178504505658863_Gj.jpg",
+    "price_eur": 136000,
+    "sqm": null,
+    "area": "Център",
+    "title": "Продава 2-СТАЕН, гр. София, Център",
+    "portal": "bazar.bg",
+    "lat": 42.7142482,
+    "lng": 23.3254385,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 136000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55419300",
+    "url": "https://bazar.bg/obiava-55419300/prodava-2-staen-gr-sofiia-banishora",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/037/big1/1b178504624317037_7Q.jpg",
+    "price_eur": 136000,
+    "sqm": null,
+    "area": "Банишора",
+    "title": "Продава 2-СТАЕН, гр. София, Банишора",
+    "portal": "bazar.bg",
+    "lat": 42.7143651,
+    "lng": 23.3255677,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 136000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55492045",
+    "url": "https://bazar.bg/obiava-55492045/prodava-mezonet-gr-sofiia-banishora",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/910/big1/1f178550359339910_Xj.jpg",
+    "price_eur": 288000,
+    "sqm": null,
+    "area": "Банишора",
+    "title": "Продава МЕЗОНЕТ, гр. София, Банишора",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 288000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52325973",
+    "url": "https://bazar.bg/obiava-52325973/prodava-3-staen-gr-sofiia-vitosha",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/860/big1/1c176246667663860_J5.jpg",
+    "price_eur": 300000,
+    "sqm": null,
+    "area": "Витоша",
+    "title": "Продава 3-СТАЕН, гр. София, Витоша",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 300000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_51123475",
+    "url": "https://bazar.bg/obiava-51123475/prodava-2-staen-gr-sofiia-druzhba-2",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/353/big1/1b175331283375353_LX.jpg",
+    "price_eur": 165000,
+    "sqm": null,
+    "area": "Дружба 2",
+    "title": "Продава 2-СТАЕН, гр. София, Дружба 2",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 165000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_49456771",
+    "url": "https://bazar.bg/obiava-49456771/idealen-tsentar-zad-halite",
+    "photo": "https://cdn1.focus.bg/bazar/82/pics/8234094d3e1fa8c8e1bd39fec772bb16.webp",
+    "price_eur": 64515,
+    "sqm": null,
+    "area": "Център",
+    "title": "идеален център зад Халите",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 64515
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54352525",
+    "url": "https://bazar.bg/obiava-54352525/prodava-2-staen-gr-sofiia-vitosha",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/122/big1/1b169741303077122_z3.jpg",
+    "price_eur": 270000,
+    "sqm": null,
+    "area": "Витоша",
+    "title": "Продава 2-СТАЕН, гр. София, Витоша",
+    "portal": "bazar.bg",
+    "lat": 42.6541836,
+    "lng": 23.3294081,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 270000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54352513",
+    "url": "https://bazar.bg/obiava-54352513/prodava-2-staen-gr-sofiia-vitosha",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/225/big1/1b169741653851225_GX.jpg",
+    "price_eur": 270000,
+    "sqm": null,
+    "area": "Витоша",
+    "title": "Продава 2-СТАЕН, гр. София, Витоша",
+    "portal": "bazar.bg",
+    "lat": 42.6541984,
+    "lng": 23.3294262,
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 270000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55349170",
+    "url": "https://bazar.bg/obiava-55349170/prodava-3-staen-gr-sofiia-ovcha-kupel",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/867/big1/1c178454526237867_xF.jpg",
+    "price_eur": 251922,
+    "sqm": null,
+    "area": "Овча купел",
+    "title": "Продава 3-СТАЕН, гр. София, Овча купел",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 251922
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55349430",
+    "url": "https://bazar.bg/obiava-55349430/prodava-2-staen-gr-sofiia-ovcha-kupel",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/613/big1/1b178454643702613_BL.jpg",
+    "price_eur": 162624,
+    "sqm": null,
+    "area": "Овча купел",
+    "title": "Продава 2-СТАЕН, гр. София, Овча купел",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 162624
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55776955",
+    "url": "https://bazar.bg/obiava-55776955/prodava-3-staen-gr-sofiia-lagera",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/429/big1/1c178748246498429_FF.jpg",
+    "price_eur": 387000,
+    "sqm": null,
+    "area": "Лагера",
+    "title": "Продава 3-СТАЕН, гр. София, Лагера",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 387000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55777118",
+    "url": "https://bazar.bg/obiava-55777118/prodava-3-staen-gr-sofiia-hipodruma",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/880/big1/1c178671394579880_xa.jpg",
+    "price_eur": 290000,
+    "sqm": null,
+    "area": "Хиподрума",
+    "title": "Продава 3-СТАЕН, гр. София, Хиподрума",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 290000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54685725",
+    "url": "https://bazar.bg/obiava-54685725/prodava-4-staen-gr-sofiia-ovcha-kupel",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/568/big1/1d177986313263568_ca.jpg",
+    "price_eur": 321000,
+    "sqm": null,
+    "area": "Овча купел",
+    "title": "Продава 4-СТАЕН, гр. София, Овча купел",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 321000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_53241956",
+    "url": "https://bazar.bg/obiava-53241956/prodava-2-staen-gr-sofiia-ovcha-kupel-2",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/784/big1/1b176950412039784_Zn.jpg",
+    "price_eur": 135600,
+    "sqm": null,
+    "area": "Овча купел 2",
+    "title": "Продава 2-СТАЕН, гр. София, Овча купел 2",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 135600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_53745573",
+    "url": "https://bazar.bg/obiava-53745573/prodava-3-staen-gr-sofiia-lagera",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/818/big1/1c177288578204818_5U.jpg",
+    "price_eur": 387320,
+    "sqm": null,
+    "area": "Лагера",
+    "title": "Продава 3-СТАЕН, гр. София, Лагера",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 387320
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_52127783",
+    "url": "https://bazar.bg/obiava-52127783/prodava-3-staen-gr-sofiia-krasno-selo",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/131/big1/1c176103217854131_Fs.jpg",
+    "price_eur": 380000,
+    "sqm": null,
+    "area": "Красно село",
+    "title": "Продава 3-СТАЕН, гр. София, Красно село",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 380000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55346525",
+    "url": "https://bazar.bg/obiava-55346525/prodava-3-staen-gr-sofiia-ovcha-kupel",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/159/big1/1c178453450098159_Ix.jpg",
+    "price_eur": 302742,
+    "sqm": null,
+    "area": "Овча купел",
+    "title": "Продава 3-СТАЕН, гр. София, Овча купел",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 302742
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_55118548",
+    "url": "https://bazar.bg/obiava-55118548/prodava-3-staen-gr-sofiia-ovcha-kupel",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/314/big1/1c178290240389314_q8.jpg",
+    "price_eur": 240000,
+    "sqm": null,
+    "area": "Овча купел",
+    "title": "Продава 3-СТАЕН, гр. София, Овча купел",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T14:41:27.034204+00:00",
+        "price_eur": 240000
       }
     ],
     "price_drop_count": 0,

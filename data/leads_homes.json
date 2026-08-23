@@ -1715,11 +1715,24 @@
     "id": "homes_1700423",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-57m2-sofiya-zhk.-goce-delchev/as1700423",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598738b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598738b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598739b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598740b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598741b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598742b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598743b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598744b.jpg"
+    ],
+    "description": "Панел, Електричество",
     "price_eur": 190000,
     "sqm": 57,
     "area": "жк. Гоце Делчев",
     "title": "Двустаен, 57m², жк. Гоце Делчев, София",
     "portal": "homes.bg",
+    "lat": 42.6879161,
+    "lng": 23.3380531,
+    "category": "apartment",
     "price_per_sqm": 3333,
     "price_history": [
       {
@@ -2148,11 +2161,27 @@
     "id": "homes_1700449",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-88m2-sofiya-zhk.-mladost-3/as1700449",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598651b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598651b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598652b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598653b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598654b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598655b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598656b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598657b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598658b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598659b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598660b.jpg"
+    ],
+    "description": "Панел, ТЕЦ",
     "price_eur": 260000,
     "sqm": 88,
     "area": "жк. Младост 3",
     "title": "Тристаен, 88m², жк. Младост 3, София",
     "portal": "homes.bg",
+    "lat": 42.6465261,
+    "lng": 23.3837288,
+    "category": "apartment",
     "price_per_sqm": 2955,
     "price_history": [
       {
@@ -2518,11 +2547,26 @@
     "id": "homes_1692896",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-81m2-sofiya-kv.-manastirski-livadi/as1692896",
     "photo": "https://g1.homes.bg/2026-08-22_2/120603120b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603120b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603121b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603122b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603123b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603124b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603125b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603126b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603127b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603128b.jpg"
+    ],
+    "description": "Тухла, Обзаведен, Електричество",
     "price_eur": 199800,
     "sqm": 81,
     "area": "кв. Манастирски Ливади",
     "title": "Двустаен, 81m², кв. Манастирски Ливади, София",
     "portal": "homes.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2467,
     "price_history": [
       {
@@ -2541,11 +2585,27 @@
     "id": "homes_1700302",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-64m2-sofiya-kv.-vitosha/as1700302",
     "photo": "https://g1.homes.bg/2026-08-22_2/120603110b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603110b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603111b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603112b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603113b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603114b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603115b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603116b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603117b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603118b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603119b.jpg"
+    ],
+    "description": "Тухла, Обзаведен",
     "price_eur": 249990,
     "sqm": 64,
     "area": "кв. Витоша",
     "title": "Двустаен, 64m², кв. Витоша, София",
     "portal": "homes.bg",
+    "lat": 42.6468281,
+    "lng": 23.3292104,
+    "category": "apartment",
     "price_per_sqm": 3906,
     "price_history": [
       {
@@ -3493,12 +3553,28 @@
   {
     "id": "homes_1700470",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-120m2-sofiya-dragalevci/as1700470",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591495b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603915b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603915b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603916b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603917b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603918b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603919b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603920b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603921b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603922b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603923b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603924b.jpg"
+    ],
+    "description": "Тухла, Обзаведен, Електричество",
     "price_eur": 435000,
     "sqm": 120,
     "area": "Драгалевци",
     "title": "Тристаен, 120m²,  Драгалевци, София",
     "portal": "homes.bg",
+    "lat": 42.6307354,
+    "lng": 23.3136947,
+    "category": "apartment",
     "price_per_sqm": 3625,
     "price_history": [
       {
@@ -3516,12 +3592,23 @@
   {
     "id": "homes_1700469",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-102m2-sofiya-kv.-manastirski-livadi/as1700469",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591469b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603899b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603899b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603900b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603901b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603902b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603903b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, Електричество",
     "price_eur": 285387,
     "sqm": 102,
     "area": "кв. Манастирски Ливади",
     "title": "Тристаен, 102m², кв. Манастирски Ливади, София",
     "portal": "homes.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2798,
     "price_history": [
       {
@@ -3539,12 +3626,25 @@
   {
     "id": "homes_1700468",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-178m2-sofiya-kv.-manastirski-livadi/as1700468",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591462b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603892b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603892b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603893b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603894b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603895b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603896b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603897b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603898b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, Електричество",
     "price_eur": 495970,
     "sqm": 178,
     "area": "кв. Манастирски Ливади",
     "title": "Четиристаен, 178m², кв. Манастирски Ливади, София",
     "portal": "homes.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2786,
     "price_history": [
       {
@@ -3562,12 +3662,28 @@
   {
     "id": "homes_1700467",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-83m2-sofiya-kv.-malinova-dolina/as1700467",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591452b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603882b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603882b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603883b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603884b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603885b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603886b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603887b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603888b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603889b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603890b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603891b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, Електричество",
     "price_eur": 220000,
     "sqm": 83,
     "area": "кв. Малинова Долина",
     "title": "Тристаен, 83m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 2651,
     "price_history": [
       {
@@ -4326,7 +4442,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": 2529,
     "pct_vs_area_avg": 7.8
@@ -23493,12 +23609,28 @@
   {
     "id": "homes_1694125",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-120m2-sofiya-zhk.-banishora/as1694125",
-    "photo": "https://g1.homes.bg/2026-08-22_2/120603044b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-23_2/120609506b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-23_2/120609506b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609507b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609508b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609509b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609510b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609511b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609512b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609513b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609514b.jpg",
+      "https://g1.homes.bg/2026-08-23_2/120609515b.jpg"
+    ],
+    "description": "Тухла, ТЕЦ",
     "price_eur": 305000,
     "sqm": 120,
     "area": "жк. Банишора",
     "title": "Тристаен, 120m², жк. Банишора, София",
     "portal": "homes.bg",
+    "lat": 42.8496892,
+    "lng": 23.2720545,
+    "category": "apartment",
     "price_per_sqm": 2542,
     "price_history": [
       {
@@ -29026,11 +29158,27 @@
     "id": "homes_1679328",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-62m2-sofiya-kv.-manastirski-livadi/as1679328",
     "photo": "https://g1.homes.bg/2026-04-16_2/118515020b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-04-16_2/118515020b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515021b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515022b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515023b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515024b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515025b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515026b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515027b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515028b.jpg",
+      "https://g1.homes.bg/2026-04-16_2/118515029b.jpg"
+    ],
+    "description": "Тухла, Електричество",
     "price_eur": 280000,
     "sqm": 62,
     "area": "кв. Манастирски Ливади",
     "title": "Двустаен, 62m², кв. Манастирски Ливади, София",
     "portal": "homes.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 4516,
     "price_history": [
       {
@@ -29049,11 +29197,18 @@
     "id": "homes_1642856",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-118m2-sofiya-zhk.-ovcha-kupel/as1642856",
     "photo": "https://g1.homes.bg/2026-05-20_2/119236227b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-05-20_2/119236227b.jpg"
+    ],
+    "description": "Тухла, ТЕЦ",
     "price_eur": 247871,
     "sqm": 118,
     "area": "жк. Овча Купел",
     "title": "Тристаен, 118m², жк. Овча Купел, София",
     "portal": "homes.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2101,
     "price_history": [
       {
@@ -29072,11 +29227,23 @@
     "id": "homes_1618158",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-87m2-sofiya-zhk.-ovcha-kupel/as1618158",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598634b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598634b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598635b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598636b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598637b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598638b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598639b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 219900,
     "sqm": 87,
     "area": "жк. Овча Купел",
     "title": "Двустаен, 87m², жк. Овча Купел, София",
     "portal": "homes.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2528,
     "price_history": [
       {
@@ -29095,11 +29262,19 @@
     "id": "homes_1539639",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-58m2-sofiya-kv.-knyazhevo/as1539639",
     "photo": "https://g1.homes.bg/2026-08-11_2/120407168b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-11_2/120407168b.jpg",
+      "https://g1.homes.bg/2026-08-11_2/120407169b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 149299,
     "sqm": 58,
     "area": "кв. Княжево",
     "title": "Едностаен, 58m², кв. Княжево, София",
     "portal": "homes.bg",
+    "lat": 42.6546555,
+    "lng": 23.230503,
+    "category": "apartment",
     "price_per_sqm": 2574,
     "price_history": [
       {
@@ -29118,11 +29293,27 @@
     "id": "homes_1700205",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-119m2-sofiya-zhk.-ljulin-5/as1700205",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598715b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598715b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598716b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598717b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598718b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598719b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598720b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598721b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598722b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598723b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598724b.jpg"
+    ],
+    "description": "ЕПК, ТЕЦ",
     "price_eur": 307000,
     "sqm": 119,
     "area": "жк. Люлин 5",
     "title": "Четиристаен, 119m², жк. Люлин 5, София",
     "portal": "homes.bg",
+    "lat": 42.720834,
+    "lng": 23.5291196,
+    "category": "apartment",
     "price_per_sqm": 2580,
     "price_history": [
       {
@@ -29141,11 +29332,26 @@
     "id": "homes_1700271",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-51m2-sofiya-zhk.-ljulin-3/as1700271",
     "photo": "https://g1.homes.bg/2026-08-22_2/120603025b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603025b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603027b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603029b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603031b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603033b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603036b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603038b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603040b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603042b.jpg"
+    ],
+    "description": "Панел, ТЕЦ",
     "price_eur": 115900,
     "sqm": 51,
     "area": "жк. Люлин 3",
     "title": "Двустаен, 51m², жк. Люлин 3, София",
     "portal": "homes.bg",
+    "lat": 42.7206956,
+    "lng": 23.529316,
+    "category": "apartment",
     "price_per_sqm": 2273,
     "price_history": [
       {
@@ -29164,11 +29370,27 @@
     "id": "homes_1692561",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/chetiristaen-111m2-sofiya-studentski-grad/as1692561",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598728b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598728b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598729b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598730b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598731b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598732b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598733b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598734b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598735b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598736b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598737b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 299990,
     "sqm": 111,
     "area": "Студентски Град",
     "title": "Четиристаен, 111m²,  Студентски Град, София",
     "portal": "homes.bg",
+    "lat": 42.6465944,
+    "lng": 23.346084,
+    "category": "apartment",
     "price_per_sqm": 2703,
     "price_history": [
       {
@@ -29187,11 +29409,23 @@
     "id": "homes_1700305",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-136m2-sofiya-zhk.-lozenec/as1700305",
     "photo": "https://g1.homes.bg/2026-08-22_2/120603013b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603013b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603015b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603017b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603019b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603021b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603023b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 340000,
     "sqm": 136,
     "area": "жк. Лозенец",
     "title": "Тристаен, 136m², жк. Лозенец, София",
     "portal": "homes.bg",
+    "lat": 42.6597151,
+    "lng": 23.3250228,
+    "category": "apartment",
     "price_per_sqm": 2500,
     "price_history": [
       {
@@ -29210,11 +29444,18 @@
     "id": "homes_1700434",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/ednostaen-42m2-sofiya-studentski-grad/as1700434",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598671b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598671b.jpg"
+    ],
+    "description": "Тухла, Електричество",
     "price_eur": 150000,
     "sqm": 42,
     "area": "Студентски Град",
     "title": "Едностаен, 42m²,  Студентски Град, София",
     "portal": "homes.bg",
+    "lat": 42.6465944,
+    "lng": 23.346084,
+    "category": "apartment",
     "price_per_sqm": 3571,
     "price_history": [
       {
@@ -29233,11 +29474,21 @@
     "id": "homes_1700288",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-61m2-sofiya-zhk.-lozenec/as1700288",
     "photo": "https://g1.homes.bg/2026-08-22_2/120598690b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120598690b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598691b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598692b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120598693b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 283000,
     "sqm": 61,
     "area": "жк. Лозенец",
     "title": "Тристаен, 61m², жк. Лозенец, София",
     "portal": "homes.bg",
+    "lat": 42.6597151,
+    "lng": 23.3250228,
+    "category": "apartment",
     "price_per_sqm": 4639,
     "price_history": [
       {
@@ -29267,6 +29518,9 @@
     "area": "кв. Малинова Долина",
     "title": "Едностаен, 40m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 2950,
     "price_history": [
       {
@@ -29284,12 +29538,21 @@
   {
     "id": "homes_1693134",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-103m2-sofiya-kv.-malinova-dolina/as1693134",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595514b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607659b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607659b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607660b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607661b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 263000,
     "sqm": 103,
     "area": "кв. Малинова Долина",
     "title": "Тристаен, 103m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 2553,
     "price_history": [
       {
@@ -29307,12 +29570,28 @@
   {
     "id": "homes_1634309",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-127m2-sofiya-zhk.-druzhba-2/as1634309",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595417b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607562b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607562b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607563b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607564b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607565b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607566b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607567b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607568b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607569b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607570b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607571b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 253420,
     "sqm": 127,
     "area": "жк. Дружба 2",
     "title": "Двустаен, 127m², жк. Дружба 2, София",
     "portal": "homes.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
     "price_per_sqm": 1995,
     "price_history": [
       {
@@ -29330,12 +29609,26 @@
   {
     "id": "homes_1683395",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-65m2-sofiya-zhk.-druzhba-2/as1683395",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595437b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607582b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607582b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607583b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607584b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607585b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607586b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607587b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607588b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607589b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 193000,
     "sqm": 65,
     "area": "жк. Дружба 2",
     "title": "Двустаен, 65m², жк. Дружба 2, София",
     "portal": "homes.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
     "price_per_sqm": 2969,
     "price_history": [
       {
@@ -29353,12 +29646,25 @@
   {
     "id": "homes_1688105",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-72m2-sofiya-zhk.-druzhba-2/as1688105",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595452b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607597b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607597b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607598b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607599b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607600b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607601b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607602b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607603b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 215000,
     "sqm": 72,
     "area": "жк. Дружба 2",
     "title": "Двустаен, 72m², жк. Дружба 2, София",
     "portal": "homes.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
     "price_per_sqm": 2986,
     "price_history": [
       {
@@ -29376,12 +29682,24 @@
   {
     "id": "homes_1690222",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-42m2-sofiya-zhk.-mladost-4/as1690222",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595502b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607647b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607647b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607648b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607649b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607650b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607651b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607652b.jpg"
+    ],
+    "description": "Панел, Обзаведен, ТЕЦ",
     "price_eur": 129000,
     "sqm": 42,
     "area": "жк. Младост 4",
     "title": "Двустаен, 42m², жк. Младост 4, София",
     "portal": "homes.bg",
+    "lat": 42.7744044,
+    "lng": 23.2512012,
+    "category": "apartment",
     "price_per_sqm": 3071,
     "price_history": [
       {
@@ -29399,12 +29717,26 @@
   {
     "id": "homes_1681590",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-69m2-sofiya-zhk.-druzhba-2/as1681590",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595483b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607628b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607628b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607629b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607630b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607631b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607632b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607633b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607634b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607635b.jpg"
+    ],
+    "description": "Тухла, Обзаведен, ТЕЦ",
     "price_eur": 229980,
     "sqm": 69,
     "area": "жк. Дружба 2",
     "title": "Двустаен, 69m², жк. Дружба 2, София",
     "portal": "homes.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
     "price_per_sqm": 3333,
     "price_history": [
       {
@@ -29422,12 +29754,20 @@
   {
     "id": "homes_1663693",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-66m2-sofiya-zhk.-druzhba-1/as1663693",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120595469b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120607614b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120607614b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120607615b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, ТЕЦ",
     "price_eur": 162000,
     "sqm": 66,
     "area": "жк. Дружба 1",
     "title": "Двустаен, 66m², жк. Дружба 1, София",
     "portal": "homes.bg",
+    "lat": 42.7095814,
+    "lng": 23.1410643,
+    "category": "apartment",
     "price_per_sqm": 2455,
     "price_history": [
       {
@@ -29445,12 +29785,21 @@
   {
     "id": "homes_1670784",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-87m2-sofiya-kv.-manastirski-livadi/as1670784",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591474b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603904b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603904b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603905b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603906b.jpg"
+    ],
+    "description": "Тухла, Необзаведен",
     "price_eur": 206735,
     "sqm": 87,
     "area": "кв. Манастирски Ливади",
     "title": "Тристаен, 87m², кв. Манастирски Ливади, София",
     "portal": "homes.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2376,
     "price_history": [
       {
@@ -29491,12 +29840,23 @@
   {
     "id": "homes_1693109",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-59m2-sofiya-zhk.-druzhba-1/as1693109",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591505b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603925b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603925b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603926b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603927b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603928b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603929b.jpg"
+    ],
+    "description": "Панел, Необзаведен, ТЕЦ",
     "price_eur": 148000,
     "sqm": 59,
     "area": "жк. Дружба 1",
     "title": "Двустаен, 59m², жк. Дружба 1, София",
     "portal": "homes.bg",
+    "lat": 42.7095814,
+    "lng": 23.1410643,
+    "category": "apartment",
     "price_per_sqm": 2508,
     "price_history": [
       {
@@ -29514,12 +29874,22 @@
   {
     "id": "homes_1670787",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-110m2-sofiya-kv.-malinova-dolina/as1670787",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591477b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603907b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603907b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603908b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603909b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603910b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 244492,
     "sqm": 110,
     "area": "кв. Малинова Долина",
     "title": "Тристаен, 110m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 2223,
     "price_history": [
       {
@@ -29537,12 +29907,22 @@
   {
     "id": "homes_1670788",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-80m2-sofiya-kv.-malinova-dolina/as1670788",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591481b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603911b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603911b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603912b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603913b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603914b.jpg"
+    ],
+    "description": "Тухла",
     "price_eur": 195000,
     "sqm": 80,
     "area": "кв. Малинова Долина",
     "title": "Двустаен, 80m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 2438,
     "price_history": [
       {
@@ -32878,12 +33258,28 @@
   {
     "id": "homes_1700466",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/tristaen-94m2-sofiya-zhk.-razsadnika/as1700466",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591442b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603872b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603872b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603873b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603874b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603875b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603876b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603877b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603878b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603879b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603880b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603881b.jpg"
+    ],
+    "description": "ЕПК, Необзаведен, Електричество",
     "price_eur": 212000,
     "sqm": 94,
     "area": "жк. Разсадника",
     "title": "Тристаен, 94m², жк. Разсадника, София",
     "portal": "homes.bg",
+    "lat": 42.6966549,
+    "lng": 23.290774,
+    "category": "apartment",
     "price_per_sqm": 2255,
     "price_history": [
       {
@@ -32901,12 +33297,28 @@
   {
     "id": "homes_1700465",
     "url": "https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-75m2-sofiya-kv.-malinova-dolina/as1700465",
-    "photo": "https://g1.homes.bg/2026-08-22_1/120591321b.jpg",
+    "photo": "https://g1.homes.bg/2026-08-22_2/120603808b.jpg",
+    "photos": [
+      "https://g1.homes.bg/2026-08-22_2/120603808b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603809b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603810b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603811b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603812b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603813b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603814b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603815b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603816b.jpg",
+      "https://g1.homes.bg/2026-08-22_2/120603817b.jpg"
+    ],
+    "description": "Тухла, Необзаведен, Електричество",
     "price_eur": 250000,
     "sqm": 75,
     "area": "кв. Малинова Долина",
     "title": "Двустаен, 75m², кв. Малинова Долина, София",
     "portal": "homes.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 3333,
     "price_history": [
       {
