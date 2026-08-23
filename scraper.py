@@ -37,6 +37,13 @@ listing's real age. A detail-page fetch that fails (retries exhausted,
 including the same page-block behavior the grid crawl hits) just leaves
 that one listing without a real date for this run - it falls back to the
 first-seen estimate rather than aborting the whole scrape.
+
+That same detail-page fetch also carries the listing's real coordinates as
+plain "latitude"/"longitude" JSON keys (confirmed live, no JS execution
+needed) - extracted here at no extra request cost via geo_utils, along
+with a keyword-based property category (apartment/house/land/commercial)
+since imoti.net's search isn't apartments-only. Both feed the frontend's
+same-category radius-average feature.
 """
 
 import re
@@ -47,6 +54,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import classify_category, extract_coords_imoti_net
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.imoti.net/en/obiavi/r/prodava/sofia"
@@ -176,6 +185,11 @@ def fetch_listing_dates(seen):
         date_posted = parse_date_posted(html)
         if date_posted:
             l["site_posted_at"] = date_posted
+        coords = extract_coords_imoti_net(html)
+        if coords:
+            l["lat"] = coords["lat"]
+            l["lng"] = coords["lng"]
+        l["category"] = classify_category(l.get("title"))
         if i % 200 == 0:
             print(f"DEBUG: fetched detail dates for {i}/{total} listings")
 

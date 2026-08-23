@@ -165,6 +165,23 @@
   }
   .source-switcher-btn:hover { border-color: #94a3b8; }
   .source-switcher-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .radius-panel {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 12px 14px; margin: 0 0 16px;
+  }
+  .radius-panel-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .radius-panel .label { font-size: 11px; color: #64748b; margin: 0; }
+  .radius-btn-row { display: flex; gap: 6px; }
+  .radius-btn {
+    padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: white;
+    color: #475569; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .radius-btn:hover { border-color: #94a3b8; }
+  .radius-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .radius-hint { font-size: 13px; color: #94a3b8; margin: 10px 0 0; }
+  .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+  .radius-result .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
+  .radius-result .value { font-size: 15px; font-weight: 700; margin: 0; }
 </style>
 </head>
 <body>
@@ -358,6 +375,82 @@ let currentPage = 1;
 let detailSourceIndex = 0;
 let detailChart = null;
 let detailActiveTab = 'details';
+let detailRadiusM = null;
+
+// --- Same-category radius average --------------------------------------------
+// Haversine great-circle distance in km between two lat/lng points.
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// Computed on demand (only when a user opens a listing and clicks a radius
+// button), scanning every source of every merged listing once - a few
+// thousand Haversine comparisons, trivial cost for a single click.
+function computeRadiusAverage(l, radiusM) {
+  if (l.lat == null || l.lng == null) return { noLocation: true };
+  const category = l.category || 'apartment';
+  const radiusKm = radiusM / 1000;
+  const prices = [];
+  const pricesPerSqm = [];
+  MERGED_LISTINGS.forEach(m => {
+    m.sources.forEach(s => {
+      if (s.id === l.id) return;
+      if (s.lat == null || s.lng == null) return;
+      if ((s.category || 'apartment') !== category) return;
+      if (haversineKm(l.lat, l.lng, s.lat, s.lng) > radiusKm) return;
+      if (s.price_eur) prices.push(s.price_eur);
+      if (s.price_per_sqm) pricesPerSqm.push(s.price_per_sqm);
+    });
+  });
+  if (prices.length === 0) return { count: 0 };
+  const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+  const avgPerSqm = pricesPerSqm.length
+    ? Math.round(pricesPerSqm.reduce((a, b) => a + b, 0) / pricesPerSqm.length)
+    : null;
+  return { count: prices.length, avgPrice, avgPerSqm };
+}
+
+function renderRadiusPanel(l) {
+  const buttons = [250, 500, 1500].map(m => `
+    <button class="radius-btn${detailRadiusM === m ? ' active' : ''}" data-radius="${m}">${m}m</button>
+  `).join('');
+
+  let resultHtml;
+  if (detailRadiusM === null) {
+    resultHtml = `<p class="radius-hint">Pick a radius to see the same-category average nearby.</p>`;
+  } else {
+    const r = computeRadiusAverage(l, detailRadiusM);
+    if (r.noLocation) {
+      resultHtml = `<p class="radius-hint">Location data isn't available for this listing yet.</p>`;
+    } else if (r.count === 0) {
+      resultHtml = `<p class="radius-hint">No other ${l.category || 'apartment'} listings with a known location found within ${detailRadiusM}m.</p>`;
+    } else {
+      resultHtml = `
+        <div class="radius-result">
+          <div><p class="label">Avg asking price</p><p class="value">€${fmt(r.avgPrice)}</p></div>
+          <div><p class="label">Avg €/m²</p><p class="value">${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</p></div>
+          <div><p class="label">Comparables</p><p class="value">${r.count} ${l.category || 'apartment'}${r.count === 1 ? '' : 's'}</p></div>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <div class="radius-panel">
+      <div class="radius-panel-header">
+        <p class="label">Same-category avg within radius</p>
+        <div class="radius-btn-row">${buttons}</div>
+      </div>
+      ${resultHtml}
+    </div>
+  `;
+}
 
 // --- Cross-portal duplicate detection ---------------------------------------
 // Each portal is scraped independently with no shared ID between sites, so
@@ -832,6 +925,7 @@ function renderListingDetail(merged) {
           <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
+        ${renderRadiusPanel(l)}
         <div class="detail-tabs">
           <button class="detail-tab-btn${detailActiveTab === 'details' ? ' active' : ''}" data-tab="details">Details</button>
           <button class="detail-tab-btn${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab="pricehistory">Price History${priceDropCount > 0 ? ` (${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'})` : ''}</button>
@@ -876,6 +970,14 @@ function renderListingDetail(merged) {
     btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, priceHistory));
   });
 
+  document.getElementById('listingDetailBody').querySelectorAll('.radius-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const radius = parseInt(btn.dataset.radius, 10);
+      detailRadiusM = detailRadiusM === radius ? null : radius;
+      renderListingDetail(merged);
+    });
+  });
+
   if (detailActiveTab === 'pricehistory' && priceHistory.length > 1) {
     renderPriceHistoryChart(priceHistory);
   } else if (detailChart) {
@@ -889,6 +991,7 @@ function showListingDetail(id) {
   if (!merged) return;
   detailSourceIndex = 0;
   detailActiveTab = 'details';
+  detailRadiusM = null;
   renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');

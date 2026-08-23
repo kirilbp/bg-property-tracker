@@ -27,6 +27,13 @@ reading "today" - unlike homes.bg's equivalent field, which was checked the
 same way and turned out to be a constant. Since this portal tracks a few
 hundred listings (not imoti.net's ~6000), visiting every tracked listing's
 own page once per scrape to read this field is an acceptable added cost.
+
+That same detail-page fetch also carries the listing's real coordinates,
+embedded as a plain "share this location" Google Maps link
+(href="https://maps.google.com/?q=LAT,LNG...", confirmed live, no JS
+execution needed) - extracted here at no extra request cost via
+geo_utils, along with a keyword-based property category for the
+frontend's same-category radius-average feature.
 """
 
 import re
@@ -37,6 +44,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import classify_category, extract_coords_alo
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=22&location_ids=4342"
@@ -197,6 +206,11 @@ def fetch_update_dates(seen):
         days_ago = parse_days_ago(html)
         if days_ago is not None:
             l["site_updated_at"] = (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()
+        coords = extract_coords_alo(html)
+        if coords:
+            l["lat"] = coords["lat"]
+            l["lng"] = coords["lng"]
+        l["category"] = classify_category(l.get("title"))
 
 
 def fetch_listings():

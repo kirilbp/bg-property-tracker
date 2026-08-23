@@ -26,6 +26,19 @@ having reached the last page - and, since scrape.yml runs all 5 scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
+
+imot.bg genuinely carries no coordinates anywhere in its own pages -
+confirmed by a real headless browser (cookie consent handled, WebGL
+software rendering enabled, navigator.webdriver patched away) finding no
+map DOM node, no live google.maps.Map object, and no maps iframe on a
+real listing, plus a plain static-HTML fetch turning up nothing either.
+So each listing's real area name (line 1's "град София, <area>") is
+geocoded via OpenStreetMap Nominatim instead (geo_utils.Geocoder), cached
+by the query string so the same area name reused across many listings
+costs one real geocode request total. This portal's search also isn't
+apartments-only (it's "all sales in Sofia"), so each listing's category
+is classified from its title too, for the frontend's same-category
+radius-average feature.
 """
 
 import re
@@ -36,6 +49,8 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+
+from geo_utils import Geocoder, classify_category
 
 SEARCH_URL = "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya"
 BASE_URL = "https://www.imot.bg"
@@ -75,7 +90,7 @@ def smallest_container_with_price(link_tag, max_levels=8):
     return None
 
 
-def parse_listings_page(html, seen):
+def parse_listings_page(html, seen, geocoder):
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
@@ -136,6 +151,7 @@ def parse_listings_page(html, seen):
         href = a["href"]
         full_url = "https:" + href if href.startswith("//") else (BASE_URL + href if href.startswith("/") else href)
         title = f"{lines[0]}, {area}" if lines else area
+        coords = geocoder.geocode(f"{area}, София, България")
 
         seen[listing_id] = {
             "id": "imot_" + listing_id,
@@ -146,6 +162,9 @@ def parse_listings_page(html, seen):
             "area": area,
             "title": title[:150],
             "portal": "imot.bg",
+            "lat": coords["lat"] if coords else None,
+            "lng": coords["lng"] if coords else None,
+            "category": classify_category(lines[0] if lines else title),
         }
     return len(matching_links)
 
@@ -165,6 +184,7 @@ def goto_with_retries(page, url):
 
 def fetch_listings():
     seen = {}
+    geocoder = Geocoder()
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
@@ -177,12 +197,13 @@ def fetch_listings():
                 break
             print(f"DEBUG: page {page_num} fetched HTML length = {len(html)}")
 
-            link_count = parse_listings_page(html, seen)
+            link_count = parse_listings_page(html, seen, geocoder)
             print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
             if link_count == 0:
                 break
 
         browser.close()
+    geocoder.save()
     return list(seen.values())
 
 

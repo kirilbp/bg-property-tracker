@@ -33,6 +33,19 @@ reached the last page - and, since scrape.yml runs all 5 scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
+
+imoti.bg genuinely carries no coordinates anywhere in its own pages -
+confirmed by a real headless browser (cookie consent handled, WebGL
+software rendering enabled, navigator.webdriver patched away) finding no
+map DOM node, no live google.maps.Map object, and no maps iframe on a
+real listing, plus a plain static-HTML fetch turning up nothing either.
+So each listing's real area name (line 2's "София, <area>") is geocoded
+via OpenStreetMap Nominatim instead (geo_utils.Geocoder), cached by the
+query string so the same area name reused across many listings costs one
+real geocode request total. A category is attached too (always
+"apartment" here, since this scraper is already apartments-only via
+APARTMENT_SLUGS) for consistency with the other portals feeding the
+frontend's same-category radius-average feature.
 """
 
 import re
@@ -44,6 +57,8 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import Geocoder, classify_category
 
 BASE_URL = "https://imoti.bg"
 SEARCH_URL = "https://imoti.bg/продажби/di:софия/cu:BGN"
@@ -110,7 +125,7 @@ def smallest_container_with_price(link_tag, max_levels=9):
     return best
 
 
-def fetch_listings_page(url):
+def fetch_listings_page(url, geocoder):
     html = fetch_html(url)
     if html is None:
         return None
@@ -170,6 +185,8 @@ def fetch_listings_page(url):
         href = a["href"]
         full_url = href if href.startswith("http") else urljoin(BASE_URL, href)
         title = lines[1] if len(lines) > 1 else area
+        full_title = f"{title}, {area}"[:150]
+        coords = geocoder.geocode(f"{area}, София, България")
 
         listings[listing_id] = {
             "id": "imotibg_" + listing_id,
@@ -178,20 +195,25 @@ def fetch_listings_page(url):
             "price_eur": price_eur,
             "sqm": sqm,
             "area": area,
-            "title": f"{title}, {area}"[:150],
+            "title": full_title,
             "portal": "imoti.bg",
+            "lat": coords["lat"] if coords else None,
+            "lng": coords["lng"] if coords else None,
+            "category": classify_category(full_title),
         }
     return listings
 
 
 def fetch_listings():
     all_listings = {}
+    geocoder = Geocoder()
     for page in range(1, MAX_PAGES + 1):
         url = SEARCH_URL if page == 1 else f"{SEARCH_URL}/page:{page}"
-        page_listings = fetch_listings_page(url)
+        page_listings = fetch_listings_page(url, geocoder)
         if not page_listings:
             break
         all_listings.update(page_listings)
+    geocoder.save()
     return list(all_listings.values())
 
 

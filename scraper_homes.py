@@ -35,6 +35,14 @@ days, which is worse than not using it at all - it would mask exactly
 the stagnant, long-listed properties this tool exists to surface. So
 days_on_market here stays purely tracking-based (time since we first
 scraped the listing), same as before.
+
+homes.bg carries no coordinates anywhere on its own pages, but every
+offer's real neighborhood name (the "area" field) is genuinely geocodable
+- resolved here via OpenStreetMap Nominatim (geo_utils.Geocoder), cached
+by the query string on disk so the same neighborhood name reused across
+thousands of listings costs one real geocode request total, not one per
+listing. A keyword-based property category is attached too, for the
+frontend's same-category radius-average feature.
 """
 
 import json
@@ -44,6 +52,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+
+from geo_utils import Geocoder, classify_category
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
@@ -91,6 +101,7 @@ def fetch_with_retries(session, url):
 def fetch_listings():
     session = requests.Session()
     seen = {}
+    geocoder = Geocoder()
 
     for page in range(1, PAGES_TO_FETCH + 1):
         url = BASE_URL + ("/" if page == 1 else f"/?page={page}")
@@ -127,6 +138,10 @@ def fetch_listings():
             if not photos and photo_url:
                 photos = [photo_url]
 
+            area = extract_area(offer.get("location", ""))
+            title = f"{offer.get('title', '')}, {offer.get('location', '')}".strip(", ")
+            coords = geocoder.geocode(f"{area}, София, България")
+
             seen[listing_id] = {
                 "id": listing_id,
                 "url": BASE_URL + offer["viewHref"],
@@ -135,14 +150,18 @@ def fetch_listings():
                 "description": offer.get("description") or None,
                 "price_eur": parse_price_eur(offer["price"]),
                 "sqm": sqm,
-                "area": extract_area(offer.get("location", "")),
-                "title": f"{offer.get('title', '')}, {offer.get('location', '')}".strip(", "),
+                "area": area,
+                "title": title,
                 "portal": "homes.bg",
+                "lat": coords["lat"] if coords else None,
+                "lng": coords["lng"] if coords else None,
+                "category": classify_category(title),
             }
 
         if not offers.get("hasMoreItems"):
             break
 
+    geocoder.save()
     return list(seen.values())
 
 

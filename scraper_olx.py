@@ -36,6 +36,16 @@ kept). Now parsed into a real date, so days_on_market/motivation score are
 computed from that instead of purely from when we first scraped the
 listing - otherwise a listing that's actually been up for months shows as
 "0 days on market" just because we only just started tracking it.
+
+olx.bg carries no coordinates anywhere on its own pages, but every
+listing's real neighborhood name (line 2's area, before the " - ") is
+genuinely geocodable - resolved here via OpenStreetMap Nominatim
+(geo_utils.Geocoder), cached by the query string on disk so the same
+neighborhood name reused across many listings costs one real geocode
+request total. This portal's search also isn't apartments-only (it's
+"all real estate for sale"), so each listing's category
+(apartment/house/land/commercial) is classified from its title too, for
+the frontend's same-category radius-average feature.
 """
 
 import re
@@ -46,6 +56,8 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+
+from geo_utils import Geocoder, classify_category
 
 SEARCH_URL = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi/oblast-sofiya-grad/"
 BASE_URL = "https://www.olx.bg"
@@ -144,7 +156,7 @@ def fetch_html_with_retries(page, url):
     return None
 
 
-def fetch_listings_page(page, url, seen):
+def fetch_listings_page(page, url, seen, geocoder):
     html = fetch_html_with_retries(page, url)
     if html is None:
         return None
@@ -206,6 +218,7 @@ def fetch_listings_page(page, url, seen):
         href = a["href"]
         full_url = href if href.startswith("http") else BASE_URL + href
         title = f"{lines[0]}, {area}" if lines else area
+        coords = geocoder.geocode(f"{area}, София, България")
 
         seen[listing_id] = {
             "id": "olx_" + listing_id,
@@ -217,12 +230,16 @@ def fetch_listings_page(page, url, seen):
             "title": title[:150],
             "portal": "olx.bg",
             "site_updated_at": site_updated_at,
+            "lat": coords["lat"] if coords else None,
+            "lng": coords["lng"] if coords else None,
+            "category": classify_category(lines[0] if lines else title),
         }
     return len(matching_links)
 
 
 def fetch_listings():
     seen = {}
+    geocoder = Geocoder()
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
@@ -230,12 +247,13 @@ def fetch_listings():
 
         for page_num in range(1, MAX_PAGES + 1):
             url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
-            link_count = fetch_listings_page(page, url, seen)
+            link_count = fetch_listings_page(page, url, seen, geocoder)
             print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
             if not link_count:
                 break
 
         browser.close()
+    geocoder.save()
     return list(seen.values())
 
 
