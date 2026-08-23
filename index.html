@@ -107,6 +107,7 @@
   .registry-link:hover { color: #0ea5e9; }
   .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
   #chart-wrap { height: 320px; }
+  #homeChartWrap { height: 220px; margin: 4px 0 20px; }
 
   /* Home page */
   .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
@@ -228,6 +229,7 @@
         <div class="card">
           <h2>Listings by source</h2>
           <p class="card-sub">All 7 portals are scraped automatically and de-duplicated into one list.</p>
+          <div id="homeChartWrap"><canvas id="homeChart"></canvas></div>
           <div class="portal-list" id="portalList"></div>
         </div>
         <div class="card">
@@ -385,6 +387,7 @@ let MERGED_LISTINGS = [];
 let PORTAL_COUNTS = {};
 let chart = null;
 let chartInitialized = false;
+let homeChart = null;
 let currentPage = 1;
 let detailSourceIndex = 0;
 let detailChart = null;
@@ -771,6 +774,33 @@ function renderHome() {
       <span class="portal-count">${fmt(count)}</span>
     </div>
   `).join('');
+
+  renderHomeChart();
+}
+
+function renderHomeChart() {
+  const ctx = document.getElementById('homeChart');
+  if (!ctx || typeof Chart === 'undefined') return;
+  const entries = Object.entries(PORTAL_COUNTS);
+  if (homeChart) homeChart.destroy();
+  homeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: entries.map(([portal]) => portal),
+      datasets: [{
+        label: 'Listings',
+        data: entries.map(([, count]) => count),
+        backgroundColor: '#2563eb',
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => fmt(v) } } }
+    }
+  });
 }
 
 function renderDashboard() {
