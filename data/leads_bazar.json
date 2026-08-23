@@ -49815,5 +49815,53 @@
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54451408",
+    "url": "https://bazar.bg/obiava-54451408/prodava-3-staen-gr-sofiia-krasno-selo",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/191/big1/1c177815313748191_E6.jpg",
+    "price_eur": 472000,
+    "sqm": null,
+    "area": "Красно село",
+    "title": "Продава 3-СТАЕН, гр. София, Красно село",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T11:05:28.897800+00:00",
+        "price_eur": 472000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bazar_54451320",
+    "url": "https://bazar.bg/obiava-54451320/prodava-3-staen-gr-sofiia-krasno-selo",
+    "photo": "https://imotstatic2.focus.bg/imot/photosimotbg/1/580/big1/1c177815294110580_hV.jpg",
+    "price_eur": 435600,
+    "sqm": null,
+    "area": "Красно село",
+    "title": "Продава 3-СТАЕН, гр. София, Красно село",
+    "portal": "bazar.bg",
+    "category": "apartment",
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-08-23T11:05:28.897800+00:00",
+        "price_eur": 435600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
   }
 ]

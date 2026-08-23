@@ -56,8 +56,8 @@
     "drop_pct": 2.3,
     "days_on_market": 0,
     "score": 6,
-    "area_avg_price_per_sqm": 2591,
-    "pct_vs_area_avg": 11.3
+    "area_avg_price_per_sqm": 2522,
+    "pct_vs_area_avg": 14.4
   },
   {
     "id": "imot_1b178506444161565",
@@ -16389,8 +16389,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2591,
-    "pct_vs_area_avg": -3.8
+    "area_avg_price_per_sqm": 2522,
+    "pct_vs_area_avg": -1.2
   },
   {
     "id": "imot_1b178653453336393",
@@ -16415,8 +16415,8 @@
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
-    "area_avg_price_per_sqm": 2591,
-    "pct_vs_area_avg": -7.5
+    "area_avg_price_per_sqm": 2522,
+    "pct_vs_area_avg": -5.0
   },
   {
     "id": "imot_1b178525641499161",
@@ -26513,5 +26513,31 @@
     "score": 0,
     "area_avg_price_per_sqm": 2678,
     "pct_vs_area_avg": 10.4
+  },
+  {
+    "id": "imot_1b177945771549028",
+    "url": "https://www.imot.bg/obiava-1b177945771549028-prodava-dvustaen-apartament-grad-sofiya-sveta-troitsa-ul-varna",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/028/1c177945771549028_wP.jpg",
+    "price_eur": 169000,
+    "sqm": 73,
+    "area": "Света Троица",
+    "title": "Продава 2-СТАЕН, Света Троица",
+    "portal": "imot.bg",
+    "lat": 42.6697109,
+    "lng": 23.3128131,
+    "category": "apartment",
+    "price_per_sqm": 2315,
+    "price_history": [
+      {
+        "date": "2026-08-23T10:15:45.554778+00:00",
+        "price_eur": 169000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "area_avg_price_per_sqm": 2522,
+    "pct_vs_area_avg": -8.2
   }
 ]
