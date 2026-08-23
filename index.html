@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BG Property Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -182,6 +184,8 @@
   .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
   .radius-result .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
   .radius-result .value { font-size: 15px; font-weight: 700; margin: 0; }
+  .radius-map { height: 260px; border-radius: 8px; margin-top: 10px; z-index: 0; }
+  .radius-map .leaflet-popup-content { font-size: 13px; }
 </style>
 </head>
 <body>
@@ -376,6 +380,7 @@ let detailSourceIndex = 0;
 let detailChart = null;
 let detailActiveTab = 'details';
 let detailRadiusM = null;
+let detailMap = null;
 
 // --- Same-category radius average --------------------------------------------
 // Haversine great-circle distance in km between two lat/lng points.
@@ -389,31 +394,97 @@ function haversineKm(lat1, lng1, lat2, lng2) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-// Computed on demand (only when a user opens a listing and clicks a radius
-// button), scanning every source of every merged listing once - a few
-// thousand Haversine comparisons, trivial cost for a single click.
-function computeRadiusAverage(l, radiusM) {
-  if (l.lat == null || l.lng == null) return { noLocation: true };
+// Same-category listings within radiusM of l, excluding l itself. Computed
+// on demand (only when a user opens a listing and clicks a radius button),
+// scanning every source of every merged listing once - a few thousand
+// Haversine comparisons, trivial cost for a single click. Shared by the
+// stats panel and the map markers so both always agree on the same set.
+function findComparables(l, radiusM) {
+  if (l.lat == null || l.lng == null) return [];
   const category = l.category || 'apartment';
   const radiusKm = radiusM / 1000;
-  const prices = [];
-  const pricesPerSqm = [];
+  const out = [];
   MERGED_LISTINGS.forEach(m => {
     m.sources.forEach(s => {
       if (s.id === l.id) return;
       if (s.lat == null || s.lng == null) return;
       if ((s.category || 'apartment') !== category) return;
       if (haversineKm(l.lat, l.lng, s.lat, s.lng) > radiusKm) return;
-      if (s.price_eur) prices.push(s.price_eur);
-      if (s.price_per_sqm) pricesPerSqm.push(s.price_per_sqm);
+      out.push(s);
     });
   });
+  return out;
+}
+
+function computeRadiusAverage(l, radiusM) {
+  if (l.lat == null || l.lng == null) return { noLocation: true };
+  const comparables = findComparables(l, radiusM);
+  const prices = comparables.filter(s => s.price_eur).map(s => s.price_eur);
+  const pricesPerSqm = comparables.filter(s => s.price_per_sqm).map(s => s.price_per_sqm);
   if (prices.length === 0) return { count: 0 };
   const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
   const avgPerSqm = pricesPerSqm.length
     ? Math.round(pricesPerSqm.reduce((a, b) => a + b, 0) / pricesPerSqm.length)
     : null;
   return { count: prices.length, avgPrice, avgPerSqm };
+}
+
+// Tears down any previous Leaflet instance (its container div gets replaced
+// wholesale via innerHTML on every re-render, which would otherwise leak
+// map instances and throw "container is already initialized") and, if this
+// listing has real coordinates, draws a fresh map centered on it with a
+// pin per comparable found in the currently selected radius, plus the
+// radius circle itself so the distance is visible, not just the number.
+function updateRadiusMap(l) {
+  if (detailMap) {
+    detailMap.remove();
+    detailMap = null;
+  }
+  const container = document.getElementById('radiusMap');
+  if (!container || l.lat == null || l.lng == null) return;
+  if (typeof L === 'undefined') {
+    // Leaflet failed to load from its CDN (offline, blocked, CDN outage) -
+    // leave the map area empty rather than throwing, since an uncaught
+    // error here would otherwise abort the rest of renderListingDetail
+    // (event listeners for the tabs/source-switcher/radius buttons below
+    // this call included).
+    container.textContent = 'Map unavailable (couldn\'t load the map library).';
+    return;
+  }
+
+  detailMap = L.map(container, { scrollWheelZoom: false }).setView([l.lat, l.lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(detailMap);
+
+  const subjectMarker = L.marker([l.lat, l.lng]).addTo(detailMap).bindPopup('This listing');
+
+  if (detailRadiusM) {
+    const circle = L.circle([l.lat, l.lng], {
+      radius: detailRadiusM,
+      color: '#2563eb',
+      fillColor: '#2563eb',
+      fillOpacity: 0.08,
+      weight: 2,
+    }).addTo(detailMap);
+
+    findComparables(l, detailRadiusM).slice(0, 300).forEach(s => {
+      L.circleMarker([s.lat, s.lng], {
+        radius: 6,
+        color: '#dc2626',
+        fillColor: '#dc2626',
+        fillOpacity: 0.7,
+        weight: 1,
+      }).addTo(detailMap).bindPopup(
+        `${escapeHtml(s.title || s.portal)}<br>€${fmt(s.price_eur)}${s.price_per_sqm ? ' · €' + fmt(s.price_per_sqm) + '/m²' : ''}`
+      );
+    });
+
+    detailMap.fitBounds(circle.getBounds(), { padding: [16, 16] });
+  } else {
+    subjectMarker.openPopup();
+  }
 }
 
 function renderRadiusPanel(l) {
@@ -441,6 +512,8 @@ function renderRadiusPanel(l) {
     }
   }
 
+  const mapHtml = (l.lat != null && l.lng != null) ? `<div id="radiusMap" class="radius-map"></div>` : '';
+
   return `
     <div class="radius-panel">
       <div class="radius-panel-header">
@@ -448,6 +521,7 @@ function renderRadiusPanel(l) {
         <div class="radius-btn-row">${buttons}</div>
       </div>
       ${resultHtml}
+      ${mapHtml}
     </div>
   `;
 }
@@ -984,6 +1058,8 @@ function renderListingDetail(merged) {
     detailChart.destroy();
     detailChart = null;
   }
+
+  updateRadiusMap(l);
 }
 
 function showListingDetail(id) {
