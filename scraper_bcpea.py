@@ -101,6 +101,19 @@ MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 REQUEST_DELAY_SECONDS = 1.0
 
+# Confirmed live (via debug_html_snippet): every request past the first in a
+# session gets a bot-challenge interstitial instead of the real page - title
+# "Един момент..." ("One moment..."), body text explicitly says this is a
+# security service's automated check and "this page is shown while the
+# website verifies [you]". That phrasing describes a self-clearing
+# Cloudflare-style JS challenge, not a hard block or a CAPTCHA - Playwright's
+# Chromium executes real JS, so waiting the challenge out (rather than
+# giving up after a fixed 500ms) is a real fix for this specific pattern,
+# not a blind guess.
+CHALLENGE_TITLE_MARKERS = ("един момент", "just a moment", "checking your browser")
+CHALLENGE_POLL_ATTEMPTS = 6
+CHALLENGE_POLL_INTERVAL_MS = 1500
+
 LISTING_ID_RE = re.compile(r"/properties/(\d+)")
 PRICE_RE = re.compile(r"([\d][\d\s\xa0]*(?:[.,]\d{1,2})?)\s*(EUR|лв\.?)", re.IGNORECASE)
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
@@ -152,11 +165,25 @@ def clean_settlement(text):
     return re.sub(r"^(гр\.|с\.)\s*", "", (text or "").strip()) or None
 
 
+def is_challenge_title(title):
+    title = (title or "").lower()
+    return any(marker in title for marker in CHALLENGE_TITLE_MARKERS)
+
+
 def fetch_html(page, url):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(500)
+            if is_challenge_title(page.title()):
+                for _ in range(CHALLENGE_POLL_ATTEMPTS):
+                    page.wait_for_timeout(CHALLENGE_POLL_INTERVAL_MS)
+                    if not is_challenge_title(page.title()):
+                        print(f"DEBUG: challenge cleared for {url}", flush=True)
+                        break
+                else:
+                    print(f"DEBUG: challenge did not clear for {url} after "
+                          f"{CHALLENGE_POLL_ATTEMPTS * CHALLENGE_POLL_INTERVAL_MS / 1000:.0f}s", flush=True)
             return page.content()
         except Exception as e:
             print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}", flush=True)
