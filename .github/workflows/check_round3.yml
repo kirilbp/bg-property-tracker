@@ -1,0 +1,19 @@
+name: Check Round 3 imot.bg imoti.bg class selectors
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Run check
+        run: python check_round3.py
