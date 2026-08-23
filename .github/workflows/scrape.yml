@@ -9,6 +9,17 @@ on:
     - cron: "0 */6 * * *"
   workflow_dispatch:
 
+# A manual workflow_dispatch run overlapping the scheduled run raced to push
+# to the same data/*.json files - the loser's "git pull --rebase" hit real
+# content conflicts (both runs touch the same history files) and its entire
+# push was lost, discarding every scraper's update for that run, not just
+# whichever one happened to conflict. Queues instead of running two scrapes
+# in parallel; cancel-in-progress stays false so a scrape already underway
+# finishes rather than being killed mid-run and wasting the work done so far.
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -35,14 +46,15 @@ jobs:
 
       - run: python scraper_imoti_bg.py
 
-      # sales.bcpea.org was never reachable from the sandbox this scraper was
-      # developed in (network egress policy blocked the domain outright), so
-      # unlike every other scraper here it was written from two saved HTML
-      # pages rather than verified against the live site before merging.
-      # continue-on-error so a crash on unexpected live markup can't block
-      # the git-commit step below and silently discard every other
-      # scraper's successful update for this run too - remove once a few
-      # scheduled runs confirm it's stable.
+      # A first live run confirmed sales.bcpea.org bot-blocks plain HTTP
+      # requests (403), since fixed by switching to a real headless browser
+      # (Playwright/Chromium, already installed above for scraper_imot.py -
+      # same fix already proven on other portals). That fix itself is still
+      # unverified against the live site (this sandbox has no network access
+      # to sales.bcpea.org at all), so continue-on-error stays on for now so
+      # a further live surprise can't block the git-commit step below and
+      # discard every other scraper's successful update for this run too -
+      # remove once a scheduled run confirms real listings are coming back.
       - run: python scraper_bcpea.py
         continue-on-error: true
 

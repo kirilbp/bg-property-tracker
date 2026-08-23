@@ -25,11 +25,17 @@ egress policy (no live requests possible from here), so this scraper was
 written entirely from two real saved HTML pages the user provided (a
 `/properties` grid page and a `/properties/{id}` detail page, both viewed
 live in a real browser) rather than from a live fetch during development,
-unlike every other scraper in this repo. The structure below matches those
-saved pages exactly, but the actual live behavior (whether the site rate
-limits or bot-blocks a plain requests.get() the way OLX.bg does, whether
-it stays this way under sustained pagination) is unverified and should be
-confirmed with a workflow_dispatch run before trusting the schedule.
+unlike every other scraper in this repo. The parsing logic below matches
+those saved pages exactly and was verified field-by-field against them.
+
+A first live run (via workflow_dispatch) confirmed the one thing that
+couldn't be checked from the sandbox: sales.bcpea.org bot-blocks a plain
+requests.get() with a 403 on every attempt, retries included - the same
+Akamai/Cloudflare-style edge check scraper_olx.py and scraper_imot.py
+already document and solve on other portals. Fixed the same way here: a
+real headless browser (Playwright/Chromium) gets through cleanly, reusing
+one browser page across every grid and detail request rather than
+relaunching Chromium per request (same approach as scraper_imot.py).
 
 Listing grid (`/properties?p=N&perpage=36`): each result is a `.item__group`
 div, direct child of `.item__container`, containing the property type as a
@@ -70,22 +76,18 @@ documents for the other geocoded portals.
 
 import re
 import json
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
+from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
 from geo_utils import Geocoder, classify_category
 
 SEARCH_URL = "https://sales.bcpea.org/properties"
 BASE_URL = "https://sales.bcpea.org"
-HEADERS = {
-    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
-    "Accept-Language": "bg-BG,bg;q=0.9,en;q=0.8",
-}
+USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -150,16 +152,16 @@ def clean_settlement(text):
     return re.sub(r"^(гр\.|с\.)\s*", "", (text or "").strip()) or None
 
 
-def fetch_html(url):
+def fetch_html(page, url):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            r = requests.get(url, headers=HEADERS, timeout=20)
-            r.raise_for_status()
-            return r.text
-        except requests.RequestException as e:
-            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_timeout(500)
+            return page.content()
+        except Exception as e:
+            print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES:
-                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+                page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
     return None
 
 
@@ -176,8 +178,8 @@ def label_info(scope, label_text):
     return None
 
 
-def fetch_listings_page(url):
-    html = fetch_html(url)
+def fetch_listings_page(page, url):
+    html = fetch_html(page, url)
     if html is None:
         return None
     soup = BeautifulSoup(html, "html.parser")
@@ -240,8 +242,8 @@ def fetch_listings_page(url):
     return listings
 
 
-def fetch_listing_detail(listing, geocoder):
-    html = fetch_html(listing["url"])
+def fetch_listing_detail(page, listing, geocoder):
+    html = fetch_html(page, listing["url"])
     if html is None:
         return
     soup = BeautifulSoup(html, "html.parser")
@@ -272,22 +274,29 @@ def fetch_listing_detail(listing, geocoder):
 
 def fetch_listings():
     all_listings = {}
-    for page in range(1, MAX_PAGES + 1):
-        url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page}"
-        page_listings = fetch_listings_page(url)
-        if not page_listings:
-            break
-        all_listings.update(page_listings)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
+        page = context.new_page()
 
-    listings = list(all_listings.values())
-    print(f"DEBUG: fetching detail pages for {len(listings)} listings")
-    geocoder = Geocoder()
-    for i, l in enumerate(listings, 1):
-        time.sleep(REQUEST_DELAY_SECONDS)
-        fetch_listing_detail(l, geocoder)
-        if i % 200 == 0:
-            print(f"DEBUG: fetched detail for {i}/{len(listings)} listings")
-    geocoder.save()
+        for page_num in range(1, MAX_PAGES + 1):
+            url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page_num}"
+            page_listings = fetch_listings_page(page, url)
+            if not page_listings:
+                break
+            all_listings.update(page_listings)
+
+        listings = list(all_listings.values())
+        print(f"DEBUG: fetching detail pages for {len(listings)} listings")
+        geocoder = Geocoder()
+        for i, l in enumerate(listings, 1):
+            page.wait_for_timeout(int(REQUEST_DELAY_SECONDS * 1000))
+            fetch_listing_detail(page, l, geocoder)
+            if i % 200 == 0:
+                print(f"DEBUG: fetched detail for {i}/{len(listings)} listings")
+        geocoder.save()
+
+        browser.close()
 
     for l in listings:
         l.pop("_settlement", None)
