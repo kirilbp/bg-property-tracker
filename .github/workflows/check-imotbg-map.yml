@@ -11,4 +11,4 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install playwright && playwright install --with-deps chromium
-      - run: python check_imotbg_map2.py
+      - run: python check_imotbg_map3.py
