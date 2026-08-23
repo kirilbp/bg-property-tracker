@@ -321,7 +321,7 @@
         <div class="stat-row" id="homeStats"></div>
         <div class="card">
           <h2>Listings by source</h2>
-          <p class="card-sub">All 7 portals are scraped automatically and de-duplicated into one list.</p>
+          <p class="card-sub">All 8 portals are scraped automatically and de-duplicated into one list.</p>
           <div id="homeChartWrap"><canvas id="homeChart"></canvas></div>
           <div class="portal-list" id="portalList"></div>
         </div>
@@ -435,11 +435,11 @@
         <div class="card">
           <div class="help-section">
             <h3>What is this?</h3>
-            <p>BG Property Tracker scrapes apartment-for-sale listings across Sofia from 7 portals, tracks each listing's price history over time, and surfaces the ones most likely to be a motivated-seller deal.</p>
+            <p>BG Property Tracker scrapes apartment-for-sale listings across Sofia from 7 portals plus nationwide court-ordered property auctions, tracks each listing's price history over time, and surfaces the ones most likely to be a motivated-seller deal.</p>
           </div>
           <div class="help-section">
             <h3>Sources</h3>
-            <p>imoti.net, alo.bg, homes.bg, imot.bg, olx.bg, bazar.bg, imoti.bg. imoti.net and alo.bg refresh every 24 hours (they're large sites with 300+ pages each); the other 5 refresh every 6 hours.</p>
+            <p>imoti.net, alo.bg, homes.bg, imot.bg, olx.bg, bazar.bg, imoti.bg, sales.bcpea.org. imoti.net and alo.bg refresh every 24 hours (they're large sites with 300+ pages each); the other 6 refresh every 6 hours. sales.bcpea.org lists public property auctions ("публични продани") run by court-appointed enforcement agents nationwide - its price is a legal minimum starting bid, not a negotiable asking price.</p>
           </div>
           <div class="help-section">
             <h3>Motivation score</h3>
@@ -911,7 +911,7 @@ function setGreeting() {
 
 async function loadData() {
   try {
-    const [imotiRes, aloRes, homesRes, imotBgRes, olxRes, bazarRes, imotibgRes] = await Promise.all([
+    const [imotiRes, aloRes, homesRes, imotBgRes, olxRes, bazarRes, imotibgRes, bcpeaRes] = await Promise.all([
       fetch('data/leads.json?_=' + Date.now()),
       fetch('data/leads_alo.json?_=' + Date.now()),
       fetch('data/leads_homes.json?_=' + Date.now()),
@@ -919,6 +919,7 @@ async function loadData() {
       fetch('data/leads_olx.json?_=' + Date.now()),
       fetch('data/leads_bazar.json?_=' + Date.now()),
       fetch('data/leads_imoti_bg.json?_=' + Date.now()),
+      fetch('data/leads_bcpea.json?_=' + Date.now()),
     ]);
     const imoti = await imotiRes.json();
     const alo = await aloRes.json();
@@ -927,10 +928,11 @@ async function loadData() {
     const olx = await olxRes.json();
     const bazar = await bazarRes.json();
     const imotibg = await imotibgRes.json();
+    const bcpea = await bcpeaRes.json();
 
     imoti.forEach(l => { if (!l.portal) l.portal = 'imoti.net'; });
 
-    ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar, ...imotibg];
+    ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar, ...imotibg, ...bcpea];
     ALL_LISTINGS.forEach(l => {
       l.unverified = l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined &&
         Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
@@ -938,13 +940,14 @@ async function loadData() {
     PORTAL_COUNTS = {
       'imoti.net': imoti.length, 'alo.bg': alo.length, 'homes.bg': homes.length,
       'imot.bg': imotBg.length, 'olx.bg': olx.length, 'bazar.bg': bazar.length, 'imoti.bg': imotibg.length,
+      'sales.bcpea.org': bcpea.length,
     };
     MERGED_LISTINGS = groupListings(ALL_LISTINGS);
     const duplicatesMerged = ALL_LISTINGS.length - MERGED_LISTINGS.length;
     document.getElementById('subtitle').textContent =
       `${fmt(MERGED_LISTINGS.length)} unique listings` +
       (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
-      ` (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg) · auto-updates every 6 hours`;
+      ` (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg, ${bcpea.length} sales.bcpea.org) · auto-updates every 6 hours`;
     populateAreaFilter();
     populateLeadGenNeighborhoods();
     renderHome();
