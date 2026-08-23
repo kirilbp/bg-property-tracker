@@ -24,7 +24,13 @@ with sync_playwright() as p:
 
     print(f"Navigating to {URL}")
     page.goto(URL, wait_until="domcontentloaded", timeout=30000)
-    page.wait_for_timeout(4000)
+    page.wait_for_timeout(2000)
+
+    for _ in range(20):
+        page.mouse.wheel(0, 800)
+        page.wait_for_timeout(400)
+
+    page.wait_for_timeout(3000)
     try:
         page.wait_for_load_state("networkidle", timeout=8000)
     except Exception:
