@@ -77,6 +77,12 @@
   .listing { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
   .listing:hover { border-color: #94a3b8; }
   .listing img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #e2e8f0; display: block; }
+  .listing-photo-placeholder {
+    width: 100%; aspect-ratio: 4/3; background: #e2e8f0; color: #94a3b8;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; font-size: 12px;
+  }
+  .listing-photo-placeholder .icon { font-size: 22px; }
   .listing-body { padding: 12px; }
   .listing-link { cursor: pointer; text-decoration: none; color: inherit; display: block; }
   .listing-title { font-weight: 600; font-size: 14px; margin: 0 0 4px; }
@@ -829,6 +835,13 @@ function buildBadgesHtml(l) {
   return badges;
 }
 
+function handlePhotoError(img) {
+  const placeholder = document.createElement('div');
+  placeholder.className = 'listing-photo-placeholder';
+  placeholder.innerHTML = '<span class="icon">🖼️</span><span>No photo available</span>';
+  img.replaceWith(placeholder);
+}
+
 function createListingCard(l) {
   const card = document.createElement('div');
   card.className = 'listing';
@@ -839,9 +852,14 @@ function createListingCard(l) {
     });
   }
 
+  const photoPlaceholderHtml = '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo available</span></div>';
+  const photoHtml = l.photo
+    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
+    : photoPlaceholderHtml;
+
   card.innerHTML = `
     <div class="listing-link" data-listing-id="${l.id}">
-      <img src="${l.photo || ''}" alt="${l.title}" loading="lazy" onerror="this.style.display='none'" />
+      ${photoHtml}
       <div class="listing-body">
         <div class="badges">${badges}</div>
         <p class="listing-title">${l.title}</p>
