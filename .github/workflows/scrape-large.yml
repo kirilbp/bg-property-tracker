@@ -1,7 +1,11 @@
-# scraper.py (imoti.net) and scraper_alo.py (alo.bg) each cover ~10,000
-# listings across 300+ paginated requests - a full run of either takes
-# several minutes, so they run here on their own 24h schedule instead of
-# in the main 6-hourly scrape.yml.
+# scraper.py (imoti.net) and scraper_alo.py (alo.bg) each cover thousands
+# of listings across 300+ paginated requests, so they run here on their
+# own 24h schedule instead of in the main 6-hourly scrape.yml. Both also
+# now visit every tracked listing's own page once per run to read a real
+# posted/updated date for days-on-market - for imoti.net (~6000 listings)
+# that alone adds ~2+ hours, so a full run here is a couple of hours, not
+# minutes. Still comfortably inside GitHub Actions' default 6h job limit
+# (no timeout-minutes is set below), but not "several minutes" anymore.
 name: Scrape large property listing sites
 
 on:

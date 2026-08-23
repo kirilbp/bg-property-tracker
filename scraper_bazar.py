@@ -32,6 +32,16 @@ transient failure doesn't get mistaken for having reached the last page -
 and, since scrape.yml runs all 5 scrapers sequentially with a single git
 commit step at the end, an uncaught exception here would otherwise
 silently discard every other scraper's output for that run too.
+
+Real coordinates live only on each listing's own detail page, as
+data-lat/data-long attributes on its #see_on_map element (confirmed live
+via a plain, non-JS HTTP fetch - no headless browser needed). Getting
+them means visiting every tracked listing's own page once per scrape, on
+top of the grid crawl - a real added cost (~1 extra request per listing,
+~1s apart) accepted deliberately so the radius-average feature has real
+per-listing coordinates instead of none at all for this portal. A
+detail-page fetch that fails just leaves that one listing without
+coordinates for this run rather than aborting the whole scrape.
 """
 
 import re
@@ -42,6 +52,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import classify_category, extract_coords_bazar
 
 SEARCH_URL = "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia"
 BASE_URL = "https://bazar.bg"
@@ -61,6 +73,7 @@ MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 60
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+REQUEST_DELAY_SECONDS = 1.0
 
 LISTING_LINK_RE = re.compile(r"obiava-(\d+)")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -164,6 +177,28 @@ def fetch_listings_page(url):
     return listings
 
 
+def fetch_listing_coords(listings):
+    # bazar.bg's grid pages carry no coordinates, but its detail page
+    # embeds them directly as data-lat/data-long attributes on the
+    # #see_on_map element - confirmed live via a plain (non-JS) HTTP
+    # fetch, so this needs no headless browser, just one extra request
+    # per listing (same cost pattern as scraper.py's/scraper_alo.py's
+    # detail-page fetches).
+    total = len(listings)
+    for i, l in enumerate(listings, 1):
+        time.sleep(REQUEST_DELAY_SECONDS)
+        html = fetch_html(l["url"])
+        if html is None:
+            continue
+        coords = extract_coords_bazar(html)
+        if coords:
+            l["lat"] = coords["lat"]
+            l["lng"] = coords["lng"]
+        l["category"] = classify_category(l.get("title"))
+        if i % 200 == 0:
+            print(f"DEBUG: fetched detail coords for {i}/{total} listings")
+
+
 def fetch_listings():
     all_listings = {}
     for page in range(1, MAX_PAGES + 1):
@@ -172,7 +207,10 @@ def fetch_listings():
         if not page_listings:
             break
         all_listings.update(page_listings)
-    return list(all_listings.values())
+    listings = list(all_listings.values())
+    print(f"DEBUG: fetching detail coords for {len(listings)} listings")
+    fetch_listing_coords(listings)
+    return listings
 
 
 def load_history():
@@ -208,12 +246,26 @@ def compute_leads(history):
         days_on_market = (datetime.now(timezone.utc) - first_seen).days
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
+        price_history = []
+        last_hist_price = None
+        for s in rec["snapshots"]:
+            p = s.get("price_eur")
+            if not p or p == last_hist_price:
+                continue
+            price_history.append({"date": s["seen_at"], "price_eur": p})
+            last_hist_price = p
+        price_drop_count = sum(
+            1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
+        )
+
         latest = rec["latest"]
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)
         entry["price_eur"] = last_price
         entry["price_per_sqm"] = price_per_sqm
+        entry["price_history"] = price_history
+        entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
         entry["score"] = score

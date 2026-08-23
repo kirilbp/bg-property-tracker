@@ -139,6 +139,17 @@
   .detail-thumb.active { border-color: #2563eb; }
   .detail-description { font-size: 14px; color: #334155; line-height: 1.6; margin-top: 16px; white-space: pre-line; }
   .detail-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .detail-tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid #e2e8f0; }
+  .detail-tab-btn {
+    padding: 8px 14px; border: none; background: none; color: #64748b; font-size: 14px;
+    font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .detail-tab-btn:hover { color: #334155; }
+  .detail-tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .detail-tab-content { display: none; padding-top: 16px; }
+  .detail-tab-content.active { display: block; }
+  .price-history-chart-wrap { height: 220px; margin-top: 8px; }
+  .price-history-empty { font-size: 14px; color: #94a3b8; margin: 8px 0 0; }
   .source-link {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
     font-size: 13px; font-weight: 600; color: #475569; background: #f1f5f9;
@@ -154,6 +165,23 @@
   }
   .source-switcher-btn:hover { border-color: #94a3b8; }
   .source-switcher-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .radius-panel {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 12px 14px; margin: 0 0 16px;
+  }
+  .radius-panel-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .radius-panel .label { font-size: 11px; color: #64748b; margin: 0; }
+  .radius-btn-row { display: flex; gap: 6px; }
+  .radius-btn {
+    padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: white;
+    color: #475569; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .radius-btn:hover { border-color: #94a3b8; }
+  .radius-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .radius-hint { font-size: 13px; color: #94a3b8; margin: 10px 0 0; }
+  .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+  .radius-result .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
+  .radius-result .value { font-size: 15px; font-weight: 700; margin: 0; }
 </style>
 </head>
 <body>
@@ -345,6 +373,84 @@ let chart = null;
 let chartInitialized = false;
 let currentPage = 1;
 let detailSourceIndex = 0;
+let detailChart = null;
+let detailActiveTab = 'details';
+let detailRadiusM = null;
+
+// --- Same-category radius average --------------------------------------------
+// Haversine great-circle distance in km between two lat/lng points.
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+// Computed on demand (only when a user opens a listing and clicks a radius
+// button), scanning every source of every merged listing once - a few
+// thousand Haversine comparisons, trivial cost for a single click.
+function computeRadiusAverage(l, radiusM) {
+  if (l.lat == null || l.lng == null) return { noLocation: true };
+  const category = l.category || 'apartment';
+  const radiusKm = radiusM / 1000;
+  const prices = [];
+  const pricesPerSqm = [];
+  MERGED_LISTINGS.forEach(m => {
+    m.sources.forEach(s => {
+      if (s.id === l.id) return;
+      if (s.lat == null || s.lng == null) return;
+      if ((s.category || 'apartment') !== category) return;
+      if (haversineKm(l.lat, l.lng, s.lat, s.lng) > radiusKm) return;
+      if (s.price_eur) prices.push(s.price_eur);
+      if (s.price_per_sqm) pricesPerSqm.push(s.price_per_sqm);
+    });
+  });
+  if (prices.length === 0) return { count: 0 };
+  const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+  const avgPerSqm = pricesPerSqm.length
+    ? Math.round(pricesPerSqm.reduce((a, b) => a + b, 0) / pricesPerSqm.length)
+    : null;
+  return { count: prices.length, avgPrice, avgPerSqm };
+}
+
+function renderRadiusPanel(l) {
+  const buttons = [250, 500, 1500].map(m => `
+    <button class="radius-btn${detailRadiusM === m ? ' active' : ''}" data-radius="${m}">${m}m</button>
+  `).join('');
+
+  let resultHtml;
+  if (detailRadiusM === null) {
+    resultHtml = `<p class="radius-hint">Pick a radius to see the same-category average nearby.</p>`;
+  } else {
+    const r = computeRadiusAverage(l, detailRadiusM);
+    if (r.noLocation) {
+      resultHtml = `<p class="radius-hint">Location data isn't available for this listing yet.</p>`;
+    } else if (r.count === 0) {
+      resultHtml = `<p class="radius-hint">No other ${l.category || 'apartment'} listings with a known location found within ${detailRadiusM}m.</p>`;
+    } else {
+      resultHtml = `
+        <div class="radius-result">
+          <div><p class="label">Avg asking price</p><p class="value">€${fmt(r.avgPrice)}</p></div>
+          <div><p class="label">Avg €/m²</p><p class="value">${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</p></div>
+          <div><p class="label">Comparables</p><p class="value">${r.count} ${l.category || 'apartment'}${r.count === 1 ? '' : 's'}</p></div>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <div class="radius-panel">
+      <div class="radius-panel-header">
+        <p class="label">Same-category avg within radius</p>
+        <div class="radius-btn-row">${buttons}</div>
+      </div>
+      ${resultHtml}
+    </div>
+  `;
+}
 
 // --- Cross-portal duplicate detection ---------------------------------------
 // Each portal is scraped independently with no shared ID between sites, so
@@ -734,12 +840,53 @@ function renderFromStart() {
   render();
 }
 
+function renderPriceHistoryChart(priceHistory) {
+  const ctx = document.getElementById('detailPriceChart');
+  if (!ctx) return;
+  if (detailChart) { detailChart.destroy(); detailChart = null; }
+  detailChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: priceHistory.map(p => new Date(p.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+      datasets: [{
+        label: 'Price',
+        data: priceHistory.map(p => p.price_eur),
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.1)',
+        fill: true,
+        tension: 0.15,
+        pointRadius: 4,
+        pointBackgroundColor: '#2563eb',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => '€' + fmt(c.parsed.y) } }
+      },
+      scales: { y: { ticks: { callback: v => '€' + fmt(v) } } }
+    }
+  });
+}
+
+function switchDetailTab(tab, priceHistory) {
+  detailActiveTab = tab;
+  document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
+  if (tab === 'pricehistory' && priceHistory.length > 1) {
+    renderPriceHistoryChart(priceHistory);
+  }
+}
+
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
   const badges = buildBadgesHtml(l);
-  const hasHistory = Array.isArray(l.price_history) && l.price_history.length > 1;
   const photos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : (l.photo ? [l.photo] : []);
   const mainPhoto = photos[0] || '';
+  const priceHistory = Array.isArray(l.price_history) ? l.price_history : [];
+  const priceDropCount = l.price_drop_count ?? 0;
 
   const thumbsHtml = photos.length > 1 ? `
     <div class="detail-thumbs">
@@ -778,11 +925,27 @@ function renderListingDetail(merged) {
           <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
-        ${hasHistory ? `<p class="listing-area">Price history: ${l.price_history.map(p => '€' + fmt(p)).join(' → ')}</p>` : ''}
-        ${l.description ? `<p class="detail-description">${escapeHtml(l.description)}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
-        <div class="detail-links">
-          <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
-          <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
+        ${renderRadiusPanel(l)}
+        <div class="detail-tabs">
+          <button class="detail-tab-btn${detailActiveTab === 'details' ? ' active' : ''}" data-tab="details">Details</button>
+          <button class="detail-tab-btn${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab="pricehistory">Price History${priceDropCount > 0 ? ` (${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'})` : ''}</button>
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
+          ${l.description ? `<p class="detail-description">${escapeHtml(l.description)}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
+          <div class="detail-links">
+            <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
+            <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
+          </div>
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab-content="pricehistory">
+          <div class="detail-stats" style="margin-top:0;">
+            <div class="detail-stat"><p class="label">Price reductions</p><p class="value">${priceDropCount}</p></div>
+            <div class="detail-stat"><p class="label">First tracked price</p><p class="value">€${fmt(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
+            <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
+          </div>
+          ${priceHistory.length > 1
+            ? `<div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>`
+            : `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing.</p>`}
         </div>
       </div>
     </div>
@@ -802,12 +965,33 @@ function renderListingDetail(merged) {
       window.scrollTo({ top: 0, behavior: 'instant' });
     });
   });
+
+  document.getElementById('listingDetailBody').querySelectorAll('.detail-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, priceHistory));
+  });
+
+  document.getElementById('listingDetailBody').querySelectorAll('.radius-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const radius = parseInt(btn.dataset.radius, 10);
+      detailRadiusM = detailRadiusM === radius ? null : radius;
+      renderListingDetail(merged);
+    });
+  });
+
+  if (detailActiveTab === 'pricehistory' && priceHistory.length > 1) {
+    renderPriceHistoryChart(priceHistory);
+  } else if (detailChart) {
+    detailChart.destroy();
+    detailChart = null;
+  }
 }
 
 function showListingDetail(id) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
   detailSourceIndex = 0;
+  detailActiveTab = 'details';
+  detailRadiusM = null;
   renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');

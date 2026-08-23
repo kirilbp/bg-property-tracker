@@ -25,6 +25,25 @@ end of pagination, so a one-off transient failure (a connect timeout, not
 a real block) doesn't get mistaken for having reached the last page - the
 persistent page-200 block above still stops the run the same way, just
 after retries confirm it isn't transient.
+
+days_on_market: each listing's own page carries a genuine schema.org
+"datePosted" field in its JSON-LD block (e.g. "2026-08-15" - a real date,
+not "today"), confirmed live. Getting it means visiting every tracked
+listing's own page once per scrape, on top of the ~200-page grid crawl -
+a real cost (~6000 extra requests, ~2+ hours added to this portal's 24h
+run) accepted deliberately because "days on market" is otherwise a fake
+number computed from our own tracking start date rather than the
+listing's real age. A detail-page fetch that fails (retries exhausted,
+including the same page-block behavior the grid crawl hits) just leaves
+that one listing without a real date for this run - it falls back to the
+first-seen estimate rather than aborting the whole scrape.
+
+That same detail-page fetch also carries the listing's real coordinates as
+plain "latitude"/"longitude" JSON keys (confirmed live, no JS execution
+needed) - extracted here at no extra request cost via geo_utils, along
+with a keyword-based property category (apartment/house/land/commercial)
+since imoti.net's search isn't apartments-only. Both feed the frontend's
+same-category radius-average feature.
 """
 
 import re
@@ -35,6 +54,8 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import classify_category, extract_coords_imoti_net
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.imoti.net/en/obiavi/r/prodava/sofia"
@@ -56,6 +77,7 @@ LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
 SQM_RE = re.compile(r"(\d+)\s?\u043c\s?2")
 DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
+DATE_POSTED_RE = re.compile(r'"datePosted"\s*:\s*"(\d{4}-\d{2}-\d{2})"')
 
 
 def extract_area(title):
@@ -148,6 +170,30 @@ def fetch_listings_page(url, seen):
     return len(matching_links)
 
 
+def parse_date_posted(html):
+    m = DATE_POSTED_RE.search(html)
+    return m.group(1) if m else None
+
+
+def fetch_listing_dates(seen):
+    total = len(seen)
+    for i, (listing_id, l) in enumerate(seen.items(), 1):
+        time.sleep(REQUEST_DELAY_SECONDS)
+        html = fetch_with_retries(l["url"])
+        if html is None:
+            continue
+        date_posted = parse_date_posted(html)
+        if date_posted:
+            l["site_posted_at"] = date_posted
+        coords = extract_coords_imoti_net(html)
+        if coords:
+            l["lat"] = coords["lat"]
+            l["lng"] = coords["lng"]
+        l["category"] = classify_category(l.get("title"))
+        if i % 200 == 0:
+            print(f"DEBUG: fetched detail dates for {i}/{total} listings")
+
+
 def fetch_listings():
     seen = {}
     for page_num in range(1, MAX_PAGES + 1):
@@ -158,6 +204,8 @@ def fetch_listings():
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
         if not link_count:
             break
+    print(f"DEBUG: fetching posted dates for {len(seen)} listings")
+    fetch_listing_dates(seen)
     return list(seen.values())
 
 
@@ -190,11 +238,29 @@ def compute_leads(history):
             continue
         first_price, last_price = prices[0], prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-        first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
+        price_history = []
+        last_hist_price = None
+        for s in rec["snapshots"]:
+            p = s.get("price_eur")
+            if not p or p == last_hist_price:
+                continue
+            price_history.append({"date": s["seen_at"], "price_eur": p})
+            last_hist_price = p
+        price_drop_count = sum(
+            1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
+        )
 
         latest = rec["latest"]
+        site_posted_at = latest.get("site_posted_at")
+        reference_date = (
+            datetime.fromisoformat(site_posted_at).replace(tzinfo=timezone.utc)
+            if site_posted_at
+            else datetime.fromisoformat(rec["first_seen"])
+        )
+        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
         area = extract_area(latest["title"])
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
@@ -203,7 +269,8 @@ def compute_leads(history):
             "price_eur": last_price,
             "area": area,
             "price_per_sqm": price_per_sqm,
-            "price_history": prices,
+            "price_history": price_history,
+            "price_drop_count": price_drop_count,
             "drop_pct": drop_pct,
             "days_on_market": days_on_market,
             "score": score,

@@ -19,16 +19,33 @@ listings" cut a real run off at page 21 of ~166, keeping only 613 of the
 site's ~9995 listings. A page fetch now retries a few times with backoff
 before being treated as the end of pagination, so a one-off network blip
 doesn't get mistaken for having reached the last page.
+
+days_on_market: the search grid carries no date signal at all, but each
+listing's own page shows "Актуализирана днес/вчера/преди N дни" and this was
+confirmed (by sampling 12 real listings) to genuinely vary rather than always
+reading "today" - unlike homes.bg's equivalent field, which was checked the
+same way and turned out to be a constant. Since this portal tracks a few
+hundred listings (not imoti.net's ~6000), visiting every tracked listing's
+own page once per scrape to read this field is an acceptable added cost.
+
+That same detail-page fetch also carries the listing's real coordinates,
+embedded as a plain "share this location" Google Maps link
+(href="https://maps.google.com/?q=LAT,LNG...", confirmed live, no JS
+execution needed) - extracted here at no extra request cost via
+geo_utils, along with a keyword-based property category for the
+frontend's same-category radius-average feature.
 """
 
 import re
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+from geo_utils import classify_category, extract_coords_alo
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=22&location_ids=4342"
@@ -47,6 +64,8 @@ MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
+UPDATED_TEXT_RE = re.compile(r">((?:Актуализирана|Публикувана)[^<]{0,40})<")
+DAYS_AGO_RE = re.compile(r"преди\s+(\d+)\s+д")
 # alo.bg's regular listing cards ("listtop-item") format this "Цена:" tight,
 # but its promoted/VIP cards ("listvip-item" - the template used on paginated
 # pages, which is most of them) format it "Цена :" with a space before the
@@ -165,6 +184,35 @@ def fetch_listings_page(url, seen):
     return len(matching_links)
 
 
+def parse_days_ago(html):
+    m = UPDATED_TEXT_RE.search(html)
+    if not m:
+        return None
+    text = m.group(1)
+    if "днес" in text:
+        return 0
+    if "вчера" in text:
+        return 1
+    m2 = DAYS_AGO_RE.search(text)
+    return int(m2.group(1)) if m2 else None
+
+
+def fetch_update_dates(seen):
+    for listing_id, l in seen.items():
+        time.sleep(REQUEST_DELAY_SECONDS)
+        html = fetch_with_retries(l["url"])
+        if html is None:
+            continue
+        days_ago = parse_days_ago(html)
+        if days_ago is not None:
+            l["site_updated_at"] = (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()
+        coords = extract_coords_alo(html)
+        if coords:
+            l["lat"] = coords["lat"]
+            l["lng"] = coords["lng"]
+        l["category"] = classify_category(l.get("title"))
+
+
 def fetch_listings():
     seen = {}
     for page_num in range(1, MAX_PAGES + 1):
@@ -175,6 +223,8 @@ def fetch_listings():
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
         if not link_count:
             break
+    print(f"DEBUG: fetching update dates for {len(seen)} listings")
+    fetch_update_dates(seen)
     return list(seen.values())
 
 
@@ -208,16 +258,34 @@ def compute_leads(history):
         first_price = prices[0]
         last_price = prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
-        first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
+        price_history = []
+        last_hist_price = None
+        for s in rec["snapshots"]:
+            p = s.get("price_eur")
+            if not p or p == last_hist_price:
+                continue
+            price_history.append({"date": s["seen_at"], "price_eur": p})
+            last_hist_price = p
+        price_drop_count = sum(
+            1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
+        )
 
         latest = rec["latest"]
+        site_updated_at = latest.get("site_updated_at")
+        reference_date = (
+            datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
+        )
+        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)
         entry["price_eur"] = last_price
         entry["price_per_sqm"] = price_per_sqm
+        entry["price_history"] = price_history
+        entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
         entry["score"] = score
