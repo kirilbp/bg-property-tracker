@@ -8,7 +8,17 @@
     "area": "Надежда 3",
     "title": "Едностаен апартамент, Надежда 3",
     "portal": "imoti.bg",
+    "lat": 42.7552791,
+    "lng": 23.4345848,
+    "category": "apartment",
     "price_per_sqm": 2250,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -24,7 +34,17 @@
     "area": "Лагера",
     "title": "Тристаен апартамент, Лагера",
     "portal": "imoti.bg",
+    "lat": 42.5116283,
+    "lng": 23.3646251,
+    "category": "apartment",
     "price_per_sqm": 2886,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 254000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -40,7 +60,17 @@
     "area": "Зона Б 19",
     "title": "Тристаен апартамент, Зона Б 19",
     "portal": "imoti.bg",
+    "lat": 42.6980072,
+    "lng": 23.2990189,
+    "category": "apartment",
     "price_per_sqm": 2700,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 369900
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -56,7 +86,17 @@
     "area": "Надежда 3",
     "title": "Едностаен апартамент, Надежда 3",
     "portal": "imoti.bg",
+    "lat": 42.7552791,
+    "lng": 23.4345848,
+    "category": "apartment",
     "price_per_sqm": 2800,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 112000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -72,7 +112,17 @@
     "area": "Надежда 4",
     "title": "Тристаен апартамент, Надежда 4",
     "portal": "imoti.bg",
+    "lat": 42.7352717,
+    "lng": 23.3006661,
+    "category": "apartment",
     "price_per_sqm": 2300,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 149500
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -88,7 +138,17 @@
     "area": "Люлин Център",
     "title": "Тристаен апартамент, Люлин Център",
     "portal": "imoti.bg",
+    "lat": 42.7167738,
+    "lng": 23.2543368,
+    "category": "apartment",
     "price_per_sqm": 2100,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 210000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -104,7 +164,17 @@
     "area": "Люлин 6",
     "title": "Тристаен апартамент, Люлин 6",
     "portal": "imoti.bg",
+    "lat": 42.7211423,
+    "lng": 23.5289197,
+    "category": "apartment",
     "price_per_sqm": 2008,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 154600
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -120,7 +190,17 @@
     "area": "Център",
     "title": "Четиристаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 14,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 1100
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -136,7 +216,17 @@
     "area": "Люлин 6",
     "title": "Двустаен апартамент, Люлин 6",
     "portal": "imoti.bg",
+    "lat": 42.7211423,
+    "lng": 23.5289197,
+    "category": "apartment",
     "price_per_sqm": 2231,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 145000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -152,7 +242,17 @@
     "area": "Люлин 4",
     "title": "Двустаен апартамент, Люлин 4",
     "portal": "imoti.bg",
+    "lat": 42.7210556,
+    "lng": 23.5292354,
+    "category": "apartment",
     "price_per_sqm": 2697,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 175300
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -168,7 +268,17 @@
     "area": "Център",
     "title": "Едностаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 3080,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 77000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -184,7 +294,17 @@
     "area": "Люлин 3",
     "title": "Тристаен апартамент, Люлин 3",
     "portal": "imoti.bg",
+    "lat": 42.7206956,
+    "lng": 23.529316,
+    "category": "apartment",
     "price_per_sqm": 1892,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 179700
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -200,7 +320,17 @@
     "area": "Витоша",
     "title": "Тристаен апартамент, Витоша",
     "portal": "imoti.bg",
+    "lat": 42.6167377,
+    "lng": 23.2742293,
+    "category": "apartment",
     "price_per_sqm": 2804,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 229900
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -216,7 +346,17 @@
     "area": "Дървеница",
     "title": "Тристаен апартамент, Дървеница",
     "portal": "imoti.bg",
+    "lat": 42.658279,
+    "lng": 23.3632397,
+    "category": "apartment",
     "price_per_sqm": 2062,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 200000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -232,7 +372,17 @@
     "area": "Обеля 2",
     "title": "Едностаен апартамент, Обеля 2",
     "portal": "imoti.bg",
+    "lat": 42.6959055,
+    "lng": 23.2916843,
+    "category": "apartment",
     "price_per_sqm": 2338,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 105200
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -248,7 +398,17 @@
     "area": "Овча Купел",
     "title": "Двустаен апартамент, Овча Купел",
     "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2432,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 180000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -264,7 +424,17 @@
     "area": "Младост 4",
     "title": "Двустаен апартамент, Младост 4",
     "portal": "imoti.bg",
+    "lat": 42.7744044,
+    "lng": 23.2512012,
+    "category": "apartment",
     "price_per_sqm": 2403,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 149000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -280,7 +450,17 @@
     "area": "Кръстова Вада",
     "title": "Тристаен апартамент, Кръстова Вада",
     "portal": "imoti.bg",
+    "lat": 42.6446852,
+    "lng": 23.3058285,
+    "category": "apartment",
     "price_per_sqm": 3041,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 295000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -296,7 +476,17 @@
     "area": "Лагера",
     "title": "Едностаен апартамент, Лагера",
     "portal": "imoti.bg",
+    "lat": 42.5116283,
+    "lng": 23.3646251,
+    "category": "apartment",
     "price_per_sqm": 3864,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 170000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -312,7 +502,17 @@
     "area": "Център",
     "title": "Тристаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 2580,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 332800
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -328,7 +528,17 @@
     "area": "Бели Брези",
     "title": "Двустаен апартамент, Бели Брези",
     "portal": "imoti.bg",
+    "lat": 42.6774558,
+    "lng": 23.2910815,
+    "category": "apartment",
     "price_per_sqm": 3398,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 299000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -344,7 +554,17 @@
     "area": "Център",
     "title": "Двустаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 5071,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 355000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -360,7 +580,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 4516,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 280000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -376,7 +606,17 @@
     "area": "Толстой",
     "title": "Тристаен апартамент, Толстой",
     "portal": "imoti.bg",
+    "lat": 42.7264159,
+    "lng": 23.3100462,
+    "category": "apartment",
     "price_per_sqm": 2618,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 178000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -392,7 +632,17 @@
     "area": "Хаджи Димитър",
     "title": "Двустаен апартамент, Хаджи Димитър",
     "portal": "imoti.bg",
+    "lat": 42.7025457,
+    "lng": 23.3522642,
+    "category": "apartment",
     "price_per_sqm": 2231,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 145000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -408,7 +658,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2900,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 261000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -424,7 +684,17 @@
     "area": "Сухата река",
     "title": "Едностаен апартамент, Сухата река",
     "portal": "imoti.bg",
+    "lat": 42.6280726,
+    "lng": 23.3325542,
+    "category": "apartment",
     "price_per_sqm": 2895,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 110000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -440,7 +710,17 @@
     "area": "Малинова Долина",
     "title": "Двустаен апартамент, Малинова Долина",
     "portal": "imoti.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
     "price_per_sqm": 3043,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 210000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -456,7 +736,17 @@
     "area": "Овча Купел 1",
     "title": "Тристаен апартамент, Овча Купел 1",
     "portal": "imoti.bg",
+    "lat": 42.6828931,
+    "lng": 23.2490811,
+    "category": "apartment",
     "price_per_sqm": 2395,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 265900
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -472,7 +762,17 @@
     "area": "Горна Баня",
     "title": "Тристаен апартамент, Горна Баня",
     "portal": "imoti.bg",
+    "lat": 42.6831167,
+    "lng": 23.2417296,
+    "category": "apartment",
     "price_per_sqm": 2770,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 349000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -488,7 +788,17 @@
     "area": "Княжево",
     "title": "Тристаен апартамент, Княжево",
     "portal": "imoti.bg",
+    "lat": 42.6586899,
+    "lng": 23.2404891,
+    "category": "apartment",
     "price_per_sqm": 3133,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 260000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -504,7 +814,17 @@
     "area": "Гоце Делчев",
     "title": "Двустаен апартамент, Гоце Делчев",
     "portal": "imoti.bg",
+    "lat": 42.6879161,
+    "lng": 23.3380531,
+    "category": "apartment",
     "price_per_sqm": 3375,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 297000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -520,7 +840,17 @@
     "area": "Овча Купел",
     "title": "Тристаен апартамент, Овча Купел",
     "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2106,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 305403
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -536,7 +866,17 @@
     "area": "Борово",
     "title": "Тристаен апартамент, Борово",
     "portal": "imoti.bg",
+    "lat": 42.668776,
+    "lng": 23.2892574,
+    "category": "apartment",
     "price_per_sqm": 2824,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 240000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -552,7 +892,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 3375,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 215990
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -568,7 +918,17 @@
     "area": "Манастирски Ливади",
     "title": "Тристаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 3305,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 390000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -584,7 +944,17 @@
     "area": "Дружба 2",
     "title": "Едностаен апартамент, Дружба 2",
     "portal": "imoti.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
     "price_per_sqm": 2667,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 120000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -600,7 +970,17 @@
     "area": "Овча Купел",
     "title": "Двустаен апартамент, Овча Купел",
     "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 1802,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 155000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -616,7 +996,17 @@
     "area": "Борово",
     "title": "Двустаен апартамент, Борово",
     "portal": "imoti.bg",
+    "lat": 42.668776,
+    "lng": 23.2892574,
+    "category": "apartment",
     "price_per_sqm": 2656,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 170000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -632,7 +1022,17 @@
     "area": "Княжево",
     "title": "Двустаен апартамент, Княжево",
     "portal": "imoti.bg",
+    "lat": 42.6586899,
+    "lng": 23.2404891,
+    "category": "apartment",
     "price_per_sqm": 3132,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 213000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -648,7 +1048,17 @@
     "area": "Бели Брези",
     "title": "Двустаен апартамент, Бели Брези",
     "portal": "imoti.bg",
+    "lat": 42.6774558,
+    "lng": 23.2910815,
+    "category": "apartment",
     "price_per_sqm": 2656,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 239000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -664,7 +1074,17 @@
     "area": "Бъкстон",
     "title": "Двустаен апартамент, Бъкстон",
     "portal": "imoti.bg",
+    "lat": 42.6730192,
+    "lng": 23.2779464,
+    "category": "apartment",
     "price_per_sqm": 2712,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 179000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -680,7 +1100,17 @@
     "area": "Овча Купел 1",
     "title": "Двустаен апартамент, Овча Купел 1",
     "portal": "imoti.bg",
+    "lat": 42.6828931,
+    "lng": 23.2490811,
+    "category": "apartment",
     "price_per_sqm": 2727,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 180000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -696,7 +1126,17 @@
     "area": "Овча Купел 1",
     "title": "Тристаен апартамент, Овча Купел 1",
     "portal": "imoti.bg",
+    "lat": 42.6828931,
+    "lng": 23.2490811,
+    "category": "apartment",
     "price_per_sqm": 2103,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 231367
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -712,7 +1152,17 @@
     "area": "Стрелбище",
     "title": "Тристаен апартамент, Стрелбище",
     "portal": "imoti.bg",
+    "lat": 42.6728702,
+    "lng": 23.3000224,
+    "category": "apartment",
     "price_per_sqm": 4520,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 339000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -728,7 +1178,17 @@
     "area": "Гоце Делчев",
     "title": "Тристаен апартамент, Гоце Делчев",
     "portal": "imoti.bg",
+    "lat": 42.6879161,
+    "lng": 23.3380531,
+    "category": "apartment",
     "price_per_sqm": 3224,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 245000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -744,7 +1204,17 @@
     "area": "Лозенец",
     "title": "Тристаен апартамент, Лозенец",
     "portal": "imoti.bg",
+    "lat": 42.6597151,
+    "lng": 23.3250228,
+    "category": "apartment",
     "price_per_sqm": 4639,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 283000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -760,7 +1230,17 @@
     "area": "Център",
     "title": "Двустаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 7027,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 520000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -776,7 +1256,17 @@
     "area": "Борово",
     "title": "Двустаен апартамент, Борово",
     "portal": "imoti.bg",
+    "lat": 42.668776,
+    "lng": 23.2892574,
+    "category": "apartment",
     "price_per_sqm": 2705,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 165000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -792,7 +1282,17 @@
     "area": "Манастирски Ливади",
     "title": "Тристаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2480,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 315000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -808,7 +1308,17 @@
     "area": "Бояна",
     "title": "Двустаен апартамент, Бояна",
     "portal": "imoti.bg",
+    "lat": 42.6421644,
+    "lng": 23.2664852,
+    "category": "apartment",
     "price_per_sqm": 3134,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 210000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -824,7 +1334,17 @@
     "area": "Борово",
     "title": "Двустаен апартамент, Борово",
     "portal": "imoti.bg",
+    "lat": 42.668776,
+    "lng": 23.2892574,
+    "category": "apartment",
     "price_per_sqm": 3362,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 269000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -840,7 +1360,17 @@
     "area": "Надежда 1",
     "title": "Тристаен апартамент, Надежда 1",
     "portal": "imoti.bg",
+    "lat": 42.8209718,
+    "lng": 23.2490162,
+    "category": "apartment",
     "price_per_sqm": 2532,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 194999
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -856,7 +1386,17 @@
     "area": "Красна Поляна",
     "title": "Тристаен апартамент, Красна Поляна",
     "portal": "imoti.bg",
+    "lat": 42.6972829,
+    "lng": 23.2633563,
+    "category": "apartment",
     "price_per_sqm": 2967,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 267000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -872,7 +1412,17 @@
     "area": "Хладилника",
     "title": "Многостаен, Хладилника",
     "portal": "imoti.bg",
+    "lat": 42.6621556,
+    "lng": 23.3212514,
+    "category": "apartment",
     "price_per_sqm": 2066,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 378000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -888,7 +1438,17 @@
     "area": "Княжево",
     "title": "Многостаен, Княжево",
     "portal": "imoti.bg",
+    "lat": 42.6586899,
+    "lng": 23.2404891,
+    "category": "apartment",
     "price_per_sqm": 1825,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 250000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -904,7 +1464,17 @@
     "area": "Люлин 5",
     "title": "Тристаен апартамент, Люлин 5",
     "portal": "imoti.bg",
+    "lat": 42.720834,
+    "lng": 23.5291196,
+    "category": "apartment",
     "price_per_sqm": 2025,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 245000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -920,7 +1490,17 @@
     "area": "Манастирски Ливади",
     "title": "Тристаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 3830,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 429000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -936,7 +1516,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 3284,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 289000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -952,7 +1542,17 @@
     "area": "Левски Г",
     "title": "Тристаен апартамент, Левски Г",
     "portal": "imoti.bg",
+    "lat": 42.7131528,
+    "lng": 23.3824364,
+    "category": "apartment",
     "price_per_sqm": 2317,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 190000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -968,7 +1568,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2600,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 130000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -984,7 +1594,17 @@
     "area": "Борово",
     "title": "Тристаен апартамент, Борово",
     "portal": "imoti.bg",
+    "lat": 42.668776,
+    "lng": 23.2892574,
+    "category": "apartment",
     "price_per_sqm": 2742,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 329000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1000,7 +1620,17 @@
     "area": "Овча Купел",
     "title": "Тристаен апартамент, Овча Купел",
     "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2101,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 247871
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1016,7 +1646,17 @@
     "area": "Център",
     "title": "Двустаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 5176,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 440000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1032,7 +1672,17 @@
     "area": "Център",
     "title": "Тристаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 7535,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 535000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1048,7 +1698,17 @@
     "area": "Център",
     "title": "Двустаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 5405,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 200000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1064,7 +1724,17 @@
     "area": "Манастирски Ливади",
     "title": "Двустаен апартамент, Манастирски Ливади",
     "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "category": "apartment",
     "price_per_sqm": 2591,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 212500
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1080,7 +1750,17 @@
     "area": "Гоце Делчев",
     "title": "Двустаен апартамент, Гоце Делчев",
     "portal": "imoti.bg",
+    "lat": 42.6879161,
+    "lng": 23.3380531,
+    "category": "apartment",
     "price_per_sqm": 3333,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 190000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1096,7 +1776,17 @@
     "area": "Бояна",
     "title": "Двустаен апартамент, Бояна",
     "portal": "imoti.bg",
+    "lat": 42.6421644,
+    "lng": 23.2664852,
+    "category": "apartment",
     "price_per_sqm": 2600,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 195000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1112,7 +1802,17 @@
     "area": "Овча Купел",
     "title": "Двустаен апартамент, Овча Купел",
     "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "category": "apartment",
     "price_per_sqm": 2528,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 219900
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
@@ -1128,7 +1828,17 @@
     "area": "Център",
     "title": "Тристаен апартамент, Център",
     "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "category": "apartment",
     "price_per_sqm": 3000,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 300000
+      }
+    ],
+    "price_drop_count": 0,
     "drop_pct": 0.0,
     "days_on_market": 0,
     "score": 0,
