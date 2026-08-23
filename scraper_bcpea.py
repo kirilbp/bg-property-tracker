@@ -282,6 +282,8 @@ def fetch_listings():
         for page_num in range(1, MAX_PAGES + 1):
             url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page_num}"
             page_listings = fetch_listings_page(page, url)
+            count = len(page_listings) if page_listings is not None else None
+            print(f"DEBUG: page {page_num} listings parsed = {count}")
             if not page_listings:
                 break
             all_listings.update(page_listings)
@@ -289,11 +291,17 @@ def fetch_listings():
         listings = list(all_listings.values())
         print(f"DEBUG: fetching detail pages for {len(listings)} listings")
         geocoder = Geocoder()
+        detail_failures = 0
         for i, l in enumerate(listings, 1):
             page.wait_for_timeout(int(REQUEST_DELAY_SECONDS * 1000))
             fetch_listing_detail(page, l, geocoder)
+            if l.get("lat") is None:
+                detail_failures += 1
+                if detail_failures <= 3:
+                    print(f"DEBUG: detail fetch produced no coords for {l['url']}")
             if i % 200 == 0:
-                print(f"DEBUG: fetched detail for {i}/{len(listings)} listings")
+                print(f"DEBUG: fetched detail for {i}/{len(listings)} listings ({detail_failures} failures so far)")
+        print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords")
         geocoder.save()
 
         browser.close()
