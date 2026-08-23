@@ -131,6 +131,17 @@
     padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer;
   }
   .cta-btn:hover { background: #1d4ed8; }
+  .type-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .type-filter-btn {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px;
+    cursor: pointer; text-align: left; font: inherit; transition: border-color .15s, box-shadow .15s;
+  }
+  .type-filter-btn:hover { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
+  .type-filter-btn.active { border-color: #2563eb; background: #eff6ff; }
+  .type-filter-icon { font-size: 20px; }
+  .type-filter-label { font-size: 14px; font-weight: 600; color: #1e293b; }
+  .type-filter-count { font-size: 13px; color: #64748b; }
 
   /* Help page */
   .help-section { margin-bottom: 20px; }
@@ -326,6 +337,11 @@
           <div class="portal-list" id="portalList"></div>
         </div>
         <div class="card">
+          <h2>sales.bcpea.org — public auctions by property type</h2>
+          <p class="card-sub">Court-ordered foreclosure auctions from the Chamber of Private Enforcement Agents, filtered to one property type at a time. Prices shown are the legal minimum starting bid, not a negotiable asking price.</p>
+          <div class="type-filter-grid" id="bcpeaTypeGrid"></div>
+        </div>
+        <div class="card">
           <h2>Ready to browse?</h2>
           <p class="card-sub">Filter by price, size and area, and sort by motivation score to find the best leads.</p>
           <button class="cta-btn" id="goToLeadsBtn">Browse listings →</button>
@@ -345,6 +361,10 @@
         <div class="leadgen-banner" id="leadgenBanner" style="display:none;">
           <span>Showing leads for <strong id="leadgenBannerName"></strong></span>
           <button id="leadgenBannerClearBtn">✕ Clear, show all listings</button>
+        </div>
+        <div class="leadgen-banner" id="bcpeaTypeBanner" style="display:none;">
+          <span>Showing sales.bcpea.org — <strong id="bcpeaTypeBannerName"></strong></span>
+          <button id="bcpeaTypeBannerClearBtn">✕ Clear, show all listings</button>
         </div>
         <div class="card">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:#2563eb; text-decoration:none;">← Back to Lead Generators</a>
@@ -610,6 +630,101 @@ let detailChart = null;
 let detailActiveTab = 'details';
 let detailRadiusM = null;
 let detailMap = null;
+
+// --- sales.bcpea.org property-type filter (Home page) -------------------------
+// bcpea.org's own listing titles carry an exact, fixed Bulgarian property-type
+// string (confirmed against its live "type" filter dropdown, e.g. "Гараж",
+// "Парцел с къща") - a lot more precise than the shared apartment/house/land/
+// commercial classify_category() every portal's scraper already runs, which
+// bcpea's own scraper still populates for the cross-portal radius-average
+// feature but which would bucket a garage or a parking space in with
+// apartments. This is a second, bcpea-only taxonomy layered on top, matched
+// straight off l.title (scraper_bcpea.py builds it as "<raw type>, <settlement>")
+// rather than added as a new scraped field, so it works against data already
+// on disk with no scraper change or re-scrape needed.
+//
+// A few of bcpea's 31 raw types are genuinely ambiguous under 6 buckets
+// (grouping call, not a parsing fact) - "Заведение" (restaurant/venue) reads
+// closer to a storefront than an office, so it's bucketed under "shop" rather
+// than "business"; "Други" (other) and "Обособена част" (an unspecified unit
+// within a building) don't fit any of the 6 buckets and are left unmatched
+// rather than forced into one.
+const BCPEA_TYPE_BUCKETS = [
+  { key: 'flat', label: 'Flats', icon: '🏢', rawTypes: [
+    'Едностаен апартамент', 'Двустаен апартамент', 'Тристаен апартамент',
+    'Многостаен апартамент', 'Мезонет', 'Ателие, Таван', 'Стая',
+  ] },
+  { key: 'house', label: 'Houses', icon: '🏠', rawTypes: [
+    'Вила', 'Етаж от къща', 'Къща', 'Жилищна сграда', 'Къща с парцел',
+  ] },
+  { key: 'land', label: 'Land', icon: '🌳', rawTypes: [
+    'Парцел', 'Земеделска земя', 'Земеделски имот', 'Парцел с къща',
+  ] },
+  { key: 'garage', label: 'Garages', icon: '🚗', rawTypes: [
+    'Гараж', 'Паркомясто',
+  ] },
+  { key: 'shop', label: 'Shops', icon: '🏪', rawTypes: [
+    'Магазин', 'Заведение',
+  ] },
+  { key: 'business', label: 'Business', icon: '💼', rawTypes: [
+    'Офис', 'Склад', 'Фабрика', 'Хотел', 'Търговски имот',
+    'Производствен имот', 'Бензиностанция', 'Газстанция', 'Автомивка',
+  ] },
+];
+// Flattened to [rawType, bucketKey] pairs, longest rawType first, so a type
+// string that's a prefix of another (e.g. "Къща" vs "Къща с парцел") always
+// resolves to the more specific one.
+const BCPEA_TYPE_LOOKUP = BCPEA_TYPE_BUCKETS
+  .flatMap(b => b.rawTypes.map(t => [t, b.key]))
+  .sort((a, b) => b[0].length - a[0].length);
+
+function bcpeaTypeBucket(l) {
+  if (l.portal !== 'sales.bcpea.org' || !l.title) return null;
+  const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
+  return match ? match[1] : null;
+}
+
+let activeBcpeaTypeFilter = null;
+
+function applyBcpeaTypeFilter(bucketKey) {
+  const def = BCPEA_TYPE_BUCKETS.find(b => b.key === bucketKey);
+  if (!def) return;
+  activeBcpeaTypeFilter = bucketKey;
+  clearActiveLeadGenerator(true);
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('minSqm').value = '';
+  document.getElementById('searchQuery').value = '';
+  document.getElementById('areaFilter').value = '';
+  document.getElementById('bcpeaTypeBanner').style.display = 'flex';
+  document.getElementById('bcpeaTypeBannerName').textContent = def.label;
+  currentPage = 1;
+  showSection('leads');
+  render();
+}
+
+function clearBcpeaTypeFilter(skipRender) {
+  activeBcpeaTypeFilter = null;
+  document.getElementById('bcpeaTypeBanner').style.display = 'none';
+  if (!skipRender) renderFromStart();
+}
+
+function renderBcpeaTypeFilters() {
+  const grid = document.getElementById('bcpeaTypeGrid');
+  if (!grid) return;
+  const counts = Object.fromEntries(BCPEA_TYPE_BUCKETS.map(b => [b.key, 0]));
+  MERGED_LISTINGS.forEach(l => {
+    const bucket = bcpeaTypeBucket(l);
+    if (bucket) counts[bucket]++;
+  });
+  grid.innerHTML = BCPEA_TYPE_BUCKETS.map(b => `
+    <button class="type-filter-btn${activeBcpeaTypeFilter === b.key ? ' active' : ''}" data-bcpea-type="${b.key}">
+      <span class="type-filter-icon">${b.icon}</span>
+      <span class="type-filter-label">${b.label}</span>
+      <span class="type-filter-count">${fmt(counts[b.key])} listings</span>
+    </button>
+  `).join('');
+}
 
 // --- Same-category radius average --------------------------------------------
 // Haversine great-circle distance in km between two lat/lng points.
@@ -1363,6 +1478,7 @@ function checkLeads(genId) {
   const gen = LEAD_GENERATORS.find(g => g.id === genId);
   if (!gen) return;
   activeLeadGenerator = gen;
+  clearBcpeaTypeFilter(true);
   document.getElementById('minPrice').value = gen.filters.minPrice ?? '';
   document.getElementById('maxPrice').value = gen.filters.maxPrice ?? '';
   document.getElementById('minSqm').value = gen.filters.minSqm ?? '';
@@ -1375,13 +1491,13 @@ function checkLeads(genId) {
   render();
 }
 
-function clearActiveLeadGenerator() {
+function clearActiveLeadGenerator(skipRender) {
   activeLeadGenerator = null;
   document.getElementById('leadgenBanner').style.display = 'none';
   document.getElementById('minPrice').value = '';
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
-  renderFromStart();
+  if (!skipRender) renderFromStart();
 }
 
 function renderHome() {
@@ -1389,7 +1505,7 @@ function renderHome() {
   const stats = [
     { value: fmt(MERGED_LISTINGS.length), label: 'Total listings' },
     { value: fmt(hot), label: '🔥 Hot deals' },
-    { value: '7', label: 'Portals tracked' },
+    { value: fmt(Object.keys(PORTAL_COUNTS).length), label: 'Portals tracked' },
   ];
   document.getElementById('homeStats').innerHTML = stats.map(s => `
     <div class="stat-tile">
@@ -1407,6 +1523,7 @@ function renderHome() {
   `).join('');
 
   renderHomeChart();
+  renderBcpeaTypeFilters();
 }
 
 function renderHomeChart() {
@@ -1567,7 +1684,8 @@ function render() {
     (l.sqm || 0) >= minSqm &&
     (area === '' || l.area === area) &&
     listingMatchesSearch(l, searchQuery) &&
-    matchesLeadGenerator(l, activeLeadGenerator)
+    matchesLeadGenerator(l, activeLeadGenerator) &&
+    (!activeBcpeaTypeFilter || bcpeaTypeBucket(l) === activeBcpeaTypeFilter)
   );
 
   filtered.sort((a, b) => {
@@ -1857,10 +1975,16 @@ document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
 
-document.getElementById('leadgenBannerClearBtn').addEventListener('click', clearActiveLeadGenerator);
+document.getElementById('leadgenBannerClearBtn').addEventListener('click', () => clearActiveLeadGenerator());
 document.getElementById('backToLeadgenLink').addEventListener('click', (e) => {
   e.preventDefault();
   showSection('leadgen');
+});
+
+document.getElementById('bcpeaTypeBannerClearBtn').addEventListener('click', () => clearBcpeaTypeFilter());
+document.getElementById('bcpeaTypeGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.type-filter-btn[data-bcpea-type]');
+  if (btn) applyBcpeaTypeFilter(btn.dataset.bcpeaType);
 });
 
 document.getElementById('leadgenModalCloseBtn').addEventListener('click', closeLeadGenModal);
