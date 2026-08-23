@@ -13,8 +13,8 @@ URLS = {
     "olx.bg": "https://www.olx.bg/d/ad/predlagam-tsyala-samostoyatelna-sgrada-s-11-apartamenta-CID368-ID9QcUA.html?search_reason=search%7Corganic",
 }
 
-STREET_RE = re.compile(r"(ул\.?\s*[«\"'][А-Яа-я][^,.<]{2,40}|бул\.?\s*[«\"'][А-Яа-я][^,.<]{2,40})")
-ZHK_RE = re.compile(r"ж\.?к\.?\s*[«\"'][А-Яа-я][^,.<]{0,30}")
+STREET_RE = re.compile(r"((?:ул|бул)\.?\s*[«\"']?\s*[А-Я][а-я]+(?:\s+[А-Яа-я]+){0,3}\s*\d{0,4})")
+ZHK_RE = re.compile(r"ж\.?к\.?\s*[«\"']?\s*[А-Я][а-я]+(?:\s+[А-Яа-я0-9]+){0,2}")
 
 
 def fetch(url):
