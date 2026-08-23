@@ -159,7 +159,7 @@ def fetch_html(page, url):
             page.wait_for_timeout(500)
             return page.content()
         except Exception as e:
-            print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}", flush=True)
             if attempt < MAX_RETRIES:
                 page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
     return None
@@ -178,6 +178,18 @@ def label_info(scope, label_text):
     return None
 
 
+def debug_html_snippet(html):
+    """A short description of unexpected HTML - long enough to tell a bot
+    challenge/block page (a title like "Just a moment..." or "Forbidden",
+    little body text) apart from a genuine empty results page (the site's
+    normal title, structured markup, just no matching content), without
+    dumping the whole page into the log."""
+    soup = BeautifulSoup(html, "html.parser")
+    title = soup.title.get_text(strip=True) if soup.title else None
+    body_text = soup.get_text(" ", strip=True)[:200] if soup.body else None
+    return f"len={len(html)} title={title!r} body_start={body_text!r}"
+
+
 def fetch_listings_page(page, url):
     html = fetch_html(page, url)
     if html is None:
@@ -185,6 +197,7 @@ def fetch_listings_page(page, url):
     soup = BeautifulSoup(html, "html.parser")
     container = soup.find(class_="item__container")
     if container is None:
+        print(f"DEBUG: no item__container for {url} - {debug_html_snippet(html)}", flush=True)
         return {}
     cards = container.find_all(class_="item__group", recursive=False)
 
@@ -249,6 +262,7 @@ def fetch_listing_detail(page, listing, geocoder):
     soup = BeautifulSoup(html, "html.parser")
     expanded = soup.find(class_="item__expanded")
     if expanded is None:
+        print(f"DEBUG: no item__expanded for {listing['url']} - {debug_html_snippet(html)}", flush=True)
         return
 
     settlement = listing.get("_settlement")
@@ -283,13 +297,13 @@ def fetch_listings():
             url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page_num}"
             page_listings = fetch_listings_page(page, url)
             count = len(page_listings) if page_listings is not None else None
-            print(f"DEBUG: page {page_num} listings parsed = {count}")
+            print(f"DEBUG: page {page_num} listings parsed = {count}", flush=True)
             if not page_listings:
                 break
             all_listings.update(page_listings)
 
         listings = list(all_listings.values())
-        print(f"DEBUG: fetching detail pages for {len(listings)} listings")
+        print(f"DEBUG: fetching detail pages for {len(listings)} listings", flush=True)
         geocoder = Geocoder()
         detail_failures = 0
         for i, l in enumerate(listings, 1):
@@ -298,10 +312,10 @@ def fetch_listings():
             if l.get("lat") is None:
                 detail_failures += 1
                 if detail_failures <= 3:
-                    print(f"DEBUG: detail fetch produced no coords for {l['url']}")
+                    print(f"DEBUG: detail fetch produced no coords for {l['url']}", flush=True)
             if i % 200 == 0:
-                print(f"DEBUG: fetched detail for {i}/{len(listings)} listings ({detail_failures} failures so far)")
-        print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords")
+                print(f"DEBUG: fetched detail for {i}/{len(listings)} listings ({detail_failures} failures so far)", flush=True)
+        print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords", flush=True)
         geocoder.save()
 
         browser.close()
