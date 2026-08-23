@@ -103,16 +103,41 @@ def extract_coords_alo(html):
 
 # bazar.bg embeds the coordinates as data-lat/data-long attributes on its
 # #see_on_map anchor, e.g. data-lat="42.698..." data-long="27.710...".
-_BAZAR_DATA_LATLNG_RE = re.compile(
-    r'id="see_on_map"[^>]*?data-lat="(-?\d{1,3}\.\d{3,15})"\s+data-long="(-?\d{1,3}\.\d{3,15})"'
-)
+# Extracted as: find the whole tag, then find each attribute independently
+# within it - not tied to a fixed attribute order or exact whitespace
+# between them, since a first version requiring data-long to immediately
+# follow data-lat undercounted real matches (~23% of a spot-checked sample
+# vs. other portals' 88-100%) despite both attributes genuinely being
+# present on the page.
+_SEE_ON_MAP_TAG_RE = re.compile(r'<a\b[^>]*\bid="see_on_map"[^>]*>')
+_DATA_LAT_RE = re.compile(r'data-lat="(-?\d{1,3}\.\d{3,15})"')
+_DATA_LONG_RE = re.compile(r'data-long="(-?\d{1,3}\.\d{3,15})"')
 
 
 def extract_coords_bazar(html):
-    m = _BAZAR_DATA_LATLNG_RE.search(html)
-    if m:
-        return {"lat": float(m.group(1)), "lng": float(m.group(2))}
+    tag_match = _SEE_ON_MAP_TAG_RE.search(html)
+    if not tag_match:
+        return None
+    tag = tag_match.group(0)
+    lat_m = _DATA_LAT_RE.search(tag)
+    lng_m = _DATA_LONG_RE.search(tag)
+    if lat_m and lng_m:
+        return {"lat": float(lat_m.group(1)), "lng": float(lng_m.group(1))}
     return None
+
+
+# "жк."/"ж.к." (жилищен комплекс - "residential complex") is a common
+# Bulgarian prefix on neighborhood names (e.g. "жк. Лозенец") that, left
+# in the query, made Nominatim return zero results ~95% of the time
+# (56/59 in a spot-check of the real geocode cache) - while the exact same
+# neighborhood names with the "кв." prefix or no prefix at all succeeded
+# ~95-100% of the time. Stripped here, at the one call site every scraper
+# shares, rather than in each scraper individually.
+_ZHK_PREFIX_RE = re.compile(r"^ж\.?\s*к\.?\s+", re.IGNORECASE)
+
+
+def _clean_query(query):
+    return _ZHK_PREFIX_RE.sub("", query.strip())
 
 
 def _load_cache():
@@ -136,7 +161,7 @@ class Geocoder:
         self._dirty = False
 
     def geocode(self, query):
-        query = (query or "").strip()
+        query = _clean_query(query or "")
         if not query:
             return None
         if query in self.cache:
