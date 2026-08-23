@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-URL = "https://www.imot.bg/obiava-1c178744086909362-prodava-tristaen-apartament-oblast-burgas-k-k-slanchev-bryag"
+URL = "https://www.imot.bg/obiava-1c178744086909362-prodava-tristaen-apartament-oblast-burgas-k-k-slanchev-bryag#map"
 
 COORD_URL_RE = re.compile(r"[!@]?(?:3d|4d|ll=|center=|q=|lat=)(-?\d{1,3}\.\d{3,8})[,!@]*(?:4d|lng=|,)(-?\d{1,3}\.\d{3,8})")
 
@@ -29,6 +29,14 @@ with sync_playwright() as p:
     for _ in range(20):
         page.mouse.wheel(0, 800)
         page.wait_for_timeout(400)
+
+    try:
+        map_tab = page.get_by_text("Карта", exact=False).first
+        if map_tab.count() > 0:
+            map_tab.click(timeout=3000)
+            print("clicked a 'Карта' element")
+    except Exception as e:
+        print(f"no clickable 'Карта' element or click failed: {e}")
 
     page.wait_for_timeout(3000)
     try:
