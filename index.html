@@ -425,6 +425,7 @@
                 <option value="persqm-asc">€/m² (low to high)</option>
                 <option value="vsavg-asc">Most below area average</option>
                 <option value="score-desc">Motivation score</option>
+                <option value="drops-desc">Most price drops</option>
               </select>
             </div>
           </div>
@@ -1791,7 +1792,9 @@ function buildBadgesHtml(l) {
   }
 
   if (l.drop_pct > 0) {
-    badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen</span>`;
+    const dropCount = l.price_drop_count ?? 0;
+    const dropCountLabel = dropCount > 0 ? ` · ${dropCount} ${dropCount === 1 ? 'drop' : 'drops'}` : '';
+    badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen${dropCountLabel}</span>`;
   }
   return badges;
 }
@@ -1878,6 +1881,10 @@ function render() {
     if (sortBy === 'persqm-asc') return (a.price_per_sqm||Infinity) - (b.price_per_sqm||Infinity);
     if (sortBy === 'vsavg-asc') return (a.pct_vs_area_avg??999) - (b.pct_vs_area_avg??999);
     if (sortBy === 'score-desc') return b.score - a.score;
+    if (sortBy === 'drops-desc') {
+      const dropDiff = (b.price_drop_count ?? 0) - (a.price_drop_count ?? 0);
+      return dropDiff !== 0 ? dropDiff : (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
+    }
     return 0;
   });
 
