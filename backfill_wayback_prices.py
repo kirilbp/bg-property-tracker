@@ -44,6 +44,7 @@ ARCHIVE_UA = "bg-property-tracker/1.0 (personal deal-tracking tool, non-commerci
 CDX_URL = "http://web.archive.org/cdx/search/cdx"
 REQUEST_DELAY_SECONDS = 2.0
 MAX_RETRIES = 4
+PORTAL_COOLDOWN_SECONDS = 30
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -54,7 +55,16 @@ PORTALS = [
         "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya",
         "history_imot.json",
         "imot_",
-        re.compile(r"/obiava-(\d[a-z]\d{10,})-"),
+        # Deliberately looser than scraper_imot.py's own LISTING_LINK_RE
+        # (which requires a trailing "-" right after the ID): a first
+        # backfill attempt using that exact live-site regex matched zero
+        # links on every one of 18 archived snapshots, even a July-2026
+        # one using an essentially current template - while this looser
+        # pattern (no trailing-hyphen requirement) is the one that
+        # actually found the real overlapping IDs in the first place
+        # (probe_wayback_category.py). Archived hrefs apparently don't
+        # reliably carry that trailing hyphen.
+        re.compile(r"obiava-(\d[a-z0-9]{15,20})"),
         re.compile(r"^([\d\s]{3,10})\s?€$"),
     ),
     (
@@ -100,7 +110,13 @@ def fetch_snapshot(timestamp, original_url):
         except Exception as e:
             print(f"    snapshot fetch attempt {attempt}/{MAX_RETRIES} failed: {e}")
             if attempt < MAX_RETRIES:
-                time.sleep(REQUEST_DELAY_SECONDS * attempt)
+                # A first backfill run got "Connection refused" on every one
+                # of bazar.bg's fetches, right after 18 straight successful
+                # imot.bg fetches - looks like archive.org started
+                # throttling this runner's IP after a sustained burst.
+                # Exponential (not linear) backoff gives it real room to
+                # cool down between retries.
+                time.sleep(REQUEST_DELAY_SECONDS * (3 ** attempt))
     return None
 
 
@@ -141,6 +157,30 @@ def parse_imot_prices(html, id_re, price_re):
                 break
             if len(prices) > 1:
                 break
+
+        if found_price is None:
+            # Fallback for archived templates where the price isn't its own
+            # exact text line (e.g. inline with other text): search the
+            # smallest reasonably-sized ancestor for a single "NNN NNN €"
+            # substring anywhere in its text, same technique as the live
+            # scraper's smallest_container_with_price, just applied second
+            # rather than first since it's more prone to false matches.
+            node = a
+            loose_price_re = re.compile(r"[\d\s]{3,10}\s?€")
+            for _ in range(8):
+                if node.parent is None:
+                    break
+                node = node.parent
+                text = node.get_text(" ", strip=True)
+                if len(text) > 800:
+                    break
+                matches = loose_price_re.findall(text)
+                if len(matches) == 1:
+                    found_price = int(re.sub(r"\D", "", matches[0]))
+                    break
+                if len(matches) > 1:
+                    break
+
         if found_price and found_price >= 1000:
             results[listing_id] = found_price
     return results
@@ -243,7 +283,10 @@ def backfill_portal(portal, url, history_filename, id_prefix, id_re, price_re):
 
 def main():
     total_injected = {}
-    for portal, url, history_filename, id_prefix, id_re, price_re in PORTALS:
+    for i, (portal, url, history_filename, id_prefix, id_re, price_re) in enumerate(PORTALS):
+        if i > 0:
+            print(f"\ncooling down {PORTAL_COOLDOWN_SECONDS}s before starting {portal}...")
+            time.sleep(PORTAL_COOLDOWN_SECONDS)
         total_injected[portal] = backfill_portal(portal, url, history_filename, id_prefix, id_re, price_re)
 
     print("\n\n===== SUMMARY =====")
