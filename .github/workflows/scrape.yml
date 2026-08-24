@@ -46,17 +46,7 @@ jobs:
 
       - run: python scraper_imoti_bg.py
 
-      # A first live run confirmed sales.bcpea.org bot-blocks plain HTTP
-      # requests (403), since fixed by switching to a real headless browser
-      # (Playwright/Chromium, already installed above for scraper_imot.py -
-      # same fix already proven on other portals). That fix itself is still
-      # unverified against the live site (this sandbox has no network access
-      # to sales.bcpea.org at all), so continue-on-error stays on for now so
-      # a further live surprise can't block the git-commit step below and
-      # discard every other scraper's successful update for this run too -
-      # remove once a scheduled run confirms real listings are coming back.
       - run: python scraper_bcpea.py
-        continue-on-error: true
 
       # Runs after every scrape so newly-detected relistings (a seller
       # deleting and reposting a listing, often at a lower price, instead
