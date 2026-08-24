@@ -41,7 +41,7 @@ import requests
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 ARCHIVE_UA = "bg-property-tracker/1.0 (personal deal-tracking tool, non-commercial)"
-CDX_URL = "http://web.archive.org/cdx/search/cdx"
+CDX_URL = "https://web.archive.org/cdx/search/cdx"
 REQUEST_DELAY_SECONDS = 2.0
 MAX_RETRIES = 4
 PORTAL_COOLDOWN_SECONDS = 30
@@ -101,11 +101,27 @@ def cdx_all_captures(url):
 
 
 def fetch_snapshot(timestamp, original_url):
-    wayback_url = f"http://web.archive.org/web/{timestamp}id_/{original_url}"
+    # https, not http - "Connection refused" on port 80 for every bazar.bg
+    # fetch in a prior run (even after a 30s cooldown) suggests plain HTTP
+    # to archive.org gets blocked somewhere in this network path; archive.org
+    # fully supports HTTPS.
+    wayback_url = f"https://web.archive.org/web/{timestamp}id_/{original_url}"
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = requests.get(wayback_url, headers=HEADERS, timeout=30)
             resp.raise_for_status()
+            # probe_snapshot_structure.py found the real bug behind two
+            # failed backfill attempts: archived imot.bg pages are
+            # Windows-1251-encoded Cyrillic, but requests' encoding
+            # detection (trusting a header on the archived response) was
+            # decoding them as Latin-1 - garbling not just the Cyrillic
+            # text but the multi-byte "€" symbol itself, so no price line
+            # could ever match regardless of the regex used. The id regex
+            # fix in the previous attempt was real and still needed (231
+            # matched links confirmed it works), it just wasn't the whole
+            # story. apparent_encoding sniffs the real encoding from the
+            # actual byte content instead of trusting a wrong header.
+            resp.encoding = resp.apparent_encoding
             return resp.text
         except Exception as e:
             print(f"    snapshot fetch attempt {attempt}/{MAX_RETRIES} failed: {e}")
