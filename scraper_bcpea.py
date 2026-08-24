@@ -77,7 +77,7 @@ documents for the other geocoded portals.
 import re
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -390,6 +390,15 @@ def update_history(history, listings):
     return history
 
 
+# A listing not seen in a scrape for at least this long is treated as no
+# longer actually posted on this portal ("removed"), not just skipped by one
+# scrape cycle due to pagination timing/site load - same threshold
+# detect_relistings.py already uses for the same reason. Once removed,
+# days_on_market/score freeze at the day it was last confirmed live instead
+# of continuing to climb forever against an ad that's no longer there.
+GONE_AFTER = timedelta(hours=20)
+
+
 def compute_leads(history):
     leads = []
     for lid, rec in history.items():
@@ -411,10 +420,14 @@ def compute_leads(history):
             1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
         )
 
+        last_seen = datetime.fromisoformat(rec["snapshots"][-1]["seen_at"])
+        source_status = "active" if (datetime.now(timezone.utc) - last_seen) <= GONE_AFTER else "removed"
+        effective_now = last_seen if source_status == "removed" else datetime.now(timezone.utc)
+
         latest = rec["latest"]
         site_updated_at = latest.get("site_updated_at")
         reference_date = datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
-        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        days_on_market = max((effective_now - reference_date).days, 0)
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
@@ -425,6 +438,8 @@ def compute_leads(history):
         entry["price_history"] = price_history
         entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
+        entry["source_status"] = source_status
+        entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         entry["days_on_market"] = days_on_market
         entry["score"] = score
         leads.append(entry)
