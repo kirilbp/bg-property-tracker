@@ -824,7 +824,17 @@ const BCPEA_TYPE_LOOKUP = BCPEA_RAW_TYPES
 
 // The other 7 portals' shared classify_category() output, mapped to the
 // closest of the 6 type buckets.
-const CATEGORY_TO_BUCKET = { apartment: 'flat', house: 'house', land: 'land', commercial: 'business' };
+// "apartment"/"commercial" are classify_category()'s old 4-value output
+// (geo_utils.py), still produced by portals not yet migrated to the
+// nationwide expansion's category_classifier.py, which outputs bucket
+// names directly (flat/garage/shop/business already match a bucket key,
+// hence the identity entries) - both resolve through this one lookup
+// during the portal-by-portal migration. Kept in sync with
+// sync_to_supabase.py's identical CATEGORY_TO_BUCKET.
+const CATEGORY_TO_BUCKET = {
+  apartment: 'flat', house: 'house', land: 'land', commercial: 'business',
+  flat: 'flat', garage: 'garage', shop: 'shop', business: 'business',
+};
 
 const TYPE_FILTER_BUCKETS = [
   { key: 'flat', label: 'Flats', icon: '🏢' },

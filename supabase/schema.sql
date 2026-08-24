@@ -30,6 +30,7 @@ create table if not exists listing_sources (
   title                   text,
   description             text,
   category                text,
+  category_confidence     text,
   type_bucket             text,
   city_key                text,
   lat                     double precision,
@@ -66,6 +67,7 @@ create table if not exists merged_listings (
   title                   text,
   description             text,
   category                text,
+  category_confidence     text,
   type_bucket             text,
   city_key                text,
   lat                     double precision,
@@ -108,3 +110,13 @@ create policy "public read" on merged_listings for select using (true);
 -- No insert/update/delete policies for anon/authenticated on purpose: only
 -- the secret key (used server-side by sync_to_supabase.py) can write, and
 -- it bypasses RLS entirely, so it needs no policy of its own.
+
+-- Columns added after the tables already existed in the live project -
+-- "create table if not exists" above only creates from scratch, it can't
+-- retroactively add a column to a table that's already there. Kept here
+-- (not folded into the create table statements) so this whole file stays
+-- safe to paste again in the SQL editor at any point: a fresh project gets
+-- these columns from the create table statements directly, an existing one
+-- picks them up here, idempotently either way.
+alter table listing_sources add column if not exists category_confidence text;
+alter table merged_listings add column if not exists category_confidence text;
