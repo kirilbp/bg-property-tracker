@@ -115,17 +115,21 @@
   .registry-link:hover { color: #0ea5e9; }
   .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
   #chart-wrap { height: 320px; }
-  #homeChartWrap { height: 220px; margin: 4px 0 20px; }
+  #homeChartWrap { height: 130px; margin: 4px 0 10px; }
 
   /* Home page */
   .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
   .stat-tile { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
   .stat-tile .stat-value { font-size: 24px; font-weight: 700; margin: 0 0 2px; }
   .stat-tile .stat-label { font-size: 13px; color: #64748b; margin: 0; }
-  .portal-list { display: flex; flex-direction: column; gap: 2px; }
-  .portal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-  .portal-row:last-child { border-bottom: none; }
-  .portal-count { font-weight: 700; color: #1e3a8a; background: #eff6ff; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+  .home-search-row { display: flex; gap: 10px; }
+  .home-search-row input { flex: 1; }
+  .portal-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .portal-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: #f8fafc;
+    border: 1px solid #e2e8f0; border-radius: 999px; padding: 4px 10px; font-size: 12px; color: #475569;
+  }
+  .portal-chip strong { color: #1e3a8a; font-weight: 700; }
   .cta-btn {
     display: inline-block; background: #2563eb; color: white; text-decoration: none;
     padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer;
@@ -142,6 +146,15 @@
   .type-filter-icon { font-size: 20px; }
   .type-filter-label { font-size: 14px; font-weight: 600; color: #1e293b; }
   .type-filter-count { font-size: 13px; color: #64748b; }
+  .city-tab-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .city-tab-btn {
+    background: white; border: 1px solid #e2e8f0; border-radius: 999px; padding: 7px 14px;
+    font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; font: inherit;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .city-tab-btn:hover { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
+  .city-tab-btn.active { border-color: #2563eb; background: #2563eb; color: white; }
+  .city-tab-count { font-weight: 400; opacity: 0.75; margin-left: 4px; }
 
   /* Help page */
   .help-section { margin-bottom: 20px; }
@@ -331,15 +344,27 @@
       <section class="page active" id="section-home">
         <div class="stat-row" id="homeStats"></div>
         <div class="card">
-          <h2>Listings by source</h2>
-          <p class="card-sub">All 8 portals are scraped automatically and de-duplicated into one list.</p>
-          <div id="homeChartWrap"><canvas id="homeChart"></canvas></div>
-          <div class="portal-list" id="portalList"></div>
+          <h2>Search listings</h2>
+          <div class="home-search-row">
+            <input type="text" id="homeSearchQuery" placeholder="Search by address, area, or keyword…" />
+            <button class="cta-btn" id="homeSearchBtn">Search →</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Browse by city</h2>
+          <p class="card-sub">The 30 largest cities and towns in Bulgaria. 7 of 8 portals only cover Sofia, so Sofia's count will dominate until more sources expand nationwide - sales.bcpea.org is the one already-nationwide source.</p>
+          <div class="city-tab-row" id="cityTabRow"></div>
         </div>
         <div class="card">
           <h2>Browse by property type</h2>
           <p class="card-sub">Filter listings across all 8 portals by property type, or jump straight to public court-ordered auctions from sales.bcpea.org (Chamber of Private Enforcement Agents) - their prices are a legal minimum starting bid, not a negotiable asking price. "Uncategorized" is listings some portals couldn't be classified for right now, not a real property type.</p>
           <div class="type-filter-grid" id="typeFilterGrid"></div>
+        </div>
+        <div class="card">
+          <h2>Listings by source</h2>
+          <p class="card-sub">All 8 portals are scraped automatically and de-duplicated into one list.</p>
+          <div id="homeChartWrap"><canvas id="homeChart"></canvas></div>
+          <div class="portal-chip-row" id="portalList"></div>
         </div>
         <div class="card">
           <h2>Ready to browse?</h2>
@@ -365,6 +390,10 @@
         <div class="leadgen-banner" id="typeFilterBanner" style="display:none;">
           <span>Showing <strong id="typeFilterBannerName"></strong></span>
           <button id="typeFilterBannerClearBtn">✕ Clear, show all listings</button>
+        </div>
+        <div class="leadgen-banner" id="cityFilterBanner" style="display:none;">
+          <span>Showing <strong id="cityFilterBannerName"></strong></span>
+          <button id="cityFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
         <div class="card">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:#2563eb; text-decoration:none;">← Back to Lead Generators</a>
@@ -729,6 +758,7 @@ function applyTypeFilter(key) {
   if (!def) return;
   activeTypeFilter = key;
   clearActiveLeadGenerator(true);
+  clearCityFilter(true);
   document.getElementById('minPrice').value = '';
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
@@ -761,6 +791,111 @@ function renderTypeFilters() {
       <span class="type-filter-icon">${b.icon}</span>
       <span class="type-filter-label">${b.label}</span>
       <span class="type-filter-count">${fmt(counts[b.key])} listings</span>
+    </button>
+  `).join('');
+}
+
+// --- City filter (Home page) --------------------------------------------------
+// The 30 largest Bulgarian cities/towns. 7 of the 8 portals only scrape
+// Sofia (their own search URLs are Sofia-scoped, not something read off
+// each listing), so every listing from those is unconditionally Sofia
+// regardless of what l.area says (it's a neighborhood name, never a
+// city). sales.bcpea.org is the one portal that's genuinely nationwide,
+// so its listings are matched against the settlement name embedded in
+// l.title (scraper_bcpea.py always builds it as "<raw type>, <settlement>" -
+// the same BCPEA_TYPE_LOOKUP prefix match already used for the type
+// buckets gives the settlement as whatever's left after the matched raw
+// type, independent of whether l.area itself later got overwritten with a
+// more precise district name by the detail-page enrichment pass).
+const BG_CITIES = [
+  { key: 'sofia', label: 'Sofia', name: 'София' },
+  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив' },
+  { key: 'varna', label: 'Varna', name: 'Варна' },
+  { key: 'burgas', label: 'Burgas', name: 'Бургас' },
+  { key: 'ruse', label: 'Ruse', name: 'Русе' },
+  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора' },
+  { key: 'pleven', label: 'Pleven', name: 'Плевен' },
+  { key: 'sliven', label: 'Sliven', name: 'Сливен' },
+  { key: 'dobrich', label: 'Dobrich', name: 'Добрич' },
+  { key: 'shumen', label: 'Shumen', name: 'Шумен' },
+  { key: 'pernik', label: 'Pernik', name: 'Перник' },
+  { key: 'haskovo', label: 'Haskovo', name: 'Хасково' },
+  { key: 'yambol', label: 'Yambol', name: 'Ямбол' },
+  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик' },
+  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград' },
+  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново' },
+  { key: 'vratsa', label: 'Vratsa', name: 'Враца' },
+  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово' },
+  { key: 'vidin', label: 'Vidin', name: 'Видин' },
+  { key: 'asenovgrad', label: 'Asenovgrad', name: 'Асеновград' },
+  { key: 'kazanlak', label: 'Kazanlak', name: 'Казанлък' },
+  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил' },
+  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали' },
+  { key: 'montana', label: 'Montana', name: 'Монтана' },
+  { key: 'dimitrovgrad', label: 'Dimitrovgrad', name: 'Димитровград' },
+  { key: 'targovishte', label: 'Targovishte', name: 'Търговище' },
+  { key: 'lovech', label: 'Lovech', name: 'Ловеч' },
+  { key: 'silistra', label: 'Silistra', name: 'Силистра' },
+  { key: 'dupnitsa', label: 'Dupnitsa', name: 'Дупница' },
+  { key: 'svishtov', label: 'Svishtov', name: 'Свищов' },
+];
+const BG_CITY_BY_NAME = Object.fromEntries(BG_CITIES.map(c => [c.name, c.key]));
+
+function bcpeaSettlementFromTitle(l) {
+  if (!l.title) return null;
+  const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
+  if (!match) return null;
+  return l.title.slice(match[0].length).replace(/^,\s*/, '').trim() || null;
+}
+
+function listingCityKey(l) {
+  if (l.portal !== 'sales.bcpea.org') return 'sofia';
+  const settlement = bcpeaSettlementFromTitle(l);
+  return settlement ? (BG_CITY_BY_NAME[settlement] || null) : null;
+}
+
+function matchesCityFilter(l, key) {
+  if (!key) return true;
+  return listingCityKey(l) === key;
+}
+
+let activeCityFilter = null;
+
+function applyCityFilter(key) {
+  const def = BG_CITIES.find(c => c.key === key);
+  if (!def) return;
+  activeCityFilter = key;
+  clearActiveLeadGenerator(true);
+  clearTypeFilter(true);
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('minSqm').value = '';
+  document.getElementById('searchQuery').value = '';
+  document.getElementById('areaFilter').value = '';
+  document.getElementById('cityFilterBanner').style.display = 'flex';
+  document.getElementById('cityFilterBannerName').textContent = def.label;
+  currentPage = 1;
+  showSection('leads');
+  render();
+}
+
+function clearCityFilter(skipRender) {
+  activeCityFilter = null;
+  document.getElementById('cityFilterBanner').style.display = 'none';
+  if (!skipRender) renderFromStart();
+}
+
+function renderCityTabs() {
+  const row = document.getElementById('cityTabRow');
+  if (!row) return;
+  const counts = Object.fromEntries(BG_CITIES.map(c => [c.key, 0]));
+  MERGED_LISTINGS.forEach(l => {
+    const key = listingCityKey(l);
+    if (key) counts[key]++;
+  });
+  row.innerHTML = BG_CITIES.map(c => `
+    <button class="city-tab-btn${activeCityFilter === c.key ? ' active' : ''}" data-city-filter="${c.key}">
+      ${c.label}<span class="city-tab-count">${fmt(counts[c.key])}</span>
     </button>
   `).join('');
 }
@@ -1518,6 +1653,7 @@ function checkLeads(genId) {
   if (!gen) return;
   activeLeadGenerator = gen;
   clearTypeFilter(true);
+  clearCityFilter(true);
   document.getElementById('minPrice').value = gen.filters.minPrice ?? '';
   document.getElementById('maxPrice').value = gen.filters.maxPrice ?? '';
   document.getElementById('minSqm').value = gen.filters.minSqm ?? '';
@@ -1555,14 +1691,12 @@ function renderHome() {
 
   const portalList = document.getElementById('portalList');
   portalList.innerHTML = Object.entries(PORTAL_COUNTS).map(([portal, count]) => `
-    <div class="portal-row">
-      <span>${portal}</span>
-      <span class="portal-count">${fmt(count)}</span>
-    </div>
+    <span class="portal-chip">${portal} <strong>${fmt(count)}</strong></span>
   `).join('');
 
   renderHomeChart();
   renderTypeFilters();
+  renderCityTabs();
 }
 
 function renderHomeChart() {
@@ -1570,6 +1704,9 @@ function renderHomeChart() {
   if (!ctx || typeof Chart === 'undefined') return;
   const entries = Object.entries(PORTAL_COUNTS);
   if (homeChart) homeChart.destroy();
+  // Horizontal + compact: at this card's shrunk height there's no room for
+  // readable x-axis portal-name labels, so counts run along a hidden axis
+  // and portal names sit as row labels instead, with exact counts on hover.
   homeChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -1582,10 +1719,17 @@ function renderHomeChart() {
       }]
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true, ticks: { callback: v => fmt(v) } } }
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) + ' listings' } },
+      },
+      scales: {
+        x: { display: false, beginAtZero: true },
+        y: { ticks: { font: { size: 10 } } },
+      }
     }
   });
 }
@@ -1724,7 +1868,8 @@ function render() {
     (area === '' || l.area === area) &&
     listingMatchesSearch(l, searchQuery) &&
     matchesLeadGenerator(l, activeLeadGenerator) &&
-    matchesTypeFilter(l, activeTypeFilter)
+    matchesTypeFilter(l, activeTypeFilter) &&
+    matchesCityFilter(l, activeCityFilter)
   );
 
   filtered.sort((a, b) => {
@@ -2024,6 +2169,24 @@ document.getElementById('typeFilterBannerClearBtn').addEventListener('click', ()
 document.getElementById('typeFilterGrid').addEventListener('click', (e) => {
   const btn = e.target.closest('.type-filter-btn[data-type-filter]');
   if (btn) applyTypeFilter(btn.dataset.typeFilter);
+});
+
+document.getElementById('cityFilterBannerClearBtn').addEventListener('click', () => clearCityFilter());
+document.getElementById('cityTabRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.city-tab-btn[data-city-filter]');
+  if (btn) applyCityFilter(btn.dataset.cityFilter);
+});
+
+function runHomeSearch() {
+  const q = document.getElementById('homeSearchQuery').value;
+  document.getElementById('searchQuery').value = q;
+  currentPage = 1;
+  showSection('leads');
+  render();
+}
+document.getElementById('homeSearchBtn').addEventListener('click', runHomeSearch);
+document.getElementById('homeSearchQuery').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') runHomeSearch();
 });
 
 document.getElementById('leadgenModalCloseBtn').addEventListener('click', closeLeadGenModal);
