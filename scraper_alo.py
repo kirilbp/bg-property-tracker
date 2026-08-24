@@ -158,7 +158,27 @@ def fetch_listings_page(url, seen):
 
         area = dedup_area(area_match.group(1).strip()) if area_match else "Sofia"
 
-        img = container.find("img")
+        # An agency-posted card has TWO images in this container: its own
+        # branding/avatar (class "listtop-logo") *before* the real property
+        # photo (class "listtop-image-img") in DOM order - confirmed live
+        # against real cards via probe_alo_photos.py. Plain container.find(
+        # "img") grabbed whichever came first, which was the agency's logo
+        # for every agency-posted listing (93.8% of currently tracked
+        # listings, one avatar reused across 1,201 unrelated ones) - the
+        # actual property photo was sitting right there, just second.
+        # Individually-posted listings (no agency) only ever have the one,
+        # correctly-classed image, so this still works for them unchanged.
+        img = container.find("img", class_="listtop-image-img")
+        if img is None:
+            # Fall back to the first non-avatar/non-logo image rather than
+            # blindly taking whatever's first, in case the class name ever
+            # changes - never show an avatar as if it were the property.
+            img = next(
+                (i for i in container.find_all("img")
+                 if i.get("src") and "avatar" not in i["src"].lower()
+                 and (not i.get("class") or "listtop-logo" not in i.get("class"))),
+                None,
+            )
         img_url = img.get("src") if img else None
         if img_url:
             if img_url.startswith("//"):
@@ -345,4 +365,5 @@ def main():
     print("Found " + str(len(listings)) + " listings, " + str(len(leads)) + " tracked leads")
 
 
-main()
+if __name__ == "__main__":
+    main()
