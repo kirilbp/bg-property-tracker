@@ -82,8 +82,17 @@
   }
   .page-num-btn:hover { border-color: #94a3b8; }
   .page-num-btn.active { background: #2563eb; border-color: #2563eb; color: white; cursor: default; }
-  .listing { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+  .listing { background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; position: relative; }
   .listing:hover { border-color: #94a3b8; }
+  .save-listing-btn {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    width: 30px; height: 30px; border-radius: 999px; border: none;
+    background: rgba(255,255,255,0.92); box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer; font-size: 15px; line-height: 1; color: #64748b;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .save-listing-btn:hover { background: white; color: #f59e0b; }
+  .save-listing-btn.saved { color: #f59e0b; }
   .listing img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #e2e8f0; display: block; }
   .listing-photo-placeholder {
     width: 100%; aspect-ratio: 4/3; background: #e2e8f0; color: #94a3b8;
@@ -204,6 +213,14 @@
     padding: 8px 14px; border-radius: 8px;
   }
   .source-link:hover { background: #e2e8f0; }
+  .save-detail-btn {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-size: 13px; font-weight: 600; color: #475569; background: white;
+    border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    margin-top: 10px;
+  }
+  .save-detail-btn:hover { border-color: #94a3b8; }
+  .save-detail-btn.saved { background: #fffbeb; border-color: #fcd34d; color: #b45309; }
 
   .badge-alt-portal { background: #eef2ff; color: #4338ca; }
   .source-switcher { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
@@ -446,6 +463,12 @@
       <!-- Dashboard -->
       <section class="page" id="section-dashboard">
         <div class="card">
+          <h2>🔖 Saved listings</h2>
+          <p class="card-sub">Listings you've saved, right here in this browser — click ☆ on any listing to add it.</p>
+          <div class="grid" id="savedGrid"></div>
+          <p class="empty" id="savedEmpty" style="display:none;">No saved listings yet — click ☆ on any listing to save it here.</p>
+        </div>
+        <div class="card">
           <h2>🔥 Hottest deals right now</h2>
           <p class="card-sub">Top 6 listings by motivation score (price drops + days on market).</p>
           <div class="grid" id="hotGrid"></div>
@@ -636,6 +659,72 @@ let PORTAL_COUNTS = {};
 let chart = null;
 let chartInitialized = false;
 let homeChart = null;
+
+// --- Saved listings (Dashboard bookmarks) -------------------------------------
+// Stored in this browser's localStorage, same as lead generators - just the
+// ids, in save order, resolved against MERGED_LISTINGS at render time so a
+// saved listing's price/badges/etc. stay live rather than freezing a copy
+// from the moment it was saved. A ★/☆ toggle button appears wherever a
+// listing is rendered (grid cards and the detail page).
+const SAVED_LISTINGS_KEY = 'savedListingIds';
+let SAVED_LISTING_IDS = loadSavedListingIds();
+
+function loadSavedListingIds() {
+  try {
+    const raw = localStorage.getItem(SAVED_LISTINGS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    console.error('Failed to load saved listings from storage', e);
+    return [];
+  }
+}
+
+function persistSavedListingIds() {
+  try {
+    localStorage.setItem(SAVED_LISTINGS_KEY, JSON.stringify(SAVED_LISTING_IDS));
+  } catch (e) {
+    console.error('Failed to save saved listings to storage', e);
+  }
+}
+
+function isListingSaved(id) {
+  return SAVED_LISTING_IDS.includes(id);
+}
+
+function toggleSavedListing(id) {
+  if (isListingSaved(id)) {
+    SAVED_LISTING_IDS = SAVED_LISTING_IDS.filter(x => x !== id);
+  } else {
+    SAVED_LISTING_IDS.push(id);
+  }
+  persistSavedListingIds();
+
+  // The Dashboard's Saved listings grid needs a full re-render (a card must
+  // appear/disappear there, not just have its button flip) - everywhere
+  // else, only the button(s) for this one listing need updating in place.
+  if (document.getElementById('section-dashboard').classList.contains('active')) {
+    renderDashboard();
+  } else {
+    updateSaveButtonsFor(id);
+  }
+}
+
+// Avoids building a CSS attribute-selector string out of a listing id (ids
+// come straight from source portals and aren't guaranteed to be selector-
+// or quote-safe) - filters in JS instead of querySelectorAll(`[data-save-id="${id}"]`).
+function updateSaveButtonsFor(id) {
+  const saved = isListingSaved(id);
+  document.querySelectorAll('.save-listing-btn, .save-detail-btn').forEach(btn => {
+    if (btn.dataset.saveId !== id) return;
+    btn.classList.toggle('saved', saved);
+    if (btn.classList.contains('save-listing-btn')) {
+      btn.textContent = saved ? '★' : '☆';
+      btn.title = saved ? 'Remove from Dashboard' : 'Save to Dashboard';
+    } else {
+      btn.innerHTML = saved ? '★ Saved to Dashboard' : '☆ Save to Dashboard';
+    }
+  });
+}
 
 // --- Lead generators (saved searches) ----------------------------------------
 // Stored in this browser's localStorage - there's no backend/login on this
@@ -1842,6 +1931,19 @@ function renderDashboard() {
   const hotGrid = document.getElementById('hotGrid');
   hotGrid.innerHTML = '';
   top.forEach(l => hotGrid.appendChild(createListingCard(l)));
+
+  // Resolved against MERGED_LISTINGS by id on every render rather than
+  // storing a snapshot, so a saved listing's price/badges/etc. stay live;
+  // a saved id no longer present (delisted, or from an older data set)
+  // just silently drops out instead of showing a broken card. Most
+  // recently saved first.
+  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
+  const saved = SAVED_LISTING_IDS.slice().reverse().map(id => byId.get(id)).filter(Boolean);
+  const savedGrid = document.getElementById('savedGrid');
+  const savedEmpty = document.getElementById('savedEmpty');
+  savedGrid.innerHTML = '';
+  savedEmpty.style.display = saved.length === 0 ? 'block' : 'none';
+  saved.forEach(l => savedGrid.appendChild(createListingCard(l)));
 }
 
 function renderChart() {
@@ -1923,7 +2025,9 @@ function createListingCard(l) {
     ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
     : photoPlaceholderHtml;
 
+  const saved = isListingSaved(l.id);
   card.innerHTML = `
+    <button class="save-listing-btn${saved ? ' saved' : ''}" data-save-id="${l.id}" title="${saved ? 'Remove from Dashboard' : 'Save to Dashboard'}">${saved ? '★' : '☆'}</button>
     <div class="listing-link" data-listing-id="${l.id}">
       ${photoHtml}
       <div class="listing-body">
@@ -2154,6 +2258,7 @@ function renderListingDetail(merged) {
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
+        <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
         <div class="detail-stats">
           <div class="detail-stat"><p class="label">Motivation score</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
@@ -2248,6 +2353,8 @@ function showSection(name) {
     else if (chart) chart.resize();
   } else if (name === 'leadgen') {
     renderLeadgenMiniMaps();
+  } else if (name === 'dashboard') {
+    renderDashboard();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -2262,6 +2369,11 @@ document.getElementById('backBtn').addEventListener('click', () => showSection('
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.listing-link[data-listing-id]');
   if (card) showListingDetail(card.dataset.listingId);
+});
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.save-listing-btn, .save-detail-btn');
+  if (btn) toggleSavedListing(btn.dataset.saveId);
 });
 
 window.addEventListener('hashchange', () => {
