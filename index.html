@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BG Property Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
@@ -642,6 +643,15 @@
 </div>
 
 <script>
+// The publishable/anon key is meant to be public - it's rejected by Row
+// Level Security for anything but the read-only SELECT policy in
+// supabase/schema.sql. Writes only ever happen server-side (sync_to_
+// supabase.py, in GitHub Actions) with the separate secret key, which
+// never appears in this repo.
+const SUPABASE_URL = 'https://eoufgmmgwczixfajebhc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_8m7t7ejFdAr9wWqxz26fcw_LUWURIcL';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
 // Descriptions are long free-text pulled straight from source portals - unlike
 // the short scraped fields elsewhere on this page, they're likely enough to
@@ -1144,164 +1154,11 @@ function renderRadiusPanel(l) {
   `;
 }
 
-// --- Cross-portal duplicate detection ---------------------------------------
-// Each portal is scraped independently with no shared ID between sites, so
-// the same real-world apartment cross-posted to several portals shows up as
-// several unrelated-looking listings. Match candidates on price (portals
-// copy the same asking price, so this should agree to the euro - allowing
-// $1 of slack for BGN->EUR rounding on portals that convert from leva) and
-// sqm (exact when both sides have it - many bazar.bg listings don't, so
-// missing sqm on either side doesn't block a match on its own) and area
-// (fuzzy: imoti.net's area names are already in Latin script since it's
-// scraped via the site's English UI, everyone else's are Cyrillic, so both
-// sides are transliterated to Latin and compared as a loose substring match
-// rather than requiring an exact string). This is a heuristic, not a
-// certainty - no photo/image comparison is done (would mean downloading
-// and hashing every listing's photos, a much bigger undertaking), so it can
-// occasionally miss a real duplicate or, in rare cases, merge two distinct
-// but coincidentally identical-priced/sized units in the same area.
-const CYR_TO_LAT = {
-  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y',
-  к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u',
-  ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sht', ъ: 'a', ь: '', ю: 'yu', я: 'ya',
-};
-
-function transliterate(s) {
-  return s.split('').map(c => CYR_TO_LAT[c] ?? c).join('');
-}
-
-function normalizeArea(area) {
-  if (!area) return '';
-  let s = transliterate(area.toLowerCase().trim());
-  // Strip cosmetic prefixes only ("zh.k. Lyulin 5" / "kv. Lyulin 5" / "v Lyulin 5"
-  // all mean the same thing as "Lyulin 5") - crucially this does NOT strip the
-  // trailing sub-district number, because e.g. Lyulin 5 and Lyulin 7 are
-  // genuinely different neighborhoods, not formatting variants of each other.
-  for (let i = 0; i < 3; i++) {
-    s = s.replace(/^(v|kv\.?|zh\.?k?\.?)\s+/, '').trim();
-  }
-  return s;
-}
-
-// Deliberately exact-match only, no substring/prefix fallback: imoti.net
-// (the only portal scraped via its English UI) reports just the general
-// district name ("Lyulin") while every other portal reports the specific
-// numbered sub-district ("Lyulin 5", "Lyulin 7", ...) - a substring check
-// would treat "Lyulin" as matching ALL of Lyulin 1 through 10 as if they
-// were the same place, which is wrong; they're different neighborhoods.
-// The tradeoff is that imoti.net listings match less often than they
-// otherwise could - that's the safe direction to be wrong in here.
-function areasMatch(a1, a2) {
-  const n1 = normalizeArea(a1), n2 = normalizeArea(a2);
-  return !!n1 && n1 === n2;
-}
-
-function pricesMatch(p1, p2) {
-  if (!p1 || !p2) return false;
-  return Math.abs(p1 - p2) <= 1;
-}
-
-// Two-pass grouping, not a single fuzzy transitive-closure pass: a listing
-// with no recorded sqm (common on bazar.bg/alo.bg) matching two OTHER
-// listings individually doesn't mean those two match each other - e.g. a
-// sqm-less listing at "Lyulin, €150,000" could satisfy price+area against
-// both a real 66sqm unit and a real 94sqm unit without those two ever
-// being the same property. Pass 1 clusters only listings that have a real
-// sqm value, using a strict pairwise check on real numbers both sides, so
-// there's no missing-value bridge for two unrelated clusters to merge
-// through. Pass 2 then lets sqm-less listings attach onto an
-// already-decided pass-1 cluster (never creating a new bridge between two
-// of them), or stand alone if nothing matches.
-function groupListings(all) {
-  const withSqm = all.filter(l => l.sqm);
-  const withoutSqm = all.filter(l => !l.sqm);
-
-  const priceBuckets = new Map();
-  withSqm.forEach(l => {
-    const key = Math.round(l.price_eur || 0);
-    if (!priceBuckets.has(key)) priceBuckets.set(key, []);
-    priceBuckets.get(key).push(l);
-  });
-
-  const parent = new Map();
-  withSqm.forEach(l => parent.set(l.id, l.id));
-  function find(x) {
-    while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); }
-    return x;
-  }
-  function union(a, b) {
-    const ra = find(a), rb = find(b);
-    if (ra !== rb) parent.set(ra, rb);
-  }
-
-  withSqm.forEach(l => {
-    const key = Math.round(l.price_eur || 0);
-    for (const dk of [-1, 0, 1]) {
-      const bucket = priceBuckets.get(key + dk);
-      if (!bucket) continue;
-      for (const other of bucket) {
-        if (other === l || l.portal === other.portal) continue;
-        if (pricesMatch(l.price_eur, other.price_eur) &&
-            Math.abs(l.sqm - other.sqm) <= 1 &&
-            areasMatch(l.area, other.area)) {
-          union(l.id, other.id);
-        }
-      }
-    }
-  });
-
-  const groupsByRoot = new Map();
-  withSqm.forEach(l => {
-    const root = find(l.id);
-    if (!groupsByRoot.has(root)) groupsByRoot.set(root, []);
-    groupsByRoot.get(root).push(l);
-  });
-  const groups = Array.from(groupsByRoot.values());
-
-  const groupBuckets = new Map();
-  groups.forEach(g => {
-    const key = Math.round(g[0].price_eur || 0);
-    if (!groupBuckets.has(key)) groupBuckets.set(key, []);
-    groupBuckets.get(key).push(g);
-  });
-
-  const soloSqmless = [];
-  withoutSqm.forEach(l => {
-    const key = Math.round(l.price_eur || 0);
-    let attached = false;
-    for (const dk of [-1, 0, 1]) {
-      const candidates = groupBuckets.get(key + dk);
-      if (!candidates) continue;
-      for (const group of candidates) {
-        if (group.some(m => m.portal === l.portal)) continue;
-        const rep = group[0];
-        if (pricesMatch(l.price_eur, rep.price_eur) && areasMatch(l.area, rep.area)) {
-          group.push(l);
-          attached = true;
-          break;
-        }
-      }
-      if (attached) break;
-    }
-    if (!attached) soloSqmless.push([l]);
-  });
-
-  return [...groups, ...soloSqmless].map(sources => {
-    const sorted = [...sources].sort((a, b) => (b.score || 0) - (a.score || 0));
-    // Each source already knows its own source_status ('active'/'removed' -
-    // set server-side in compute_leads(), based on whether that specific
-    // portal has actually re-confirmed the listing recently). The MERGED
-    // listing is only "sold" once every cross-posted source agrees it's
-    // gone; if even one portal still shows it live, the property is still
-    // available, just no longer through the ones that dropped it. A source
-    // with no source_status at all (committed before this field existed)
-    // is treated as active - assume available rather than sold until a
-    // scrape actually confirms otherwise.
-    const status = sorted.every(s => s.source_status === 'removed') ? 'sold' : 'available';
-    sorted.forEach(s => { s.status = status; });
-    return { ...sorted[0], sources: sorted, status };
-  });
-}
+// Cross-portal duplicate detection (price+sqm+area fuzzy matching - see
+// sync_to_supabase.py's group_listings() for the full algorithm and its
+// reasoning) now runs server-side in sync_to_supabase.py after every
+// scrape, not in the browser on every page load. merged_listings is
+// already the deduped view; loadData() below just fetches it.
 
 function setGreeting() {
   const hour = new Date().getHours();
@@ -1309,45 +1166,81 @@ function setGreeting() {
   document.getElementById('greeting').textContent = `🏠 Good ${time}`;
 }
 
+// Fixed order (not DB row order, which is arbitrary) so the home page's
+// portal chips/chart and this page's subtitle line always list portals the
+// same way they always have.
+const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'bazar.bg', 'imoti.bg', 'sales.bcpea.org'];
+
+// PostgREST caps rows per request (a project's db.max_rows setting,
+// 1000 by default) regardless of the range asked for - paginate with
+// .range() until a short page confirms there's nothing left, rather than
+// assuming a project-specific limit.
+async function fetchAllRows(table) {
+  const batchSize = 1000;
+  let all = [];
+  let offset = 0;
+  for (;;) {
+    const { data, error } = await sb.from(table).select('*').range(offset, offset + batchSize - 1);
+    if (error) throw error;
+    all = all.concat(data);
+    if (data.length < batchSize) break;
+    offset += batchSize;
+  }
+  return all;
+}
+
+function computeUnverified(l) {
+  return l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined &&
+    Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
+}
+
 async function loadData() {
   try {
-    const [imotiRes, aloRes, homesRes, imotBgRes, olxRes, bazarRes, imotibgRes, bcpeaRes] = await Promise.all([
-      fetch('data/leads.json?_=' + Date.now()),
-      fetch('data/leads_alo.json?_=' + Date.now()),
-      fetch('data/leads_homes.json?_=' + Date.now()),
-      fetch('data/leads_imot.json?_=' + Date.now()),
-      fetch('data/leads_olx.json?_=' + Date.now()),
-      fetch('data/leads_bazar.json?_=' + Date.now()),
-      fetch('data/leads_imoti_bg.json?_=' + Date.now()),
-      fetch('data/leads_bcpea.json?_=' + Date.now()),
+    // merged_listings is already the cross-portal-deduped view (computed
+    // server-side by sync_to_supabase.py after every scrape - see that
+    // file for the merge algorithm, ported 1:1 from this page's old
+    // in-browser groupListings()). listing_sources carries every raw
+    // per-portal listing that fed into it, needed here for the same
+    // things the old raw JSON gave the browser: the "+portal" cross-post
+    // badges, the source-switcher and description on a listing's detail
+    // page, and searching every cross-posted source's own text, not just
+    // whichever source a merged listing displays by default.
+    const [mergedRows, sourceRows] = await Promise.all([
+      fetchAllRows('merged_listings'),
+      fetchAllRows('listing_sources'),
     ]);
-    const imoti = await imotiRes.json();
-    const alo = await aloRes.json();
-    const homes = await homesRes.json();
-    const imotBg = await imotBgRes.json();
-    const olx = await olxRes.json();
-    const bazar = await bazarRes.json();
-    const imotibg = await imotibgRes.json();
-    const bcpea = await bcpeaRes.json();
 
-    imoti.forEach(l => { if (!l.portal) l.portal = 'imoti.net'; });
-
-    ALL_LISTINGS = [...imoti, ...alo, ...homes, ...imotBg, ...olx, ...bazar, ...imotibg, ...bcpea];
-    ALL_LISTINGS.forEach(l => {
-      l.unverified = l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined &&
-        Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
+    sourceRows.forEach(s => {
+      s.id = s.source_id;
+      s.unverified = computeUnverified(s);
     });
-    PORTAL_COUNTS = {
-      'imoti.net': imoti.length, 'alo.bg': alo.length, 'homes.bg': homes.length,
-      'imot.bg': imotBg.length, 'olx.bg': olx.length, 'bazar.bg': bazar.length, 'imoti.bg': imotibg.length,
-      'sales.bcpea.org': bcpea.length,
-    };
-    MERGED_LISTINGS = groupListings(ALL_LISTINGS);
+
+    const sourcesByMergedId = new Map();
+    sourceRows.forEach(s => {
+      if (!sourcesByMergedId.has(s.merged_id)) sourcesByMergedId.set(s.merged_id, []);
+      sourcesByMergedId.get(s.merged_id).push(s);
+    });
+
+    MERGED_LISTINGS = mergedRows.map(m => {
+      const sources = (sourcesByMergedId.get(m.id) || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+      // Each source's own status badge (detail page) should read the same
+      // merged verdict as the card badge - see sync_to_supabase.py's
+      // build_rows() for how "status" itself gets decided.
+      sources.forEach(s => { s.status = m.status; });
+      return { ...m, unverified: computeUnverified(m), sources };
+    });
+
+    ALL_LISTINGS = sourceRows;
+    const countsByPortal = {};
+    sourceRows.forEach(s => { countsByPortal[s.portal] = (countsByPortal[s.portal] || 0) + 1; });
+    PORTAL_COUNTS = {};
+    PORTAL_ORDER.forEach(p => { PORTAL_COUNTS[p] = countsByPortal[p] || 0; });
+
     const duplicatesMerged = ALL_LISTINGS.length - MERGED_LISTINGS.length;
     document.getElementById('subtitle').textContent =
       `${fmt(MERGED_LISTINGS.length)} unique listings` +
       (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
-      ` (${imoti.length} imoti.net, ${alo.length} alo.bg, ${homes.length} homes.bg, ${imotBg.length} imot.bg, ${olx.length} olx.bg, ${bazar.length} bazar.bg, ${imotibg.length} imoti.bg, ${bcpea.length} sales.bcpea.org) · auto-updates every 6 hours`;
+      ` (${Object.entries(PORTAL_COUNTS).map(([p, c]) => `${c} ${p}`).join(', ')}) · auto-updates every 6 hours`;
     populateAreaFilter();
     populateLeadGenNeighborhoods();
     renderHome();

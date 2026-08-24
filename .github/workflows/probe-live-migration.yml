@@ -1,0 +1,37 @@
+# Temporary diagnostic workflow: the Supabase-backed frontend (index.html)
+# was developed and regression-tested in a sandbox with no network route to
+# Supabase at all - verified there by mocking the REST API against real
+# committed data. This runs the real, unmodified index.html on a real
+# runner against the REAL Supabase project, closing that gap before this
+# branch merges to main (and therefore goes live on GitHub Pages). Runs on
+# this branch specifically so it tests the exact code about to ship.
+# Read-only, no commit step. Delete once the question is answered.
+name: Probe live Supabase-backed frontend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install playwright
+      - run: playwright install --with-deps chromium
+
+      - run: python probe_live_migration.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-migration-screenshots
+          path: live_migration_*.png
+          retention-days: 7
