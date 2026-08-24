@@ -126,8 +126,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-09T17:04:00+00:00",
     "category": "apartment",
-    "lat": 43.3597306,
-    "lng": 25.1422144,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 299,
     "price_history": [
       {
@@ -498,13 +498,13 @@
     "photo": null,
     "price_eur": 360887,
     "sqm": 553,
-    "area": "Възраждане",
+    "area": "София",
     "title": "Магазин, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-24T13:29:00+00:00",
     "category": "commercial",
-    "lat": 42.6980415,
-    "lng": 23.3092346,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 653,
     "price_history": [
       {
@@ -518,8 +518,8 @@
     "removed_at": null,
     "days_on_market": 61,
     "score": 17,
-    "area_avg_price_per_sqm": 1179,
-    "pct_vs_area_avg": -44.6
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -66.0
   },
   {
     "id": "bcpea_89746",
@@ -532,8 +532,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-24T12:09:00+00:00",
     "category": "land",
-    "lat": 41.5072718,
-    "lng": 24.7287093,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 14,
     "price_history": [
       {
@@ -556,7 +556,7 @@
     "photo": null,
     "price_eur": 2908,
     "sqm": 525,
-    "area": "Българене, община Левски",
+    "area": "Българене",
     "title": "Парцел, Българене",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-24T09:09:00+00:00",
@@ -576,8 +576,8 @@
     "removed_at": null,
     "days_on_market": 61,
     "score": 17,
-    "area_avg_price_per_sqm": 11,
-    "pct_vs_area_avg": -45.5
+    "area_avg_price_per_sqm": 14,
+    "pct_vs_area_avg": -58.6
   },
   {
     "id": "bcpea_89716",
@@ -585,7 +585,7 @@
     "photo": null,
     "price_eur": 9921,
     "sqm": 610,
-    "area": "Българене, община Левски",
+    "area": "Българене",
     "title": "Парцел с къща, Българене",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-24T09:06:00+00:00",
@@ -605,8 +605,8 @@
     "removed_at": null,
     "days_on_market": 61,
     "score": 17,
-    "area_avg_price_per_sqm": 11,
-    "pct_vs_area_avg": 45.5
+    "area_avg_price_per_sqm": 14,
+    "pct_vs_area_avg": 10.3
   },
   {
     "id": "bcpea_89708",
@@ -822,8 +822,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-29T13:21:00+00:00",
     "category": "land",
-    "lat": 42.6598371,
-    "lng": 27.5648758,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1520,
     "price_history": [
       {
@@ -953,8 +953,8 @@
     "removed_at": null,
     "days_on_market": 53,
     "score": 15,
-    "area_avg_price_per_sqm": 18,
-    "pct_vs_area_avg": -77.8
+    "area_avg_price_per_sqm": 14,
+    "pct_vs_area_avg": -72.4
   },
   {
     "id": "bcpea_90016",
@@ -982,8 +982,8 @@
     "removed_at": null,
     "days_on_market": 53,
     "score": 15,
-    "area_avg_price_per_sqm": 18,
-    "pct_vs_area_avg": 77.8
+    "area_avg_price_per_sqm": 14,
+    "pct_vs_area_avg": 120.7
   },
   {
     "id": "bcpea_90012",
@@ -1228,8 +1228,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-30T09:02:00+00:00",
     "category": "land",
-    "lat": 42.6598371,
-    "lng": 27.5648758,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 25,
     "price_history": [
       {
@@ -1257,8 +1257,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-06-30T08:56:00+00:00",
     "category": "land",
-    "lat": 42.6598371,
-    "lng": 27.5648758,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 14,
     "price_history": [
       {
@@ -1605,8 +1605,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-03T11:25:00+00:00",
     "category": "apartment",
-    "lat": 42.89605,
-    "lng": 27.2347,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 45,
     "price_history": [
       {
@@ -2064,7 +2064,7 @@
     "photo": "https://sales.bcpea.org/upload/90124/450095/IMG_8452.JPG?w=270&h=270",
     "price_eur": 4856,
     "sqm": 500,
-    "area": "Патреш, с. Патреш, общ. Павликени, обл. Велико Търново",
+    "area": "Патреш",
     "title": "Парцел с къща, Патреш",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-09T10:14:00+00:00",
@@ -2093,7 +2093,7 @@
     "photo": null,
     "price_eur": 1024,
     "sqm": 280,
-    "area": "Патреш, с. Патреш, общ. Павликени, обл. Велико Търново",
+    "area": "Патреш",
     "title": "Земеделска земя, Патреш",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-09T09:43:00+00:00",
@@ -2156,8 +2156,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-09T09:26:00+00:00",
     "category": "apartment",
-    "lat": 42.4936616,
-    "lng": 27.4721276,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 11239,
     "price_history": [
       {
@@ -2388,8 +2388,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-08T09:10:00+00:00",
     "category": "commercial",
-    "lat": 42.4936616,
-    "lng": 27.4721276,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1375,
     "price_history": [
       {
@@ -2504,8 +2504,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-07T09:51:00+00:00",
     "category": "land",
-    "lat": 43.39722,
-    "lng": 24.19505,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 242,
     "price_history": [
       {
@@ -2520,6 +2520,64 @@
     "days_on_market": 48,
     "score": 13,
     "area_avg_price_per_sqm": 242,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "bcpea_90232",
+    "url": "https://sales.bcpea.org/properties/90232",
+    "photo": "https://sales.bcpea.org/upload/90232/450527/1.jpg?w=270&h=270",
+    "price_eur": 66144,
+    "sqm": 377,
+    "area": "Димитровград",
+    "title": "Търговски имот, Димитровград",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-13T19:34:00+00:00",
+    "category": "apartment",
+    "lat": 42.0582493,
+    "lng": 25.5916466,
+    "price_per_sqm": 175,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 66144
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 42,
+    "score": 12,
+    "area_avg_price_per_sqm": 175,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "bcpea_90231",
+    "url": "https://sales.bcpea.org/properties/90231",
+    "photo": "https://sales.bcpea.org/upload/90231/450527/1.jpg?w=270&h=270",
+    "price_eur": 66144,
+    "sqm": 377,
+    "area": "Димитровград",
+    "title": "Търговски имот, Димитровград",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-13T19:34:00+00:00",
+    "category": "apartment",
+    "lat": 42.0582493,
+    "lng": 25.5916466,
+    "price_per_sqm": 175,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 66144
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 42,
+    "score": 12,
+    "area_avg_price_per_sqm": 175,
     "pct_vs_area_avg": 0.0
   },
   {
@@ -2823,8 +2881,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-10T15:37:00+00:00",
     "category": "house",
-    "lat": 43.13809,
-    "lng": 25.07653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 124,
     "price_history": [
       {
@@ -4901,64 +4959,6 @@
     "pct_vs_area_avg": 0.0
   },
   {
-    "id": "bcpea_90232",
-    "url": "https://sales.bcpea.org/properties/90232",
-    "photo": "https://sales.bcpea.org/upload/90232/450527/1.jpg?w=270&h=270",
-    "price_eur": 66144,
-    "sqm": 377,
-    "area": "Димитровград",
-    "title": "Търговски имот, Димитровград",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-13T19:34:00+00:00",
-    "category": "apartment",
-    "lat": 42.0582493,
-    "lng": 25.5916466,
-    "price_per_sqm": 175,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 66144
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 41,
-    "score": 11,
-    "area_avg_price_per_sqm": 175,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "bcpea_90231",
-    "url": "https://sales.bcpea.org/properties/90231",
-    "photo": "https://sales.bcpea.org/upload/90231/450527/1.jpg?w=270&h=270",
-    "price_eur": 66144,
-    "sqm": 377,
-    "area": "Димитровград",
-    "title": "Търговски имот, Димитровград",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-13T19:34:00+00:00",
-    "category": "apartment",
-    "lat": 42.0582493,
-    "lng": 25.5916466,
-    "price_per_sqm": 175,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 66144
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 41,
-    "score": 11,
-    "area_avg_price_per_sqm": 175,
-    "pct_vs_area_avg": 0.0
-  },
-  {
     "id": "bcpea_90437",
     "url": "https://sales.bcpea.org/properties/90437",
     "photo": "https://sales.bcpea.org/upload/90437/452423/01 Улица Гладстон.jpeg?w=270&h=270",
@@ -5622,8 +5622,8 @@
     "removed_at": null,
     "days_on_market": 35,
     "score": 10,
-    "area_avg_price_per_sqm": 1030,
-    "pct_vs_area_avg": -91.0
+    "area_avg_price_per_sqm": 93,
+    "pct_vs_area_avg": 0.0
   },
   {
     "id": "bcpea_90593",
@@ -6791,13 +6791,13 @@
     "photo": "https://sales.bcpea.org/upload/90552/453035/IMG_8167.jpeg?w=270&h=270",
     "price_eur": 234144,
     "sqm": 119,
-    "area": "Овча купел",
+    "area": "София",
     "title": "Тристаен апартамент, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T15:58:00+00:00",
     "category": "apartment",
-    "lat": 42.6774732,
-    "lng": 23.2052117,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1968,
     "price_history": [
       {
@@ -6811,8 +6811,8 @@
     "removed_at": null,
     "days_on_market": 32,
     "score": 9,
-    "area_avg_price_per_sqm": 1030,
-    "pct_vs_area_avg": 91.0
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 2.3
   },
   {
     "id": "bcpea_90551",
@@ -6849,13 +6849,13 @@
     "photo": "https://sales.bcpea.org/upload/90550/453006/viber_image_2025-11-12_08-44-48-211.jpg?w=270&h=270",
     "price_eur": 259920,
     "sqm": 126,
-    "area": "Слатина",
+    "area": "София",
     "title": "Многостаен апартамент, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T15:46:00+00:00",
     "category": "apartment",
-    "lat": 42.686838,
-    "lng": 23.3990441,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2063,
     "price_history": [
       {
@@ -6869,8 +6869,8 @@
     "removed_at": null,
     "days_on_market": 32,
     "score": 9,
-    "area_avg_price_per_sqm": 1039,
-    "pct_vs_area_avg": 98.6
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 7.3
   },
   {
     "id": "bcpea_90547",
@@ -6883,8 +6883,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T14:14:00+00:00",
     "category": "land",
-    "lat": 42.59736,
-    "lng": 24.68347,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 29,
     "price_history": [
       {
@@ -6907,7 +6907,7 @@
     "photo": null,
     "price_eur": 77280,
     "sqm": 674,
-    "area": "Долни Луковит, местност „Стопански дворове“ в землището на с. Долни Луковит, общ. Искър, обл. Плевен",
+    "area": "Долни Луковит",
     "title": "Други, Долни Луковит",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T14:12:00+00:00",
@@ -6927,8 +6927,8 @@
     "removed_at": null,
     "days_on_market": 32,
     "score": 9,
-    "area_avg_price_per_sqm": 99,
-    "pct_vs_area_avg": 16.2
+    "area_avg_price_per_sqm": 100,
+    "pct_vs_area_avg": 14.6
   },
   {
     "id": "bcpea_90545",
@@ -6936,7 +6936,7 @@
     "photo": null,
     "price_eur": 21040,
     "sqm": 254,
-    "area": "Долни Луковит, местност „Стопански дворове“ в землището на с. Долни Луковит, общ. Искър, обл. Плевен",
+    "area": "Долни Луковит",
     "title": "Други, Долни Луковит",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T14:05:00+00:00",
@@ -6956,8 +6956,8 @@
     "removed_at": null,
     "days_on_market": 32,
     "score": 9,
-    "area_avg_price_per_sqm": 99,
-    "pct_vs_area_avg": -16.2
+    "area_avg_price_per_sqm": 100,
+    "pct_vs_area_avg": -17.3
   },
   {
     "id": "bcpea_90544",
@@ -6965,7 +6965,7 @@
     "photo": null,
     "price_eur": 94880,
     "sqm": 923,
-    "area": "Долни Луковит, с. Долни Луковит, общ. Искър, обл. Плевен",
+    "area": "Долни Луковит",
     "title": "Други, Долни Луковит",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T14:02:00+00:00",
@@ -6985,8 +6985,8 @@
     "removed_at": null,
     "days_on_market": 32,
     "score": 9,
-    "area_avg_price_per_sqm": 103,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 100,
+    "pct_vs_area_avg": 2.7
   },
   {
     "id": "bcpea_90543",
@@ -7057,8 +7057,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T13:41:00+00:00",
     "category": "land",
-    "lat": 42.6148571,
-    "lng": 23.687365,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": null,
     "price_history": [
       {
@@ -7086,8 +7086,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T13:39:00+00:00",
     "category": "land",
-    "lat": 42.6148571,
-    "lng": 23.687365,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 496,
     "price_history": [
       {
@@ -7144,8 +7144,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T13:35:00+00:00",
     "category": "land",
-    "lat": 42.6148571,
-    "lng": 23.687365,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -7173,8 +7173,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T13:32:00+00:00",
     "category": "land",
-    "lat": 42.6148571,
-    "lng": 23.687365,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -7347,8 +7347,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:51:00+00:00",
     "category": "land",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 34,
     "price_history": [
       {
@@ -7405,8 +7405,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:48:00+00:00",
     "category": "land",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 653,
     "price_history": [
       {
@@ -7463,8 +7463,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:43:00+00:00",
     "category": "commercial",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2114,
     "price_history": [
       {
@@ -7516,7 +7516,7 @@
     "photo": null,
     "price_eur": 159,
     "sqm": 500,
-    "area": "Гарваново, М-Т КАЙРЯКА",
+    "area": "Гарваново",
     "title": "Земеделска земя, Гарваново",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:38:00+00:00",
@@ -7550,8 +7550,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:35:00+00:00",
     "category": "commercial",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2821,
     "price_history": [
       {
@@ -7579,8 +7579,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:34:00+00:00",
     "category": "commercial",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2144,
     "price_history": [
       {
@@ -7608,8 +7608,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:33:00+00:00",
     "category": "commercial",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2141,
     "price_history": [
       {
@@ -7632,7 +7632,7 @@
     "photo": null,
     "price_eur": 154,
     "sqm": 0,
-    "area": "Гарваново, М-Т КАРЛЪКА",
+    "area": "Гарваново",
     "title": "Земеделска земя, Гарваново",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:33:00+00:00",
@@ -7666,8 +7666,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:32:00+00:00",
     "category": "commercial",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1959,
     "price_history": [
       {
@@ -7695,8 +7695,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:32:00+00:00",
     "category": "apartment",
-    "lat": 43.2529488,
-    "lng": 27.7080147,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1698,
     "price_history": [
       {
@@ -7724,8 +7724,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:30:00+00:00",
     "category": "land",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 165,
     "price_history": [
       {
@@ -7748,7 +7748,7 @@
     "photo": null,
     "price_eur": 404,
     "sqm": 999,
-    "area": "Гарваново, М-Т КОКАРДЖА",
+    "area": "Гарваново",
     "title": "Земеделска земя, Гарваново",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:29:00+00:00",
@@ -7777,7 +7777,7 @@
     "photo": null,
     "price_eur": 808,
     "sqm": 0,
-    "area": "Гарваново, М-Т ПОСЛУЕРИ",
+    "area": "Гарваново",
     "title": "Земеделска земя, Гарваново",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-23T09:25:00+00:00",
@@ -7911,7 +7911,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "score": 9,
     "area_avg_price_per_sqm": 1686,
     "pct_vs_area_avg": -59.2
@@ -8246,8 +8246,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T13:45:00+00:00",
     "category": "land",
-    "lat": 43.65132,
-    "lng": 28.27033,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 458,
     "price_history": [
       {
@@ -8275,8 +8275,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T13:43:00+00:00",
     "category": "apartment",
-    "lat": 43.65132,
-    "lng": 28.27033,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2258,
     "price_history": [
       {
@@ -8304,8 +8304,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T13:31:00+00:00",
     "category": "land",
-    "lat": 43.65132,
-    "lng": 28.27033,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": null,
     "price_history": [
       {
@@ -8357,13 +8357,13 @@
     "photo": "https://sales.bcpea.org/upload/90495/452691/изображение 5323.jpg?w=270&h=270",
     "price_eur": 14387,
     "sqm": 14,
-    "area": "Слатина",
+    "area": "София",
     "title": "Гараж, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T12:25:00+00:00",
     "category": "apartment",
-    "lat": 42.686838,
-    "lng": 23.3990441,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1028,
     "price_history": [
       {
@@ -8377,8 +8377,8 @@
     "removed_at": null,
     "days_on_market": 33,
     "score": 9,
-    "area_avg_price_per_sqm": 1039,
-    "pct_vs_area_avg": -1.0
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -46.5
   },
   {
     "id": "bcpea_90494",
@@ -8386,13 +8386,13 @@
     "photo": "https://sales.bcpea.org/upload/90494/452689/изображение 5323.jpg?w=270&h=270",
     "price_eur": 19705,
     "sqm": 19,
-    "area": "Слатина",
+    "area": "София",
     "title": "Гараж, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T12:21:00+00:00",
     "category": "apartment",
-    "lat": 42.686838,
-    "lng": 23.3990441,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 1037,
     "price_history": [
       {
@@ -8406,8 +8406,8 @@
     "removed_at": null,
     "days_on_market": 33,
     "score": 9,
-    "area_avg_price_per_sqm": 1039,
-    "pct_vs_area_avg": -0.2
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -46.1
   },
   {
     "id": "bcpea_90493",
@@ -8580,8 +8580,8 @@
     "removed_at": null,
     "days_on_market": 33,
     "score": 9,
-    "area_avg_price_per_sqm": 2132,
-    "pct_vs_area_avg": -50.8
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -45.4
   },
   {
     "id": "bcpea_90487",
@@ -8623,8 +8623,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T09:46:00+00:00",
     "category": "land",
-    "lat": 42.9777449,
-    "lng": 23.4379949,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -8681,8 +8681,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-22T09:24:00+00:00",
     "category": "land",
-    "lat": 43.13895,
-    "lng": 23.35653,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -8797,8 +8797,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-21T16:36:00+00:00",
     "category": "land",
-    "lat": 42.0415693,
-    "lng": 24.5222786,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 19,
     "price_history": [
       {
@@ -8850,13 +8850,13 @@
     "photo": "https://sales.bcpea.org/upload/90478/452631/viber_изображение_2026-04-23_10-44-21-133.jpg?w=270&h=270",
     "price_eur": 43371,
     "sqm": 18,
-    "area": "Триадица",
+    "area": "София",
     "title": "Гараж, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-21T16:05:00+00:00",
     "category": "apartment",
-    "lat": 42.6692321,
-    "lng": 23.302905,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 2410,
     "price_history": [
       {
@@ -8870,8 +8870,8 @@
     "removed_at": null,
     "days_on_market": 34,
     "score": 9,
-    "area_avg_price_per_sqm": 2834,
-    "pct_vs_area_avg": -15.0
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 25.3
   },
   {
     "id": "bcpea_90477",
@@ -8879,13 +8879,13 @@
     "photo": "https://sales.bcpea.org/upload/90477/452628/viber_изображение_2026-04-23_10-44-21-133.jpg?w=270&h=270",
     "price_eur": 218295,
     "sqm": 67,
-    "area": "Триадица",
+    "area": "София",
     "title": "Тристаен апартамент, София",
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-21T15:47:00+00:00",
     "category": "apartment",
-    "lat": 42.6692321,
-    "lng": 23.302905,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 3258,
     "price_history": [
       {
@@ -8899,8 +8899,8 @@
     "removed_at": null,
     "days_on_market": 34,
     "score": 9,
-    "area_avg_price_per_sqm": 2834,
-    "pct_vs_area_avg": 15.0
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 69.4
   },
   {
     "id": "bcpea_90476",
@@ -9928,8 +9928,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-07-21T10:26:00+00:00",
     "category": "land",
-    "lat": 42.99454,
-    "lng": 24.98765,
+    "lat": null,
+    "lng": null,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -13539,8 +13539,8 @@
     "removed_at": null,
     "days_on_market": 26,
     "score": 7,
-    "area_avg_price_per_sqm": 2132,
-    "pct_vs_area_avg": -11.9
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -2.3
   },
   {
     "id": "bcpea_90682",
@@ -13568,8 +13568,8 @@
     "removed_at": null,
     "days_on_market": 26,
     "score": 7,
-    "area_avg_price_per_sqm": 2132,
-    "pct_vs_area_avg": -29.6
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": -22.0
   },
   {
     "id": "bcpea_90681",
@@ -14177,8 +14177,8 @@
     "removed_at": null,
     "days_on_market": 20,
     "score": 6,
-    "area_avg_price_per_sqm": 2132,
-    "pct_vs_area_avg": 15.9
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 28.5
   },
   {
     "id": "bcpea_90961",
@@ -21659,8 +21659,8 @@
     "removed_at": null,
     "days_on_market": 18,
     "score": 5,
-    "area_avg_price_per_sqm": 2132,
-    "pct_vs_area_avg": 76.4
+    "area_avg_price_per_sqm": 1923,
+    "pct_vs_area_avg": 95.6
   },
   {
     "id": "bcpea_91001",
@@ -24505,6 +24505,35 @@
     "pct_vs_area_avg": 0.0
   },
   {
+    "id": "bcpea_91280",
+    "url": "https://sales.bcpea.org/properties/91280",
+    "photo": "https://sales.bcpea.org/upload/91280/455449/DSC06001.JPG?w=270&h=270",
+    "price_eur": 26831,
+    "sqm": 426,
+    "area": "Несебър, НЕСЕБЪР",
+    "title": "Парцел, Несебър",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-14T21:33:00+00:00",
+    "category": "land",
+    "lat": 42.6607865,
+    "lng": 27.7167464,
+    "price_per_sqm": 63,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 26831
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": 33,
+    "pct_vs_area_avg": 90.9
+  },
+  {
     "id": "bcpea_91279",
     "url": "https://sales.bcpea.org/properties/91279",
     "photo": null,
@@ -24544,8 +24573,8 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-14T16:56:00+00:00",
     "category": "land",
-    "lat": null,
-    "lng": null,
+    "lat": 41.67103,
+    "lng": 25.35166,
     "price_per_sqm": 23,
     "price_history": [
       {
@@ -29373,8 +29402,8 @@
     "removed_at": null,
     "days_on_market": 6,
     "score": 2,
-    "area_avg_price_per_sqm": 1179,
-    "pct_vs_area_avg": 44.6
+    "area_avg_price_per_sqm": 1705,
+    "pct_vs_area_avg": 0.0
   },
   {
     "id": "bcpea_91324",
@@ -29893,7 +29922,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "score": 2,
     "area_avg_price_per_sqm": 61,
     "pct_vs_area_avg": 0.0
@@ -29922,7 +29951,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "score": 2,
     "area_avg_price_per_sqm": 84,
     "pct_vs_area_avg": 0.0
@@ -30388,8 +30417,8 @@
     "removed_at": null,
     "days_on_market": 7,
     "score": 2,
-    "area_avg_price_per_sqm": 1039,
-    "pct_vs_area_avg": -97.4
+    "area_avg_price_per_sqm": 27,
+    "pct_vs_area_avg": 0.0
   },
   {
     "id": "bcpea_91289",
@@ -30653,35 +30682,6 @@
     "pct_vs_area_avg": 147.9
   },
   {
-    "id": "bcpea_91280",
-    "url": "https://sales.bcpea.org/properties/91280",
-    "photo": "https://sales.bcpea.org/upload/91280/455449/DSC06001.JPG?w=270&h=270",
-    "price_eur": 26831,
-    "sqm": 426,
-    "area": "Несебър, НЕСЕБЪР",
-    "title": "Парцел, Несебър",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-14T21:33:00+00:00",
-    "category": "land",
-    "lat": 42.6607865,
-    "lng": 27.7167464,
-    "price_per_sqm": 63,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 26831
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": 33,
-    "pct_vs_area_avg": 90.9
-  },
-  {
     "id": "bcpea_91569",
     "url": "https://sales.bcpea.org/properties/91569",
     "photo": "https://sales.bcpea.org/upload/91569/457032/IMG_20260722_112419.jpg?w=270&h=270",
@@ -30705,7 +30705,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "score": 1,
     "area_avg_price_per_sqm": 928,
     "pct_vs_area_avg": 0.0
@@ -32822,7 +32822,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 3,
+    "days_on_market": 4,
     "score": 1,
     "area_avg_price_per_sqm": 717,
     "pct_vs_area_avg": 0.0
@@ -35954,7 +35954,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": 26,
     "pct_vs_area_avg": 0.0
@@ -35983,7 +35983,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": 20,
     "pct_vs_area_avg": 0.0
@@ -36012,7 +36012,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": 1104,
     "pct_vs_area_avg": 88.4
@@ -36041,7 +36041,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": 1200,
     "pct_vs_area_avg": 0.0
