@@ -1,0 +1,25 @@
+# Temporary diagnostic workflow: bounded first pass of the newly
+# nationwide-ized scraper_imoti_bg.py against the real live site, before
+# trusting it enough to wire into the real scrape pipeline unbounded.
+# Read-only, no commit step. Delete once the question is answered.
+name: Probe nationwide imoti.bg scraper (bounded)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python probe_imoti_bg_nationwide.py

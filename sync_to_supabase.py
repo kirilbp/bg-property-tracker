@@ -181,7 +181,16 @@ BCPEA_TYPE_LOOKUP = sorted(
     key=lambda pair: -len(pair[0]),
 )
 
-CATEGORY_TO_BUCKET = {"apartment": "flat", "house": "house", "land": "land", "commercial": "business"}
+# "apartment"/"commercial" are classify_category()'s old 4-value output
+# (geo_utils.py), still produced by portals not yet migrated to the
+# nationwide expansion's category_classifier.py, which outputs bucket
+# names directly (flat/garage/shop/business already match a bucket key,
+# hence the identity entries) - both resolve through this one lookup
+# during the portal-by-portal migration.
+CATEGORY_TO_BUCKET = {
+    "apartment": "flat", "house": "house", "land": "land", "commercial": "business",
+    "flat": "flat", "garage": "garage", "shop": "shop", "business": "business",
+}
 
 
 def bcpea_type_match(title):
@@ -258,8 +267,8 @@ def merged_id_for(sources):
 # "portal" are handled separately (source_id / portal columns).
 SOURCE_FIELDS = [
     "url", "photo", "photos", "price_eur", "sqm", "area", "title", "description",
-    "category", "lat", "lng", "price_per_sqm", "price_history", "price_drop_count",
-    "drop_pct", "days_on_market", "score", "source_status", "removed_at",
+    "category", "category_confidence", "lat", "lng", "price_per_sqm", "price_history",
+    "price_drop_count", "drop_pct", "days_on_market", "score", "source_status", "removed_at",
     "area_avg_price_per_sqm", "pct_vs_area_avg", "site_updated_at", "site_posted_at",
 ]
 
