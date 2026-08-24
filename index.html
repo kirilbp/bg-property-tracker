@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BG Property Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
@@ -2167,33 +2168,85 @@ function renderFromStart() {
   render();
 }
 
+const PRICE_HISTORY_DROP_COLOR = '#dc2626';
+const PRICE_HISTORY_STABLE_COLOR = '#2563eb';
+
+// A step - not a diagonal slope - between each recorded price, since a real
+// listing's price doesn't drift smoothly: it sits still, then drops (every
+// point here is already a genuine change, see compute_leads() - the
+// scrapers only record a new price_history entry when the price actually
+// differs from the last one). Segments leading into a lower price are
+// colored red so a steep multi-drop listing reads as an obviously motivated
+// seller at a glance, not just from the tooltip.
 function renderPriceHistoryChart(priceHistory) {
   const ctx = document.getElementById('detailPriceChart');
   if (!ctx) return;
   if (detailChart) { detailChart.destroy(); detailChart = null; }
+  const dates = priceHistory.map(p => new Date(p.date));
   detailChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: priceHistory.map(p => new Date(p.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+      labels: dates.map(d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
       datasets: [{
         label: 'Price',
         data: priceHistory.map(p => p.price_eur),
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37,99,235,0.1)',
+        stepped: true,
         fill: true,
-        tension: 0.15,
+        backgroundColor: 'rgba(37,99,235,0.08)',
+        borderColor: PRICE_HISTORY_STABLE_COLOR,
+        borderWidth: 2,
         pointRadius: 4,
-        pointBackgroundColor: '#2563eb',
+        pointBackgroundColor: (c) => {
+          const i = c.dataIndex;
+          return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur
+            ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR;
+        },
+        pointBorderColor: 'white',
+        pointBorderWidth: 1,
+        // A segment is colored by the point it's DROPPING INTO, not the one
+        // it starts from, so a drop's red starts exactly at the vertical
+        // step where the price actually falls.
+        segment: {
+          borderColor: (c) => c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR,
+        },
+        datalabels: {
+          display: 'auto',
+          align: (c) => {
+            const i = c.dataIndex;
+            return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur ? 'bottom' : 'top';
+          },
+          formatter: (v, c) => dates[c.dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+          font: { size: 10, weight: '600' },
+          color: (c) => {
+            const i = c.dataIndex;
+            return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur
+              ? PRICE_HISTORY_DROP_COLOR : '#64748b';
+          },
+          padding: 4,
+        },
       }]
     },
+    plugins: [ChartDataLabels],
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: { padding: { top: 22, bottom: 20, right: 24 } },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => '€' + fmt(c.parsed.y) } }
+        tooltip: {
+          callbacks: {
+            title: c => dates[c[0].dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+            label: c => '€' + fmt(c.parsed.y),
+          }
+        }
       },
-      scales: { y: { ticks: { callback: v => '€' + fmt(v) } } }
+      scales: {
+        y: { ticks: { callback: v => '€' + fmt(v) } },
+        // The per-point datalabels above already show each change's date -
+        // repeating them as x-axis ticks just crowds the last one (it sits
+        // right where the axis row does) for no extra information.
+        x: { ticks: { display: false } },
+      }
     }
   });
 }
