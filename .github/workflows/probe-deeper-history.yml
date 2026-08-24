@@ -1,0 +1,27 @@
+# Temporary diagnostic workflow, third and final round of the price-history
+# investigation: checks homes.bg's raw (currently under-extracted)
+# structured JSON, Wayback coverage of portals' SEARCH/CATEGORY pages
+# (rather than individual listings, already ruled out), and reduced-price
+# ribbon/badge markup on live search-grid pages. Read-only, no commit step.
+# Delete once the question is answered.
+name: Probe deeper for price history
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python probe_deeper_history.py
