@@ -32,7 +32,6 @@ often by re-running this, so there's nothing to gain from scheduling it.
 
 import json
 import re
-import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -297,6 +296,73 @@ def backfill_portal(portal, url, history_filename, id_prefix, id_re, price_re):
     return injected
 
 
+def compute_leads(history):
+    # Duplicated verbatim from scraper_imot.py / scraper_bazar.py (both are
+    # byte-for-byte identical) rather than imported: a prior run crashed
+    # here with "ModuleNotFoundError: No module named 'playwright'" because
+    # scraper_imot.py imports playwright at module level for its own
+    # scraping (unrelated to compute_leads), and this workflow's pip
+    # install never included it - after the encoding fix had already
+    # computed and written 34 real injected snapshots to the history
+    # files, but before the git commit step, so that work was lost when
+    # the runner was torn down. Avoiding the import entirely is simpler
+    # and faster than adding playwright+chromium here just to reach one
+    # pure-Python function.
+    leads = []
+    for lid, rec in history.items():
+        prices = [s["price_eur"] for s in rec["snapshots"] if s["price_eur"]]
+        if not prices:
+            continue
+        first_price, last_price = prices[0], prices[-1]
+        drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
+        first_seen = datetime.fromisoformat(rec["first_seen"])
+        days_on_market = (datetime.now(timezone.utc) - first_seen).days
+        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
+
+        price_history = []
+        last_hist_price = None
+        for s in rec["snapshots"]:
+            p = s.get("price_eur")
+            if not p or p == last_hist_price:
+                continue
+            price_history.append({"date": s["seen_at"], "price_eur": p})
+            last_hist_price = p
+        price_drop_count = sum(
+            1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
+        )
+
+        latest = rec["latest"]
+        price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
+
+        entry = dict(latest)
+        entry["price_eur"] = last_price
+        entry["price_per_sqm"] = price_per_sqm
+        entry["price_history"] = price_history
+        entry["price_drop_count"] = price_drop_count
+        entry["drop_pct"] = drop_pct
+        entry["days_on_market"] = days_on_market
+        entry["score"] = score
+        leads.append(entry)
+
+    area_totals = {}
+    for l in leads:
+        if l["price_per_sqm"]:
+            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
+    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
+
+    for l in leads:
+        if l["price_per_sqm"] and l["area"] in area_avg:
+            avg = area_avg[l["area"]]
+            l["area_avg_price_per_sqm"] = round(avg)
+            l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
+        else:
+            l["area_avg_price_per_sqm"] = None
+            l["pct_vs_area_avg"] = None
+
+    leads.sort(key=lambda x: x["score"], reverse=True)
+    return leads
+
+
 def main():
     total_injected = {}
     for i, (portal, url, history_filename, id_prefix, id_re, price_re) in enumerate(PORTALS):
@@ -313,18 +379,15 @@ def main():
         print("Nothing injected - not regenerating leads files")
         return
 
-    sys.path.insert(0, str(Path(__file__).parent))
     if total_injected.get("imot.bg"):
-        import scraper_imot
         history = json.loads((DATA_DIR / "history_imot.json").read_text(encoding="utf-8"))
-        leads = scraper_imot.compute_leads(history)
+        leads = compute_leads(history)
         (DATA_DIR / "leads_imot.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"regenerated leads_imot.json ({len(leads)} leads)")
 
     if total_injected.get("bazar.bg"):
-        import scraper_bazar
         history = json.loads((DATA_DIR / "history_bazar.json").read_text(encoding="utf-8"))
-        leads = scraper_bazar.compute_leads(history)
+        leads = compute_leads(history)
         (DATA_DIR / "leads_bazar.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"regenerated leads_bazar.json ({len(leads)} leads)")
 

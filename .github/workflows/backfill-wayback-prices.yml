@@ -31,7 +31,14 @@ jobs:
 
       - run: python backfill_wayback_prices.py
 
-      - run: |
+      # if: always() - a prior run computed and wrote 34 real injected
+      # snapshots to the history files, then crashed on an unrelated step
+      # (a missing playwright import) before this commit step ever ran,
+      # silently losing that real work when the runner was torn down.
+      # Committing whatever was written to disk regardless of what
+      # happens later in the script is strictly safer than losing it.
+      - if: always()
+        run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
