@@ -58,6 +58,14 @@ jobs:
       - run: python scraper_bcpea.py
         continue-on-error: true
 
+      # Runs after every scrape so newly-detected relistings (a seller
+      # deleting and reposting a listing, often at a lower price, instead
+      # of editing it in place) get chained together as soon as they
+      # appear - purely local analysis of data already scraped above, no
+      # network access needed. Safe to run every time: already-recorded
+      # pairs are skipped, not re-injected.
+      - run: python detect_relistings.py
+
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
