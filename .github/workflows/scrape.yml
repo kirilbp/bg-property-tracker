@@ -81,3 +81,15 @@ jobs:
             GIT_EDITOR=true git rebase --continue
           fi
           git push
+
+      # Runs last, after the JSON commit/push above has already landed -
+      # JSON stays the source of truth and safety net regardless of
+      # whether this step succeeds. Reads all 8 leads_*.json files
+      # currently on disk (this run's freshly-scraped subset plus
+      # whatever was last committed for the portals scrape-large.yml
+      # owns), since the cross-portal merge needs the full picture, not
+      # just what this particular workflow scraped.
+      - run: python sync_to_supabase.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
