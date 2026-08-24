@@ -1,0 +1,40 @@
+# One-off runner: executes detect_relistings_by_photo.py directly against
+# the current committed data, without re-running the full scraper.py /
+# scraper_alo.py scrapes (which take 2+ hours each per scrape-large.yml's
+# own comment) - this is just to verify and exercise the new relisting
+# detector on real data now, since it's already wired into scrape-large.yml
+# for every future run. Delete once verified working.
+name: Run photo-based relisting detector once
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4 Pillow
+
+      - run: python detect_relistings_by_photo.py
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Chain relisted listings' prices (photo-hash match)"
+          git pull --rebase origin main
+          git push
