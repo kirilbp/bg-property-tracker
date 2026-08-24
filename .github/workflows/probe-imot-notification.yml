@@ -1,0 +1,26 @@
+# Temporary diagnostic workflow: follows up on a real signal found by
+# probe-price-badges.yml (imot.bg's "notification-popup-price-old" widget) by
+# dumping the full JS/HTML around it for a few real listings, to understand
+# the actual mechanism before building any extraction logic. Read-only, no
+# commit step. Delete once the question is answered.
+name: Probe imot.bg price-notification mechanism
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python probe_imot_notification.py
