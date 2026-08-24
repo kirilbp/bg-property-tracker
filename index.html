@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>BG Property Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
@@ -2234,20 +2233,30 @@ function renderPriceHistoryChart(priceHistory) {
     points.push({ date: today.toISOString(), price_eur: lastPoint.price_eur, isToday: true });
   }
 
-  const dates = points.map(p => new Date(p.date));
+  const shortDate = (ts) => new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const firstTs = new Date(points[0].date).getTime();
+  const todayTs = today.getTime();
+
   detailChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: dates.map(d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
+      // A real (linear/numeric) x-axis, not Chart.js's default category
+      // scale - a category scale spaces every point EQUALLY regardless of
+      // how much real time passed between them, which makes a drop 3 days
+      // after the last one look identical to a drop 3 months after it.
+      // Plotting the actual timestamp makes the horizontal gap between
+      // points mean something: proportional to the real time elapsed
+      // across the whole first-seen-to-today span.
       datasets: [{
         label: 'Price',
-        data: points.map(p => p.price_eur),
+        data: points.map(p => ({ x: new Date(p.date).getTime(), y: p.price_eur })),
         stepped: true,
         fill: true,
         backgroundColor: 'rgba(37,99,235,0.08)',
         borderColor: PRICE_HISTORY_STABLE_COLOR,
         borderWidth: 2,
         pointRadius: (c) => points[c.dataIndex].isToday ? 0 : 4,
+        pointHoverRadius: (c) => points[c.dataIndex].isToday ? 0 : 6,
         pointBackgroundColor: (c) => {
           const i = c.dataIndex;
           return i > 0 && points[i].price_eur < points[i - 1].price_eur
@@ -2261,47 +2270,62 @@ function renderPriceHistoryChart(priceHistory) {
         segment: {
           borderColor: (c) => c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR,
         },
-        datalabels: {
-          // The synthetic "today" point isn't a real event - it never gets
-          // its own date label, only the real recorded changes do.
-          display: (c) => points[c.dataIndex].isToday ? false : 'auto',
-          align: (c) => {
-            const i = c.dataIndex;
-            return i > 0 && points[i].price_eur < points[i - 1].price_eur ? 'bottom' : 'top';
-          },
-          formatter: (v, c) => dates[c.dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-          font: { size: 10, weight: '600' },
-          color: (c) => {
-            const i = c.dataIndex;
-            return i > 0 && points[i].price_eur < points[i - 1].price_eur
-              ? PRICE_HISTORY_DROP_COLOR : '#64748b';
-          },
-          padding: 4,
-        },
       }]
     },
-    plugins: [ChartDataLabels],
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      layout: { padding: { top: 22, bottom: 20, right: 24 } },
+      layout: { padding: { top: 12, right: 16 } },
+      // Hovering anywhere near a point's x position shows its tooltip, not
+      // just a pixel-perfect hit on the tiny marker itself - the x-axis
+      // only labels a handful of well-spaced reference dates (below), so
+      // this is how any individual price change's own exact date and
+      // price actually get seen.
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
+          mode: 'index',
+          intersect: false,
           callbacks: {
             title: c => points[c[0].dataIndex].isToday
               ? 'Today'
-              : dates[c[0].dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+              : new Date(c[0].parsed.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
             label: c => '€' + fmt(c.parsed.y),
           }
         }
       },
       scales: {
         y: { ticks: { callback: v => '€' + fmt(v) } },
-        // The per-point datalabels above already show each change's date -
-        // repeating them as x-axis ticks just crowds the last one (it sits
-        // right where the axis row does) for no extra information.
-        x: { ticks: { display: false } },
+        x: {
+          type: 'linear',
+          min: firstTs,
+          // Always runs to the real current moment, not just the last
+          // recorded point - this is what makes a stale-but-unchanged
+          // price's flat segment visibly reach all the way to today
+          // instead of stopping short.
+          max: todayTs,
+          grid: { display: false },
+          // Chart.js's own auto-generated, evenly-spaced ticks - not one
+          // forced at every real data point. Forcing a tick at each point
+          // was tried first, but their positions are only evenly spaced
+          // when the real gaps between price changes happen to be equal;
+          // with genuinely uneven gaps (the whole point of a proportional
+          // time axis) autoSkip's overlap detection assumes near-uniform
+          // spacing and can't reliably thin two ticks sitting close
+          // together next to two sitting far apart, so nearby ones (e.g.
+          // a change 3 days after the last one, or "today" sitting right
+          // next to a change from 2 days ago) visibly overlapped. Letting
+          // Chart.js pick its own well-spaced reference ticks - still on
+          // the same real proportional axis, below the line - avoids that
+          // entirely; hovering (below) is what surfaces each real change's
+          // own exact date.
+          ticks: {
+            autoSkip: true,
+            maxRotation: 0,
+            callback: (value) => shortDate(value),
+          },
+        },
       }
     }
   });
