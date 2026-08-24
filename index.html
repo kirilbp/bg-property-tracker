@@ -2178,27 +2178,47 @@ const PRICE_HISTORY_STABLE_COLOR = '#2563eb';
 // differs from the last one). Segments leading into a lower price are
 // colored red so a steep multi-drop listing reads as an obviously motivated
 // seller at a glance, not just from the tooltip.
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
 function renderPriceHistoryChart(priceHistory) {
   const ctx = document.getElementById('detailPriceChart');
   if (!ctx) return;
   if (detailChart) { detailChart.destroy(); detailChart = null; }
-  const dates = priceHistory.map(p => new Date(p.date));
+
+  // The last recorded price_history entry is only as recent as the last
+  // scrape that happened to catch a change - the price has held at that
+  // level every day since, right up to today, even though nothing "new"
+  // was ever recorded for those days. Without this the line/step just
+  // stops dead at the last change and makes an unchanged price look like
+  // missing data. Detected fresh against the real clock on every render
+  // (not a stored value), so the flat segment always reaches all the way
+  // to whatever day the chart is actually being viewed on.
+  const today = new Date();
+  const points = priceHistory.slice();
+  const lastPoint = points[points.length - 1];
+  if (lastPoint && !isSameDay(new Date(lastPoint.date), today)) {
+    points.push({ date: today.toISOString(), price_eur: lastPoint.price_eur, isToday: true });
+  }
+
+  const dates = points.map(p => new Date(p.date));
   detailChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: dates.map(d => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
       datasets: [{
         label: 'Price',
-        data: priceHistory.map(p => p.price_eur),
+        data: points.map(p => p.price_eur),
         stepped: true,
         fill: true,
         backgroundColor: 'rgba(37,99,235,0.08)',
         borderColor: PRICE_HISTORY_STABLE_COLOR,
         borderWidth: 2,
-        pointRadius: 4,
+        pointRadius: (c) => points[c.dataIndex].isToday ? 0 : 4,
         pointBackgroundColor: (c) => {
           const i = c.dataIndex;
-          return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur
+          return i > 0 && points[i].price_eur < points[i - 1].price_eur
             ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR;
         },
         pointBorderColor: 'white',
@@ -2210,16 +2230,18 @@ function renderPriceHistoryChart(priceHistory) {
           borderColor: (c) => c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR,
         },
         datalabels: {
-          display: 'auto',
+          // The synthetic "today" point isn't a real event - it never gets
+          // its own date label, only the real recorded changes do.
+          display: (c) => points[c.dataIndex].isToday ? false : 'auto',
           align: (c) => {
             const i = c.dataIndex;
-            return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur ? 'bottom' : 'top';
+            return i > 0 && points[i].price_eur < points[i - 1].price_eur ? 'bottom' : 'top';
           },
           formatter: (v, c) => dates[c.dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
           font: { size: 10, weight: '600' },
           color: (c) => {
             const i = c.dataIndex;
-            return i > 0 && priceHistory[i].price_eur < priceHistory[i - 1].price_eur
+            return i > 0 && points[i].price_eur < points[i - 1].price_eur
               ? PRICE_HISTORY_DROP_COLOR : '#64748b';
           },
           padding: 4,
@@ -2235,7 +2257,9 @@ function renderPriceHistoryChart(priceHistory) {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            title: c => dates[c[0].dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+            title: c => points[c[0].dataIndex].isToday
+              ? 'Today'
+              : dates[c[0].dataIndex].toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
             label: c => '€' + fmt(c.parsed.y),
           }
         }
