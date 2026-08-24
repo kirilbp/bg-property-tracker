@@ -1985,12 +1985,12 @@ function renderPriceHistoryChart(priceHistory) {
   });
 }
 
-function switchDetailTab(tab, priceHistory) {
+function switchDetailTab(tab, chartPriceHistory) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
-  if (tab === 'pricehistory' && priceHistory.length > 1) {
-    renderPriceHistoryChart(priceHistory);
+  if (tab === 'pricehistory') {
+    renderPriceHistoryChart(chartPriceHistory);
   }
 }
 
@@ -2006,6 +2006,13 @@ function renderListingDetail(merged) {
   const priceHistory = (Array.isArray(l.price_history) ? l.price_history : [])
     .filter(p => p && typeof p === 'object' && typeof p.price_eur === 'number' && p.date);
   const priceDropCount = l.price_drop_count ?? 0;
+  // The chart always renders, even with nothing recorded yet - a synthesized
+  // single "current price" point rather than blank text, so the graph is a
+  // permanent part of every listing's page instead of appearing only once a
+  // real price change happens to have been observed.
+  const chartPriceHistory = priceHistory.length > 0
+    ? priceHistory
+    : [{ date: new Date().toISOString(), price_eur: l.price_eur }];
 
   const thumbsHtml = photos.length > 1 ? `
     <div class="detail-thumbs">
@@ -2062,9 +2069,10 @@ function renderListingDetail(merged) {
             <div class="detail-stat"><p class="label">First tracked price</p><p class="value">€${fmt(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
             <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
           </div>
-          ${priceHistory.length > 1
-            ? `<div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>`
-            : `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing.</p>`}
+          <div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>
+          ${priceHistory.length <= 1
+            ? `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing. The dot above is the current price; this chart will fill in as changes are observed.</p>`
+            : ''}
         </div>
       </div>
     </div>
@@ -2086,7 +2094,7 @@ function renderListingDetail(merged) {
   });
 
   document.getElementById('listingDetailBody').querySelectorAll('.detail-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, priceHistory));
+    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory));
   });
 
   document.getElementById('listingDetailBody').querySelectorAll('.radius-btn').forEach(btn => {
@@ -2097,8 +2105,8 @@ function renderListingDetail(merged) {
     });
   });
 
-  if (detailActiveTab === 'pricehistory' && priceHistory.length > 1) {
-    renderPriceHistoryChart(priceHistory);
+  if (detailActiveTab === 'pricehistory') {
+    renderPriceHistoryChart(chartPriceHistory);
   } else if (detailChart) {
     detailChart.destroy();
     detailChart = null;
