@@ -241,6 +241,11 @@
   .leadgen-card h3 { font-size: 15px; margin: 0 0 6px; }
   .leadgen-card .leadgen-summary-line { font-size: 12px; color: #64748b; margin: 0 0 3px; }
   .leadgen-card-body { flex: 1; }
+  .leadgen-mini-map { height: 130px; border-radius: 8px; margin-top: 8px; z-index: 0; background: #f1f5f9; }
+  .leadgen-mini-map-empty {
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 12px; color: #94a3b8; padding: 8px;
+  }
   .leadgen-check-btn {
     display: block; width: 100%; text-align: center; background: #2563eb; color: white; border: none;
     padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
@@ -643,6 +648,7 @@ const LEAD_GEN_STORAGE_KEY = 'leadGenerators';
 const LEAD_GEN_MAX = 20;
 let LEAD_GENERATORS = [];
 let activeLeadGenerator = null;
+let leadgenMiniMaps = {}; // gen.id -> Leaflet map instance, one per gallery card
 let editingLeadGeneratorId = null;
 let lgAreaMode = 'neighborhood';
 let lgRadiusCenter = null;
@@ -1352,6 +1358,11 @@ function renderLeadGenGallery() {
   document.getElementById('leadgenCount').textContent =
     `${LEAD_GENERATORS.length} of ${LEAD_GEN_MAX} lead generators used`;
 
+  // The grid's HTML is about to be replaced wholesale, which would orphan
+  // any Leaflet map instances from the previous render (they'd keep
+  // pointing at DOM nodes no longer in the tree) - tear them down first.
+  teardownLeadgenMiniMaps();
+
   if (LEAD_GENERATORS.length === 0) {
     grid.innerHTML = `
       <button class="leadgen-add-tile" id="leadgenAddTile"><span class="plus-icon">+</span> Add New Lead Generator</button>
@@ -1369,6 +1380,7 @@ function renderLeadGenGallery() {
         <div class="leadgen-card-body">
           <h3>${escapeHtml(gen.name)}</h3>
           ${lines.map(l => `<p class="leadgen-summary-line">${escapeHtml(l)}</p>`).join('')}
+          <div id="leadgenMap-${gen.id}" class="leadgen-mini-map"></div>
           <div class="leadgen-type-row">
             ${types.map(t => `<span class="leadgen-type-badge">${escapeHtml(t)}</span>`).join('')}
           </div>
@@ -1396,6 +1408,96 @@ function renderLeadGenGallery() {
   grid.querySelectorAll('[data-edit-id]').forEach(btn => btn.addEventListener('click', () => openLeadGenModal(btn.dataset.editId)));
   grid.querySelectorAll('[data-dup-id]').forEach(btn => btn.addEventListener('click', () => duplicateLeadGenerator(btn.dataset.dupId)));
   grid.querySelectorAll('[data-del-id]').forEach(btn => btn.addEventListener('click', () => deleteLeadGenerator(btn.dataset.delId)));
+
+  // The leadgen gallery section may still be display:none at this point
+  // (e.g. this render happened right after page load or from an edit made
+  // while browsing another tab) - Leaflet can't size a map inside a hidden
+  // container, so only build the maps now if the section is actually
+  // visible; showSection('leadgen') calls renderLeadgenMiniMaps() itself
+  // when the tab is opened, covering the deferred case.
+  const leadgenSection = document.getElementById('section-leadgen');
+  if (leadgenSection && leadgenSection.classList.contains('active')) {
+    renderLeadgenMiniMaps();
+  }
+}
+
+function teardownLeadgenMiniMaps() {
+  Object.values(leadgenMiniMaps).forEach(map => map.remove());
+  leadgenMiniMaps = {};
+}
+
+// One small, non-interactive-feeling preview map per lead generator card,
+// showing exactly the area that generator matches listings against: the
+// radius circle, the drawn polygon, or - since named neighborhoods aren't
+// stored with coordinates - the actual located listings currently inside
+// that neighborhood selection, so the "chosen area" is still visible even
+// for that mode.
+function renderLeadgenMiniMaps() {
+  teardownLeadgenMiniMaps();
+  LEAD_GENERATORS.forEach(renderLeadgenMiniMap);
+}
+
+function renderLeadgenMiniMap(gen) {
+  const container = document.getElementById(`leadgenMap-${gen.id}`);
+  if (!container) return;
+  if (typeof L === 'undefined') {
+    container.textContent = "Map unavailable (couldn't load the map library).";
+    container.classList.add('leadgen-mini-map-empty');
+    return;
+  }
+
+  const area = gen.area || {};
+  // A vector layer added before the map has a view (center+zoom) can't
+  // project its points yet - Leaflet throws deep inside getBounds() when
+  // that happens - so give it a placeholder view up front; fitBounds()
+  // below replaces it with the real one as soon as the shape is known.
+  const initialCenter = area.mode === 'radius' && area.center ? area.center
+    : area.mode === 'polygon' && area.polygon && area.polygon.length
+    ? { lat: area.polygon[0][0], lng: area.polygon[0][1] }
+    : { lat: 42.6977, lng: 23.3219 };
+  const map = L.map(container, { scrollWheelZoom: false }).setView([initialCenter.lat, initialCenter.lng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(map);
+
+  if (area.mode === 'radius' && area.center) {
+    const circle = L.circle([area.center.lat, area.center.lng], {
+      radius: area.radiusM || 500, color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.1, weight: 2,
+    }).addTo(map);
+    map.fitBounds(circle.getBounds(), { padding: [8, 8] });
+    leadgenMiniMaps[gen.id] = map;
+    return;
+  }
+
+  if (area.mode === 'polygon' && area.polygon && area.polygon.length >= 3) {
+    const layer = L.polygon(area.polygon, { color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.1, weight: 2 }).addTo(map);
+    map.fitBounds(layer.getBounds(), { padding: [8, 8] });
+    leadgenMiniMaps[gen.id] = map;
+    return;
+  }
+
+  if (area.mode === 'neighborhood') {
+    const matches = MERGED_LISTINGS.filter(l =>
+      l.lat != null && l.lng != null &&
+      (!area.neighborhoods || !area.neighborhoods.length || area.neighborhoods.includes(l.area))
+    );
+    if (matches.length) {
+      const markers = matches.slice(0, 300).map(l => L.circleMarker([l.lat, l.lng], {
+        radius: 4, color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.6, weight: 1,
+      }).addTo(map));
+      map.fitBounds(L.featureGroup(markers).getBounds(), { padding: [12, 12] });
+      leadgenMiniMaps[gen.id] = map;
+      return;
+    }
+  }
+
+  // No coordinates to show yet (a neighborhood pick with no located listings
+  // in it, or an incomplete/legacy saved area) - drop the map and explain
+  // why instead of showing an empty grey tile grid.
+  map.remove();
+  container.textContent = 'No located listings yet to preview this area.';
+  container.classList.add('leadgen-mini-map-empty');
 }
 
 function switchAreaModeTab(mode) {
@@ -2144,6 +2246,8 @@ function showSection(name) {
   if (name === 'market') {
     if (!chartInitialized) { renderChart(); chartInitialized = true; }
     else if (chart) chart.resize();
+  } else if (name === 'leadgen') {
+    renderLeadgenMiniMaps();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
