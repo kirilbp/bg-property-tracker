@@ -1,0 +1,36 @@
+# Standalone verification workflow for sync_to_supabase.py, run manually
+# before wiring the sync step into scrape.yml/scrape-large.yml - same
+# diagnostic-first pattern used throughout this project (probe-*.yml) for
+# verifying real behavior before depending on it in production. Reads the
+# already-committed data/leads_*.json files (no scraping happens here) and
+# upserts listing_sources + merged_listings into Supabase, so a run can be
+# used to confirm the tables populate correctly without waiting for the
+# next real scrape.
+#
+# Needs two repo secrets: SUPABASE_URL and SUPABASE_SECRET_KEY (the secret/
+# service-role key - never the publishable key). Neither is ever written to
+# a file in this repo.
+name: Sync to Supabase
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python sync_to_supabase.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
