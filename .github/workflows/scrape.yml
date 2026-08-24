@@ -66,10 +66,28 @@ jobs:
       # pairs are skipped, not re-injected.
       - run: python detect_relistings.py
 
+      # The concurrency group above only serializes runs of this workflow
+      # against each other - it does nothing about a push landing on main
+      # through a completely different path (a PR merge) while a long
+      # scrape is in flight. That happened for real: a run that took ~75
+      # minutes (bazar.bg responding slowly) hit real content conflicts in
+      # data/leads_bazar.json and data/leads_imot.json against commits
+      # merged to main during that window, and with no fallback the whole
+      # run's freshly-scraped data for every portal was discarded when the
+      # rebase failed and the runner was torn down - not just the two
+      # conflicted files. On conflict, keep whatever is already on main
+      # for just the conflicted files (this run's snapshot for those two
+      # portals gets recaptured next cycle regardless) rather than losing
+      # every portal's update over an unrelated conflict.
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
           git diff --cached --quiet || git commit -m "Update listings"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+            git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
+            git diff --name-only --diff-filter=U | xargs -r git add
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push

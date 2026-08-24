@@ -13,6 +13,15 @@ on:
     - cron: "0 3 * * *"
   workflow_dispatch:
 
+# scrape.yml carries the same group and guard for the same reason: a run
+# here takes hours (this file's own comment above), long enough that a
+# scrape.yml run or a direct push to main (a PR merge) can easily land in
+# the meantime and produce a real git conflict on the shared data/*.json
+# files with no fallback otherwise.
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -40,10 +49,21 @@ jobs:
       # locally-narrowed candidate set's photos, not the full active pool.
       - run: python detect_relistings_by_photo.py
 
+      # See scrape.yml for why this falls back instead of just failing on
+      # conflict: a run here can easily take 2+ hours, long enough for a
+      # real content conflict against main to be likely, not a rare edge
+      # case - and with no fallback, losing the rebase means losing this
+      # entire run's scraped data for both portals, not just whichever
+      # file happened to conflict.
       - run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
           git diff --cached --quiet || git commit -m "Update listings (large sites)"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+            git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
+            git diff --name-only --diff-filter=U | xargs -r git add
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
