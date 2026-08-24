@@ -26,11 +26,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
+      - run: pip install requests beautifulsoup4 Pillow
 
       - run: python scraper.py
 
       - run: python scraper_alo.py
+
+      # Extends detect_relistings.py's relisting-chain mechanism (already
+      # wired into scrape.yml) to these two portals specifically, using
+      # real photo comparison instead of URL matching since imoti.net's
+      # and alo.bg's stored photo URLs can't be string-matched (see
+      # detect_relistings_by_photo.py's docstring). Downloads only a
+      # locally-narrowed candidate set's photos, not the full active pool.
+      - run: python detect_relistings_by_photo.py
 
       - run: |
           git config user.name "property-bot"
