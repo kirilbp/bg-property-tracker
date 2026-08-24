@@ -622,6 +622,7 @@
         <div class="radius-btn-row" id="lgRadiusButtons" style="margin-top:10px;">
           <button type="button" class="radius-btn" data-radius="250">250m</button>
           <button type="button" class="radius-btn" data-radius="500">500m</button>
+          <button type="button" class="radius-btn" data-radius="1000">1000m</button>
           <button type="button" class="radius-btn" data-radius="1500">1500m</button>
           <button type="button" class="radius-btn" data-radius="custom">Custom</button>
         </div>
@@ -1106,7 +1107,7 @@ function updateRadiusMap(l) {
 }
 
 function renderRadiusPanel(l) {
-  const buttons = [250, 500, 1500].map(m => `
+  const buttons = [250, 500, 1000, 1500].map(m => `
     <button class="radius-btn${detailRadiusM === m ? ' active' : ''}" data-radius="${m}">${m}m</button>
   `).join('');
 
