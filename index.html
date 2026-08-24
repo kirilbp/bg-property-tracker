@@ -337,9 +337,9 @@
           <div class="portal-list" id="portalList"></div>
         </div>
         <div class="card">
-          <h2>sales.bcpea.org — public auctions by property type</h2>
-          <p class="card-sub">Court-ordered foreclosure auctions from the Chamber of Private Enforcement Agents, filtered to one property type at a time. Prices shown are the legal minimum starting bid, not a negotiable asking price.</p>
-          <div class="type-filter-grid" id="bcpeaTypeGrid"></div>
+          <h2>Browse by property type</h2>
+          <p class="card-sub">Filter listings across all 8 portals by property type, or jump straight to public court-ordered auctions from sales.bcpea.org (Chamber of Private Enforcement Agents) - their prices are a legal minimum starting bid, not a negotiable asking price.</p>
+          <div class="type-filter-grid" id="typeFilterGrid"></div>
         </div>
         <div class="card">
           <h2>Ready to browse?</h2>
@@ -362,9 +362,9 @@
           <span>Showing leads for <strong id="leadgenBannerName"></strong></span>
           <button id="leadgenBannerClearBtn">✕ Clear, show all listings</button>
         </div>
-        <div class="leadgen-banner" id="bcpeaTypeBanner" style="display:none;">
-          <span>Showing sales.bcpea.org — <strong id="bcpeaTypeBannerName"></strong></span>
-          <button id="bcpeaTypeBannerClearBtn">✕ Clear, show all listings</button>
+        <div class="leadgen-banner" id="typeFilterBanner" style="display:none;">
+          <span>Showing <strong id="typeFilterBannerName"></strong></span>
+          <button id="typeFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
         <div class="card">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:#2563eb; text-decoration:none;">← Back to Lead Generators</a>
@@ -631,42 +631,47 @@ let detailActiveTab = 'details';
 let detailRadiusM = null;
 let detailMap = null;
 
-// --- sales.bcpea.org property-type filter (Home page) -------------------------
+// --- Property-type filter (Home page) -----------------------------------------
+// Six type buckets spanning all 8 portals, plus a 7th "Auctions" bucket
+// scoped to sales.bcpea.org specifically (a court-ordered foreclosure
+// registry, not an ordinary for-sale portal - worth browsing as its own
+// thing as well as folding into the type buckets above).
+//
 // bcpea.org's own listing titles carry an exact, fixed Bulgarian property-type
 // string (confirmed against its live "type" filter dropdown, e.g. "Гараж",
 // "Парцел с къща") - a lot more precise than the shared apartment/house/land/
-// commercial classify_category() every portal's scraper already runs, which
-// bcpea's own scraper still populates for the cross-portal radius-average
-// feature but which would bucket a garage or a parking space in with
-// apartments. This is a second, bcpea-only taxonomy layered on top, matched
-// straight off l.title (scraper_bcpea.py builds it as "<raw type>, <settlement>")
-// rather than added as a new scraped field, so it works against data already
-// on disk with no scraper change or re-scrape needed.
+// commercial classify_category() every portal's scraper runs. So bcpea
+// listings are bucketed off that precise raw type; the other 7 portals only
+// ever produce apartment/house/land/commercial, so they fall back to the
+// closest of the 6 buckets via that shared category - which means Garages
+// and Shops will only ever show bcpea listings (no other portal's scraper
+// distinguishes a garage or a storefront from generic commercial space).
 //
 // A few of bcpea's 31 raw types are genuinely ambiguous under 6 buckets
 // (grouping call, not a parsing fact) - "Заведение" (restaurant/venue) reads
 // closer to a storefront than an office, so it's bucketed under "shop" rather
 // than "business"; "Други" (other) and "Обособена част" (an unspecified unit
 // within a building) don't fit any of the 6 buckets and are left unmatched
-// rather than forced into one.
-const BCPEA_TYPE_BUCKETS = [
-  { key: 'flat', label: 'Flats', icon: '🏢', rawTypes: [
+// rather than forced into one (they still show up under "Auctions" though,
+// since that bucket is portal-based, not type-based).
+const BCPEA_RAW_TYPES = [
+  { key: 'flat', rawTypes: [
     'Едностаен апартамент', 'Двустаен апартамент', 'Тристаен апартамент',
     'Многостаен апартамент', 'Мезонет', 'Ателие, Таван', 'Стая',
   ] },
-  { key: 'house', label: 'Houses', icon: '🏠', rawTypes: [
+  { key: 'house', rawTypes: [
     'Вила', 'Етаж от къща', 'Къща', 'Жилищна сграда', 'Къща с парцел',
   ] },
-  { key: 'land', label: 'Land', icon: '🌳', rawTypes: [
+  { key: 'land', rawTypes: [
     'Парцел', 'Земеделска земя', 'Земеделски имот', 'Парцел с къща',
   ] },
-  { key: 'garage', label: 'Garages', icon: '🚗', rawTypes: [
+  { key: 'garage', rawTypes: [
     'Гараж', 'Паркомясто',
   ] },
-  { key: 'shop', label: 'Shops', icon: '🏪', rawTypes: [
+  { key: 'shop', rawTypes: [
     'Магазин', 'Заведение',
   ] },
-  { key: 'business', label: 'Business', icon: '💼', rawTypes: [
+  { key: 'business', rawTypes: [
     'Офис', 'Склад', 'Фабрика', 'Хотел', 'Търговски имот',
     'Производствен имот', 'Бензиностанция', 'Газстанция', 'Автомивка',
   ] },
@@ -674,51 +679,75 @@ const BCPEA_TYPE_BUCKETS = [
 // Flattened to [rawType, bucketKey] pairs, longest rawType first, so a type
 // string that's a prefix of another (e.g. "Къща" vs "Къща с парцел") always
 // resolves to the more specific one.
-const BCPEA_TYPE_LOOKUP = BCPEA_TYPE_BUCKETS
+const BCPEA_TYPE_LOOKUP = BCPEA_RAW_TYPES
   .flatMap(b => b.rawTypes.map(t => [t, b.key]))
   .sort((a, b) => b[0].length - a[0].length);
 
-function bcpeaTypeBucket(l) {
-  if (l.portal !== 'sales.bcpea.org' || !l.title) return null;
-  const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
-  return match ? match[1] : null;
+// The other 7 portals' shared classify_category() output, mapped to the
+// closest of the 6 type buckets.
+const CATEGORY_TO_BUCKET = { apartment: 'flat', house: 'house', land: 'land', commercial: 'business' };
+
+const TYPE_FILTER_BUCKETS = [
+  { key: 'flat', label: 'Flats', icon: '🏢' },
+  { key: 'house', label: 'Houses', icon: '🏠' },
+  { key: 'land', label: 'Land', icon: '🌳' },
+  { key: 'garage', label: 'Garages', icon: '🚗' },
+  { key: 'shop', label: 'Shops', icon: '🏪' },
+  { key: 'business', label: 'Business', icon: '💼' },
+  { key: 'auction', label: 'sales.bcpea.org auctions', icon: '🔨' },
+];
+
+function typeFilterBucket(l) {
+  if (l.portal === 'sales.bcpea.org') {
+    if (!l.title) return null;
+    const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
+    return match ? match[1] : null;
+  }
+  return CATEGORY_TO_BUCKET[l.category] || null;
 }
 
-let activeBcpeaTypeFilter = null;
+function matchesTypeFilter(l, key) {
+  if (!key) return true;
+  if (key === 'auction') return l.portal === 'sales.bcpea.org';
+  return typeFilterBucket(l) === key;
+}
 
-function applyBcpeaTypeFilter(bucketKey) {
-  const def = BCPEA_TYPE_BUCKETS.find(b => b.key === bucketKey);
+let activeTypeFilter = null;
+
+function applyTypeFilter(key) {
+  const def = TYPE_FILTER_BUCKETS.find(b => b.key === key);
   if (!def) return;
-  activeBcpeaTypeFilter = bucketKey;
+  activeTypeFilter = key;
   clearActiveLeadGenerator(true);
   document.getElementById('minPrice').value = '';
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
   document.getElementById('searchQuery').value = '';
   document.getElementById('areaFilter').value = '';
-  document.getElementById('bcpeaTypeBanner').style.display = 'flex';
-  document.getElementById('bcpeaTypeBannerName').textContent = def.label;
+  document.getElementById('typeFilterBanner').style.display = 'flex';
+  document.getElementById('typeFilterBannerName').textContent = def.label;
   currentPage = 1;
   showSection('leads');
   render();
 }
 
-function clearBcpeaTypeFilter(skipRender) {
-  activeBcpeaTypeFilter = null;
-  document.getElementById('bcpeaTypeBanner').style.display = 'none';
+function clearTypeFilter(skipRender) {
+  activeTypeFilter = null;
+  document.getElementById('typeFilterBanner').style.display = 'none';
   if (!skipRender) renderFromStart();
 }
 
-function renderBcpeaTypeFilters() {
-  const grid = document.getElementById('bcpeaTypeGrid');
+function renderTypeFilters() {
+  const grid = document.getElementById('typeFilterGrid');
   if (!grid) return;
-  const counts = Object.fromEntries(BCPEA_TYPE_BUCKETS.map(b => [b.key, 0]));
+  const counts = Object.fromEntries(TYPE_FILTER_BUCKETS.map(b => [b.key, 0]));
   MERGED_LISTINGS.forEach(l => {
-    const bucket = bcpeaTypeBucket(l);
+    if (l.portal === 'sales.bcpea.org') counts.auction++;
+    const bucket = typeFilterBucket(l);
     if (bucket) counts[bucket]++;
   });
-  grid.innerHTML = BCPEA_TYPE_BUCKETS.map(b => `
-    <button class="type-filter-btn${activeBcpeaTypeFilter === b.key ? ' active' : ''}" data-bcpea-type="${b.key}">
+  grid.innerHTML = TYPE_FILTER_BUCKETS.map(b => `
+    <button class="type-filter-btn${activeTypeFilter === b.key ? ' active' : ''}" data-type-filter="${b.key}">
       <span class="type-filter-icon">${b.icon}</span>
       <span class="type-filter-label">${b.label}</span>
       <span class="type-filter-count">${fmt(counts[b.key])} listings</span>
@@ -1478,7 +1507,7 @@ function checkLeads(genId) {
   const gen = LEAD_GENERATORS.find(g => g.id === genId);
   if (!gen) return;
   activeLeadGenerator = gen;
-  clearBcpeaTypeFilter(true);
+  clearTypeFilter(true);
   document.getElementById('minPrice').value = gen.filters.minPrice ?? '';
   document.getElementById('maxPrice').value = gen.filters.maxPrice ?? '';
   document.getElementById('minSqm').value = gen.filters.minSqm ?? '';
@@ -1523,7 +1552,7 @@ function renderHome() {
   `).join('');
 
   renderHomeChart();
-  renderBcpeaTypeFilters();
+  renderTypeFilters();
 }
 
 function renderHomeChart() {
@@ -1685,7 +1714,7 @@ function render() {
     (area === '' || l.area === area) &&
     listingMatchesSearch(l, searchQuery) &&
     matchesLeadGenerator(l, activeLeadGenerator) &&
-    (!activeBcpeaTypeFilter || bcpeaTypeBucket(l) === activeBcpeaTypeFilter)
+    matchesTypeFilter(l, activeTypeFilter)
   );
 
   filtered.sort((a, b) => {
@@ -1981,10 +2010,10 @@ document.getElementById('backToLeadgenLink').addEventListener('click', (e) => {
   showSection('leadgen');
 });
 
-document.getElementById('bcpeaTypeBannerClearBtn').addEventListener('click', () => clearBcpeaTypeFilter());
-document.getElementById('bcpeaTypeGrid').addEventListener('click', (e) => {
-  const btn = e.target.closest('.type-filter-btn[data-bcpea-type]');
-  if (btn) applyBcpeaTypeFilter(btn.dataset.bcpeaType);
+document.getElementById('typeFilterBannerClearBtn').addEventListener('click', () => clearTypeFilter());
+document.getElementById('typeFilterGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.type-filter-btn[data-type-filter]');
+  if (btn) applyTypeFilter(btn.dataset.typeFilter);
 });
 
 document.getElementById('leadgenModalCloseBtn').addEventListener('click', closeLeadGenModal);
