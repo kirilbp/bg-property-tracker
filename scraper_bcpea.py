@@ -76,6 +76,7 @@ documents for the other geocoded portals.
 
 import re
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -170,8 +171,22 @@ def is_challenge_title(title):
     return any(marker in title for marker in CHALLENGE_TITLE_MARKERS)
 
 
-def fetch_html(page, url):
+def fetch_html(browser, url):
+    # A fresh browser context per request, not one shared page reused for
+    # the whole run - confirmed live via probe_bcpea_challenge.py (4
+    # variants tested against the real site: a shared-context control, a
+    # navigator.webdriver stealth patch, a long randomized delay, and a
+    # fresh context per request - only the fresh-context variant got past
+    # the challenge on a second request; the other three failed 100% of
+    # the time, identically to the original bug). The site's bot-challenge
+    # escalates based on session/context reuse, not raw timing or browser
+    # fingerprinting, so a genuinely new context resets whatever
+    # per-session signal triggers it - the previous shared-page approach
+    # meant this scraper had been stuck at exactly one page (36 listings)
+    # since it was first built, out of a real ~1,300 nationwide.
     for attempt in range(1, MAX_RETRIES + 1):
+        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
+        page = context.new_page()
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(500)
@@ -189,6 +204,8 @@ def fetch_html(page, url):
             print(f"DEBUG: navigation failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}", flush=True)
             if attempt < MAX_RETRIES:
                 page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
+        finally:
+            context.close()
     return None
 
 
@@ -217,8 +234,8 @@ def debug_html_snippet(html):
     return f"len={len(html)} title={title!r} body_start={body_text!r}"
 
 
-def fetch_listings_page(page, url):
-    html = fetch_html(page, url)
+def fetch_listings_page(browser, url):
+    html = fetch_html(browser, url)
     if html is None:
         return None
     soup = BeautifulSoup(html, "html.parser")
@@ -282,8 +299,8 @@ def fetch_listings_page(page, url):
     return listings
 
 
-def fetch_listing_detail(page, listing, geocoder):
-    html = fetch_html(page, listing["url"])
+def fetch_listing_detail(browser, listing, geocoder):
+    html = fetch_html(browser, listing["url"])
     if html is None:
         return
     soup = BeautifulSoup(html, "html.parser")
@@ -317,12 +334,10 @@ def fetch_listings():
     all_listings = {}
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
-        page = context.new_page()
 
         for page_num in range(1, MAX_PAGES + 1):
             url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page_num}"
-            page_listings = fetch_listings_page(page, url)
+            page_listings = fetch_listings_page(browser, url)
             count = len(page_listings) if page_listings is not None else None
             print(f"DEBUG: page {page_num} listings parsed = {count}", flush=True)
             if not page_listings:
@@ -334,8 +349,8 @@ def fetch_listings():
         geocoder = Geocoder()
         detail_failures = 0
         for i, l in enumerate(listings, 1):
-            page.wait_for_timeout(int(REQUEST_DELAY_SECONDS * 1000))
-            fetch_listing_detail(page, l, geocoder)
+            time.sleep(REQUEST_DELAY_SECONDS)
+            fetch_listing_detail(browser, l, geocoder)
             if l.get("lat") is None:
                 detail_failures += 1
                 if detail_failures <= 3:
