@@ -135,11 +135,19 @@ def fetch_listings_page(url):
         price_eur = None
         for i, l in enumerate(lines):
             if l == "€" and i > 0:
-                digits = re.sub(r"\D", "", lines[i - 1])
-                if digits:
-                    price_eur = int(digits)
+                # Confirmed against imot.bg (same underlying Focus-backend
+                # listings, matched via shared photo IDs): stripping all
+                # non-digits from the previous line, unchecked, occasionally
+                # swallowed a stray adjacent number (e.g. floor/sqm) into the
+                # price when the two got merged with no separator during text
+                # extraction - producing a price ~100x too large. Requiring
+                # the previous line to be purely digits/whitespace (a real
+                # price line never has anything else on it) rejects those.
+                prev_line = lines[i - 1]
+                if re.fullmatch(r"[\d\s]{3,10}", prev_line):
+                    price_eur = int(re.sub(r"\s", "", prev_line))
                 break
-        if price_eur is None or price_eur < 1000:
+        if price_eur is None or price_eur < 1000 or price_eur > 10_000_000:
             continue
 
         area = "Sofia"
