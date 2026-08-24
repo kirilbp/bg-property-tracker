@@ -252,16 +252,24 @@ def merged_id_for(sources):
     return "m_" + digest[:16]
 
 
-# Every field a listing_sources/merged_listings row copies straight from a
-# leads_*.json entry, confirmed against the real union of keys actually
-# present across all 8 committed files (not guessed from scraper source).
-# "id" and "portal" are handled separately (source_id / portal columns).
+# Every field a listing_sources row copies straight from a leads_*.json
+# entry, confirmed against the real union of keys actually present across
+# all 8 committed files (not guessed from scraper source). "id" and
+# "portal" are handled separately (source_id / portal columns).
 SOURCE_FIELDS = [
     "url", "photo", "photos", "price_eur", "sqm", "area", "title", "description",
     "category", "lat", "lng", "price_per_sqm", "price_history", "price_drop_count",
     "drop_pct", "days_on_market", "score", "source_status", "removed_at",
     "area_avg_price_per_sqm", "pct_vs_area_avg", "site_updated_at", "site_posted_at",
 ]
+
+# merged_listings has no source_status/removed_at columns - a merged group's
+# equivalent is the "status" field computed separately (available/sold,
+# only true once every member source agrees it's gone), not any one
+# source's own status. Sending those two columns to merged_listings gets
+# PostgREST's "could not find the column" error since there's no such
+# column to write to.
+MERGED_FIELDS = [f for f in SOURCE_FIELDS if f not in ("source_status", "removed_at")]
 
 
 def build_rows(all_listings):
@@ -291,7 +299,7 @@ def build_rows(all_listings):
             "member_count": len(sorted_sources),
             "member_portals": sorted({s["portal"] for s in sorted_sources}),
         }
-        for f in SOURCE_FIELDS:
+        for f in MERGED_FIELDS:
             merged[f] = best.get(f)
         merged["type_bucket"] = type_filter_bucket(best)
         merged["city_key"] = listing_city_key(best)
