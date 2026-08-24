@@ -117,6 +117,8 @@
   .badge-drop { background: #eff6ff; color: #1d4ed8; }
   .badge-portal { background: #f1f5f9; color: #475569; }
   .badge-unverified { background: #fef3c7; color: #92400e; }
+  .badge-sold { background: #1e293b; color: white; }
+  .badge-source-removed { background: #fef2f2; color: #b91c1c; }
   .registry-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 12px; color: #64748b; text-decoration: none;
@@ -231,6 +233,7 @@
   }
   .source-switcher-btn:hover { border-color: #94a3b8; }
   .source-switcher-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .source-switcher-btn.removed:not(.active) { color: #94a3b8; border-style: dashed; }
   .radius-panel {
     background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
     padding: 12px 14px; margin: 0 0 16px;
@@ -1285,7 +1288,18 @@ function groupListings(all) {
 
   return [...groups, ...soloSqmless].map(sources => {
     const sorted = [...sources].sort((a, b) => (b.score || 0) - (a.score || 0));
-    return { ...sorted[0], sources: sorted };
+    // Each source already knows its own source_status ('active'/'removed' -
+    // set server-side in compute_leads(), based on whether that specific
+    // portal has actually re-confirmed the listing recently). The MERGED
+    // listing is only "sold" once every cross-posted source agrees it's
+    // gone; if even one portal still shows it live, the property is still
+    // available, just no longer through the ones that dropped it. A source
+    // with no source_status at all (committed before this field existed)
+    // is treated as active - assume available rather than sold until a
+    // scrape actually confirms otherwise.
+    const status = sorted.every(s => s.source_status === 'removed') ? 'sold' : 'available';
+    sorted.forEach(s => { s.status = status; });
+    return { ...sorted[0], sources: sorted, status };
   });
 }
 
@@ -1869,7 +1883,9 @@ function clearActiveLeadGenerator(skipRender) {
 }
 
 function renderHome() {
-  const hot = MERGED_LISTINGS.filter(l => l.score >= 65).length;
+  // Matches renderDashboard()'s Hottest Deals filter - a sold listing isn't
+  // an actionable hot deal anymore, however high its frozen score is.
+  const hot = MERGED_LISTINGS.filter(l => l.status !== 'sold' && l.score >= 65).length;
   const stats = [
     { value: fmt(MERGED_LISTINGS.length), label: 'Total listings' },
     { value: fmt(hot), label: '🔥 Hot deals' },
@@ -1928,7 +1944,9 @@ function renderHomeChart() {
 }
 
 function renderDashboard() {
-  const top = [...MERGED_LISTINGS].sort((a, b) => b.score - a.score).slice(0, 6);
+  // A sold listing can't be acted on anymore, so it has no business in a
+  // "hottest deals right now" ranking even if its frozen score is high.
+  const top = [...MERGED_LISTINGS].filter(l => l.status !== 'sold').sort((a, b) => b.score - a.score).slice(0, 6);
   const hotGrid = document.getElementById('hotGrid');
   hotGrid.innerHTML = '';
   top.forEach(l => hotGrid.appendChild(createListingCard(l)));
@@ -1982,11 +2000,24 @@ function renderChart() {
 
 function buildBadgesHtml(l) {
   let badges = `<span class="badge badge-portal">${l.portal}</span>`;
+  // status is the MERGED verdict (sold only once every cross-posted source
+  // agrees it's gone) - source_status is just this one object's own portal.
+  // A merged listing that's not sold overall can still have its own
+  // (possibly non-primary) source removed, worth flagging separately from
+  // a full Sold badge since the property may still be reachable elsewhere.
+  if (l.status === 'sold') {
+    badges += '<span class="badge badge-sold" title="No longer seen on any tracked portal - likely sold or taken off the market.">⬤ Sold</span>';
+  } else if (l.source_status === 'removed') {
+    badges += `<span class="badge badge-source-removed" title="No longer listed on ${l.portal}, but still available via another source below.">Removed from ${l.portal}</span>`;
+  }
   if (l.unverified) {
     badges += '<span class="badge badge-unverified" title="Price/m² is far enough from the area average that it may be a data error - double-check against the listing page.">⚠️ Unverified price</span>';
   }
-  if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
-  else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
+  // A sold listing isn't an actionable "deal" of any temperature anymore.
+  if (l.status !== 'sold') {
+    if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
+    else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
+  }
 
   if (l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined) {
     if (l.pct_vs_area_avg < 0) {
@@ -2313,8 +2344,8 @@ function renderListingDetail(merged) {
   const switcherHtml = merged.sources.length > 1 ? `
     <div class="source-switcher">
       ${merged.sources.map((s, i) => `
-        <button class="source-switcher-btn${i === detailSourceIndex ? ' active' : ''}" data-source-index="${i}">
-          ${s.portal} · €${fmt(s.price_eur)}
+        <button class="source-switcher-btn${i === detailSourceIndex ? ' active' : ''}${s.source_status === 'removed' ? ' removed' : ''}" data-source-index="${i}" title="${s.source_status === 'removed' ? 'No longer listed on ' + s.portal : ''}">
+          ${s.portal} · €${fmt(s.price_eur)}${s.source_status === 'removed' ? ' (removed)' : ''}
         </button>
       `).join('')}
     </div>

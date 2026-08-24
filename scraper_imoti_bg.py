@@ -51,7 +51,7 @@ frontend's same-category radius-average feature.
 import re
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -238,6 +238,15 @@ def update_history(history, listings):
     return history
 
 
+# A listing not seen in a scrape for at least this long is treated as no
+# longer actually posted on this portal ("removed"), not just skipped by one
+# scrape cycle due to pagination timing/site load - same threshold
+# detect_relistings.py already uses for the same reason. Once removed,
+# days_on_market/score freeze at the day it was last confirmed live instead
+# of continuing to climb forever against an ad that's no longer there.
+GONE_AFTER = timedelta(hours=20)
+
+
 def compute_leads(history):
     leads = []
     for lid, rec in history.items():
@@ -247,7 +256,10 @@ def compute_leads(history):
         first_price, last_price = prices[0], prices[-1]
         drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
         first_seen = datetime.fromisoformat(rec["first_seen"])
-        days_on_market = (datetime.now(timezone.utc) - first_seen).days
+        last_seen = datetime.fromisoformat(rec["snapshots"][-1]["seen_at"])
+        source_status = "active" if (datetime.now(timezone.utc) - last_seen) <= GONE_AFTER else "removed"
+        effective_now = last_seen if source_status == "removed" else datetime.now(timezone.utc)
+        days_on_market = (effective_now - first_seen).days
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         price_history = []
@@ -273,6 +285,8 @@ def compute_leads(history):
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
         entry["score"] = score
+        entry["source_status"] = source_status
+        entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         leads.append(entry)
 
     area_totals = {}

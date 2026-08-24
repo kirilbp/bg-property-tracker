@@ -49,7 +49,7 @@ same-category radius-average feature.
 import re
 import json
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -230,6 +230,22 @@ def update_history(history, listings):
     return history
 
 
+# A listing not seen in a scrape for at least this long is treated as no
+# longer actually posted on this portal ("removed"), not just skipped by one
+# scrape cycle due to pagination timing/site load. This scraper runs on its
+# OWN 24h schedule (scrape-large.yml, not the 6-hourly scrape.yml the other
+# portals use - see that workflow's own comment for why), unlike the 20h
+# threshold detect_relistings.py uses for the 6-hourly portals - a 20h cutoff
+# here would flag every single listing "removed" the moment a day passes
+# without a scrape, confirmed live against this scraper's own committed
+# history.json (100% of listings came back "removed" at 20h). 48h gives a
+# full extra cycle of slack for an occasionally slow/delayed run before
+# concluding a listing is genuinely gone. Once removed, days_on_market/score
+# freeze at the day it was last confirmed live instead of continuing to
+# climb forever against an ad that's no longer there.
+GONE_AFTER = timedelta(hours=48)
+
+
 def compute_leads(history):
     leads = []
     for lid, rec in history.items():
@@ -251,6 +267,10 @@ def compute_leads(history):
             1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]
         )
 
+        last_seen = datetime.fromisoformat(rec["snapshots"][-1]["seen_at"])
+        source_status = "active" if (datetime.now(timezone.utc) - last_seen) <= GONE_AFTER else "removed"
+        effective_now = last_seen if source_status == "removed" else datetime.now(timezone.utc)
+
         latest = rec["latest"]
         site_posted_at = latest.get("site_posted_at")
         reference_date = (
@@ -258,7 +278,7 @@ def compute_leads(history):
             if site_posted_at
             else datetime.fromisoformat(rec["first_seen"])
         )
-        days_on_market = max((datetime.now(timezone.utc) - reference_date).days, 0)
+        days_on_market = max((effective_now - reference_date).days, 0)
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         area = extract_area(latest["title"])
@@ -274,6 +294,8 @@ def compute_leads(history):
             "drop_pct": drop_pct,
             "days_on_market": days_on_market,
             "score": score,
+            "source_status": source_status,
+            "removed_at": last_seen.isoformat() if source_status == "removed" else None,
         })
 
     area_totals = {}
