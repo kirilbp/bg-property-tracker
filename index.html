@@ -338,7 +338,7 @@
         </div>
         <div class="card">
           <h2>Browse by property type</h2>
-          <p class="card-sub">Filter listings across all 8 portals by property type, or jump straight to public court-ordered auctions from sales.bcpea.org (Chamber of Private Enforcement Agents) - their prices are a legal minimum starting bid, not a negotiable asking price.</p>
+          <p class="card-sub">Filter listings across all 8 portals by property type, or jump straight to public court-ordered auctions from sales.bcpea.org (Chamber of Private Enforcement Agents) - their prices are a legal minimum starting bid, not a negotiable asking price. "Uncategorized" is listings some portals couldn't be classified for right now, not a real property type.</p>
           <div class="type-filter-grid" id="typeFilterGrid"></div>
         </div>
         <div class="card">
@@ -694,16 +694,26 @@ const TYPE_FILTER_BUCKETS = [
   { key: 'garage', label: 'Garages', icon: '🚗' },
   { key: 'shop', label: 'Shops', icon: '🏪' },
   { key: 'business', label: 'Business', icon: '💼' },
+  // Not a type at all - a large fraction of listings on several portals
+  // (alo.bg worst: ~97% of its listings right now) are missing `category`
+  // because it's only set on a successful detail-page fetch, and that
+  // fetch fails for them - the same listings are also missing lat/lng and
+  // site_updated_at for the same reason. Rather than silently default
+  // these to one of the 6 buckets above (which would misclassify a real
+  // house or plot as a flat, say), they're counted here honestly so the 8
+  // buttons' counts add up to the real total instead of quietly losing
+  // ~40% of listings with no visible trace.
+  { key: 'other', label: 'Uncategorized', icon: '❓' },
   { key: 'auction', label: 'sales.bcpea.org auctions', icon: '🔨' },
 ];
 
 function typeFilterBucket(l) {
   if (l.portal === 'sales.bcpea.org') {
-    if (!l.title) return null;
+    if (!l.title) return 'other';
     const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
-    return match ? match[1] : null;
+    return match ? match[1] : 'other';
   }
-  return CATEGORY_TO_BUCKET[l.category] || null;
+  return CATEGORY_TO_BUCKET[l.category] || 'other';
 }
 
 function matchesTypeFilter(l, key) {
