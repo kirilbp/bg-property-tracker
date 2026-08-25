@@ -150,12 +150,19 @@ def extract_area(location):
 
 def fetch_with_retries(session, url):
     for attempt in range(1, MAX_RETRIES + 1):
+        resp = None
         try:
             resp = session.get(url, headers=HEADERS, timeout=20)
             resp.raise_for_status()
             return resp.text
         except requests.RequestException as e:
-            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            # Logging the real HTTP status (when there is one) distinguishes
+            # "homes.bg is throttling us" (429/403) from a plain timeout/
+            # connection error (no response at all) - both look identical
+            # as a generic "request failed" message otherwise, and a real
+            # multi-hour run needs this to be diagnosable after the fact.
+            status = resp.status_code if resp is not None else "no response (timeout/connection error)"
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}, status={status}): {e}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_SECONDS * attempt)
     return None
@@ -169,11 +176,14 @@ def build_url(type_id, page):
 
 
 def fetch_listings():
+    start_time = time.monotonic()
     session = requests.Session()
     seen = {}
     geocoder = Geocoder()
 
     for type_id, category in TYPE_QUERIES:
+        type_start = time.monotonic()
+        print(f"DEBUG: starting {type_id} at t={type_start - start_time:.0f}s, {len(seen)} listings so far")
         for page in range(1, MAX_PAGES + 1):
             url = build_url(type_id, page)
             text = fetch_with_retries(session, url)
@@ -187,7 +197,12 @@ def fetch_listings():
             state = json.loads(match.group(1))
             offers = state.get("data", {}).get("offers", {})
             results = offers.get("result", [])
-            print(f"DEBUG: {type_id} page {page} offers count = {len(results)}")
+            # t= is wall-clock elapsed since fetch_listings() started, not
+            # this page alone - a real >2hr run with no way to see live logs
+            # needs this to tell "still making progress" from "stuck
+            # retrying the same page", after the fact from the final log.
+            elapsed = time.monotonic() - start_time
+            print(f"DEBUG: {type_id} page {page} offers count = {len(results)} (t={elapsed:.0f}s, {len(seen)} listings so far)")
 
             for offer in results:
                 listing_id = "homes_" + str(offer["id"])
@@ -252,6 +267,8 @@ def fetch_listings():
 
             if not offers.get("hasMoreItems"):
                 break
+
+        print(f"DEBUG: finished {type_id} in {time.monotonic() - type_start:.0f}s, {len(seen)} listings so far")
 
     geocoder.save()
     return list(seen.values())
