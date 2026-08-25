@@ -1,11 +1,8 @@
-# Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses - most
-# recently the imoti.net per-city nationwide conversion). Kept registered
-# (workflow_dispatch runs against this branch pick up whatever it's
-# currently pointed at, no need to merge a placeholder to main first) so
-# the next diagnostic round can just overwrite the script below instead of
-# re-registering a new workflow name. No probe script currently checked
-# in - repoint the run step at a new one when the next question comes up.
+# Diagnostic workflow, repurposed round-by-round throughout the nationwide
+# expansion (see git history for many prior uses). Currently checking
+# alo.bg's real nationwide URL mechanism and whether deep pagination hits
+# a homes.bg/imoti.net-style depth cap. Read-only, no commit step. Delete
+# once the current probe's question is answered.
 name: Probe nationwide search URLs
 
 on:
@@ -24,4 +21,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "No probe script currently checked in - see this file's header comment."
+      - run: pip install requests
+
+      - run: python probe_alo_nationwide.py
