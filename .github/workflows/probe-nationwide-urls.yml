@@ -1,9 +1,9 @@
 # Temporary diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for prior uses). Currently
-# testing whether narrower query slices (by location, by price) get
-# homes.bg's per-query results past its ~1,000-result pagination depth
-# cap. Read-only, no commit step. Delete once the current probe's
-# question is answered.
+# checking whether the other 5 portals (alo.bg, bazar.bg, imot.bg, olx.bg,
+# imoti.bg) have a fixed pagination depth cap like homes.bg's confirmed
+# ~page-49 cutoff. Read-only, no commit step. Delete once the current
+# probe's question is answered.
 name: Probe nationwide search URLs
 
 on:
@@ -22,6 +22,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      - run: pip install requests beautifulsoup4 playwright
+      - run: playwright install --with-deps chromium
 
-      - run: python probe_homes_slicing.py
+      - run: python probe_other_portals_cap.py
