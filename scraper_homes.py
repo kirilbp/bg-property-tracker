@@ -121,8 +121,20 @@ SQM_RE = re.compile(r"(\d+)\s?m²")
 
 
 def parse_price_eur(price):
-    value = float(price["value"].replace(",", ""))
-    if price["currency"] == "BGN":
+    # A "price on request" listing reports "value": false (a bool, not a
+    # numeric string) instead of omitting the field - found live on a real
+    # nationwide run (a HouseSell listing crashed the whole scrape here,
+    # discarding everything already fetched since fetch_listings() only
+    # returns its results at the very end). Any other unparseable value
+    # gets the same treatment: no price to report, not a crash.
+    raw = price.get("value")
+    if not isinstance(raw, str):
+        return None
+    try:
+        value = float(raw.replace(",", ""))
+    except ValueError:
+        return None
+    if price.get("currency") == "BGN":
         return round(value / BGN_TO_EUR)
     return round(value)
 
@@ -182,43 +194,61 @@ def fetch_listings():
                 if listing_id in seen:
                     continue
 
-                sqm_match = SQM_RE.search(offer.get("title", ""))
-                sqm = int(sqm_match.group(1)) if sqm_match else None
+                # A single malformed offer (an unexpected field shape
+                # homes.bg's own JSON hasn't shown before) must not crash
+                # the whole run - fetch_listings() only returns its results
+                # at the very end, so an uncaught exception here would
+                # discard every page already fetched. Confirmed as a real
+                # failure mode live: a "price on request" listing reports
+                # "value": false (a bool, not a numeric string) instead of
+                # omitting the field, which crashed parse_price_eur() and
+                # lost 49 ApartmentSell + 14 HouseSell pages of already-
+                # fetched results in one real nationwide run.
+                try:
+                    sqm_match = SQM_RE.search(offer.get("title", ""))
+                    sqm = int(sqm_match.group(1)) if sqm_match else None
 
-                photo = offer.get("photo")
-                photo_url = None
-                if photo:
-                    photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
+                    photo = offer.get("photo")
+                    photo_url = None
+                    if photo:
+                        photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
 
-                photos = []
-                for p in offer.get("photos") or []:
-                    if isinstance(p, dict) and p.get("path") and p.get("name"):
-                        photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
-                if not photos and photo_url:
-                    photos = [photo_url]
+                    photos = []
+                    for p in offer.get("photos") or []:
+                        if isinstance(p, dict) and p.get("path") and p.get("name"):
+                            photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
+                    if not photos and photo_url:
+                        photos = [photo_url]
 
-                location = offer.get("location", "")
-                area = extract_area(location)
-                title = f"{offer.get('title', '')}, {location}".strip(", ")
-                geo_query = f"{location}, България" if location else f"{area}, България"
-                coords = geocoder.geocode_cached_only(geo_query)
+                    price_eur = parse_price_eur(offer["price"])
+                    if price_eur is None:
+                        continue
 
-                seen[listing_id] = {
-                    "id": listing_id,
-                    "url": BASE_URL + offer["viewHref"],
-                    "photo": photo_url,
-                    "photos": photos,
-                    "description": offer.get("description") or None,
-                    "price_eur": parse_price_eur(offer["price"]),
-                    "sqm": sqm,
-                    "area": area,
-                    "title": title,
-                    "portal": "homes.bg",
-                    "lat": coords["lat"] if coords else None,
-                    "lng": coords["lng"] if coords else None,
-                    "category": category,
-                    "category_confidence": "high",
-                }
+                    location = offer.get("location", "")
+                    area = extract_area(location)
+                    title = f"{offer.get('title', '')}, {location}".strip(", ")
+                    geo_query = f"{location}, България" if location else f"{area}, България"
+                    coords = geocoder.geocode_cached_only(geo_query)
+
+                    seen[listing_id] = {
+                        "id": listing_id,
+                        "url": BASE_URL + offer["viewHref"],
+                        "photo": photo_url,
+                        "photos": photos,
+                        "description": offer.get("description") or None,
+                        "price_eur": price_eur,
+                        "sqm": sqm,
+                        "area": area,
+                        "title": title,
+                        "portal": "homes.bg",
+                        "lat": coords["lat"] if coords else None,
+                        "lng": coords["lng"] if coords else None,
+                        "category": category,
+                        "category_confidence": "high",
+                    }
+                except Exception as e:
+                    print(f"DEBUG: skipping malformed offer {listing_id} on {type_id} page {page}: {e}")
+                    continue
 
             if not offers.get("hasMoreItems"):
                 break
