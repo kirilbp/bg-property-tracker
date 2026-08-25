@@ -23,4 +23,4 @@ jobs:
       - run: pip install playwright beautifulsoup4
       - run: playwright install --with-deps chromium
 
-      - run: python probe_imot_bg_district.py
+      - run: python probe_imot_bg_city_slugs.py
