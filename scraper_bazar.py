@@ -1,13 +1,13 @@
 """
-Scrapes current Sofia apartment-for-sale listings from bazar.bg.
+Scrapes current apartment-for-sale listings from bazar.bg, nationwide.
 
 bazar.bg is a general classifieds site (cars, jobs, real estate, etc), so
-this scopes to its own "apartments for sale in Sofia" category URL
-(https://bazar.bg/obiavi/prodazhba-apartamenti/sofia) rather than a sitewide
-search - the site itself filters out unrelated categories. Confirmed by
-sampling 68 live listings during development: 100% were genuine
-apartment-for-sale titles ("Продава <N>-СТАЕН, гр. София, <area>" or
-"Продава МЕЗОНЕТ/МНОГОСТАЕН, гр. София, <area>"), none from other
+this scopes to its own "apartments for sale" category URL per city
+(https://bazar.bg/obiavi/prodazhba-apartamenti/<city>) rather than a
+sitewide search - the site itself filters out unrelated categories.
+Confirmed by sampling 68 live listings during development: 100% were
+genuine apartment-for-sale titles ("Продава <N>-СТАЕН, гр. <City>, <area>"
+or "Продава МЕЗОНЕТ/МНОГОСТАЕН, гр. <City>, <area>"), none from other
 categories. bazar.bg has no bot-blocking - plain requests work fine.
 
 Each listing card is the smallest ancestor whose text mentions the price
@@ -20,28 +20,49 @@ the individual listing page does), so sqm/price_per_sqm are left null here
 - the same graceful degradation compute_leads() already applies to any
 listing missing sqm.
 
-Search results are paginated with ?page=N, and MAX_PAGES was originally
-hard-capped at 3 - confirmed against the live site that real listings
-continue at least through page 10 (the site's own paginator), so raised
-the cap and let the existing "stop on empty page" logic be the real
-stopping condition, same pattern as the other scrapers.
+Nationwide mechanism: bazar.bg supports BOTH a bare "drop the city
+segment" nationwide URL AND per-city path segments (unlike imot.bg/
+imoti.net, which need per-city slugs exclusively) - but live pagination
+testing found the site clamps out-of-range page numbers to its real last
+page and repeats it verbatim, rather than ever showing an empty page
+(confirmed: page 30's and page 50's listing ID sets were byte-identical).
+That means the old "stop on empty page" logic never actually fires past
+the real depth - it would silently loop through every remaining page
+re-fetching the same content. Real content on a single query stops
+changing around page 26, so CITY_SLUGS (each a live-verified
+/obiavi/prodazhba-apartamenti/<slug> URL, 29 of Bulgaria's 30 largest
+cities - Yambol's guessed slug didn't resolve and is skipped) slices by
+city instead, and pagination now stops as soon as a page's listing ID set
+exactly matches the previous page's (the real plateau signal), not just
+on an empty page - confirmed live that a different city query still gets
+fresh content in the same session after a previous city has already
+plateaued.
 
-A page fetch retries a few times with backoff before being treated as the
-end of pagination (same pattern as scraper.py/scraper_alo.py), so a
-transient failure doesn't get mistaken for having reached the last page -
-and, since scrape.yml runs all 5 scrapers sequentially with a single git
-commit step at the end, an uncaught exception here would otherwise
-silently discard every other scraper's output for that run too.
+Each listing's city is tagged directly from which CITY_SLUGS entry
+produced it (known from the URL, not re-parsed from text) - matches the
+pattern already used for imot.bg's nationwide conversion. AREA_LINE_RE
+generalizes away from the old hardcoded "гр. София," match to any
+"гр. <City>," prefix, live-verified against real Plovdiv/Varna/Burgas
+card text.
+
+Search results are paginated with ?page=N. A page fetch retries a few
+times with backoff before being treated as the end of pagination (same
+pattern as scraper.py/scraper_alo.py), so a transient failure doesn't get
+mistaken for having reached the last page - and, since scrape.yml runs
+several scrapers sequentially with a single git commit step at the end,
+an uncaught exception here would otherwise silently discard every other
+scraper's output for that run too.
 
 Real coordinates live only on each listing's own detail page, as
 data-lat/data-long attributes on its #see_on_map element (confirmed live
-via a plain, non-JS HTTP fetch - no headless browser needed). Getting
-them means visiting every tracked listing's own page once per scrape, on
-top of the grid crawl - a real added cost (~1 extra request per listing,
-~1s apart) accepted deliberately so the radius-average feature has real
-per-listing coordinates instead of none at all for this portal. A
-detail-page fetch that fails just leaves that one listing without
-coordinates for this run rather than aborting the whole scrape.
+via a plain, non-JS HTTP fetch - no headless browser needed). At
+nationwide scale, visiting every tracked listing's own page during the
+main scrape doesn't fit in a single run (the same problem
+scraper_homes.py hit first - see its module docstring), so this no longer
+does that inline - backfill_detail_bazar.py does it as a separate,
+decoupled pass. A detail-page fetch that fails there just leaves that one
+listing without coordinates for that run rather than aborting the whole
+backfill.
 """
 
 import re
@@ -53,15 +74,50 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_bazar
+from geo_utils import classify_category
 
-SEARCH_URL = "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia"
 BASE_URL = "https://bazar.bg"
+SEARCH_BASE = "https://bazar.bg/obiavi/prodazhba-apartamenti"
 HEADERS = {
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
     "Accept-Language": "bg-BG,bg;q=0.9,en;q=0.8",
 }
+
+# (city display name, URL slug) - each slug live-verified to return a real
+# bazar.bg city page (status 200, real listing links) before being trusted
+# here; see the module docstring for the diagnostic trail.
+CITY_SLUGS = [
+    ("София", "sofia"),
+    ("Пловдив", "plovdiv"),
+    ("Варна", "varna"),
+    ("Бургас", "burgas"),
+    ("Русе", "ruse"),
+    ("Стара Загора", "stara-zagora"),
+    ("Плевен", "pleven"),
+    ("Сливен", "sliven"),
+    ("Добрич", "dobrich"),
+    ("Шумен", "shumen"),
+    ("Перник", "pernik"),
+    ("Хасково", "haskovo"),
+    ("Пазарджик", "pazardzhik"),
+    ("Благоевград", "blagoevgrad"),
+    ("Велико Търново", "veliko-tarnovo"),
+    ("Враца", "vratsa"),
+    ("Габрово", "gabrovo"),
+    ("Видин", "vidin"),
+    ("Асеновград", "asenovgrad"),
+    ("Казанлък", "kazanlak"),
+    ("Кюстендил", "kyustendil"),
+    ("Кърджали", "kardzhali"),
+    ("Монтана", "montana"),
+    ("Димитровград", "dimitrovgrad"),
+    ("Търговище", "targovishte"),
+    ("Ловеч", "lovech"),
+    ("Силистра", "silistra"),
+    ("Дупница", "dupnitsa"),
+    ("Свищов", "svishtov"),
+]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -70,14 +126,17 @@ LEADS_FILE = OUT_DIR / "leads_bazar.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
-MAX_PAGES = 60
+# Real content on a single city query stops changing around page 26 (the
+# site clamps out-of-range page numbers to the last real page instead of
+# ever going empty - see the module docstring) - 30 gives a small safety
+# margin before the plateau-detection stop condition kicks in.
+MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
-REQUEST_DELAY_SECONDS = 1.0
 
 LISTING_LINK_RE = re.compile(r"obiava-(\d+)")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
-AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+)$")
+AREA_LINE_RE = re.compile(r"^гр\.\s*\S.*?,\s*(.+)$")
 
 
 def fetch_html(url):
@@ -108,7 +167,7 @@ def smallest_container_with_price(link_tag, max_levels=9):
     return None
 
 
-def fetch_listings_page(url):
+def fetch_listings_page(url, city_display):
     html = fetch_html(url)
     if html is None:
         return None
@@ -150,7 +209,7 @@ def fetch_listings_page(url):
         if price_eur is None or price_eur < 1000 or price_eur > 10_000_000:
             continue
 
-        area = "Sofia"
+        area = city_display
         for l in lines:
             m = AREA_LINE_RE.match(l)
             if m:
@@ -179,46 +238,40 @@ def fetch_listings_page(url):
             "price_eur": price_eur,
             "sqm": None,
             "area": area,
+            "city": city_display,
             "title": title[:150],
             "portal": "bazar.bg",
+            "lat": None,
+            "lng": None,
+            "category": classify_category(title),
         }
     return listings
 
 
-def fetch_listing_coords(listings):
-    # bazar.bg's grid pages carry no coordinates, but its detail page
-    # embeds them directly as data-lat/data-long attributes on the
-    # #see_on_map element - confirmed live via a plain (non-JS) HTTP
-    # fetch, so this needs no headless browser, just one extra request
-    # per listing (same cost pattern as scraper.py's/scraper_alo.py's
-    # detail-page fetches).
-    total = len(listings)
-    for i, l in enumerate(listings, 1):
-        time.sleep(REQUEST_DELAY_SECONDS)
-        html = fetch_html(l["url"])
-        if html is None:
-            continue
-        coords = extract_coords_bazar(html)
-        if coords:
-            l["lat"] = coords["lat"]
-            l["lng"] = coords["lng"]
-        l["category"] = classify_category(l.get("title"))
-        if i % 200 == 0:
-            print(f"DEBUG: fetched detail coords for {i}/{total} listings")
-
-
 def fetch_listings():
     all_listings = {}
-    for page in range(1, MAX_PAGES + 1):
-        url = SEARCH_URL if page == 1 else f"{SEARCH_URL}?page={page}"
-        page_listings = fetch_listings_page(url)
-        if not page_listings:
-            break
-        all_listings.update(page_listings)
-    listings = list(all_listings.values())
-    print(f"DEBUG: fetching detail coords for {len(listings)} listings")
-    fetch_listing_coords(listings)
-    return listings
+    for city_display, slug in CITY_SLUGS:
+        search_url = f"{SEARCH_BASE}/{slug}"
+        city_before = len(all_listings)
+        prev_ids = None
+        for page_num in range(1, MAX_PAGES + 1):
+            url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
+            page_listings = fetch_listings_page(url, city_display)
+            if page_listings is None:
+                break
+            page_ids = frozenset(page_listings.keys())
+            print(f"DEBUG: {city_display} page {page_num} links matching listing URL pattern = {len(page_listings)}")
+            if not page_listings or page_ids == prev_ids:
+                # Empty page, or the site clamped this out-of-range page
+                # number back to the same last real page (its listing ID
+                # set is identical to the previous page's) - either way
+                # there's nothing new past this point.
+                break
+            all_listings.update(page_listings)
+            prev_ids = page_ids
+        print(f"DEBUG: {city_display} done, {len(all_listings) - city_before} new listings")
+
+    return list(all_listings.values())
 
 
 def load_history():

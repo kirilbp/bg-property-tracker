@@ -68,6 +68,12 @@ jobs:
         timeout-minutes: 60
         continue-on-error: true
 
+      # Nationwide since 2026-08-25: 29 cities each individually paginated
+      # (city slicing - see scraper_bazar.py's module docstring for why)
+      # instead of Sofia-only's single region, but detail-page coordinate
+      # fetching is now decoupled into backfill_detail_bazar.py, so the
+      # existing 90-minute cap still has real headroom despite the wider
+      # city coverage.
       - run: python scraper_bazar.py
         timeout-minutes: 90
         continue-on-error: true
