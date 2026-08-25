@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright beautifulsoup4
+      - run: pip install playwright beautifulsoup4 requests
       - run: playwright install --with-deps chromium
 
       - run: python probe_verify_imot_bg.py
