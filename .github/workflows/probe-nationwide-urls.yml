@@ -1,7 +1,11 @@
-# Diagnostic workflow, repurposed round-by-round throughout the nationwide
-# expansion (see git history for many prior uses). Currently checking
-# imot.bg's real nationwide URL mechanism and pagination depth. Read-only,
-# no commit step. Delete once the current probe's question is answered.
+# Dormant diagnostic workflow, repurposed round-by-round throughout the
+# nationwide expansion (see git history for many prior uses - most
+# recently the imot.bg nationwide conversion). Kept registered
+# (workflow_dispatch runs against this branch pick up whatever it's
+# currently pointed at, no need to merge a placeholder to main first) so
+# the next diagnostic round can just overwrite the script below instead of
+# re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -20,7 +24,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright beautifulsoup4 requests
-      - run: playwright install --with-deps chromium
-
-      - run: python probe_verify_imot_bg.py
+      - run: echo "No probe script currently checked in - see this file's header comment."
