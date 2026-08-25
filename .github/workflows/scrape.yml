@@ -36,17 +36,40 @@ jobs:
       - run: pip install requests beautifulsoup4 playwright
       - run: playwright install --with-deps chromium
 
+      # Each scraper step below gets its own timeout-minutes + continue-
+      # on-error - a real production run once stalled on a single portal
+      # for 2h40m+ with no way to tell whether it was still making
+      # progress, and separately a single uncaught exception in one
+      # scraper (scraper_homes.py crashing on a malformed price field)
+      # skipped every step after it, including the final commit -
+      # discarding every other portal's already-scraped data for that
+      # run too. timeout-minutes bounds the first problem; continue-on-
+      # error means a step that fails or times out still lets later
+      # scrapers (and the commit/sync steps) run instead of cascading.
+      # Limits are generous multiples of each portal's normal runtime.
       - run: python scraper_homes.py
+        timeout-minutes: 60
+        continue-on-error: true
 
       - run: python scraper_imot.py
+        timeout-minutes: 20
+        continue-on-error: true
 
       - run: python scraper_olx.py
+        timeout-minutes: 20
+        continue-on-error: true
 
       - run: python scraper_bazar.py
+        timeout-minutes: 90
+        continue-on-error: true
 
       - run: python scraper_imoti_bg.py
+        timeout-minutes: 60
+        continue-on-error: true
 
       - run: python scraper_bcpea.py
+        timeout-minutes: 30
+        continue-on-error: true
 
       # Runs after every scrape so newly-detected relistings (a seller
       # deleting and reposting a listing, often at a lower price, instead
@@ -55,6 +78,8 @@ jobs:
       # network access needed. Safe to run every time: already-recorded
       # pairs are skipped, not re-injected.
       - run: python detect_relistings.py
+        timeout-minutes: 10
+        continue-on-error: true
 
       # The concurrency group above only serializes runs of this workflow
       # against each other - it does nothing about a push landing on main
@@ -69,7 +94,12 @@ jobs:
       # for just the conflicted files (this run's snapshot for those two
       # portals gets recaptured next cycle regardless) rather than losing
       # every portal's update over an unrelated conflict.
-      - run: |
+      #
+      # if: always() - belt-and-suspenders alongside each scraper step's
+      # own continue-on-error: true above; commits whatever's on disk
+      # regardless of which steps succeeded.
+      - if: always()
+        run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
@@ -89,7 +119,8 @@ jobs:
       # whatever was last committed for the portals scrape-large.yml
       # owns), since the cross-portal merge needs the full picture, not
       # just what this particular workflow scraped.
-      - run: python sync_to_supabase.py
+      - if: always()
+        run: python sync_to_supabase.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

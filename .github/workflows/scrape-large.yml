@@ -4,8 +4,10 @@
 # now visit every tracked listing's own page once per run to read a real
 # posted/updated date for days-on-market - for imoti.net (~6000 listings)
 # that alone adds ~2+ hours, so a full run here is a couple of hours, not
-# minutes. Still comfortably inside GitHub Actions' default 6h job limit
-# (no timeout-minutes is set below), but not "several minutes" anymore.
+# minutes. Comfortably inside GitHub Actions' default 6h job limit; each
+# scraper step below still carries a generous timeout-minutes (see that
+# step's own comment) as a backstop against a genuinely hung request, not
+# a tight bound on the normal multi-hour runtime.
 name: Scrape large property listing sites
 
 on:
@@ -37,9 +39,23 @@ jobs:
 
       - run: pip install requests beautifulsoup4 Pillow
 
+      # These two scrapers are multi-hour by design (see the file header),
+      # so timeout-minutes here is deliberately generous - not a tight
+      # bound like scrape.yml's, just a backstop so a genuinely hung
+      # request (not just normal multi-hour pagination) doesn't consume
+      # the entire 6h job with nothing left for the other scraper or the
+      # commit step. continue-on-error means a timeout/crash on one still
+      # lets the other, and the commit/sync steps, run - same reasoning as
+      # scrape.yml, which hit this for real (a single scraper's crash
+      # skipped every step after it, discarding every other portal's
+      # already-scraped data for that run too).
       - run: python scraper.py
+        timeout-minutes: 300
+        continue-on-error: true
 
       - run: python scraper_alo.py
+        timeout-minutes: 300
+        continue-on-error: true
 
       # Extends detect_relistings.py's relisting-chain mechanism (already
       # wired into scrape.yml) to these two portals specifically, using
@@ -48,6 +64,8 @@ jobs:
       # detect_relistings_by_photo.py's docstring). Downloads only a
       # locally-narrowed candidate set's photos, not the full active pool.
       - run: python detect_relistings_by_photo.py
+        timeout-minutes: 30
+        continue-on-error: true
 
       # See scrape.yml for why this falls back instead of just failing on
       # conflict: a run here can easily take 2+ hours, long enough for a
@@ -55,7 +73,12 @@ jobs:
       # case - and with no fallback, losing the rebase means losing this
       # entire run's scraped data for both portals, not just whichever
       # file happened to conflict.
-      - run: |
+      #
+      # if: always() - belt-and-suspenders alongside each scraper step's
+      # own continue-on-error: true above; commits whatever's on disk
+      # regardless of which steps succeeded.
+      - if: always()
+        run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
@@ -75,7 +98,8 @@ jobs:
       # data plus whatever was last committed for the portals scrape.yml
       # owns), since the cross-portal merge needs the full picture, not
       # just what this particular workflow scraped.
-      - run: python sync_to_supabase.py
+      - if: always()
+        run: python sync_to_supabase.py
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
