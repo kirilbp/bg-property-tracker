@@ -1,9 +1,11 @@
-# Diagnostic workflow, repurposed round-by-round throughout the nationwide
-# expansion (see git history for many prior uses). Currently checking
-# imoti.net's real nationwide URL and whether its confirmed page-200 block
-# is per-query (like homes.bg's, fixable via slicing) or session-wide
-# (not fixable via slicing). Read-only, no commit step. Delete once the
-# current probe's question is answered.
+# Dormant diagnostic workflow, repurposed round-by-round throughout the
+# nationwide expansion (see git history for many prior uses - most
+# recently the imoti.net per-city nationwide conversion). Kept registered
+# (workflow_dispatch runs against this branch pick up whatever it's
+# currently pointed at, no need to merge a placeholder to main first) so
+# the next diagnostic round can just overwrite the script below instead of
+# re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -22,6 +24,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
-
-      - run: python probe_verify_imoti_net.py
+      - run: echo "No probe script currently checked in - see this file's header comment."
