@@ -1,24 +1,50 @@
 """
-Scrapes current Sofia listings from imoti.net, keeps a history of every time
-each listing was seen, and works out:
+Scrapes current Bulgaria-wide listings from imoti.net, keeps a history of
+every time each listing was seen, and works out:
   - price drops and days-on-market from that history
   - each listing's price per m2 vs the average for its area, as a %
 
 Search results are paginated with ?page=N (confirmed via the site's own
-paginator, which lists a "last page" link up to page 396 at 30 items/page).
-The scraper originally only fetched page 1 with no pagination loop at all -
-fixed by paging through page=2, page=3, ... until a page comes back with no
-listings, same "stop on empty page" pattern as scraper_bazar.py,
-scraper_imot.py, and scraper_imoti_bg.py, capped at MAX_PAGES as a safety
-limit. Confirmed against the live site that imoti.net hard-blocks (HTTP 403)
-at page 200 regardless of pacing - the same block hit with no delay and
-with a 1s REQUEST_DELAY between requests, so it's a fixed per-session page
-depth limit rather than a request-rate throttle a delay can avoid. A page
-request failure (403 or otherwise) is treated as "no more listings" - the
-scraper stops there and keeps whatever it already collected (~5900+
-listings in practice, vs. the site's ~11880 across all 396 pages) rather
-than crashing and losing the whole run. Going further would require
-IP rotation/session-cycling, which isn't worth building for this.
+paginator, which lists a "last page" link up to page 396 at 30 items/page
+for the Sofia-only search). The scraper originally only fetched page 1
+with no pagination loop at all - fixed by paging through page=2, page=3,
+... until a page comes back with no listings, same "stop on empty page"
+pattern as scraper_bazar.py, scraper_imot.py, and scraper_imoti_bg.py,
+capped at MAX_PAGES as a safety limit. Confirmed against the live site
+that imoti.net hard-blocks (HTTP 403) at page 200 regardless of pacing.
+
+Nationwide conversion: imoti.net's URL is /en/obiavi/r/prodava/<city-slug>
+- unlike homes.bg, there's no single "drop the filter" nationwide switch
+(every guess without a city segment - no segment, "bulgaria", a bare query
+string - 404s). Live-verified this is a required per-city path segment,
+and that the page-200 block is per-QUERY, not per-session (paged Sofia to
+the 403 wall, then immediately fetched a different city's page 1 in the
+same requests.Session with no issue) - so, unlike what was assumed here
+before, this doesn't need IP rotation/session-cycling to go further; it
+just needs the depth cap sliced away per query, same idea as
+scraper_homes.py's price-band bisection, but the site already hands us a
+free slicing dimension via CITY_SLUGS instead of needing price bands.
+CITY_SLUGS is the live-verified subset (23 of the 30 cities tracked
+elsewhere in this project - index.html's BG_CITIES) whose lowercase-
+transliterated slug actually resolves; the other 7 (Veliko Tarnovo,
+Asenovgrad, Kazanlak, Kyustendil, Dimitrovgrad, Dupnitsa, Svishtov) 404 on
+that guess and are left out rather than silently sending broken requests -
+their real slugs weren't worth further reverse-engineering (the site's
+location picker is JS-driven, not server-rendered, so there was no direct
+way to read them off the page) for what's a small fraction of national
+coverage. Each request's city is already known from which slug built the
+URL, so it's attached to every listing directly - far more robust than
+parsing a city name back out of scraped text, and generalizes
+extract_area() away from its old Sofia-only ", Sofia" split.
+
+If any single city's own listing count is still large enough to hit the
+page-200 cap (most likely candidate: Sofia, the country's biggest market
+by far), that city's data is truncated there for now, same graceful-
+degradation as before - logged clearly rather than silently lost, so a
+follow-up price-band slicing pass (mirroring scraper_homes.py's, if
+imoti.net's URLs support a price filter param - not yet confirmed) can be
+added specifically for whichever city actually needs it, once real per-
+city counts from a live run show which ones do.
 
 A page fetch retries a few times with backoff before being treated as the
 end of pagination, so a one-off transient failure (a connect timeout, not
@@ -58,7 +84,24 @@ from bs4 import BeautifulSoup
 from geo_utils import classify_category, extract_coords_imoti_net
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
-SEARCH_URL = "https://www.imoti.net/en/obiavi/r/prodava/sofia"
+BASE_URL = "https://www.imoti.net/en/obiavi/r/prodava"
+
+# Live-verified subset of index.html's BG_CITIES whose lowercase-
+# transliterated slug actually resolves on imoti.net (23/30 - see module
+# docstring for the 7 that don't and why they're left out). Each maps to
+# the same real Cyrillic city name index.html/sync_to_supabase.py's
+# BG_CITY_BY_NAME already expects in a listing's "city" field, so the
+# city-key logic there (see index.html's listingCityKey()) works on these
+# listings without any portal-specific handling.
+CITY_SLUGS = [
+    ("sofia", "София"), ("plovdiv", "Пловдив"), ("varna", "Варна"), ("burgas", "Бургас"),
+    ("ruse", "Русе"), ("stara-zagora", "Стара Загора"), ("pleven", "Плевен"),
+    ("sliven", "Сливен"), ("dobrich", "Добрич"), ("shumen", "Шумен"), ("pernik", "Перник"),
+    ("haskovo", "Хасково"), ("yambol", "Ямбол"), ("pazardzhik", "Пазарджик"),
+    ("blagoevgrad", "Благоевград"), ("vratsa", "Враца"), ("gabrovo", "Габрово"),
+    ("vidin", "Видин"), ("kardzhali", "Кърджали"), ("montana", "Монтана"),
+    ("targovishte", "Търговище"), ("lovech", "Ловеч"), ("silistra", "Силистра"),
+]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -81,8 +124,21 @@ DATE_POSTED_RE = re.compile(r'"datePosted"\s*:\s*"(\d{4}-\d{2}-\d{2})"')
 
 
 def extract_area(title):
-    parts = re.split(r"Sofia,\s*", title, flags=re.IGNORECASE)
-    return parts[1].strip() if len(parts) > 1 else "Sofia"
+    # title is a free-text description snippet (see DESC_RE), consistently
+    # shaped "<type>, <sqm> м 2 <City>, <area>" - the neighborhood/area is
+    # always the last comma-separated segment, regardless of city. The old
+    # Sofia-only version matched a literal "Sofia," split instead; trying
+    # the same trick generically by re-matching each CITY_SLUGS name broke
+    # on Burgas, live-confirmed: the site's own English text spells it
+    # "Bourgas", not "burgas" - a real, silent split failure that dumped
+    # the *entire* title into "area" instead of just "Lazur". Splitting on
+    # the last comma sidesteps needing to know every city's exact English
+    # spelling variant at all, same pattern scraper_homes.py's own
+    # extract_area() already uses.
+    if "," in title:
+        area = title.rsplit(",", 1)[1].strip()
+        return area or title.strip()
+    return title.strip()
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
@@ -113,7 +169,7 @@ def fetch_with_retries(url):
     return None
 
 
-def fetch_listings_page(url, seen):
+def fetch_listings_page(url, seen, city_name):
     html = fetch_with_retries(url)
     if html is None:
         return None
@@ -164,6 +220,8 @@ def fetch_listings_page(url, seen):
             "photo": img_url,
             "price_eur": price_eur,
             "sqm": sqm,
+            "area": extract_area(title),
+            "city": city_name,
             "title": title,
             "portal": "imoti.net",
         }
@@ -194,16 +252,40 @@ def fetch_listing_dates(seen):
             print(f"DEBUG: fetched detail dates for {i}/{total} listings")
 
 
+# imoti.net shows 30 listings/page (see module docstring) - a city whose
+# last fetched page still came back full when pagination stopped (either
+# a fetch failure - most likely the confirmed page-200 block - or hitting
+# MAX_PAGES) means real listings were probably left uncollected, unlike a
+# city that stopped on a genuinely partial or empty page.
+PAGE_SIZE = 30
+
+
 def fetch_listings():
     seen = {}
-    for page_num in range(1, MAX_PAGES + 1):
-        if page_num > 1:
-            time.sleep(REQUEST_DELAY_SECONDS)
-        url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
-        link_count = fetch_listings_page(url, seen)
-        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
-        if not link_count:
-            break
+    for city_slug, city_name in CITY_SLUGS:
+        search_url = f"{BASE_URL}/{city_slug}"
+        city_start_count = len(seen)
+        last_link_count = 0
+        for page_num in range(1, MAX_PAGES + 1):
+            if page_num > 1:
+                time.sleep(REQUEST_DELAY_SECONDS)
+            url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
+            link_count = fetch_listings_page(url, seen, city_name)
+            if link_count is None:
+                print(f"DEBUG: {city_name} page {page_num} fetch failed (likely the page-200 "
+                      f"block) - stopping this city here, {len(seen) - city_start_count} listings collected")
+                last_link_count = None
+                break
+            print(f"DEBUG: {city_name} page {page_num} links = {link_count}")
+            last_link_count = link_count
+            if not link_count:
+                break
+        if last_link_count is None or last_link_count >= PAGE_SIZE:
+            print(f"DEBUG: WARNING - {city_name} may be truncated (last page was still full or "
+                  f"a fetch failed) - real total could be higher than the "
+                  f"{len(seen) - city_start_count} listings collected")
+        print(f"DEBUG: finished {city_name}, {len(seen) - city_start_count} listings, "
+              f"{len(seen)} total so far")
     print(f"DEBUG: fetching posted dates for {len(seen)} listings")
     fetch_listing_dates(seen)
     return list(seen.values())
@@ -281,13 +363,20 @@ def compute_leads(history):
         days_on_market = max((effective_now - reference_date).days, 0)
         score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
-        area = extract_area(latest["title"])
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         leads.append({
             **latest,
+            # Records from before this nationwide conversion never had an
+            # "area"/"city" key at all (the old Sofia-only scraper didn't
+            # set one) - every listing tracked back then genuinely was
+            # Sofia, so that's a correct fallback, not a guess, and keeps
+            # the area-average loop below from crashing on a missing key
+            # until each pre-existing listing is next re-scraped and gets
+            # a real area/city from fetch_listings_page().
+            "area": latest.get("area") or "Sofia",
+            "city": latest.get("city") or "София",
             "price_eur": last_price,
-            "area": area,
             "price_per_sqm": price_per_sqm,
             "price_history": price_history,
             "price_drop_count": price_drop_count,
