@@ -160,6 +160,17 @@ class Geocoder:
         self.cache = _load_cache()
         self._dirty = False
 
+    def geocode_cached_only(self, query):
+        """Cache lookup with no network call, for callers that can't afford
+        to block on a live Nominatim round-trip (or its up-to-8s timeout)
+        per listing - e.g. a scraper covering thousands of distinct
+        nationwide locations for the first time, where the existing cache
+        barely helps yet. Returns None on any cache miss instead of
+        fetching; a separate backfill pass (see backfill_geocode_homes.py)
+        does the live lookups on its own schedule."""
+        query = _clean_query(query or "")
+        return self.cache.get(query)
+
     def geocode(self, query):
         query = _clean_query(query or "")
         if not query:

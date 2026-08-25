@@ -56,15 +56,30 @@ scraped the listing), same as before.
 
 homes.bg carries no coordinates anywhere on its own pages, but every
 offer's "location" string (neighborhood/settlement + city/region) is
-genuinely geocodable - resolved here via OpenStreetMap Nominatim
-(geo_utils.Geocoder), cached by the query string on disk so the same
-location string reused across thousands of listings costs one real
-geocode request total, not one per listing. extract_area() used to split
-specifically on ", София" (Sofia-only scraping never needed anything
-else); now that every city in Bulgaria shows up here, it generically
-splits on the last comma instead, keeping the more specific
-neighborhood/settlement part as "area" and geocoding the full location
-string rather than assuming a Sofia suffix.
+genuinely geocodable via OpenStreetMap Nominatim (geo_utils.Geocoder).
+Sofia-only scraping could afford a live geocode call per cache miss
+in-line (a few hundred distinct neighborhood names total, one-time
+cost) - nationwide, that assumption breaks: a bounded 1-page-per-type
+trial run (~80 listings, almost all cache misses against the old
+Sofia-only cache) took over 10 minutes and was still running when
+cancelled, even after cutting Nominatim's request timeout from 15s to
+8s. Blocking the actual scrape on live geocoding at nationwide scale
+risks either starving it of runtime or hammering Nominatim's free,
+rate-limited public endpoint well past what a single sequential 1
+req/sec caller can clear in one run. So fetch_listings() now only does
+a cache-only lookup (Geocoder.geocode_cached_only - no network call,
+returns None on a miss) - existing cached areas (mostly Sofia, from
+prior runs) resolve for free, everything new starts as lat=lng=None and
+gets filled in over time by backfill_geocode_homes.py, a separate
+workflow_dispatch job that does the live, rate-limited Nominatim calls
+without competing with the scrape for time or blocking it on network
+flakiness. extract_area() used to split specifically on ", София"
+(Sofia-only scraping never needed anything else); now that every city
+in Bulgaria shows up here, it generically splits on the last comma
+instead, keeping the more specific neighborhood/settlement part as
+"area" - the geocode query itself (built the same way here and in the
+backfill script) uses the full location string rather than assuming a
+Sofia suffix.
 """
 
 import json
@@ -186,7 +201,7 @@ def fetch_listings():
                 area = extract_area(location)
                 title = f"{offer.get('title', '')}, {location}".strip(", ")
                 geo_query = f"{location}, България" if location else f"{area}, България"
-                coords = geocoder.geocode(geo_query)
+                coords = geocoder.geocode_cached_only(geo_query)
 
                 seen[listing_id] = {
                     "id": listing_id,

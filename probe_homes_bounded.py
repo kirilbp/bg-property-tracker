@@ -15,15 +15,14 @@ step - deleted once verification passes.
 
 import scraper_homes as sh
 
-# First attempt at MAX_PAGES=2 (up to ~160 listings, mostly-uncached
-# nationwide geocode lookups) ran 20+ minutes without finishing - almost
-# certainly Nominatim request timeouts piling up (each failed lookup was
-# costing up to 15s, since nationwide locations mean the old Sofia-only
-# cache barely helps). Cut the per-request timeout in geo_utils.py
-# (15s -> 8s) and shrunk this bounded run to 1 page/type (~80 listings) to
-# get a real signal faster before deciding whether geocoding needs a
-# bigger redesign for the full run.
-sh.MAX_PAGES = 1
+# Earlier attempts at MAX_PAGES=1-2 ran 10-20+ minutes without finishing -
+# scraper_homes.py was blocking on a live Nominatim geocode call per
+# nationwide cache miss, and nationwide locations meant almost every one
+# was a miss. Fixed by decoupling geocoding from the scrape entirely
+# (fetch_listings() now does a cache-only lookup - see scraper_homes.py's
+# module docstring and backfill_geocode_homes.py), so this should now run
+# in seconds - back to a real sample size to verify the rewrite properly.
+sh.MAX_PAGES = 3
 
 listings = sh.fetch_listings()
 
