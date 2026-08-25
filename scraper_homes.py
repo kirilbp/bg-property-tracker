@@ -80,6 +80,27 @@ instead, keeping the more specific neighborhood/settlement part as
 "area" - the geocode query itself (built the same way here and in the
 backfill script) uses the full location string rather than assuming a
 Sofia suffix.
+
+Pagination depth cap and the price-band slicing fix: a real nationwide
+run found every type's pagination stopping at exactly page 49
+(~980-1,000 results) regardless of the much larger offersCount each type
+reports - a site-side depth cap, not a natural end of results (confirmed:
+even a single narrow-enough slice paginates cleanly past where the cap
+would otherwise bite, to a real partial last page with hasMoreItems=
+False). Live diagnostics (probe_homes_slicing.py, kept for reference)
+found priceFrom/priceTo are real, working filter params, and that the
+real nationwide price distribution is heavily skewed - flat price bands
+aren't fine-grained enough in the dense middle of the market, so
+bisect_price_slices() recursively narrows each type's [0, 1,000,000)
+price range, splitting any slice whose own offersCount is still over a
+900-result safety margin (SLICE_THRESHOLD, comfortably under the ~1,000
+cap), until every leaf slice is safely paginable to its true end;
+everything above 1,000,000 (confirmed consistently small - 108-573
+listings per type - across live checks) is scraped as one final tail
+slice. This full scheme was verified live before being wired in here:
+236 count-only requests found the real retrievable total across all 4
+types is ~70,253 listings, versus the ~3,900 the old flat per-type loop
+actually retrieved.
 """
 
 import json
@@ -108,6 +129,16 @@ TYPE_QUERIES = [
     ("LandParcel", "land"),
     ("LandAgro", "land"),
 ]
+
+# Safety margin under homes.bg's confirmed ~1,000-result pagination depth
+# cap - a slice at or under this is trusted to paginate cleanly to its real
+# end. MAX_SLICE_PRICE is where price-band bisection stops and the rest
+# (confirmed consistently small - 108-573 listings/type live) is scraped as
+# one final tail slice instead of being bisected further.
+SLICE_THRESHOLD = 900
+MAX_SLICE_PRICE = 1_000_000
+MAX_BISECT_DEPTH = 12
+MIN_SLICE_WIDTH = 500
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -168,11 +199,129 @@ def fetch_with_retries(session, url):
     return None
 
 
-def build_url(type_id, page):
+def build_url(type_id, page, price_from=None, price_to=None):
     params = {"locationId": "0", "typeId": type_id}
+    if price_from is not None:
+        params["priceFrom"] = str(price_from)
+    if price_to is not None:
+        params["priceTo"] = str(price_to)
     if page > 1:
         params["page"] = str(page)
     return f"{BASE_URL}/?{urlencode(params)}"
+
+
+def get_offers_count(session, type_id, price_from, price_to):
+    text = fetch_with_retries(session, build_url(type_id, 1, price_from, price_to))
+    if text is None:
+        return 0
+    match = STATE_RE.search(text)
+    if not match:
+        return 0
+    state = json.loads(match.group(1))
+    return state.get("data", {}).get("offers", {}).get("offersCount", 0) or 0
+
+
+def bisect_price_slices(session, type_id, lo, hi, depth=0):
+    """Recursively narrows [lo, hi) until each leaf slice's own offersCount
+    is under the depth-cap safety threshold, so it can paginate to its real
+    end instead of being truncated. See the module docstring for the live
+    verification this mirrors."""
+    count = get_offers_count(session, type_id, lo, hi)
+    if count <= SLICE_THRESHOLD or depth >= MAX_BISECT_DEPTH or hi - lo < MIN_SLICE_WIDTH:
+        return [(lo, hi)]
+    mid = lo + (hi - lo) // 2
+    return (bisect_price_slices(session, type_id, lo, mid, depth + 1)
+            + bisect_price_slices(session, type_id, mid, hi, depth + 1))
+
+
+def parse_offer(offer, category, geocoder):
+    # A single malformed offer (an unexpected field shape homes.bg's own
+    # JSON hasn't shown before) must not crash the whole run - the caller
+    # only returns its results at the very end, so an uncaught exception
+    # here would discard every page already fetched. Confirmed as a real
+    # failure mode live: a "price on request" listing reports "value":
+    # false (a bool, not a numeric string) instead of omitting the field,
+    # which crashed parse_price_eur() and lost 49 ApartmentSell + 14
+    # HouseSell pages of already-fetched results in one real nationwide run.
+    sqm_match = SQM_RE.search(offer.get("title", ""))
+    sqm = int(sqm_match.group(1)) if sqm_match else None
+
+    photo = offer.get("photo")
+    photo_url = None
+    if photo:
+        photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
+
+    photos = []
+    for p in offer.get("photos") or []:
+        if isinstance(p, dict) and p.get("path") and p.get("name"):
+            photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
+    if not photos and photo_url:
+        photos = [photo_url]
+
+    price_eur = parse_price_eur(offer["price"])
+    if price_eur is None:
+        return None
+
+    location = offer.get("location", "")
+    area = extract_area(location)
+    title = f"{offer.get('title', '')}, {location}".strip(", ")
+    geo_query = f"{location}, България" if location else f"{area}, България"
+    coords = geocoder.geocode_cached_only(geo_query)
+
+    return {
+        "id": "homes_" + str(offer["id"]),
+        "url": BASE_URL + offer["viewHref"],
+        "photo": photo_url,
+        "photos": photos,
+        "description": offer.get("description") or None,
+        "price_eur": price_eur,
+        "sqm": sqm,
+        "area": area,
+        "title": title,
+        "portal": "homes.bg",
+        "lat": coords["lat"] if coords else None,
+        "lng": coords["lng"] if coords else None,
+        "category": category,
+        "category_confidence": "high",
+    }
+
+
+def scrape_slice(session, geocoder, type_id, category, lo, hi, seen, start_time):
+    for page in range(1, MAX_PAGES + 1):
+        url = build_url(type_id, page, lo, hi)
+        text = fetch_with_retries(session, url)
+        if text is None:
+            break
+
+        match = STATE_RE.search(text)
+        if not match:
+            print(f"DEBUG: no __PRELOADED_STATE__ found on {type_id} price[{lo}-{hi}] page {page}")
+            continue
+        state = json.loads(match.group(1))
+        offers = state.get("data", {}).get("offers", {})
+        results = offers.get("result", [])
+        # t= is wall-clock elapsed since fetch_listings() started, not this
+        # page/slice alone - a real multi-hour run with no way to see live
+        # logs needs this to tell "still making progress" from "stuck
+        # retrying the same page", after the fact from the final log.
+        elapsed = time.monotonic() - start_time
+        print(f"DEBUG: {type_id} price[{lo}-{hi}] page {page} offers count = {len(results)} "
+              f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
+
+        for offer in results:
+            listing_id = "homes_" + str(offer.get("id"))
+            if listing_id in seen:
+                continue
+            try:
+                parsed = parse_offer(offer, category, geocoder)
+                if parsed is not None:
+                    seen[parsed["id"]] = parsed
+            except Exception as e:
+                print(f"DEBUG: skipping malformed offer {listing_id} on {type_id} price[{lo}-{hi}] page {page}: {e}")
+                continue
+
+        if not offers.get("hasMoreItems"):
+            break
 
 
 def fetch_listings():
@@ -184,89 +333,17 @@ def fetch_listings():
     for type_id, category in TYPE_QUERIES:
         type_start = time.monotonic()
         print(f"DEBUG: starting {type_id} at t={type_start - start_time:.0f}s, {len(seen)} listings so far")
-        for page in range(1, MAX_PAGES + 1):
-            url = build_url(type_id, page)
-            text = fetch_with_retries(session, url)
-            if text is None:
-                break
 
-            match = STATE_RE.search(text)
-            if not match:
-                print(f"DEBUG: no __PRELOADED_STATE__ found on {type_id} page {page}")
-                continue
-            state = json.loads(match.group(1))
-            offers = state.get("data", {}).get("offers", {})
-            results = offers.get("result", [])
-            # t= is wall-clock elapsed since fetch_listings() started, not
-            # this page alone - a real >2hr run with no way to see live logs
-            # needs this to tell "still making progress" from "stuck
-            # retrying the same page", after the fact from the final log.
-            elapsed = time.monotonic() - start_time
-            print(f"DEBUG: {type_id} page {page} offers count = {len(results)} (t={elapsed:.0f}s, {len(seen)} listings so far)")
+        slices = bisect_price_slices(session, type_id, 0, MAX_SLICE_PRICE)
+        tail_count = get_offers_count(session, type_id, MAX_SLICE_PRICE, None)
+        if tail_count > SLICE_THRESHOLD:
+            print(f"DEBUG: {type_id} tail slice ({MAX_SLICE_PRICE}+) has {tail_count} offers, "
+                  f"over the {SLICE_THRESHOLD} safety threshold - pagination may truncate it")
+        slices.append((MAX_SLICE_PRICE, None))
+        print(f"DEBUG: {type_id} split into {len(slices)} price slices for full pagination")
 
-            for offer in results:
-                listing_id = "homes_" + str(offer["id"])
-                if listing_id in seen:
-                    continue
-
-                # A single malformed offer (an unexpected field shape
-                # homes.bg's own JSON hasn't shown before) must not crash
-                # the whole run - fetch_listings() only returns its results
-                # at the very end, so an uncaught exception here would
-                # discard every page already fetched. Confirmed as a real
-                # failure mode live: a "price on request" listing reports
-                # "value": false (a bool, not a numeric string) instead of
-                # omitting the field, which crashed parse_price_eur() and
-                # lost 49 ApartmentSell + 14 HouseSell pages of already-
-                # fetched results in one real nationwide run.
-                try:
-                    sqm_match = SQM_RE.search(offer.get("title", ""))
-                    sqm = int(sqm_match.group(1)) if sqm_match else None
-
-                    photo = offer.get("photo")
-                    photo_url = None
-                    if photo:
-                        photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
-
-                    photos = []
-                    for p in offer.get("photos") or []:
-                        if isinstance(p, dict) and p.get("path") and p.get("name"):
-                            photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
-                    if not photos and photo_url:
-                        photos = [photo_url]
-
-                    price_eur = parse_price_eur(offer["price"])
-                    if price_eur is None:
-                        continue
-
-                    location = offer.get("location", "")
-                    area = extract_area(location)
-                    title = f"{offer.get('title', '')}, {location}".strip(", ")
-                    geo_query = f"{location}, България" if location else f"{area}, България"
-                    coords = geocoder.geocode_cached_only(geo_query)
-
-                    seen[listing_id] = {
-                        "id": listing_id,
-                        "url": BASE_URL + offer["viewHref"],
-                        "photo": photo_url,
-                        "photos": photos,
-                        "description": offer.get("description") or None,
-                        "price_eur": price_eur,
-                        "sqm": sqm,
-                        "area": area,
-                        "title": title,
-                        "portal": "homes.bg",
-                        "lat": coords["lat"] if coords else None,
-                        "lng": coords["lng"] if coords else None,
-                        "category": category,
-                        "category_confidence": "high",
-                    }
-                except Exception as e:
-                    print(f"DEBUG: skipping malformed offer {listing_id} on {type_id} page {page}: {e}")
-                    continue
-
-            if not offers.get("hasMoreItems"):
-                break
+        for lo, hi in slices:
+            scrape_slice(session, geocoder, type_id, category, lo, hi, seen, start_time)
 
         print(f"DEBUG: finished {type_id} in {time.monotonic() - type_start:.0f}s, {len(seen)} listings so far")
 

@@ -1,0 +1,27 @@
+# Dormant diagnostic workflow, repurposed round-by-round throughout the
+# nationwide expansion (see git history for many prior uses - most
+# recently the homes.bg pagination-depth-cap slicing fix). Kept registered
+# (workflow_dispatch runs against this branch pick up whatever it's
+# currently pointed at, no need to merge a placeholder to main first) so
+# the next diagnostic round can just overwrite the script below instead of
+# re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
+name: Probe nationwide search URLs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: echo "No probe script currently checked in - see this file's header comment."
