@@ -25,4 +25,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "No probe script currently checked in - see this file's header comment."
+      - run: pip install requests beautifulsoup4 playwright
+      - run: playwright install --with-deps chromium
+
+      - run: python probe_city_counts_fast.py
