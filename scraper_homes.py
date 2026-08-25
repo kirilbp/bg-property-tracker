@@ -1,30 +1,48 @@
 """
-Scrapes current Sofia apartment listings from homes.bg.
+Scrapes current Bulgaria-wide apartment, house, and land listings from
+homes.bg.
 
 Unlike imoti.net and alo.bg, homes.bg's homepage embeds a structured JSON
 blob (window.__PRELOADED_STATE__) with the listing data already parsed out
 by their own frontend - no HTML/regex scraping needed, just pull the JSON.
-The homepage's default search is already "Apartments for sale - Sofia"
-(confirmed via searchCriteria in that JSON), and further pages are fetched
-with ?page=N.
 
-The pagination loop already stops on the API's own hasMoreItems=False, but
-was also hard-capped at PAGES_TO_FETCH=2 regardless - confirmed against the
-live site that hasMoreItems is still True well past page 2 (checked through
-page 7), so real results were being cut off early. Raised the cap to a
-generous safety limit and let hasMoreItems be the real stopping condition,
-same pattern as the other scrapers' "stop on empty page".
+Nationwide + all-categories mechanism (found via live diagnostic probing,
+since neither is documented or guessable from the URL alone):
+  - City filter: the homepage defaults to Sofia-only. Adding
+    ?locationId=0 drops the location filter entirely (confirmed live:
+    offersCount jumped from 12,351 Sofia-only to 44,111 nationwide, first
+    result a non-Sofia city) - this is the one nationwide switch, used on
+    every request below.
+  - Property type: a plain ?type=<anything> query param is silently
+    ignored - every guess (URL slugs, short codes, full business names)
+    fell back to the same Sofia-dropped-but-still-apartment-only result.
+    The real mechanism, found by reading homes.bg's own client JS bundle
+    (static/js/client.*.js), is ?typeId=<PascalCase business name> - e.g.
+    ?typeId=HouseSell. homes.bg has only 4 real for-sale property types
+    total (no office/shop/garage/warehouse exist on this portal at all,
+    unlike imoti.bg): ApartmentSell, HouseSell, LandParcel (regular land
+    plots) and LandAgro (agricultural land) - confirmed nationwide counts
+    44,111 / 9,625 / 13,406 / 2,115 respectively. TYPE_QUERIES below
+    drives one full paginated pass per type.
+
+Because the category comes straight from which portal search category
+the listing was fetched under (ground truth from homes.bg's own search
+index), not inferred from title/description text, category_confidence is
+always "high" here - this is more reliable than the keyword-based
+classifier used for portals that don't expose a real per-listing type.
+
+The pagination loop stops on the API's own hasMoreItems=False; MAX_PAGES
+is just a generous safety cap in case that flag ever misbehaves.
 
 A page fetch retries a few times with backoff before being treated as the
 end of pagination, so a transient failure doesn't get mistaken for having
-reached the last page - and, since scrape.yml runs all 5 scrapers
+reached the last page - and, since scrape.yml runs all scrapers
 sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
 
 Each offer's raw JSON also carries a full "description" and a "photos"
-array (not just the single cover "photo") - both previously discarded
-even though already present in every fetch, now captured and surfaced on
+array (not just the single cover "photo") - both captured and surfaced on
 the listing detail page. There's also a "time" field, initially assumed
 to be a real "last updated" signal (like olx.bg's, see scraper_olx.py) -
 but sampling 280 live offers found 100% of them reporting "днес" (today)
@@ -37,12 +55,31 @@ days_on_market here stays purely tracking-based (time since we first
 scraped the listing), same as before.
 
 homes.bg carries no coordinates anywhere on its own pages, but every
-offer's real neighborhood name (the "area" field) is genuinely geocodable
-- resolved here via OpenStreetMap Nominatim (geo_utils.Geocoder), cached
-by the query string on disk so the same neighborhood name reused across
-thousands of listings costs one real geocode request total, not one per
-listing. A keyword-based property category is attached too, for the
-frontend's same-category radius-average feature.
+offer's "location" string (neighborhood/settlement + city/region) is
+genuinely geocodable via OpenStreetMap Nominatim (geo_utils.Geocoder).
+Sofia-only scraping could afford a live geocode call per cache miss
+in-line (a few hundred distinct neighborhood names total, one-time
+cost) - nationwide, that assumption breaks: a bounded 1-page-per-type
+trial run (~80 listings, almost all cache misses against the old
+Sofia-only cache) took over 10 minutes and was still running when
+cancelled, even after cutting Nominatim's request timeout from 15s to
+8s. Blocking the actual scrape on live geocoding at nationwide scale
+risks either starving it of runtime or hammering Nominatim's free,
+rate-limited public endpoint well past what a single sequential 1
+req/sec caller can clear in one run. So fetch_listings() now only does
+a cache-only lookup (Geocoder.geocode_cached_only - no network call,
+returns None on a miss) - existing cached areas (mostly Sofia, from
+prior runs) resolve for free, everything new starts as lat=lng=None and
+gets filled in over time by backfill_geocode_homes.py, a separate
+workflow_dispatch job that does the live, rate-limited Nominatim calls
+without competing with the scrape for time or blocking it on network
+flakiness. extract_area() used to split specifically on ", София"
+(Sofia-only scraping never needed anything else); now that every city
+in Bulgaria shows up here, it generically splits on the last comma
+instead, keeping the more specific neighborhood/settlement part as
+"area" - the geocode query itself (built the same way here and in the
+backfill script) uses the full location string rather than assuming a
+Sofia suffix.
 """
 
 import json
@@ -50,16 +87,27 @@ import re
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 
 import requests
 
-from geo_utils import Geocoder, classify_category
+from geo_utils import Geocoder
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
-PAGES_TO_FETCH = 100
+MAX_PAGES = 5000
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+
+# (typeId query value, our 6-category bucket). LandParcel and LandAgro are
+# two distinct homes.bg search categories (regular plots vs agricultural
+# land) that both map onto our single "land" bucket.
+TYPE_QUERIES = [
+    ("ApartmentSell", "flat"),
+    ("HouseSell", "house"),
+    ("LandParcel", "land"),
+    ("LandAgro", "land"),
+]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -80,9 +128,12 @@ def parse_price_eur(price):
 
 
 def extract_area(location):
-    parts = re.split(r",\s*София", location)
-    area = parts[0].strip() if parts else location.strip()
-    return area or "Sofia"
+    if not location:
+        return "Bulgaria"
+    if "," in location:
+        area = location.rsplit(",", 1)[0].strip()
+        return area or location.strip()
+    return location.strip()
 
 
 def fetch_with_retries(session, url):
@@ -98,68 +149,79 @@ def fetch_with_retries(session, url):
     return None
 
 
+def build_url(type_id, page):
+    params = {"locationId": "0", "typeId": type_id}
+    if page > 1:
+        params["page"] = str(page)
+    return f"{BASE_URL}/?{urlencode(params)}"
+
+
 def fetch_listings():
     session = requests.Session()
     seen = {}
     geocoder = Geocoder()
 
-    for page in range(1, PAGES_TO_FETCH + 1):
-        url = BASE_URL + ("/" if page == 1 else f"/?page={page}")
-        text = fetch_with_retries(session, url)
-        if text is None:
-            break
+    for type_id, category in TYPE_QUERIES:
+        for page in range(1, MAX_PAGES + 1):
+            url = build_url(type_id, page)
+            text = fetch_with_retries(session, url)
+            if text is None:
+                break
 
-        match = STATE_RE.search(text)
-        if not match:
-            print(f"DEBUG: no __PRELOADED_STATE__ found on page {page}")
-            continue
-        state = json.loads(match.group(1))
-        offers = state.get("data", {}).get("offers", {})
-        results = offers.get("result", [])
-        print(f"DEBUG: page {page} offers count = {len(results)}")
-
-        for offer in results:
-            listing_id = "homes_" + str(offer["id"])
-            if listing_id in seen:
+            match = STATE_RE.search(text)
+            if not match:
+                print(f"DEBUG: no __PRELOADED_STATE__ found on {type_id} page {page}")
                 continue
+            state = json.loads(match.group(1))
+            offers = state.get("data", {}).get("offers", {})
+            results = offers.get("result", [])
+            print(f"DEBUG: {type_id} page {page} offers count = {len(results)}")
 
-            sqm_match = SQM_RE.search(offer.get("title", ""))
-            sqm = int(sqm_match.group(1)) if sqm_match else None
+            for offer in results:
+                listing_id = "homes_" + str(offer["id"])
+                if listing_id in seen:
+                    continue
 
-            photo = offer.get("photo")
-            photo_url = None
-            if photo:
-                photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
+                sqm_match = SQM_RE.search(offer.get("title", ""))
+                sqm = int(sqm_match.group(1)) if sqm_match else None
 
-            photos = []
-            for p in offer.get("photos") or []:
-                if isinstance(p, dict) and p.get("path") and p.get("name"):
-                    photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
-            if not photos and photo_url:
-                photos = [photo_url]
+                photo = offer.get("photo")
+                photo_url = None
+                if photo:
+                    photo_url = f"https://g1.homes.bg/{photo['path']}{photo['name']}b.jpg"
 
-            area = extract_area(offer.get("location", ""))
-            title = f"{offer.get('title', '')}, {offer.get('location', '')}".strip(", ")
-            coords = geocoder.geocode(f"{area}, София, България")
+                photos = []
+                for p in offer.get("photos") or []:
+                    if isinstance(p, dict) and p.get("path") and p.get("name"):
+                        photos.append(f"https://g1.homes.bg/{p['path']}{p['name']}b.jpg")
+                if not photos and photo_url:
+                    photos = [photo_url]
 
-            seen[listing_id] = {
-                "id": listing_id,
-                "url": BASE_URL + offer["viewHref"],
-                "photo": photo_url,
-                "photos": photos,
-                "description": offer.get("description") or None,
-                "price_eur": parse_price_eur(offer["price"]),
-                "sqm": sqm,
-                "area": area,
-                "title": title,
-                "portal": "homes.bg",
-                "lat": coords["lat"] if coords else None,
-                "lng": coords["lng"] if coords else None,
-                "category": classify_category(title),
-            }
+                location = offer.get("location", "")
+                area = extract_area(location)
+                title = f"{offer.get('title', '')}, {location}".strip(", ")
+                geo_query = f"{location}, България" if location else f"{area}, България"
+                coords = geocoder.geocode_cached_only(geo_query)
 
-        if not offers.get("hasMoreItems"):
-            break
+                seen[listing_id] = {
+                    "id": listing_id,
+                    "url": BASE_URL + offer["viewHref"],
+                    "photo": photo_url,
+                    "photos": photos,
+                    "description": offer.get("description") or None,
+                    "price_eur": parse_price_eur(offer["price"]),
+                    "sqm": sqm,
+                    "area": area,
+                    "title": title,
+                    "portal": "homes.bg",
+                    "lat": coords["lat"] if coords else None,
+                    "lng": coords["lng"] if coords else None,
+                    "category": category,
+                    "category_confidence": "high",
+                }
+
+            if not offers.get("hasMoreItems"):
+                break
 
     geocoder.save()
     return list(seen.values())
