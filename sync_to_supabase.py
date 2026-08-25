@@ -232,11 +232,33 @@ def bcpea_settlement_from_title(title):
     return re.sub(r"^,\s*", "", rest).strip() or None
 
 
+def city_key_from_name(name):
+    if not name:
+        return None
+    normalized = re.sub(r"\s*област$", "", name.strip(), flags=re.IGNORECASE).strip()
+    return BG_CITY_BY_NAME.get(normalized)
+
+
 def listing_city_key(l):
-    if l.get("portal") != "sales.bcpea.org":
-        return "sofia"
-    settlement = bcpea_settlement_from_title(l.get("title"))
-    return BG_CITY_BY_NAME.get(settlement) if settlement else None
+    # Ported 1:1 from index.html's listingCityKey() - see that function's
+    # comment for the full story (this used to unconditionally return
+    # "sofia" for every non-bcpea portal, silently miscounting every real
+    # non-Sofia listing from homes.bg/imoti.bg as Sofia).
+    if l.get("portal") == "sales.bcpea.org":
+        settlement = bcpea_settlement_from_title(l.get("title"))
+        return city_key_from_name(settlement) if settlement else None
+    city = l.get("city")
+    if city:
+        key = city_key_from_name(city)
+        if key:
+            return key
+    title = l.get("title")
+    if title and "," in title:
+        last_segment = title.rsplit(",", 1)[1].strip()
+        key = city_key_from_name(last_segment)
+        if key:
+            return key
+    return "sofia"
 
 
 # --- Load, merge, shape rows -----------------------------------------------
