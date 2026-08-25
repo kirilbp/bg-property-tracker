@@ -916,17 +916,31 @@ function renderTypeFilters() {
 }
 
 // --- City filter (Home page) --------------------------------------------------
-// The 30 largest Bulgarian cities/towns. 7 of the 8 portals only scrape
-// Sofia (their own search URLs are Sofia-scoped, not something read off
-// each listing), so every listing from those is unconditionally Sofia
-// regardless of what l.area says (it's a neighborhood name, never a
-// city). sales.bcpea.org is the one portal that's genuinely nationwide,
-// so its listings are matched against the settlement name embedded in
-// l.title (scraper_bcpea.py always builds it as "<raw type>, <settlement>" -
-// the same BCPEA_TYPE_LOOKUP prefix match already used for the type
-// buckets gives the settlement as whatever's left after the matched raw
-// type, independent of whether l.area itself later got overwritten with a
-// more precise district name by the detail-page enrichment pass).
+// The 30 largest Bulgarian cities/towns. This used to unconditionally
+// return 'sofia' for every portal except sales.bcpea.org - true when
+// written (7 of 8 portals were Sofia-only then), but it silently kept
+// bucketing every non-Sofia listing from any portal that later went
+// nationwide (homes.bg, imoti.bg) as Sofia too, since it never looked at
+// l.city/l.area/l.title at all for them. Confirmed live: homes.bg alone
+// had 778/740/333 real Plovdiv/Varna/Burgas listings sitting in the data
+// while the Home page showed single- and double-digit counts for those
+// cities. Real fix: try l.city first (imoti.bg has always set this
+// correctly; scraper_homes.py now does too, going forward), normalized
+// against a trailing " област" (region) suffix; homes.bg listings scraped
+// before that fix still have city=null but carry the real city name as
+// the last comma-separated segment of l.title (the same "<area>, <city>"
+// shape l.city would have held), so that's tried next; only falls back to
+// assuming Sofia when neither signal is present at all - genuinely true
+// today for the 5 still-Sofia-only portals (imoti.net, alo.bg, imot.bg,
+// olx.bg, bazar.bg), whose own search URLs are Sofia-scoped. That default
+// stops being safe the moment any of them goes nationwide without first
+// getting the same real city-field fix homes.bg got here. sales.bcpea.org
+// is matched against the settlement name embedded in l.title
+// (scraper_bcpea.py always builds it as "<raw type>, <settlement>" - the
+// same BCPEA_TYPE_LOOKUP prefix match already used for the type buckets
+// gives the settlement as whatever's left after the matched raw type,
+// independent of whether l.area itself later got overwritten with a more
+// precise district name by the detail-page enrichment pass).
 const BG_CITIES = [
   { key: 'sofia', label: 'Sofia', name: 'София' },
   { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив' },
@@ -968,10 +982,27 @@ function bcpeaSettlementFromTitle(l) {
   return l.title.slice(match[0].length).replace(/^,\s*/, '').trim() || null;
 }
 
+function cityKeyFromName(name) {
+  if (!name) return null;
+  const normalized = name.replace(/\s*област$/i, '').trim();
+  return BG_CITY_BY_NAME[normalized] || null;
+}
+
 function listingCityKey(l) {
-  if (l.portal !== 'sales.bcpea.org') return 'sofia';
-  const settlement = bcpeaSettlementFromTitle(l);
-  return settlement ? (BG_CITY_BY_NAME[settlement] || null) : null;
+  if (l.portal === 'sales.bcpea.org') {
+    const settlement = bcpeaSettlementFromTitle(l);
+    return settlement ? cityKeyFromName(settlement) : null;
+  }
+  if (l.city) {
+    const key = cityKeyFromName(l.city);
+    if (key) return key;
+  }
+  if (l.title && l.title.includes(',')) {
+    const lastSegment = l.title.slice(l.title.lastIndexOf(',') + 1).trim();
+    const key = cityKeyFromName(lastSegment);
+    if (key) return key;
+  }
+  return 'sofia';
 }
 
 function matchesCityFilter(l, key) {

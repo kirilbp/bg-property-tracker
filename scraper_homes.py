@@ -179,6 +179,19 @@ def extract_area(location):
     return location.strip()
 
 
+def extract_city(location):
+    # location is "<neighborhood/settlement>, <city>" - extract_area() above
+    # keeps the more specific first part; the city name after the last comma
+    # was previously discarded entirely, which is what left every homes.bg
+    # listing's "city" field empty and made the frontend's city filter/tabs
+    # fall back to always assuming Sofia (see index.html's listingCityKey()).
+    # A location with no comma (rare) has no separate city to extract.
+    if not location or "," not in location:
+        return None
+    city = location.rsplit(",", 1)[1].strip()
+    return city or None
+
+
 def fetch_with_retries(session, url):
     for attempt in range(1, MAX_RETRIES + 1):
         resp = None
@@ -264,6 +277,7 @@ def parse_offer(offer, category, geocoder):
 
     location = offer.get("location", "")
     area = extract_area(location)
+    city = extract_city(location)
     title = f"{offer.get('title', '')}, {location}".strip(", ")
     geo_query = f"{location}, България" if location else f"{area}, България"
     coords = geocoder.geocode_cached_only(geo_query)
@@ -277,6 +291,7 @@ def parse_offer(offer, category, geocoder):
         "price_eur": price_eur,
         "sqm": sqm,
         "area": area,
+        "city": city,
         "title": title,
         "portal": "homes.bg",
         "lat": coords["lat"] if coords else None,
