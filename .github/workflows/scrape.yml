@@ -59,8 +59,13 @@ jobs:
         timeout-minutes: 60
         continue-on-error: true
 
+      # Nationwide since 2026-08-25: 26 oblasts each individually paginated
+      # (oblast slicing - see scraper_olx.py's module docstring for why the
+      # bare nationwide URL alone isn't enough) instead of Sofia-only's
+      # single region, so this needs real headroom over the old 20-minute
+      # cap.
       - run: python scraper_olx.py
-        timeout-minutes: 20
+        timeout-minutes: 60
         continue-on-error: true
 
       - run: python scraper_bazar.py

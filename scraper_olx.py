@@ -1,5 +1,5 @@
 """
-Scrapes current Sofia apartment listings from OLX.bg.
+Scrapes current listings from OLX.bg, nationwide.
 
 OLX.bg blocks plain requests-based fetching (an Akamai-style edge check
 returns a 403 before any content), but a real headless browser gets through
@@ -7,50 +7,68 @@ cleanly - confirmed via Playwright/Chromium against the live site. Each
 listing card is the smallest ancestor whose text mentions the price
 ("<amount> €") exactly once, same "climb from the link" approach as
 scraper.py, scraper_alo.py, and scraper_imot.py. Within that card the text
-follows a consistent per-line layout:
-    line 0: title (free text, e.g. "Двустаен апартамент в Младост")
+follows one of two layouts depending on whether the listing is in a city
+or a village (confirmed live across Plovdiv/Varna/Burgas oblasts):
+    line 0: title (free text)
     line 1: "<price> €"
-    line 2: "гр. София, <area> - Обновено на <date>" (or Днес/Вчера etc.)
+    line 2 (city listing): "гр. <City>, <area> - Обновено на <date>"
+    line 2 (village listing): "с. <Village> - Обновено на <date>"
+      (villages have no separate sub-area - the settlement itself is both
+      the city and the area)
     line 3: "<sqm> кв.м - <price per sqm>"
 
-Search results are paginated with ?page=N (confirmed via the site's own
-paginator, and the site itself states "Открихме повече от 1000 обяви" -
-found more than 1000 listings). The scraper originally only fetched page 1
-with no pagination loop at all - fixed by paging through page=2, page=3,
-... until a page comes back with no listings, same "stop on empty page"
-pattern as the other scrapers, reusing one browser/page across all
-requests (same approach as scraper_imot.py) rather than relaunching
-Chromium per page.
+Unlike imot.bg/imoti.net (no single "nationwide" URL exists at all), OLX.bg
+does have one: dropping the region path segment entirely
+(/nedvizhimi-imoti/prodazhbi/, no oblast-<slug> suffix) returns real,
+distinct listings - but it turned out to hit the SAME real per-query depth
+cap (~page 26-27, ~1,000-1,400 listings) as any single oblast-scoped query,
+live-verified against Sofia and Plovdiv independently in the same browser
+session. So the bare nationwide URL alone can't carry full national
+coverage; oblast-level slicing (OBLAST_SLUGS below, each a live-verified
+/nedvizhimi-imoti/prodazhbi/oblast-<slug>/ URL) is used instead, the same
+pattern imot.bg needed at city granularity. 26 of Bulgaria's 28
+administrative oblasts resolved to a real olx.bg oblast page (Targovishte
+and Sofia-oblast/Sofia-province - distinct from Sofia-city, which IS
+covered - didn't resolve to a guessed slug and are skipped).
 
-A page navigation retries a few times with backoff before being treated as
-the end of pagination, so a transient failure doesn't get mistaken for
-having reached the last page - and, since scrape.yml runs all 5 scrapers
-sequentially with a single git commit step at the end, an uncaught
-exception here would otherwise silently discard every other scraper's
-output for that run too.
+Because oblast slicing is coarser than a real city (an oblast query returns
+listings from every settlement in it, not just its namesake city), each
+listing's city/area is parsed from its own card text rather than trusted
+from the query - same reasoning as alo.bg's LOCATION_RE, just with the
+extra city-vs-village branch above.
+
+Search results are paginated with ?page=N (confirmed via the site's own
+paginator). A page navigation retries a few times with backoff before
+being treated as the end of pagination, so a transient failure doesn't get
+mistaken for having reached the last page - and, since scrape.yml runs
+several scrapers sequentially with a single git commit step at the end, an
+uncaught exception here would otherwise silently discard every other
+scraper's output for that run too. Past the real depth cap boundary, the
+site still renders a page with exactly one stray listing link (not zero) -
+confirmed live - so pagination stops on <=1 real links, not only on 0.
 
 Line 2's "Обновено на <date>" (confirmed live format: "20 август 2026 г.")
 or bare "Днес"/"Вчера" reflects when the listing was actually last updated
-on OLX, and was previously discarded entirely (only the area before it was
-kept). Now parsed into a real date, so days_on_market/motivation score are
-computed from that instead of purely from when we first scraped the
+on OLX, and is parsed into a real date so days_on_market/motivation score
+are computed from that instead of purely from when we first scraped the
 listing - otherwise a listing that's actually been up for months shows as
 "0 days on market" just because we only just started tracking it.
 
 olx.bg carries no coordinates anywhere on its own pages, but every
-listing's real neighborhood name (line 2's area, before the " - ") is
-genuinely geocodable - resolved here via OpenStreetMap Nominatim
-(geo_utils.Geocoder), cached by the query string on disk so the same
-neighborhood name reused across many listings costs one real geocode
-request total. This portal's search also isn't apartments-only (it's
-"all real estate for sale"), so each listing's category
-(apartment/house/land/commercial) is classified from its title too, for
-the frontend's same-category radius-average feature.
+listing's real settlement/neighborhood name is genuinely geocodable -
+resolved here via OpenStreetMap Nominatim (geo_utils.Geocoder). At
+nationwide scale, doing that live and inline during the scrape doesn't fit
+in a single run (the same problem scraper_homes.py hit first - see its
+module docstring), so this only does a cache-only lookup and leaves the
+rest for backfill_geocode_olx.py to fill in as a separate, decoupled pass.
+This portal's search also isn't apartments-only (it's "all real estate for
+sale"), so each listing's category (apartment/house/land/commercial) is
+classified from its title too, for the frontend's same-category
+radius-average feature.
 """
 
 import re
 import json
-import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -59,10 +77,42 @@ from bs4 import BeautifulSoup
 
 from geo_utils import Geocoder, classify_category
 
-SEARCH_URL = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi/oblast-sofiya-grad/"
 BASE_URL = "https://www.olx.bg"
+SEARCH_BASE = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi"
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+# (oblast display name, URL slug) - each slug live-verified to return a
+# real olx.bg oblast page (status 200, real listing links) before being
+# trusted here; see the module docstring for the diagnostic trail.
+OBLAST_SLUGS = [
+    ("София", "oblast-sofiya-grad"),
+    ("Пловдив", "oblast-plovdiv"),
+    ("Варна", "oblast-varna"),
+    ("Бургас", "oblast-burgas"),
+    ("Русе", "oblast-ruse"),
+    ("Стара Загора", "oblast-stara-zagora"),
+    ("Плевен", "oblast-pleven"),
+    ("Сливен", "oblast-sliven"),
+    ("Добрич", "oblast-dobrich"),
+    ("Шумен", "oblast-shumen"),
+    ("Перник", "oblast-pernik"),
+    ("Хасково", "oblast-haskovo"),
+    ("Ямбол", "oblast-yambol"),
+    ("Пазарджик", "oblast-pazardzhik"),
+    ("Благоевград", "oblast-blagoevgrad"),
+    ("Велико Търново", "oblast-veliko-tarnovo"),
+    ("Враца", "oblast-vratsa"),
+    ("Габрово", "oblast-gabrovo"),
+    ("Видин", "oblast-vidin"),
+    ("Кюстендил", "oblast-kyustendil"),
+    ("Кърджали", "oblast-kardzhali"),
+    ("Монтана", "oblast-montana"),
+    ("Ловеч", "oblast-lovech"),
+    ("Силистра", "oblast-silistra"),
+    ("Разград", "oblast-razgrad"),
+    ("Смолян", "oblast-smolyan"),
+]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -71,14 +121,18 @@ LEADS_FILE = OUT_DIR / "leads_olx.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
-MAX_PAGES = 40
+# The real per-query depth cap sits around page 26-27 (~1,000-1,400
+# listings) - 30 gives a small safety margin before giving up on an oblast
+# without wasting requests deep past the cap.
+MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
 PRICE_LINE_RE = re.compile(r"^([\d\s]{3,10})\s?€$")
-AREA_LINE_RE = re.compile(r"^гр\.\s*София,\s*(.+?)\s-\s")
+CITY_AREA_LINE_RE = re.compile(r"^гр\.\s*(.+?),\s*(.+?)\s-\s")
+VILLAGE_LINE_RE = re.compile(r"^с\.\s*(.+?)\s-\s")
 UPDATED_RE = re.compile(r"-\s*(Днес|Вчера|Обновено на\s+(\d{1,2})\s+(\S+)\s+(\d{4})\s*г\.?)", re.IGNORECASE)
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
 
@@ -156,11 +210,10 @@ def fetch_html_with_retries(page, url):
     return None
 
 
-def fetch_listings_page(page, url, seen, geocoder):
+def fetch_listings_page(page, url, seen, geocoder, oblast_display):
     html = fetch_html_with_retries(page, url)
     if html is None:
         return None
-    print(f"DEBUG: fetched HTML length = {len(html)}")
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
@@ -189,12 +242,18 @@ def fetch_listings_page(page, url, seen, geocoder):
         if price_eur is None or price_eur < 1000:
             continue
 
-        area = "Sofia"
+        city = oblast_display
+        area = oblast_display
         site_updated_at = None
         for l in lines:
-            m = AREA_LINE_RE.match(l)
+            m = CITY_AREA_LINE_RE.match(l)
             if m:
-                area = m.group(1).strip()
+                city, area = m.group(1).strip(), m.group(2).strip()
+                site_updated_at = parse_site_updated_at(l)
+                break
+            m2 = VILLAGE_LINE_RE.match(l)
+            if m2:
+                city = area = m2.group(1).strip()
                 site_updated_at = parse_site_updated_at(l)
                 break
 
@@ -218,7 +277,7 @@ def fetch_listings_page(page, url, seen, geocoder):
         href = a["href"]
         full_url = href if href.startswith("http") else BASE_URL + href
         title = f"{lines[0]}, {area}" if lines else area
-        coords = geocoder.geocode(f"{area}, София, България")
+        coords = geocoder.geocode_cached_only(f"{area}, {city}, България")
 
         seen[listing_id] = {
             "id": "olx_" + listing_id,
@@ -227,6 +286,7 @@ def fetch_listings_page(page, url, seen, geocoder):
             "price_eur": price_eur,
             "sqm": sqm,
             "area": area,
+            "city": city,
             "title": title[:150],
             "portal": "olx.bg",
             "site_updated_at": site_updated_at,
@@ -245,12 +305,16 @@ def fetch_listings():
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
 
-        for page_num in range(1, MAX_PAGES + 1):
-            url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}?page={page_num}"
-            link_count = fetch_listings_page(page, url, seen, geocoder)
-            print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
-            if not link_count:
-                break
+        for oblast_display, slug in OBLAST_SLUGS:
+            search_url = f"{SEARCH_BASE}/{slug}/"
+            oblast_before = len(seen)
+            for page_num in range(1, MAX_PAGES + 1):
+                url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
+                link_count = fetch_listings_page(page, url, seen, geocoder, oblast_display)
+                print(f"DEBUG: {oblast_display} page {page_num} links matching listing URL pattern = {link_count}")
+                if link_count is None or link_count <= 1:
+                    break
+            print(f"DEBUG: {oblast_display} done, {len(seen) - oblast_before} new listings")
 
         browser.close()
     geocoder.save()

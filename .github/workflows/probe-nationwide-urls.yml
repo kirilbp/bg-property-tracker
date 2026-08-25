@@ -23,4 +23,4 @@ jobs:
       - run: pip install playwright beautifulsoup4 requests
       - run: playwright install --with-deps chromium
 
-      - run: python probe_olx_card_text.py
+      - run: python probe_verify_olx.py
