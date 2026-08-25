@@ -185,7 +185,7 @@ def fetch_listings_page(url, seen):
 
         if location_match:
             area = dedup_area(location_match.group(1).strip())
-            city = location_match.group(2).strip()
+            city = dedup_area(location_match.group(2).strip())
         else:
             area, city = "Bulgaria", None
 
