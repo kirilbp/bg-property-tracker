@@ -27,4 +27,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "No probe script currently checked in - see this file's header comment."
+      - run: pip install requests beautifulsoup4
+
+      - run: python probe_imoti_net_decoupled.py

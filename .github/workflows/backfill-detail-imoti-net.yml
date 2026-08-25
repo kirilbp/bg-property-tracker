@@ -1,0 +1,48 @@
+# Fills in site_posted_at/lat,lng for imoti.net listings the nationwide
+# scraper left unenriched (see backfill_detail_imoti_net.py and
+# scraper.py's module docstring for why: visiting every listing's own page
+# no longer fits in the main scrape at nationwide scale - a real run timed
+# out doing exactly that, discarding the whole run's freshly-scraped grid
+# data too). Runs hourly like alo.bg's own detail backfill - a fresh full
+# backlog is ~21,700 listings at 1,500/run, roughly 15 runs (under a day)
+# to fully clear, then each run only needs to keep up with each day's
+# newly-discovered listings, a much smaller number. Shares scrape.yml's/
+# scrape-large.yml's concurrency group since both write to data/*.json and
+# commit.
+name: Backfill imoti.net listing details
+
+on:
+  schedule:
+    - cron: "30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python backfill_detail_imoti_net.py
+        timeout-minutes: 45
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill imoti.net listing details"
+          git pull --rebase origin main
+          git push
