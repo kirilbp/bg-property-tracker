@@ -1,9 +1,11 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently a direct Supabase city_key distribution check that confirmed
-# the nationwide scrapes/sync were working and the frontend the user saw
-# was just stale). Kept registered (workflow_dispatch runs against this
-# branch pick up whatever it's currently pointed at, no need to merge a
+# recently sampling unmatched merged_listings rows by portal, which found
+# that most non-Sofia-looking listings were actually Sofia/Plovdiv/Burgas
+# ones whose portal renders the city mid-title rather than as the last
+# comma segment - fixed in sync_to_supabase.py/index.html's city-key
+# matching). Kept registered (workflow_dispatch runs against this branch
+# pick up whatever it's currently pointed at, no need to merge a
 # placeholder to main first) so a future diagnostic round can just
 # overwrite the script below instead of re-registering a new workflow
 # name. No probe script currently checked in - repoint the run step at a

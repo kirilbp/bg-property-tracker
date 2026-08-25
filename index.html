@@ -984,8 +984,67 @@ function bcpeaSettlementFromTitle(l) {
 
 function cityKeyFromName(name) {
   if (!name) return null;
-  const normalized = name.replace(/\s*област$/i, '').trim();
+  // Strips a trailing settlement-type suffix a portal's own title text can
+  // tack on after the real city name - "област" (region), or homes.bg's
+  // own "<City> - град"/"- село" (town/village) convention, live-sampled
+  // from real currently-active homes.bg titles like "София, София - град"
+  // (the second "София" is the last comma segment the title fallback
+  // reads, but " - град" made it fail to match "София" exactly).
+  const normalized = name.replace(/\s*(?:област|-\s*град|-\s*село)$/i, '').trim();
   return BG_CITY_BY_NAME[normalized] || null;
+}
+
+// imoti.net's own titles render the city in English/Latin script ("... Sofia,
+// Lyulin Center" - the city is the SECOND-to-last comma segment there, not
+// the last, so the generic last-comma fallback below can never recover it).
+// A live sample of currently-active, freshly-scraped imoti.net listings
+// with no "city" field found this was the single largest unmatched bucket
+// of any portal (28% of all active merged listings) - and every sample was
+// a genuine Sofia listing whose title plainly says so in Latin script.
+// Reuses the same slugs scraper.py's own CITY_SLUGS already live-verified
+// against imoti.net's real city pages, just keyed by the natural-language
+// spelling (space, not the URL slug's hyphen) since this searches
+// free-form title text, not a URL.
+const LATIN_CITY_TO_KEY = {
+  'sofia': 'sofia', 'plovdiv': 'plovdiv', 'varna': 'varna', 'burgas': 'burgas', 'bourgas': 'burgas',
+  'ruse': 'ruse', 'stara zagora': 'stara_zagora', 'pleven': 'pleven', 'sliven': 'sliven',
+  'dobrich': 'dobrich', 'shumen': 'shumen', 'pernik': 'pernik', 'haskovo': 'haskovo',
+  'yambol': 'yambol', 'pazardzhik': 'pazardzhik', 'blagoevgrad': 'blagoevgrad',
+  'veliko tarnovo': 'veliko_tarnovo', 'vratsa': 'vratsa', 'gabrovo': 'gabrovo', 'vidin': 'vidin',
+  'kardzhali': 'kardzhali', 'montana': 'montana', 'targovishte': 'targovishte', 'lovech': 'lovech',
+  'silistra': 'silistra',
+};
+const LATIN_CITY_RE = new RegExp(
+  '\\b(' + Object.keys(LATIN_CITY_TO_KEY).sort((a, b) => b.length - a.length)
+    .map(k => k.replace(' ', '\\s+')).join('|') + ')\\b', 'i'
+);
+
+function latinCityKeyFromText(text) {
+  if (!text) return null;
+  const match = LATIN_CITY_RE.exec(text);
+  if (!match) return null;
+  const normalized = match[1].toLowerCase().replace(/\s+/g, ' ');
+  return LATIN_CITY_TO_KEY[normalized] || null;
+}
+
+// bazar.bg's own title format has the same "city buried mid-string, not in
+// the last comma segment" problem as imoti.net, just in Cyrillic: "Продава
+// 3-СТАЕН, гр. София, Левски Г" - the city is the "гр. <City>" segment in
+// the middle, area (last segment) is the neighborhood. A live sample of
+// currently-active bazar.bg listings with no "city" field (stale rows
+// scraped before bazar.bg's nationwide city-tagging merged today) confirmed
+// this "гр. <City>," shape holds consistently, matching bazar.bg's own
+// AREA_LINE_RE (a Python regex requiring a "гр. " prefix to find the area
+// line at all) - same convention, reused here in reverse.
+const CYR_CITY_TITLE_RE = new RegExp(
+  'гр\\.?\\s*(' + BG_CITIES.map(c => c.name).join('|') + ')'
+);
+
+function cyrCityKeyFromText(text) {
+  if (!text) return null;
+  const match = CYR_CITY_TITLE_RE.exec(text);
+  if (!match) return null;
+  return BG_CITY_BY_NAME[match[1]] || null;
 }
 
 function listingCityKey(l) {
@@ -1002,6 +1061,10 @@ function listingCityKey(l) {
     const key = cityKeyFromName(lastSegment);
     if (key) return key;
   }
+  const latinKey = latinCityKeyFromText(l.title);
+  if (latinKey) return latinKey;
+  const cyrKey = cyrCityKeyFromText(l.title);
+  if (cyrKey) return cyrKey;
   // No known city matched - leave unclassified rather than silently
   // defaulting to Sofia, which would inflate its count with every
   // listing this function couldn't actually place.

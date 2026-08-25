@@ -235,8 +235,74 @@ def bcpea_settlement_from_title(title):
 def city_key_from_name(name):
     if not name:
         return None
-    normalized = re.sub(r"\s*област$", "", name.strip(), flags=re.IGNORECASE).strip()
+    # Strips a trailing settlement-type suffix a portal's own title text can
+    # tack on after the real city name - "област" (region), or homes.bg's
+    # own "<City> - град"/"- село" (town/village) convention, live-sampled
+    # from real currently-active homes.bg titles like "София, София - град"
+    # (the second "София" is the last comma segment the title fallback
+    # reads, but " - град" made it fail to match "София" exactly).
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
     return BG_CITY_BY_NAME.get(normalized)
+
+
+# imoti.net's own titles render the city in English/Latin script ("... Sofia,
+# Lyulin Center" - the city is the SECOND-to-last comma segment there, not
+# the last, so the generic last-comma fallback above can never recover it).
+# This bit imoti.net hardest: a live sample of currently-active,
+# freshly-scraped imoti.net listings with no "city" field found ~5,800 of
+# them (28% of all active merged listings, and the single largest unmatched
+# bucket of any portal) were genuinely Sofia listings whose title plainly
+# says so in Latin script - e.g. "Shop, 44 m2 Sofia, Lyulin Center". Reuses
+# the same slugs scraper.py's own CITY_SLUGS already live-verified against
+# imoti.net's real city pages, just keyed by the natural-language spelling
+# (space, not the URL slug's hyphen) since this searches free-form title
+# text, not a URL.
+LATIN_CITY_TO_KEY = {
+    "sofia": "sofia", "plovdiv": "plovdiv", "varna": "varna", "burgas": "burgas", "bourgas": "burgas",
+    "ruse": "ruse", "stara zagora": "stara_zagora", "pleven": "pleven", "sliven": "sliven",
+    "dobrich": "dobrich", "shumen": "shumen", "pernik": "pernik", "haskovo": "haskovo",
+    "yambol": "yambol", "pazardzhik": "pazardzhik", "blagoevgrad": "blagoevgrad",
+    "veliko tarnovo": "veliko_tarnovo", "vratsa": "vratsa", "gabrovo": "gabrovo", "vidin": "vidin",
+    "kardzhali": "kardzhali", "montana": "montana", "targovishte": "targovishte", "lovech": "lovech",
+    "silistra": "silistra",
+}
+LATIN_CITY_RE = re.compile(
+    r"\b(" + "|".join(sorted((k.replace(" ", r"\s+") for k in LATIN_CITY_TO_KEY), key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def latin_city_key_from_text(text):
+    if not text:
+        return None
+    match = LATIN_CITY_RE.search(text)
+    if not match:
+        return None
+    normalized = re.sub(r"\s+", " ", match.group(1).lower())
+    return LATIN_CITY_TO_KEY.get(normalized)
+
+
+# bazar.bg's own title format has the same "city buried mid-string, not in
+# the last comma segment" problem as imoti.net, just in Cyrillic: "Продава
+# 3-СТАЕН, гр. София, Левски Г" - the city is the "гр. <City>" segment in
+# the middle, area (last segment) is the neighborhood. A live sample of
+# currently-active bazar.bg listings with no "city" field (stale rows
+# scraped before bazar.bg's nationwide city-tagging merged today) confirmed
+# this "гр. <City>," shape holds consistently, matching bazar.bg's own
+# AREA_LINE_RE ("^гр\.\s*\S.*?,\s*(.+)$") which already relies on the same
+# "гр. " prefix convention to find the area line at all.
+CYR_CITY_TITLE_RE = re.compile(
+    r"гр\.?\s*(" + "|".join(re.escape(name) for _, name in BG_CITIES) + r")"
+)
+
+
+def cyr_city_key_from_text(text):
+    if not text:
+        return None
+    match = CYR_CITY_TITLE_RE.search(text)
+    if not match:
+        return None
+    return BG_CITY_BY_NAME.get(match.group(1))
 
 
 def listing_city_key(l):
@@ -258,6 +324,12 @@ def listing_city_key(l):
         key = city_key_from_name(last_segment)
         if key:
             return key
+    key = latin_city_key_from_text(title)
+    if key:
+        return key
+    key = cyr_city_key_from_text(title)
+    if key:
+        return key
     # No known city matched - leave unclassified rather than silently
     # defaulting to Sofia, which would inflate its count with every
     # listing this function couldn't actually place.
