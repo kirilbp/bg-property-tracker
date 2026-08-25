@@ -1,39 +1,56 @@
 """
-Scrapes current Sofia apartment listings from alo.bg.
+Scrapes current Bulgaria-wide apartment listings from alo.bg.
 
-Search results are paginated with &page=N (confirmed via the site's own
-paginator; alo.bg itself states ~9995 apartment listings for this search at
-30/page, i.e. ~333 pages). The scraper originally only fetched page 1 with
-no pagination loop at all - fixed by paging through page=2, page=3, ...
-until a page comes back with no listings, same "stop on empty page" pattern
-as scraper_bazar.py, scraper_imot.py, and scraper_imoti_bg.py, capped at
-MAX_PAGES as a safety limit. Learned from scraper.py's imoti.net fix: a
-delay between requests is needed to avoid getting rate-limited (HTTP 403)
-partway through, and a failed request is treated as "no more listings"
-(stop and keep what was collected) rather than crashing the whole run.
+Search results are paginated with &page=N. The scraper originally only
+fetched page 1 with no pagination loop at all - fixed by paging through
+page=2, page=3, ... until a page comes back with no listings, same "stop
+on empty page" pattern as scraper_bazar.py, scraper_imot.py, and
+scraper_imoti_bg.py, capped at MAX_PAGES as a safety limit. Learned from
+scraper.py's imoti.net fix: a delay between requests is needed to avoid
+getting rate-limited (HTTP 403) partway through, and a failed request is
+treated as "no more listings" (stop and keep what was collected) rather
+than crashing the whole run.
 
 Found in production (not in earlier live testing) that a single request can
 also fail transiently - e.g. a connect timeout with no HTTP response at all,
 unrelated to any real block - and treating that identically to "no more
 listings" cut a real run off at page 21 of ~166, keeping only 613 of the
-site's ~9995 listings. A page fetch now retries a few times with backoff
-before being treated as the end of pagination, so a one-off network blip
-doesn't get mistaken for having reached the last page.
+old Sofia-only ~9995 listings. A page fetch now retries a few times with
+backoff before being treated as the end of pagination, so a one-off
+network blip doesn't get mistaken for having reached the last page.
 
-days_on_market: the search grid carries no date signal at all, but each
-listing's own page shows "Актуализирана днес/вчера/преди N дни" and this was
-confirmed (by sampling 12 real listings) to genuinely vary rather than always
-reading "today" - unlike homes.bg's equivalent field, which was checked the
-same way and turned out to be a constant. Since this portal tracks a few
-hundred listings (not imoti.net's ~6000), visiting every tracked listing's
-own page once per scrape to read this field is an acceptable added cost.
+Nationwide conversion: the Sofia scope was two URL params, ?region_id=22
+&location_ids=4342 - live-verified that dropping them entirely (or setting
+region_id=0, same effect) gives nationwide results, jumping the site's own
+stated total from ~10,009 to ~80,424 (apartments only; this scraper still
+doesn't cover other property types, same as before). Paged all the way to
+~2600 with real content and no block of any kind (unlike homes.bg/
+imoti.net's confirmed depth caps) before hitting a genuine 404 past the
+real last page - alo.bg's own per-page listing count is also higher
+nationwide (60/page vs 30/page Sofia-only), so the real total is closer to
+~156,000. MAX_PAGES raised well past that with real margin.
 
-That same detail-page fetch also carries the listing's real coordinates,
-embedded as a plain "share this location" Google Maps link
-(href="https://maps.google.com/?q=LAT,LNG...", confirmed live, no JS
-execution needed) - extracted here at no extra request cost via
-geo_utils, along with a keyword-based property category for the
-frontend's same-category radius-average feature.
+LOCATION_RE replaces the old Sofia-only AREA_RE (which matched "<area
+words>, София" specifically) - live samples of real non-Sofia cards found
+the consistent shape "<settlement>, [област ]<city>" immediately before
+"Цена :" (note: alo.bg's "област" - region - is a PREFIX before the city/
+region name here, unlike imoti.bg's own listings elsewhere in this project
+where it's a trailing suffix - these are two different portals' own text
+conventions, not the same rule). Captures settlement as "area" (unchanged
+meaning) and the city/region name (with any "област " prefix stripped) as
+a new "city" field, matching what index.html's/sync_to_supabase.py's
+city-key logic already expects.
+
+days_on_market/coords/category: previously fetched inline during the main
+scrape by visiting every listing's own page (the search grid carries no
+date signal at all). At nationwide scale (~156,000 listings vs. the old
+~10,000 Sofia-only) that's no longer affordable in a single scrape pass,
+so it's decoupled the same way homes.bg's/imoti.bg's geocoding was:
+fetch_listings() now only does the fast grid crawl, and
+backfill_detail_alo.py (a separate, resumable, prioritized-by-newest-first
+job) visits listing pages over time to fill in site_updated_at/lat,lng/
+category via fetch_update_dates() (kept here, now unused by the main
+scrape path but still imported and reused by the backfill script).
 """
 
 import re
@@ -48,7 +65,7 @@ from bs4 import BeautifulSoup
 from geo_utils import classify_category, extract_coords_alo
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
-SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=22&location_ids=4342"
+SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=0"
 BASE_URL = "https://www.alo.bg"
 
 OUT_DIR = Path(__file__).parent / "data"
@@ -58,7 +75,10 @@ LEADS_FILE = OUT_DIR / "leads_alo.json"
 
 MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
-MAX_PAGES = 350
+# ~156,000 listings at 60/page nationwide is ~2,600 real pages (live-
+# verified: real content through page 2600, a genuine 404 at page 2700,
+# no block of any kind) - well past the old Sofia-only 350.
+MAX_PAGES = 2800
 REQUEST_DELAY_SECONDS = 1.0
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
@@ -74,8 +94,15 @@ DAYS_AGO_RE = re.compile(r"преди\s+(\d+)\s+д")
 PRICE_RE = re.compile(r"Цена\s*:\s*([\d\s]+)\s?€")
 SQM_RE = re.compile(r"Квадратура:\s*([\d.,]+)\s?кв\.?м")
 AREA_WORD = r"[А-Я][а-я]*"
-AREA_RE = re.compile(
-    "((?:" + AREA_WORD + r"\s+){0,3}" + AREA_WORD + r"(?:\s+\d+)?),\s*София"
+# Replaces the old Sofia-only "<area words>, София" match - live samples of
+# real non-Sofia cards found the consistent shape "<settlement>,
+# [област ]<city>" right before "Цена :" (see module docstring). Group 1 is
+# the settlement/neighborhood (kept as "area", same meaning as before);
+# group 2 is the city/region name with any "област " prefix already
+# stripped by the non-capturing group ahead of it.
+LOCATION_RE = re.compile(
+    "((?:" + AREA_WORD + r"\s+){0,3}" + AREA_WORD + r"(?:\s+\d+)?),\s*"
+    r"(?:област\s+)?(" + AREA_WORD + r"(?:\s+" + AREA_WORD + r")?)\s*Цена\s*:"
 )
 
 
@@ -141,7 +168,7 @@ def fetch_listings_page(url, seen):
 
         price_match = PRICE_RE.search(text)
         sqm_match = SQM_RE.search(text)
-        area_match = AREA_RE.search(text)
+        location_match = LOCATION_RE.search(text)
         if not price_match:
             continue
 
@@ -156,7 +183,11 @@ def fetch_listings_page(url, seen):
             except ValueError:
                 sqm = None
 
-        area = dedup_area(area_match.group(1).strip()) if area_match else "Sofia"
+        if location_match:
+            area = dedup_area(location_match.group(1).strip())
+            city = location_match.group(2).strip()
+        else:
+            area, city = "Bulgaria", None
 
         # An agency-posted card has TWO images in this container: its own
         # branding/avatar (class "listtop-logo") *before* the real property
@@ -198,6 +229,7 @@ def fetch_listings_page(url, seen):
             "price_eur": price_eur,
             "sqm": sqm,
             "area": area,
+            "city": city,
             "title": title[:120],
             "portal": "alo.bg",
         }
@@ -234,17 +266,22 @@ def fetch_update_dates(seen):
 
 
 def fetch_listings():
+    # Grid crawl only - no detail-page visits here, see module docstring
+    # (backfill_detail_alo.py handles site_updated_at/coords/category as a
+    # separate, resumable pass; nationwide scale made doing it inline no
+    # longer affordable in a single run).
+    start_time = time.monotonic()
     seen = {}
     for page_num in range(1, MAX_PAGES + 1):
         if page_num > 1:
             time.sleep(REQUEST_DELAY_SECONDS)
         url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}&page={page_num}"
         link_count = fetch_listings_page(url, seen)
-        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
+        elapsed = time.monotonic() - start_time
+        print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count} "
+              f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
         if not link_count:
             break
-    print(f"DEBUG: fetching update dates for {len(seen)} listings")
-    fetch_update_dates(seen)
     return list(seen.values())
 
 
