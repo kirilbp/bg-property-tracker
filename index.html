@@ -1048,6 +1048,21 @@ function cyrCityKeyFromText(text) {
 }
 
 function listingCityKey(l) {
+  // merged_listings/listing_sources rows already carry a "city_key" column
+  // computed server-side by sync_to_supabase.py's listing_city_key() - and
+  // the server-side version sees the raw per-listing "city" field (e.g.
+  // imot.bg/olx.bg tag it directly from the queried city/oblast URL, with
+  // no matching text anywhere in the title), which never survives into
+  // merged_listings at all ("city" isn't one of its columns - see
+  // sync_to_supabase.py's MERGED_FIELDS). Recomputing from scratch here
+  // with only l.title to go on silently lost that information for exactly
+  // the portals whose titles never mention the city as text (confirmed
+  // live: this alone was crushing Plovdiv/Varna/Burgas's displayed counts
+  // to a fraction of their real, already-correct city_key column value).
+  // Falls through to the title-based recomputation below only for an
+  // object that genuinely has no precomputed key (e.g. one built by
+  // something other than sync_to_supabase.py).
+  if (l.city_key) return l.city_key;
   if (l.portal === 'sales.bcpea.org') {
     const settlement = bcpeaSettlementFromTitle(l);
     return settlement ? cityKeyFromName(settlement) : null;

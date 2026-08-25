@@ -1,15 +1,14 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently sampling unmatched merged_listings rows by portal, which found
-# that most non-Sofia-looking listings were actually Sofia/Plovdiv/Burgas
-# ones whose portal renders the city mid-title rather than as the last
-# comma segment - fixed in sync_to_supabase.py/index.html's city-key
-# matching). Kept registered (workflow_dispatch runs against this branch
-# pick up whatever it's currently pointed at, no need to merge a
-# placeholder to main first) so a future diagnostic round can just
-# overwrite the script below instead of re-registering a new workflow
-# name. No probe script currently checked in - repoint the run step at a
-# new one when the next question comes up.
+# recently comparing the frontend's displayed city counts against a direct
+# Supabase query, which found the frontend was silently recomputing city
+# from title text instead of using the already-correct city_key column -
+# fixed in index.html's listingCityKey()). Kept registered (workflow_
+# dispatch runs against this branch pick up whatever it's currently
+# pointed at, no need to merge a placeholder to main first) so a future
+# diagnostic round can just overwrite the script below instead of
+# re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -28,9 +27,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-
-      - run: python verify_supabase_city_counts.py
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      - run: echo "No probe script currently checked in - see this file's header comment."
