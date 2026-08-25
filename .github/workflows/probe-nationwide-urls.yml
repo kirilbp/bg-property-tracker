@@ -1,7 +1,12 @@
-# Diagnostic workflow, repurposed round-by-round throughout the nationwide
-# expansion (see git history for many prior uses). Currently checking
-# bazar.bg's real nationwide URL mechanism and pagination depth. Read-only,
-# no commit step. Delete once the current probe's question is answered.
+# Dormant diagnostic workflow, repurposed round-by-round throughout the
+# nationwide expansion (see git history for many prior uses - most
+# recently the bazar.bg nationwide conversion, the last of the 6 portals
+# converted this project). Kept registered (workflow_dispatch runs
+# against this branch pick up whatever it's currently pointed at, no need
+# to merge a placeholder to main first) so a future diagnostic round can
+# just overwrite the script below instead of re-registering a new
+# workflow name. No probe script currently checked in - repoint the run
+# step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -20,6 +25,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
-
-      - run: python probe_verify_bazar.py
+      - run: echo "No probe script currently checked in - see this file's header comment."
