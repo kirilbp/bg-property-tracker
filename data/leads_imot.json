@@ -252,8 +252,8 @@
     "score": 50,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -14.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -15.1
   },
   {
     "id": "imot_1a175276168726293",
@@ -284,8 +284,8 @@
     "score": 50,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.4
   },
   {
     "id": "imot_1a177217808203012",
@@ -312,8 +312,8 @@
     ],
     "price_drop_count": 1,
     "drop_pct": 1.4,
-    "days_on_market": 140,
-    "score": 42,
+    "days_on_market": 141,
+    "score": 43,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2979,
@@ -497,8 +497,8 @@
     "score": 26,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -10.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -11.1
   },
   {
     "id": "imot_1a177857812546885",
@@ -525,8 +525,8 @@
     "score": 26,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -5.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -5.5
   },
   {
     "id": "imot_1a178152902529908",
@@ -865,8 +865,8 @@
     "score": 9,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 39.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 39.7
   },
   {
     "id": "imot_1a177451145821482",
@@ -1045,8 +1045,8 @@
     "score": 8,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 18.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 18.0
   },
   {
     "id": "imot_1b177668831910843",
@@ -1169,8 +1169,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 44.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 44.6
   },
   {
     "id": "imot_1b178462619934142",
@@ -1457,8 +1457,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 10.7
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 11.5
   },
   {
     "id": "imot_1a178634371887119",
@@ -1793,8 +1793,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -26.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -26.1
   },
   {
     "id": "imot_1b178723704710366",
@@ -1849,8 +1849,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 12.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 12.3
   },
   {
     "id": "imot_1a178653445874415",
@@ -1877,8 +1877,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -20.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -20.5
   },
   {
     "id": "imot_1a178653369297795",
@@ -1905,8 +1905,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -22.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -22.8
   },
   {
     "id": "imot_1a178697438317450",
@@ -1933,8 +1933,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 19.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 19.4
   },
   {
     "id": "imot_1a178576393298594",
@@ -1961,8 +1961,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.4
   },
   {
     "id": "imot_1a177909176074139",
@@ -1989,8 +1989,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.4
   },
   {
     "id": "imot_1a178653480286559",
@@ -2017,8 +2017,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.4
   },
   {
     "id": "imot_1a178565032930731",
@@ -2045,8 +2045,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.4
   },
   {
     "id": "imot_1a178729680738706",
@@ -2073,8 +2073,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -13.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -13.5
   },
   {
     "id": "imot_1a178573538280044",
@@ -2101,8 +2101,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 30.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 29.9
   },
   {
     "id": "imot_1a178480080230211",
@@ -2129,8 +2129,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -9.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -9.5
   },
   {
     "id": "imot_1a178713001365074",
@@ -2829,8 +2829,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 1.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 1.3
   },
   {
     "id": "imot_1b177911451825639",
@@ -2857,8 +2857,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 1.2
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 1.0
   },
   {
     "id": "imot_1b178452759737533",
@@ -2885,8 +2885,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -25.6
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -25.7
   },
   {
     "id": "imot_1b178100910252244",
@@ -2913,8 +2913,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -39.4
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -39.6
   },
   {
     "id": "imot_1b160820411504161",
@@ -2941,8 +2941,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 24.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 24.2
   },
   {
     "id": "imot_1b165781566101965",
@@ -2969,8 +2969,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 22.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 22.2
   },
   {
     "id": "imot_1b178039140764075",
@@ -2997,8 +2997,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -17.8
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -18.0
   },
   {
     "id": "imot_1b178410412058938",
@@ -3025,8 +3025,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -15.6
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -15.8
   },
   {
     "id": "imot_1b178703214846381",
@@ -3053,8 +3053,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -11.9
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -12.1
   },
   {
     "id": "imot_1b178344420248977",
@@ -3081,8 +3081,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -11.4
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -11.6
   },
   {
     "id": "imot_1b177373492893463",
@@ -3109,8 +3109,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 0.9
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 0.6
   },
   {
     "id": "imot_1b177641095127179",
@@ -3137,8 +3137,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -1.0
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -1.3
   },
   {
     "id": "imot_1b178661075454579",
@@ -3165,8 +3165,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 25.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 25.3
   },
   {
     "id": "imot_1b178696807130754",
@@ -3193,8 +3193,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 24.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 24.0
   },
   {
     "id": "imot_1b178707885030710",
@@ -3221,8 +3221,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 31.7
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 31.4
   },
   {
     "id": "imot_1b178587537441254",
@@ -4877,8 +4877,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 9.7
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 10.5
   },
   {
     "id": "imot_1b177029645240303",
@@ -4905,8 +4905,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 21.1
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 21.9
   },
   {
     "id": "imot_1b175534986494963",
@@ -4933,8 +4933,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 18.6
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 19.4
   },
   {
     "id": "imot_1b177263902215496",
@@ -5969,8 +5969,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -20.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -21.4
   },
   {
     "id": "imot_1b178410616893805",
@@ -5997,8 +5997,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -24.2
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -24.6
   },
   {
     "id": "imot_1b178729828449562",
@@ -6025,8 +6025,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -1.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -2.4
   },
   {
     "id": "imot_1b178280662623781",
@@ -6053,8 +6053,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -2.3
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -2.8
   },
   {
     "id": "imot_1b177498051731718",
@@ -6081,8 +6081,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 0.8
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 0.3
   },
   {
     "id": "imot_1b178539286695505",
@@ -6109,8 +6109,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 9.7
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 9.1
   },
   {
     "id": "imot_1b177271943079320",
@@ -6137,8 +6137,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -12.0
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -12.4
   },
   {
     "id": "imot_1b178653278362993",
@@ -6165,8 +6165,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 13.7
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 13.1
   },
   {
     "id": "imot_1b177797808838020",
@@ -6193,8 +6193,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 27.0
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 26.4
   },
   {
     "id": "imot_1b178181190357777",
@@ -6221,8 +6221,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -1.8
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -2.3
   },
   {
     "id": "imot_1b178489471045771",
@@ -6249,8 +6249,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -20.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -21.4
   },
   {
     "id": "imot_1b178661491527050",
@@ -6277,8 +6277,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 14.6
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 14.0
   },
   {
     "id": "imot_1b177944161674349",
@@ -6305,8 +6305,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -19.1
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -19.5
   },
   {
     "id": "imot_1b178393989815228",
@@ -6333,8 +6333,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -15.5
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -15.9
   },
   {
     "id": "imot_1b178402207026903",
@@ -6361,8 +6361,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -12.7
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -13.1
   },
   {
     "id": "imot_1b178653179036842",
@@ -6389,8 +6389,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 39.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 39.1
   },
   {
     "id": "imot_1b177735827507649",
@@ -6417,8 +6417,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 20.1
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 19.5
   },
   {
     "id": "imot_1b177615140002558",
@@ -6445,8 +6445,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 28.2
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 27.6
   },
   {
     "id": "imot_1b178643668990819",
@@ -6473,8 +6473,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 34.7
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 34.0
   },
   {
     "id": "imot_1b178672779823249",
@@ -6501,8 +6501,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 32.1
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 31.5
   },
   {
     "id": "imot_1b176224433323861",
@@ -6529,8 +6529,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -27.6
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -28.0
   },
   {
     "id": "imot_1b177262155572172",
@@ -10449,8 +10449,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -18.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -18.3
   },
   {
     "id": "imot_1b178462896244184",
@@ -10477,8 +10477,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -32.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -32.3
   },
   {
     "id": "imot_1b178394851604612",
@@ -10505,8 +10505,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.6
   },
   {
     "id": "imot_1b178652284401105",
@@ -10533,8 +10533,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -32.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -32.5
   },
   {
     "id": "imot_1b178587698062516",
@@ -10561,8 +10561,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -29.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -29.6
   },
   {
     "id": "imot_1b178695141211033",
@@ -10589,8 +10589,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -17.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -17.9
   },
   {
     "id": "imot_1b174705038513790",
@@ -10617,8 +10617,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -24.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -24.2
   },
   {
     "id": "imot_1b178652648653497",
@@ -10645,8 +10645,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -26.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -26.9
   },
   {
     "id": "imot_1b178695168927911",
@@ -10673,8 +10673,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -22.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -22.4
   },
   {
     "id": "imot_1b178653334759866",
@@ -10701,8 +10701,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -25.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -25.6
   },
   {
     "id": "imot_1b178703786431432",
@@ -10729,8 +10729,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -25.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -25.8
   },
   {
     "id": "imot_1b176770861199951",
@@ -10757,8 +10757,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -11.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -11.4
   },
   {
     "id": "imot_1b178333177732600",
@@ -10785,8 +10785,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -4.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -5.1
   },
   {
     "id": "imot_1b176175911231619",
@@ -10813,8 +10813,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -25.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -25.9
   },
   {
     "id": "imot_1b173953590800870",
@@ -10841,8 +10841,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.8
   },
   {
     "id": "imot_1b178695140208050",
@@ -10869,8 +10869,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.2
   },
   {
     "id": "imot_1b178653269743910",
@@ -10897,8 +10897,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -18.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -18.4
   },
   {
     "id": "imot_1b178029707973108",
@@ -10925,8 +10925,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -22.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -22.8
   },
   {
     "id": "imot_1b178288858744035",
@@ -10953,8 +10953,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.4
   },
   {
     "id": "imot_1b178634559429416",
@@ -10981,8 +10981,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -46.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -46.4
   },
   {
     "id": "imot_1b178109053278682",
@@ -11009,8 +11009,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -15.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -15.9
   },
   {
     "id": "imot_1b178609662511916",
@@ -11037,8 +11037,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -11.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -11.1
   },
   {
     "id": "imot_1b178653312080028",
@@ -11065,8 +11065,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.7
   },
   {
     "id": "imot_1b178404668225210",
@@ -11093,8 +11093,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.7
   },
   {
     "id": "imot_1b177021615455774",
@@ -11121,8 +11121,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 4.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 3.8
   },
   {
     "id": "imot_1b165497330296154",
@@ -11149,8 +11149,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -30.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -31.1
   },
   {
     "id": "imot_1b178653563098702",
@@ -11177,8 +11177,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 3.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 2.9
   },
   {
     "id": "imot_1b177399766771636",
@@ -11205,8 +11205,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 45.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 45.5
   },
   {
     "id": "imot_1b178281195206123",
@@ -11233,8 +11233,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 1.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 1.2
   },
   {
     "id": "imot_1b178281109135971",
@@ -11261,8 +11261,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -23.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -23.9
   },
   {
     "id": "imot_1b178281164605084",
@@ -11289,8 +11289,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -5.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -5.3
   },
   {
     "id": "imot_1b178698421085944",
@@ -11317,8 +11317,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -12.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -12.9
   },
   {
     "id": "imot_1b178429643841169",
@@ -11345,8 +11345,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 2.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 1.8
   },
   {
     "id": "imot_1b178230400518253",
@@ -11373,8 +11373,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 0.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 0.2
   },
   {
     "id": "imot_1b165563872431327",
@@ -11401,8 +11401,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -15.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -15.5
   },
   {
     "id": "imot_1b175516549250926",
@@ -11429,8 +11429,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -9.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -10.0
   },
   {
     "id": "imot_1b178281142556353",
@@ -11457,8 +11457,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 0.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 0.1
   },
   {
     "id": "imot_1b177996670389727",
@@ -11485,8 +11485,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -7.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -7.6
   },
   {
     "id": "imot_1b174756346789446",
@@ -11513,8 +11513,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -9.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -9.7
   },
   {
     "id": "imot_1b178429542859778",
@@ -11541,8 +11541,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 0.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 0.1
   },
   {
     "id": "imot_1b177944557896336",
@@ -11569,8 +11569,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 11.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 11.4
   },
   {
     "id": "imot_1b177003204508774",
@@ -11597,8 +11597,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 2.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 2.5
   },
   {
     "id": "imot_1b177909092328365",
@@ -11625,8 +11625,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 1.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 1.0
   },
   {
     "id": "imot_1b178653859445564",
@@ -11653,8 +11653,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 1.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 1.0
   },
   {
     "id": "imot_1b175276281916778",
@@ -11681,8 +11681,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -0.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -0.6
   },
   {
     "id": "imot_1b177124921009469",
@@ -11709,8 +11709,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -4.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -4.6
   },
   {
     "id": "imot_1b178299396869253",
@@ -11737,8 +11737,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -2.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -2.9
   },
   {
     "id": "imot_1b177856470334059",
@@ -11765,8 +11765,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -4.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -4.3
   },
   {
     "id": "imot_1b178212045260991",
@@ -11793,8 +11793,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 11.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 11.7
   },
   {
     "id": "imot_1b177372880530222",
@@ -11821,8 +11821,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -6.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -6.9
   },
   {
     "id": "imot_1b178721099032278",
@@ -11849,8 +11849,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 6.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 6.2
   },
   {
     "id": "imot_1b178705913735192",
@@ -11877,8 +11877,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 6.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 6.5
   },
   {
     "id": "imot_1b178576362239461",
@@ -11905,8 +11905,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.0
   },
   {
     "id": "imot_1b178705994015891",
@@ -11933,8 +11933,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 4.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 3.9
   },
   {
     "id": "imot_1b176821881832035",
@@ -11961,8 +11961,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -23.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -23.4
   },
   {
     "id": "imot_1b178705345890009",
@@ -11989,8 +11989,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 19.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 19.0
   },
   {
     "id": "imot_1b178265083590309",
@@ -12017,8 +12017,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -6.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -6.7
   },
   {
     "id": "imot_1b177859058438695",
@@ -12045,8 +12045,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 9.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 9.5
   },
   {
     "id": "imot_1b177132422504688",
@@ -12073,8 +12073,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -56.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -56.3
   },
   {
     "id": "imot_1b178654077897004",
@@ -12101,8 +12101,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.2
   },
   {
     "id": "imot_1b178564830687328",
@@ -12129,8 +12129,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 0.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 0.6
   },
   {
     "id": "imot_1b178722743583510",
@@ -12157,8 +12157,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -7.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -7.2
   },
   {
     "id": "imot_1b178239513613185",
@@ -12185,8 +12185,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -4.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -4.9
   },
   {
     "id": "imot_1b177262144221257",
@@ -12213,8 +12213,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -21.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -21.4
   },
   {
     "id": "imot_1b178220335120051",
@@ -12245,8 +12245,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 9.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 9.4
   },
   {
     "id": "imot_1b178177773512659",
@@ -12273,8 +12273,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 11.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 10.8
   },
   {
     "id": "imot_1b178635244427254",
@@ -12301,8 +12301,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 4.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 4.4
   },
   {
     "id": "imot_1b178248577991876",
@@ -12329,8 +12329,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 18.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 18.3
   },
   {
     "id": "imot_1b178341487346016",
@@ -12357,8 +12357,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 1.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 1.4
   },
   {
     "id": "imot_1b177372943928118",
@@ -12385,8 +12385,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -38.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -38.3
   },
   {
     "id": "imot_1b178653595020882",
@@ -12413,8 +12413,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 5.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 5.1
   },
   {
     "id": "imot_1b177790363603302",
@@ -12441,8 +12441,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 4.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 4.6
   },
   {
     "id": "imot_1b176285520262527",
@@ -12469,8 +12469,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -15.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -15.9
   },
   {
     "id": "imot_1b176287680151692",
@@ -12497,8 +12497,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -15.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -15.9
   },
   {
     "id": "imot_1b177340247863637",
@@ -12529,8 +12529,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 2.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 2.2
   },
   {
     "id": "imot_1b178609298773461",
@@ -12557,8 +12557,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -1.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -1.5
   },
   {
     "id": "imot_1b178729292520133",
@@ -12585,8 +12585,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -7.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -7.6
   },
   {
     "id": "imot_1b178663367186173",
@@ -12613,8 +12613,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 19.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 18.9
   },
   {
     "id": "imot_1b178532183270100",
@@ -12641,8 +12641,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 19.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 18.9
   },
   {
     "id": "imot_1b178584631309474",
@@ -12669,8 +12669,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 24.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 24.1
   },
   {
     "id": "imot_1b178645370909523",
@@ -12697,8 +12697,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 7.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 7.3
   },
   {
     "id": "imot_1b172354900553176",
@@ -12725,8 +12725,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 13.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 13.6
   },
   {
     "id": "imot_1b174956764249364",
@@ -12753,8 +12753,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 3.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 2.8
   },
   {
     "id": "imot_1b176769662441026",
@@ -12781,8 +12781,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -35.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -35.8
   },
   {
     "id": "imot_1b178583027574389",
@@ -12809,8 +12809,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 17.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 17.2
   },
   {
     "id": "imot_1b177867933336081",
@@ -12837,8 +12837,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 8.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 7.8
   },
   {
     "id": "imot_1b178574665555607",
@@ -12865,8 +12865,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -6.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -6.6
   },
   {
     "id": "imot_1b178654115006181",
@@ -12893,8 +12893,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 3.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 3.3
   },
   {
     "id": "imot_1b178694681870661",
@@ -12921,8 +12921,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 7.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 7.0
   },
   {
     "id": "imot_1b178219896287968",
@@ -12949,8 +12949,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 48.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 47.8
   },
   {
     "id": "imot_1b175895825469566",
@@ -12977,8 +12977,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 10.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 10.4
   },
   {
     "id": "imot_1b178654410548361",
@@ -13005,8 +13005,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -9.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -9.5
   },
   {
     "id": "imot_1b178724346535574",
@@ -13033,8 +13033,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 34.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 34.6
   },
   {
     "id": "imot_1b177858299170519",
@@ -13061,8 +13061,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 13.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 13.1
   },
   {
     "id": "imot_1b177373034510207",
@@ -13089,8 +13089,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -22.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -22.6
   },
   {
     "id": "imot_1b174160080244147",
@@ -13117,8 +13117,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -5.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -6.1
   },
   {
     "id": "imot_1b178669731009766",
@@ -13145,8 +13145,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 25.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 25.0
   },
   {
     "id": "imot_1b178661158801211",
@@ -13173,8 +13173,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 26.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 26.6
   },
   {
     "id": "imot_1b178585560782540",
@@ -13201,8 +13201,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 25.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 24.9
   },
   {
     "id": "imot_1b178171318174463",
@@ -13229,8 +13229,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 44.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 44.0
   },
   {
     "id": "imot_1b178696570093049",
@@ -13257,8 +13257,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 34.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 34.1
   },
   {
     "id": "imot_1b177903678481825",
@@ -13285,8 +13285,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 61.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 60.8
   },
   {
     "id": "imot_1b178705886665284",
@@ -13313,8 +13313,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 42.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 42.0
   },
   {
     "id": "imot_1b176485064145808",
@@ -13341,8 +13341,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 48.5
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 48.3
   },
   {
     "id": "imot_1b178285075773860",
@@ -13369,8 +13369,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 94.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 94.6
   },
   {
     "id": "imot_1b177315873990732",
@@ -15581,8 +15581,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": -22.1
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -21.8
   },
   {
     "id": "imot_1b178411572466129",
@@ -15609,8 +15609,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": 19.3
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": 19.8
   },
   {
     "id": "imot_1b178481886576310",
@@ -15637,8 +15637,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": -15.5
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -15.2
   },
   {
     "id": "imot_1b178703158957256",
@@ -15665,8 +15665,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": 22.2
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": 22.6
   },
   {
     "id": "imot_1b177082037743097",
@@ -15693,8 +15693,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": -16.4
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -16.1
   },
   {
     "id": "imot_1b178350388637449",
@@ -15721,8 +15721,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": 26.3
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": 26.8
   },
   {
     "id": "imot_1b178246845595769",
@@ -16741,8 +16741,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2424,
-    "pct_vs_area_avg": -3.3
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": -4.2
   },
   {
     "id": "imot_1b178714135536832",
@@ -16769,8 +16769,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2424,
-    "pct_vs_area_avg": 1.5
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": 0.5
   },
   {
     "id": "imot_1b178722348823291",
@@ -16797,8 +16797,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2424,
-    "pct_vs_area_avg": 6.7
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": 5.7
   },
   {
     "id": "imot_1b176821817829948",
@@ -16825,8 +16825,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2424,
-    "pct_vs_area_avg": 22.0
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": 20.9
   },
   {
     "id": "imot_1b126407549103815",
@@ -19881,8 +19881,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -1.0
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -1.3
   },
   {
     "id": "imot_1c177045600672193",
@@ -19909,8 +19909,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -12.2
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -12.4
   },
   {
     "id": "imot_1c178585552876493",
@@ -19937,8 +19937,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -18.6
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -18.8
   },
   {
     "id": "imot_1c178721292646815",
@@ -19965,8 +19965,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -18.0
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -18.2
   },
   {
     "id": "imot_1c178515733367461",
@@ -19993,8 +19993,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -10.8
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -11.0
   },
   {
     "id": "imot_1c178040888074055",
@@ -20021,8 +20021,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 2.6
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 2.3
   },
   {
     "id": "imot_1c178516199278981",
@@ -20049,8 +20049,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -7.2
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -7.4
   },
   {
     "id": "imot_1c178575104434035",
@@ -20077,8 +20077,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 33.9
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 33.6
   },
   {
     "id": "imot_1c176960418481398",
@@ -20105,8 +20105,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 2.7
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 2.4
   },
   {
     "id": "imot_1c178705446686645",
@@ -20133,8 +20133,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 11.8
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 11.6
   },
   {
     "id": "imot_1c178706636406567",
@@ -20161,8 +20161,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 14.8
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 14.6
   },
   {
     "id": "imot_1c178653624972237",
@@ -20189,8 +20189,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 13.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 13.3
   },
   {
     "id": "imot_1c177860670243949",
@@ -20217,8 +20217,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -0.2
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -0.5
   },
   {
     "id": "imot_1c178635735174059",
@@ -20245,8 +20245,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 10.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 10.0
   },
   {
     "id": "imot_1c178462890603979",
@@ -20273,8 +20273,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 32.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 32.2
   },
   {
     "id": "imot_1c178514412156402",
@@ -22597,8 +22597,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -24.2
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -23.7
   },
   {
     "id": "imot_1c178394205976537",
@@ -22625,8 +22625,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -11.5
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -10.9
   },
   {
     "id": "imot_1c178661854688018",
@@ -22653,8 +22653,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -16.4
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -15.8
   },
   {
     "id": "imot_1c178663322474937",
@@ -22681,8 +22681,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -6.5
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -5.9
   },
   {
     "id": "imot_1c178695458982187",
@@ -22709,8 +22709,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 5.5
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 6.2
   },
   {
     "id": "imot_1c178740535208384",
@@ -22737,8 +22737,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -6.0
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -5.4
   },
   {
     "id": "imot_1c178573366995074",
@@ -22765,8 +22765,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -14.5
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -13.9
   },
   {
     "id": "imot_1c178016207729627",
@@ -22793,8 +22793,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -11.3
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -10.7
   },
   {
     "id": "imot_1c178369933065534",
@@ -22821,8 +22821,36 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -13.9
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -13.3
+  },
+  {
+    "id": "imot_1c178630869833140",
+    "url": "https://www.imot.bg/obiava-1c178630869833140-prodava-tristaen-apartament-grad-sofiya-geo-milev",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/140/1c178630869833140_k7.jpg",
+    "price_eur": 334000,
+    "sqm": 77,
+    "area": "Гео Милев",
+    "title": "Продава 3-СТАЕН, Гео Милев",
+    "portal": "imot.bg",
+    "lat": 42.6826883,
+    "lng": 23.3652166,
+    "category": "apartment",
+    "price_per_sqm": 4338,
+    "price_history": [
+      {
+        "date": "2026-08-22T17:34:50.715168+00:00",
+        "price_eur": 334000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 26.2
   },
   {
     "id": "imot_1c177444922439367",
@@ -22849,8 +22877,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -10.1
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -9.5
   },
   {
     "id": "imot_1c176061723421721",
@@ -22877,8 +22905,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 0.2
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 0.9
   },
   {
     "id": "imot_1c178695494586905",
@@ -23973,8 +24001,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -22.8
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -23.2
   },
   {
     "id": "imot_1c178695651716123",
@@ -24001,8 +24029,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -13.2
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -13.6
   },
   {
     "id": "imot_1c177822340400580",
@@ -24029,8 +24057,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -16.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -17.4
   },
   {
     "id": "imot_1c177559529391094",
@@ -24057,8 +24085,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -19.1
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -19.5
   },
   {
     "id": "imot_1c177498052105360",
@@ -24085,8 +24113,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -5.2
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -5.7
   },
   {
     "id": "imot_1c175222561112208",
@@ -24113,8 +24141,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 2.5
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 2.0
   },
   {
     "id": "imot_1c174518014403076",
@@ -24141,8 +24169,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -27.7
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -28.0
   },
   {
     "id": "imot_1c169926744600029",
@@ -24169,8 +24197,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 39.1
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 38.4
   },
   {
     "id": "imot_1c169512648063872",
@@ -24197,8 +24225,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 14.6
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 14.0
   },
   {
     "id": "imot_1c175993853338517",
@@ -24225,8 +24253,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -1.6
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -2.1
   },
   {
     "id": "imot_1c178461837635695",
@@ -27554,8 +27582,8 @@
     "score": 0,
     "source_status": "removed",
     "removed_at": "2026-08-22T13:42:46.141581+00:00",
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 19.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 19.6
   },
   {
     "id": "imot_1c178655076438132",
@@ -27941,8 +27969,8 @@
     "score": 0,
     "source_status": "removed",
     "removed_at": "2026-08-23T21:09:48.560935+00:00",
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": -2.9
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -2.3
   },
   {
     "id": "imot_1b177210117680892",
@@ -28267,34 +28295,6 @@
     "removed_at": "2026-08-23T09:01:56.969218+00:00",
     "area_avg_price_per_sqm": 3789,
     "pct_vs_area_avg": -38.7
-  },
-  {
-    "id": "imot_1c178630869833140",
-    "url": "https://www.imot.bg/obiava-1c178630869833140-prodava-tristaen-apartament-grad-sofiya-geo-milev-bul-tsarigradsko-shose",
-    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/140/1c178630869833140_k7.jpg",
-    "price_eur": 334000,
-    "sqm": 77,
-    "area": "Гео Милев",
-    "title": "Продава 3-СТАЕН, Гео Милев",
-    "portal": "imot.bg",
-    "lat": 42.6826883,
-    "lng": 23.3652166,
-    "category": "apartment",
-    "price_per_sqm": 4338,
-    "price_history": [
-      {
-        "date": "2026-08-22T17:34:50.715168+00:00",
-        "price_eur": 334000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "removed",
-    "removed_at": "2026-08-23T19:03:20.816815+00:00",
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 25.3
   },
   {
     "id": "imot_1c176514969141666",
@@ -28931,8 +28931,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 25.8
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 26.7
   },
   {
     "id": "imot_1d178750545761411",
@@ -29071,8 +29071,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 49.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 48.9
   },
   {
     "id": "imot_1c177886795898536",
@@ -29099,8 +29099,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 8.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 8.1
   },
   {
     "id": "imot_1c178749385541273",
@@ -29179,7 +29179,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -29207,7 +29207,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -29235,7 +29235,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -29263,12 +29263,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -8.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -8.8
   },
   {
     "id": "imot_1c178751627466684",
@@ -29291,7 +29291,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -29351,8 +29351,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 21.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 21.5
   },
   {
     "id": "imot_1c178752386625927",
@@ -29547,8 +29547,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 0.9
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 0.7
   },
   {
     "id": "imot_1a178495652526995",
@@ -29659,8 +29659,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -7.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -7.2
   },
   {
     "id": "imot_1a178479446203940",
@@ -29687,8 +29687,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 8.3
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 8.1
   },
   {
     "id": "imot_1a178429941304797",
@@ -29715,8 +29715,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 2.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 2.7
   },
   {
     "id": "imot_1a177245513068015",
@@ -29827,8 +29827,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": -4.1
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -3.7
   },
   {
     "id": "imot_1a178671960517293",
@@ -29939,8 +29939,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -20.9
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -21.1
   },
   {
     "id": "imot_1b176917718949726",
@@ -29967,8 +29967,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -21.4
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -21.6
   },
   {
     "id": "imot_1b176917750338763",
@@ -29995,8 +29995,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -15.7
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -15.9
   },
   {
     "id": "imot_1b176917809936745",
@@ -30023,8 +30023,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -12.6
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -12.8
   },
   {
     "id": "imot_1b176917792368501",
@@ -30051,8 +30051,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -10.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -10.5
   },
   {
     "id": "imot_1b176917770697538",
@@ -30079,8 +30079,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -12.5
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -12.7
   },
   {
     "id": "imot_1b177373465518894",
@@ -30107,8 +30107,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 19.2
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 19.0
   },
   {
     "id": "imot_1b178238153979423",
@@ -30135,8 +30135,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": 39.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 39.0
   },
   {
     "id": "imot_1b178757089404767",
@@ -30583,8 +30583,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": 2.3
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 1.7
   },
   {
     "id": "imot_1b178643100231579",
@@ -30611,8 +30611,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2735,
-    "pct_vs_area_avg": -13.9
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -14.3
   },
   {
     "id": "imot_1b175206041787720",
@@ -31339,8 +31339,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -27.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -28.0
   },
   {
     "id": "imot_1b178540319716270",
@@ -31367,8 +31367,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -22.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -22.3
   },
   {
     "id": "imot_1b178349562988948",
@@ -31395,8 +31395,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -7.7
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -7.8
   },
   {
     "id": "imot_1b178288483329104",
@@ -31423,8 +31423,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -1.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -1.4
   },
   {
     "id": "imot_1b176493061963595",
@@ -31451,8 +31451,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -37.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -37.7
   },
   {
     "id": "imot_1b176831799037709",
@@ -31479,8 +31479,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -13.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -13.6
   },
   {
     "id": "imot_1b178757613162538",
@@ -31507,8 +31507,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -8.6
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -8.8
   },
   {
     "id": "imot_1b176286238966818",
@@ -31535,8 +31535,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -14.2
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -14.4
   },
   {
     "id": "imot_1b178052186796827",
@@ -31563,8 +31563,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 13.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 13.6
   },
   {
     "id": "imot_1b178052098004897",
@@ -31591,8 +31591,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 11.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 11.7
   },
   {
     "id": "imot_1b178592599454687",
@@ -31619,8 +31619,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -16.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -16.2
   },
   {
     "id": "imot_1b178057620929664",
@@ -31647,8 +31647,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 13.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 13.7
   },
   {
     "id": "imot_1b178756845944997",
@@ -31675,8 +31675,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 24.0
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 23.7
   },
   {
     "id": "imot_1b176760349878264",
@@ -31703,8 +31703,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -21.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -21.3
   },
   {
     "id": "imot_1b177091231354882",
@@ -31731,8 +31731,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 32.9
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 32.7
   },
   {
     "id": "imot_1b177460562561923",
@@ -31759,8 +31759,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 40.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 39.9
   },
   {
     "id": "imot_1b178172329146026",
@@ -31787,8 +31787,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 7.4
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 7.2
   },
   {
     "id": "imot_1b178099436610353",
@@ -31815,8 +31815,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": 6.8
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 6.6
   },
   {
     "id": "imot_1b177183615068949",
@@ -31843,8 +31843,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2531,
-    "pct_vs_area_avg": -34.1
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": -34.2
   },
   {
     "id": "imot_1b177338786802927",
@@ -32319,8 +32319,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2131,
-    "pct_vs_area_avg": -9.8
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -9.4
   },
   {
     "id": "imot_1b176364082551263",
@@ -32795,8 +32795,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2424,
-    "pct_vs_area_avg": -26.9
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": -27.5
   },
   {
     "id": "imot_1b178569633681441",
@@ -33383,8 +33383,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -24.3
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -24.5
   },
   {
     "id": "imot_1c176917758522827",
@@ -33411,8 +33411,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -17.0
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -17.2
   },
   {
     "id": "imot_1c176917782762809",
@@ -33439,8 +33439,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2642,
-    "pct_vs_area_avg": -14.8
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": -15.0
   },
   {
     "id": "imot_1c178677769139539",
@@ -33747,8 +33747,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 3461,
-    "pct_vs_area_avg": 0.4
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": 1.0
   },
   {
     "id": "imot_1c178677736962288",
@@ -34897,5 +34897,229 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 3156,
     "pct_vs_area_avg": -4.3
+  },
+  {
+    "id": "imot_1b178616446432629",
+    "url": "https://www.imot.bg/obiava-1b178616446432629-prodava-dvustaen-apartament-grad-sofiya-banishora",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/629/1b178616446432629_se.jpg",
+    "price_eur": 139900,
+    "sqm": 48,
+    "area": "Банишора",
+    "title": "Продава 2-СТАЕН, Банишора",
+    "portal": "imot.bg",
+    "lat": 42.8496892,
+    "lng": 23.2720545,
+    "category": "apartment",
+    "price_per_sqm": 2915,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 139900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2648,
+    "pct_vs_area_avg": 10.1
+  },
+  {
+    "id": "imot_1b178759998955131",
+    "url": "https://www.imot.bg/obiava-1b178759998955131-prodava-dvustaen-apartament-grad-sofiya-geo-milev",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/131/1b178759998955131_eQ.jpg",
+    "price_eur": 240000,
+    "sqm": 80,
+    "area": "Гео Милев",
+    "title": "Продава 2-СТАЕН, Гео Милев",
+    "portal": "imot.bg",
+    "lat": 42.6826883,
+    "lng": 23.3652166,
+    "category": "apartment",
+    "price_per_sqm": 3000,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 240000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3438,
+    "pct_vs_area_avg": -12.7
+  },
+  {
+    "id": "imot_1b178328225931196",
+    "url": "https://www.imot.bg/obiava-1b178328225931196-prodava-dvustaen-apartament-grad-sofiya-druzhba-2",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/196/1b178328225931196_dH.jpg",
+    "price_eur": 194000,
+    "sqm": 86,
+    "area": "Дружба 2",
+    "title": "Продава 2-СТАЕН, Дружба 2",
+    "portal": "imot.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
+    "price_per_sqm": 2256,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 194000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": -17.9
+  },
+  {
+    "id": "imot_1b178759303722220",
+    "url": "https://www.imot.bg/obiava-1b178759303722220-prodava-dvustaen-apartament-grad-sofiya-druzhba-2",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/220/1b178759303722220_KL.jpg",
+    "price_eur": 215000,
+    "sqm": 58,
+    "area": "Дружба 2",
+    "title": "Продава 2-СТАЕН, Дружба 2",
+    "portal": "imot.bg",
+    "lat": 42.6484263,
+    "lng": 23.4077938,
+    "category": "apartment",
+    "price_per_sqm": 3707,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 215000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2749,
+    "pct_vs_area_avg": 34.8
+  },
+  {
+    "id": "imot_1b178397466414410",
+    "url": "https://www.imot.bg/obiava-1b178397466414410-prodava-dvustaen-apartament-grad-sofiya-malinova-dolina",
+    "photo": "https://imotstatic1.focus.bg/imot/photosimotbg/1/410/1b178397466414410_CP.jpg",
+    "price_eur": 220000,
+    "sqm": 68,
+    "area": "Малинова долина",
+    "title": "Продава 2-СТАЕН, Малинова долина",
+    "portal": "imot.bg",
+    "lat": 42.6340931,
+    "lng": 23.3480004,
+    "category": "apartment",
+    "price_per_sqm": 3235,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 220000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2536,
+    "pct_vs_area_avg": 27.6
+  },
+  {
+    "id": "imot_1b178758621666094",
+    "url": "https://www.imot.bg/obiava-1b178758621666094-prodava-dvustaen-apartament-grad-sofiya-obelya-2",
+    "photo": "https://cdn3.focus.bg/imot/photosimotbg/1/094/1b178758621666094_G3.jpg",
+    "price_eur": 95900,
+    "sqm": 48,
+    "area": "Обеля 2",
+    "title": "Продава 2-СТАЕН, Обеля 2",
+    "portal": "imot.bg",
+    "lat": 42.6959055,
+    "lng": 23.2916843,
+    "category": "apartment",
+    "price_per_sqm": 1998,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 95900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": -5.9
+  },
+  {
+    "id": "imot_1b176867173470328",
+    "url": "https://www.imot.bg/obiava-1b176867173470328-prodava-dvustaen-apartament-grad-sofiya-obelya-2",
+    "photo": "https://imotstatic4.focus.bg/imot/photosimotbg/1/328/1b176867173470328_36.jpg",
+    "price_eur": 142000,
+    "sqm": 65,
+    "area": "Обеля 2",
+    "title": "Продава 2-СТАЕН, Обеля 2",
+    "portal": "imot.bg",
+    "lat": 42.6959055,
+    "lng": 23.2916843,
+    "category": "apartment",
+    "price_per_sqm": 2185,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 142000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2123,
+    "pct_vs_area_avg": 2.9
+  },
+  {
+    "id": "imot_1b178759997236352",
+    "url": "https://www.imot.bg/obiava-1b178759997236352-prodava-dvustaen-apartament-grad-sofiya-ovcha-kupel-2",
+    "photo": "https://imotstatic3.focus.bg/imot/photosimotbg/1/352/1b178759997236352_O1.jpg",
+    "price_eur": 146000,
+    "sqm": 57,
+    "area": "Овча купел 2",
+    "title": "Продава 2-СТАЕН, Овча купел 2",
+    "portal": "imot.bg",
+    "lat": 42.6816089,
+    "lng": 23.2469064,
+    "category": "apartment",
+    "price_per_sqm": 2561,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:04:57.202716+00:00",
+        "price_eur": 146000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2447,
+    "pct_vs_area_avg": 4.7
   }
 ]
