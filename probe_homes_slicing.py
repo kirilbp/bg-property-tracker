@@ -1,21 +1,22 @@
 """
-Diagnostic-only, round 2: round 1 confirmed locationId is a real settlement
-id (1=Sofia offersCount=12351, 2=Plovdiv=7897, 3=Varna=8800, 4=Burgas=1879,
-5=Ruse=220 - even most single big cities are still over the ~1000 depth
-cap on their own) and that priceFrom/priceTo are real, working filter
-params (searchCriteria echoed 'priceRanges' back, offersCount changed) -
-unlike the other three param-name guesses, which were silently ignored.
+Diagnostic-only, round 3: rounds 1-2 confirmed locationId is a real
+settlement id, priceFrom/priceTo are real working filter params, and -
+crucially - a slice with offersCount under the ~1000 depth cap paginates
+cleanly to its true end (631-result and 391-result test slices both
+stopped on a real partial last page with hasMoreItems=False, not an
+artificial page-49 cutoff). Round 2 also mapped the real nationwide
+ApartmentSell price distribution: it's heavily skewed, several 20-50k-wide
+bands (e.g. 100000-130000 EUR alone) already exceed 7,000 listings - a
+flat band scheme isn't nearly fine-grained enough in the dense middle of
+the market.
 
-This round:
-  1. Confirms the depth cap is really about PAGE COUNT, not some other
-     mechanism - paginates a slice with offersCount between 1000-2000
-     (Sofia priced 0-100000, expected roughly ~2x the cap) and checks
-     whether it still stops around page 50, and separately paginates a
-     genuinely small slice (offersCount well under 1000) to confirm full
-     pagination actually reaches the true end instead of being truncated.
-  2. Probes the real nationwide ApartmentSell price distribution with a
-     handful of band edges, to see how many bands (and how narrow) would
-     be needed to keep every band under ~950 offers for full coverage.
+This round recursively bisects the price range for each of the 4 real
+homes.bg types: start from the full [0, 1000000] range (round 2 showed
+the 1000000+ tail is already small - 108 listings - so no bisection
+needed above that), keep splitting any slice whose offersCount exceeds
+the safety threshold until every leaf slice is under it, then sum every
+leaf's offersCount to get the real total retrievable via full slicing -
+compared directly against each type's already-known unsliced total.
 
 Read-only, no commit step - deleted once the question is answered.
 """
@@ -30,8 +31,15 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
 STATE_RE = re.compile(r"window\.__PRELOADED_STATE__\s*=\s*(\{.*?\});", re.DOTALL)
 
+THRESHOLD = 900  # safety margin under the ~1000 depth cap
+MAX_PRICE = 1_000_000  # round 2: 1000000+ tail is already small (108) for ApartmentSell
+MAX_DEPTH = 12
+REQUEST_COUNT = 0
+
 
 def fetch(url):
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
     resp = requests.get(url, headers=HEADERS, timeout=20)
     resp.raise_for_status()
     return resp.text
@@ -42,71 +50,43 @@ def get_state(html):
     return json.loads(m.group(1)) if m else None
 
 
-def offers_for(url):
-    text = fetch(url)
-    st = get_state(text)
-    if not st:
-        return None
-    return st.get("data", {}).get("offers", {})
-
-
-print("=== Part 1: does a narrow (well under 1000) slice paginate past page 50? ===")
-# A random narrow nationwide price band, from round 1's own priceFrom/priceTo
-# test pattern (already confirmed working).
-url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom=95000&priceTo=97000"
-offers = offers_for(url)
-print(f"  slice offersCount = {offers.get('offersCount') if offers else 'N/A'}")
-
-last_page_with_results = 0
-for page in range(1, 80):
-    params_url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom=95000&priceTo=97000&page={page}"
-    text = fetch(params_url)
-    st = get_state(text)
-    if not st:
-        print(f"  page {page}: no state")
-        break
-    offers = st.get("data", {}).get("offers", {})
-    results = offers.get("result", [])
-    print(f"  page {page}: {len(results)} results, hasMoreItems={offers.get('hasMoreItems')}")
-    if results:
-        last_page_with_results = page
-    if not results or not offers.get("hasMoreItems"):
-        break
-    time.sleep(0.2)
-print(f"  -> last page with real results: {last_page_with_results}")
-
-print("\n=== Part 2: does a slice with offersCount ~1000-2000 still cap around page 50? ===")
-url = f"{BASE_URL}/?locationId=1&typeId=ApartmentSell&priceFrom=0&priceTo=100000"
-offers = offers_for(url)
-print(f"  Sofia 0-100000 EUR offersCount = {offers.get('offersCount') if offers else 'N/A'}")
-last_page = 0
-for page in range(1, 60):
-    params_url = f"{BASE_URL}/?locationId=1&typeId=ApartmentSell&priceFrom=0&priceTo=100000&page={page}"
-    text = fetch(params_url)
-    st = get_state(text)
-    if not st:
-        break
-    offers = st.get("data", {}).get("offers", {})
-    results = offers.get("result", [])
-    if results:
-        last_page = page
-    if not results or not offers.get("hasMoreItems"):
-        print(f"  stopped at page {page}: {len(results)} results, hasMoreItems={offers.get('hasMoreItems')}")
-        break
-    time.sleep(0.2)
-print(f"  -> last page with real results: {last_page}")
-
-print("\n=== Part 3: nationwide ApartmentSell price distribution (band edges) ===")
-BANDS = [0, 20000, 40000, 60000, 80000, 100000, 130000, 160000, 200000, 250000,
-         300000, 400000, 500000, 700000, 1000000, None]
-for i in range(len(BANDS) - 1):
-    lo, hi = BANDS[i], BANDS[i + 1]
+def offers_count(type_id, lo, hi):
     if hi is None:
-        url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom={lo}"
-        label = f"{lo}+"
+        url = f"{BASE_URL}/?locationId=0&typeId={type_id}&priceFrom={lo}"
     else:
-        url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom={lo}&priceTo={hi}"
-        label = f"{lo}-{hi}"
-    offers = offers_for(url)
-    print(f"  {label} EUR -> offersCount={offers.get('offersCount') if offers else 'N/A'}")
-    time.sleep(0.2)
+        url = f"{BASE_URL}/?locationId=0&typeId={type_id}&priceFrom={lo}&priceTo={hi}"
+    st = get_state(fetch(url))
+    if not st:
+        return 0
+    return st.get("data", {}).get("offers", {}).get("offersCount", 0) or 0
+
+
+def bisect(type_id, lo, hi, depth=0):
+    """Returns a list of (lo, hi, count) leaf slices, each under THRESHOLD."""
+    count = offers_count(type_id, lo, hi)
+    if count <= THRESHOLD or depth >= MAX_DEPTH or hi - lo < 500:
+        return [(lo, hi, count)]
+    mid = lo + (hi - lo) // 2
+    return bisect(type_id, lo, mid, depth + 1) + bisect(type_id, mid, hi, depth + 1)
+
+
+for type_id, unsliced_known_total in [
+    ("ApartmentSell", 44111),
+    ("HouseSell", 9625),
+    ("LandParcel", 13406),
+    ("LandAgro", 2115),
+]:
+    print(f"\n=== {type_id} ===")
+    tail_count = offers_count(type_id, MAX_PRICE, None)
+    print(f"  {MAX_PRICE}+ tail: {tail_count} (already under threshold: {tail_count <= THRESHOLD})")
+
+    leaves = bisect(type_id, 0, MAX_PRICE)
+    over_threshold = [l for l in leaves if l[2] > THRESHOLD]
+    total = sum(l[2] for l in leaves) + tail_count
+    print(f"  leaf slices: {len(leaves)} (+ 1 tail slice)")
+    print(f"  leaf slices still over threshold after max depth: {len(over_threshold)} {over_threshold[:5]}")
+    print(f"  SUM of all leaf offersCounts = {total}  (vs unsliced type total ~{unsliced_known_total})")
+    print(f"  requests used so far (cumulative): {REQUEST_COUNT}")
+    time.sleep(0.3)
+
+print(f"\n=== total requests used by this probe: {REQUEST_COUNT} ===")
