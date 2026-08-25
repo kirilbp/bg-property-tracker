@@ -1,5 +1,5 @@
 """
-Scrapes current Sofia listings from imot.bg.
+Scrapes current listings from imot.bg, nationwide.
 
 imot.bg blocks plain requests-based fetching (a Cloudflare/Akamai-style bot
 check returns a JS challenge page instead of real content), but a real
@@ -7,18 +7,38 @@ headless browser gets through cleanly - confirmed via Playwright/Chromium
 against the live site. Each listing card is the smallest ancestor whose
 text mentions the price ("<amount> €") exactly once, same "climb from the
 link" approach as scraper.py and scraper_alo.py. Within that card the text
-follows a consistent per-line layout:
+follows a consistent per-line layout, confirmed identical across Sofia,
+Plovdiv, Varna and Burgas:
     line 0: title (e.g. "Продава 2-СТАЕН")
-    line 1: "град София, <area>"
+    line 1: "град <City>, <area>"
     line 2: "<price> €"
     line 3: "<sqm> кв.м, <floor/description/phone...>"
 
-Search results are paginated at /obiavi/prodazhbi/grad-sofiya/p-N (confirmed
-via the site's own pagination links). The scraper originally only fetched
-page 1 (~46 listings) even though imot.bg's own UI shows 1000+ Sofia sale
-listings - fixed by paging through p-2, p-3, ... until a page comes back
-with no listings, same "stop on empty page" pattern as scraper_bazar.py and
-scraper_imoti_bg.py.
+Unlike homes.bg/alo.bg (a single URL switch drops the location filter for
+a genuine nationwide result) or imoti.net (city segments requiring their
+own English-spelled slug), imot.bg has no "all cities" URL at all AND its
+own per-query pagination hits a real depth cap around page 27-28
+(~1,080 listings at 40/page) regardless of scope - live-verified: Sofia,
+Plovdiv, and even the bare /obiavi/prodazhbi URL (no city segment) all cap
+at the same boundary independently. Extensive live probing (a price-filter
+form turned out to be 82 hidden POST fields with no usable GET param, and
+no district/kvartal URL segment exists either - see git history for the
+full diagnostic trail) found no way to sub-slice a single over-cap city
+further. City-only slicing (CITY_SLUGS below, each a live-verified
+/obiavi/prodazhbi/grad-<slug> URL) is therefore the best available
+coverage: every city fits comfortably under the cap except Sofia itself
+(confirmed 1000+ listings by the site's own UI), which is accepted as
+still capped at ~1,080 rather than fully complete - a known, documented
+limitation, not a bug. 24 of 29 canonical BG_CITIES resolved to a real
+imot.bg city page; the other 5 (smaller towns - Asenovgrad, Kazanlak,
+Dimitrovgrad, Dupnitsa, Svishtov) don't appear to have their own page and
+are skipped.
+
+Each listing's city is tagged directly from which CITY_SLUGS entry
+produced it (known from the URL, not re-parsed from text) - matches the
+pattern already used for imoti.net/alo.bg's nationwide conversions and
+feeds the frontend's city-key filtering directly instead of relying on
+title-parsing fallbacks.
 
 A page navigation retries a few times with backoff before being treated as
 the end of pagination, so a transient failure doesn't get mistaken for
@@ -32,18 +52,19 @@ confirmed by a real headless browser (cookie consent handled, WebGL
 software rendering enabled, navigator.webdriver patched away) finding no
 map DOM node, no live google.maps.Map object, and no maps iframe on a
 real listing, plus a plain static-HTML fetch turning up nothing either.
-So each listing's real area name (line 1's "град София, <area>") is
-geocoded via OpenStreetMap Nominatim instead (geo_utils.Geocoder), cached
-by the query string so the same area name reused across many listings
-costs one real geocode request total. This portal's search also isn't
-apartments-only (it's "all sales in Sofia"), so each listing's category
-is classified from its title too, for the frontend's same-category
+So each listing's real area name is geocoded via OpenStreetMap Nominatim
+(geo_utils.Geocoder) - but at nationwide scale, doing that live and inline
+during the scrape doesn't fit in a single run (the same problem
+scraper_homes.py hit first - see its module docstring), so this only does
+a cache-only lookup and leaves the rest for backfill_geocode_imot.py to
+fill in as a separate, decoupled pass. This portal's search also isn't
+apartments-only (it's "all sales" per city), so each listing's category is
+classified from its title too, for the frontend's same-category
 radius-average feature.
 """
 
 import re
 import json
-import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -52,10 +73,42 @@ from bs4 import BeautifulSoup
 
 from geo_utils import Geocoder, classify_category
 
-SEARCH_URL = "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya"
 BASE_URL = "https://www.imot.bg"
+SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+# (city display name, URL slug) - each slug live-verified to return a real
+# imot.bg city page (status 200, real listing links) before being trusted
+# here; see the module docstring for the diagnostic trail. Sofia keeps its
+# already-proven slug from the original Sofia-only scraper.
+CITY_SLUGS = [
+    ("София", "grad-sofiya"),
+    ("Пловдив", "grad-plovdiv"),
+    ("Варна", "grad-varna"),
+    ("Бургас", "grad-burgas"),
+    ("Русе", "grad-ruse"),
+    ("Стара Загора", "grad-stara-zagora"),
+    ("Плевен", "grad-pleven"),
+    ("Сливен", "grad-sliven"),
+    ("Добрич", "grad-dobrich"),
+    ("Шумен", "grad-shumen"),
+    ("Перник", "grad-pernik"),
+    ("Хасково", "grad-haskovo"),
+    ("Ямбол", "grad-yambol"),
+    ("Пазарджик", "grad-pazardzhik"),
+    ("Благоевград", "grad-blagoevgrad"),
+    ("Велико Търново", "grad-veliko-tarnovo"),
+    ("Враца", "grad-vratsa"),
+    ("Габрово", "grad-gabrovo"),
+    ("Видин", "grad-vidin"),
+    ("Кюстендил", "grad-kyustendil"),
+    ("Кърджали", "grad-kardzhali"),
+    ("Монтана", "grad-montana"),
+    ("Търговище", "grad-targovishte"),
+    ("Ловеч", "grad-lovech"),
+    ("Силистра", "grad-silistra"),
+]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
@@ -64,13 +117,20 @@ LEADS_FILE = OUT_DIR / "leads_imot.json"
 
 MAX_CARD_TEXT_LENGTH = 800
 MAX_PRICE_MENTIONS = 1
+# The real per-query depth cap sits around page 27-28 (~1,080 listings at
+# 40/page) - 30 gives a small safety margin before giving up on a city
+# without wasting requests deep past the cap.
 MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
 LISTING_LINK_RE = re.compile(r"/obiava-(\d[a-z]\d{10,})-")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
-AREA_LINE_RE = re.compile(r"^град София,\s*(.+)$")
+# Every sampled card (Sofia, Plovdiv, Varna, Burgas) follows "град <City>,
+# <area>" - matching just the "град <anything>," prefix instead of a
+# specific city name sidesteps needing each city's exact card-text
+# spelling, since the queried city is already known from CITY_SLUGS.
+AREA_LINE_RE = re.compile(r"^град\s+\S.*?,\s*(.+)$")
 PRICE_LINE_RE = re.compile(r"^([\d\s]{3,10})\s?€$")
 SQM_RE = re.compile(r"([\d.,]+)\s?кв\.?м")
 
@@ -90,7 +150,7 @@ def smallest_container_with_price(link_tag, max_levels=8):
     return None
 
 
-def parse_listings_page(html, seen, geocoder):
+def parse_listings_page(html, seen, geocoder, city_display):
     soup = BeautifulSoup(html, "html.parser")
 
     all_links = soup.find_all("a", href=True)
@@ -119,7 +179,7 @@ def parse_listings_page(html, seen, geocoder):
         if price_eur is None or price_eur < 1000:
             continue
 
-        area = "Sofia"
+        area = city_display
         for l in lines:
             m = AREA_LINE_RE.match(l)
             if m:
@@ -151,7 +211,7 @@ def parse_listings_page(html, seen, geocoder):
         href = a["href"]
         full_url = "https:" + href if href.startswith("//") else (BASE_URL + href if href.startswith("/") else href)
         title = f"{lines[0]}, {area}" if lines else area
-        coords = geocoder.geocode(f"{area}, София, България")
+        coords = geocoder.geocode_cached_only(f"{area}, {city_display}, България")
 
         seen[listing_id] = {
             "id": "imot_" + listing_id,
@@ -160,6 +220,7 @@ def parse_listings_page(html, seen, geocoder):
             "price_eur": price_eur,
             "sqm": sqm,
             "area": area,
+            "city": city_display,
             "title": title[:150],
             "portal": "imot.bg",
             "lat": coords["lat"] if coords else None,
@@ -190,17 +251,20 @@ def fetch_listings():
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
 
-        for page_num in range(1, MAX_PAGES + 1):
-            url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}/p-{page_num}"
-            html = goto_with_retries(page, url)
-            if html is None:
-                break
-            print(f"DEBUG: page {page_num} fetched HTML length = {len(html)}")
+        for city_display, slug in CITY_SLUGS:
+            search_url = f"{SEARCH_BASE}/{slug}"
+            city_before = len(seen)
+            for page_num in range(1, MAX_PAGES + 1):
+                url = search_url if page_num == 1 else f"{search_url}/p-{page_num}"
+                html = goto_with_retries(page, url)
+                if html is None:
+                    break
 
-            link_count = parse_listings_page(html, seen, geocoder)
-            print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count}")
-            if link_count == 0:
-                break
+                link_count = parse_listings_page(html, seen, geocoder, city_display)
+                print(f"DEBUG: {city_display} page {page_num} links matching listing URL pattern = {link_count}")
+                if link_count == 0:
+                    break
+            print(f"DEBUG: {city_display} done, {len(seen) - city_before} new listings")
 
         browser.close()
     geocoder.save()

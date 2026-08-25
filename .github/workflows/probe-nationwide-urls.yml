@@ -1,6 +1,6 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently the alo.bg nationwide conversion). Kept registered
+# recently the imot.bg nationwide conversion). Kept registered
 # (workflow_dispatch runs against this branch pick up whatever it's
 # currently pointed at, no need to merge a placeholder to main first) so
 # the next diagnostic round can just overwrite the script below instead of

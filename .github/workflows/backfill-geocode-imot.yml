@@ -1,0 +1,42 @@
+# Fills in lat/lng for imot.bg listings the nationwide scraper left
+# uncoordinated (see backfill_geocode_imot.py and scraper_imot.py's
+# module docstring for why: live geocoding at nationwide scale doesn't fit
+# in the scrape itself). workflow_dispatch only, meant to be re-run by
+# hand until the missing-coordinate count hits zero - each run processes
+# a bounded chunk (MAX_LOOKUPS_PER_RUN), not everything at once. Shares
+# scrape.yml's concurrency group since both write to data/*.json and
+# commit.
+name: Backfill imot.bg geocoding
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python backfill_geocode_imot.py
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill imot.bg listing coordinates"
+          git pull --rebase origin main
+          git push
