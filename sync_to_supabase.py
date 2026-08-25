@@ -258,7 +258,10 @@ def listing_city_key(l):
         key = city_key_from_name(last_segment)
         if key:
             return key
-    return "sofia"
+    # No known city matched - leave unclassified rather than silently
+    # defaulting to Sofia, which would inflate its count with every
+    # listing this function couldn't actually place.
+    return None
 
 
 # --- Load, merge, shape rows -----------------------------------------------

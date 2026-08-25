@@ -1002,7 +1002,10 @@ function listingCityKey(l) {
     const key = cityKeyFromName(lastSegment);
     if (key) return key;
   }
-  return 'sofia';
+  // No known city matched - leave unclassified rather than silently
+  // defaulting to Sofia, which would inflate its count with every
+  // listing this function couldn't actually place.
+  return null;
 }
 
 function matchesCityFilter(l, key) {
