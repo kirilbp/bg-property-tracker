@@ -52,24 +52,23 @@ a real block) doesn't get mistaken for having reached the last page - the
 persistent page-200 block above still stops the run the same way, just
 after retries confirm it isn't transient.
 
-days_on_market: each listing's own page carries a genuine schema.org
-"datePosted" field in its JSON-LD block (e.g. "2026-08-15" - a real date,
-not "today"), confirmed live. Getting it means visiting every tracked
-listing's own page once per scrape, on top of the ~200-page grid crawl -
-a real cost (~6000 extra requests, ~2+ hours added to this portal's 24h
-run) accepted deliberately because "days on market" is otherwise a fake
-number computed from our own tracking start date rather than the
-listing's real age. A detail-page fetch that fails (retries exhausted,
-including the same page-block behavior the grid crawl hits) just leaves
-that one listing without a real date for this run - it falls back to the
-first-seen estimate rather than aborting the whole scrape.
-
-That same detail-page fetch also carries the listing's real coordinates as
-plain "latitude"/"longitude" JSON keys (confirmed live, no JS execution
-needed) - extracted here at no extra request cost via geo_utils, along
-with a keyword-based property category (apartment/house/land/commercial)
-since imoti.net's search isn't apartments-only. Both feed the frontend's
-same-category radius-average feature.
+days_on_market/coords: each listing's own page carries a genuine
+schema.org "datePosted" field in its JSON-LD block (e.g. "2026-08-15" - a
+real date, not "today") plus real "latitude"/"longitude" JSON keys,
+confirmed live - previously fetched inline here, visiting every tracked
+listing's own page once per scrape on top of the city-by-city grid crawl.
+At nationwide scale (~21,700 listings, up from the old Sofia-only
+estimate this was originally sized for) that inline pass alone exceeded
+this workflow's 300-minute step timeout for real - confirmed live: a full
+run's grid crawl finished in the usual time, but the detail-date pass was
+still only 3,600/21,719 listings in when it got killed, discarding that
+entire run's freshly-scraped grid data too, since nothing gets saved
+until after both steps finish. Decoupled the same way homes.bg's/imot.bg's/
+olx.bg's/alo.bg's own per-listing detail work already was: fetch_listings()
+now only does the grid crawl (category is classified immediately there,
+from the title, since that needs no network call), and
+backfill_detail_imoti_net.py is a separate, resumable pass that visits
+listing pages over time to fill in site_posted_at/lat,lng.
 """
 
 import re
@@ -224,6 +223,7 @@ def fetch_listings_page(url, seen, city_name):
             "city": city_name,
             "title": title,
             "portal": "imoti.net",
+            "category": classify_category(title),
         }
     return len(matching_links)
 
@@ -233,11 +233,20 @@ def parse_date_posted(html):
     return m.group(1) if m else None
 
 
+# No longer called from fetch_listings() - see the module docstring for
+# why (nationwide scale made the inline detail pass exceed this workflow's
+# timeout, discarding the whole run). Kept here, reused by
+# backfill_detail_imoti_net.py's separate, resumable pass.
 def fetch_listing_dates(seen):
     total = len(seen)
     for i, (listing_id, l) in enumerate(seen.items(), 1):
         time.sleep(REQUEST_DELAY_SECONDS)
         html = fetch_with_retries(l["url"])
+        # Marked regardless of outcome - some listings genuinely have no
+        # datePosted/coords on their own page, and without an explicit
+        # marker those would get needlessly re-visited by every future
+        # backfill run instead of being treated as done.
+        l["detail_checked"] = True
         if html is None:
             continue
         date_posted = parse_date_posted(html)
@@ -247,7 +256,6 @@ def fetch_listing_dates(seen):
         if coords:
             l["lat"] = coords["lat"]
             l["lng"] = coords["lng"]
-        l["category"] = classify_category(l.get("title"))
         if i % 200 == 0:
             print(f"DEBUG: fetched detail dates for {i}/{total} listings")
 
@@ -286,8 +294,6 @@ def fetch_listings():
                   f"{len(seen) - city_start_count} listings collected")
         print(f"DEBUG: finished {city_name}, {len(seen) - city_start_count} listings, "
               f"{len(seen)} total so far")
-    print(f"DEBUG: fetching posted dates for {len(seen)} listings")
-    fetch_listing_dates(seen)
     return list(seen.values())
 
 

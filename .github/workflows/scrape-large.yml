@@ -1,13 +1,17 @@
 # scraper.py (imoti.net) and scraper_alo.py (alo.bg) each cover thousands
 # of listings across 300+ paginated requests, so they run here on their
-# own 24h schedule instead of in the main 6-hourly scrape.yml. Both also
-# now visit every tracked listing's own page once per run to read a real
-# posted/updated date for days-on-market - for imoti.net (~6000 listings)
-# that alone adds ~2+ hours, so a full run here is a couple of hours, not
-# minutes. Comfortably inside GitHub Actions' default 6h job limit; each
-# scraper step below still carries a generous timeout-minutes (see that
-# step's own comment) as a backstop against a genuinely hung request, not
-# a tight bound on the normal multi-hour runtime.
+# own 24h schedule instead of in the main 6-hourly scrape.yml. Both used to
+# also visit every tracked listing's own page once per run inline (for a
+# real posted/updated date) - at nationwide scale that made scraper.py
+# alone exceed even this workflow's 300-minute step timeout for real,
+# discarding that whole run's freshly-scraped grid data too (nothing gets
+# saved until after the detail pass finishes). Both are now decoupled the
+# same way homes.bg's/imot.bg's/olx.bg's own detail work already was - see
+# backfill-detail-imoti-net.yml/backfill-detail-alo.yml - so a run here
+# should now be back down to however long the grid crawl alone takes, not
+# multi-hour; each scraper step below still carries a generous
+# timeout-minutes (see that step's own comment) as a backstop against a
+# genuinely hung request, not a tight bound on the expected runtime.
 name: Scrape large property listing sites
 
 on:
