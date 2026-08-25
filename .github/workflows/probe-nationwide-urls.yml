@@ -21,6 +21,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      - run: pip install requests beautifulsoup4
 
-      - run: python probe_alo_nationwide.py
+      - run: python probe_alo_deep_pages.py
