@@ -46,9 +46,23 @@ imoti.bg genuinely carries no coordinates anywhere in its own pages
 (confirmed by a real headless browser finding no map DOM node/object/
 iframe, and a plain static fetch finding nothing either), so each
 listing's area name is geocoded via OpenStreetMap Nominatim instead
-(geo_utils.Geocoder), cached by query string - nationwide this cache
-grows to cover every distinct area name ever seen (not just Sofia's few
-hundred), a one-time cost per new area rather than per listing.
+(geo_utils.Geocoder), cached by query string.
+
+fetch_listings_page() originally called Geocoder.geocode() directly - a
+live, blocking Nominatim request on every cache miss. That was fine
+Sofia-only (a few hundred distinct neighborhood names, one-time cost),
+but a real nationwide production run (started before this fix existed)
+took over 4 hours instead of its usual ~35 minutes - nationwide means far
+more distinct city/area combinations, so most calls were live round-trips
+rather than cache hits, the identical failure mode later confirmed and
+fixed the same way for scraper_homes.py's own nationwide rewrite (see
+its module docstring for the full story). Fixed the same way here:
+fetch_listings_page() now does a cache-only lookup
+(Geocoder.geocode_cached_only - no network call); backfill_geocode_imoti_bg.py
++ its workflow do the live, rate-limited lookups as a separate, resumable
+pass. The "city" field is now persisted alongside "area" specifically so
+that backfill script can rebuild the exact same query string later
+without needing to re-derive it from the page HTML.
 """
 
 import re
@@ -253,7 +267,7 @@ def fetch_listings_page(url, geocoder):
         full_url = href if href.startswith("http") else urljoin(BASE_URL, href)
         raw_type = lines[1] if len(lines) > 1 else category_slug.replace("-", " ")
         full_title = f"{raw_type}, {area}"[:150]
-        coords = geocoder.geocode(f"{area}, {city}, България")
+        coords = geocoder.geocode_cached_only(f"{area}, {city}, България")
 
         listings[listing_id] = {
             "id": "imotibg_" + listing_id,
@@ -262,6 +276,7 @@ def fetch_listings_page(url, geocoder):
             "price_eur": price_eur,
             "sqm": sqm,
             "area": area,
+            "city": city,
             "title": full_title,
             "portal": "imoti.bg",
             "lat": coords["lat"] if coords else None,
