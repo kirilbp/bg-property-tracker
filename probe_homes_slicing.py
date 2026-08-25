@@ -1,34 +1,28 @@
 """
-Diagnostic-only: the real nationwide run (see git history for the earlier
-homes.bg rounds) found every property type's pagination stops at exactly
-page 49 (980-1000 results, always a full 20-item page right up to the
-cutoff) regardless of the much larger offersCount each type reports
-(44,111 for ApartmentSell alone) - a site-side pagination depth cap, not
-a scraper bug or a natural end-of-results. This probes whether slicing
-each type's query into narrower pieces (by city/region, then by price
-band) gets under that ~1,000 cap per slice, so full pagination inside
-each slice reaches the real end of results instead of being truncated -
-and if so, what the real total retrievable count looks like versus the
-~4,000 the unsliced run got.
+Diagnostic-only, round 2: round 1 confirmed locationId is a real settlement
+id (1=Sofia offersCount=12351, 2=Plovdiv=7897, 3=Varna=8800, 4=Burgas=1879,
+5=Ruse=220 - even most single big cities are still over the ~1000 depth
+cap on their own) and that priceFrom/priceTo are real, working filter
+params (searchCriteria echoed 'priceRanges' back, offersCount changed) -
+unlike the other three param-name guesses, which were silently ignored.
 
-Three parts:
-  1. Find real locationId values for specific cities/regions (not just
-     the already-confirmed 0=nationwide) - reads the client JS bundle for
-     any embedded location list, and separately tries the homepage's own
-     default (no query params = Sofia) to see what id that resolves to.
-  2. For a couple of candidate locationId values (if found) plus the
-     already-confirmed nationwide (0), check whether adding a price-range
-     query works at all (tries common param name guesses) and whether it
-     changes offersCount - if so, price-band slicing is viable even
-     without solving location slicing.
-  3. Report offersCount for each tested slice, so the real "would narrower
-     slicing help" question has real numbers behind it.
+This round:
+  1. Confirms the depth cap is really about PAGE COUNT, not some other
+     mechanism - paginates a slice with offersCount between 1000-2000
+     (Sofia priced 0-100000, expected roughly ~2x the cap) and checks
+     whether it still stops around page 50, and separately paginates a
+     genuinely small slice (offersCount well under 1000) to confirm full
+     pagination actually reaches the true end instead of being truncated.
+  2. Probes the real nationwide ApartmentSell price distribution with a
+     handful of band edges, to see how many bands (and how narrow) would
+     be needed to keep every band under ~950 offers for full coverage.
 
 Read-only, no commit step - deleted once the question is answered.
 """
 
 import json
 import re
+import time
 
 import requests
 
@@ -48,73 +42,71 @@ def get_state(html):
     return json.loads(m.group(1)) if m else None
 
 
-print("=== Part 1: default (Sofia) homepage - what locationId does it use? ===")
-html = fetch(BASE_URL + "/")
-st = get_state(html)
-if st:
-    offers = st.get("data", {}).get("offers", {})
-    print(f"  default searchCriteria={offers.get('searchCriteria')} offersCount={offers.get('offersCount')}")
-# Look for any location-related id near the criteria in the raw HTML/state dump
-loc_matches = re.findall(r'"locationId"\s*:\s*"?(\w+)"?', html)
-print(f"  raw locationId occurrences in HTML: {set(loc_matches)}")
-
-print("\n=== Part 1b: scan client bundle for a location/city/region list ===")
-scripts = re.findall(r'<script[^>]+src="([^"]+)"', html)
-LOC_WORD_RE = re.compile(r'"(софия|пловдив|варна|бургас|русе|стара загора|плевен)"', re.IGNORECASE)
-for s in scripts:
-    url = s if s.startswith("http") else (BASE_URL + s if s.startswith("/") else f"{BASE_URL}/{s}")
-    try:
-        js = fetch(url)
-    except requests.RequestException as e:
-        print(f"  FAILED to fetch {url}: {e}")
-        continue
-    hits = LOC_WORD_RE.findall(js)
-    if hits:
-        print(f"  {url}: city-name hits = {set(hits)}")
-        # print ~150 chars of context around the first hit of each unique city name
-        seen = set()
-        for m in LOC_WORD_RE.finditer(js):
-            city = m.group(1).lower()
-            if city in seen:
-                continue
-            seen.add(city)
-            start = max(0, m.start() - 100)
-            end = min(len(js), m.end() + 60)
-            print(f"    [{city}] ...{js[start:end]}...")
-
-print("\n=== Part 2: try candidate locationId values directly (guessing small ints) ===")
-for loc_id in ["1", "2", "3", "4", "5", "39", "41"]:
-    url = f"{BASE_URL}/?locationId={loc_id}&typeId=ApartmentSell"
-    try:
-        text = fetch(url)
-    except requests.RequestException as e:
-        print(f"  locationId={loc_id} -> FAILED: {e}")
-        continue
+def offers_for(url):
+    text = fetch(url)
     st = get_state(text)
     if not st:
-        print(f"  locationId={loc_id} -> no state found")
-        continue
-    offers = st.get("data", {}).get("offers", {})
-    print(f"  locationId={loc_id} -> searchCriteria={offers.get('searchCriteria')} offersCount={offers.get('offersCount')}")
+        return None
+    return st.get("data", {}).get("offers", {})
 
-print("\n=== Part 3: try price-range query param guesses (nationwide apartments) ===")
-PRICE_PARAM_GUESSES = [
-    {"priceFrom": "50000", "priceTo": "100000"},
-    {"price_from": "50000", "price_to": "100000"},
-    {"minPrice": "50000", "maxPrice": "100000"},
-    {"priceMin": "50000", "priceMax": "100000"},
-]
-for params in PRICE_PARAM_GUESSES:
-    qs = "&".join(f"{k}={v}" for k, v in params.items())
-    url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&{qs}"
-    try:
-        text = fetch(url)
-    except requests.RequestException as e:
-        print(f"  {qs} -> FAILED: {e}")
-        continue
+
+print("=== Part 1: does a narrow (well under 1000) slice paginate past page 50? ===")
+# A random narrow nationwide price band, from round 1's own priceFrom/priceTo
+# test pattern (already confirmed working).
+url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom=95000&priceTo=97000"
+offers = offers_for(url)
+print(f"  slice offersCount = {offers.get('offersCount') if offers else 'N/A'}")
+
+last_page_with_results = 0
+for page in range(1, 80):
+    params_url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom=95000&priceTo=97000&page={page}"
+    text = fetch(params_url)
     st = get_state(text)
     if not st:
-        print(f"  {qs} -> no state found")
-        continue
+        print(f"  page {page}: no state")
+        break
     offers = st.get("data", {}).get("offers", {})
-    print(f"  {qs} -> searchCriteria={offers.get('searchCriteria')} offersCount={offers.get('offersCount')}")
+    results = offers.get("result", [])
+    print(f"  page {page}: {len(results)} results, hasMoreItems={offers.get('hasMoreItems')}")
+    if results:
+        last_page_with_results = page
+    if not results or not offers.get("hasMoreItems"):
+        break
+    time.sleep(0.2)
+print(f"  -> last page with real results: {last_page_with_results}")
+
+print("\n=== Part 2: does a slice with offersCount ~1000-2000 still cap around page 50? ===")
+url = f"{BASE_URL}/?locationId=1&typeId=ApartmentSell&priceFrom=0&priceTo=100000"
+offers = offers_for(url)
+print(f"  Sofia 0-100000 EUR offersCount = {offers.get('offersCount') if offers else 'N/A'}")
+last_page = 0
+for page in range(1, 60):
+    params_url = f"{BASE_URL}/?locationId=1&typeId=ApartmentSell&priceFrom=0&priceTo=100000&page={page}"
+    text = fetch(params_url)
+    st = get_state(text)
+    if not st:
+        break
+    offers = st.get("data", {}).get("offers", {})
+    results = offers.get("result", [])
+    if results:
+        last_page = page
+    if not results or not offers.get("hasMoreItems"):
+        print(f"  stopped at page {page}: {len(results)} results, hasMoreItems={offers.get('hasMoreItems')}")
+        break
+    time.sleep(0.2)
+print(f"  -> last page with real results: {last_page}")
+
+print("\n=== Part 3: nationwide ApartmentSell price distribution (band edges) ===")
+BANDS = [0, 20000, 40000, 60000, 80000, 100000, 130000, 160000, 200000, 250000,
+         300000, 400000, 500000, 700000, 1000000, None]
+for i in range(len(BANDS) - 1):
+    lo, hi = BANDS[i], BANDS[i + 1]
+    if hi is None:
+        url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom={lo}"
+        label = f"{lo}+"
+    else:
+        url = f"{BASE_URL}/?locationId=0&typeId=ApartmentSell&priceFrom={lo}&priceTo={hi}"
+        label = f"{lo}-{hi}"
+    offers = offers_for(url)
+    print(f"  {label} EUR -> offersCount={offers.get('offersCount') if offers else 'N/A'}")
+    time.sleep(0.2)
