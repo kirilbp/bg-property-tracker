@@ -1,8 +1,10 @@
-# Temporary diagnostic workflow: verifies a real candidate nationwide
-# (all-Bulgaria) search URL for each of the 7 currently Sofia-scoped
-# portals, before changing any production scraper - part of expanding
-# tracking coverage from Sofia to all of Bulgaria. Read-only, no commit
-# step. Delete once the question is answered.
+# Temporary diagnostic workflow: finds homes.bg's real "all of Bulgaria,
+# all property types" mechanism before rewriting scraper_homes.py for the
+# nationwide expansion - its homepage embeds an explicit searchCriteria
+# object ({"ApartmentSell": ..., "locationId": "София"}) even with no
+# query params on the URL, so guessing at a param name risks silently
+# still scraping Sofia apartments under a different-looking URL. Read-
+# only, no commit step. Delete once the question is answered.
 name: Probe nationwide search URLs
 
 on:
@@ -23,4 +25,4 @@ jobs:
 
       - run: pip install requests
 
-      - run: python probe_nationwide_urls.py
+      - run: python probe_homes_nationwide.py
