@@ -123,17 +123,22 @@ DESC_RE = re.compile(r"for sale (.{5,90}?)\s+[\d\s]{2,10}\s?\u20ac")
 DATE_POSTED_RE = re.compile(r'"datePosted"\s*:\s*"(\d{4}-\d{2}-\d{2})"')
 
 
-def extract_area(title, city_slug):
-    # title is a free-text description snippet (see DESC_RE) that often
-    # still contains the English city name from the site's own listing
-    # text (e.g. "... Sofia, Lyulin Center ...") - strip it generically by
-    # the same slug used to query this listing instead of the old
-    # Sofia-only hardcoded split, so every city gets the same treatment.
-    # city_slug is hyphenated (e.g. "stara-zagora"); the site's own text
-    # uses a space, so match loosely on either.
-    city_pattern = re.escape(city_slug).replace(r"\-", r"[\s\-]")
-    parts = re.split(rf"{city_pattern},\s*", title, flags=re.IGNORECASE)
-    return parts[1].strip() if len(parts) > 1 else title.strip()
+def extract_area(title):
+    # title is a free-text description snippet (see DESC_RE), consistently
+    # shaped "<type>, <sqm> м 2 <City>, <area>" - the neighborhood/area is
+    # always the last comma-separated segment, regardless of city. The old
+    # Sofia-only version matched a literal "Sofia," split instead; trying
+    # the same trick generically by re-matching each CITY_SLUGS name broke
+    # on Burgas, live-confirmed: the site's own English text spells it
+    # "Bourgas", not "burgas" - a real, silent split failure that dumped
+    # the *entire* title into "area" instead of just "Lazur". Splitting on
+    # the last comma sidesteps needing to know every city's exact English
+    # spelling variant at all, same pattern scraper_homes.py's own
+    # extract_area() already uses.
+    if "," in title:
+        area = title.rsplit(",", 1)[1].strip()
+        return area or title.strip()
+    return title.strip()
 
 
 def smallest_container_with_price(link_tag, max_levels=6):
@@ -164,7 +169,7 @@ def fetch_with_retries(url):
     return None
 
 
-def fetch_listings_page(url, seen, city_slug, city_name):
+def fetch_listings_page(url, seen, city_name):
     html = fetch_with_retries(url)
     if html is None:
         return None
@@ -215,7 +220,7 @@ def fetch_listings_page(url, seen, city_slug, city_name):
             "photo": img_url,
             "price_eur": price_eur,
             "sqm": sqm,
-            "area": extract_area(title, city_slug),
+            "area": extract_area(title),
             "city": city_name,
             "title": title,
             "portal": "imoti.net",
@@ -265,7 +270,7 @@ def fetch_listings():
             if page_num > 1:
                 time.sleep(REQUEST_DELAY_SECONDS)
             url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
-            link_count = fetch_listings_page(url, seen, city_slug, city_name)
+            link_count = fetch_listings_page(url, seen, city_name)
             if link_count is None:
                 print(f"DEBUG: {city_name} page {page_num} fetch failed (likely the page-200 "
                       f"block) - stopping this city here, {len(seen) - city_start_count} listings collected")

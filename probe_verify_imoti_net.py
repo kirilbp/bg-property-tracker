@@ -37,7 +37,7 @@ seen = {}
 for city_slug, city_name in TEST_CITIES:
     url = f"{sc.BASE_URL}/{city_slug}"
     before = len(seen)
-    link_count = sc.fetch_listings_page(url, seen, city_slug, city_name)
+    link_count = sc.fetch_listings_page(url, seen, city_name)
     print(f"{city_name}: page 1 link_count={link_count}, new listings={len(seen) - before}")
     time.sleep(1)
 
