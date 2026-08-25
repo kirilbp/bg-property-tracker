@@ -1,0 +1,47 @@
+# Fills in site_updated_at/lat,lng/category for alo.bg listings the
+# nationwide scraper left unenriched (see backfill_detail_alo.py and
+# scraper_alo.py's module docstring for why: visiting every listing's own
+# page no longer fits in the main scrape at nationwide scale, ~156,000
+# listings). Unlike the geocode backfills (workflow_dispatch only, re-run
+# by hand), this runs hourly - a fresh full backlog is roughly 1,000
+# listings/run x 24 runs/day, ~a week to fully clear, and after that each
+# run only needs to keep up with each day's newly-discovered listings, a
+# much smaller number. Shares scrape.yml's concurrency group since both
+# write to data/*.json and commit.
+name: Backfill alo.bg listing details
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python backfill_detail_alo.py
+        timeout-minutes: 45
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill alo.bg listing details"
+          git pull --rebase origin main
+          git push
