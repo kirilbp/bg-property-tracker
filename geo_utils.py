@@ -173,7 +173,7 @@ class Geocoder:
                 NOMINATIM_URL,
                 params={"q": query, "format": "json", "limit": 1},
                 headers={"User-Agent": GEOCODE_USER_AGENT},
-                timeout=15,
+                timeout=8,
             )
             resp.raise_for_status()
             data = resp.json()
