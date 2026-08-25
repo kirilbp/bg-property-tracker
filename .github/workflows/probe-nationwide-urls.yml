@@ -1,9 +1,9 @@
 # Temporary diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for prior uses). Currently
-# checking why the production imoti.bg scraper (nationwide, no page cap)
-# is only returning 801 listings total - a real small portal, or
-# pagination stopping early for some other reason. Read-only, no commit
-# step. Delete once the current probe's question is answered.
+# nationwide expansion (see git history for prior uses). Currently a
+# bounded live verification (LandAgro only) of the new price-band-
+# bisection fetch_listings() in scraper_homes.py, before it goes into the
+# real scrape.yml rotation. Read-only, no commit step. Delete once the
+# current probe's question is answered.
 name: Probe nationwide search URLs
 
 on:
@@ -22,6 +22,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
+      - run: pip install requests
 
-      - run: python probe_imoti_bg_total.py
+      - run: python probe_verify_homes_slicing.py
