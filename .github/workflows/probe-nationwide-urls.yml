@@ -1,13 +1,13 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses). Currently
-# pointed at probe_oblast_live.py, live-browser-verifying the new "Others"
-# city bucket + "Browse by Council" oblast section post-sync (CORS/DB
-# failures only ever show up to a real browser, never a raw HTTP probe -
-# same reasoning as every prior round). Kept registered (workflow_dispatch
-# runs against this branch pick up whatever it's currently pointed at, no
-# need to merge a placeholder to main first) so a future diagnostic round
-# can just overwrite the script below instead of re-registering a new
-# workflow name.
+# nationwide expansion (see git history for many prior uses - most
+# recently live-browser-verifying the new "Others" city bucket + "Browse
+# by Council" oblast section post-sync: 31 city buttons/29 oblast buttons
+# rendered with real, non-zero counts and zero console errors). Kept
+# registered (workflow_dispatch runs against this branch pick up whatever
+# it's currently pointed at, no need to merge a placeholder to main first)
+# so a future diagnostic round can just overwrite the script below instead
+# of re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -26,6 +26,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright && playwright install --with-deps chromium
-
-      - run: python probe_oblast_live.py
+      - run: echo "Dormant - no probe script currently checked in."
