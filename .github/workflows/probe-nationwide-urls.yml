@@ -1,14 +1,18 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently reproducing the exact frontend query with an exact-count
-# header, which confirmed merged_listings held 125,139 real rows after a
-# "my data is gone" report turned out to be a transient frontend load
-# failure, not actual loss). Kept registered (workflow_dispatch runs
-# against this branch pick up whatever it's currently pointed at, no
-# need to merge a placeholder to main first) so a future diagnostic
-# round can just overwrite the script below instead of re-registering a
-# new workflow name. No probe script currently checked in - repoint the
-# run step at a new one when the next question comes up.
+# recently a real headless-browser load of the live site, which caught
+# fetchAllRows() in index.html still mid-load after 45s of continuous
+# successful requests: at 125k+ rows/table, its old one-request-at-a-time,
+# no-retry pagination loop needed 100-250+ sequential round trips per
+# table, so any single transient failure anywhere in that long chain threw
+# and showed "Could not load listings data." - not data loss, a scaling
+# bug in the page itself, fixed by adding retries and windowed
+# concurrency). Kept registered (workflow_dispatch runs against this
+# branch pick up whatever it's currently pointed at, no need to merge a
+# placeholder to main first) so a future diagnostic round can just
+# overwrite the script below instead of re-registering a new workflow
+# name. No probe script currently checked in - repoint the run step at a
+# new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -27,13 +31,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright
-      - run: playwright install --with-deps chromium
-
-      - run: python probe_live_browser.py
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: live-site-screenshot
-          path: live_site_screenshot.png
+      - run: echo "Dormant - no probe script currently checked in."
