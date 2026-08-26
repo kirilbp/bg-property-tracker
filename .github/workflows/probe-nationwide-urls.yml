@@ -1,14 +1,14 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently a bounded 2-city check confirming scraper.py's detail-page
-# fetch was actually decoupled from the main grid crawl, after finding a
-# real production run had been timing out and discarding all its data -
-# see scraper.py's module docstring). Kept registered (workflow_dispatch
-# runs against this branch pick up whatever it's currently pointed at, no
-# need to merge a placeholder to main first) so a future diagnostic round
-# can just overwrite the script below instead of re-registering a new
-# workflow name. No probe script currently checked in - repoint the run
-# step at a new one when the next question comes up.
+# recently a direct per-portal listing_sources count check that, run
+# twice, returned different portal breakdowns off the same total row
+# count - which is what found the missing .order() in index.html's
+# fetchAllRows()). Kept registered (workflow_dispatch runs against this
+# branch pick up whatever it's currently pointed at, no need to merge a
+# placeholder to main first) so a future diagnostic round can just
+# overwrite the script below instead of re-registering a new workflow
+# name. No probe script currently checked in - repoint the run step at a
+# new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -27,9 +27,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-
-      - run: python probe_portal_counts.py
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      - run: echo "No probe script currently checked in - see this file's header comment."
