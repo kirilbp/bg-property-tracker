@@ -1297,12 +1297,25 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // 1000 by default) regardless of the range asked for - paginate with
 // .range() until a short page confirms there's nothing left, rather than
 // assuming a project-specific limit.
+//
+// .order() is required for this to be correct, not just tidy - without an
+// explicit sort, Postgres makes no guarantee that two separate .range()
+// queries see the same row ordering, especially on a table taking
+// concurrent writes (an hourly backfill, an in-flight scrape sync) between
+// one page fetch and the next. Confirmed live: two consecutive full fetches
+// of the same table (no explicit order) returned different per-portal
+// counts off an unchanged total row count - rows were being skipped by one
+// page boundary and double-counted at another as the physical row order
+// shifted mid-fetch. "id"/"source_id" need no index of their own for this -
+// any deterministic total order is enough, it just has to stay the same
+// between pages.
 async function fetchAllRows(table) {
   const batchSize = 1000;
+  const orderCol = table === 'merged_listings' ? 'id' : 'source_id';
   let all = [];
   let offset = 0;
   for (;;) {
-    const { data, error } = await sb.from(table).select('*').range(offset, offset + batchSize - 1);
+    const { data, error } = await sb.from(table).select('*').order(orderCol).range(offset, offset + batchSize - 1);
     if (error) throw error;
     all = all.concat(data);
     if (data.length < batchSize) break;
