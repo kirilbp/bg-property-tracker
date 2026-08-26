@@ -31,4 +31,5 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "Dormant - no probe script currently checked in."
+      - run: pip install requests
+      - run: python probe_price_history_check.py
