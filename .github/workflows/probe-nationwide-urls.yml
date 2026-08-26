@@ -30,5 +30,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-      - run: python probe_portal_counts.py
+      - run: echo "Dormant - no probe script currently checked in."
