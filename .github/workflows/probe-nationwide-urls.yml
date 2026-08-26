@@ -1,17 +1,13 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses - most
-# recently confirming that sync_to_supabase.py's own "upserted N rows"
-# log line is NOT the table's total row count - it's just how many rows
-# that one run recomputed/upserted, since the script never deletes older
-# merged_listings rows whose id changed due to membership churn. A sync
-# run logging a lower number than a previous live count briefly looked
-# like data loss; a direct live re-check confirmed the real total was
-# unchanged the whole time). Kept registered (workflow_dispatch runs
-# against this branch pick up whatever it's currently pointed at, no need
-# to merge a placeholder to main first) so a future diagnostic round can
-# just overwrite the script below instead of re-registering a new
-# workflow name. No probe script currently checked in - repoint the run
-# step at a new one when the next question comes up.
+# nationwide expansion (see git history for many prior uses). Currently
+# pointed at probe_oblast_live.py, live-browser-verifying the new "Others"
+# city bucket + "Browse by Council" oblast section post-sync (CORS/DB
+# failures only ever show up to a real browser, never a raw HTTP probe -
+# same reasoning as every prior round). Kept registered (workflow_dispatch
+# runs against this branch pick up whatever it's currently pointed at, no
+# need to merge a placeholder to main first) so a future diagnostic round
+# can just overwrite the script below instead of re-registering a new
+# workflow name.
 name: Probe nationwide search URLs
 
 on:
@@ -30,4 +26,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "Dormant - no probe script currently checked in."
+      - run: pip install playwright && playwright install --with-deps chromium
+
+      - run: python probe_oblast_live.py
