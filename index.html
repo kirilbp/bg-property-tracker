@@ -1323,21 +1323,39 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // so Postgres has to fully sort the table from scratch on every single page
 // request. Live-verified: ordering by (portal, source_id) together (which
 // does match the primary key) was 5.6x faster on an otherwise-identical
-// query. Combined with several pages fetched concurrently across both
-// tables at once, the mismatched order was pushing real requests into
-// Supabase's statement timeout (confirmed live: "canceling statement due
-// to statement timeout" on the deployed page) - not a fluke, a real
-// per-request cost multiplied by concurrency. merged_listings' primary key
-// is just "id", so it already matches and needs no such pairing.
+// query - real, but not sufficient on its own: live-verified again after
+// shipping it, real page loads still hit the same statement timeout. A
+// direct concurrent-burst reproduction of the exact same request pattern
+// succeeded cleanly in isolation, which means it isn't any single query
+// (or a fixed few concurrent ones) that's too expensive - it's the
+// *sustained* cost of ~100+ waves of these queries back to back that
+// eventually exhausts something on the free-tier project (most likely the
+// connection pool). The real fix is loading less per row, not asking
+// faster: listing_sources' price_history/photos are both JSON arrays that
+// only ever get displayed for the one listing/source a user has open at a
+// time, not for the other 99.999% of rows in the same response - dropping
+// them from the bulk fetch (LISTING_SOURCES_SUMMARY_COLUMNS below) cuts
+// real payload size and per-row Postgres/JSON work substantially.
+// renderListingDetail() falls back to the parent merged_listings row's own
+// copy of those two fields when a specific source lacks them.
+const LISTING_SOURCES_SUMMARY_COLUMNS = [
+  'portal', 'source_id', 'url', 'photo', 'price_eur', 'sqm', 'area', 'title',
+  'description', 'category', 'category_confidence', 'type_bucket', 'city_key',
+  'lat', 'lng', 'price_per_sqm', 'price_drop_count', 'drop_pct', 'days_on_market',
+  'score', 'source_status', 'removed_at', 'area_avg_price_per_sqm', 'pct_vs_area_avg',
+  'site_updated_at', 'site_posted_at', 'merged_id', 'updated_at',
+].join(',');
+
 async function fetchAllRows(table) {
   const batchSize = 1000;
   const concurrency = 3;
   const maxRetries = 3;
   const orderCols = table === 'merged_listings' ? ['id'] : ['portal', 'source_id'];
+  const columns = table === 'listing_sources' ? LISTING_SOURCES_SUMMARY_COLUMNS : '*';
 
   async function fetchBatch(offset) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      let query = sb.from(table).select('*');
+      let query = sb.from(table).select(columns);
       for (const col of orderCols) query = query.order(col);
       const { data, error } = await query.range(offset, offset + batchSize - 1);
       if (!error) return data;
@@ -2409,13 +2427,25 @@ function switchDetailTab(tab, chartPriceHistory) {
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
   const badges = buildBadgesHtml(l);
-  const photos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : (l.photo ? [l.photo] : []);
+  // listing_sources' bulk fetch doesn't carry photos/price_history (see
+  // LISTING_SOURCES_SUMMARY_COLUMNS) - they're only ever shown for the one
+  // source currently open, not worth the payload cost of loading them for
+  // every row up front. Falling back to the parent merged_listings row's
+  // own copy is exact for the default (unswitched) source, and a
+  // reasonable approximation - not a broken page - for the rare case of a
+  // user actively switching to a specific cross-posted duplicate.
+  const sourcePhotos = Array.isArray(l.photos) && l.photos.length > 0 ? l.photos : null;
+  const mergedPhotos = Array.isArray(merged.photos) && merged.photos.length > 0 ? merged.photos : null;
+  const photos = sourcePhotos || mergedPhotos || (l.photo ? [l.photo] : (merged.photo ? [merged.photo] : []));
   const mainPhoto = photos[0] || '';
   // Guard against stale committed data written by an older scraper version,
   // where price_history was a flat array of raw price numbers rather than
   // today's {date, price_eur} objects - a mismatch that otherwise renders
   // as "€NaN"/"Invalid Date" instead of the intended empty-state message.
-  const priceHistory = (Array.isArray(l.price_history) ? l.price_history : [])
+  const rawPriceHistory = (Array.isArray(l.price_history) && l.price_history.length > 0)
+    ? l.price_history
+    : (Array.isArray(merged.price_history) ? merged.price_history : []);
+  const priceHistory = rawPriceHistory
     .filter(p => p && typeof p === 'object' && typeof p.price_eur === 'number' && p.date);
   const priceDropCount = l.price_drop_count ?? 0;
   // The chart always renders, even with nothing recorded yet - a synthesized

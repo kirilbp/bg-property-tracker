@@ -1,17 +1,19 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently confirming, with real timing numbers, that listing_sources'
-# ordering mismatch (ordered by source_id alone, but its primary key is
-# the composite (portal, source_id)) forced a full-table sort on every
-# page request - 5.6x slower than ordering by both columns together - and
-# that this, combined with concurrent page fetches across both tables,
-# was what pushed real page loads into Supabase's statement timeout).
-# Kept registered (workflow_dispatch runs against this branch pick up
-# whatever it's currently pointed at, no need to merge a placeholder to
-# main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name. No probe script
-# currently checked in - repoint the run step at a new one when the next
-# question comes up.
+# recently proving that a live-verified 5.6x ordering speedup on
+# listing_sources still wasn't enough: a direct concurrent-burst
+# reproduction of fetchAllRows()'s exact request pattern succeeded cleanly
+# in isolation, meaning the real problem was the *sustained* cost of
+# 100+ waves of these queries back to back on a free-tier project, not
+# any single query or a fixed few concurrent ones. Led to the real fix -
+# dropping listing_sources' price_history/photos JSON columns from the
+# bulk fetch entirely, since they're only ever needed for the one
+# open listing). Kept registered (workflow_dispatch runs against this
+# branch pick up whatever it's currently pointed at, no need to merge a
+# placeholder to main first) so a future diagnostic round can just
+# overwrite the script below instead of re-registering a new workflow
+# name. No probe script currently checked in - repoint the run step at a
+# new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -30,5 +32,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-      - run: python probe_live_browser.py
+      - run: echo "Dormant - no probe script currently checked in."
