@@ -15,9 +15,21 @@ Found in production (not in earlier live testing) that a single request can
 also fail transiently - e.g. a connect timeout with no HTTP response at all,
 unrelated to any real block - and treating that identically to "no more
 listings" cut a real run off at page 21 of ~166, keeping only 613 of the
-old Sofia-only ~9995 listings. A page fetch now retries a few times with
-backoff before being treated as the end of pagination, so a one-off
-network blip doesn't get mistaken for having reached the last page.
+old Sofia-only ~9995 listings. A page fetch retries a few times with
+backoff first, but at nationwide scale (2,800 pages instead of 166) even a
+low per-page failure rate means SOME page exhausting all retries becomes
+likely over a full run, not a rare fluke - confirmed live as the real
+cause of alo.bg's chronic nationwide undercount (~15,000 tracked against
+this scraper's own ~80,424-listing live-verified total): fetch_listings()
+still couldn't tell "this one page failed after retries" (a transient
+blip - the crawl should skip it and keep going) apart from "a real empty
+page" (genuinely reached the end - the crawl should stop), so the first
+page anywhere in a 2,800-page run to exhaust its retries silently ended
+the entire crawl right there. Now tracked separately: a page that
+exhausts retries is skipped (losing only that one page's ~60 listings,
+not the rest of the run) and only enough CONSECUTIVE page-level failures
+in a row (suggesting a real, sustained outage rather than one-off
+flakiness) actually stops the crawl early.
 
 Nationwide conversion: the Sofia scope was two URL params, ?region_id=22
 &location_ids=4342 - live-verified that dropping them entirely (or setting
@@ -80,6 +92,12 @@ MAX_PRICE_MENTIONS = 1
 # no block of any kind) - well past the old Sofia-only 350.
 MAX_PAGES = 2800
 REQUEST_DELAY_SECONDS = 1.0
+# A run of this many CONSECUTIVE page-level failures (each already having
+# exhausted its own retries) is treated as a real, sustained outage worth
+# stopping for - anything less is just skipped, one bad page at a time, so
+# a handful of scattered transient blips across a 2,800-page run can't
+# truncate the rest of it the way a single one used to.
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
@@ -272,12 +290,26 @@ def fetch_listings():
     # longer affordable in a single run).
     start_time = time.monotonic()
     seen = {}
+    consecutive_failures = 0
     for page_num in range(1, MAX_PAGES + 1):
         if page_num > 1:
             time.sleep(REQUEST_DELAY_SECONDS)
         url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}&page={page_num}"
         link_count = fetch_listings_page(url, seen)
         elapsed = time.monotonic() - start_time
+
+        if link_count is None:
+            consecutive_failures += 1
+            print(f"DEBUG: page {page_num} fetch failed after retries "
+                  f"({consecutive_failures}/{MAX_CONSECUTIVE_PAGE_FAILURES} consecutive) - "
+                  f"skipping this page (t={elapsed:.0f}s, {len(seen)} listings so far)")
+            if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                print(f"DEBUG: {consecutive_failures} consecutive page failures - "
+                      f"stopping (looks like a real outage, not just one-off flakiness)")
+                break
+            continue
+
+        consecutive_failures = 0
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count} "
               f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
         if not link_count:
