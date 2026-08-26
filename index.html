@@ -993,6 +993,25 @@ function cityKeyFromName(name) {
   return BG_CITY_BY_NAME[normalized] || null;
 }
 
+// alo.bg's title has "<area>, <city>" but sometimes runs the price straight
+// into the city with no separating comma - "...Дианабад, София Цена : 480
+// 000 €" - so the last comma segment is "София Цена : 480 000 €", not
+// "София" alone, and the exact match above fails even though the city name
+// is right there. Live-sampled: every currently-active alo.bg listing with
+// a null city_key that still had a comma in its title matched this shape.
+// Longest names first so a shorter city name can't prefix-match ahead of a
+// longer one that also fits.
+const BG_CITY_PREFIX_RE = new RegExp(
+  '^(' + BG_CITIES.map(c => c.name).sort((a, b) => b.length - a.length).join('|') + ')\\b'
+);
+
+function cityKeyFromNamePrefix(name) {
+  if (!name) return null;
+  const normalized = name.replace(/\s*(?:област|-\s*град|-\s*село)$/i, '').trim();
+  const match = BG_CITY_PREFIX_RE.exec(normalized);
+  return match ? (BG_CITY_BY_NAME[match[1]] || null) : null;
+}
+
 // imoti.net's own titles render the city in English/Latin script ("... Sofia,
 // Lyulin Center" - the city is the SECOND-to-last comma segment there, not
 // the last, so the generic last-comma fallback below can never recover it).
@@ -1069,11 +1088,15 @@ function listingCityKey(l) {
   if (l.city) {
     const key = cityKeyFromName(l.city);
     if (key) return key;
+    const prefixKey = cityKeyFromNamePrefix(l.city);
+    if (prefixKey) return prefixKey;
   }
   if (l.title && l.title.includes(',')) {
     const lastSegment = l.title.slice(l.title.lastIndexOf(',') + 1).trim();
     const key = cityKeyFromName(lastSegment);
     if (key) return key;
+    const prefixKey = cityKeyFromNamePrefix(lastSegment);
+    if (prefixKey) return prefixKey;
   }
   const latinKey = latinCityKeyFromText(l.title);
   if (latinKey) return latinKey;

@@ -1,19 +1,18 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently proving that a live-verified 5.6x ordering speedup on
-# listing_sources still wasn't enough: a direct concurrent-burst
-# reproduction of fetchAllRows()'s exact request pattern succeeded cleanly
-# in isolation, meaning the real problem was the *sustained* cost of
-# 100+ waves of these queries back to back on a free-tier project, not
-# any single query or a fixed few concurrent ones. Led to the real fix -
-# dropping listing_sources' price_history/photos JSON columns from the
-# bulk fetch entirely, since they're only ever needed for the one
-# open listing). Kept registered (workflow_dispatch runs against this
-# branch pick up whatever it's currently pointed at, no need to merge a
-# placeholder to main first) so a future diagnostic round can just
-# overwrite the script below instead of re-registering a new workflow
-# name. No probe script currently checked in - repoint the run step at a
-# new one when the next question comes up.
+# recently sampling real city_key-null listing_sources rows per portal,
+# which found alo.bg's title-fallback city match failing on ~4,900 real
+# Sofia listings because its title runs the price straight into the city
+# name with no comma ("...Дианабад, София Цена : 480 000 €") - fixed with
+# a prefix-match fallback in sync_to_supabase.py/index.html, plus a
+# related dedup_area() bug in scraper_alo.py where a property-type label
+# ("Двустаен") bled into the area value ahead of a duplicated area name).
+# Kept registered (workflow_dispatch runs against this branch pick up
+# whatever it's currently pointed at, no need to merge a placeholder to
+# main first) so a future diagnostic round can just overwrite the script
+# below instead of re-registering a new workflow name. No probe script
+# currently checked in - repoint the run step at a new one when the next
+# question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -32,6 +31,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install playwright
-      - run: playwright install --with-deps chromium
-      - run: python probe_live_browser.py
+      - run: echo "Dormant - no probe script currently checked in."
