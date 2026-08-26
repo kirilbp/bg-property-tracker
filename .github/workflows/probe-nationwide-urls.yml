@@ -27,6 +27,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      - run: pip install playwright
+      - run: playwright install --with-deps chromium
 
-      - run: echo "Dormant - no probe script currently checked in."
+      - run: python probe_live_browser.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-site-screenshot
+          path: live_site_screenshot.png
