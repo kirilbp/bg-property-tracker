@@ -1,18 +1,17 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently a real headless-browser load of the live site, which caught
-# fetchAllRows() in index.html still mid-load after 45s of continuous
-# successful requests: at 125k+ rows/table, its old one-request-at-a-time,
-# no-retry pagination loop needed 100-250+ sequential round trips per
-# table, so any single transient failure anywhere in that long chain threw
-# and showed "Could not load listings data." - not data loss, a scaling
-# bug in the page itself, fixed by adding retries and windowed
-# concurrency). Kept registered (workflow_dispatch runs against this
-# branch pick up whatever it's currently pointed at, no need to merge a
-# placeholder to main first) so a future diagnostic round can just
-# overwrite the script below instead of re-registering a new workflow
-# name. No probe script currently checked in - repoint the run step at a
-# new one when the next question comes up.
+# recently confirming, with real timing numbers, that listing_sources'
+# ordering mismatch (ordered by source_id alone, but its primary key is
+# the composite (portal, source_id)) forced a full-table sort on every
+# page request - 5.6x slower than ordering by both columns together - and
+# that this, combined with concurrent page fetches across both tables,
+# was what pushed real page loads into Supabase's statement timeout).
+# Kept registered (workflow_dispatch runs against this branch pick up
+# whatever it's currently pointed at, no need to merge a placeholder to
+# main first) so a future diagnostic round can just overwrite the script
+# below instead of re-registering a new workflow name. No probe script
+# currently checked in - repoint the run step at a new one when the next
+# question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -31,6 +30,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-
-      - run: python probe_order_perf.py
+      - run: echo "Dormant - no probe script currently checked in."
