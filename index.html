@@ -667,7 +667,6 @@ const REGISTRY_URL = 'https://portal.registryagency.bg/';
 const UNVERIFIED_PCT_THRESHOLD = 60;
 const PAGE_SIZE = 100;
 
-let ALL_LISTINGS = [];
 let MERGED_LISTINGS = [];
 let PORTAL_COUNTS = {};
 let chart = null;
@@ -1146,22 +1145,26 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 
 // Same-category listings within radiusM of l, excluding l itself. Computed
 // on demand (only when a user opens a listing and clicks a radius button),
-// scanning every source of every merged listing once - a few thousand
-// Haversine comparisons, trivial cost for a single click. Shared by the
-// stats panel and the map markers so both always agree on the same set.
+// scanning every merged listing once - a few thousand Haversine
+// comparisons, trivial cost for a single click. Shared by the stats panel
+// and the map markers so both always agree on the same set.
+//
+// Scans MERGED_LISTINGS (deduped) rather than every raw per-portal source -
+// listing_sources isn't bulk-loaded any more (see loadData()), and
+// comparing against the deduped set is arguably more correct anyway: the
+// same physical property cross-posted on two portals no longer counts
+// twice toward the area average.
 function findComparables(l, radiusM) {
   if (l.lat == null || l.lng == null) return [];
   const category = l.category || 'apartment';
   const radiusKm = radiusM / 1000;
   const out = [];
   MERGED_LISTINGS.forEach(m => {
-    m.sources.forEach(s => {
-      if (s.id === l.id) return;
-      if (s.lat == null || s.lng == null) return;
-      if ((s.category || 'apartment') !== category) return;
-      if (haversineKm(l.lat, l.lng, s.lat, s.lng) > radiusKm) return;
-      out.push(s);
-    });
+    if (m.id === l.id) return;
+    if (m.lat == null || m.lng == null) return;
+    if ((m.category || 'apartment') !== category) return;
+    if (haversineKm(l.lat, l.lng, m.lat, m.lng) > radiusKm) return;
+    out.push(m);
   });
   return out;
 }
@@ -1306,58 +1309,32 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // of the same table (no explicit order) returned different per-portal
 // counts off an unchanged total row count - rows were being skipped by one
 // page boundary and double-counted at another as the physical row order
-// shifted mid-fetch. "id"/"source_id" need no index of their own for this -
-// any deterministic total order is enough, it just has to stay the same
-// between pages.
-// At nationwide scale (100k+ rows/table) this is 100+ page requests per
-// table - sequentially, one at a time, that's a multi-minute load even when
-// every request succeeds, and with no retry a single transient failure
-// anywhere in that long chain used to throw and abort the entire page
-// ("Could not load listings data.") - live-verified: a real load was still
-// only half done after 45s of continuous successful requests. Retrying each
-// page a few times absorbs one-off failures; firing a small window of pages
-// concurrently instead of one-at-a-time cuts wall-clock load time.
+// shifted mid-fetch.
 //
-// listing_sources' primary key is the composite (portal, source_id), not
-// source_id alone - ordering by source_id alone doesn't match that index,
-// so Postgres has to fully sort the table from scratch on every single page
-// request. Live-verified: ordering by (portal, source_id) together (which
-// does match the primary key) was 5.6x faster on an otherwise-identical
-// query - real, but not sufficient on its own: live-verified again after
-// shipping it, real page loads still hit the same statement timeout. A
-// direct concurrent-burst reproduction of the exact same request pattern
-// succeeded cleanly in isolation, which means it isn't any single query
-// (or a fixed few concurrent ones) that's too expensive - it's the
-// *sustained* cost of ~100+ waves of these queries back to back that
-// eventually exhausts something on the free-tier project (most likely the
-// connection pool). The real fix is loading less per row, not asking
-// faster: listing_sources' price_history/photos are both JSON arrays that
-// only ever get displayed for the one listing/source a user has open at a
-// time, not for the other 99.999% of rows in the same response - dropping
-// them from the bulk fetch (LISTING_SOURCES_SUMMARY_COLUMNS below) cuts
-// real payload size and per-row Postgres/JSON work substantially.
-// renderListingDetail() falls back to the parent merged_listings row's own
-// copy of those two fields when a specific source lacks them.
-const LISTING_SOURCES_SUMMARY_COLUMNS = [
-  'portal', 'source_id', 'url', 'photo', 'price_eur', 'sqm', 'area', 'title',
-  'description', 'category', 'category_confidence', 'type_bucket', 'city_key',
-  'lat', 'lng', 'price_per_sqm', 'price_drop_count', 'drop_pct', 'days_on_market',
-  'score', 'source_status', 'removed_at', 'area_avg_price_per_sqm', 'pct_vs_area_avg',
-  'site_updated_at', 'site_posted_at', 'merged_id', 'updated_at',
-].join(',');
-
+// At nationwide scale (100k+ rows) this is 100+ page requests -
+// sequentially, one at a time, that's a multi-minute load even when every
+// request succeeds, and with no retry a single transient failure anywhere
+// in that long chain used to throw and abort the entire page ("Could not
+// load listings data."). Retrying each page a few times absorbs one-off
+// failures; firing a small window of pages concurrently instead of one at
+// a time cuts wall-clock load time.
+//
+// Only ever called for merged_listings now - listing_sources isn't bulk-
+// loaded any more at all (see loadData()'s comment for the full story of
+// why: even after this same retry/concurrency treatment, plus dropping its
+// heaviest JSON columns, plus fixing an index-mismatched sort order,
+// nationwide-scale sustained paging through it was still enough on its own
+// to exhaust something on the free-tier project - not any single query's
+// cost, live-confirmed by reproducing the exact request pattern in
+// isolation with no failure).
 async function fetchAllRows(table) {
   const batchSize = 1000;
   const concurrency = 3;
   const maxRetries = 3;
-  const orderCols = table === 'merged_listings' ? ['id'] : ['portal', 'source_id'];
-  const columns = table === 'listing_sources' ? LISTING_SOURCES_SUMMARY_COLUMNS : '*';
 
   async function fetchBatch(offset) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      let query = sb.from(table).select(columns);
-      for (const col of orderCols) query = query.order(col);
-      const { data, error } = await query.range(offset, offset + batchSize - 1);
+      const { data, error } = await sb.from(table).select('*').order('id').range(offset, offset + batchSize - 1);
       if (!error) return data;
       if (attempt === maxRetries) throw error;
       await new Promise(resolve => setTimeout(resolve, 500 * attempt));
@@ -1391,43 +1368,33 @@ async function loadData() {
     // server-side by sync_to_supabase.py after every scrape - see that
     // file for the merge algorithm, ported 1:1 from this page's old
     // in-browser groupListings()). listing_sources carries every raw
-    // per-portal listing that fed into it, needed here for the same
-    // things the old raw JSON gave the browser: the "+portal" cross-post
-    // badges, the source-switcher and description on a listing's detail
-    // page, and searching every cross-posted source's own text, not just
-    // whichever source a merged listing displays by default.
-    const [mergedRows, sourceRows] = await Promise.all([
-      fetchAllRows('merged_listings'),
-      fetchAllRows('listing_sources'),
-    ]);
+    // per-portal listing that fed into it - but bulk-loading all of it
+    // up front, on every page visit, doesn't scale at nationwide size:
+    // live-verified, repeatedly, that even after trimming its heaviest
+    // columns and tuning concurrency/ordering, the *sustained* volume of
+    // requests needed to page through it in full was enough on its own to
+    // exhaust something on the free-tier project (a connection pool, most
+    // likely) partway through nearly every real load. merged_listings
+    // already carries member_portals/member_count (computed server-side
+    // from the same merge), which covers the "+portal" badges and the
+    // per-portal stat below without needing listing_sources at all - the
+    // only thing that still genuinely needs a per-source row is a
+    // specific listing's own detail page (source-switcher/description),
+    // and that's now fetched lazily, one small indexed query at a time,
+    // only for the listing actually being viewed - see showListingDetail().
+    const mergedRows = await fetchAllRows('merged_listings');
 
-    sourceRows.forEach(s => {
-      s.id = s.source_id;
-      s.unverified = computeUnverified(s);
-    });
+    MERGED_LISTINGS = mergedRows.map(m => ({ ...m, unverified: computeUnverified(m), sources: null }));
 
-    const sourcesByMergedId = new Map();
-    sourceRows.forEach(s => {
-      if (!sourcesByMergedId.has(s.merged_id)) sourcesByMergedId.set(s.merged_id, []);
-      sourcesByMergedId.get(s.merged_id).push(s);
-    });
-
-    MERGED_LISTINGS = mergedRows.map(m => {
-      const sources = (sourcesByMergedId.get(m.id) || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0));
-      // Each source's own status badge (detail page) should read the same
-      // merged verdict as the card badge - see sync_to_supabase.py's
-      // build_rows() for how "status" itself gets decided.
-      sources.forEach(s => { s.status = m.status; });
-      return { ...m, unverified: computeUnverified(m), sources };
-    });
-
-    ALL_LISTINGS = sourceRows;
+    const totalSourceCount = mergedRows.reduce((sum, m) => sum + (m.member_count || 1), 0);
     const countsByPortal = {};
-    sourceRows.forEach(s => { countsByPortal[s.portal] = (countsByPortal[s.portal] || 0) + 1; });
+    mergedRows.forEach(m => {
+      (m.member_portals || []).forEach(p => { countsByPortal[p] = (countsByPortal[p] || 0) + 1; });
+    });
     PORTAL_COUNTS = {};
     PORTAL_ORDER.forEach(p => { PORTAL_COUNTS[p] = countsByPortal[p] || 0; });
 
-    const duplicatesMerged = ALL_LISTINGS.length - MERGED_LISTINGS.length;
+    const duplicatesMerged = totalSourceCount - MERGED_LISTINGS.length;
     document.getElementById('subtitle').textContent =
       `${fmt(MERGED_LISTINGS.length)} unique listings` +
       (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
@@ -2130,9 +2097,9 @@ function createListingCard(l) {
   const card = document.createElement('div');
   card.className = 'listing';
   let badges = buildBadgesHtml(l);
-  if (l.sources && l.sources.length > 1) {
-    l.sources.filter(s => s.portal !== l.portal).forEach(s => {
-      badges += `<span class="badge badge-alt-portal" title="Also listed on ${s.portal}">+ ${s.portal}</span>`;
+  if (l.member_portals && l.member_portals.length > 1) {
+    l.member_portals.filter(p => p !== l.portal).forEach(p => {
+      badges += `<span class="badge badge-alt-portal" title="Also listed on ${p}">+ ${p}</span>`;
     });
   }
 
@@ -2558,18 +2525,44 @@ function renderListingDetail(merged) {
   updateRadiusMap(l);
 }
 
+// A single-source placeholder built straight from the merged row itself -
+// exact for a listing that was only ever seen on one portal (the vast
+// majority), and an instant, correct-looking first render for a
+// cross-posted one too, upgraded once its real sources load below.
+function synthesizeSingleSource(m) {
+  return { ...m, source_status: m.status === 'sold' ? 'removed' : 'active' };
+}
+
+// listing_sources isn't bulk-loaded any more (see loadData()) - a specific
+// listing's own cross-posted sources (needed for the source-switcher and
+// each portal's own description) are fetched lazily here, one small
+// indexed query (listing_sources_merged_id_idx) per listing actually
+// opened, cached on the merged row so re-opening the same listing doesn't
+// re-fetch.
 function showListingDetail(id) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
   detailSourceIndex = 0;
   detailActiveTab = 'details';
   detailRadiusM = null;
+  if (!merged.sources) merged.sources = [synthesizeSingleSource(merged)];
   renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   if (location.hash !== '#/listing/' + id) location.hash = '#/listing/' + id;
   window.scrollTo({ top: 0, behavior: 'instant' });
+
+  if ((merged.member_count || 1) > 1 && merged._sourcesFetched !== true) {
+    merged._sourcesFetched = true;
+    sb.from('listing_sources').select('*').eq('merged_id', merged.id).then(({ data, error }) => {
+      if (error || !data || data.length === 0) return;
+      data.forEach(s => { s.id = s.source_id; s.unverified = computeUnverified(s); s.status = merged.status; });
+      merged.sources = data.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+      // Only re-render if the user is still looking at this same listing.
+      if (location.hash === '#/listing/' + id) renderListingDetail(merged);
+    }).catch(e => console.error('Failed to load cross-posted sources for', id, e));
+  }
 }
 
 function showSection(name) {

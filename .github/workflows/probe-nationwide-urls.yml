@@ -32,4 +32,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "Dormant - no probe script currently checked in."
+      - run: pip install playwright
+      - run: playwright install --with-deps chromium
+      - run: python probe_live_browser.py
