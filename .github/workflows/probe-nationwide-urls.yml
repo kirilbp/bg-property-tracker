@@ -1,14 +1,14 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently a direct per-portal listing_sources count check that, run
-# twice, returned different portal breakdowns off the same total row
-# count - which is what found the missing .order() in index.html's
-# fetchAllRows()). Kept registered (workflow_dispatch runs against this
-# branch pick up whatever it's currently pointed at, no need to merge a
-# placeholder to main first) so a future diagnostic round can just
-# overwrite the script below instead of re-registering a new workflow
-# name. No probe script currently checked in - repoint the run step at a
-# new one when the next question comes up.
+# recently reproducing the exact frontend query with an exact-count
+# header, which confirmed merged_listings held 125,139 real rows after a
+# "my data is gone" report turned out to be a transient frontend load
+# failure, not actual loss). Kept registered (workflow_dispatch runs
+# against this branch pick up whatever it's currently pointed at, no
+# need to merge a placeholder to main first) so a future diagnostic
+# round can just overwrite the script below instead of re-registering a
+# new workflow name. No probe script currently checked in - repoint the
+# run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -27,4 +27,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "No probe script currently checked in - see this file's header comment."
+      - run: pip install requests
+
+      - run: echo "Dormant - no probe script currently checked in."

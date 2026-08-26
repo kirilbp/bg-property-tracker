@@ -40,12 +40,15 @@ pattern already used for imoti.net/alo.bg's nationwide conversions and
 feeds the frontend's city-key filtering directly instead of relying on
 title-parsing fallbacks.
 
-A page navigation retries a few times with backoff before being treated as
-the end of pagination, so a transient failure doesn't get mistaken for
-having reached the last page - and, since scrape.yml runs all 5 scrapers
-sequentially with a single git commit step at the end, an uncaught
-exception here would otherwise silently discard every other scraper's
-output for that run too.
+A page navigation retries a few times with backoff, and if all retries for
+one page are exhausted, that page is skipped (not treated as the end of
+the city's pagination) - only MAX_CONSECUTIVE_PAGE_FAILURES in a row gives
+up on a city. Without this, one bad request mid-crawl would silently
+truncate every remaining page for that city, identically to the bug found
+in scraper.py/scraper_alo.py. Separately, since scrape.yml runs all 5
+scrapers sequentially with a single git commit step at the end, an
+uncaught exception here would otherwise silently discard every other
+scraper's output for that run too.
 
 imot.bg genuinely carries no coordinates anywhere in its own pages -
 confirmed by a real headless browser (cookie consent handled, WebGL
@@ -123,6 +126,7 @@ MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 LISTING_LINK_RE = re.compile(r"/obiava-(\d[a-z]\d{10,})-")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -254,11 +258,23 @@ def fetch_listings():
         for city_display, slug in CITY_SLUGS:
             search_url = f"{SEARCH_BASE}/{slug}"
             city_before = len(seen)
+            consecutive_failures = 0
             for page_num in range(1, MAX_PAGES + 1):
                 url = search_url if page_num == 1 else f"{search_url}/p-{page_num}"
                 html = goto_with_retries(page, url)
                 if html is None:
-                    break
+                    # A failed fetch (all in-page retries exhausted) is not the
+                    # same signal as a genuinely empty page - treating it as
+                    # "end of city" would silently truncate every remaining
+                    # page for that city on one bad request (the same bug
+                    # found in scraper.py/scraper_alo.py). Skip it and keep
+                    # going, only giving up on the city after several in a row.
+                    consecutive_failures += 1
+                    print(f"DEBUG: {city_display} page {page_num} fetch failed ({consecutive_failures}/{MAX_CONSECUTIVE_PAGE_FAILURES} consecutive)")
+                    if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                        break
+                    continue
+                consecutive_failures = 0
 
                 link_count = parse_listings_page(html, seen, geocoder, city_display)
                 print(f"DEBUG: {city_display} page {page_num} links matching listing URL pattern = {link_count}")

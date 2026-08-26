@@ -48,11 +48,8 @@ grid card's own image is very often a shared "photo-placeholder.png" even
 when the listing has real photos - the real gallery only exists on the
 detail page.
 
-Each tracked listing's own detail page is fetched once per run (~1,300
-requests, 1 req/sec - a couple hours during either GitHub Actions
-scheduled hourly window used elsewhere in this repo, so bundled into the
-main 6-hourly scrape.yml rather than the 24h scrape-large.yml) for two
-things not present in the grid:
+Each tracked listing's own detail page carries two things not present in
+the grid:
   - "Район" (district), a much more precise location than the grid's
     bare settlement name - for Sofia listings this is the same kind of
     neighborhood name (e.g. "Красно село") the other 5 Sofia-scoped
@@ -63,6 +60,17 @@ things not present in the grid:
 A detail-page fetch that fails just leaves that listing with the grid's
 coarser settlement name and whatever photo the grid had, rather than
 aborting the run - same "graceful degradation" pattern as scraper_bazar.py.
+
+Visiting every listing's own page (a fresh browser context per request,
+plus a live geocode call) is not affordable inline: at ~1,300 nationwide
+listings this routinely took long enough to blow through the scrape's own
+30-minute step timeout - and since the grid data is only saved after
+fetch_listings() returns, that discarded the run's freshly-scraped grid
+data too, not just the slow detail work (the same bug already found and
+fixed in scraper.py/scraper_alo.py for their own inline detail-page work).
+So, like those two, this now only does the fast grid crawl inline;
+backfill_detail_bcpea.py is the other half, a separate resumable pass that
+visits whatever hasn't been detail-checked yet.
 
 No portal-embedded coordinates exist anywhere on this site (confirmed in
 both saved pages - no data-lat/lng attributes, no map JS object, despite
@@ -101,6 +109,7 @@ MAX_PAGES = 100
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 REQUEST_DELAY_SECONDS = 1.0
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 # Confirmed live (via debug_html_snippet): every request past the first in a
 # session gets a bot-challenge interstitial instead of the real page - title
@@ -300,6 +309,13 @@ def fetch_listings_page(browser, url):
 
 
 def fetch_listing_detail(browser, listing, geocoder):
+    # Marked unconditionally (even when the fetch or parse below fails) so a
+    # backlog scan can tell "already attempted, nothing more to gain" apart
+    # from "never visited yet" - without this, a listing whose detail page
+    # never loads would get needlessly re-visited by every future backfill
+    # run instead of being treated as done, same marker pattern
+    # scraper.py/backfill_detail_imoti_net.py established.
+    listing["detail_checked"] = True
     html = fetch_html(browser, listing["url"])
     if html is None:
         return
@@ -331,23 +347,65 @@ def fetch_listing_detail(browser, listing, geocoder):
 
 
 def fetch_listings():
+    # Grid crawl only - no detail-page visits here (see
+    # backfill_detail_bcpea.py and the module docstring: at ~1,300 listings,
+    # each detail visit needing a fresh browser context plus a live geocode
+    # call routinely pushed the combined grid+detail work well past this
+    # step's 30-minute timeout, discarding that run's freshly-scraped grid
+    # data too since main() never got past fetch_listings() to save
+    # anything - the same bug already found and fixed in scraper.py/
+    # scraper_alo.py for their own inline detail-page work).
     all_listings = {}
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
 
+        consecutive_failures = 0
         for page_num in range(1, MAX_PAGES + 1):
             url = f"{SEARCH_URL}?perpage={PERPAGE}&p={page_num}"
             page_listings = fetch_listings_page(browser, url)
             count = len(page_listings) if page_listings is not None else None
             print(f"DEBUG: page {page_num} listings parsed = {count}", flush=True)
+            if page_listings is None:
+                # A failed fetch (all in-request retries exhausted) is not
+                # the real end-of-results signal (an empty dict is) - giving
+                # up here would silently truncate every remaining page after
+                # one bad request, the same bug found in scraper.py/
+                # scraper_alo.py/scraper_imot.py/scraper_homes.py/
+                # scraper_olx.py/scraper_bazar.py/scraper_imoti_bg.py. Skip
+                # it and keep going, only giving up after several failures
+                # in a row.
+                consecutive_failures += 1
+                if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                    break
+                continue
+            consecutive_failures = 0
             if not page_listings:
                 break
             all_listings.update(page_listings)
 
-        listings = list(all_listings.values())
-        print(f"DEBUG: fetching detail pages for {len(listings)} listings", flush=True)
-        geocoder = Geocoder()
-        detail_failures = 0
+        browser.close()
+
+    listings = list(all_listings.values())
+    # _settlement is kept (not stripped here) - fetch_listing_details() still
+    # needs it later, potentially in a separate run/process after this
+    # listing has round-tripped through history JSON. lat/lng default to
+    # None so every listing has a consistent schema before detail fetching
+    # (a separate pass) fills some of them in.
+    for l in listings:
+        l.setdefault("lat", None)
+        l.setdefault("lng", None)
+    return listings
+
+
+def fetch_listing_details(listings):
+    """The other half of fetch_listings(): visits each given listing's own
+    detail page for district/photo/coordinates, mutating each dict in
+    place. Self-contained (launches its own browser + geocoder) so it can
+    run as a separate, resumable pass - see backfill_detail_bcpea.py."""
+    geocoder = Geocoder()
+    detail_failures = 0
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
         for i, l in enumerate(listings, 1):
             time.sleep(REQUEST_DELAY_SECONDS)
             fetch_listing_detail(browser, l, geocoder)
@@ -357,16 +415,11 @@ def fetch_listings():
                     print(f"DEBUG: detail fetch produced no coords for {l['url']}", flush=True)
             if i % 200 == 0:
                 print(f"DEBUG: fetched detail for {i}/{len(listings)} listings ({detail_failures} failures so far)", flush=True)
-        print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords", flush=True)
-        geocoder.save()
-
         browser.close()
-
+    print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords", flush=True)
+    geocoder.save()
     for l in listings:
         l.pop("_settlement", None)
-        l.setdefault("lat", None)
-        l.setdefault("lng", None)
-    return listings
 
 
 def load_history():

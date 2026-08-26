@@ -133,6 +133,7 @@ MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 LISTING_LINK_RE = re.compile(r"obiava-(\d+)")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -254,11 +255,24 @@ def fetch_listings():
         search_url = f"{SEARCH_BASE}/{slug}"
         city_before = len(all_listings)
         prev_ids = None
+        consecutive_failures = 0
         for page_num in range(1, MAX_PAGES + 1):
             url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
             page_listings = fetch_listings_page(url, city_display)
             if page_listings is None:
-                break
+                # A failed fetch (all in-request retries exhausted) is not
+                # the real end-of-results signal (an empty page, or the
+                # clamped-page-id-repeat check below, is) - giving up on the
+                # whole city here would silently truncate every remaining
+                # page after one bad request, the same bug found in
+                # scraper.py/scraper_alo.py/scraper_imot.py/scraper_homes.py/
+                # scraper_olx.py. Skip it and keep going, only giving up on
+                # the city after several in a row.
+                consecutive_failures += 1
+                if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                    break
+                continue
+            consecutive_failures = 0
             page_ids = frozenset(page_listings.keys())
             print(f"DEBUG: {city_display} page {page_num} links matching listing URL pattern = {len(page_listings)}")
             if not page_listings or page_ids == prev_ids:
