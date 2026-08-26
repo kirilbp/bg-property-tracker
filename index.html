@@ -1309,25 +1309,37 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // shifted mid-fetch. "id"/"source_id" need no index of their own for this -
 // any deterministic total order is enough, it just has to stay the same
 // between pages.
-// At nationwide scale (100k+ rows/table) this is 100-250+ page requests per
+// At nationwide scale (100k+ rows/table) this is 100+ page requests per
 // table - sequentially, one at a time, that's a multi-minute load even when
 // every request succeeds, and with no retry a single transient failure
 // anywhere in that long chain used to throw and abort the entire page
 // ("Could not load listings data.") - live-verified: a real load was still
 // only half done after 45s of continuous successful requests. Retrying each
 // page a few times absorbs one-off failures; firing a small window of pages
-// concurrently instead of one-at-a-time cuts wall-clock load time roughly by
-// the window size, which also shrinks the time window a transient failure
-// has to land in in the first place.
+// concurrently instead of one-at-a-time cuts wall-clock load time.
+//
+// listing_sources' primary key is the composite (portal, source_id), not
+// source_id alone - ordering by source_id alone doesn't match that index,
+// so Postgres has to fully sort the table from scratch on every single page
+// request. Live-verified: ordering by (portal, source_id) together (which
+// does match the primary key) was 5.6x faster on an otherwise-identical
+// query. Combined with several pages fetched concurrently across both
+// tables at once, the mismatched order was pushing real requests into
+// Supabase's statement timeout (confirmed live: "canceling statement due
+// to statement timeout" on the deployed page) - not a fluke, a real
+// per-request cost multiplied by concurrency. merged_listings' primary key
+// is just "id", so it already matches and needs no such pairing.
 async function fetchAllRows(table) {
   const batchSize = 1000;
-  const concurrency = 5;
+  const concurrency = 3;
   const maxRetries = 3;
-  const orderCol = table === 'merged_listings' ? 'id' : 'source_id';
+  const orderCols = table === 'merged_listings' ? ['id'] : ['portal', 'source_id'];
 
   async function fetchBatch(offset) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      const { data, error } = await sb.from(table).select('*').order(orderCol).range(offset, offset + batchSize - 1);
+      let query = sb.from(table).select('*');
+      for (const col of orderCols) query = query.order(col);
+      const { data, error } = await query.range(offset, offset + batchSize - 1);
       if (!error) return data;
       if (attempt === maxRetries) throw error;
       await new Promise(resolve => setTimeout(resolve, 500 * attempt));
