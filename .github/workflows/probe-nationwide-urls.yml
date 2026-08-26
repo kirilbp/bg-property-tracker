@@ -27,4 +27,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "No probe script currently checked in - see this file's header comment."
+      - run: pip install requests
+
+      - run: python probe_frontend_query.py
