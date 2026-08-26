@@ -100,6 +100,7 @@ MAX_PAGES = 5000
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 REQUEST_DELAY_SECONDS = 0.5
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 # Captures (category_slug, city_slug, title_slug, id) generically - the old
 # regex only matched a hardcoded apartment-slug enum under /софия/. Every
@@ -293,12 +294,26 @@ def fetch_listings_page(url, geocoder):
 def fetch_listings():
     all_listings = {}
     geocoder = Geocoder()
+    consecutive_failures = 0
     for page in range(1, MAX_PAGES + 1):
         if page > 1:
             time.sleep(REQUEST_DELAY_SECONDS)
         url = SEARCH_URL if page == 1 else f"{SEARCH_URL}/page:{page}"
         page_listings = fetch_listings_page(url, geocoder)
         print(f"DEBUG: page {page} listings found = {len(page_listings) if page_listings else 0}")
+        if page_listings is None:
+            # A failed fetch (all in-request retries exhausted) is not the
+            # real end-of-results signal (an empty dict is) - giving up here
+            # would silently truncate every remaining page after one bad
+            # request, the same bug found in scraper.py/scraper_alo.py/
+            # scraper_imot.py/scraper_homes.py/scraper_olx.py/
+            # scraper_bazar.py. Skip it and keep going, only giving up after
+            # several failures in a row.
+            consecutive_failures += 1
+            if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                break
+            continue
+        consecutive_failures = 0
         if not page_listings:
             break
         all_listings.update(page_listings)

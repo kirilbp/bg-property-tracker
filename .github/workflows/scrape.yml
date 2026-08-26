@@ -82,6 +82,10 @@ jobs:
         timeout-minutes: 60
         continue-on-error: true
 
+      # Detail-page fetching (district/photo/coordinates) is now decoupled
+      # into backfill_detail_bcpea.py, so this step is grid-crawl only and
+      # the 30-minute cap is now generous headroom rather than routinely
+      # getting hit.
       - run: python scraper_bcpea.py
         timeout-minutes: 30
         continue-on-error: true

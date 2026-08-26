@@ -119,6 +119,7 @@ BASE_URL = "https://www.homes.bg"
 MAX_PAGES = 5000
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 # (typeId query value, our 6-category bucket). LandParcel and LandAgro are
 # two distinct homes.bg search categories (regular plots vs agricultural
@@ -302,11 +303,23 @@ def parse_offer(offer, category, geocoder):
 
 
 def scrape_slice(session, geocoder, type_id, category, lo, hi, seen, start_time):
+    consecutive_failures = 0
     for page in range(1, MAX_PAGES + 1):
         url = build_url(type_id, page, lo, hi)
         text = fetch_with_retries(session, url)
         if text is None:
-            break
+            # A failed fetch (all in-request retries exhausted) is not the
+            # real end-of-results signal (that's hasMoreItems below) - giving
+            # up on the whole slice here would silently truncate every
+            # remaining page after one bad request, the same bug found in
+            # scraper.py/scraper_alo.py/scraper_imot.py. Skip it and keep
+            # going, only giving up on the slice after several in a row.
+            consecutive_failures += 1
+            print(f"DEBUG: {type_id} price[{lo}-{hi}] page {page} fetch failed ({consecutive_failures}/{MAX_CONSECUTIVE_PAGE_FAILURES} consecutive)")
+            if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                break
+            continue
+        consecutive_failures = 0
 
         match = STATE_RE.search(text)
         if not match:

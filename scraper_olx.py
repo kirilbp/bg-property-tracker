@@ -127,6 +127,7 @@ MAX_PRICE_MENTIONS = 1
 MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -308,11 +309,26 @@ def fetch_listings():
         for oblast_display, slug in OBLAST_SLUGS:
             search_url = f"{SEARCH_BASE}/{slug}/"
             oblast_before = len(seen)
+            consecutive_failures = 0
             for page_num in range(1, MAX_PAGES + 1):
                 url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
                 link_count = fetch_listings_page(page, url, seen, geocoder, oblast_display)
                 print(f"DEBUG: {oblast_display} page {page_num} links matching listing URL pattern = {link_count}")
-                if link_count is None or link_count <= 1:
+                if link_count is None:
+                    # A failed fetch (all in-page retries exhausted) is not
+                    # the real end-of-results signal (link_count <= 1 below
+                    # is) - giving up on the whole oblast here would silently
+                    # truncate every remaining page after one bad request,
+                    # the same bug found in scraper.py/scraper_alo.py/
+                    # scraper_imot.py/scraper_homes.py. Skip it and keep
+                    # going, only giving up on the oblast after several in a
+                    # row.
+                    consecutive_failures += 1
+                    if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                        break
+                    continue
+                consecutive_failures = 0
+                if link_count <= 1:
                     break
             print(f"DEBUG: {oblast_display} done, {len(seen) - oblast_before} new listings")
 
