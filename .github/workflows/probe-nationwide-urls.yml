@@ -1,18 +1,13 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently sampling real city_key-null listing_sources rows per portal,
-# which found alo.bg's title-fallback city match failing on ~4,900 real
-# Sofia listings because its title runs the price straight into the city
-# name with no comma ("...Дианабад, София Цена : 480 000 €") - fixed with
-# a prefix-match fallback in sync_to_supabase.py/index.html, plus a
-# related dedup_area() bug in scraper_alo.py where a property-type label
-# ("Двустаен") bled into the area value ahead of a duplicated area name).
-# Kept registered (workflow_dispatch runs against this branch pick up
-# whatever it's currently pointed at, no need to merge a placeholder to
-# main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name. No probe script
-# currently checked in - repoint the run step at a new one when the next
-# question comes up.
+# recently confirming live, real merged_listings rows with a genuine
+# multi-entry price_history and correctly-recorded price drops, end to
+# end from scraper to database). Kept registered (workflow_dispatch runs
+# against this branch pick up whatever it's currently pointed at, no need
+# to merge a placeholder to main first) so a future diagnostic round can
+# just overwrite the script below instead of re-registering a new
+# workflow name. No probe script currently checked in - repoint the run
+# step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -31,5 +26,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-      - run: python probe_price_history_check.py
+      - run: echo "Dormant - no probe script currently checked in."
