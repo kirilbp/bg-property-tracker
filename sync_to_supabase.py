@@ -363,6 +363,152 @@ def listing_city_key(l):
     return None
 
 
+# --- Oblast (province) keys, mirrored 1:1 in index.html -------------------
+# 28 official Bulgarian oblasts. Sofia city (the capital, a single-city
+# oblast of its own) and Sofia Province (the separate oblast that surrounds
+# but excludes the capital) are two different entries - a listing whose
+# city_key is "sofia" belongs to "sofia_grad" below, never plain "sofia",
+# which would be ambiguous between the two.
+BG_OBLASTS = [
+    ("sofia_grad", "София-град"), ("sofia", "Софийска област"), ("plovdiv", "Пловдив"),
+    ("varna", "Варна"), ("burgas", "Бургас"), ("ruse", "Русе"), ("stara_zagora", "Стара Загора"),
+    ("pleven", "Плевен"), ("sliven", "Сливен"), ("dobrich", "Добрич"), ("shumen", "Шумен"),
+    ("pernik", "Перник"), ("haskovo", "Хасково"), ("yambol", "Ямбол"), ("pazardzhik", "Пазарджик"),
+    ("blagoevgrad", "Благоевград"), ("veliko_tarnovo", "Велико Търново"), ("vratsa", "Враца"),
+    ("gabrovo", "Габрово"), ("vidin", "Видин"), ("kyustendil", "Кюстендил"),
+    ("kardzhali", "Кърджали"), ("montana", "Монтана"), ("lovech", "Ловеч"),
+    ("silistra", "Силистра"), ("razgrad", "Разград"), ("smolyan", "Смолян"),
+    ("targovishte", "Търговище"),
+]
+BG_OBLAST_BY_NAME = {name: key for key, name in BG_OBLASTS}
+
+# Every one of the 30 BG_CITIES sits inside exactly one of the 28 oblasts -
+# this is the primary, highest-confidence signal: a listing that already
+# resolved to a city_key gets its oblast for free, no extra text matching
+# needed. Asenovgrad/Dupnitsa/Kazanlak/Dimitrovgrad/Svishtov are towns
+# within a larger city's own province, not oblast centers themselves.
+CITY_KEY_TO_OBLAST = {
+    "sofia": "sofia_grad", "plovdiv": "plovdiv", "varna": "varna", "burgas": "burgas",
+    "ruse": "ruse", "stara_zagora": "stara_zagora", "pleven": "pleven", "sliven": "sliven",
+    "dobrich": "dobrich", "shumen": "shumen", "pernik": "pernik", "haskovo": "haskovo",
+    "yambol": "yambol", "pazardzhik": "pazardzhik", "blagoevgrad": "blagoevgrad",
+    "veliko_tarnovo": "veliko_tarnovo", "vratsa": "vratsa", "gabrovo": "gabrovo",
+    "vidin": "vidin", "asenovgrad": "plovdiv", "kazanlak": "stara_zagora",
+    "kyustendil": "kyustendil", "kardzhali": "kardzhali", "montana": "montana",
+    "dimitrovgrad": "haskovo", "targovishte": "targovishte", "lovech": "lovech",
+    "silistra": "silistra", "dupnitsa": "kyustendil", "svishtov": "veliko_tarnovo",
+}
+
+
+def oblast_key_from_name(name):
+    if not name:
+        return None
+    return BG_OBLAST_BY_NAME.get(name.strip())
+
+
+# Longest names first so "Стара Загора" doesn't prefix-match as a shorter
+# name that happens to also be a prefix (none currently are, but keeps the
+# general principle safe as oblasts get added).
+BG_OBLAST_PREFIX_RE = re.compile(
+    r"^(" + "|".join(re.escape(name) for _, name in sorted(BG_OBLASTS, key=lambda o: -len(o[1]))) + r")\b"
+)
+
+
+def oblast_key_from_name_prefix(name):
+    if not name:
+        return None
+    match = BG_OBLAST_PREFIX_RE.match(name.strip())
+    return BG_OBLAST_BY_NAME.get(match.group(1)) if match else None
+
+
+# olx.bg's own scraper (scraper_olx.py) slices its crawl by all 28 oblasts
+# and falls back to writing the oblast's own display name straight into
+# "city"/"area" whenever no more specific city/village line is found on a
+# card - that fallback text is itself already an exact oblast name, so the
+# same exact/prefix matching used for the city/area fields above recovers
+# real oblast-level data other portals never supply at all.
+LATIN_OBLAST_TO_KEY = {name: CITY_KEY_TO_OBLAST[ck] for name, ck in LATIN_CITY_TO_KEY.items() if ck in CITY_KEY_TO_OBLAST}
+LATIN_OBLAST_TO_KEY["razgrad"] = "razgrad"
+LATIN_OBLAST_TO_KEY["smolyan"] = "smolyan"
+LATIN_OBLAST_RE = re.compile(
+    r"\b(" + "|".join(sorted((k.replace(" ", r"\s+") for k in LATIN_OBLAST_TO_KEY), key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def latin_oblast_key_from_text(text):
+    if not text:
+        return None
+    match = LATIN_OBLAST_RE.search(text)
+    if not match:
+        return None
+    normalized = re.sub(r"\s+", " ", match.group(1).lower())
+    return LATIN_OBLAST_TO_KEY.get(normalized)
+
+
+# Unlike the city version (which requires a "гр. " prefix to avoid matching
+# a city name that's actually part of someone else's area/neighborhood
+# name), oblast names are distinctive enough multi-syllable proper nouns
+# that a plain whole-text search is safe - used as the last-resort fallback
+# after every more specific signal above has failed.
+CYR_OBLAST_ANY_RE = re.compile(
+    r"\b(" + "|".join(re.escape(name) for _, name in sorted(BG_OBLASTS, key=lambda o: -len(o[1]))) + r")\b"
+)
+
+
+def cyr_oblast_key_from_text(text):
+    if not text:
+        return None
+    match = CYR_OBLAST_ANY_RE.search(text)
+    return BG_OBLAST_BY_NAME.get(match.group(1)) if match else None
+
+
+def listing_oblast_key(l, city_key):
+    if city_key:
+        key = CITY_KEY_TO_OBLAST.get(city_key)
+        if key:
+            return key
+    if l.get("portal") == "sales.bcpea.org":
+        settlement = bcpea_settlement_from_title(l.get("title"))
+        if settlement:
+            key = oblast_key_from_name(settlement)
+            if key:
+                return key
+            key = oblast_key_from_name_prefix(settlement)
+            if key:
+                return key
+        return None
+    for field in ("city", "area"):
+        value = l.get(field)
+        if value:
+            key = oblast_key_from_name(value)
+            if key:
+                return key
+            key = oblast_key_from_name_prefix(value)
+            if key:
+                return key
+    title = l.get("title")
+    if title and "," in title:
+        last_segment = title.rsplit(",", 1)[1].strip()
+        key = oblast_key_from_name(last_segment)
+        if key:
+            return key
+        key = oblast_key_from_name_prefix(last_segment)
+        if key:
+            return key
+    key = latin_oblast_key_from_text(title)
+    if key:
+        return key
+    key = cyr_oblast_key_from_text(title)
+    if key:
+        return key
+    # No known oblast matched (a small town/village not near any of the 30
+    # cities, with no oblast name anywhere in its own text either) - left
+    # unclassified rather than guessed; the frontend's "Others" bucket
+    # covers it, same as an unclassified city_key.
+    return None
+
+
 # --- Load, merge, shape rows -----------------------------------------------
 
 def load_all_listings():
@@ -421,7 +567,9 @@ def build_rows(all_listings):
             for f in SOURCE_FIELDS:
                 row[f] = s.get(f)
             row["type_bucket"] = type_filter_bucket(s)
-            row["city_key"] = listing_city_key(s)
+            city_key = listing_city_key(s)
+            row["city_key"] = city_key
+            row["oblast_key"] = listing_oblast_key(s, city_key)
             listing_source_rows.append(row)
 
         best = sorted_sources[0]
@@ -435,7 +583,9 @@ def build_rows(all_listings):
         for f in MERGED_FIELDS:
             merged[f] = best.get(f)
         merged["type_bucket"] = type_filter_bucket(best)
-        merged["city_key"] = listing_city_key(best)
+        city_key = listing_city_key(best)
+        merged["city_key"] = city_key
+        merged["oblast_key"] = listing_oblast_key(best, city_key)
         merged_rows.append(merged)
 
     return listing_source_rows, merged_rows

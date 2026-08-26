@@ -378,8 +378,13 @@
         </div>
         <div class="card">
           <h2>Browse by city</h2>
-          <p class="card-sub">The 30 largest cities and towns in Bulgaria. 7 of 8 portals only cover Sofia, so Sofia's count will dominate until more sources expand nationwide - sales.bcpea.org is the one already-nationwide source.</p>
+          <p class="card-sub">The 30 largest cities and towns in Bulgaria, plus "Others" for every listing that isn't specifically one of them. 7 of 8 portals only cover Sofia, so Sofia's count will dominate until more sources expand nationwide - sales.bcpea.org is the one already-nationwide source.</p>
           <div class="city-tab-row" id="cityTabRow"></div>
+        </div>
+        <div class="card">
+          <h2>Browse by Council</h2>
+          <p class="card-sub">All 28 provinces (oblasts) of Bulgaria, plus "Others" for any listing that couldn't be matched to one. Every listing is allocated by mapping its city to that city's own province, or by matching a province name directly in its listing text when no city matched.</p>
+          <div class="city-tab-row" id="oblastTabRow"></div>
         </div>
         <div class="card">
           <h2>Browse by property type</h2>
@@ -420,6 +425,10 @@
         <div class="leadgen-banner" id="cityFilterBanner" style="display:none;">
           <span>Showing <strong id="cityFilterBannerName"></strong></span>
           <button id="cityFilterBannerClearBtn">✕ Clear, show all listings</button>
+        </div>
+        <div class="leadgen-banner" id="oblastFilterBanner" style="display:none;">
+          <span>Showing <strong id="oblastFilterBannerName"></strong></span>
+          <button id="oblastFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
         <div class="card">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:#2563eb; text-decoration:none;">← Back to Lead Generators</a>
@@ -878,6 +887,7 @@ function applyTypeFilter(key) {
   activeTypeFilter = key;
   clearActiveLeadGenerator(true);
   clearCityFilter(true);
+  clearOblastFilter(true);
   document.getElementById('minPrice').value = '';
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
@@ -1001,8 +1011,15 @@ function cityKeyFromName(name) {
 // a null city_key that still had a comma in its title matched this shape.
 // Longest names first so a shorter city name can't prefix-match ahead of a
 // longer one that also fits.
+// JS's \b only recognizes ASCII [A-Za-z0-9_] as "word" characters, unlike
+// Python's \b which is Unicode-aware by default - so a plain \b after a
+// Cyrillic city name never matches (neither side of the boundary position
+// counts as \w to JS), silently failing to match text like "София Цена :
+// 130 000 €" that Python's identical-looking regex matches correctly.
+// \p{L} (with the "u" flag) is Unicode-aware, so this stays a true 1:1
+// port instead of a would-be-identical-looking-but-broken copy.
 const BG_CITY_PREFIX_RE = new RegExp(
-  '^(' + BG_CITIES.map(c => c.name).sort((a, b) => b.length - a.length).join('|') + ')\\b'
+  '^(' + BG_CITIES.map(c => c.name).sort((a, b) => b.length - a.length).join('|') + ')(?!\\p{L})', 'u'
 );
 
 function cityKeyFromNamePrefix(name) {
@@ -1110,17 +1127,19 @@ function listingCityKey(l) {
 
 function matchesCityFilter(l, key) {
   if (!key) return true;
+  if (key === 'others') return !listingCityKey(l);
   return listingCityKey(l) === key;
 }
 
 let activeCityFilter = null;
 
 function applyCityFilter(key) {
-  const def = BG_CITIES.find(c => c.key === key);
+  const def = key === 'others' ? { label: 'Others (no matching city)' } : BG_CITIES.find(c => c.key === key);
   if (!def) return;
   activeCityFilter = key;
   clearActiveLeadGenerator(true);
   clearTypeFilter(true);
+  clearOblastFilter(true);
   document.getElementById('minPrice').value = '';
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
@@ -1143,15 +1162,208 @@ function renderCityTabs() {
   const row = document.getElementById('cityTabRow');
   if (!row) return;
   const counts = Object.fromEntries(BG_CITIES.map(c => [c.key, 0]));
+  let othersCount = 0;
   MERGED_LISTINGS.forEach(l => {
     const key = listingCityKey(l);
     if (key) counts[key]++;
+    else othersCount++;
   });
   row.innerHTML = BG_CITIES.map(c => `
     <button class="city-tab-btn${activeCityFilter === c.key ? ' active' : ''}" data-city-filter="${c.key}">
       ${c.label}<span class="city-tab-count">${fmt(counts[c.key])}</span>
     </button>
-  `).join('');
+  `).join('') + `
+    <button class="city-tab-btn${activeCityFilter === 'others' ? ' active' : ''}" data-city-filter="others">
+      Others<span class="city-tab-count">${fmt(othersCount)}</span>
+    </button>
+  `;
+}
+
+// --- Oblast (province) keys, mirrored 1:1 from sync_to_supabase.py's -----
+// listing_oblast_key() - see that function's comments for the full story.
+const BG_OBLASTS = [
+  { key: 'sofia_grad', label: 'Sofia-grad', name: 'София-град' },
+  { key: 'sofia', label: 'Sofia Province', name: 'Софийска област' },
+  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив' },
+  { key: 'varna', label: 'Varna', name: 'Варна' },
+  { key: 'burgas', label: 'Burgas', name: 'Бургас' },
+  { key: 'ruse', label: 'Ruse', name: 'Русе' },
+  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора' },
+  { key: 'pleven', label: 'Pleven', name: 'Плевен' },
+  { key: 'sliven', label: 'Sliven', name: 'Сливен' },
+  { key: 'dobrich', label: 'Dobrich', name: 'Добрич' },
+  { key: 'shumen', label: 'Shumen', name: 'Шумен' },
+  { key: 'pernik', label: 'Pernik', name: 'Перник' },
+  { key: 'haskovo', label: 'Haskovo', name: 'Хасково' },
+  { key: 'yambol', label: 'Yambol', name: 'Ямбол' },
+  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик' },
+  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград' },
+  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново' },
+  { key: 'vratsa', label: 'Vratsa', name: 'Враца' },
+  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово' },
+  { key: 'vidin', label: 'Vidin', name: 'Видин' },
+  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил' },
+  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали' },
+  { key: 'montana', label: 'Montana', name: 'Монтана' },
+  { key: 'lovech', label: 'Lovech', name: 'Ловеч' },
+  { key: 'silistra', label: 'Silistra', name: 'Силистра' },
+  { key: 'razgrad', label: 'Razgrad', name: 'Разград' },
+  { key: 'smolyan', label: 'Smolyan', name: 'Смолян' },
+  { key: 'targovishte', label: 'Targovishte', name: 'Търговище' },
+];
+const BG_OBLAST_BY_NAME = Object.fromEntries(BG_OBLASTS.map(o => [o.name, o.key]));
+
+const CITY_KEY_TO_OBLAST = {
+  sofia: 'sofia_grad', plovdiv: 'plovdiv', varna: 'varna', burgas: 'burgas', ruse: 'ruse',
+  stara_zagora: 'stara_zagora', pleven: 'pleven', sliven: 'sliven', dobrich: 'dobrich',
+  shumen: 'shumen', pernik: 'pernik', haskovo: 'haskovo', yambol: 'yambol',
+  pazardzhik: 'pazardzhik', blagoevgrad: 'blagoevgrad', veliko_tarnovo: 'veliko_tarnovo',
+  vratsa: 'vratsa', gabrovo: 'gabrovo', vidin: 'vidin', asenovgrad: 'plovdiv',
+  kazanlak: 'stara_zagora', kyustendil: 'kyustendil', kardzhali: 'kardzhali', montana: 'montana',
+  dimitrovgrad: 'haskovo', targovishte: 'targovishte', lovech: 'lovech', silistra: 'silistra',
+  dupnitsa: 'kyustendil', svishtov: 'veliko_tarnovo',
+};
+
+function oblastKeyFromName(name) {
+  if (!name) return null;
+  return BG_OBLAST_BY_NAME[name.trim()] || null;
+}
+
+// Same \b-is-ASCII-only pitfall as BG_CITY_PREFIX_RE - \p{L} lookahead
+// instead, so "Разград област" (an oblast name with a portal-added
+// "област" suffix) actually prefix-matches "Разград" the way Python's
+// identical-looking regex does.
+const BG_OBLAST_PREFIX_RE = new RegExp(
+  '^(' + BG_OBLASTS.map(o => o.name).sort((a, b) => b.length - a.length).join('|') + ')(?!\\p{L})', 'u'
+);
+
+function oblastKeyFromNamePrefix(name) {
+  if (!name) return null;
+  const match = BG_OBLAST_PREFIX_RE.exec(name.trim());
+  return match ? (BG_OBLAST_BY_NAME[match[1]] || null) : null;
+}
+
+const LATIN_OBLAST_TO_KEY = Object.fromEntries(
+  Object.entries(LATIN_CITY_TO_KEY)
+    .filter(([, ck]) => CITY_KEY_TO_OBLAST[ck])
+    .map(([name, ck]) => [name, CITY_KEY_TO_OBLAST[ck]])
+);
+LATIN_OBLAST_TO_KEY['razgrad'] = 'razgrad';
+LATIN_OBLAST_TO_KEY['smolyan'] = 'smolyan';
+const LATIN_OBLAST_RE = new RegExp(
+  '\\b(' + Object.keys(LATIN_OBLAST_TO_KEY).sort((a, b) => b.length - a.length)
+    .map(k => k.replace(' ', '\\s+')).join('|') + ')\\b', 'i'
+);
+
+function latinOblastKeyFromText(text) {
+  if (!text) return null;
+  const match = LATIN_OBLAST_RE.exec(text);
+  if (!match) return null;
+  const normalized = match[1].toLowerCase().replace(/\s+/g, ' ');
+  return LATIN_OBLAST_TO_KEY[normalized] || null;
+}
+
+// Same \b-is-ASCII-only pitfall as BG_CITY_PREFIX_RE above - \p{L}
+// lookaround (Unicode-aware) instead of \b, so this actually matches
+// Cyrillic oblast names the way Python's identical-looking regex does.
+const CYR_OBLAST_ANY_RE = new RegExp(
+  '(?<!\\p{L})(' + BG_OBLASTS.map(o => o.name).sort((a, b) => b.length - a.length).join('|') + ')(?!\\p{L})', 'u'
+);
+
+function cyrOblastKeyFromText(text) {
+  if (!text) return null;
+  const match = CYR_OBLAST_ANY_RE.exec(text);
+  return match ? (BG_OBLAST_BY_NAME[match[1]] || null) : null;
+}
+
+function listingOblastKey(l) {
+  // merged_listings/listing_sources rows already carry an "oblast_key"
+  // column computed server-side by sync_to_supabase.py - prefer it (same
+  // reasoning as listingCityKey() preferring l.city_key: the server sees
+  // the raw per-listing "city"/"area" fields that don't survive into
+  // merged_listings). Recompute from scratch only for an object that
+  // genuinely has no precomputed column.
+  if (l.oblast_key) return l.oblast_key;
+  const cityKey = listingCityKey(l);
+  if (cityKey && CITY_KEY_TO_OBLAST[cityKey]) return CITY_KEY_TO_OBLAST[cityKey];
+  if (l.portal === 'sales.bcpea.org') {
+    const settlement = bcpeaSettlementFromTitle(l);
+    if (settlement) {
+      return oblastKeyFromName(settlement) || oblastKeyFromNamePrefix(settlement) || null;
+    }
+    return null;
+  }
+  for (const field of ['city', 'area']) {
+    const value = l[field];
+    if (value) {
+      const key = oblastKeyFromName(value) || oblastKeyFromNamePrefix(value);
+      if (key) return key;
+    }
+  }
+  if (l.title && l.title.includes(',')) {
+    const lastSegment = l.title.slice(l.title.lastIndexOf(',') + 1).trim();
+    const key = oblastKeyFromName(lastSegment) || oblastKeyFromNamePrefix(lastSegment);
+    if (key) return key;
+  }
+  const latinKey = latinOblastKeyFromText(l.title);
+  if (latinKey) return latinKey;
+  const cyrKey = cyrOblastKeyFromText(l.title);
+  if (cyrKey) return cyrKey;
+  return null;
+}
+
+function matchesOblastFilter(l, key) {
+  if (!key) return true;
+  if (key === 'others') return !listingOblastKey(l);
+  return listingOblastKey(l) === key;
+}
+
+let activeOblastFilter = null;
+
+function applyOblastFilter(key) {
+  const def = key === 'others' ? { label: 'Others (no matching province)' } : BG_OBLASTS.find(o => o.key === key);
+  if (!def) return;
+  activeOblastFilter = key;
+  clearActiveLeadGenerator(true);
+  clearTypeFilter(true);
+  clearCityFilter(true);
+  document.getElementById('minPrice').value = '';
+  document.getElementById('maxPrice').value = '';
+  document.getElementById('minSqm').value = '';
+  document.getElementById('searchQuery').value = '';
+  document.getElementById('areaFilter').value = '';
+  document.getElementById('oblastFilterBanner').style.display = 'flex';
+  document.getElementById('oblastFilterBannerName').textContent = def.label;
+  currentPage = 1;
+  showSection('leads');
+  render();
+}
+
+function clearOblastFilter(skipRender) {
+  activeOblastFilter = null;
+  document.getElementById('oblastFilterBanner').style.display = 'none';
+  if (!skipRender) renderFromStart();
+}
+
+function renderOblastTabs() {
+  const row = document.getElementById('oblastTabRow');
+  if (!row) return;
+  const counts = Object.fromEntries(BG_OBLASTS.map(o => [o.key, 0]));
+  let othersCount = 0;
+  MERGED_LISTINGS.forEach(l => {
+    const key = listingOblastKey(l);
+    if (key) counts[key]++;
+    else othersCount++;
+  });
+  row.innerHTML = BG_OBLASTS.map(o => `
+    <button class="city-tab-btn${activeOblastFilter === o.key ? ' active' : ''}" data-oblast-filter="${o.key}">
+      ${o.label}<span class="city-tab-count">${fmt(counts[o.key])}</span>
+    </button>
+  `).join('') + `
+    <button class="city-tab-btn${activeOblastFilter === 'others' ? ' active' : ''}" data-oblast-filter="others">
+      Others<span class="city-tab-count">${fmt(othersCount)}</span>
+    </button>
+  `;
 }
 
 // --- Same-category radius average --------------------------------------------
@@ -1935,6 +2147,7 @@ function checkLeads(genId) {
   activeLeadGenerator = gen;
   clearTypeFilter(true);
   clearCityFilter(true);
+  clearOblastFilter(true);
   document.getElementById('minPrice').value = gen.filters.minPrice ?? '';
   document.getElementById('maxPrice').value = gen.filters.maxPrice ?? '';
   document.getElementById('minSqm').value = gen.filters.minSqm ?? '';
@@ -1980,6 +2193,7 @@ function renderHome() {
   renderHomeChart();
   renderTypeFilters();
   renderCityTabs();
+  renderOblastTabs();
 }
 
 function renderHomeChart() {
@@ -2184,7 +2398,8 @@ function render() {
     listingMatchesSearch(l, searchQuery) &&
     matchesLeadGenerator(l, activeLeadGenerator) &&
     matchesTypeFilter(l, activeTypeFilter) &&
-    matchesCityFilter(l, activeCityFilter)
+    matchesCityFilter(l, activeCityFilter) &&
+    matchesOblastFilter(l, activeOblastFilter)
   );
 
   filtered.sort((a, b) => {
@@ -2651,6 +2866,12 @@ document.getElementById('cityFilterBannerClearBtn').addEventListener('click', ()
 document.getElementById('cityTabRow').addEventListener('click', (e) => {
   const btn = e.target.closest('.city-tab-btn[data-city-filter]');
   if (btn) applyCityFilter(btn.dataset.cityFilter);
+});
+
+document.getElementById('oblastFilterBannerClearBtn').addEventListener('click', () => clearOblastFilter());
+document.getElementById('oblastTabRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.city-tab-btn[data-oblast-filter]');
+  if (btn) applyOblastFilter(btn.dataset.oblastFilter);
 });
 
 function runHomeSearch() {

@@ -120,3 +120,11 @@ create policy "public read" on merged_listings for select using (true);
 -- picks them up here, idempotently either way.
 alter table listing_sources add column if not exists category_confidence text;
 alter table merged_listings add column if not exists category_confidence text;
+
+-- Oblast (province) key, computed server-side by sync_to_supabase.py's
+-- listing_oblast_key() the same way city_key is - see that function's
+-- comment for the fallback chain (city->oblast mapping first, then
+-- oblast-name text matching for listings with no city match at all).
+alter table listing_sources add column if not exists oblast_key text;
+alter table merged_listings add column if not exists oblast_key text;
+create index if not exists merged_listings_oblast_key_idx on merged_listings (oblast_key);
