@@ -124,14 +124,40 @@ LOCATION_RE = re.compile(
 )
 
 
+# AREA_WORD matches any capitalized Cyrillic word with no semantic filter,
+# so a property-type label sitting right before the real area in the card's
+# raw text (no comma between them - "Двустаен Лазур Лазур, Бургас Цена :")
+# gets swept into the same match. Live-sampled: 347/14,983 currently-active
+# listings had an area value starting with one of these.
+AREA_TYPE_PREFIXES = (
+    "Едностаен", "Двустаен", "Тристаен", "Четиристаен", "Многостаен",
+    "Мезонет", "Ателие", "Стая",
+)
+
+
 def dedup_area(area):
     words = area.split()
+    while words and words[0] in AREA_TYPE_PREFIXES:
+        words = words[1:]
+    if not words:
+        # Nothing left after stripping the type label(s) - the real area
+        # apparently wasn't part of this match at all (a different card
+        # layout LOCATION_RE doesn't fully cover). Keep the original rather
+        # than return an empty string.
+        return area
     if len(words) > 1:
         first = words[0]
         for i in range(len(words) - 1, 0, -1):
             if words[i] == first:
                 return " ".join(words[i:])
-    return area
+        # The site's own card markup sometimes repeats just the area name
+        # itself, immediately, with no other duplication ("Лазур Лазур",
+        # "Витоша Витоша") - the loop above only catches the *first* word
+        # recurring later, so check the simpler last-word-repeats-once case
+        # separately.
+        if words[-1] == words[-2]:
+            return words[-1]
+    return " ".join(words)
 
 
 def smallest_container_with_price(link_tag, max_levels=6):

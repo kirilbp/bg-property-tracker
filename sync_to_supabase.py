@@ -245,6 +245,27 @@ def city_key_from_name(name):
     return BG_CITY_BY_NAME.get(normalized)
 
 
+# alo.bg's title has "<area>, <city>" but sometimes runs the price straight
+# into the city with no separating comma - "...Дианабад, София Цена : 480
+# 000 €" - so the last comma segment is "София Цена : 480 000 €", not
+# "София" alone, and the exact match above fails even though the city name
+# is right there. Live-sampled: every currently-active alo.bg listing with
+# a null city_key that still had a comma in its title matched this shape.
+# Longest names first so "Стара Загора" doesn't prefix-match as "Стара"
+# alone (not a real entry, but keeps the general principle safe).
+BG_CITY_PREFIX_RE = re.compile(
+    r"^(" + "|".join(re.escape(name) for _, name in sorted(BG_CITIES, key=lambda c: -len(c[1]))) + r")\b"
+)
+
+
+def city_key_from_name_prefix(name):
+    if not name:
+        return None
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
+    match = BG_CITY_PREFIX_RE.match(normalized)
+    return BG_CITY_BY_NAME.get(match.group(1)) if match else None
+
+
 # imoti.net's own titles render the city in English/Latin script ("... Sofia,
 # Lyulin Center" - the city is the SECOND-to-last comma segment there, not
 # the last, so the generic last-comma fallback above can never recover it).
@@ -318,10 +339,16 @@ def listing_city_key(l):
         key = city_key_from_name(city)
         if key:
             return key
+        key = city_key_from_name_prefix(city)
+        if key:
+            return key
     title = l.get("title")
     if title and "," in title:
         last_segment = title.rsplit(",", 1)[1].strip()
         key = city_key_from_name(last_segment)
+        if key:
+            return key
+        key = city_key_from_name_prefix(last_segment)
         if key:
             return key
     key = latin_city_key_from_text(title)
