@@ -1283,6 +1283,15 @@ function listingOblastKey(l) {
   // the raw per-listing "city"/"area" fields that don't survive into
   // merged_listings). Recompute from scratch only for an object that
   // genuinely has no precomputed column.
+  //
+  // The server-side computation also checks real oblast boundary polygons
+  // against a listing's lat/lng before falling back to city/text matching
+  // (see sync_to_supabase.py's oblast_key_from_latlng()) - the only way to
+  // actually tell Sofia Province and Sofia-grad apart, since both are just
+  // "София" in every portal's own text. That polygon lookup is NOT ported
+  // here: real rows always carry the precomputed column above, so this
+  // fallback path is a rarely-exercised safety net, not worth shipping a
+  // 110KB boundary payload to the browser for.
   if (l.oblast_key) return l.oblast_key;
   const cityKey = listingCityKey(l);
   if (cityKey && CITY_KEY_TO_OBLAST[cityKey]) return CITY_KEY_TO_OBLAST[cityKey];
