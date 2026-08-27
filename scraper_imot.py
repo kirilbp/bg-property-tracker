@@ -74,7 +74,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category
+from geo_utils import Geocoder, classify_category, extract_description_imot
 
 BASE_URL = "https://www.imot.bg"
 SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
@@ -245,6 +245,35 @@ def goto_with_retries(page, url):
             if attempt < MAX_RETRIES:
                 page.wait_for_timeout(RETRY_BACKOFF_SECONDS * attempt * 1000)
     return None
+
+
+def fetch_listing_detail(page, listing):
+    # Marked unconditionally so a backlog scan can tell "already attempted,
+    # nothing more to gain" apart from "never visited yet" - same marker
+    # pattern scraper.py/scraper_bcpea.py already established for their own
+    # detail backfills.
+    listing["detail_checked"] = True
+    html = goto_with_retries(page, listing["url"])
+    if html is None:
+        return
+    description = extract_description_imot(html)
+    if description:
+        listing["description"] = description
+
+
+def fetch_listing_details(listings):
+    # One shared browser/page reused across the whole batch (like the main
+    # grid crawl already does across many page navigations) rather than a
+    # fresh context per listing - much cheaper than scraper_bcpea.py's own
+    # detail backfill, which needs a fresh context per listing for other
+    # reasons (see its module docstring).
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
+        page = context.new_page()
+        for listing in listings:
+            fetch_listing_detail(page, listing)
+        browser.close()
 
 
 def fetch_listings():

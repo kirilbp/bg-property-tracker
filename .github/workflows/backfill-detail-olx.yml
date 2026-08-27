@@ -1,0 +1,47 @@
+# Fills in description for olx.bg listings the main scrape never visits
+# the detail page for (see backfill_detail_olx.py and scraper_olx.py's
+# fetch_listing_detail() for why: the grid crawl only ever fetched search
+# result pages, never individual listings - the real description only
+# lives on each listing's own page, as a ld+json block). Runs hourly like
+# the other detail backfills - a fresh full backlog clears over a few days
+# at this run's cap, after which each run only needs to keep up with that
+# day's newly-discovered listings. Shares scrape.yml's concurrency group
+# since both write to data/*.json and commit.
+name: Backfill olx.bg listing details
+
+on:
+  schedule:
+    - cron: "50 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4 playwright
+      - run: playwright install --with-deps chromium
+
+      - run: python backfill_detail_olx.py
+        timeout-minutes: 45
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill olx.bg listing details"
+          git pull --rebase origin main
+          git push

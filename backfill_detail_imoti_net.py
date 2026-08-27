@@ -29,6 +29,13 @@ future run instead of being treated as done.
 Not scheduled automatically - re-run it by hand (or on a cron, later)
 until the "not yet checked" count reaches zero, same as any other
 backfill.
+
+Does NOT fill description: confirmed live via probe_descriptions.py that
+imoti.net's own detail page carries no free-text description anywhere -
+neither in its meta tags nor its ld+json block nor any labeled HTML
+block, only structured price/sqm/floor/broker-contact info. Not a gap to
+close, a genuine per-portal limitation - index.html already shows a
+graceful "no description available from this portal" fallback for it.
 """
 
 import json

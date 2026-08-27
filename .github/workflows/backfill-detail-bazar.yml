@@ -1,14 +1,17 @@
-# Fills in lat/lng for bazar.bg listings the nationwide scraper left
-# uncoordinated (see backfill_detail_bazar.py and scraper_bazar.py's
-# module docstring for why: visiting every listing's own detail page at
-# nationwide scale doesn't fit in the scrape itself). workflow_dispatch
-# only, meant to be re-run by hand until the not-yet-checked count hits
-# zero - each run processes a bounded chunk (MAX_LOOKUPS_PER_RUN), not
-# everything at once. Shares scrape.yml's concurrency group since both
-# write to data/*.json and commit.
-name: Backfill bazar.bg detail coordinates
+# Fills in lat/lng and description for bazar.bg listings the nationwide
+# scraper left unenriched (see backfill_detail_bazar.py and
+# scraper_bazar.py's module docstring for why: visiting every listing's
+# own detail page at nationwide scale doesn't fit in the scrape itself).
+# Previously workflow_dispatch-only (map coordinates alone didn't justify
+# an hourly cron) - now scheduled hourly like the other detail backfills,
+# since it also fills in description, real listing content users actually
+# see. Shares scrape.yml's concurrency group since both write to
+# data/*.json and commit.
+name: Backfill bazar.bg listing details
 
 on:
+  schedule:
+    - cron: "15 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -31,12 +34,13 @@ jobs:
       - run: pip install requests beautifulsoup4
 
       - run: python backfill_detail_bazar.py
+        timeout-minutes: 45
 
       - if: always()
         run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/
-          git diff --cached --quiet || git commit -m "Backfill bazar.bg listing coordinates"
+          git diff --cached --quiet || git commit -m "Backfill bazar.bg listing details"
           git pull --rebase origin main
           git push

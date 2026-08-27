@@ -1,6 +1,6 @@
 """
-Fills in lat/lng for bazar.bg listings that scraper_bazar.py's nationwide
-grid crawl left uncoordinated.
+Fills in lat/lng and description for bazar.bg listings that
+scraper_bazar.py's nationwide grid crawl left unenriched.
 
 scraper_bazar.py's nationwide conversion deliberately stopped visiting
 every listing's own detail page during the main scrape (see its module
@@ -9,31 +9,36 @@ no longer affordable in a single run. It now only does the fast grid
 crawl; category is still set immediately there (a pure title-keyword
 classifier, no network needed), but lat/lng - which live only on each
 listing's own detail page as data-lat/data-long attributes - are left
-unset.
+unset, as is description.
 
 This script is the other half: a separate, resumable pass that visits
 each listing's own page (the same plain, non-JS HTTP fetch + Focus-backend
 #see_on_map parsing the old inline code used) for whatever hasn't been
 checked yet, prioritized newest-first (by first_seen) so freshly
-discovered listings get real coordinates before older ones queue behind
-them - same pattern backfill_detail_alo.py already established.
+discovered listings get real coordinates/description before older ones
+queue behind them - same pattern backfill_detail_alo.py already
+established. description is extracted from the page's own ld+json block
+(geo_utils.extract_description_ldjson()) - live-verified to carry the
+real agent/seller-written text, not just an auto-generated summary.
 
 A listing is marked "coords_checked" once its detail page has actually
 been visited, regardless of whether that page turned up real coordinates
-- some bazar.bg listings genuinely have none on their own page, and
-without an explicit marker those would get needlessly re-visited by every
-future run instead of being treated as done.
+or a description - some bazar.bg listings genuinely have neither on their
+own page, and without an explicit marker those would get needlessly
+re-visited by every future run instead of being treated as done.
 
-Not scheduled automatically (see backfill-detail-bazar.yml) - re-run it
-by hand (or on a cron, later) until the "not yet checked" count reaches
-zero, same as any other backfill.
+Scheduled hourly (see backfill-detail-bazar.yml) - previously
+workflow_dispatch-only since it only filled in map coordinates, a
+lower-priority field; now that it also fills in description (real
+listing content, not just a map pin), it needs to actually keep running
+rather than wait to be re-dispatched by hand.
 """
 
 import json
 import time
 
 import scraper_bazar as sb
-from geo_utils import extract_coords_bazar
+from geo_utils import extract_coords_bazar, extract_description_ldjson
 
 REQUEST_DELAY_SECONDS = 1.0
 # Caps a single run's detail-page-visit count so this can't itself balloon
@@ -65,6 +70,9 @@ def main():
                 latest["lat"] = coords["lat"]
                 latest["lng"] = coords["lng"]
                 filled += 1
+            description = extract_description_ldjson(html)
+            if description:
+                latest["description"] = description
         if i % 200 == 0:
             print(f"DEBUG: checked {i}/{len(batch)} listings")
 

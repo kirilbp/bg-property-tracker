@@ -41,6 +41,7 @@ import time
 from pathlib import Path
 
 import requests
+from bs4 import BeautifulSoup
 
 CACHE_FILE = Path(__file__).parent / "data" / "geocode_cache.json"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
@@ -124,6 +125,70 @@ def extract_coords_bazar(html):
     if lat_m and lng_m:
         return {"lat": float(lat_m.group(1)), "lng": float(lng_m.group(1))}
     return None
+
+
+# alo.bg's real free-text description sits in a <div class="obqva-block">,
+# but always prefixed with a fixed boilerplate paragraph (contact
+# instructions + reference number + responsible broker, when the listing
+# has one) ahead of the actual text - confirmed live via probe_descriptions.py
+# against a real listing. Each regex strips one known-fixed segment, only
+# if present, so a private-seller listing (no boilerplate at all) passes
+# through unchanged.
+_ALO_DESC_PREFIX_RES = [
+    re.compile(r"^Допълнителна информация\s*"),
+    re.compile(r"^За повече информация.*?в alo\.bg\.\s*"),
+    re.compile(r"^Референтен номер:\s*\S+(?:\s+\S+)?\s*"),
+    re.compile(r"^Отговорен брокер:\s*\S+(?:\s+\S+){0,1}\s*"),
+]
+
+
+def extract_description_alo(html):
+    soup = BeautifulSoup(html, "html.parser")
+    node = soup.find("div", class_="obqva-block")
+    if not node:
+        return None
+    text = node.get_text(" ", strip=True)
+    for pat in _ALO_DESC_PREFIX_RES:
+        text = pat.sub("", text)
+    text = text.strip()
+    return text or None
+
+
+# bazar.bg and olx.bg both embed the listing's real, agent/seller-written
+# description as the "description" key of a <script type="application/
+# ld+json"> block on the detail page (confirmed live via
+# probe_descriptions.py) - takes the first non-empty one found, since a
+# page can carry more than one ld+json block (e.g. bazar.bg also has an
+# Organization block with no description at all).
+def extract_description_ldjson(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or "{}")
+        except (json.JSONDecodeError, TypeError):
+            continue
+        blobs = data if isinstance(data, list) else [data]
+        for blob in blobs:
+            if isinstance(blob, dict) and blob.get("description"):
+                return blob["description"].strip()
+    return None
+
+
+# imot.bg's real free-text description sits in a <div class="moreInfo">,
+# prefixed with the fixed Bulgarian label "Описание на имота:" ("Property
+# description:") - confirmed live via probe_descriptions.py (a Playwright
+# fetch; imot.bg blocks plain requests-based fetching, same as its grid
+# pages - see scraper_imot.py's module docstring).
+_IMOT_BG_DESC_PREFIX_RE = re.compile(r"^Описание на имота:\s*")
+
+
+def extract_description_imot(html):
+    soup = BeautifulSoup(html, "html.parser")
+    node = soup.find("div", class_="moreInfo")
+    if not node:
+        return None
+    text = _IMOT_BG_DESC_PREFIX_RE.sub("", node.get_text(" ", strip=True)).strip()
+    return text or None
 
 
 # "жк."/"ж.к." (жилищен комплекс - "residential complex") is a common

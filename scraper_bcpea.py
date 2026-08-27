@@ -331,6 +331,14 @@ def fetch_listing_detail(browser, listing, geocoder):
         listing["area"] = district if (settlement or "").lower() in ("софия", "sofia") \
             else f"{settlement}, {district}" if settlement else district
 
+    # Real per-listing legal/cadastral description (e.g. property
+    # identifiers, cadastral references) - confirmed live via
+    # probe_descriptions.py, same .label__group/.info markup label_info()
+    # already reads District from, just a different label text.
+    description = label_info(expanded, "Описание")
+    if description:
+        listing["description"] = description
+
     if not listing.get("photo"):
         head = expanded.find(class_="head")
         img_tag = head.find("img") if head else None
