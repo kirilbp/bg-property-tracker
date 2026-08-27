@@ -741,7 +741,8 @@
       "photo": "https://www.imoti.net/web/files/obiavi/6277924/main_image/thumb_280x210_img-6367.jpg?ver=1787212990",
       "price_eur": 96491,
       "sqm": 41,
-      "title": "Studio/bedsit, 41 м 2 Sofia, Vitosha"
+      "title": "Studio/bedsit, 41 м 2 Sofia, Vitosha",
+      "category": "apartment"
     }
   },
   "6295289": {
@@ -891,7 +892,8 @@
       "price_eur": 109060,
       "sqm": 58,
       "title": "1 bedroom apartment, 58 м 2 Sofia, Malinova Dolina",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6282091": {
@@ -1287,7 +1289,8 @@
       "price_eur": 113993,
       "sqm": 117,
       "title": "2 bedroom apartment, 117 м 2 Sofia, Malinova Dolina",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6257203": {
@@ -5191,7 +5194,8 @@
       "price_eur": 187420,
       "sqm": 86,
       "title": "1 bedroom apartment, 86 м 2 Sofia, Drujba",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6207468": {
@@ -5473,7 +5477,8 @@
       "price_eur": 228855,
       "sqm": 104,
       "title": "1 bedroom apartment, 104 м 2 Sofia, Drujba",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6295287": {
@@ -5491,7 +5496,8 @@
       "price_eur": 228855,
       "sqm": 104,
       "title": "1 bedroom apartment, 104 м 2 Sofia, Drujba",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6293481": {
@@ -6104,7 +6110,8 @@
       "price_eur": 275436,
       "sqm": 126,
       "title": "2 bedroom apartment, 126 м 2 Sofia, Drujba",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6227555": {
@@ -6354,7 +6361,8 @@
       "price_eur": 292565,
       "sqm": 167,
       "title": "Maisonette, 167 м 2 Sofia, Malinova Dolina",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6294597": {
@@ -108131,7 +108139,8 @@
       "price_eur": 189523,
       "sqm": 87,
       "title": "1 bedroom apartment, 87 м 2 Sofia, Drujba",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6258781": {
@@ -164787,7 +164796,8 @@
       "price_eur": 235000,
       "sqm": 80,
       "title": "Floor of a house, 80 м 2 Sofia, Kokalyane",
-      "portal": "imoti.net"
+      "portal": "imoti.net",
+      "category": "apartment"
     }
   },
   "6245087": {

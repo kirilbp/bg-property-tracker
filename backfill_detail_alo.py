@@ -37,14 +37,18 @@ MAX_LOOKUPS_PER_RUN = 1000
 def main():
     history = sa.load_history()
 
-    # "category" is always set once a listing's detail page has actually
-    # been visited (classify_category() never returns None) - unlike
-    # site_updated_at/lat,lng, which can genuinely stay None even after a
-    # real visit (the site doesn't always show them), so category is the
-    # one reliable "not yet enriched" signal.
+    # "_detail_fetched" is set unconditionally once a listing's detail page
+    # has actually been visited (scraper_alo.py's fetch_update_dates()) -
+    # unlike site_updated_at/lat,lng/category, which can genuinely stay
+    # unset even after a real visit (the site doesn't always show them, and
+    # category is now classified at grid-crawl time from title/url alone,
+    # with no detail-page dependency at all - see fetch_listings_page()),
+    # so this explicit marker is the only reliable "not yet enriched"
+    # signal; a bare field-presence check would stop finding any work once
+    # every field it could check is populated some other way.
     missing = [
         (lid, rec) for lid, rec in history.items()
-        if "category" not in rec.get("latest", {})
+        if not rec.get("latest", {}).get("_detail_fetched")
     ]
     # Newest-discovered first, so freshly scraped listings get real
     # dates/coordinates before older ones still waiting in the backlog.
