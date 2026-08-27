@@ -28,6 +28,7 @@ disk/committed - only ever passed in via the environment.
 
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -84,19 +85,76 @@ def areas_match(a1, a2):
 def prices_match(p1, p2):
     if not p1 or not p2:
         return False
-    return abs(p1 - p2) <= 1
+    # A flat 1 EUR tolerance was missing real cross-posted duplicates: BGN
+    # (Bulgaria's currency, pegged to EUR at a fixed rate) to EUR display
+    # conversion rounds slightly differently portal to portal, and a
+    # listing scraped a few hours apart can catch one portal just before a
+    # price update and another just after - both produce the exact same
+    # real listing showing two slightly different EUR prices. Live-sampled:
+    # cross-portal pairs that already match on area+sqm have a median price
+    # gap of 0.75% when they differ at all - 0.5% is a conservative cut
+    # that catches genuine rounding/timing drift without reaching into the
+    # long tail (some pairs differ by 10-20%) that's more likely two
+    # actually-different apartments coincidentally sharing an area+sqm.
+    tolerance = max(1, round(max(p1, p2) * 0.005))
+    return abs(p1 - p2) <= tolerance
+
+
+# prices_match()'s tolerance is now relative (0.5% of price), so a fixed
+# +/-1-whole-euro bucket search radius no longer covers it at any real
+# price (0.5% of EUR200,000 is EUR1,000) - bucketing by price directly and
+# scanning a wider absolute radius would need a radius that scales per
+# listing, which is expensive to search efficiently. Bucketing in LOG space
+# instead makes tolerance-width constant regardless of price magnitude: a
+# 0.5% price change is *always* the same fixed distance in log space, so
+# checking the same fixed handful of neighboring buckets (dk in a small
+# fixed range) finds every match at every price level in one pass.
+_PRICE_LOG_BUCKET_WIDTH = math.log(1 + 0.005)
+
+
+def price_bucket_key(price):
+    return round(math.log(max(price or 0, 1)) / _PRICE_LOG_BUCKET_WIDTH)
 
 
 def group_listings(all_listings):
     with_sqm = [l for l in all_listings if l.get("sqm")]
     without_sqm = [l for l in all_listings if not l.get("sqm")]
 
+    # Bucketing by price alone puts every listing near a common round price
+    # (e.g. exactly 100,000 EUR - very common in this market) into one
+    # enormous bucket regardless of area, since the 0.5% tolerance band
+    # covers a lot of listings at popular price points - live-measured,
+    # some single price buckets held 1,000+ listings, making the O(bucket²)
+    # pairwise comparison pass effectively hang. areas_match() already
+    # requires an exact normalized-string match, not a fuzzy one, so
+    # co-bucketing by (price bucket, normalized area) loses no matches
+    # a plain price bucket would have found - it only pre-applies a filter
+    # every surviving pair already had to pass anyway, and area names are
+    # far more differentiating than price, keeping real buckets small.
     price_buckets = {}
     for l in with_sqm:
-        key = round(l.get("price_eur") or 0)
+        na = normalize_area(l.get("area"))
+        if not na:
+            continue
+        key = (price_bucket_key(l.get("price_eur")), na)
         price_buckets.setdefault(key, []).append(l)
 
     parent = {id(l): l for l in with_sqm}
+    # Tracks each group's current [min_sqm, max_sqm] span, keyed by the
+    # current root's id - a candidate union is only allowed if it keeps the
+    # group's overall span within the same +/-1 sqm tolerance every
+    # individual pairwise match already enforces. Without this, a chain of
+    # listings each 1 sqm apart from a neighbor (95-96, 96-97, 97-98)
+    # transitively unions into one group spanning 3 sqm - a real, live-
+    # found false-merge bug: a Varna new-construction development selling
+    # ~39 distinct units at the same round price with sqm varying by a
+    # couple square meters was collapsing into a single "merged" listing.
+    sqm_range = {id(l): (l["sqm"], l["sqm"]) for l in with_sqm}
+    # Same transitive-drift risk as sqm, same fix: without tracking the
+    # group's own price span, a chain of pairwise-tolerable price hops
+    # (each within prices_match() of a neighbor) can drift the group's
+    # overall min-to-max price spread well past that same tolerance.
+    price_range = {id(l): (l["price_eur"], l["price_eur"]) for l in with_sqm}
 
     def find(x):
         while parent[id(x)] is not x:
@@ -106,13 +164,31 @@ def group_listings(all_listings):
 
     def union(a, b):
         ra, rb = find(a), find(b)
-        if ra is not rb:
-            parent[id(ra)] = rb
+        if ra is rb:
+            return
+        lo_sqm = min(sqm_range[id(ra)][0], sqm_range[id(rb)][0])
+        hi_sqm = max(sqm_range[id(ra)][1], sqm_range[id(rb)][1])
+        if hi_sqm - lo_sqm > 1:
+            return
+        lo_price = min(price_range[id(ra)][0], price_range[id(rb)][0])
+        hi_price = max(price_range[id(ra)][1], price_range[id(rb)][1])
+        if not prices_match(lo_price, hi_price):
+            return
+        parent[id(ra)] = rb
+        sqm_range[id(rb)] = (lo_sqm, hi_sqm)
+        price_range[id(rb)] = (lo_price, hi_price)
 
     for l in with_sqm:
-        key = round(l.get("price_eur") or 0)
-        for dk in (-1, 0, 1):
-            bucket = price_buckets.get(key + dk)
+        na = normalize_area(l.get("area"))
+        if not na:
+            continue
+        key = price_bucket_key(l.get("price_eur"))
+        # +/-2 buckets of margin around the 1-bucket-wide tolerance itself,
+        # to absorb rounding at a bucket edge (two prices genuinely within
+        # tolerance can still land in adjacent buckets if one rounds down
+        # and the other rounds up right at the boundary).
+        for dk in range(-2, 3):
+            bucket = price_buckets.get((key + dk, na))
             if not bucket:
                 continue
             for other in bucket:
@@ -121,7 +197,6 @@ def group_listings(all_listings):
                 if (
                     prices_match(l.get("price_eur"), other.get("price_eur"))
                     and abs(l["sqm"] - other["sqm"]) <= 1
-                    and areas_match(l.get("area"), other.get("area"))
                 ):
                     union(l, other)
 
@@ -131,31 +206,50 @@ def group_listings(all_listings):
         groups_by_root.setdefault(id(root), []).append(l)
     groups = list(groups_by_root.values())
 
+    # Same (price bucket, area) co-partitioning as above, and for the same
+    # reason - a plain price bucket collects every group near a popular
+    # round price regardless of area, which is both slow and pointless
+    # since areas_match() (called below via the group's representative
+    # member) requires an exact area match anyway.
     group_buckets = {}
+    # Same transitive-drift risk as the with_sqm union step, same fix:
+    # checking a new sqm-less listing against only the group's first
+    # member (not the group's actual current price range) let a group's
+    # overall spread creep past prices_match()'s own tolerance one
+    # attachment at a time - live-found, a 7-member group reached a 0.995%
+    # spread (should be ~0.5%) this way.
+    group_price_range = {}
     for g in groups:
-        key = round(g[0].get("price_eur") or 0)
+        na = normalize_area(g[0].get("area"))
+        if not na:
+            continue
+        key = (price_bucket_key(g[0].get("price_eur")), na)
         group_buckets.setdefault(key, []).append(g)
+        prices = [m["price_eur"] for m in g if m.get("price_eur")]
+        group_price_range[id(g)] = (min(prices), max(prices))
 
     solo_sqmless = []
     for l in without_sqm:
-        key = round(l.get("price_eur") or 0)
+        na = normalize_area(l.get("area"))
+        key = price_bucket_key(l.get("price_eur"))
         attached = False
-        for dk in (-1, 0, 1):
-            candidates = group_buckets.get(key + dk)
-            if not candidates:
-                continue
-            for group in candidates:
-                if any(m["portal"] == l["portal"] for m in group):
+        if na and l.get("price_eur"):
+            for dk in range(-2, 3):
+                candidates = group_buckets.get((key + dk, na))
+                if not candidates:
                     continue
-                rep = group[0]
-                if prices_match(l.get("price_eur"), rep.get("price_eur")) and areas_match(
-                    l.get("area"), rep.get("area")
-                ):
-                    group.append(l)
-                    attached = True
+                for group in candidates:
+                    if any(m["portal"] == l["portal"] for m in group):
+                        continue
+                    lo, hi = group_price_range[id(group)]
+                    new_lo, new_hi = min(lo, l["price_eur"]), max(hi, l["price_eur"])
+                    if prices_match(new_lo, new_hi):
+                        group.append(l)
+                        group_price_range[id(group)] = (new_lo, new_hi)
+                        attached = True
+                        break
+                if attached:
                     break
-            if attached:
-                break
         if not attached:
             solo_sqmless.append([l])
 

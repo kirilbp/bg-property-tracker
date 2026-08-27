@@ -1,15 +1,16 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently confirming imoti.bg's own page 1 displays "852 Обяви" as its
-# total nationwide for-sale count, and that our scraper's 803 raw listings
-# is a real ~94% capture of that real total, not a scraper bug - pagination
-# genuinely never hit an empty page in 59 walked pages at 12 listings/page,
-# consistent with a small real portal rather than a truncated crawl). Kept
-# registered (workflow_dispatch runs against this branch pick up whatever
-# it's currently pointed at, no need to merge a placeholder to main first)
-# so a future diagnostic round can just overwrite the script below instead
-# of re-registering a new workflow name. No probe script currently checked
-# in - repoint the run step at a new one when the next question comes up.
+# recently confirming the geo-based oblast fix live: Sofia Province=65
+# (was permanently 0), Sofia-grad=37,307, 29 oblast buttons rendering with
+# 2 transient console errors (Supabase 500s that retried and succeeded -
+# page load now takes ~106s at the 174,909-row dataset size, up from ~32s
+# at 114,129 rows; flagged to the user as a separate follow-up candidate,
+# not fixed here). Kept registered (workflow_dispatch runs against this
+# branch pick up whatever it's currently pointed at, no need to merge a
+# placeholder to main first) so a future diagnostic round can just
+# overwrite the script below instead of re-registering a new workflow
+# name. No probe script currently checked in - repoint the run step at a
+# new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:

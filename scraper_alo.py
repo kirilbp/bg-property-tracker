@@ -74,7 +74,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_alo
+from geo_utils import extract_coords_alo
+from category_classifier import classify_listing
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 SEARCH_URL = "https://www.alo.bg/obiavi/imoti-prodajbi/apartamenti-stai/?region_id=0"
@@ -266,6 +267,8 @@ def fetch_listings_page(url, seen):
         full_url = BASE_URL + a["href"]
         title = a.get_text(" ", strip=True) or text[:100]
 
+        listing_title = title[:120]
+        category, category_confidence, _ = classify_listing(title=listing_title, url=full_url)
         seen[listing_id] = {
             "id": "alo_" + listing_id,
             "url": full_url,
@@ -274,8 +277,10 @@ def fetch_listings_page(url, seen):
             "sqm": sqm,
             "area": area,
             "city": city,
-            "title": title[:120],
+            "title": listing_title,
             "portal": "alo.bg",
+            "category": category,
+            "category_confidence": category_confidence,
         }
     return len(matching_links)
 
@@ -306,7 +311,14 @@ def fetch_update_dates(seen):
         if coords:
             l["lat"] = coords["lat"]
             l["lng"] = coords["lng"]
-        l["category"] = classify_category(l.get("title"))
+        # category is now classified at grid-crawl time (title/url only,
+        # no detail-page visit needed - see fetch_listings_page()), so this
+        # backfill pass no longer touches it. "_detail_fetched" is the new
+        # not-yet-enriched marker for backfill_detail_alo.py - site_updated_at/
+        # lat,lng can genuinely stay unset even after a real visit (the site
+        # doesn't always show them), so presence of an actual field can't be
+        # used as the "was this visited" signal; this explicit marker can.
+        l["_detail_fetched"] = True
 
 
 def fetch_listings():

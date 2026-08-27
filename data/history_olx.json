@@ -507,7 +507,8 @@
       "area": "Бояна",
       "title": "Тристаен апартамент в гр.София, кв.Бояна, Бояна",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a3Nwe": {
@@ -5339,7 +5340,8 @@
       "area": "Дружба 1",
       "title": "Двустаен за продажба в ж.к. Дружба 1, Дружба 1",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a4ueF": {
@@ -6229,7 +6231,8 @@
       "area": "Горубляне",
       "title": "Парцел за жилищно строителство в кв. Горубляне, Горубляне",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "land"
     }
   },
   "olx_a4JXR": {
@@ -8470,7 +8473,8 @@
       "area": "Студентски град",
       "title": "Търговски обект за продажба в Студентски град, Студентски град",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a4dCk": {
@@ -8498,7 +8502,8 @@
       "area": "Студентски град",
       "title": "Търговски обект за продажба в Студентски град, Студентски град",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_9RTsr": {
@@ -9039,7 +9044,8 @@
       "sqm": 128,
       "area": "Лозенец",
       "title": "Тристаен апартамент в луксозна резиденция с АКТ 16, район Лозенец, Лозенец",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4eab": {
@@ -9420,7 +9426,8 @@
       "area": "Студентски град",
       "title": "Офис в нова модерна сграда в кв. Студентски град, Студентски град",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "commercial"
     }
   },
   "olx_a3XEY": {
@@ -9684,7 +9691,8 @@
       "area": "Sofia",
       "title": "Парцел във в.з. Щъркелово гнездо, Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_a4dth": {
@@ -9712,7 +9720,8 @@
       "area": "Лозенец",
       "title": "Пентхаус с впечатляващи гледки в луксозна резиденция с АКТ 16, район, Лозенец",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a4eED": {
@@ -9790,7 +9799,8 @@
       "sqm": 130,
       "area": "Хладилника",
       "title": "Южен тристаен апартамент в луксозна резиденция с АКТ 16, район Лозенец, Хладилника",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4eeI": {
@@ -10222,7 +10232,8 @@
       "area": "Люлин 8",
       "title": "Заведение за продажба срещу метростанция \"Люлин\", Люлин 8",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "commercial"
     }
   },
   "olx_a4eiu": {
@@ -10620,7 +10631,8 @@
       "area": "Красно село",
       "title": "Четиристаен апартамент завършен \"до ключ\" до метростанция \"Красно село, Красно село",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a3XJf": {
@@ -11359,7 +11371,8 @@
       "area": "Лозенец",
       "title": "Южен тристаен апартамент в луксозна резиденция с АКТ 16, район Лозенец, Лозенец",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a3XIO": {
@@ -11622,7 +11635,8 @@
       "area": "Студентски град",
       "title": "Офис в нова модерна сграда в кв. Студентски град, Студентски град",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "commercial"
     }
   },
   "olx_a3Xdj": {
@@ -12019,7 +12033,8 @@
       "area": "Красно село",
       "title": "Четиристаен апартамент завършен \"до ключ\" до метростанция \"Красно сел, Красно село",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-21T00:00:00+00:00"
+      "site_updated_at": "2026-08-21T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a3WTC": {
@@ -17634,7 +17649,8 @@
       "area": "Хладилника",
       "title": "Едностаен апартамент в Свети Влас, Хладилника",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-22T00:00:00+00:00"
+      "site_updated_at": "2026-08-22T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a2wuC": {
@@ -19990,7 +20006,8 @@
       "area": "Sofia",
       "title": "Нови къщи до София - Къща 4 с АКТ 14, Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "house"
     }
   },
   "olx_9Kmf3": {
@@ -22098,7 +22115,8 @@
       "area": "Младост 4",
       "title": "Тристаен Младост 4, Младост 4",
       "portal": "olx.bg",
-      "site_updated_at": "2026-08-22T00:00:00+00:00"
+      "site_updated_at": "2026-08-22T00:00:00+00:00",
+      "category": "apartment"
     }
   },
   "olx_a1BmF": {
@@ -22380,7 +22398,8 @@
       "area": "Люлин 6",
       "title": "Парцел в Ботевград, Люлин 6",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_a4cQQ": {
@@ -22865,7 +22884,8 @@
       "area": "Sofia",
       "title": "Парцел в Банкя, с.Иваняне 6300кв.м., Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_9gO9m": {
@@ -24175,7 +24195,8 @@
       "area": "Sofia",
       "title": "Урегулиран парцел гр. Банкя кв. Клисура, Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_9Uaex": {
@@ -24643,7 +24664,8 @@
       "area": "Sofia",
       "title": "Парцел в гр.Банкя - 3330кв.м., Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_a1wBb": {
@@ -25191,7 +25213,8 @@
       "sqm": 75,
       "area": "Малинова долина",
       "title": "РЕМОНТИРАН ДВУСТАЕН АПАРТАМЕНТ В ЗАТВОРЕН КОМПЛЕКС В „МАЛИНОВА ДОЛИНА“, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9Zkpo": {
@@ -27772,7 +27795,8 @@
       "sqm": 58,
       "area": "Малинова долина",
       "title": "Двустаен за продажба в кв. Малинова долина, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9BqzK": {
@@ -29535,7 +29559,8 @@
       "sqm": 185000,
       "area": "Sofia",
       "title": "Парцел в село  Долни Пасарел № 69881, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_a3gCc": {
@@ -31649,7 +31674,8 @@
       "sqm": 75,
       "area": "Малинова долина",
       "title": "РЕМОНТИРАН ДВУСТАЕН АПАРТАМЕНТ В ЗАТВОРЕН КОМПЛЕКС В „МАЛИНОВА ДОЛИНА“, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a0C48": {
@@ -34729,7 +34755,8 @@
       "sqm": 66,
       "area": "Малинова долина",
       "title": "Двустаен за продажба в кв.Малинова долина, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4Gd9": {
@@ -35057,7 +35084,8 @@
       "sqm": 64,
       "area": "Оборище",
       "title": "Двустаен за продажба в кв. Оборище, Оборище",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a2lW1": {
@@ -37259,7 +37287,8 @@
       "sqm": 98,
       "area": "Лозенец",
       "title": "Южен двустаен апартамент завършен \"до ключ\" в луксозна резиденция с А, Лозенец",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9RbzX": {
@@ -37464,7 +37493,8 @@
       "sqm": 213,
       "area": "Дианабад",
       "title": "Обзаведен тристаен апартамент близо до метростанция \"Г. М. Димитров\", Дианабад",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4yUq": {
@@ -37487,7 +37517,8 @@
       "sqm": 36,
       "area": "Център",
       "title": "Обзаведен едностаен апартамент за продажба в центъра на гр. София., Център",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9ZNAb": {
@@ -38720,7 +38751,8 @@
       "sqm": 880,
       "area": "Sofia",
       "title": "Къща в с. Панчарево № 60562, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "house"
     }
   },
   "olx_9zuIP": {
@@ -39875,7 +39907,8 @@
       "sqm": 132,
       "area": "в.з. Малинова долина",
       "title": "Тристаен апартамент в луксозен комплекс \"Морени Резиденс\", в.з. Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4cKG": {
@@ -39898,7 +39931,8 @@
       "sqm": 226,
       "area": "Малинова долина",
       "title": "Четиристаен апартамент завършен \"до ключ\" с панорамна тераса в кв. Ма, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a2k4u": {
@@ -42059,7 +42093,8 @@
       "sqm": 122,
       "area": "Стрелбище",
       "title": "Тристаен, продажба, ж.к. Стрелбище, Стрелбище",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9UzTZ": {
@@ -42799,7 +42834,8 @@
       "sqm": 77,
       "area": "Стрелбище",
       "title": "Двустаен, продажба, ж.к. Стрелбище, Стрелбище",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_97rGY": {
@@ -45708,7 +45744,8 @@
       "sqm": 62,
       "area": "Студентски град",
       "title": "ПРОДАВА обзаведен 2 стаен на ул. ул. 21-ви век в Студентски град, Студентски град",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4cNO": {
@@ -45731,7 +45768,8 @@
       "sqm": 121,
       "area": "Бояна",
       "title": "Обзаведен тристаен апартамент с гледка към планина Витоша и града, кв, Бояна",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9WX8d": {
@@ -47803,7 +47841,8 @@
       "sqm": 80,
       "area": "Обеля",
       "title": "Тристаен за продажба в кв. Обеля, Обеля",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4d0l": {
@@ -47826,7 +47865,8 @@
       "sqm": 132,
       "area": "Симеоново",
       "title": "Тристаен апартамент в луксозен комплекс \"Морени Резиденс\", Симеоново",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4owy": {
@@ -49632,7 +49672,8 @@
       "sqm": 226,
       "area": "Малинова долина",
       "title": "Четиристаен апартамент в кв. Малинова долина № 89017, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a1uKa": {
@@ -49714,7 +49755,8 @@
       "sqm": 226,
       "area": "Малинова долина",
       "title": "Четиристаен апартамент завършен \"до ключ\" с панорамна тераса в кв. Мал, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9UuLu": {
@@ -51188,7 +51230,8 @@
       "sqm": 127,
       "area": "Sofia",
       "title": "Тристаен апартамен № 61121, Панчарево, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9UXi7": {
@@ -52611,7 +52654,8 @@
       "sqm": 65,
       "area": "Малинова долина",
       "title": "Двустаен апартамент № 104195, Малинова долина, Малинова долина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a358Y": {
@@ -53044,7 +53088,8 @@
       "area": "Sofia",
       "title": "Парцел в град Нови Искър № 17567, Sofia",
       "portal": "olx.bg",
-      "site_updated_at": null
+      "site_updated_at": null,
+      "category": "land"
     }
   },
   "olx_9ZZ6R": {
@@ -55169,7 +55214,8 @@
       "sqm": 75,
       "area": "Център",
       "title": "Магазин в центъра на София, Център",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "commercial"
     }
   },
   "olx_9AiNw": {
@@ -55192,7 +55238,8 @@
       "sqm": 3040,
       "area": "Sofia",
       "title": "Парцел № 70289, с. Мировяне, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_9Al4L": {
@@ -55215,7 +55262,8 @@
       "sqm": 2292,
       "area": "Sofia",
       "title": "Парцел № 70287, с. Мировяне, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_a1df7": {
@@ -56360,7 +56408,8 @@
       "sqm": 72,
       "area": "Дървеница",
       "title": "Двустаен, обзаведен с гараж в кв. Дървеница, Дървеница",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9Sh1i": {
@@ -56948,7 +56997,8 @@
       "sqm": 101,
       "area": "Люлин 2",
       "title": "Тристаен апартамент в луксозна нова сграда в Люлин 2, Люлин 2",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9YjF2": {
@@ -57458,7 +57508,8 @@
       "sqm": 66,
       "area": "Банишора",
       "title": "ЕКСКЛУЗИВНО! ERA Тера предлага за продажба двустаен апартамент в новос, Банишора",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9Y832": {
@@ -58780,7 +58831,8 @@
       "sqm": 7011,
       "area": "Sofia",
       "title": "Парцел в град Нови Искър № 88458, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_9SwIx": {
@@ -59651,7 +59703,8 @@
       "sqm": 71,
       "area": "Надежда 4",
       "title": "Двустаен апартамент с отделна кухня и 2 тераси в гр.София, Надежда, Надежда 4",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a37LR": {
@@ -59856,7 +59909,8 @@
       "sqm": 85,
       "area": "Център",
       "title": "Двустаен апартамент за продажба в Център, София, Център",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3WWa": {
@@ -59879,7 +59933,8 @@
       "sqm": 77,
       "area": "Студентски град",
       "title": "Двустаен апартамент в Студентски град, Студентски град",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a47nY": {
@@ -60213,7 +60268,8 @@
       "sqm": 98,
       "area": "Дървеница",
       "title": "Тристаен за продажба в кв. Дървеница, Дървеница",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a4K2z": {
@@ -60236,7 +60292,8 @@
       "sqm": 50,
       "area": "Център",
       "title": "Двустаен апартамент с гледка към Градина „Свети Седмочисленици“, Център",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9YDOf": {
@@ -60483,7 +60540,8 @@
       "sqm": 2110,
       "area": "Sofia",
       "title": "Парцел в с. Бистрица № 52356, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_a2Jla": {
@@ -60553,7 +60611,8 @@
       "sqm": 164,
       "area": "Бояна",
       "title": "3-стаен в София-Бояна площ 164 цена 460000, Бояна",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3V1B": {
@@ -60576,7 +60635,8 @@
       "sqm": 73,
       "area": "Витоша",
       "title": "Дизайнерски довършен и обзаведен - готов за нанасяне!, Витоша",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3WWE": {
@@ -60599,7 +60659,8 @@
       "sqm": 66,
       "area": "Овча купел",
       "title": "Двустаен апартамент в Овча купел, Овча купел",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9SRKM": {
@@ -60867,7 +60928,8 @@
       "sqm": 98,
       "area": "Борово",
       "title": "3-стаен в София-Борово площ 98, Борово",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9VDcH": {
@@ -60961,7 +61023,8 @@
       "sqm": 154,
       "area": "Център",
       "title": "Многостаен апартамент за продажба в Център, София, Център",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3TQ9": {
@@ -61059,7 +61122,8 @@
       "sqm": 850,
       "area": "в.з. Симеоново",
       "title": "Парцел в София-в.з.Симеоново - Драгалевци площ 850, в.з. Симеоново",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_9WWQ4": {
@@ -61331,7 +61395,8 @@
       "sqm": 406,
       "area": "Sofia",
       "title": "Парцел в село Лозен № 99689, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_a3TRA": {
@@ -61520,7 +61585,8 @@
       "sqm": 117,
       "area": "Овча купел",
       "title": "3-стаен в София-Овча Купел площ 117 цена 280000, Овча купел",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3WWw": {
@@ -61543,7 +61609,8 @@
       "sqm": 90,
       "area": "Кръстова вада",
       "title": "Двустаен, продажба, ж.к. Кръстова вада, Кръстова вада",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9wem4": {
@@ -61566,7 +61633,8 @@
       "sqm": 162,
       "area": "Овча купел 1",
       "title": "Четиристаен с А16, Овча купел 1, Овча купел 1",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a2YIx": {
@@ -61589,7 +61657,8 @@
       "sqm": 338,
       "area": "Sofia",
       "title": "Къща в София-с.Бистрица площ 338 цена 886627, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "house"
     }
   },
   "olx_9OPFg": {
@@ -61612,7 +61681,8 @@
       "sqm": 1752,
       "area": "Sofia",
       "title": "Парцел за обществено обслужване БАНКЯ, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_9VTqJ": {
@@ -62144,7 +62214,8 @@
       "sqm": 500,
       "area": "Sofia",
       "title": "Парцел, с. Лозен №38115, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_9WQX6": {
@@ -62401,7 +62472,8 @@
       "sqm": 96,
       "area": "Слатина",
       "title": "Всекидневна 32м2; НЕпреходен: Правилни форми; На минути от новата Мет, Слатина",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a2Jlh": {
@@ -62644,7 +62716,8 @@
       "sqm": 65,
       "area": "Лозенец",
       "title": "Двустаен за продажба в кв. Лозенец, Лозенец",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a3TSd": {
@@ -62841,7 +62914,8 @@
       "sqm": 67,
       "area": "Хаджи Димитър",
       "title": "3-стаен в София-Хаджи Димитър площ 67, Хаджи Димитър",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_a2NnL": {
@@ -64063,7 +64137,8 @@
       "sqm": 107,
       "area": "Овча купел",
       "title": "Тристаен, продажба, ж.к Овча купел, Овча купел",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9SkFC": {
@@ -64181,7 +64256,8 @@
       "sqm": 70,
       "area": "Овча купел",
       "title": "Двустаен, продажба, ж.к Овча купел, Овча купел",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "apartment"
     }
   },
   "olx_9Vg4a": {
@@ -64310,7 +64386,8 @@
       "sqm": 5483,
       "area": "Sofia",
       "title": "Парцел в София-с.Войнеговци площ 5483 цена 246735, Sofia",
-      "portal": "olx.bg"
+      "portal": "olx.bg",
+      "category": "land"
     }
   },
   "olx_a3oBf": {
