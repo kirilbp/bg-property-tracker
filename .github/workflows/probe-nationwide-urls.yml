@@ -1,17 +1,15 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently confirming that sync_to_supabase.py's own "upserted N rows"
-# log line is NOT the table's total row count - it's just how many rows
-# that one run recomputed/upserted, since the script never deletes older
-# merged_listings rows whose id changed due to membership churn. A sync
-# run logging a lower number than a previous live count briefly looked
-# like data loss; a direct live re-check confirmed the real total was
-# unchanged the whole time). Kept registered (workflow_dispatch runs
-# against this branch pick up whatever it's currently pointed at, no need
-# to merge a placeholder to main first) so a future diagnostic round can
-# just overwrite the script below instead of re-registering a new
-# workflow name. No probe script currently checked in - repoint the run
-# step at a new one when the next question comes up.
+# recently confirming imoti.bg's own page 1 displays "852 Обяви" as its
+# total nationwide for-sale count, and that our scraper's 803 raw listings
+# is a real ~94% capture of that real total, not a scraper bug - pagination
+# genuinely never hit an empty page in 59 walked pages at 12 listings/page,
+# consistent with a small real portal rather than a truncated crawl). Kept
+# registered (workflow_dispatch runs against this branch pick up whatever
+# it's currently pointed at, no need to merge a placeholder to main first)
+# so a future diagnostic round can just overwrite the script below instead
+# of re-registering a new workflow name. No probe script currently checked
+# in - repoint the run step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:

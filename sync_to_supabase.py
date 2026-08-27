@@ -463,7 +463,82 @@ def cyr_oblast_key_from_text(text):
     return BG_OBLAST_BY_NAME.get(match.group(1)) if match else None
 
 
+# --- Geo (lat/lng) oblast lookup - the authoritative signal when present --
+# Real oblast boundary polygons (28 features, NUTS3-coded, sourced from
+# yurukov/Bulgaria-geocoding - a maintained public dataset already used for
+# Bulgarian civic-tech dashboards). This is the only way to actually
+# distinguish Sofia Province from Sofia-grad: they share the same name
+# ("София") in every portal's own text, so no text-matching rule can ever
+# tell them apart - only a point-in-polygon test against their real,
+# very-differently-shaped boundaries can. Point-in-ring uses the standard
+# ray-casting algorithm; GeoJSON winding order puts the first ring as the
+# outer boundary and any further rings as holes (a handful of oblasts -
+# Sliven, Gabrovo, Burgas, Stara Zagora, Pernik - have real enclave
+# geometry, not a data artifact, confirmed against the source polygons).
+_OBLAST_BOUNDARIES_PATH = Path(__file__).parent / "data" / "bg_oblast_boundaries.json"
+
+
+def _bbox(ring):
+    lngs = [p[0] for p in ring]
+    lats = [p[1] for p in ring]
+    return min(lngs), min(lats), max(lngs), max(lats)
+
+
+def _load_oblast_boundaries():
+    if not _OBLAST_BOUNDARIES_PATH.exists():
+        return []
+    raw = json.loads(_OBLAST_BOUNDARIES_PATH.read_text(encoding="utf-8"))
+    boundaries = []
+    for entry in raw:
+        polygons = []
+        for poly in entry["polygons"]:
+            polygons.append({
+                "exterior": poly["exterior"],
+                "exterior_bbox": _bbox(poly["exterior"]),
+                "holes": poly["holes"],
+            })
+        boundaries.append({"key": entry["key"], "polygons": polygons})
+    return boundaries
+
+
+OBLAST_BOUNDARIES = _load_oblast_boundaries()
+
+
+def _point_in_ring(lng, lat, ring):
+    inside = False
+    n = len(ring)
+    j = n - 1
+    for i in range(n):
+        xi, yi = ring[i]
+        xj, yj = ring[j]
+        if (yi > lat) != (yj > lat):
+            x_intersect = (xj - xi) * (lat - yi) / (yj - yi) + xi
+            if lng < x_intersect:
+                inside = not inside
+        j = i
+    return inside
+
+
+def oblast_key_from_latlng(lat, lng):
+    if lat is None or lng is None:
+        return None
+    for entry in OBLAST_BOUNDARIES:
+        for poly in entry["polygons"]:
+            min_lng, min_lat, max_lng, max_lat = poly["exterior_bbox"]
+            if not (min_lng <= lng <= max_lng and min_lat <= lat <= max_lat):
+                continue
+            if not _point_in_ring(lng, lat, poly["exterior"]):
+                continue
+            if any(_point_in_ring(lng, lat, hole) for hole in poly["holes"]):
+                continue
+            return entry["key"]
+    return None
+
+
 def listing_oblast_key(l, city_key):
+    geo_key = oblast_key_from_latlng(l.get("lat"), l.get("lng"))
+    if geo_key:
+        return geo_key
     if city_key:
         key = CITY_KEY_TO_OBLAST.get(city_key)
         if key:
