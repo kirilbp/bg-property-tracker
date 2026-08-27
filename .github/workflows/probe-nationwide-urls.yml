@@ -30,4 +30,4 @@ jobs:
 
       - run: pip install playwright && playwright install --with-deps chromium
 
-      - run: python probe_load_check.py
+      - run: python probe_sofia_province.py

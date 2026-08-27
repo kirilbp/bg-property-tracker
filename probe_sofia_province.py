@@ -15,7 +15,10 @@ with sync_playwright() as p:
     page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
 
     page.goto(URL, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_selector("#oblastTabRow .city-tab-btn", timeout=60000)
+    # Bumped from 60s to 150s: a load-diagnostic run just measured this
+    # taking 105.8s at the current 174,909-row dataset size (was ~32s at
+    # 114,129 rows) - the page genuinely still works, just much slower now.
+    page.wait_for_selector("#oblastTabRow .city-tab-btn", timeout=150000)
     page.wait_for_timeout(1500)
 
     oblast_btns = page.query_selector_all("#oblastTabRow .city-tab-btn")
