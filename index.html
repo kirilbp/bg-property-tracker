@@ -2343,6 +2343,12 @@ function createListingCard(l) {
   const card = document.createElement('div');
   card.className = 'listing';
   let badges = buildBadgesHtml(l);
+  // Previously hardcoded to ", Sofia" unconditionally - a Sofia-only-era
+  // leftover that mislabeled every card for a non-Sofia listing (e.g. a
+  // real Varna listing's card read "Vinitsa, Sofia"). See the identical
+  // fix + comment in renderListingDetail() for the detail-page version.
+  const cardCityDef = BG_CITIES.find(c => c.key === (l.city_key || listingCityKey(l)));
+  const cardCityLabel = cardCityDef ? cardCityDef.label : '';
   if (l.member_portals && l.member_portals.length > 1) {
     l.member_portals.filter(p => p !== l.portal).forEach(p => {
       badges += `<span class="badge badge-alt-portal" title="Also listed on ${p}">+ ${p}</span>`;
@@ -2362,7 +2368,7 @@ function createListingCard(l) {
       <div class="listing-body">
         <div class="badges">${badges}</div>
         <p class="listing-title">${l.title}</p>
-        <p class="listing-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        <p class="listing-area">📍 ${l.area}${cardCityLabel ? ', ' + cardCityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
         <div class="listing-price-row">
           <span class="listing-price">€${fmt(l.price_eur)}</span>
           <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
@@ -2641,6 +2647,14 @@ function switchDetailTab(tab, chartPriceHistory) {
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
   const badges = buildBadgesHtml(l);
+  // City comes from the merged listing (the physical property, not
+  // whichever source is currently displayed) so it doesn't flicker or
+  // disagree when switching between cross-posted sources. Previously
+  // hardcoded to ", Sofia" unconditionally - a leftover from the
+  // Sofia-only era that silently mislabeled every other city's listings
+  // (e.g. a real Varna listing's area line read "Vinitsa, Sofia").
+  const cityDef = BG_CITIES.find(c => c.key === (merged.city_key || listingCityKey(merged)));
+  const cityLabel = cityDef ? cityDef.label : '';
   // listing_sources' bulk fetch doesn't carry photos/price_history (see
   // LISTING_SOURCES_SUMMARY_COLUMNS) - they're only ever shown for the one
   // source currently open, not worth the payload cost of loading them for
@@ -2696,7 +2710,7 @@ function renderListingDetail(merged) {
       <div>
         <div class="badges">${badges}</div>
         <h1 class="detail-title">${l.title}</h1>
-        <p class="detail-area">📍 ${l.area}, Sofia${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        <p class="detail-area">📍 ${l.area}${cityLabel ? ', ' + cityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
         <div class="detail-price-row">
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
