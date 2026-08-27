@@ -1,16 +1,15 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently confirming the geo-based oblast fix live: Sofia Province=65
-# (was permanently 0), Sofia-grad=37,307, 29 oblast buttons rendering with
-# 2 transient console errors (Supabase 500s that retried and succeeded -
-# page load now takes ~106s at the 174,909-row dataset size, up from ~32s
-# at 114,129 rows; flagged to the user as a separate follow-up candidate,
-# not fixed here). Kept registered (workflow_dispatch runs against this
-# branch pick up whatever it's currently pointed at, no need to merge a
-# placeholder to main first) so a future diagnostic round can just
-# overwrite the script below instead of re-registering a new workflow
-# name. No probe script currently checked in - repoint the run step at a
-# new one when the next question comes up.
+# recently live-verifying which of the 6 description-missing portals
+# actually carry a real free-text description on their own detail pages:
+# alo.bg, bazar.bg, imot.bg, bcpea all do; imoti.net genuinely doesn't;
+# olx.bg's is reachable via plain Playwright once past its anti-bot 403).
+# Kept registered (workflow_dispatch runs against this branch pick up
+# whatever it's currently pointed at, no need to merge a placeholder to
+# main first) so a future diagnostic round can just overwrite the script
+# below instead of re-registering a new workflow name. No probe script
+# currently checked in - repoint the run step at a new one when the next
+# question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -29,7 +28,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4 playwright
-      - run: playwright install --with-deps chromium
-
-      - run: python3 probe_descriptions.py
+      - run: echo "Dormant - no probe script currently checked in."

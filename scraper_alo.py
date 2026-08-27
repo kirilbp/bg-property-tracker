@@ -61,8 +61,11 @@ so it's decoupled the same way homes.bg's/imoti.bg's geocoding was:
 fetch_listings() now only does the fast grid crawl, and
 backfill_detail_alo.py (a separate, resumable, prioritized-by-newest-first
 job) visits listing pages over time to fill in site_updated_at/lat,lng/
-category via fetch_update_dates() (kept here, now unused by the main
+description via fetch_update_dates() (kept here, now unused by the main
 scrape path but still imported and reused by the backfill script).
+description is extracted via geo_utils.extract_description_alo(), which
+strips a fixed boilerplate prefix (contact instructions/reference number/
+broker name) that precedes the real text on agency-posted listings.
 """
 
 import re
@@ -74,7 +77,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import extract_coords_alo
+from geo_utils import extract_coords_alo, extract_description_alo
 from category_classifier import classify_listing
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -311,6 +314,9 @@ def fetch_update_dates(seen):
         if coords:
             l["lat"] = coords["lat"]
             l["lng"] = coords["lng"]
+        description = extract_description_alo(html)
+        if description:
+            l["description"] = description
         # category is now classified at grid-crawl time (title/url only,
         # no detail-page visit needed - see fetch_listings_page()), so this
         # backfill pass no longer touches it. "_detail_fetched" is the new
