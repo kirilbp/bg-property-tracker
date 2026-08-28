@@ -1,15 +1,17 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently live-verifying which of the 6 description-missing portals
-# actually carry a real free-text description on their own detail pages:
-# alo.bg, bazar.bg, imot.bg, bcpea all do; imoti.net genuinely doesn't;
-# olx.bg's is reachable via plain Playwright once past its anti-bot 403).
-# Kept registered (workflow_dispatch runs against this branch pick up
-# whatever it's currently pointed at, no need to merge a placeholder to
-# main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name. No probe script
-# currently checked in - repoint the run step at a new one when the next
-# question comes up.
+# recently root-causing the live "Could not load listings data." outage:
+# reproduced index.html's exact merged_listings paging query and found it
+# reliably failing with Postgres error 57014 (statement timeout) past
+# offset=75000, traced to ~76,600 orphaned rows accumulated from earlier
+# merged_id-changing fixes bloating the table to 244,217 rows - fixed by
+# switching the frontend to keyset pagination and adding a stale-row
+# cleanup step to sync_to_supabase.py). Kept registered (workflow_dispatch
+# runs against this branch pick up whatever it's currently pointed at, no
+# need to merge a placeholder to main first) so a future diagnostic round
+# can just overwrite the script below instead of re-registering a new
+# workflow name. No probe script currently checked in - repoint the run
+# step at a new one when the next question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -28,6 +30,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
-
-      - run: python3 probe_site_load.py
+      - run: echo "Dormant - no probe script currently checked in."
