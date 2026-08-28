@@ -32,4 +32,4 @@ jobs:
 
       - run: pip install requests
 
-      - run: python3 probe_pleven_listings.py
+      - run: python3 probe_cherven_bryag_real.py
