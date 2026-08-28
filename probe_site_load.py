@@ -31,7 +31,9 @@ def fetch_batch(offset):
         try:
             resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
             elapsed = time.monotonic() - t0
-            if resp.status_code == 200:
+            # PostgREST returns 206 Partial Content (not 200) for a normal
+            # range-limited response - only treat other codes as failures.
+            if resp.status_code in (200, 206):
                 data = resp.json()
                 return offset, len(data), elapsed, None
             last_err = f"HTTP {resp.status_code}: {resp.text[:300]}"
@@ -57,7 +59,7 @@ def main():
     )
     print(f"DEBUG: single-row probe -> {resp.status_code} in {time.monotonic() - t0:.1f}s, "
           f"Content-Range={resp.headers.get('content-range')}", flush=True)
-    if resp.status_code != 200:
+    if resp.status_code not in (200, 206):
         print("DEBUG: body:", resp.text[:500], flush=True)
         return
 
