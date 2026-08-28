@@ -32,6 +32,7 @@ import math
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 import requests
@@ -763,12 +764,45 @@ def build_rows(all_listings):
 # --- Supabase REST upsert ---------------------------------------------------
 
 BATCH_SIZE = 500
+MAX_HTTP_RETRIES = 4
+RETRY_BACKOFF_SECONDS = 5
+
+
+def request_with_retries(method, url, **kwargs):
+    # A live production sync failed outright on a single Postgres error
+    # 57014 ("canceling statement due to statement timeout") on one batch
+    # out of 335, with zero retry logic anywhere in this file - that one
+    # transient timeout crashed the whole sync via resp.raise_for_status(),
+    # which (since this ran before the cleanup step further down in main())
+    # also meant the stale-row cleanup this same fix introduces never got a
+    # chance to run at all. A statement timeout under momentary load is
+    # exactly the kind of thing a short retry absorbs - confirmed the
+    # surrounding batches on either side of the one that failed succeeded
+    # fine, so this isn't a permanently-broken query, just bad luck once.
+    # Every Supabase HTTP call in this file goes through this now, not just
+    # upsert() - the same failure mode applies equally to the GET/DELETE
+    # calls the cleanup functions make.
+    for attempt in range(1, MAX_HTTP_RETRIES + 1):
+        try:
+            resp = requests.request(method, url, **kwargs)
+        except requests.RequestException as e:
+            if attempt == MAX_HTTP_RETRIES:
+                raise
+            print(f"  request exception (attempt {attempt}/{MAX_HTTP_RETRIES}): {e} - retrying {url}")
+            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            continue
+        if resp.ok or attempt == MAX_HTTP_RETRIES:
+            return resp
+        print(f"  request failed (attempt {attempt}/{MAX_HTTP_RETRIES}): "
+              f"{resp.status_code} {resp.text[:300]} - retrying {url}")
+        time.sleep(RETRY_BACKOFF_SECONDS * attempt)
 
 
 def upsert(base_url, headers, table, rows, on_conflict):
     for i in range(0, len(rows), BATCH_SIZE):
         batch = rows[i : i + BATCH_SIZE]
-        resp = requests.post(
+        resp = request_with_retries(
+            "POST",
             f"{base_url}/rest/v1/{table}?on_conflict={on_conflict}",
             headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
             json=batch,
@@ -805,7 +839,9 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
         query_params = {"select": "id", "order": "id", "limit": 1000}
         if cursor is not None:
             query_params["id"] = f"gt.{cursor}"
-        resp = requests.get(f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=60)
+        resp = request_with_retries(
+            "GET", f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=60
+        )
         resp.raise_for_status()
         rows = resp.json()
         stored_ids.update(r["id"] for r in rows)
@@ -820,7 +856,8 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
 
     for i in range(0, len(stale), BATCH_SIZE):
         batch = stale[i : i + BATCH_SIZE]
-        resp = requests.delete(
+        resp = request_with_retries(
+            "DELETE",
             f"{base_url}/rest/v1/merged_listings",
             headers=headers,
             params={"id": "in.(" + ",".join(batch) + ")"},
@@ -851,7 +888,9 @@ def delete_stale_listing_sources(base_url, headers, current_by_portal):
             query_params = {"select": "source_id", "portal": f"eq.{portal}", "order": "source_id", "limit": 1000}
             if cursor is not None:
                 query_params["source_id"] = f"gt.{cursor}"
-            resp = requests.get(f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60)
+            resp = request_with_retries(
+                "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60
+            )
             resp.raise_for_status()
             rows = resp.json()
             stored_ids.update(r["source_id"] for r in rows)
@@ -864,7 +903,8 @@ def delete_stale_listing_sources(base_url, headers, current_by_portal):
             continue
         for i in range(0, len(stale), BATCH_SIZE):
             batch = stale[i : i + BATCH_SIZE]
-            resp = requests.delete(
+            resp = request_with_retries(
+                "DELETE",
                 f"{base_url}/rest/v1/listing_sources",
                 headers=headers,
                 params={"portal": f"eq.{portal}", "source_id": "in.(" + ",".join(batch) + ")"},
