@@ -215,12 +215,6 @@ def _haversine_km(lat1, lng1, lat2, lng2):
     return 2 * r * math.asin(math.sqrt(a))
 
 
-# Bulgaria's 4 biggest cities (by far the most-listed, and each with
-# dozens of internal districts named after common words) - see geocode()'s
-# cross-check for why these are excluded from it specifically.
-_MEGACITIES_WITH_COMMON_DISTRICT_NAMES = {"София", "Пловдив", "Варна", "Бургас"}
-
-
 def _load_cache():
     if CACHE_FILE.exists():
         try:
@@ -252,26 +246,52 @@ class Geocoder:
         query = _clean_query(query or "")
         return self.cache.get(query)
 
-    def _geocode_raw(self, query):
+    def _geocode_raw(self, query, limit=1):
         """One real Nominatim lookup, no caching - callers manage the cache
         themselves so a single query() call can make more than one raw
         lookup (see geocode()'s cross-check) without double-charging the
-        rate limit delay per cache write."""
+        rate limit delay per cache write. limit>1 (used only by the
+        confidence check below) doesn't cost an extra request - Nominatim
+        returns up to `limit` ranked results in the one response."""
         time.sleep(NOMINATIM_DELAY_SECONDS)
         try:
             resp = requests.get(
                 NOMINATIM_URL,
-                params={"q": query, "format": "json", "limit": 1},
+                params={"q": query, "format": "json", "limit": limit},
                 headers={"User-Agent": GEOCODE_USER_AGENT},
                 timeout=8,
             )
             resp.raise_for_status()
             data = resp.json()
-            if data:
-                return {"lat": float(data[0]["lat"]), "lng": float(data[0]["lon"])}
+            points = [{"lat": float(d["lat"]), "lng": float(d["lon"])} for d in data]
         except Exception as e:
             print(f"DEBUG: geocode failed for {query!r}: {e}")
-        return None
+            points = []
+        return points[0] if (points and limit == 1) else points
+
+    def _bare_name_is_confident(self, query):
+        """A bare settlement name is only trustworthy as independent ground
+        truth when Nominatim itself is confident about it - i.e. its top
+        few ranked results agree on roughly one place, not scattered
+        across the country. A GENUINE distinct settlement name (like
+        "Червен бряг") resolves this way. A generic word reused as a
+        district name in many unrelated towns (Център/"Center", Дружба/
+        "Friendship", Изток/"East"...) does not - its top results are
+        each a real place, just different, unrelated ones - so trusting
+        the single top hit as "the" answer for those would be wrong.
+        This replaces an earlier attempt at this that tried to hand-list
+        which cities/words are "safe" to skip - that approach doesn't
+        scale (an early version only excluded Bulgaria's 4 biggest
+        cities, and still wrongly overrode dozens of ordinary districts
+        in smaller cities like Ruse and Haskovo, corrupting real data
+        before being caught and reverted). Checking the bare name's own
+        result spread works for any settlement name, known in advance or
+        not, without needing a list of exceptions at all."""
+        top = self._geocode_raw(query, limit=3)
+        if len(top) < 2:
+            return len(top) == 1
+        ref = top[0]
+        return all(_haversine_km(ref["lat"], ref["lng"], p["lat"], p["lng"]) <= 30 for p in top[1:])
 
     def geocode(self, query):
         query = _clean_query(query or "")
@@ -292,27 +312,15 @@ class Geocoder:
         # town in a different oblast - geocoding "Червен бряг, Ловеч,
         # България" resolved ~62km from the real town, propagating a
         # wrong coordinate to every listing that shared the query).
-        # A settlement's own name almost always resolves correctly with
-        # no qualifier at all - so treat the bare settlement name as the
-        # independent source of truth IF it disagrees with the qualified
-        # result... EXCEPT this only holds for genuinely distinct
-        # settlement names. Bulgaria's 4 biggest cities each have dozens
-        # of internal districts named after common words (Изгрев/
-        # "Sunrise", Победа/"Victory", Слатина, Бояна...) that also
-        # coincidentally match unrelated villages/features elsewhere -
-        # for those, the QUALIFIED result is the correct one and the bare
-        # name is the ambiguous, wrong guess (confirmed empirically: every
-        # single mismatch found scanning the real committed geocode cache
-        # for this exact disagreement pattern - 15 of 15 - had one of
-        # these 4 cities as the qualifier; zero involved a smaller city,
-        # which is exactly where the real Cherven Bryag/Lovech bug lived).
-        # So the cross-check only runs for qualifiers OUTSIDE that closed,
-        # well-understood set of megacities, where a mismatch is credible
-        # evidence of genuine cross-bleed rather than an ordinary
-        # neighborhood-name collision.
+        # The bare settlement name is only trusted as the independent
+        # answer when it's ALSO independently confident on its own (see
+        # _bare_name_is_confident) - a generic district name disagreeing
+        # with its qualifier is not evidence the qualifier is wrong, it's
+        # just an ambiguous word; only override when the bare name is
+        # both different from the qualified result AND unambiguous by
+        # itself.
         parts = [p.strip() for p in query.split(",")]
-        qualifier_is_megacity = len(parts) >= 3 and parts[1] in _MEGACITIES_WITH_COMMON_DISTRICT_NAMES
-        if result and len(parts) >= 3 and parts[0] and not qualifier_is_megacity:
+        if result and len(parts) >= 3 and parts[0]:
             bare_query = _clean_query(f"{parts[0]}, България")
             if bare_query != query:
                 bare_result = self.cache.get(bare_query)
@@ -322,10 +330,13 @@ class Geocoder:
                     self._dirty = True
                 if bare_result:
                     dist_km = _haversine_km(result["lat"], result["lng"], bare_result["lat"], bare_result["lng"])
-                    if dist_km > 30:
+                    if dist_km > 30 and self._bare_name_is_confident(bare_query):
                         print(f"DEBUG: geocode mismatch for {query!r} vs {bare_query!r} "
-                              f"({dist_km:.0f}km apart) - trusting the bare settlement name")
+                              f"({dist_km:.0f}km apart, bare name confident) - trusting the bare settlement name")
                         result = bare_result
+                    elif dist_km > 30:
+                        print(f"DEBUG: geocode mismatch for {query!r} vs {bare_query!r} "
+                              f"({dist_km:.0f}km apart, bare name AMBIGUOUS) - keeping the qualified result")
 
         self.cache[query] = result
         self._dirty = True

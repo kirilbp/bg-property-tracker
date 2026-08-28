@@ -1,22 +1,35 @@
 # One-time correction pass (see verify_geocode_qualifiers.py's own
 # docstring for the full story): re-checks every cached "<area>, <city>,
-# България" geocode whose <city> isn't one of Bulgaria's 4 biggest cities
-# against a live geocode of the bare settlement name, and corrects any
-# entry (plus every listing across all 8 portals that shares the old,
-# wrong coordinate) that disagrees by more than 30km - the same bug
-# signature found live for Cherven Bryag. ~152 entries to check at
-# Nominatim's 1.1s/request rate limit is a few minutes of real work.
+# България" geocode against a live geocode of the bare settlement name,
+# and corrects any entry (plus every listing across all 8 portals that
+# shares the old, wrong coordinate) that disagrees by more than 30km AND
+# whose bare name is independently confident - the same bug signature
+# found live for Cherven Bryag.
+#
+# dry_run defaults to true: a first version of this pass (hand-excluding
+# only Bulgaria's 4 biggest cities instead of the current general
+# confidence check) was dispatched for real once, "succeeded" with no
+# crash, but had wrongly corrected 42 cache entries and propagated bad
+# coordinates to 4,244 real listings - caught only via manual log review
+# before it reached production, then reverted. Always inspect a dry_run's
+# log output for sane-looking mismatches before ever dispatching with
+# dry_run unchecked.
 #
 # workflow_dispatch only - this is a one-time catch-up job for cache
 # entries that predate geo_utils.Geocoder.geocode()'s own cross-check
 # (which protects every future geocode call automatically); re-run only
 # if a future audit finds more pre-existing entries worth re-checking.
-# Shares scrape.yml's concurrency group since it writes to data/*.json
-# and commits, same as any other backfill.
+# Shares scrape.yml's concurrency group since a real (non-dry-run) run
+# writes to data/*.json and commits, same as any other backfill.
 name: Verify geocode qualifiers (one-time correction)
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, no files written/committed"
+        type: boolean
+        default: true
 
 concurrency:
   group: scrape-property-listings
@@ -37,10 +50,10 @@ jobs:
 
       - run: pip install requests beautifulsoup4
 
-      - run: python verify_geocode_qualifiers.py
+      - run: python verify_geocode_qualifiers.py ${{ inputs.dry_run && '--dry-run' || '' }}
         timeout-minutes: 30
 
-      - if: always()
+      - if: ${{ !inputs.dry_run }}
         run: |
           git config user.name "property-bot"
           git config user.email "bot@users.noreply.github.com"
