@@ -74,7 +74,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, extract_description_imot
+from geo_utils import Geocoder, classify_category, extract_description_imot, extract_photos_imot
 
 BASE_URL = "https://www.imot.bg"
 SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
@@ -259,6 +259,9 @@ def fetch_listing_detail(page, listing):
     description = extract_description_imot(html)
     if description:
         listing["description"] = description
+    photos = extract_photos_imot(html)
+    if photos:
+        listing["photos"] = photos
 
 
 def fetch_listing_details(listings):

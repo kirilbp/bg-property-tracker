@@ -77,7 +77,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import extract_coords_alo, extract_description_alo
+from geo_utils import extract_coords_alo, extract_description_alo, extract_photos_alo
 from category_classifier import classify_listing
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -317,6 +317,9 @@ def fetch_update_dates(seen):
         description = extract_description_alo(html)
         if description:
             l["description"] = description
+        photos = extract_photos_alo(html)
+        if photos:
+            l["photos"] = photos
         # category is now classified at grid-crawl time (title/url only,
         # no detail-page visit needed - see fetch_listings_page()), so this
         # backfill pass no longer touches it. "_detail_fetched" is the new

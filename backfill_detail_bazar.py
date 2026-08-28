@@ -38,7 +38,7 @@ import json
 import time
 
 import scraper_bazar as sb
-from geo_utils import extract_coords_bazar, extract_description_ldjson
+from geo_utils import extract_coords_bazar, extract_description_ldjson, extract_photos_ldjson
 
 REQUEST_DELAY_SECONDS = 1.0
 # Caps a single run's detail-page-visit count so this can't itself balloon
@@ -79,6 +79,9 @@ def main():
             description = extract_description_ldjson(html)
             if description:
                 latest["description"] = description
+            photos = extract_photos_ldjson(html)
+            if photos:
+                latest["photos"] = photos
         if i % 200 == 0:
             print(f"DEBUG: checked {i}/{len(batch)} listings")
 

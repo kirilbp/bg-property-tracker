@@ -163,7 +163,15 @@ def fetch_listing_detail(url):
     """Best-effort description + posted-date from a listing's own page.
     Returns (description, site_posted_at_iso) - either may be None if not
     found, never raises (a missing description/date shouldn't drop an
-    otherwise-good listing)."""
+    otherwise-good listing).
+
+    Does not extract a photo gallery: confirmed live via probe_photos.py/
+    probe_photos_round2.py (one land-parcel and one apartment sample) that
+    imoti.bg's own detail page embeds only one photo (as "large"/"small"
+    size variants of the same image, both under /assets/offers/) - a
+    genuine per-portal limitation, same as imoti.net's missing description
+    (see backfill_detail_imoti_net.py's docstring). The single photo it
+    does have is already captured below as "photo"."""
     html = fetch_html(url)
     if html is None:
         return None, None
