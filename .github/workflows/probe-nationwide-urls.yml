@@ -1,23 +1,16 @@
-# Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses - most
-# recently root-causing why a Cherven Bryag radius search found nothing
-# despite real listings existing there on multiple portals: a single bad
-# entry in data/geocode_cache.json - "Червен бряг, Ловеч, България" -
-# geocoded to a location ~62km from the real town, because at least 3
-# portals' own listing pages pair this settlement with "Ловеч" as its
-# city/region (a real quirk of those sites' own categorization, not a
-# scraper bug), and that combined query string resolved wrong. The same
-# bad cached value had silently propagated to every listing across
-# imot.bg (12), imoti.bg (1), and one genuine olx.bg listing that used it
-# - fixed by correcting the cache entry and every already-synced
-# listing's lat/lng to match the town's real, already-correctly-cached
-# standalone coordinates ("Червен бряг, България").
+# Dormant diagnostic workflow, repurposed round-by-round (see git history
+# for many prior uses). Currently pointed at probe_photos.py - a one-shot
+# investigation into whether each portal's detail page exposes a full
+# photo gallery (not just the single thumbnail already stored in the
+# "photo" field), ahead of adding full photo galleries to the listing
+# detail page (index.html's detail view already renders a photos[] array
+# with thumbnails/main-photo swap when present - see the "photos" field
+# homes.bg already populates - this is about wiring the other 7 portals
+# up to the same field).
 # Kept registered (workflow_dispatch runs against this branch pick up
 # whatever it's currently pointed at, no need to merge a placeholder to
 # main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name. No probe script
-# currently checked in - repoint the run step at a new one when the next
-# question comes up.
+# below instead of re-registering a new workflow name.
 name: Probe nationwide search URLs
 
 on:
@@ -36,4 +29,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: echo "Dormant - no probe script currently checked in."
+      - run: pip install requests beautifulsoup4
+
+      - run: python probe_photos.py
+        timeout-minutes: 10
