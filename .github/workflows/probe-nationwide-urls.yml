@@ -1,11 +1,17 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently quantifying real lat/lng coverage after a radius-mode lead
-# generator centered on a small town returned zero matches: only 20.7% of
-# all 244,217 listings have real coordinates, ranging 9.6% (imoti.net) to
-# 62.5% (imoti.bg) by portal - a genuine, dataset-wide coverage gap, not a
-# city/area-allocation bug; index.html's zero-radius-results message was
-# fixed to say so instead of looking identical to "something's broken").
+# recently root-causing why a Cherven Bryag radius search found nothing
+# despite real listings existing there on multiple portals: a single bad
+# entry in data/geocode_cache.json - "Червен бряг, Ловеч, България" -
+# geocoded to a location ~62km from the real town, because at least 3
+# portals' own listing pages pair this settlement with "Ловеч" as its
+# city/region (a real quirk of those sites' own categorization, not a
+# scraper bug), and that combined query string resolved wrong. The same
+# bad cached value had silently propagated to every listing across
+# imot.bg (12), imoti.bg (1), and one genuine olx.bg listing that used it
+# - fixed by correcting the cache entry and every already-synced
+# listing's lat/lng to match the town's real, already-correctly-cached
+# standalone coordinates ("Червен бряг, България").
 # Kept registered (workflow_dispatch runs against this branch pick up
 # whatever it's currently pointed at, no need to merge a placeholder to
 # main first) so a future diagnostic round can just overwrite the script
