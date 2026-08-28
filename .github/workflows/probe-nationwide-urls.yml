@@ -1,17 +1,13 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
 # nationwide expansion (see git history for many prior uses - most
-# recently root-causing why a Cherven Bryag radius search found nothing
-# despite real listings existing there on multiple portals: a single bad
-# entry in data/geocode_cache.json - "Червен бряг, Ловеч, България" -
-# geocoded to a location ~62km from the real town, because at least 3
-# portals' own listing pages pair this settlement with "Ловеч" as its
-# city/region (a real quirk of those sites' own categorization, not a
-# scraper bug), and that combined query string resolved wrong. The same
-# bad cached value had silently propagated to every listing across
-# imot.bg (12), imoti.bg (1), and one genuine olx.bg listing that used it
-# - fixed by correcting the cache entry and every already-synced
-# listing's lat/lng to match the town's real, already-correctly-cached
-# standalone coordinates ("Червен бряг, България").
+# recently confirming which portals' detail pages expose a full photo
+# gallery vs. just the single thumbnail already stored: imot.bg (dedup
+# duplicate-slash CDN URLs), bazar.bg (ld+json "image" array), imoti.net
+# (numbered image files), and alo.bg (fancybox gallery anchors) all do;
+# imoti.bg genuinely doesn't (one photo only, confirmed on both a land
+# parcel and an apartment sample) - see geo_utils.py's extract_photos_*
+# functions and each portal's scraper/backfill script for the extraction
+# this fed into).
 # Kept registered (workflow_dispatch runs against this branch pick up
 # whatever it's currently pointed at, no need to merge a placeholder to
 # main first) so a future diagnostic round can just overwrite the script

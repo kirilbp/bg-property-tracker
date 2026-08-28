@@ -75,7 +75,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, extract_description_ldjson
+from geo_utils import Geocoder, classify_category, extract_description_ldjson, extract_photos_ldjson
 
 BASE_URL = "https://www.olx.bg"
 SEARCH_BASE = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi"
@@ -327,6 +327,13 @@ def fetch_listing_detail(page, listing):
     description = extract_description_ldjson(html)
     if description:
         listing["description"] = description
+    # Best-effort - olx.bg wasn't directly reachable to confirm its ld+json
+    # blob carries an "image" key the way bazar.bg's does (see
+    # geo_utils.extract_photos_ldjson()'s docstring); harmlessly returns
+    # nothing if it doesn't.
+    photos = extract_photos_ldjson(html)
+    if photos:
+        listing["photos"] = photos
 
 
 def fetch_listing_details(listings):

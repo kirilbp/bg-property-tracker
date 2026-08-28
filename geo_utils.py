@@ -192,6 +192,94 @@ def extract_description_imot(html):
     return text or None
 
 
+# imot.bg's detail page embeds every gallery photo twice - once under
+# ".../<dir>//big1/..." (double slash) and once under ".../<dir>/big1/..."
+# (single slash), both resolving to the same image - confirmed live via
+# probe_photos.py. Normalizing the double slash before deduping is what
+# turns that raw list into the real, distinct photo set.
+_IMOT_PHOTO_RE = re.compile(r'https://cdn3\.focus\.bg/imot/photosimotbg/[^\s"\'<>]+?\.jpg', re.IGNORECASE)
+
+
+def extract_photos_imot(html):
+    seen = []
+    for url in _IMOT_PHOTO_RE.findall(html):
+        normalized = url.replace("//big1/", "/big1/")
+        if normalized not in seen:
+            seen.append(normalized)
+    return seen
+
+
+# bazar.bg and olx.bg both embed the listing's full photo gallery as the
+# "image" key of the same <script type="application/ld+json"> block
+# extract_description_ldjson() already reads "description" from -
+# confirmed live via probe_photos.py for bazar.bg (17 photos in one
+# listing's "image" array); olx.bg couldn't be directly probed (blocked
+# by the same edge check its own scraper already routes around via
+# Playwright - see backfill_detail_olx.py) but shares the same ld+json
+# "description" shape, so worth trying the same key there too - returns
+# an empty list harmlessly if olx.bg's own blob has no "image" key.
+def extract_photos_ldjson(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or "{}")
+        except (json.JSONDecodeError, TypeError):
+            continue
+        blobs = data if isinstance(data, list) else [data]
+        for blob in blobs:
+            if not isinstance(blob, dict) or not blob.get("image"):
+                continue
+            image = blob["image"]
+            return image if isinstance(image, list) else [image]
+    return []
+
+
+# imoti.net's detail page embeds the gallery as separate numbered files -
+# "main_image/thumb_<size>_wm_main_image_<id>_1.jpg" for the cover photo,
+# then "images/thumb_<size>_wm_images_<id>_<n>.jpg" for the rest - each at
+# more than one size variant. Confirmed live via probe_photos.py (7 total
+# URLs across 2 size variants for a 5-photo gallery + cover). Keeps only
+# the 1200x630 variant (present for every photo, unlike the smaller
+# 620x349 one which was only seen for the cover) and dedupes by photo
+# number so each real photo appears once.
+_IMOTI_NET_PHOTO_RE = re.compile(
+    r'https://www\.imoti\.net/web/files/obiavi/\d+/(main_image|images)/'
+    r'thumb_1200x630_wm_(?:main_image|images)_(\d+)_(\d+)\.jpg'
+)
+
+
+def extract_photos_imoti_net(html):
+    by_index = {}
+    for kind, listing_id, n in _IMOTI_NET_PHOTO_RE.findall(html):
+        key = (0, int(n)) if kind == "main_image" else (1, int(n))
+        by_index[key] = (
+            f"https://www.imoti.net/web/files/obiavi/{listing_id}/{kind}/"
+            f"thumb_1200x630_wm_{kind}_{listing_id}_{n}.jpg"
+        )
+    return [by_index[key] for key in sorted(by_index)]
+
+
+# alo.bg's detail page lists every gallery photo as an <a class="fancyimages"
+# data-type="image" href="user_files/.../<n>_big.jpg"> - a relative URL, and
+# the reason a plain URL-regex scan missed them all (confirmed live via
+# probe_photos_round2.py: 14 such anchors on one listing, none of them an
+# absolute https:// URL). One extra non-photo anchor with data-type="ajax"
+# (a "more on Google" panel) is excluded by requiring data-type="image".
+_ALO_GALLERY_ANCHOR_RE = re.compile(
+    r'<a\b[^>]*\bclass="[^"]*fancyimages[^"]*"[^>]*\bdata-type="image"[^>]*\bhref="([^"]+)"',
+    re.IGNORECASE,
+)
+
+
+def extract_photos_alo(html):
+    seen = []
+    for href in _ALO_GALLERY_ANCHOR_RE.findall(html):
+        url = href if href.startswith("http") else f"https://www.alo.bg/{href}"
+        if url not in seen:
+            seen.append(url)
+    return seen
+
+
 # "жк."/"ж.к." (жилищен комплекс - "residential complex") is a common
 # Bulgarian prefix on neighborhood names (e.g. "жк. Лозенец") that, left
 # in the query, made Nominatim return zero results ~95% of the time

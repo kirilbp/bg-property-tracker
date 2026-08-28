@@ -80,7 +80,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_imoti_net
+from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.imoti.net/en/obiavi/r/prodava"
@@ -256,6 +256,9 @@ def fetch_listing_dates(seen):
         if coords:
             l["lat"] = coords["lat"]
             l["lng"] = coords["lng"]
+        photos = extract_photos_imoti_net(html)
+        if photos:
+            l["photos"] = photos
         if i % 200 == 0:
             print(f"DEBUG: fetched detail dates for {i}/{total} listings")
 
