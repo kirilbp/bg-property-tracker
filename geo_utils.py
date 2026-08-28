@@ -36,6 +36,7 @@ JavaScript execution required, so a normal requests.get() picks them up.
 """
 
 import json
+import math
 import re
 import time
 from pathlib import Path
@@ -205,6 +206,21 @@ def _clean_query(query):
     return _ZHK_PREFIX_RE.sub("", query.strip())
 
 
+def _haversine_km(lat1, lng1, lat2, lng2):
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lng2 - lng1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+# Bulgaria's 4 biggest cities (by far the most-listed, and each with
+# dozens of internal districts named after common words) - see geocode()'s
+# cross-check for why these are excluded from it specifically.
+_MEGACITIES_WITH_COMMON_DISTRICT_NAMES = {"София", "Пловдив", "Варна", "Бургас"}
+
+
 def _load_cache():
     if CACHE_FILE.exists():
         try:
@@ -236,14 +252,12 @@ class Geocoder:
         query = _clean_query(query or "")
         return self.cache.get(query)
 
-    def geocode(self, query):
-        query = _clean_query(query or "")
-        if not query:
-            return None
-        if query in self.cache:
-            return self.cache[query]
+    def _geocode_raw(self, query):
+        """One real Nominatim lookup, no caching - callers manage the cache
+        themselves so a single query() call can make more than one raw
+        lookup (see geocode()'s cross-check) without double-charging the
+        rate limit delay per cache write."""
         time.sleep(NOMINATIM_DELAY_SECONDS)
-        result = None
         try:
             resp = requests.get(
                 NOMINATIM_URL,
@@ -254,9 +268,65 @@ class Geocoder:
             resp.raise_for_status()
             data = resp.json()
             if data:
-                result = {"lat": float(data[0]["lat"]), "lng": float(data[0]["lon"])}
+                return {"lat": float(data[0]["lat"]), "lng": float(data[0]["lon"])}
         except Exception as e:
             print(f"DEBUG: geocode failed for {query!r}: {e}")
+        return None
+
+    def geocode(self, query):
+        query = _clean_query(query or "")
+        if not query:
+            return None
+        if query in self.cache:
+            return self.cache[query]
+
+        result = self._geocode_raw(query)
+
+        # Independent verification, not blind trust: a query like "<area>,
+        # <city>, България" only ever resolves correctly if <city> is
+        # really that area's own city/region - and for a city/oblast-
+        # sliced scraper, <city> is often just whichever search page a
+        # listing happened to turn up on, not a fact about the listing
+        # itself (confirmed live: an imot.bg "Lovech" city search
+        # returned a real Cherven Bryag listing, an entirely different
+        # town in a different oblast - geocoding "Червен бряг, Ловеч,
+        # България" resolved ~62km from the real town, propagating a
+        # wrong coordinate to every listing that shared the query).
+        # A settlement's own name almost always resolves correctly with
+        # no qualifier at all - so treat the bare settlement name as the
+        # independent source of truth IF it disagrees with the qualified
+        # result... EXCEPT this only holds for genuinely distinct
+        # settlement names. Bulgaria's 4 biggest cities each have dozens
+        # of internal districts named after common words (Изгрев/
+        # "Sunrise", Победа/"Victory", Слатина, Бояна...) that also
+        # coincidentally match unrelated villages/features elsewhere -
+        # for those, the QUALIFIED result is the correct one and the bare
+        # name is the ambiguous, wrong guess (confirmed empirically: every
+        # single mismatch found scanning the real committed geocode cache
+        # for this exact disagreement pattern - 15 of 15 - had one of
+        # these 4 cities as the qualifier; zero involved a smaller city,
+        # which is exactly where the real Cherven Bryag/Lovech bug lived).
+        # So the cross-check only runs for qualifiers OUTSIDE that closed,
+        # well-understood set of megacities, where a mismatch is credible
+        # evidence of genuine cross-bleed rather than an ordinary
+        # neighborhood-name collision.
+        parts = [p.strip() for p in query.split(",")]
+        qualifier_is_megacity = len(parts) >= 3 and parts[1] in _MEGACITIES_WITH_COMMON_DISTRICT_NAMES
+        if result and len(parts) >= 3 and parts[0] and not qualifier_is_megacity:
+            bare_query = _clean_query(f"{parts[0]}, България")
+            if bare_query != query:
+                bare_result = self.cache.get(bare_query)
+                if bare_query not in self.cache:
+                    bare_result = self._geocode_raw(bare_query)
+                    self.cache[bare_query] = bare_result
+                    self._dirty = True
+                if bare_result:
+                    dist_km = _haversine_km(result["lat"], result["lng"], bare_result["lat"], bare_result["lng"])
+                    if dist_km > 30:
+                        print(f"DEBUG: geocode mismatch for {query!r} vs {bare_query!r} "
+                              f"({dist_km:.0f}km apart) - trusting the bare settlement name")
+                        result = bare_result
+
         self.cache[query] = result
         self._dirty = True
         return result
