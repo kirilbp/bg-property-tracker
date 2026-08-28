@@ -1,13 +1,23 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses). Currently
-# pointed at probe_floorplans.py - a one-shot investigation into whether
-# any portal's detail page exposes a floor plan image separately from its
-# regular photo gallery, ahead of task list item 6 ("investigate + add
-# floor plan images to listing detail").
+# nationwide expansion (see git history for many prior uses - most
+# recently confirming none of imot.bg/bazar.bg/imoti.bg/alo.bg/imoti.net
+# expose an actual floor plan IMAGE for a listing: every "разпределение"/
+# "layout" hit on all 5 was either unrelated site markup (CSS
+# data-layout attributes, nav classes) or just a text label inside the
+# free-text description already captured - e.g. bazar.bg's "Разпределението
+# е както следва: Голяма дневна 35 м2..." describes the room layout in
+# words, not an image. The one real <img> match, on alo.bg, was the
+# site's own generic "room layout editor" tool icon (alt="facebook like
+# us", shared across every listing page), not a per-listing floor plan.
+# Conclusion: a genuine feature gap on the portals themselves, not
+# something to build extraction for - task list item 6 closed as
+# "investigated, no floor plan images exist to extract".
 # Kept registered (workflow_dispatch runs against this branch pick up
 # whatever it's currently pointed at, no need to merge a placeholder to
 # main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name.
+# below instead of re-registering a new workflow name. No probe script
+# currently checked in - repoint the run step at a new one when the next
+# question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -26,7 +36,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
-
-      - run: python probe_floorplans.py
-        timeout-minutes: 10
+      - run: echo "Dormant - no probe script currently checked in."
