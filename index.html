@@ -1541,44 +1541,54 @@ function setGreeting() {
 const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'bazar.bg', 'imoti.bg', 'sales.bcpea.org'];
 
 // PostgREST caps rows per request (a project's db.max_rows setting,
-// 1000 by default) regardless of the range asked for - paginate with
-// .range() until a short page confirms there's nothing left, rather than
-// assuming a project-specific limit.
+// 1000 by default) regardless of the range asked for - paginate until a
+// short page confirms there's nothing left, rather than assuming a
+// project-specific limit.
 //
-// .order() is required for this to be correct, not just tidy - without an
-// explicit sort, Postgres makes no guarantee that two separate .range()
-// queries see the same row ordering, especially on a table taking
-// concurrent writes (an hourly backfill, an in-flight scrape sync) between
-// one page fetch and the next. Confirmed live: two consecutive full fetches
-// of the same table (no explicit order) returned different per-portal
-// counts off an unchanged total row count - rows were being skipped by one
-// page boundary and double-counted at another as the physical row order
-// shifted mid-fetch.
+// Keyset pagination (WHERE id > <last id seen> ORDER BY id LIMIT N), not
+// OFFSET-based .range() paging (what this used to do). OFFSET pagination
+// makes Postgres scan and discard every row before the requested offset on
+// every single page - its cost grows with how deep you're paging, not just
+// with how many rows you're fetching. That was fine at ~165-175k rows (each
+// page's offset-scan still finished inside the statement timeout) but broke
+// outright once the table grew to 244k+ rows (~76k accumulated from earlier
+// merged_id churn - see sync_to_supabase.py's cleanup step, added
+// alongside this fix, which now deletes those instead of leaving them
+// behind): live-reproduced via a probe script hitting this exact table,
+// every page past offset=75000 failed with Postgres error 57014
+// ("canceling statement due to statement timeout"), 100% reproducible, not
+// a transient blip - this is what actually broke the live site ("Could not
+// load listings data." on every refresh). Keyset pagination has no such
+// depth penalty - each page is a plain indexed range scan starting exactly
+// where the last one left off, costing the same whether it's page 1 or
+// page 250 - so this can't recur just because the table keeps growing.
 //
-// At nationwide scale (100k+ rows) this is 100+ page requests -
-// sequentially, one at a time, that's a multi-minute load even when every
-// request succeeds, and with no retry a single transient failure anywhere
-// in that long chain used to throw and abort the entire page ("Could not
-// load listings data."). Retrying each page a few times absorbs one-off
-// failures; firing a small window of pages concurrently instead of one at
-// a time cuts wall-clock load time.
+// Sequential, not concurrent: unlike an OFFSET, a keyset cursor can only be
+// known once the previous page's last row has actually been read, so pages
+// can't be fired in parallel the way the old .range() version did. Each
+// individual page is fast now regardless of depth, so this still loads in
+// a comparable amount of wall-clock time overall.
+//
+// .order('id') is required for correctness, not just tidiness - both for
+// the keyset cursor itself (each page's cursor is only valid against a
+// stable, consistent sort) and because without an explicit sort Postgres
+// makes no guarantee two separate queries see the same row ordering on a
+// table taking concurrent writes (an hourly backfill, an in-flight scrape
+// sync) between one page fetch and the next - confirmed live early on: two
+// consecutive full fetches of the same table with no explicit order
+// returned different per-portal counts off an unchanged total row count.
 //
 // Only ever called for merged_listings now - listing_sources isn't bulk-
-// loaded any more at all (see loadData()'s comment for the full story of
-// why: even after this same retry/concurrency treatment, plus dropping its
-// heaviest JSON columns, plus fixing an index-mismatched sort order,
-// nationwide-scale sustained paging through it was still enough on its own
-// to exhaust something on the free-tier project - not any single query's
-// cost, live-confirmed by reproducing the exact request pattern in
-// isolation with no failure).
+// loaded any more at all (see loadData()'s comment for that story).
 async function fetchAllRows(table) {
   const batchSize = 1000;
-  const concurrency = 3;
   const maxRetries = 3;
 
-  async function fetchBatch(offset) {
+  async function fetchBatch(cursor) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      const { data, error } = await sb.from(table).select('*').order('id').range(offset, offset + batchSize - 1);
+      let query = sb.from(table).select('*').order('id').limit(batchSize);
+      if (cursor !== null) query = query.gt('id', cursor);
+      const { data, error } = await query;
       if (!error) return data;
       if (attempt === maxRetries) throw error;
       await new Promise(resolve => setTimeout(resolve, 500 * attempt));
@@ -1586,17 +1596,16 @@ async function fetchAllRows(table) {
   }
 
   let all = [];
-  let offset = 0;
+  let cursor = null;
   let done = false;
   while (!done) {
-    const wave = [];
-    for (let i = 0; i < concurrency; i++) wave.push(fetchBatch(offset + i * batchSize));
-    const results = await Promise.all(wave);
-    for (const data of results) {
-      all = all.concat(data);
-      if (data.length < batchSize) done = true;
+    const data = await fetchBatch(cursor);
+    all = all.concat(data);
+    if (data.length < batchSize) {
+      done = true;
+    } else {
+      cursor = data[data.length - 1].id;
     }
-    offset += concurrency * batchSize;
   }
   return all;
 }

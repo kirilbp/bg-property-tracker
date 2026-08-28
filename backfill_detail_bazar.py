@@ -44,7 +44,13 @@ REQUEST_DELAY_SECONDS = 1.0
 # Caps a single run's detail-page-visit count so this can't itself balloon
 # into an unbounded, multi-hour job at nationwide scale - meant to be
 # re-run repeatedly (by hand, or on a schedule) until the backlog clears.
-MAX_LOOKUPS_PER_RUN = 1500
+# 1500 (the original value, from back when this ran via workflow_dispatch
+# with no explicit timeout) doesn't reliably fit inside the 45-minute
+# timeout added when this was converted to run hourly: at ~1.5-2.5s/listing
+# (1.0s delay + real fetch time), 1500 listings is 37.5-62.5 minutes - a
+# real run timed out and got killed partway through. 1000 comfortably fits
+# with margin (25-42 minutes).
+MAX_LOOKUPS_PER_RUN = 1000
 
 
 def main():

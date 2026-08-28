@@ -780,6 +780,103 @@ def upsert(base_url, headers, table, rows, on_conflict):
         print(f"  upserted {len(batch)} rows into {table} ({min(i + len(batch), len(rows))}/{len(rows)})")
 
 
+def delete_stale_merged_listings(base_url, headers, current_ids):
+    # merged_id changes whenever a group's real membership changes (a dedup
+    # fix, a category/city reclassification) - upsert-only syncing leaves
+    # the OLD id's row behind forever when that happens, since nothing ever
+    # deletes it. Left unchecked across several merged_id-changing fixes
+    # this session, that silently grew merged_listings to 244,217 rows
+    # against only 167,611 actually current (~76,600 orphaned) - which was
+    # enough to push the frontend's deep-page queries in fetchAllRows()
+    # past Postgres's statement timeout (error 57014) and take the whole
+    # site down ("Could not load listings data.", live-reproduced via
+    # probe_site_load.py). Deleting what the current sync didn't touch
+    # keeps this table's size tied to the real current listing count,
+    # permanently, not just as a one-time cleanup.
+    # Keyset pagination (WHERE id > <cursor>), not OFFSET - this table is
+    # exactly the one whose OFFSET-paged growth caused the outage this
+    # function exists to prevent a repeat of (see this function's own
+    # comment); fetching the id list to clean it up must not hit the same
+    # depth-scales-with-offset statement-timeout wall against the current,
+    # still-bloated table before cleanup has even run.
+    stored_ids = set()
+    cursor = None
+    while True:
+        query_params = {"select": "id", "order": "id", "limit": 1000}
+        if cursor is not None:
+            query_params["id"] = f"gt.{cursor}"
+        resp = requests.get(f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=60)
+        resp.raise_for_status()
+        rows = resp.json()
+        stored_ids.update(r["id"] for r in rows)
+        if len(rows) < 1000:
+            break
+        cursor = rows[-1]["id"]
+
+    stale = list(stored_ids - current_ids)
+    if not stale:
+        print("  no stale rows in merged_listings")
+        return
+
+    for i in range(0, len(stale), BATCH_SIZE):
+        batch = stale[i : i + BATCH_SIZE]
+        resp = requests.delete(
+            f"{base_url}/rest/v1/merged_listings",
+            headers=headers,
+            params={"id": "in.(" + ",".join(batch) + ")"},
+            timeout=60,
+        )
+        if not resp.ok:
+            print(f"ERROR deleting stale merged_listings (batch starting at {i}): {resp.status_code} {resp.text[:500]}")
+            resp.raise_for_status()
+    print(f"  deleted {len(stale)} stale rows from merged_listings")
+
+
+def delete_stale_listing_sources(base_url, headers, current_by_portal):
+    # Same orphaned-row problem as merged_listings (see
+    # delete_stale_merged_listings()'s comment), for the per-source table -
+    # a listing that stops appearing in a portal's own leads_*.json (sold,
+    # delisted, or reclassified into a different merged group) otherwise
+    # stays in listing_sources forever. Not the table that broke the site
+    # this time (it isn't bulk-loaded at all - see index.html's loadData()
+    # comment), but the same unbounded growth is still real waste worth
+    # cleaning up here while already fixing the sibling table.
+    for portal, current_ids in current_by_portal.items():
+        # Keyset pagination, not OFFSET - same reasoning as
+        # delete_stale_merged_listings() (some portals track well over
+        # 100k listings, e.g. alo.bg's ~156,000 nationwide).
+        stored_ids = set()
+        cursor = None
+        while True:
+            query_params = {"select": "source_id", "portal": f"eq.{portal}", "order": "source_id", "limit": 1000}
+            if cursor is not None:
+                query_params["source_id"] = f"gt.{cursor}"
+            resp = requests.get(f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60)
+            resp.raise_for_status()
+            rows = resp.json()
+            stored_ids.update(r["source_id"] for r in rows)
+            if len(rows) < 1000:
+                break
+            cursor = rows[-1]["source_id"]
+
+        stale = list(stored_ids - current_ids)
+        if not stale:
+            continue
+        for i in range(0, len(stale), BATCH_SIZE):
+            batch = stale[i : i + BATCH_SIZE]
+            resp = requests.delete(
+                f"{base_url}/rest/v1/listing_sources",
+                headers=headers,
+                params={"portal": f"eq.{portal}", "source_id": "in.(" + ",".join(batch) + ")"},
+                timeout=60,
+            )
+            if not resp.ok:
+                print(f"ERROR deleting stale listing_sources for {portal} (batch starting at {i}): "
+                      f"{resp.status_code} {resp.text[:500]}")
+                resp.raise_for_status()
+        print(f"  deleted {len(stale)} stale rows from listing_sources for {portal}")
+
+
 def main():
     supabase_url = os.environ.get("SUPABASE_URL")
     secret_key = os.environ.get("SUPABASE_SECRET_KEY")
@@ -799,8 +896,18 @@ def main():
     listing_source_rows, merged_rows = build_rows(all_listings)
     print(f"Computed {len(merged_rows)} merged listings from {len(listing_source_rows)} sources")
 
-    upsert(supabase_url.rstrip("/"), headers, "listing_sources", listing_source_rows, on_conflict="portal,source_id")
-    upsert(supabase_url.rstrip("/"), headers, "merged_listings", merged_rows, on_conflict="id")
+    base_url = supabase_url.rstrip("/")
+    upsert(base_url, headers, "listing_sources", listing_source_rows, on_conflict="portal,source_id")
+    upsert(base_url, headers, "merged_listings", merged_rows, on_conflict="id")
+
+    print("Cleaning up stale rows left behind by earlier syncs...")
+    current_merged_ids = {r["id"] for r in merged_rows}
+    delete_stale_merged_listings(base_url, headers, current_merged_ids)
+
+    current_by_portal = {}
+    for r in listing_source_rows:
+        current_by_portal.setdefault(r["portal"], set()).add(r["source_id"])
+    delete_stale_listing_sources(base_url, headers, current_by_portal)
 
     print("Sync complete")
 
