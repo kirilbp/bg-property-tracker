@@ -26,9 +26,19 @@ coordinates - some listings genuinely have neither on their own page, and
 without an explicit marker those would get needlessly re-visited by every
 future run instead of being treated as done.
 
-Not scheduled automatically - re-run it by hand (or on a cron, later)
-until the "not yet checked" count reaches zero, same as any other
-backfill.
+Scheduled hourly (see backfill-detail-imoti-net.yml) - this docstring
+previously (incorrectly) said otherwise; the workflow file itself has had
+an hourly cron for a while. In practice this portal still has the worst
+lat/lng coverage of all 8 (9.6% live-checked, vs. 21-63% elsewhere):
+scrape.yml/scrape-large.yml runs share this backfill's concurrency group
+(scrape-property-listings, both write data/*.json and commit) and can run
+for hours at nationwide scale - confirmed live, a single scrape.yml run
+took over 3 hours - during which this backfill's own hourly triggers
+queue up and get superseded/cancelled by the next hour's trigger before
+ever running, not silently "not scheduled" but real, repeated starvation.
+Not fixed here - shrinking scrape.yml's own runtime or giving backfills a
+separate concurrency group (with its own git-race tradeoffs to weigh) is
+a bigger structural change than this comment is scoped to make.
 
 Does NOT fill description: confirmed live via probe_descriptions.py that
 imoti.net's own detail page carries no free-text description anywhere -
