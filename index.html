@@ -2454,6 +2454,28 @@ function render() {
   grid.innerHTML = '';
 
   if (filtered.length === 0) {
+    // A radius/polygon lead generator can legitimately return zero matches
+    // for a reason that looks identical to "the site is broken" from the
+    // outside: matchesLeadGenerator() requires the listing to have real
+    // lat/lng, but coverage is genuinely partial everywhere (live-checked:
+    // ~21% of all listings have real coordinates right now, no portal
+    // above ~63% - most detail-page-visiting backfills are still working
+    // through a nationwide-scale backlog). Zero results near a real town
+    // is very often "nothing nearby has been geocoded yet", not "nothing
+    // is listed there" - say so plainly instead of leaving the generic
+    // message, which reads the same for both and gives no way to tell
+    // them apart.
+    const areaMode = activeLeadGenerator?.area?.mode;
+    if (areaMode === 'radius' || areaMode === 'polygon') {
+      const withCoords = MERGED_LISTINGS.filter(l => l.lat != null && l.lng != null).length;
+      const pct = Math.round(100 * withCoords / MERGED_LISTINGS.length);
+      empty.textContent = `0 listings matched this location. This can mean there's genuinely nothing listed nearby, `
+        + `but it can also mean nearby listings just don't have exact coordinates yet - only ${pct}% of all `
+        + `${fmt(MERGED_LISTINGS.length)} listings do right now (coverage varies a lot by portal and is still being `
+        + `filled in). Try Browse by City or Browse by Council instead, which don't need coordinates.`;
+    } else {
+      empty.textContent = 'No listings match these filters.';
+    }
     empty.style.display = 'block';
     setPaginationHtml('');
     return;
