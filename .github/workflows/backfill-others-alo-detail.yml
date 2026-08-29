@@ -7,19 +7,26 @@
 #
 # workflow_dispatch only - a one-time catch-up job for the specific
 # backlog reported live ("all of them need allocation, not just half").
-# Shares scrape.yml's concurrency group since it writes to data/*.json
-# and commits, same as any other backfill. A long timeout since ~6,500
-# listings at ~1-2s/request (plain HTTP, not a browser - alo.bg's own
-# detail pages don't need Playwright) realistically takes hours; progress
-# is checkpointed every 200 listings so a run that hits this timeout
-# still keeps whatever it found rather than losing it all.
-name: Backfill province allocation for "Others" (alo.bg detail visits)
-
-on:
-  workflow_dispatch:
-
+# A long timeout since ~6,500 listings at ~1-2s/request (plain HTTP, not
+# a browser - alo.bg's own detail pages don't need Playwright)
+# realistically takes hours; progress is checkpointed every 200 listings
+# so a run that hits this timeout still keeps whatever it found rather
+# than losing it all.
+#
+# Its own dedicated group, not scrape.yml's shared "scrape-property-
+# listings" one: this script DOES genuinely overlap scrape-large.yml's
+# own alo.bg data (both touch leads_alo.json/history_alo.json), so it
+# should still wait for any scrape-large.yml run in progress specifically
+# - but the ~10 OTHER crons sharing that one group (none of which touch
+# alo.bg's files at all) kept bumping this job from the queue before it
+# ever got a turn, real starvation on a job the live report needs done
+# now (see backfill-others-geocode.yml's own comment for the fuller
+# story). Its commit step below rebases against main and, on a genuine
+# conflict, keeps main's version of just the conflicted files rather than
+# failing outright - the real protection against the one overlap that
+# does exist (a scrape-large.yml run landing mid-way through this one).
 concurrency:
-  group: scrape-property-listings
+  group: backfill-others-alo-detail
   cancel-in-progress: false
 
 permissions:
@@ -46,5 +53,10 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add data/
           git diff --cached --quiet || git commit -m "Backfill province allocation for Others (alo.bg detail visits)"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+            git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
+            git diff --name-only --diff-filter=U | xargs -r git add
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
