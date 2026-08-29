@@ -1,0 +1,50 @@
+# One-time correction pass (see backfill_others_geocode.py's own
+# docstring for the full story): geocodes every olx.bg/sales.bcpea.org/
+# homes.bg/bazar.bg/imot.bg/imoti.bg listing currently in the site's
+# "Others" province bucket, using the already-safe, confidence-gated
+# Geocoder - a genuinely ambiguous settlement name (e.g. "Бяла", a real,
+# different municipality in both Varna and Ruse oblasts) is correctly
+# left unresolved rather than guessed at.
+#
+# workflow_dispatch only - a one-time catch-up job for the specific
+# backlog reported live ("all of them need allocation, not just half").
+# Shares scrape.yml's concurrency group since it writes to data/*.json
+# and commits, same as any other backfill. Importing all 6 scraper
+# modules pulls in playwright at import time (olx.bg/bcpea/imot.bg's own
+# grid crawls use it) even though this script never launches a browser -
+# installed here but never invoked.
+name: Backfill province allocation for "Others" (text-geocodable portals)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4 playwright
+
+      - run: python backfill_others_geocode.py
+        timeout-minutes: 180
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill province allocation for Others (text-geocodable portals)"
+          git pull --rebase origin main
+          git push

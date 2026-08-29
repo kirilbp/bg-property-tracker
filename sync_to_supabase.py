@@ -776,10 +776,24 @@ BG_MUNICIPALITY_TO_OBLAST = {
 }
 
 
+# Portals prefix a settlement-type label onto the name itself
+# ("гр.Несебър" - town, "с.Владая" - village, "кв. Виница" - quarter) and
+# sometimes leave stray leading punctuation from a malformed split
+# (", гр.Несебър") - strip both before the exact-match lookup, the same
+# normalization principle city_key_from_name() already applies for its
+# own trailing-suffix case.
+_MUNICIPALITY_PREFIX_RE = re.compile(r"^[\s,]*(?:гр\.?|с\.?|кв\.?|ж\.?к\.?|в\.?з\.?|м-т)\s*", re.IGNORECASE)
+
+
 def oblast_key_from_municipality(name):
     if not name:
         return None
-    return BG_MUNICIPALITY_TO_OBLAST.get(name.strip())
+    stripped = name.strip()
+    key = BG_MUNICIPALITY_TO_OBLAST.get(stripped)
+    if key:
+        return key
+    normalized = _MUNICIPALITY_PREFIX_RE.sub("", stripped).strip()
+    return BG_MUNICIPALITY_TO_OBLAST.get(normalized)
 
 
 def listing_oblast_key(l, city_key):
