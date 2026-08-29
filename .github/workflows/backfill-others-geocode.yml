@@ -8,18 +8,25 @@
 #
 # workflow_dispatch only - a one-time catch-up job for the specific
 # backlog reported live ("all of them need allocation, not just half").
-# Shares scrape.yml's concurrency group since it writes to data/*.json
-# and commits, same as any other backfill. Importing all 6 scraper
-# modules pulls in playwright at import time (olx.bg/bcpea/imot.bg's own
-# grid crawls use it) even though this script never launches a browser -
-# installed here but never invoked.
-name: Backfill province allocation for "Others" (text-geocodable portals)
-
-on:
-  workflow_dispatch:
-
+# Importing all 6 scraper modules pulls in playwright at import time
+# (olx.bg/bcpea/imot.bg's own grid crawls use it) even though this
+# script never launches a browser - installed here but never invoked.
+#
+# Deliberately NOT in scrape.yml's shared "scrape-property-listings"
+# concurrency group: this script only ever touches
+# leads_{olx,bcpea,homes,bazar,imot,imoti_bg}.json/history_*.json - a
+# real, confirmed run got stuck waiting behind a 3+ hour scrape-large.yml
+# run (which only touches leads.json/leads_alo.json - completely
+# disjoint files) and kept getting bumped from the queue by the OTHER ~10
+# crons also sharing that one group before it ever got a turn, real
+# starvation, not bad luck, on a job the live report needs done now. Its
+# own commit step below still rebases against main and, on a genuine
+# conflict from some other backfill's run landing in the meantime, keeps
+# main's version of just the conflicted files rather than failing outright
+# and losing this run's own progress on everything else - same fallback
+# scrape.yml/scrape-large.yml already rely on for exactly this reason.
 concurrency:
-  group: scrape-property-listings
+  group: backfill-others-geocode
   cancel-in-progress: false
 
 permissions:
@@ -46,5 +53,10 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add data/
           git diff --cached --quiet || git commit -m "Backfill province allocation for Others (text-geocodable portals)"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+            git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
+            git diff --name-only --diff-filter=U | xargs -r git add
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
