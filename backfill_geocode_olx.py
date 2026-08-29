@@ -26,9 +26,12 @@ from geo_utils import Geocoder
 
 # Caps a single run's live-lookup count so this can't itself balloon into
 # an unbounded, multi-hour job the way in-line geocoding did at nationwide
-# scale (see the module docstring) - meant to be re-run repeatedly (by
-# hand, or on a schedule) until the missing-coordinate count hits zero.
-MAX_LOOKUPS_PER_RUN = 1500
+# scale (see the module docstring) - meant to be re-run repeatedly (now
+# hourly, on a schedule) until the missing-coordinate count hits zero.
+# 250 (down from 1500) fits comfortably inside the 45-minute timeout an
+# hourly cron needs - see backfill_geocode_homes.py's own comment for the
+# full per-lookup timing reasoning.
+MAX_LOOKUPS_PER_RUN = 250
 
 
 def main():

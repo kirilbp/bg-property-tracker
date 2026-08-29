@@ -630,6 +630,158 @@ def oblast_key_from_latlng(lat, lng):
     return None
 
 
+# Bulgaria's 28 oblasts are subdivided into 265 official municipalities
+# ("общини") - a fixed, unambiguous administrative fact (each municipality
+# sits in exactly one oblast) - live-sampled as the real cause of most of
+# the "Others" bucket for homes.bg/olx.bg/sales.bcpea.org: these portals'
+# own "city"/"area" text is usually already the settlement's real
+# municipality or village name (e.g. homes.bg's own "city": "Несебър"),
+# just not one of the 28 oblast *names* nor one of the 30 BG_CITIES this
+# module already tracks - so every earlier check correctly fails to find
+# an oblast, even though the municipality itself unambiguously determines
+# one. Restricted to municipality names actually confirmed present in the
+# real data and independently verified against Bulgaria's official
+# administrative division - "Бяла" is deliberately NOT included here even
+# though it's common in the data: it's a real, different municipality in
+# BOTH Varna and Ruse oblasts, genuinely ambiguous from the name alone,
+# the same class of mistake that caused real data corruption earlier this
+# project (see verify_geocode_qualifiers.py's docstring) - left
+# unclassified rather than guessed. A settlement within Sofia city's own
+# municipality (Столична община) - Банкя/Нови Искър/Панчарево/Кремиковци/
+# Бистрица/Лозен/Владая/Желява and others - maps to "sofia_grad", not
+# "sofia" (Sofia Province is a genuinely separate, surrounding oblast).
+BG_MUNICIPALITY_TO_OBLAST = {
+    # Burgas oblast
+    "Айтос": "burgas", "Камено": "burgas", "Карнобат": "burgas", "Малко Търново": "burgas",
+    "Несебър": "burgas", "Поморие": "burgas", "Приморско": "burgas", "Руен": "burgas",
+    "Созопол": "burgas", "Сунгурларе": "burgas", "Царево": "burgas",
+    "Равда": "burgas", "Кошарица": "burgas", "Синеморец": "burgas", "Резово": "burgas",
+    # Varna oblast (Byala deliberately excluded - see docstring above)
+    "Аврен": "varna", "Аксаково": "varna", "Белослав": "varna", "Долни Чифлик": "varna",
+    "Провадия": "varna", "Суворово": "varna", "Ветрино": "varna", "Вeтринo": "varna",
+    "Девня": "varna", "Долен чифлик": "varna",
+    # Dobrich oblast
+    "Балчик": "dobrich", "Генерал Тошево": "dobrich", "Каварна": "dobrich", "Тервел": "dobrich",
+    "Крушари": "dobrich", "Шабла": "dobrich", "Кранево": "dobrich", "Рогачево": "dobrich",
+    "Оброчище": "dobrich", "Топола": "dobrich", "Българево": "dobrich", "Дуранкулак": "dobrich",
+    "Кардам": "dobrich",
+    # Sofia Province (Софийска област) - the municipalities, distinct from
+    # Sofia CITY's own sub-municipal districts listed separately below.
+    "Божурище": "sofia", "Ботевград": "sofia", "Годеч": "sofia", "Горна Малина": "sofia",
+    "Долна Баня": "sofia", "Драгоман": "sofia", "Елин Пелин": "sofia", "Етрополе": "sofia",
+    "Златица": "sofia", "Ихтиман": "sofia", "Костенец": "sofia", "Костинброд": "sofia",
+    "Мирково": "sofia", "Пирдоп": "sofia", "Правец": "sofia", "Самоков": "sofia",
+    "Своге": "sofia", "Сливница": "sofia", "Чавдар": "sofia", "Челопеч": "sofia",
+    "Антон": "sofia", "Софийска": "sofia",
+    # Sofia-grad's own sub-municipal districts (villages/towns administered
+    # directly by Sofia's own Столична община, NOT Sofia Province).
+    "Банкя": "sofia_grad", "Нови Искър": "sofia_grad", "Панчарево": "sofia_grad",
+    "Кремиковци": "sofia_grad", "Бистрица": "sofia_grad", "Лозен": "sofia_grad",
+    "Владая": "sofia_grad", "Желява": "sofia_grad", "Кладница": "sofia_grad",
+    "Рударци": "sofia_grad",
+    # Kyustendil oblast
+    "Бобов дол": "kyustendil", "Бобовдол": "kyustendil", "Бобошево": "kyustendil",
+    "Невестино": "kyustendil", "Рила": "kyustendil", "Сапарева баня": "kyustendil",
+    "Трекляно": "kyustendil", "Koчериново": "kyustendil", "Кочериново": "kyustendil",
+    # Blagoevgrad oblast
+    "Банско": "blagoevgrad", "Белица": "blagoevgrad", "Кресна": "blagoevgrad",
+    "Петрич": "blagoevgrad", "Разлог": "blagoevgrad", "Сандански": "blagoevgrad",
+    "Сатовча": "blagoevgrad", "Симитли": "blagoevgrad", "Струмяни": "blagoevgrad",
+    "Якоруда": "blagoevgrad", "Гоце Делчев": "blagoevgrad", "Хаджидимово": "blagoevgrad",
+    "Гърмен": "blagoevgrad",
+    # Plovdiv oblast
+    "Асеновград": "plovdiv", "Брезово": "plovdiv", "Хисаря": "plovdiv", "Калояново": "plovdiv",
+    "Карлово": "plovdiv", "Куклен": "plovdiv", "Лъки": "plovdiv", "Марица": "plovdiv",
+    "Първомай": "plovdiv", "Перущица": "plovdiv", "Раковски": "plovdiv", "Родопи": "plovdiv",
+    "Садово": "plovdiv", "Съединение": "plovdiv", "Стамболийски": "plovdiv", "Сопот": "plovdiv",
+    "Калофер": "plovdiv", "Марково": "plovdiv", "Първенец": "plovdiv", "Труд": "plovdiv",
+    "Скутаре": "plovdiv", "Крумово": "plovdiv", "Брестовица": "plovdiv", "Тополово": "plovdiv",
+    "Ягодово": "plovdiv", "Белащица": "plovdiv", "Граф Игнатиево": "plovdiv",
+    # Pazardzhik oblast
+    "Батак": "pazardzhik", "Белово": "pazardzhik", "Брацигово": "pazardzhik",
+    "Лесичово": "pazardzhik", "Панагюрище": "pazardzhik", "Пещера": "pazardzhik",
+    "Ракитово": "pazardzhik", "Септември": "pazardzhik", "Сърница": "pazardzhik",
+    "Стрелча": "pazardzhik", "Велинград": "pazardzhik", "Мало Конаре": "pazardzhik",
+    "Куртово Конаре": "pazardzhik",
+    # Veliko Tarnovo oblast
+    "Елена": "veliko_tarnovo", "Горна Оряховица": "veliko_tarnovo", "Лясковец": "veliko_tarnovo",
+    "Павликени": "veliko_tarnovo", "Полски Тръмбеш": "veliko_tarnovo", "Стражица": "veliko_tarnovo",
+    "Сухиндол": "veliko_tarnovo", "Златарица": "veliko_tarnovo", "Арбанаси": "veliko_tarnovo",
+    "Драгижево": "veliko_tarnovo", "Хотница": "veliko_tarnovo", "Поликраище": "veliko_tarnovo",
+    "Самоводене": "veliko_tarnovo", "Пчелище": "veliko_tarnovo", "Леденик": "veliko_tarnovo",
+    "Беляковец": "veliko_tarnovo", "Първомайци": "veliko_tarnovo", "Присово": "veliko_tarnovo",
+    # Gabrovo oblast
+    "Дряново": "gabrovo", "Севлиево": "gabrovo", "Трявна": "gabrovo",
+    # Shumen oblast
+    "Велики Преслав": "shumen", "Върбица": "shumen", "Каолиново": "shumen",
+    "Каспичан": "shumen", "Никола Козлево": "shumen", "Нови Пазар": "shumen",
+    "Смядово": "shumen", "Венец": "shumen",
+    # Yambol oblast
+    "Болярово": "yambol", "Елхово": "yambol", "Стралджа": "yambol", "Тунджа": "yambol",
+    # Stara Zagora oblast
+    "Братя Даскалови": "stara_zagora", "Чирпан": "stara_zagora", "Гурково": "stara_zagora",
+    "Мъглиж": "stara_zagora", "Николаево": "stara_zagora", "Опан": "stara_zagora",
+    "Павел баня": "stara_zagora", "Раднево": "stara_zagora", "Енина": "stara_zagora",
+    "Старозагорски бани": "stara_zagora",
+    # Ruse oblast (Byala deliberately excluded - see docstring above)
+    "Борово": "ruse", "Две могили": "ruse", "Иваново": "ruse", "Сливо поле": "ruse",
+    "Ценово": "ruse", "Ветово": "ruse", "Червена вода": "ruse", "Николово": "ruse",
+    "Щръклево": "ruse",
+    # Silistra oblast
+    "Алфатар": "silistra", "Дулово": "silistra", "Главиница": "silistra",
+    "Кайнарджа": "silistra", "Ситово": "silistra", "Тутракан": "silistra", "Калипетрово": "silistra",
+    # Razgrad oblast
+    "Исперих": "razgrad", "Кубрат": "razgrad", "Лозница": "razgrad", "Самуил": "razgrad",
+    "Цар Калоян": "razgrad", "Завет": "razgrad",
+    # Targovishte oblast
+    "Антоново": "targovishte", "Омуртаг": "targovishte", "Опака": "targovishte",
+    "Попово": "targovishte",
+    # Pernik oblast
+    "Брезник": "pernik", "Земен": "pernik", "Ковачевци": "pernik", "Радомир": "pernik",
+    "Трън": "pernik",
+    # Vidin oblast
+    "Белоградчик": "vidin", "Бойница": "vidin", "Брегово": "vidin", "Чупрене": "vidin",
+    "Димово": "vidin", "Грамада": "vidin", "Кула": "vidin", "Макреш": "vidin",
+    "Ново село": "vidin", "Ружинци": "vidin",
+    # Montana oblast
+    "Берковица": "montana", "Бойчиновци": "montana", "Брусарци": "montana",
+    "Чипровци": "montana", "Георги Дамяново": "montana", "Лом": "montana",
+    "Медковец": "montana", "Вълчедръм": "montana", "Вършец": "montana", "Якимово": "montana",
+    # Vratsa oblast
+    "Бяла Слатина": "vratsa", "Борован": "vratsa", "Козлодуй": "vratsa",
+    "Криводол": "vratsa", "Мездра": "vratsa", "Мизия": "vratsa", "Оряхово": "vratsa",
+    "Роман": "vratsa", "Хайредин": "vratsa",
+    # Lovech oblast
+    "Априлци": "lovech", "Летница": "lovech", "Луковит": "lovech", "Тетевен": "lovech",
+    "Троян": "lovech", "Угърчин": "lovech", "Ябланица": "lovech", "Рибарица": "lovech",
+    "Шипково": "lovech", "Лесидрен": "lovech",
+    # Pleven oblast
+    "Белене": "pleven", "Долна Митрополия": "pleven", "Долни Дъбник": "pleven",
+    "Гулянци": "pleven", "Кнежа": "pleven",
+    "Никопол": "pleven", "Пордим": "pleven", "Червен бряг": "pleven",
+    # Haskovo oblast
+    "Димитровград": "haskovo", "Харманли": "haskovo", "Ивайловград": "haskovo",
+    "Любимец": "haskovo", "Маджарово": "haskovo", "Минерални бани": "haskovo",
+    "Симеоновград": "haskovo", "Стамболово": "haskovo", "Свиленград": "haskovo",
+    "Тополовград": "haskovo",
+    # Kardzhali oblast
+    "Ардино": "kardzhali", "Черноочене": "kardzhali", "Джебел": "kardzhali",
+    "Кирково": "kardzhali", "Крумовград": "kardzhali", "Момчилград": "kardzhali",
+    # Smolyan oblast
+    "Баните": "smolyan", "Борино": "smolyan", "Чепеларе": "smolyan", "Девин": "smolyan",
+    "Доспат": "smolyan", "Мадан": "smolyan", "Неделино": "smolyan", "Рудозем": "smolyan",
+    "Златоград": "smolyan", "Проглед": "smolyan",
+    # Sliven oblast
+    "Котел": "sliven", "Нова Загора": "sliven", "Твърдица": "sliven",
+}
+
+
+def oblast_key_from_municipality(name):
+    if not name:
+        return None
+    return BG_MUNICIPALITY_TO_OBLAST.get(name.strip())
+
+
 def listing_oblast_key(l, city_key):
     geo_key = oblast_key_from_latlng(l.get("lat"), l.get("lng"))
     if geo_key:
@@ -647,6 +799,9 @@ def listing_oblast_key(l, city_key):
             key = oblast_key_from_name_prefix(settlement)
             if key:
                 return key
+            key = oblast_key_from_municipality(settlement)
+            if key:
+                return key
         return None
     for field in ("city", "area"):
         value = l.get(field)
@@ -655,6 +810,9 @@ def listing_oblast_key(l, city_key):
             if key:
                 return key
             key = oblast_key_from_name_prefix(value)
+            if key:
+                return key
+            key = oblast_key_from_municipality(value)
             if key:
                 return key
     title = l.get("title")

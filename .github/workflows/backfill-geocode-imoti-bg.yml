@@ -2,14 +2,17 @@
 # uncoordinated (see backfill_geocode_imoti_bg.py and
 # scraper_imoti_bg.py's module docstring for why: a real nationwide
 # production run took 4+ hours instead of ~35 minutes while geocoding was
-# still live/in-line). workflow_dispatch only, meant to be re-run by hand
-# until the missing-coordinate count hits zero - each run processes a
-# bounded chunk (MAX_LOOKUPS_PER_RUN), not everything at once. Shares
-# scrape.yml's concurrency group since both write to data/*.json and
-# commit.
-name: Backfill imoti.bg geocoding
-
+# still live/in-line). Each run processes a bounded chunk
+# (MAX_LOOKUPS_PER_RUN), not everything at once. Shares scrape.yml's
+# concurrency group since both write to data/*.json and commit.
+#
+# Was workflow_dispatch-only - never actually re-run by hand at any real
+# volume, contributing to the site's "Others" province bucket (same root
+# cause as backfill-geocode-homes.yml - see its own comment for the full
+# story). Scheduled hourly now, matching the other backfills.
 on:
+  schedule:
+    - cron: "55 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -32,6 +35,7 @@ jobs:
       - run: pip install requests beautifulsoup4
 
       - run: python backfill_geocode_imoti_bg.py
+        timeout-minutes: 45
 
       - if: always()
         run: |
