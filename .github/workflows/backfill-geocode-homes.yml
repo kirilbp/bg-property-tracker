@@ -1,14 +1,24 @@
 # Fills in lat/lng for homes.bg listings the nationwide scraper left
 # uncoordinated (see backfill_geocode_homes.py and scraper_homes.py's
 # module docstring for why: live geocoding at nationwide scale doesn't fit
-# in the scrape itself). workflow_dispatch only, meant to be re-run by
-# hand until the missing-coordinate count hits zero - each run processes
-# a bounded chunk (MAX_LOOKUPS_PER_RUN), not everything at once. Shares
-# scrape.yml's concurrency group since both write to data/*.json and
-# commit.
-name: Backfill homes.bg geocoding
-
+# in the scrape itself). Each run processes a bounded chunk
+# (MAX_LOOKUPS_PER_RUN), not everything at once. Shares scrape.yml's
+# concurrency group since both write to data/*.json and commit.
+#
+# Was workflow_dispatch-only - never actually re-run by hand at any real
+# volume, so ~71% of homes.bg (49,217 listings) sat with no coordinates
+# indefinitely, and every one of those with no other location signal in
+# its own text (city/area naming a settlement/municipality this project
+# doesn't otherwise recognize) silently piled up in the site's "Others"
+# province bucket, live-reported as a real bug ("all properties in it
+# should be allocated in one of the provinces"). Scheduled hourly now,
+# matching the other backfills, so this actually clears over time instead
+# of sitting still - each newly-geocoded listing gets its real province
+# for free via the existing lat/lng-to-oblast-polygon lookup, no separate
+# fix needed on the classification side once coordinates exist.
 on:
+  schedule:
+    - cron: "5 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -31,6 +41,7 @@ jobs:
       - run: pip install requests
 
       - run: python backfill_geocode_homes.py
+        timeout-minutes: 45
 
       - if: always()
         run: |

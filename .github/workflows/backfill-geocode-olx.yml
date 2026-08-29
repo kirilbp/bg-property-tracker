@@ -1,14 +1,19 @@
 # Fills in lat/lng for olx.bg listings the nationwide scraper left
 # uncoordinated (see backfill_geocode_olx.py and scraper_olx.py's
 # module docstring for why: live geocoding at nationwide scale doesn't fit
-# in the scrape itself). workflow_dispatch only, meant to be re-run by
-# hand until the missing-coordinate count hits zero - each run processes
-# a bounded chunk (MAX_LOOKUPS_PER_RUN), not everything at once. Shares
-# scrape.yml's concurrency group since both write to data/*.json and
-# commit.
-name: Backfill olx.bg geocoding
-
+# in the scrape itself). Each run processes a bounded chunk
+# (MAX_LOOKUPS_PER_RUN), not everything at once. Shares scrape.yml's
+# concurrency group since both write to data/*.json and commit.
+#
+# Was workflow_dispatch-only - never actually re-run by hand at any real
+# volume, so ~70% of olx.bg (13,570 listings) sat with no coordinates
+# indefinitely, contributing directly to the site's "Others" province
+# bucket (same root cause as backfill-geocode-homes.yml - see its own
+# comment for the full story). Scheduled hourly now, matching the other
+# backfills.
 on:
+  schedule:
+    - cron: "25 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -31,6 +36,7 @@ jobs:
       - run: pip install requests
 
       - run: python backfill_geocode_olx.py
+        timeout-minutes: 45
 
       - if: always()
         run: |

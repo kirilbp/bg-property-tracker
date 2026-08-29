@@ -30,12 +30,15 @@ from geo_utils import Geocoder
 # Caps a single run's live-lookup count so this can't itself balloon into
 # an unbounded, multi-hour job the way in-line geocoding did at nationwide
 # scale (see the module docstring) - it's meant to be re-run repeatedly
-# (by hand, or on a schedule) until the missing-coordinate count hits
+# (now hourly, on a schedule) until the missing-coordinate count hits
 # zero, each run chipping away at a bounded, predictable chunk instead of
 # trying to clear everything in one go. At ~1.1-9s per uncached lookup,
-# 1500 lookups is roughly 30-225 minutes worst case - comfortably inside
-# a single job.
-MAX_LOOKUPS_PER_RUN = 1500
+# 1500 lookups could take up to 225 minutes worst case - doesn't fit the
+# 45-minute timeout an hourly cron needs (a run that regularly overran its
+# slot would just pile up in the shared scrape-property-listings
+# concurrency group). 250 lookups is at most ~37.5 minutes worst case,
+# comfortably inside that budget.
+MAX_LOOKUPS_PER_RUN = 250
 
 
 def main():
