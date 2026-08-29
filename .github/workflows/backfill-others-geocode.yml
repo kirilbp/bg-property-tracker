@@ -25,6 +25,11 @@
 # main's version of just the conflicted files rather than failing outright
 # and losing this run's own progress on everything else - same fallback
 # scrape.yml/scrape-large.yml already rely on for exactly this reason.
+name: Backfill province allocation for "Others" (text-geocodable portals)
+
+on:
+  workflow_dispatch:
+
 concurrency:
   group: backfill-others-geocode
   cancel-in-progress: false
