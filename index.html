@@ -1521,9 +1521,17 @@ const BG_MUNICIPALITY_TO_OBLAST = {
   "Твърдица": "sliven"
 };
 
+// Mirrors sync_to_supabase.py's _MUNICIPALITY_PREFIX_RE - strips a
+// settlement-type prefix ("гр."/"с."/"кв."/"ж.к."/"в.з."/"м-т") and stray
+// leading punctuation before the exact-match lookup.
+const MUNICIPALITY_PREFIX_RE = /^[\s,]*(?:гр\.?|с\.?|кв\.?|ж\.?к\.?|в\.?з\.?|м-т)\s*/i;
+
 function oblastKeyFromMunicipality(name) {
   if (!name) return null;
-  return BG_MUNICIPALITY_TO_OBLAST[name.trim()] || null;
+  const stripped = name.trim();
+  if (BG_MUNICIPALITY_TO_OBLAST[stripped]) return BG_MUNICIPALITY_TO_OBLAST[stripped];
+  const normalized = stripped.replace(MUNICIPALITY_PREFIX_RE, '').trim();
+  return BG_MUNICIPALITY_TO_OBLAST[normalized] || null;
 }
 
 // Same \b-is-ASCII-only pitfall as BG_CITY_PREFIX_RE - \p{L} lookahead

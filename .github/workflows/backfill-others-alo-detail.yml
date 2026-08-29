@@ -1,0 +1,50 @@
+# One-time correction pass (see backfill_others_alo_detail.py's own
+# docstring for the full story): visits the detail page of every alo.bg
+# listing currently in the site's "Others" province bucket to get its
+# real per-listing coordinate - the one location signal these specific
+# listings have (their own grid card never matched LOCATION_RE, and their
+# city/area fields are just the generic "Bulgaria" fallback).
+#
+# workflow_dispatch only - a one-time catch-up job for the specific
+# backlog reported live ("all of them need allocation, not just half").
+# Shares scrape.yml's concurrency group since it writes to data/*.json
+# and commits, same as any other backfill. A long timeout since ~6,500
+# listings at ~1-2s/request (plain HTTP, not a browser - alo.bg's own
+# detail pages don't need Playwright) realistically takes hours; progress
+# is checkpointed every 200 listings so a run that hits this timeout
+# still keeps whatever it found rather than losing it all.
+name: Backfill province allocation for "Others" (alo.bg detail visits)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: scrape-property-listings
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python backfill_others_alo_detail.py
+        timeout-minutes: 340
+
+      - if: always()
+        run: |
+          git config user.name "property-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Backfill province allocation for Others (alo.bg detail visits)"
+          git pull --rebase origin main
+          git push
