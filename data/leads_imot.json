@@ -571,6 +571,8 @@
     "title": "Продава КЪЩА, Манастирски ливади",
     "portal": "imot.bg",
     "category": "house",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
     "price_per_sqm": 2586,
     "price_history": [
       {
@@ -487673,6 +487675,8 @@
     "title": "Продава 2-СТАЕН, Малинова долина",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 41.9641668,
+    "lng": 25.4961073,
     "price_per_sqm": 3034,
     "price_history": [
       {
@@ -487699,6 +487703,8 @@
     "title": "Продава 3-СТАЕН, Дървеница",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.658279,
+    "lng": 23.3632397,
     "price_per_sqm": 3319,
     "price_history": [
       {
@@ -487725,6 +487731,8 @@
     "title": "Продава 3-СТАЕН, Кръстова вада",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6446852,
+    "lng": 23.3058285,
     "price_per_sqm": 3580,
     "price_history": [
       {
@@ -487751,6 +487759,8 @@
     "title": "Продава 3-СТАЕН, Мусагеница",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.658552,
+    "lng": 23.3644139,
     "price_per_sqm": 3319,
     "price_history": [
       {
@@ -487777,6 +487787,8 @@
     "title": "Продава 3-СТАЕН, Стрелбище",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6271034,
+    "lng": 27.4130018,
     "price_per_sqm": 3118,
     "price_history": [
       {
@@ -487803,6 +487815,8 @@
     "title": "Продава 3-СТАЕН, Сухата река",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6174351,
+    "lng": 25.1592818,
     "price_per_sqm": 2070,
     "price_history": [
       {
@@ -487829,6 +487843,8 @@
     "title": "Продава МЕЗОНЕТ, Манастирски ливади",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
     "price_per_sqm": 2586,
     "price_history": [
       {
@@ -487855,6 +487871,8 @@
     "title": "Продава КЪЩА, в.з.Малинова долина - Герена",
     "portal": "imot.bg",
     "category": "house",
+    "lat": 42.6116695,
+    "lng": 23.3723767,
     "price_per_sqm": 2082,
     "price_history": [
       {
@@ -487937,6 +487955,8 @@
     "title": "Продава 3-СТАЕН, Лозенец",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6597151,
+    "lng": 23.3250228,
     "price_per_sqm": 4877,
     "price_history": [
       {
@@ -488493,6 +488513,8 @@
     "title": "Продава 2-СТАЕН, Враждебна",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6955647,
+    "lng": 23.4142083,
     "price_per_sqm": 1700,
     "price_history": [
       {
@@ -488519,6 +488541,8 @@
     "title": "Продава 2-СТАЕН, Враждебна",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6955647,
+    "lng": 23.4142083,
     "price_per_sqm": 2239,
     "price_history": [
       {
@@ -489665,6 +489689,8 @@
     "title": "Продава 2-СТАЕН, Младост 2",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 41.6370531,
+    "lng": 25.376392,
     "price_per_sqm": 3864,
     "price_history": [
       {
@@ -490055,6 +490081,8 @@
     "title": "Продава 2-СТАЕН, Сердика",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6977028,
+    "lng": 23.3217359,
     "price_per_sqm": 2715,
     "price_history": [
       {
@@ -490305,6 +490333,8 @@
     "title": "Продава 2-СТАЕН, Център",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.69679,
+    "lng": 23.3208549,
     "price_per_sqm": 2179,
     "price_history": [
       {
@@ -490751,6 +490781,8 @@
     "title": "Продава 3-СТАЕН, Дианабад",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6659936,
+    "lng": 23.3459787,
     "price_per_sqm": 2788,
     "price_history": [
       {
@@ -492681,6 +492713,8 @@
     "title": "Продава 3-СТАЕН, Лозенец",
     "portal": "imot.bg",
     "category": "apartment",
+    "lat": 42.6597151,
+    "lng": 23.3250228,
     "price_per_sqm": 3992,
     "price_history": [
       {

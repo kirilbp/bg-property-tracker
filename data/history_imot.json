@@ -36,7 +36,9 @@
       "area": "Малинова долина",
       "title": "Продава 2-СТАЕН, Малинова долина",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 41.9641668,
+      "lng": 25.4961073
     }
   },
   "imot_1c178298879796240": {
@@ -151,7 +153,9 @@
       "area": "Дървеница",
       "title": "Продава 3-СТАЕН, Дървеница",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.658279,
+      "lng": 23.3632397
     }
   },
   "imot_1c178584685756512": {
@@ -175,7 +179,9 @@
       "area": "Кръстова вада",
       "title": "Продава 3-СТАЕН, Кръстова вада",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6446852,
+      "lng": 23.3058285
     }
   },
   "imot_1c178500328560888": {
@@ -195,7 +201,9 @@
       "area": "Мусагеница",
       "title": "Продава 3-СТАЕН, Мусагеница",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.658552,
+      "lng": 23.3644139
     }
   },
   "imot_1c178661931442881": {
@@ -219,7 +227,9 @@
       "area": "Стрелбище",
       "title": "Продава 3-СТАЕН, Стрелбище",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6271034,
+      "lng": 27.4130018
     }
   },
   "imot_1c178729868071634": {
@@ -243,7 +253,9 @@
       "area": "Сухата река",
       "title": "Продава 3-СТАЕН, Сухата река",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6174351,
+      "lng": 25.1592818
     }
   },
   "imot_1f176552454594253": {
@@ -295,7 +307,9 @@
       "area": "Манастирски ливади",
       "title": "Продава МЕЗОНЕТ, Манастирски ливади",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6616709,
+      "lng": 23.2795633
     }
   },
   "imot_1j178732800219528": {
@@ -335,7 +349,9 @@
       "area": "в.з.Малинова долина - Герена",
       "title": "Продава КЪЩА, в.з.Малинова долина - Герена",
       "portal": "imot.bg",
-      "category": "house"
+      "category": "house",
+      "lat": 42.6116695,
+      "lng": 23.3723767
     }
   },
   "imot_1j176552437350307": {
@@ -392,7 +408,9 @@
       "area": "Манастирски ливади",
       "title": "Продава КЪЩА, Манастирски ливади",
       "portal": "imot.bg",
-      "category": "house"
+      "category": "house",
+      "lat": 42.6616709,
+      "lng": 23.2795633
     }
   },
   "imot_1a178040455315934": {
@@ -3600,7 +3618,9 @@
       "area": "Лозенец",
       "title": "Продава 3-СТАЕН, Лозенец",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6597151,
+      "lng": 23.3250228
     }
   },
   "imot_1r178610440988311": {
@@ -12980,7 +13000,9 @@
       "area": "Враждебна",
       "title": "Продава 2-СТАЕН, Враждебна",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6955647,
+      "lng": 23.4142083
     }
   },
   "imot_1b168364515020378": {
@@ -13012,7 +13034,9 @@
       "area": "Враждебна",
       "title": "Продава 2-СТАЕН, Враждебна",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6955647,
+      "lng": 23.4142083
     }
   },
   "imot_1b178058342359432": {
@@ -41767,7 +41791,9 @@
       "area": "Младост 2",
       "title": "Продава 2-СТАЕН, Младост 2",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 41.6370531,
+      "lng": 25.376392
     }
   },
   "imot_1b178237651834378": {
@@ -51115,7 +51141,9 @@
       "area": "Сердика",
       "title": "Продава 2-СТАЕН, Сердика",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6977028,
+      "lng": 23.3217359
     }
   },
   "imot_1b178187178697059": {
@@ -54575,7 +54603,9 @@
       "area": "Център",
       "title": "Продава 2-СТАЕН, Център",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.69679,
+      "lng": 23.3208549
     }
   },
   "imot_1b165605858103510": {
@@ -68548,7 +68578,9 @@
       "area": "Дианабад",
       "title": "Продава 3-СТАЕН, Дианабад",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6659936,
+      "lng": 23.3459787
     }
   },
   "imot_1c178651406989987": {
@@ -79908,7 +79940,9 @@
       "area": "Лозенец",
       "title": "Продава 3-СТАЕН, Лозенец",
       "portal": "imot.bg",
-      "category": "apartment"
+      "category": "apartment",
+      "lat": 42.6597151,
+      "lng": 23.3250228
     }
   },
   "imot_1c178747404056348": {
