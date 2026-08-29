@@ -25,6 +25,11 @@
 # conflict, keeps main's version of just the conflicted files rather than
 # failing outright - the real protection against the one overlap that
 # does exist (a scrape-large.yml run landing mid-way through this one).
+name: Backfill province allocation for "Others" (alo.bg detail visits)
+
+on:
+  workflow_dispatch:
+
 concurrency:
   group: backfill-others-alo-detail
   cancel-in-progress: false
