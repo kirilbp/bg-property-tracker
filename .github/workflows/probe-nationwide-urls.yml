@@ -1,14 +1,22 @@
 # Dormant diagnostic workflow, repurposed round-by-round throughout the
-# nationwide expansion (see git history for many prior uses). Currently
-# pointed at probe_postcodes.py - checking whether any portal's detail
-# page exposes a postal code that could disambiguate a settlement name
-# shared by more than one real place (e.g. "Бяла" - a real, different
-# municipality in both Varna and Ruse oblasts - see
-# backfill_others_geocode.py's own docstring for that specific case).
+# nationwide expansion (see git history for many prior uses - most
+# recently confirming none of imot.bg/bazar.bg/imoti.bg/alo.bg/imoti.net
+# expose a postal code anywhere on a listing's own detail page: no
+# "пощенски код"/"п.к." keyword on any of the 5, and the only bare
+# 4-digit numbers present (2026, 2000, 1000, 9000...) are years/unrelated
+# IDs, not an address component tied to the listing's real location.
+# Conclusion: a genuine feature gap on the portals themselves (same
+# treatment as the earlier floor-plan investigation) - postal-code-based
+# province allocation isn't achievable with the data these portals
+# expose; the geocoding-based backfills (backfill_others_geocode.py,
+# backfill_others_alo_detail.py) remain the best available path for the
+# remaining "Others" bucket.
 # Kept registered (workflow_dispatch runs against this branch pick up
 # whatever it's currently pointed at, no need to merge a placeholder to
 # main first) so a future diagnostic round can just overwrite the script
-# below instead of re-registering a new workflow name.
+# below instead of re-registering a new workflow name. No probe script
+# currently checked in - repoint the run step at a new one when the next
+# question comes up.
 name: Probe nationwide search URLs
 
 on:
@@ -27,7 +35,4 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4
-
-      - run: python probe_postcodes.py
-        timeout-minutes: 10
+      - run: echo "Dormant - no probe script currently checked in."
