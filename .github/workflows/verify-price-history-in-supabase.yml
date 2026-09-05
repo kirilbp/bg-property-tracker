@@ -1,0 +1,35 @@
+# One-time diagnostic for verify_price_history_in_supabase.py - checks
+# whether Supabase's listing_sources.price_history actually holds the full
+# price history for the listings with the longest chains in committed git
+# JSON, or something shorter/truncated. This is the evidence gate for a
+# planned pruning of git's history_*.json files (which are approaching/over
+# GitHub's 100MB file-size limit): pruning only makes sense once it's
+# confirmed Supabase already holds the complete record independently, not
+# assumed.
+#
+# Read-only (no data/ writes, no commit step) - just queries Supabase and
+# prints a comparison to the job log. Not scheduled, run once by hand.
+name: Verify price history in Supabase
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python verify_price_history_in_supabase.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
