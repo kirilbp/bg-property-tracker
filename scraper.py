@@ -80,7 +80,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net
+from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.imoti.net/en/obiavi/r/prodava"
@@ -307,6 +307,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

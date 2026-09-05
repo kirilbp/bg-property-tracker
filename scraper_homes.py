@@ -112,7 +112,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from geo_utils import Geocoder
+from geo_utils import Geocoder, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
@@ -386,6 +386,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

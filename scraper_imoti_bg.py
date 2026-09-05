@@ -75,7 +75,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder
+from geo_utils import Geocoder, prune_snapshots
 from category_classifier import classify_listing
 
 BASE_URL = "https://imoti.bg"
@@ -358,6 +358,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

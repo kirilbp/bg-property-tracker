@@ -77,7 +77,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import extract_coords_alo, extract_description_alo, extract_photos_alo
+from geo_utils import extract_coords_alo, extract_description_alo, extract_photos_alo, prune_snapshots
 from category_classifier import classify_listing
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -371,6 +371,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

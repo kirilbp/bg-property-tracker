@@ -91,7 +91,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category
+from geo_utils import Geocoder, classify_category, prune_snapshots
 
 SEARCH_URL = "https://sales.bcpea.org/properties"
 BASE_URL = "https://sales.bcpea.org"
@@ -437,6 +437,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
