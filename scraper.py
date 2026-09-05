@@ -161,6 +161,23 @@ def fetch_with_retries(url):
             resp = requests.get(url, headers=HEADERS, timeout=20)
             resp.raise_for_status()
             return resp.text
+        except requests.HTTPError as e:
+            # 404/410 mean the page is permanently gone - retrying can
+            # never succeed. A real production run of
+            # backfill_detail_imoti_net.py's detail-page pass (which hits
+            # a much older, less-checked backlog than the grid crawl ever
+            # does) confirmed this wastes real time: every retry here was
+            # still paying the full RETRY_BACKOFF_SECONDS sleep before
+            # trying again, up to ~15s burned per gone listing for nothing,
+            # which was the main reason that backfill kept exceeding its
+            # workflow's 45-minute timeout on every single run.
+            status = e.response.status_code if e.response is not None else None
+            if status in (404, 410):
+                print(f"DEBUG: {url} permanently gone ({status}) - not retrying")
+                return None
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
         except requests.RequestException as e:
             print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES:
@@ -237,9 +254,23 @@ def parse_date_posted(html):
 # why (nationwide scale made the inline detail pass exceed this workflow's
 # timeout, discarding the whole run). Kept here, reused by
 # backfill_detail_imoti_net.py's separate, resumable pass.
-def fetch_listing_dates(seen):
+#
+# deadline (a time.monotonic() cutoff) and on_checkpoint let the caller
+# save progress as it goes and stop cleanly before the workflow's own
+# timeout would hard-kill the process: a real production run of this
+# backfill kept exceeding its 45-minute workflow timeout on every single
+# scheduled run (confirmed via job logs - killed mid-batch with only
+# ~150-300/1500 listings done), which both discarded that run's entire
+# batch (nothing was saved until the very end) and reported as a failed
+# run every time even though nothing was actually broken. Checking the
+# deadline once per listing (not on some coarser interval) keeps a run
+# that's genuinely almost out of time from overshooting it by much.
+def fetch_listing_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=None):
     total = len(seen)
     for i, (listing_id, l) in enumerate(seen.items(), 1):
+        if deadline is not None and time.monotonic() >= deadline:
+            print(f"DEBUG: stopping at {i - 1}/{total} - approaching this run's time budget")
+            break
         time.sleep(REQUEST_DELAY_SECONDS)
         html = fetch_with_retries(l["url"])
         # Marked regardless of outcome - some listings genuinely have no
@@ -261,6 +292,8 @@ def fetch_listing_dates(seen):
             l["photos"] = photos
         if i % 200 == 0:
             print(f"DEBUG: fetched detail dates for {i}/{total} listings")
+        if on_checkpoint and i % checkpoint_every == 0:
+            on_checkpoint()
 
 
 # imoti.net shows 30 listings/page (see module docstring) - a city whose
