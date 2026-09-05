@@ -74,7 +74,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, extract_description_imot, extract_photos_imot
+from geo_utils import Geocoder, classify_category, extract_description_imot, extract_photos_imot, prune_snapshots
 
 BASE_URL = "https://www.imot.bg"
 SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
@@ -326,6 +326,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

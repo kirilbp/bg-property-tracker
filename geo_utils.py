@@ -434,3 +434,29 @@ class Geocoder:
         if self._dirty:
             CACHE_FILE.write_text(json.dumps(self.cache, ensure_ascii=False, indent=2), encoding="utf-8")
             self._dirty = False
+
+
+def prune_snapshots(history):
+    # Every scraper appends one {seen_at, price_eur} snapshot per listing
+    # per run regardless of whether the price changed - the real driver of
+    # history_*.json's size at nationwide scale (a listing scraped every 6h
+    # for 8 months with 2 real price changes stores ~970 raw snapshots
+    # before this, 3 after). Shrinks each listing's snapshot list to its
+    # first snapshot, every point where the price actually changed, and
+    # the single most recent snapshot - kept unconditionally, even when
+    # its price repeats the one before it, so last-seen/removed_at/
+    # days_on_market (all read off the last snapshot's timestamp) stay
+    # exactly as accurate as before this ran. Never drops a listing or a
+    # real price change, only redundant same-price snapshots in between.
+    for rec in history.values():
+        snapshots = rec.get("snapshots") or []
+        if not snapshots:
+            continue
+        pruned = [snapshots[0]]
+        for s in snapshots[1:]:
+            if s.get("price_eur") != pruned[-1].get("price_eur"):
+                pruned.append(s)
+        if pruned[-1] is not snapshots[-1]:
+            pruned.append(snapshots[-1])
+        rec["snapshots"] = pruned
+    return history

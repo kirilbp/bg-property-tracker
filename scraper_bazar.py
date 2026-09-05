@@ -74,7 +74,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category
+from geo_utils import classify_category, prune_snapshots
 
 BASE_URL = "https://bazar.bg"
 SEARCH_BASE = "https://bazar.bg/obiavi/prodazhba-apartamenti"
@@ -295,6 +295,7 @@ def load_history():
 
 
 def save_history(history):
+    prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
