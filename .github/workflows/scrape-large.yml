@@ -19,13 +19,20 @@ on:
     - cron: "0 3 * * *"
   workflow_dispatch:
 
-# scrape.yml carries the same group and guard for the same reason: a run
-# here takes hours (this file's own comment above), long enough that a
-# scrape.yml run or a direct push to main (a PR merge) can easily land in
-# the meantime and produce a real git conflict on the shared data/*.json
-# files with no fallback otherwise.
+# Its own dedicated group, decoupled from both scrape.yml's "scrape-main"
+# and the ~10 hourly backfill/geocode crons' shared "scrape-property-
+# listings": this job kept getting bumped from that shared queue before it
+# ever started (0 successful runs from Sep 1 to Sep 5, confirmed via
+# workflow run history) - a newer hourly cron always displaced it while it
+# waited behind whichever job was currently running. It doesn't actually
+# need to share a group with anything: scraper.py (imoti.net) and
+# scraper_alo.py (alo.bg) touch only leads.json/history.json and
+# leads_alo.json/history_alo.json - disjoint from every file scrape.yml or
+# any hourly backfill writes - and the commit step's own conflict fallback
+# below (keep main's version of just the conflicted file) already covers
+# the one real remaining case, a PR merge landing on main mid-run.
 concurrency:
-  group: scrape-property-listings
+  group: scrape-large
   cancel-in-progress: false
 
 permissions:
