@@ -16,8 +16,19 @@ on:
 # whichever one happened to conflict. Queues instead of running two scrapes
 # in parallel; cancel-in-progress stays false so a scrape already underway
 # finishes rather than being killed mid-run and wasting the work done so far.
+#
+# Its own dedicated group, not the ~10 hourly backfill/geocode crons'
+# shared "scrape-property-listings" one: this job (~3+ hours, once every
+# 6h) kept getting bumped from that shared queue before it ever started -
+# a newer hourly cron always arrived to displace it while it waited behind
+# whichever job was currently running, so it went from Sep 3 to Sep 5
+# without a single successful run (confirmed via workflow run history).
+# The commit step's own conflict fallback below (keep main's version of
+# just the conflicted file) already covers the actual data-safety concern
+# a shared group was protecting against - the group only added scheduling
+# unfairness on top of that, with no correctness benefit left to lose.
 concurrency:
-  group: scrape-property-listings
+  group: scrape-main
   cancel-in-progress: false
 
 permissions:
