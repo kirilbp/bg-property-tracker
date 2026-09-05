@@ -31,9 +31,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      # scraper_imot.py imports playwright at module load even though this
-      # backfill never launches a browser - omitting it crashes every run.
-      - run: pip install requests playwright
+      # scraper_imot.py imports playwright and bs4 at module load even
+      # though this backfill never launches a browser - omitting either
+      # crashes every run.
+      - run: pip install requests beautifulsoup4 playwright
 
       - run: python backfill_geocode_imot.py
         timeout-minutes: 45

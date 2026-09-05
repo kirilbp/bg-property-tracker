@@ -38,7 +38,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      # scraper_homes.py pulls in geo_utils.py, which imports bs4 at
+      # module load even though this backfill never parses HTML itself -
+      # omitting it crashes every run.
+      - run: pip install requests beautifulsoup4
 
       - run: python backfill_geocode_homes.py
         timeout-minutes: 45
