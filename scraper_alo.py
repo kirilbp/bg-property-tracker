@@ -105,6 +105,17 @@ MAX_CONSECUTIVE_PAGE_FAILURES = 5
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
+# Same reasoning as MAX_CONSECUTIVE_PAGE_FAILURES above, applied to
+# fetch_update_dates()'s per-listing detail-page visits: a live production
+# run hit a burst of 429 Too Many Requests across many different listing
+# URLs in a row (confirmed via job logs) - the site actively throttling
+# this run, not any one listing being bad. Grinding through the rest of a
+# ~1,000-listing batch at 3 retries each in that state wastes the entire
+# run on requests that were never going to succeed either; stopping early
+# here leaves the rest of the batch for a later run once the throttling
+# (usually tied to a request-rate window) has likely cleared.
+MAX_CONSECUTIVE_DETAIL_FAILURES = 5
+
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
 UPDATED_TEXT_RE = re.compile(r">((?:Актуализирана|Публикувана)[^<]{0,40})<")
 DAYS_AGO_RE = re.compile(r"преди\s+(\d+)\s+д")
@@ -301,12 +312,22 @@ def parse_days_ago(html):
     return int(m2.group(1)) if m2 else None
 
 
-def fetch_update_dates(seen):
-    for listing_id, l in seen.items():
+def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=None):
+    consecutive_failures = 0
+    for i, (listing_id, l) in enumerate(seen.items(), 1):
+        if deadline is not None and time.monotonic() >= deadline:
+            print(f"DEBUG: stopping at {i - 1}/{len(seen)} - approaching this run's time budget")
+            break
         time.sleep(REQUEST_DELAY_SECONDS)
         html = fetch_with_retries(l["url"])
         if html is None:
+            consecutive_failures += 1
+            if consecutive_failures >= MAX_CONSECUTIVE_DETAIL_FAILURES:
+                print(f"DEBUG: {consecutive_failures} consecutive detail-page failures at "
+                      f"{i}/{len(seen)} - looks like the site is throttling this run, stopping here")
+                break
             continue
+        consecutive_failures = 0
         days_ago = parse_days_ago(html)
         if days_ago is not None:
             l["site_updated_at"] = (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()
@@ -328,6 +349,8 @@ def fetch_update_dates(seen):
         # doesn't always show them), so presence of an actual field can't be
         # used as the "was this visited" signal; this explicit marker can.
         l["_detail_fetched"] = True
+        if on_checkpoint and i % checkpoint_every == 0:
+            on_checkpoint()
 
 
 def fetch_listings():
