@@ -44,5 +44,10 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add data/
           git diff --cached --quiet || git commit -m "Backfill bcpea.org listing details"
-          git pull --rebase origin main
+          if ! git pull --rebase origin main; then
+            echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+            git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
+            git diff --name-only --diff-filter=U | xargs -r git add
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
