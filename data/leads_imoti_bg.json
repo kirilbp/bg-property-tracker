@@ -104,8 +104,8 @@
     "score": 19,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 0.5
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 0.4
   },
   {
     "id": "imotibg_513580",
@@ -168,7 +168,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -200,7 +200,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -232,7 +232,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -264,7 +264,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -296,7 +296,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -328,7 +328,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -360,11 +360,11 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -99.4
   },
   {
@@ -392,7 +392,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -424,12 +424,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 34.1
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 33.9
   },
   {
     "id": "imotibg_515353",
@@ -456,7 +456,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -488,7 +488,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -520,7 +520,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -552,7 +552,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -584,7 +584,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -616,7 +616,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -648,7 +648,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -680,7 +680,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -712,12 +712,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 12.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 12.2
   },
   {
     "id": "imotibg_514725",
@@ -744,7 +744,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -776,12 +776,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 120.9
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 120.5
   },
   {
     "id": "imotibg_514730",
@@ -808,7 +808,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -840,7 +840,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -872,7 +872,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -904,7 +904,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -936,7 +936,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -968,7 +968,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1000,7 +1000,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1032,7 +1032,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1064,7 +1064,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1096,7 +1096,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1128,7 +1128,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1160,7 +1160,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1192,7 +1192,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1224,7 +1224,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1256,7 +1256,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1288,7 +1288,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1320,7 +1320,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1352,7 +1352,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1384,7 +1384,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1416,7 +1416,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1448,7 +1448,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1480,7 +1480,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1512,7 +1512,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1544,12 +1544,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 206.0
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 205.5
   },
   {
     "id": "imotibg_513847",
@@ -1576,7 +1576,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1608,7 +1608,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1640,7 +1640,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1672,7 +1672,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1704,7 +1704,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1736,7 +1736,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1768,7 +1768,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1800,7 +1800,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1832,7 +1832,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1864,7 +1864,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1896,7 +1896,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1928,7 +1928,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -1960,12 +1960,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 125.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 125.1
   },
   {
     "id": "imotibg_512778",
@@ -1992,12 +1992,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 228.2
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 227.6
   },
   {
     "id": "imotibg_512779",
@@ -2024,12 +2024,12 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 135.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 135.0
   },
   {
     "id": "imotibg_512625",
@@ -2056,7 +2056,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -2088,7 +2088,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -2120,7 +2120,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "source_status": "active",
     "removed_at": null,
@@ -2171,7 +2171,7 @@
     "portal": "imoti.bg",
     "lat": 42.2745497,
     "lng": 22.6916823,
-    "description": "ОФЕРТАТА Е ВАЛИДНА ДО 8 ОКТОМВРИ 2026 !\r\nСАМО за частни лица от ЕДИНСТВЕН СОБСТВЕНИК с напълно изрядни кадастрални и собственически документи за бърза сделка!   \r\nПРЕДЛАГА СЕ  ПАРЦЕЛ, разделен от асфалтов път, в м. ХИСАРЛЪКА гр. КЮСТЕНДИЛ \r\nМястото е с площ 457 м2 с ПУП и  906 м2 земеделски, всичко 1363 м2, подходящо е за сглобяема еднофамилна къща с голям отделен двор за градина или ваканционен имот.Ток и вода налични ( без откр.партиди) Трайно предназначение: Урбанизирана територия, за ниско застрояване (до 10 м / до 3 етажа), в перфектно съчетание със земеделска! Удобният и бърз достъп до центъра на града за минути, прави инвестицията устойчива за  целогодишно ползване.\r\nИнформация и въпроси по e-mail и на\r\nт. 0888880343",
+    "description": "ОФЕРТАТА Е ВАЛИДНА ДО 8 ОКТОМВРИ 2026 !\r\nСАМО НА ЧАСТНИ ЛИЦА\r\nПРОДАВА СЕ ВИЛНО МЯСТО ОТ ДВА ПАРЦЕЛА, ЕДИН СРЕЩУ ДРУГ между асфалтов път, за с.Богослов , \r\nв м. ХИСАРЛЪКА гр. КЮСТЕНДИЛ ,  ЕДИНСТВЕН СОБСТВЕНИК с изрядни кадастрални и собственически документи.\r\nИмотите са с лице към пътя и площ съответно  457 кв.м и  906 кв.м = 1363 кв.м , ОБЩА ЦЕНА 118888 EUR\r\nТрайно предназначение: Урбанизирана територия, за ниско застрояване (до 10 м / до 3 етажа). Ток и Вода налични , без открити партиди\r\nИдеално място за изграждане на просторна семейна къща с голям двор за градина, на минути от центъра на Кюстендил. \r\nПодходящ е за сглобяеми еднофамилни къщи, къщи за гости, ваканционни имоти. \r\nЗа повече информация и оглед, свържете се на e-mail или тел. 0888880343 !    Price is what you pay!  Value is what you get!",
     "site_posted_at": null,
     "category": "land",
     "category_confidence": "high",
@@ -2196,18 +2196,18 @@
     "url": "https://imoti.bg/продажби/двустаен-апартамент/кюстендил/център-515682.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a7f3b0131d6c_6a7f3c6655f33.png",
     "price_eur": 108880,
-    "sqm": 84,
+    "sqm": 74,
     "area": "Център",
     "city": "Кюстендил",
     "title": "Двустаен апартамент, Център",
     "portal": "imoti.bg",
     "lat": 42.1278845,
     "lng": 23.1327541,
-    "description": "ОФЕРТАТА Е ВАЛИДНА ДО 8 ОКТОМВРИ 2026г!! \r\nПредлага се само за частни лица!\r\nЕдинствен собственик, документите са напълно изрядни за бърза сделка! \r\nПосочената цена е с предвидени разходи по прехвърлянето и лек довършителен ремонт!\r\nСградата е масивна, с наскоро ремонтиран покрив и добре поддържани общи части жилището е с 34/100 ид.части. НЯМА ТЕЧОВЕ!\r\nАпартаментът е на втори етаж, изложение югоизток, югозапад, с обособени 3 стаи, едната е с тераса към улицата, има кухненски бокс с малък балкон, WC/банята е с прозорец и възможност за душ-кабина, източно изложение към вътрешен двор.\r\nКъм жилището има прилежащи масивно мазе 12 кв.м с голям прозорец и самостоятелен таван 16 кв.м !\r\nОсновни точки са изцяло подменени:\r\nВсички помещения са с алуминиева дограма, полипропилен водопровод с нов водомер, канализацията е обновена, ел.инсталация с автоматични бушони, нови контакти и ключове. Апартаментът е необзаведен. Локацията е сред най-предпочитаните в Кюстендил!\r\nИнформация и огледи на e-mail и \r\nпо т.0888880343!",
+    "description": "ОФЕРТАТА Е ВАЛИДНА ДО 8 ОКТОМВРИ 2026г!! \r\nПредлага се САМО НА ЧАСТНИ ЛИЦА! Единствен собственик, с напълно изрядни \r\nдокументите за бърза сделка!\r\nСградата е масивна, с ремонтиран покрив и добре поддържани общи части,\r\nжилището е с 34/100 ид.части. НЯМА ТЕЧОВЕ!\r\nАпартаментът е на втори етаж, изложение югоизток, югозапад, с обособени 3 стаи, едната е с тераса към улицата, \r\nима кухненски бокс с малък балкон, WC/банята е с прозорец и възможност за душ-кабина, източно изложение към вътрешен двор.\r\nКъм жилището има масивно мазе 12 кв.м с голям прозорец и самостоятелен таван 16 кв.м, извън посочената жилищна площ!\r\nОсновни точки са изцяло подменени:\r\nВсички помещения са с алуминиева дограма, полипропилен водопровод с нов водомер, канализацията е обновена, \r\nел.инсталация с автоматични бушони, нови контакти и ключове. \r\nЖИЛИЩЕТО СЕ ПРОДАВА ВЪВ ВИДА, В КОЙТО Е!! Преустройство и съвременен ремонт е по личен избор!\r\nАпартаментът е необзаведен, с контролиран достъп, а локацията е сред най-предпочитаните в Кюстендил!\r\nЗа оглед и въпроси на e-mail или т.0888880343!   Price is what you pay! Value is what you get!",
     "site_posted_at": null,
     "category": "flat",
     "category_confidence": "high",
-    "price_per_sqm": 1296,
+    "price_per_sqm": 1471,
     "price_history": [
       {
         "date": "2026-08-24T23:43:33.818106+00:00",
@@ -2220,8 +2220,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -43.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -36.0
   },
   {
     "id": "imotibg_515767",
@@ -2252,8 +2252,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -56.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -56.7
   },
   {
     "id": "imotibg_515772",
@@ -2636,8 +2636,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 26.3
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 26.1
   },
   {
     "id": "imotibg_515748",
@@ -5360,8 +5360,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 657,
-    "pct_vs_area_avg": -72.9
+    "area_avg_price_per_sqm": 820,
+    "pct_vs_area_avg": -78.3
   },
   {
     "id": "imotibg_515546",
@@ -5552,8 +5552,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -52.8
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -52.9
   },
   {
     "id": "imotibg_515512",
@@ -5616,8 +5616,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -53.5
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -53.6
   },
   {
     "id": "imotibg_515516",
@@ -5840,8 +5840,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -63.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -63.5
   },
   {
     "id": "imotibg_515497",
@@ -5936,8 +5936,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -26.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -26.7
   },
   {
     "id": "imotibg_515498",
@@ -5968,8 +5968,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 657,
-    "pct_vs_area_avg": 158.9
+    "area_avg_price_per_sqm": 820,
+    "pct_vs_area_avg": 107.3
   },
   {
     "id": "imotibg_515499",
@@ -6960,7 +6960,7 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -45.6
   },
   {
@@ -7312,8 +7312,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 12.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 12.4
   },
   {
     "id": "imotibg_515384",
@@ -7440,8 +7440,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -12.5
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -12.6
   },
   {
     "id": "imotibg_515390",
@@ -8976,8 +8976,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 33.5
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 33.3
   },
   {
     "id": "imotibg_269916",
@@ -9040,8 +9040,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 74.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 74.3
   },
   {
     "id": "imotibg_515318",
@@ -9264,7 +9264,7 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -99.9
   },
   {
@@ -9616,8 +9616,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -8.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -8.6
   },
   {
     "id": "imotibg_515288",
@@ -9680,8 +9680,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -8.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -8.5
   },
   {
     "id": "imotibg_515289",
@@ -10320,8 +10320,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -38.2
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -38.3
   },
   {
     "id": "imotibg_515255",
@@ -10864,8 +10864,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -47.7
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -47.8
   },
   {
     "id": "imotibg_515205",
@@ -13584,8 +13584,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 657,
-    "pct_vs_area_avg": -86.0
+    "area_avg_price_per_sqm": 820,
+    "pct_vs_area_avg": -88.8
   },
   {
     "id": "imotibg_514831",
@@ -14768,8 +14768,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 37,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 422,
+    "pct_vs_area_avg": -91.2
   },
   {
     "id": "imotibg_514661",
@@ -16208,7 +16208,7 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -97.8
   },
   {
@@ -16304,8 +16304,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 19.3
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 19.1
   },
   {
     "id": "imotibg_514498",
@@ -16752,8 +16752,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -24.3
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -24.4
   },
   {
     "id": "imotibg_514449",
@@ -17520,8 +17520,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -24.0
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -24.1
   },
   {
     "id": "imotibg_514331",
@@ -17712,8 +17712,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -30.0
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -30.1
   },
   {
     "id": "imotibg_514288",
@@ -18096,7 +18096,7 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -93.6
   },
   {
@@ -18480,8 +18480,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 36.1
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 35.9
   },
   {
     "id": "imotibg_514140",
@@ -18864,8 +18864,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 133.0
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 132.6
   },
   {
     "id": "imotibg_514038",
@@ -20856,8 +20856,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -47.7
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -47.8
   },
   {
     "id": "imotibg_513579",
@@ -21020,8 +21020,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -4.2
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -4.3
   },
   {
     "id": "imotibg_268287",
@@ -21980,8 +21980,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -24.3
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -24.4
   },
   {
     "id": "imotibg_256487",
@@ -22140,7 +22140,7 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
+    "area_avg_price_per_sqm": 2300,
     "pct_vs_area_avg": -50.0
   },
   {
@@ -22460,8 +22460,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 23.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 23.4
   },
   {
     "id": "imotibg_513297",
@@ -22716,8 +22716,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -64.8
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -64.9
   },
   {
     "id": "imotibg_513261",
@@ -24220,8 +24220,8 @@
     "score": 3,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -86.9
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -87.0
   },
   {
     "id": "imotibg_503609",
@@ -24576,8 +24576,8 @@
     "score": 2,
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 30.7
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 30.4
   },
   {
     "id": "imotibg_270199",
@@ -25048,8 +25048,8 @@
     "score": 1,
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -29.4
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -29.5
   },
   {
     "id": "imotibg_515041",
@@ -25336,8 +25336,8 @@
     "score": 1,
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 0.7
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 0.5
   },
   {
     "id": "imotibg_513811",
@@ -25368,8 +25368,8 @@
     "score": 1,
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": 6.7
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": 6.5
   },
   {
     "id": "imotibg_267748",
@@ -26264,8 +26264,8 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2296,
-    "pct_vs_area_avg": -26.6
+    "area_avg_price_per_sqm": 2300,
+    "pct_vs_area_avg": -26.7
   },
   {
     "id": "imotibg_515815",
@@ -26586,5 +26586,69 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1025,
     "pct_vs_area_avg": -13.3
+  },
+  {
+    "id": "imotibg_515844",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/благоевград-област/гр-разлог-515844.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9d2048cf242_6a9d22a33d3c5.jpg",
+    "price_eur": 54000,
+    "sqm": 67,
+    "area": "гр. Разлог",
+    "city": "Благоевград област",
+    "title": "Двустаен апартамент, гр. Разлог",
+    "portal": "imoti.bg",
+    "lat": 41.8826747,
+    "lng": 23.4735297,
+    "description": "Двустаен апартамент във ваканционен комплекс в близост до Разлог и Банско. Апартаментът е с югоизточно изложение, изключително топъл и светъл. Обзавеждането е чисто ново, има два броя климатици, токът е на битови цени. Комплексът разполага с външен басейн, барбекю, зала с тенис маси и билярд, вендинг и кафе машина, паркинг с бариера.Продажбата е директно от собственик, огледи могат да се правят по всяко време.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 806,
+    "price_history": [
+      {
+        "date": "2026-09-06T14:43:48.614702+00:00",
+        "price_eur": 54000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 422,
+    "pct_vs_area_avg": 91.2
+  },
+  {
+    "id": "imotibg_515846",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/добрич-област/скранево-515846.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9d5d6c4642f_6a9d5f5b06832.jpeg",
+    "price_eur": 97000,
+    "sqm": 74,
+    "area": "с.Кранево",
+    "city": "Добрич област",
+    "title": "Двустаен апартамент, с.Кранево",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "???? ЛУКСОЗНО НОВООБЗАВЕДЕН ЖИЛИЩЕН ИМОТ В КРАНЕВО – 600 М ОТ ПЛАЖА\r\n\r\nПредлага се за продажба стилно и напълно новообзаведен жилищен имот в Кранево, разположен само на 600 м от плажа.\r\n\r\nИмотът се намира на 3-ти етаж и разполага с просторна и светла дневна зона с голяма трапезария, отделна спалня, баня с тоалетна и два балкона.\r\n\r\nОсновни характеристики:\r\n\r\n• голяма дневна с трапезария\r\n• отделна спалня\r\n• баня с тоалетна\r\n• два балкона\r\n• мазе\r\n• два климатика\r\n• напълно ново обзавеждане\r\n• 3-ти етаж\r\n• без асансьор\r\n• само 600 м от плажа\r\n\r\nАпартаментът е готов за нанасяне, без необходимост от допълнителни разходи за обзавеждане.\r\n\r\nПодходящ е както за лично ползване и семейна почивка, така и за инвестиция и отдаване под наем благодарение на близостта до морето.\r\n\r\n???? Цена: 97 000",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1311,
+    "price_history": [
+      {
+        "date": "2026-09-06T14:43:48.614702+00:00",
+        "price_eur": 97000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 820,
+    "pct_vs_area_avg": 59.8
   }
 ]
