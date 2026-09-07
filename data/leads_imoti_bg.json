@@ -26300,6 +26300,38 @@
     "pct_vs_area_avg": -12.3
   },
   {
+    "id": "imotibg_515843",
+    "url": "https://imoti.bg/продажби/офис/бургас/изгрев-515843.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9c4c6a8d78c_6a9c4d59c62e0.jpeg",
+    "price_eur": 33800,
+    "sqm": 38,
+    "area": "Изгрев",
+    "city": "Бургас",
+    "title": "Офис, Изгрев",
+    "portal": "imoti.bg",
+    "lat": 42.144,
+    "lng": 27.80191,
+    "description": "Офиса разполага с три основни къта, които го правят изключително функционален и уютен:\r\n- Работен кът / 2 големи бюра, 2 броя столове, шкаф за голям принтер, секция за документи /\r\n- Кът за срещи и сътрудничество / голяма конферентна маса, удобни 6 броя столове, място за екран/телевизор за презентации, секция за съхранение на документи, голям и стилен диван\r\n- Кухненски кът / шкафове за съхранение, работен плот, хладилник, мивка, микровълнова.\r\nОфиса разполага и с оборудвана тоалетна.",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 889,
+    "price_history": [
+      {
+        "date": "2026-09-05T20:57:44.422322+00:00",
+        "price_eur": 33800
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1025,
+    "pct_vs_area_avg": -13.3
+  },
+  {
     "id": "imotibg_515031",
     "url": "https://imoti.bg/продажби/нива/бургас-област/грпоморие-515031.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a199d5d2b5c9_6a199e6b37c99.jpg",
@@ -26554,38 +26586,6 @@
     "removed_at": "2026-08-25T20:39:50.077622+00:00",
     "area_avg_price_per_sqm": 9,
     "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "imotibg_515843",
-    "url": "https://imoti.bg/продажби/офис/бургас/изгрев-515843.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a9c4c6a8d78c_6a9c4d59c62e0.jpeg",
-    "price_eur": 33800,
-    "sqm": 38,
-    "area": "Изгрев",
-    "city": "Бургас",
-    "title": "Офис, Изгрев",
-    "portal": "imoti.bg",
-    "lat": 42.144,
-    "lng": 27.80191,
-    "description": "Офиса разполага с три основни къта, които го правят изключително функционален и уютен:\r\n- Работен кът / 2 големи бюра, 2 броя столове, шкаф за голям принтер, секция за документи /\r\n- Кът за срещи и сътрудничество / голяма конферентна маса, удобни 6 броя столове, място за екран/телевизор за презентации, секция за съхранение на документи, голям и стилен диван\r\n- Кухненски кът / шкафове за съхранение, работен плот, хладилник, мивка, микровълнова.\r\nОфиса разполага и с оборудвана тоалетна.",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 889,
-    "price_history": [
-      {
-        "date": "2026-09-05T20:57:44.422322+00:00",
-        "price_eur": 33800
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1025,
-    "pct_vs_area_avg": -13.3
   },
   {
     "id": "imotibg_515844",
