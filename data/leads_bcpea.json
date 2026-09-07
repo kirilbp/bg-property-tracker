@@ -29443,7 +29443,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "score": 6,
     "area_avg_price_per_sqm": 771,
     "pct_vs_area_avg": -91.8
@@ -47032,6 +47032,816 @@
     "pct_vs_area_avg": 0.0
   },
   {
+    "id": "bcpea_92055",
+    "url": "https://sales.bcpea.org/properties/92055",
+    "photo": null,
+    "price_eur": 2983,
+    "sqm": 20,
+    "area": "Чавдар",
+    "title": "Земеделска земя, Чавдар",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:52:00+00:00",
+    "category": "land",
+    "_settlement": "Чавдар",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 149,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2983
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 165,
+    "pct_vs_area_avg": -9.5
+  },
+  {
+    "id": "bcpea_92054",
+    "url": "https://sales.bcpea.org/properties/92054",
+    "photo": null,
+    "price_eur": 9515,
+    "sqm": 531,
+    "area": "Любча",
+    "title": "Земеделска земя, Любча",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:51:00+00:00",
+    "category": "land",
+    "_settlement": "Любча",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 18,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 9515
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 18,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "bcpea_92053",
+    "url": "https://sales.bcpea.org/properties/92053",
+    "photo": null,
+    "price_eur": 8066,
+    "sqm": 854,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:47:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 9,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 8066
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -97.3
+  },
+  {
+    "id": "bcpea_92052",
+    "url": "https://sales.bcpea.org/properties/92052",
+    "photo": null,
+    "price_eur": 3360,
+    "sqm": 736,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:43:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 5,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 3360
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_92051",
+    "url": "https://sales.bcpea.org/properties/92051",
+    "photo": null,
+    "price_eur": 1132,
+    "sqm": 121,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:40:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 9,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 1132
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -95.5
+  },
+  {
+    "id": "bcpea_92050",
+    "url": "https://sales.bcpea.org/properties/92050",
+    "photo": null,
+    "price_eur": 5750,
+    "sqm": 763,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:39:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 5750
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -97.6
+  },
+  {
+    "id": "bcpea_92049",
+    "url": "https://sales.bcpea.org/properties/92049",
+    "photo": null,
+    "price_eur": 1553,
+    "sqm": 853,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:37:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 2,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 1553
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -99.4
+  },
+  {
+    "id": "bcpea_92048",
+    "url": "https://sales.bcpea.org/properties/92048",
+    "photo": null,
+    "price_eur": 2668,
+    "sqm": 314,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:35:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2668
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -97.6
+  },
+  {
+    "id": "bcpea_92047",
+    "url": "https://sales.bcpea.org/properties/92047",
+    "photo": null,
+    "price_eur": 11201,
+    "sqm": 724,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:34:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 15,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 11201
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -95.5
+  },
+  {
+    "id": "bcpea_92046",
+    "url": "https://sales.bcpea.org/properties/92046",
+    "photo": null,
+    "price_eur": 5629,
+    "sqm": 1,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:32:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 5629,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 5629
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": 1571.0
+  },
+  {
+    "id": "bcpea_92045",
+    "url": "https://sales.bcpea.org/properties/92045",
+    "photo": null,
+    "price_eur": 1084,
+    "sqm": 410,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:30:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 3,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 1084
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -99.1
+  },
+  {
+    "id": "bcpea_92044",
+    "url": "https://sales.bcpea.org/properties/92044",
+    "photo": null,
+    "price_eur": 518,
+    "sqm": 265,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:28:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 2,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 518
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -99.4
+  },
+  {
+    "id": "bcpea_92043",
+    "url": "https://sales.bcpea.org/properties/92043",
+    "photo": null,
+    "price_eur": 7516,
+    "sqm": 306,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:26:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 25,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 7516
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -87.6
+  },
+  {
+    "id": "bcpea_92042",
+    "url": "https://sales.bcpea.org/properties/92042",
+    "photo": null,
+    "price_eur": 2361,
+    "sqm": 305,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:24:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2361
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -96.0
+  },
+  {
+    "id": "bcpea_92041",
+    "url": "https://sales.bcpea.org/properties/92041",
+    "photo": null,
+    "price_eur": 3559,
+    "sqm": 1,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T22:22:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 3559,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 3559
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": 1670.0
+  },
+  {
+    "id": "bcpea_92040",
+    "url": "https://sales.bcpea.org/properties/92040",
+    "photo": null,
+    "price_eur": 3873,
+    "sqm": 89,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:58:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 44,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 3873
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -78.1
+  },
+  {
+    "id": "bcpea_92039",
+    "url": "https://sales.bcpea.org/properties/92039",
+    "photo": null,
+    "price_eur": 877,
+    "sqm": 325,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:56:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 3,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 877
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -98.5
+  },
+  {
+    "id": "bcpea_92038",
+    "url": "https://sales.bcpea.org/properties/92038",
+    "photo": null,
+    "price_eur": 2903,
+    "sqm": 160,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:54:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 18,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2903
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -91.0
+  },
+  {
+    "id": "bcpea_92037",
+    "url": "https://sales.bcpea.org/properties/92037",
+    "photo": null,
+    "price_eur": 9114,
+    "sqm": 187,
+    "area": "Доспат",
+    "title": "Земеделска земя, Доспат",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:52:00+00:00",
+    "category": "land",
+    "_settlement": "Доспат",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 49,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 9114
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 73,
+    "pct_vs_area_avg": -32.6
+  },
+  {
+    "id": "bcpea_92036",
+    "url": "https://sales.bcpea.org/properties/92036",
+    "photo": null,
+    "price_eur": 18122,
+    "sqm": 26,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:51:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 697,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 18122
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": 106.9
+  },
+  {
+    "id": "bcpea_92035",
+    "url": "https://sales.bcpea.org/properties/92035",
+    "photo": null,
+    "price_eur": 882,
+    "sqm": 512,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:49:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 2,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 882
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -99.4
+  },
+  {
+    "id": "bcpea_92034",
+    "url": "https://sales.bcpea.org/properties/92034",
+    "photo": null,
+    "price_eur": 4038,
+    "sqm": 355,
+    "area": "Доспат",
+    "title": "Земеделска земя, Доспат",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:47:00+00:00",
+    "category": "land",
+    "_settlement": "Доспат",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 11,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 4038
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 73,
+    "pct_vs_area_avg": -84.9
+  },
+  {
+    "id": "bcpea_92033",
+    "url": "https://sales.bcpea.org/properties/92033",
+    "photo": null,
+    "price_eur": 3458,
+    "sqm": 0,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:45:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": null,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 3458
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_92032",
+    "url": "https://sales.bcpea.org/properties/92032",
+    "photo": null,
+    "price_eur": 1050,
+    "sqm": 582,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:43:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 2,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 1050
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -99.0
+  },
+  {
+    "id": "bcpea_92031",
+    "url": "https://sales.bcpea.org/properties/92031",
+    "photo": null,
+    "price_eur": 11951,
+    "sqm": 89,
+    "area": "Барутин",
+    "title": "Земеделска земя, Барутин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:41:00+00:00",
+    "category": "land",
+    "_settlement": "Барутин",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 134,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 11951
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 201,
+    "pct_vs_area_avg": -33.4
+  },
+  {
+    "id": "bcpea_92030",
+    "url": "https://sales.bcpea.org/properties/92030",
+    "photo": null,
+    "price_eur": 16565,
+    "sqm": 625,
+    "area": "Късак",
+    "title": "Земеделска земя, Късак",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:39:00+00:00",
+    "category": "land",
+    "_settlement": "Късак",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 27,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 16565
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 337,
+    "pct_vs_area_avg": -92.0
+  },
+  {
+    "id": "bcpea_92029",
+    "url": "https://sales.bcpea.org/properties/92029",
+    "photo": null,
+    "price_eur": 3677,
+    "sqm": 484,
+    "area": "Чавдар",
+    "title": "Земеделска земя, Чавдар",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T21:36:00+00:00",
+    "category": "land",
+    "_settlement": "Чавдар",
+    "lat": null,
+    "lng": null,
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 3677
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 165,
+    "pct_vs_area_avg": -95.1
+  },
+  {
     "id": "bcpea_92028",
     "url": "https://sales.bcpea.org/properties/92028",
     "photo": null,
@@ -52640,815 +53450,5 @@
     "score": 1,
     "area_avg_price_per_sqm": 8,
     "pct_vs_area_avg": -22.6
-  },
-  {
-    "id": "bcpea_92055",
-    "url": "https://sales.bcpea.org/properties/92055",
-    "photo": null,
-    "price_eur": 2983,
-    "sqm": 20,
-    "area": "Чавдар",
-    "title": "Земеделска земя, Чавдар",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:52:00+00:00",
-    "category": "land",
-    "_settlement": "Чавдар",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 149,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2983
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 165,
-    "pct_vs_area_avg": -9.5
-  },
-  {
-    "id": "bcpea_92054",
-    "url": "https://sales.bcpea.org/properties/92054",
-    "photo": null,
-    "price_eur": 9515,
-    "sqm": 531,
-    "area": "Любча",
-    "title": "Земеделска земя, Любча",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:51:00+00:00",
-    "category": "land",
-    "_settlement": "Любча",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 18,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 9515
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 18,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "bcpea_92053",
-    "url": "https://sales.bcpea.org/properties/92053",
-    "photo": null,
-    "price_eur": 8066,
-    "sqm": 854,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:47:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 9,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 8066
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -97.3
-  },
-  {
-    "id": "bcpea_92052",
-    "url": "https://sales.bcpea.org/properties/92052",
-    "photo": null,
-    "price_eur": 3360,
-    "sqm": 736,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:43:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 5,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 3360
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_92051",
-    "url": "https://sales.bcpea.org/properties/92051",
-    "photo": null,
-    "price_eur": 1132,
-    "sqm": 121,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:40:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 9,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 1132
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -95.5
-  },
-  {
-    "id": "bcpea_92050",
-    "url": "https://sales.bcpea.org/properties/92050",
-    "photo": null,
-    "price_eur": 5750,
-    "sqm": 763,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:39:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 5750
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -97.6
-  },
-  {
-    "id": "bcpea_92049",
-    "url": "https://sales.bcpea.org/properties/92049",
-    "photo": null,
-    "price_eur": 1553,
-    "sqm": 853,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:37:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 2,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 1553
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -99.4
-  },
-  {
-    "id": "bcpea_92048",
-    "url": "https://sales.bcpea.org/properties/92048",
-    "photo": null,
-    "price_eur": 2668,
-    "sqm": 314,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:35:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2668
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -97.6
-  },
-  {
-    "id": "bcpea_92047",
-    "url": "https://sales.bcpea.org/properties/92047",
-    "photo": null,
-    "price_eur": 11201,
-    "sqm": 724,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:34:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 15,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 11201
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -95.5
-  },
-  {
-    "id": "bcpea_92046",
-    "url": "https://sales.bcpea.org/properties/92046",
-    "photo": null,
-    "price_eur": 5629,
-    "sqm": 1,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:32:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 5629,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 5629
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": 1571.0
-  },
-  {
-    "id": "bcpea_92045",
-    "url": "https://sales.bcpea.org/properties/92045",
-    "photo": null,
-    "price_eur": 1084,
-    "sqm": 410,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:30:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 3,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 1084
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -99.1
-  },
-  {
-    "id": "bcpea_92044",
-    "url": "https://sales.bcpea.org/properties/92044",
-    "photo": null,
-    "price_eur": 518,
-    "sqm": 265,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:28:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 2,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 518
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -99.4
-  },
-  {
-    "id": "bcpea_92043",
-    "url": "https://sales.bcpea.org/properties/92043",
-    "photo": null,
-    "price_eur": 7516,
-    "sqm": 306,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:26:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 25,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 7516
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -87.6
-  },
-  {
-    "id": "bcpea_92042",
-    "url": "https://sales.bcpea.org/properties/92042",
-    "photo": null,
-    "price_eur": 2361,
-    "sqm": 305,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:24:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2361
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -96.0
-  },
-  {
-    "id": "bcpea_92041",
-    "url": "https://sales.bcpea.org/properties/92041",
-    "photo": null,
-    "price_eur": 3559,
-    "sqm": 1,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T22:22:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 3559,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 3559
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": 1670.0
-  },
-  {
-    "id": "bcpea_92040",
-    "url": "https://sales.bcpea.org/properties/92040",
-    "photo": null,
-    "price_eur": 3873,
-    "sqm": 89,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:58:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 44,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 3873
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -78.1
-  },
-  {
-    "id": "bcpea_92039",
-    "url": "https://sales.bcpea.org/properties/92039",
-    "photo": null,
-    "price_eur": 877,
-    "sqm": 325,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:56:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 3,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 877
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -98.5
-  },
-  {
-    "id": "bcpea_92038",
-    "url": "https://sales.bcpea.org/properties/92038",
-    "photo": null,
-    "price_eur": 2903,
-    "sqm": 160,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:54:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 18,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2903
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -91.0
-  },
-  {
-    "id": "bcpea_92037",
-    "url": "https://sales.bcpea.org/properties/92037",
-    "photo": null,
-    "price_eur": 9114,
-    "sqm": 187,
-    "area": "Доспат",
-    "title": "Земеделска земя, Доспат",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:52:00+00:00",
-    "category": "land",
-    "_settlement": "Доспат",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 49,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 9114
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 73,
-    "pct_vs_area_avg": -32.6
-  },
-  {
-    "id": "bcpea_92036",
-    "url": "https://sales.bcpea.org/properties/92036",
-    "photo": null,
-    "price_eur": 18122,
-    "sqm": 26,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:51:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 697,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 18122
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": 106.9
-  },
-  {
-    "id": "bcpea_92035",
-    "url": "https://sales.bcpea.org/properties/92035",
-    "photo": null,
-    "price_eur": 882,
-    "sqm": 512,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:49:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 2,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 882
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -99.4
-  },
-  {
-    "id": "bcpea_92034",
-    "url": "https://sales.bcpea.org/properties/92034",
-    "photo": null,
-    "price_eur": 4038,
-    "sqm": 355,
-    "area": "Доспат",
-    "title": "Земеделска земя, Доспат",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:47:00+00:00",
-    "category": "land",
-    "_settlement": "Доспат",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 11,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 4038
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 73,
-    "pct_vs_area_avg": -84.9
-  },
-  {
-    "id": "bcpea_92033",
-    "url": "https://sales.bcpea.org/properties/92033",
-    "photo": null,
-    "price_eur": 3458,
-    "sqm": 0,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:45:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": null,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 3458
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_92032",
-    "url": "https://sales.bcpea.org/properties/92032",
-    "photo": null,
-    "price_eur": 1050,
-    "sqm": 582,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:43:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 2,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 1050
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -99.0
-  },
-  {
-    "id": "bcpea_92031",
-    "url": "https://sales.bcpea.org/properties/92031",
-    "photo": null,
-    "price_eur": 11951,
-    "sqm": 89,
-    "area": "Барутин",
-    "title": "Земеделска земя, Барутин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:41:00+00:00",
-    "category": "land",
-    "_settlement": "Барутин",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 134,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 11951
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 201,
-    "pct_vs_area_avg": -33.4
-  },
-  {
-    "id": "bcpea_92030",
-    "url": "https://sales.bcpea.org/properties/92030",
-    "photo": null,
-    "price_eur": 16565,
-    "sqm": 625,
-    "area": "Късак",
-    "title": "Земеделска земя, Късак",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:39:00+00:00",
-    "category": "land",
-    "_settlement": "Късак",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 27,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 16565
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 337,
-    "pct_vs_area_avg": -92.0
-  },
-  {
-    "id": "bcpea_92029",
-    "url": "https://sales.bcpea.org/properties/92029",
-    "photo": null,
-    "price_eur": 3677,
-    "sqm": 484,
-    "area": "Чавдар",
-    "title": "Земеделска земя, Чавдар",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T21:36:00+00:00",
-    "category": "land",
-    "_settlement": "Чавдар",
-    "lat": null,
-    "lng": null,
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 3677
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 165,
-    "pct_vs_area_avg": -95.1
   }
 ]
