@@ -460,3 +460,211 @@ def prune_snapshots(history):
             pruned.append(snapshots[-1])
         rec["snapshots"] = pruned
     return history
+
+
+# --- City-key derivation - shared by every scraper's own compute_leads()
+# (for area averages) and sync_to_supabase.py's cross-portal merge/city
+# filter. Used to live only in sync_to_supabase.py; moved here so a
+# scraper doesn't need its own separate copy (import sync_to_supabase.py
+# from a scraper would be backwards - this module already flows the other
+# way) and so there is exactly one implementation to keep correct, not two
+# that can quietly drift apart.
+#
+# sales.bcpea.org's own listing-type lookup lives here too, since
+# listing_city_key() needs it for that portal's settlement-from-title
+# extraction (bcpea has no separate "city" field - the settlement name IS
+# the title, once the type prefix is stripped).
+BCPEA_RAW_TYPES = [
+    ("flat", ["Едностаен апартамент", "Двустаен апартамент", "Тристаен апартамент",
+              "Многостаен апартамент", "Мезонет", "Ателие, Таван", "Стая"]),
+    ("house", ["Вила", "Етаж от къща", "Къща", "Жилищна сграда", "Къща с парцел"]),
+    ("land", ["Парцел", "Земеделска земя", "Земеделски имот", "Парцел с къща"]),
+    ("garage", ["Гараж", "Паркомясто"]),
+    ("shop", ["Магазин", "Заведение"]),
+    ("business", ["Офис", "Склад", "Фабрика", "Хотел", "Търговски имот",
+                  "Производствен имот", "Бензиностанция", "Газстанция", "Автомивка"]),
+]
+# Longest raw type first, so a type string that's a prefix of another (e.g.
+# "Къща" vs "Къща с парцел") always resolves to the more specific one.
+BCPEA_TYPE_LOOKUP = sorted(
+    ((raw_type, key) for key, raw_types in BCPEA_RAW_TYPES for raw_type in raw_types),
+    key=lambda pair: -len(pair[0]),
+)
+
+
+def bcpea_type_match(title):
+    if not title:
+        return None
+    for raw_type, key in BCPEA_TYPE_LOOKUP:
+        if title.startswith(raw_type):
+            return raw_type, key
+    return None
+
+
+def bcpea_settlement_from_title(title):
+    match = bcpea_type_match(title)
+    if not match:
+        return None
+    raw_type, _ = match
+    rest = title[len(raw_type):]
+    return re.sub(r"^,\s*", "", rest).strip() or None
+
+
+BG_CITIES = [
+    ("sofia", "София"), ("plovdiv", "Пловдив"), ("varna", "Варна"), ("burgas", "Бургас"),
+    ("ruse", "Русе"), ("stara_zagora", "Стара Загора"), ("pleven", "Плевен"), ("sliven", "Сливен"),
+    ("dobrich", "Добрич"), ("shumen", "Шумен"), ("pernik", "Перник"), ("haskovo", "Хасково"),
+    ("yambol", "Ямбол"), ("pazardzhik", "Пазарджик"), ("blagoevgrad", "Благоевград"),
+    ("veliko_tarnovo", "Велико Търново"), ("vratsa", "Враца"), ("gabrovo", "Габрово"),
+    ("vidin", "Видин"), ("asenovgrad", "Асеновград"), ("kazanlak", "Казанлък"),
+    ("kyustendil", "Кюстендил"), ("kardzhali", "Кърджали"), ("montana", "Монтана"),
+    ("dimitrovgrad", "Димитровград"), ("targovishte", "Търговище"), ("lovech", "Ловеч"),
+    ("silistra", "Силистра"), ("dupnitsa", "Дупница"), ("svishtov", "Свищов"),
+]
+BG_CITY_BY_NAME = {name: key for key, name in BG_CITIES}
+
+
+def city_key_from_name(name):
+    if not name:
+        return None
+    # Strips a trailing settlement-type suffix a portal's own title text can
+    # tack on after the real city name - "област" (region), or homes.bg's
+    # own "<City> - град"/"- село" (town/village) convention, live-sampled
+    # from real currently-active homes.bg titles like "София, София - град"
+    # (the second "София" is the last comma segment the title fallback
+    # reads, but " - град" made it fail to match "София" exactly).
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
+    return BG_CITY_BY_NAME.get(normalized)
+
+
+# alo.bg's title has "<area>, <city>" but sometimes runs the price straight
+# into the city with no separating comma - "...Дианабад, София Цена : 480
+# 000 €" - so the last comma segment is "София Цена : 480 000 €", not
+# "София" alone, and the exact match above fails even though the city name
+# is right there. Live-sampled: every currently-active alo.bg listing with
+# a null city_key that still had a comma in its title matched this shape.
+# Longest names first so "Стара Загора" doesn't prefix-match as "Стара"
+# alone (not a real entry, but keeps the general principle safe).
+BG_CITY_PREFIX_RE = re.compile(
+    r"^(" + "|".join(re.escape(name) for _, name in sorted(BG_CITIES, key=lambda c: -len(c[1]))) + r")\b"
+)
+
+
+def city_key_from_name_prefix(name):
+    if not name:
+        return None
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
+    match = BG_CITY_PREFIX_RE.match(normalized)
+    return BG_CITY_BY_NAME.get(match.group(1)) if match else None
+
+
+# imoti.net's own titles render the city in English/Latin script ("... Sofia,
+# Lyulin Center" - the city is the SECOND-to-last comma segment there, not
+# the last, so the generic last-comma fallback above can never recover it).
+# This bit imoti.net hardest: a live sample of currently-active,
+# freshly-scraped imoti.net listings with no "city" field found ~5,800 of
+# them (28% of all active merged listings, and the single largest unmatched
+# bucket of any portal) were genuinely Sofia listings whose title plainly
+# says so in Latin script - e.g. "Shop, 44 m2 Sofia, Lyulin Center". Reuses
+# the same slugs scraper.py's own CITY_SLUGS already live-verified against
+# imoti.net's real city pages, just keyed by the natural-language spelling
+# (space, not the URL slug's hyphen) since this searches free-form title
+# text, not a URL.
+LATIN_CITY_TO_KEY = {
+    "sofia": "sofia", "plovdiv": "plovdiv", "varna": "varna", "burgas": "burgas", "bourgas": "burgas",
+    "ruse": "ruse", "stara zagora": "stara_zagora", "pleven": "pleven", "sliven": "sliven",
+    "dobrich": "dobrich", "shumen": "shumen", "pernik": "pernik", "haskovo": "haskovo",
+    "yambol": "yambol", "pazardzhik": "pazardzhik", "blagoevgrad": "blagoevgrad",
+    "veliko tarnovo": "veliko_tarnovo", "vratsa": "vratsa", "gabrovo": "gabrovo", "vidin": "vidin",
+    "kardzhali": "kardzhali", "montana": "montana", "targovishte": "targovishte", "lovech": "lovech",
+    "silistra": "silistra",
+}
+LATIN_CITY_RE = re.compile(
+    r"\b(" + "|".join(sorted((k.replace(" ", r"\s+") for k in LATIN_CITY_TO_KEY), key=len, reverse=True)) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def latin_city_key_from_text(text):
+    if not text:
+        return None
+    match = LATIN_CITY_RE.search(text)
+    if not match:
+        return None
+    normalized = re.sub(r"\s+", " ", match.group(1).lower())
+    return LATIN_CITY_TO_KEY.get(normalized)
+
+
+# bazar.bg's own title format has the same "city buried mid-string, not in
+# the last comma segment" problem as imoti.net, just in Cyrillic: "Продава
+# 3-СТАЕН, гр. София, Левски Г" - the city is the "гр. <City>" segment in
+# the middle, area (last segment) is the neighborhood. A live sample of
+# currently-active bazar.bg listings with no "city" field (stale rows
+# scraped before bazar.bg's nationwide city-tagging merged today) confirmed
+# this "гр. <City>," shape holds consistently, matching bazar.bg's own
+# AREA_LINE_RE ("^гр\.\s*\S.*?,\s*(.+)$") which already relies on the same
+# "гр. " prefix convention to find the area line at all.
+CYR_CITY_TITLE_RE = re.compile(
+    r"гр\.?\s*(" + "|".join(re.escape(name) for _, name in BG_CITIES) + r")"
+)
+
+
+def cyr_city_key_from_text(text):
+    if not text:
+        return None
+    match = CYR_CITY_TITLE_RE.search(text)
+    if not match:
+        return None
+    return BG_CITY_BY_NAME.get(match.group(1))
+
+
+def _title_derived_city_key(title):
+    # The title-only half of listing_city_key()'s resolution, kept separate
+    # so listing_city_key() can compute it independently of the "city"
+    # field and compare the two - see that function's own comment for why.
+    if not title:
+        return None
+    if "," in title:
+        last_segment = title.rsplit(",", 1)[1].strip()
+        key = city_key_from_name(last_segment)
+        if key:
+            return key
+        key = city_key_from_name_prefix(last_segment)
+        if key:
+            return key
+    key = latin_city_key_from_text(title)
+    if key:
+        return key
+    return cyr_city_key_from_text(title)
+
+
+def listing_city_key(l):
+    # Ported 1:1 from index.html's listingCityKey() - see that function's
+    # comment for the full story (this used to unconditionally return
+    # "sofia" for every non-bcpea portal, silently miscounting every real
+    # non-Sofia listing from homes.bg/imoti.bg as Sofia).
+    if l.get("portal") == "sales.bcpea.org":
+        settlement = bcpea_settlement_from_title(l.get("title"))
+        return city_key_from_name(settlement) if settlement else None
+
+    title = l.get("title")
+    title_key = _title_derived_city_key(title)
+
+    city = l.get("city")
+    field_key = None
+    if city:
+        field_key = city_key_from_name(city)
+        if not field_key:
+            field_key = city_key_from_name_prefix(city)
+
+    # A live report found a listing whose "city" field disagreed with its
+    # own title (a stale/wrong scrape-time field vs. a title that plainly,
+    # unambiguously names a different real city) - trusting the field
+    # unconditionally let two listings that don't actually share a city
+    # slip through a downstream cross-portal match on area+price alone
+    # (see group_listings()'s own comment). The title is the thing a human
+    # reader would trust in that situation, so when both resolve and
+    # disagree, the title wins.
+    if field_key and title_key and field_key != title_key:
+        return title_key
+    return field_key or title_key

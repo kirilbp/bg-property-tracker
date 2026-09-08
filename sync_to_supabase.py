@@ -37,6 +37,13 @@ from pathlib import Path
 
 import requests
 
+from geo_utils import (
+    BG_CITIES, BG_CITY_BY_NAME, LATIN_CITY_TO_KEY,
+    bcpea_settlement_from_title, bcpea_type_match, city_key_from_name,
+    city_key_from_name_prefix, cyr_city_key_from_text, latin_city_key_from_text,
+    listing_city_key,
+)
+
 DATA_DIR = Path(__file__).parent / "data"
 
 PORTAL_FILES = {
@@ -118,6 +125,23 @@ def price_bucket_key(price):
 
 
 def group_listings(all_listings):
+    # City is a hard blocking condition on every merge decision below, not
+    # a scoring input - a live report found a bazar.bg listing genuinely in
+    # Veliko Tarnovo merged with a homes.bg/alo.bg pair genuinely in
+    # Dobrich, all three sharing the generic area name "Център" ("center" -
+    # identical text in every Bulgarian town, no city of its own) at a
+    # coincidentally matching price. areas_match()/normalize_area() only
+    # compare area text, never the actual city, so nothing before this fix
+    # could ever catch that. Computed once per listing up front (not
+    # per-comparison) since it's a pure function of already-scraped fields.
+    # A listing whose city can't be resolved at all is excluded from every
+    # bucket below and never merges with anything - the same "leave
+    # unclassified rather than guess" rule listing_city_key() itself
+    # already follows, extended to matching: a generic area name like
+    # "Център" must never contribute to a match without a real, known city
+    # agreeing on both sides, and an unknown city can't agree with anything.
+    city_keys = {id(l): listing_city_key(l) for l in all_listings}
+
     with_sqm = [l for l in all_listings if l.get("sqm")]
     without_sqm = [l for l in all_listings if not l.get("sqm")]
 
@@ -128,16 +152,18 @@ def group_listings(all_listings):
     # some single price buckets held 1,000+ listings, making the O(bucket²)
     # pairwise comparison pass effectively hang. areas_match() already
     # requires an exact normalized-string match, not a fuzzy one, so
-    # co-bucketing by (price bucket, normalized area) loses no matches
-    # a plain price bucket would have found - it only pre-applies a filter
-    # every surviving pair already had to pass anyway, and area names are
-    # far more differentiating than price, keeping real buckets small.
+    # co-bucketing by (price bucket, normalized area, city) loses no matches
+    # a plain price bucket would have found - it only pre-applies filters
+    # every surviving pair already had to pass anyway (city now among
+    # them), and area names are far more differentiating than price,
+    # keeping real buckets small.
     price_buckets = {}
     for l in with_sqm:
         na = normalize_area(l.get("area"))
-        if not na:
+        city_key = city_keys[id(l)]
+        if not na or not city_key:
             continue
-        key = (price_bucket_key(l.get("price_eur")), na)
+        key = (price_bucket_key(l.get("price_eur")), na, city_key)
         price_buckets.setdefault(key, []).append(l)
 
     parent = {id(l): l for l in with_sqm}
@@ -181,7 +207,8 @@ def group_listings(all_listings):
 
     for l in with_sqm:
         na = normalize_area(l.get("area"))
-        if not na:
+        city_key = city_keys[id(l)]
+        if not na or not city_key:
             continue
         key = price_bucket_key(l.get("price_eur"))
         # +/-2 buckets of margin around the 1-bucket-wide tolerance itself,
@@ -189,7 +216,7 @@ def group_listings(all_listings):
         # tolerance can still land in adjacent buckets if one rounds down
         # and the other rounds up right at the boundary).
         for dk in range(-2, 3):
-            bucket = price_buckets.get((key + dk, na))
+            bucket = price_buckets.get((key + dk, na, city_key))
             if not bucket:
                 continue
             for other in bucket:
@@ -207,11 +234,13 @@ def group_listings(all_listings):
         groups_by_root.setdefault(id(root), []).append(l)
     groups = list(groups_by_root.values())
 
-    # Same (price bucket, area) co-partitioning as above, and for the same
-    # reason - a plain price bucket collects every group near a popular
-    # round price regardless of area, which is both slow and pointless
-    # since areas_match() (called below via the group's representative
-    # member) requires an exact area match anyway.
+    # Same (price bucket, area, city) co-partitioning as above, and for the
+    # same reason - a plain price bucket collects every group near a
+    # popular round price regardless of area/city, which is both slow and
+    # pointless since areas_match() (called below via the group's
+    # representative member) requires an exact area match anyway, and every
+    # member of a with_sqm group already shares one city_key by
+    # construction (city_keys[id(l)] gated every union() candidate above).
     group_buckets = {}
     # Same transitive-drift risk as the with_sqm union step, same fix:
     # checking a new sqm-less listing against only the group's first
@@ -222,9 +251,10 @@ def group_listings(all_listings):
     group_price_range = {}
     for g in groups:
         na = normalize_area(g[0].get("area"))
-        if not na:
+        group_city_key = city_keys[id(g[0])]
+        if not na or not group_city_key:
             continue
-        key = (price_bucket_key(g[0].get("price_eur")), na)
+        key = (price_bucket_key(g[0].get("price_eur")), na, group_city_key)
         group_buckets.setdefault(key, []).append(g)
         prices = [m["price_eur"] for m in g if m.get("price_eur")]
         group_price_range[id(g)] = (min(prices), max(prices))
@@ -232,11 +262,12 @@ def group_listings(all_listings):
     solo_sqmless = []
     for l in without_sqm:
         na = normalize_area(l.get("area"))
+        city_key = city_keys[id(l)]
         key = price_bucket_key(l.get("price_eur"))
         attached = False
-        if na and l.get("price_eur"):
+        if na and city_key and l.get("price_eur"):
             for dk in range(-2, 3):
-                candidates = group_buckets.get((key + dk, na))
+                candidates = group_buckets.get((key + dk, na, city_key))
                 if not candidates:
                     continue
                 for group in candidates:
@@ -258,23 +289,17 @@ def group_listings(all_listings):
 
 
 # --- Type buckets + city keys - ported 1:1 from index.html ----------------
-
-BCPEA_RAW_TYPES = [
-    ("flat", ["Едностаен апартамент", "Двустаен апартамент", "Тристаен апартамент",
-              "Многостаен апартамент", "Мезонет", "Ателие, Таван", "Стая"]),
-    ("house", ["Вила", "Етаж от къща", "Къща", "Жилищна сграда", "Къща с парцел"]),
-    ("land", ["Парцел", "Земеделска земя", "Земеделски имот", "Парцел с къща"]),
-    ("garage", ["Гараж", "Паркомясто"]),
-    ("shop", ["Магазин", "Заведение"]),
-    ("business", ["Офис", "Склад", "Фабрика", "Хотел", "Търговски имот",
-                  "Производствен имот", "Бензиностанция", "Газстанция", "Автомивка"]),
-]
-# Longest raw type first, so a type string that's a prefix of another (e.g.
-# "Къща" vs "Къща с парцел") always resolves to the more specific one.
-BCPEA_TYPE_LOOKUP = sorted(
-    ((raw_type, key) for key, raw_types in BCPEA_RAW_TYPES for raw_type in raw_types),
-    key=lambda pair: -len(pair[0]),
-)
+#
+# City-key derivation (BG_CITIES, BCPEA_TYPE_LOOKUP, city_key_from_name(),
+# latin/cyr title matching, listing_city_key() and friends) now lives in
+# geo_utils.py, not here - every scraper's own compute_leads() needs the
+# same logic for its area-average calculation (previously city-blind,
+# grouping e.g. every "Център" together regardless of which town it's
+# actually in - the same root cause as the cross-portal merge bug
+# group_listings() below now guards against), and a scraper can't import
+# this module (it would be backwards - this module already imports every
+# scraper). Moving it to the shared geo_utils.py both fixes that and
+# leaves exactly one implementation instead of two that could drift.
 
 # "apartment"/"commercial" are classify_category()'s old 4-value output
 # (geo_utils.py), still produced by portals not yet migrated to the
@@ -288,174 +313,11 @@ CATEGORY_TO_BUCKET = {
 }
 
 
-def bcpea_type_match(title):
-    if not title:
-        return None
-    for raw_type, key in BCPEA_TYPE_LOOKUP:
-        if title.startswith(raw_type):
-            return raw_type, key
-    return None
-
-
 def type_filter_bucket(l):
     if l.get("portal") == "sales.bcpea.org":
         match = bcpea_type_match(l.get("title"))
         return match[1] if match else "other"
     return CATEGORY_TO_BUCKET.get(l.get("category"), "other")
-
-
-BG_CITIES = [
-    ("sofia", "София"), ("plovdiv", "Пловдив"), ("varna", "Варна"), ("burgas", "Бургас"),
-    ("ruse", "Русе"), ("stara_zagora", "Стара Загора"), ("pleven", "Плевен"), ("sliven", "Сливен"),
-    ("dobrich", "Добрич"), ("shumen", "Шумен"), ("pernik", "Перник"), ("haskovo", "Хасково"),
-    ("yambol", "Ямбол"), ("pazardzhik", "Пазарджик"), ("blagoevgrad", "Благоевград"),
-    ("veliko_tarnovo", "Велико Търново"), ("vratsa", "Враца"), ("gabrovo", "Габрово"),
-    ("vidin", "Видин"), ("asenovgrad", "Асеновград"), ("kazanlak", "Казанлък"),
-    ("kyustendil", "Кюстендил"), ("kardzhali", "Кърджали"), ("montana", "Монтана"),
-    ("dimitrovgrad", "Димитровград"), ("targovishte", "Търговище"), ("lovech", "Ловеч"),
-    ("silistra", "Силистра"), ("dupnitsa", "Дупница"), ("svishtov", "Свищов"),
-]
-BG_CITY_BY_NAME = {name: key for key, name in BG_CITIES}
-
-
-def bcpea_settlement_from_title(title):
-    match = bcpea_type_match(title)
-    if not match:
-        return None
-    raw_type, _ = match
-    rest = title[len(raw_type):]
-    return re.sub(r"^,\s*", "", rest).strip() or None
-
-
-def city_key_from_name(name):
-    if not name:
-        return None
-    # Strips a trailing settlement-type suffix a portal's own title text can
-    # tack on after the real city name - "област" (region), or homes.bg's
-    # own "<City> - град"/"- село" (town/village) convention, live-sampled
-    # from real currently-active homes.bg titles like "София, София - град"
-    # (the second "София" is the last comma segment the title fallback
-    # reads, but " - град" made it fail to match "София" exactly).
-    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
-    return BG_CITY_BY_NAME.get(normalized)
-
-
-# alo.bg's title has "<area>, <city>" but sometimes runs the price straight
-# into the city with no separating comma - "...Дианабад, София Цена : 480
-# 000 €" - so the last comma segment is "София Цена : 480 000 €", not
-# "София" alone, and the exact match above fails even though the city name
-# is right there. Live-sampled: every currently-active alo.bg listing with
-# a null city_key that still had a comma in its title matched this shape.
-# Longest names first so "Стара Загора" doesn't prefix-match as "Стара"
-# alone (not a real entry, but keeps the general principle safe).
-BG_CITY_PREFIX_RE = re.compile(
-    r"^(" + "|".join(re.escape(name) for _, name in sorted(BG_CITIES, key=lambda c: -len(c[1]))) + r")\b"
-)
-
-
-def city_key_from_name_prefix(name):
-    if not name:
-        return None
-    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
-    match = BG_CITY_PREFIX_RE.match(normalized)
-    return BG_CITY_BY_NAME.get(match.group(1)) if match else None
-
-
-# imoti.net's own titles render the city in English/Latin script ("... Sofia,
-# Lyulin Center" - the city is the SECOND-to-last comma segment there, not
-# the last, so the generic last-comma fallback above can never recover it).
-# This bit imoti.net hardest: a live sample of currently-active,
-# freshly-scraped imoti.net listings with no "city" field found ~5,800 of
-# them (28% of all active merged listings, and the single largest unmatched
-# bucket of any portal) were genuinely Sofia listings whose title plainly
-# says so in Latin script - e.g. "Shop, 44 m2 Sofia, Lyulin Center". Reuses
-# the same slugs scraper.py's own CITY_SLUGS already live-verified against
-# imoti.net's real city pages, just keyed by the natural-language spelling
-# (space, not the URL slug's hyphen) since this searches free-form title
-# text, not a URL.
-LATIN_CITY_TO_KEY = {
-    "sofia": "sofia", "plovdiv": "plovdiv", "varna": "varna", "burgas": "burgas", "bourgas": "burgas",
-    "ruse": "ruse", "stara zagora": "stara_zagora", "pleven": "pleven", "sliven": "sliven",
-    "dobrich": "dobrich", "shumen": "shumen", "pernik": "pernik", "haskovo": "haskovo",
-    "yambol": "yambol", "pazardzhik": "pazardzhik", "blagoevgrad": "blagoevgrad",
-    "veliko tarnovo": "veliko_tarnovo", "vratsa": "vratsa", "gabrovo": "gabrovo", "vidin": "vidin",
-    "kardzhali": "kardzhali", "montana": "montana", "targovishte": "targovishte", "lovech": "lovech",
-    "silistra": "silistra",
-}
-LATIN_CITY_RE = re.compile(
-    r"\b(" + "|".join(sorted((k.replace(" ", r"\s+") for k in LATIN_CITY_TO_KEY), key=len, reverse=True)) + r")\b",
-    re.IGNORECASE,
-)
-
-
-def latin_city_key_from_text(text):
-    if not text:
-        return None
-    match = LATIN_CITY_RE.search(text)
-    if not match:
-        return None
-    normalized = re.sub(r"\s+", " ", match.group(1).lower())
-    return LATIN_CITY_TO_KEY.get(normalized)
-
-
-# bazar.bg's own title format has the same "city buried mid-string, not in
-# the last comma segment" problem as imoti.net, just in Cyrillic: "Продава
-# 3-СТАЕН, гр. София, Левски Г" - the city is the "гр. <City>" segment in
-# the middle, area (last segment) is the neighborhood. A live sample of
-# currently-active bazar.bg listings with no "city" field (stale rows
-# scraped before bazar.bg's nationwide city-tagging merged today) confirmed
-# this "гр. <City>," shape holds consistently, matching bazar.bg's own
-# AREA_LINE_RE ("^гр\.\s*\S.*?,\s*(.+)$") which already relies on the same
-# "гр. " prefix convention to find the area line at all.
-CYR_CITY_TITLE_RE = re.compile(
-    r"гр\.?\s*(" + "|".join(re.escape(name) for _, name in BG_CITIES) + r")"
-)
-
-
-def cyr_city_key_from_text(text):
-    if not text:
-        return None
-    match = CYR_CITY_TITLE_RE.search(text)
-    if not match:
-        return None
-    return BG_CITY_BY_NAME.get(match.group(1))
-
-
-def listing_city_key(l):
-    # Ported 1:1 from index.html's listingCityKey() - see that function's
-    # comment for the full story (this used to unconditionally return
-    # "sofia" for every non-bcpea portal, silently miscounting every real
-    # non-Sofia listing from homes.bg/imoti.bg as Sofia).
-    if l.get("portal") == "sales.bcpea.org":
-        settlement = bcpea_settlement_from_title(l.get("title"))
-        return city_key_from_name(settlement) if settlement else None
-    city = l.get("city")
-    if city:
-        key = city_key_from_name(city)
-        if key:
-            return key
-        key = city_key_from_name_prefix(city)
-        if key:
-            return key
-    title = l.get("title")
-    if title and "," in title:
-        last_segment = title.rsplit(",", 1)[1].strip()
-        key = city_key_from_name(last_segment)
-        if key:
-            return key
-        key = city_key_from_name_prefix(last_segment)
-        if key:
-            return key
-    key = latin_city_key_from_text(title)
-    if key:
-        return key
-    key = cyr_city_key_from_text(title)
-    if key:
-        return key
-    # No known city matched - leave unclassified rather than silently
-    # defaulting to Sofia, which would inflate its count with every
-    # listing this function couldn't actually place.
-    return None
 
 
 # --- Oblast (province) keys, mirrored 1:1 in index.html -------------------
