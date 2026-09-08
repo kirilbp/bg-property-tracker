@@ -251,31 +251,54 @@ def fetch_listing_detail(page, listing):
     # Marked unconditionally so a backlog scan can tell "already attempted,
     # nothing more to gain" apart from "never visited yet" - same marker
     # pattern scraper.py/scraper_bcpea.py already established for their own
-    # detail backfills.
+    # detail backfills. Returns whether the page actually loaded (used by
+    # fetch_listing_details() to detect a run of consecutive failures).
     listing["detail_checked"] = True
     html = goto_with_retries(page, listing["url"])
     if html is None:
-        return
+        return False
     description = extract_description_imot(html)
     if description:
         listing["description"] = description
     photos = extract_photos_imot(html)
     if photos:
         listing["photos"] = photos
+    return True
 
 
-def fetch_listing_details(listings):
+def fetch_listing_details(listings, on_checkpoint=None, checkpoint_every=150, deadline=None):
     # One shared browser/page reused across the whole batch (like the main
     # grid crawl already does across many page navigations) rather than a
     # fresh context per listing - much cheaper than scraper_bcpea.py's own
     # detail backfill, which needs a fresh context per listing for other
     # reasons (see its module docstring).
+    #
+    # deadline/on_checkpoint let the caller save progress as it goes and
+    # stop cleanly before the workflow's own timeout would hard-kill the
+    # process, and a run of MAX_CONSECUTIVE_PAGE_FAILURES consecutive
+    # failed page loads stops the run early - same fix as
+    # backfill_detail_imoti_net.py/backfill_detail_alo.py's own timeout
+    # problems.
+    consecutive_failures = 0
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
-        for listing in listings:
-            fetch_listing_detail(page, listing)
+        for i, listing in enumerate(listings, 1):
+            if deadline is not None and time.monotonic() >= deadline:
+                print(f"DEBUG: stopping at {i - 1}/{len(listings)} - approaching this run's time budget")
+                break
+            ok = fetch_listing_detail(page, listing)
+            if ok:
+                consecutive_failures = 0
+            else:
+                consecutive_failures += 1
+                if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                    print(f"DEBUG: {consecutive_failures} consecutive detail-page failures at "
+                          f"{i}/{len(listings)} - looks like the site is throttling this run, stopping here")
+                    break
+            if on_checkpoint and i % checkpoint_every == 0:
+                on_checkpoint()
         browser.close()
 
 

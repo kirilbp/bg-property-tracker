@@ -28,14 +28,25 @@ that day's newly-discovered listings, a much smaller number.
 """
 
 import json
+import time
 
 import scraper_bcpea as sb
 
 # Each detail visit here is slower than a plain HTTP fetch (a fresh
 # Playwright browser context per request, plus a live Nominatim geocode
 # call at ~1 req/sec) - a smaller per-run cap than the plain-requests
-# backfills keeps a single run comfortably inside its own timeout.
+# backfills keeps a single run comfortably inside its own timeout. Kept
+# generous since the internal time budget below (not this count) is what
+# actually decides when a run stops - see fetch_listing_details()'s own
+# comment for why a fixed count alone isn't a reliable guarantee.
 MAX_LOOKUPS_PER_RUN = 400
+
+# Stop visiting new listings once a run has spent this much of the
+# workflow's 45-minute timeout - real headroom for whatever page is in
+# flight, the final checkpoint, computing leads, and the commit/push step.
+TIME_BUDGET_SECONDS = 35 * 60
+
+CHECKPOINT_EVERY = 100
 
 
 def main():
@@ -50,14 +61,18 @@ def main():
 
     batch = missing[:MAX_LOOKUPS_PER_RUN]
     to_check = [rec["latest"] for _, rec in batch]
-    sb.fetch_listing_details(to_check)
 
-    sb.save_history(history)
+    def checkpoint():
+        sb.save_history(history)
+        leads = sb.compute_leads(history)
+        sb.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    leads = sb.compute_leads(history)
-    sb.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
+    sb.fetch_listing_details(to_check, on_checkpoint=checkpoint, checkpoint_every=CHECKPOINT_EVERY, deadline=deadline)
 
-    processed = len(batch)
+    checkpoint()
+
+    processed = sum(1 for l in to_check if l.get("detail_checked"))
     print(f"DEBUG: detail-checked {processed} listings this run "
           f"({len(missing) - processed} still queued for a future run)")
 

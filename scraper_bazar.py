@@ -146,6 +146,19 @@ def fetch_html(url):
             r = requests.get(url, headers=HEADERS, timeout=20)
             r.raise_for_status()
             return r.text
+        except requests.HTTPError as e:
+            # 404/410 mean the page is permanently gone - retrying can
+            # never succeed. Same fix as scraper.py's own fetch_with_retries
+            # (see its comment) after backfill_detail_imoti_net.py kept
+            # timing out from wasting its whole run's budget retrying
+            # gone-forever pages 3x each.
+            status = e.response.status_code if e.response is not None else None
+            if status in (404, 410):
+                print(f"DEBUG: {url} permanently gone ({status}) - not retrying")
+                return None
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
         except requests.RequestException as e:
             print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES:

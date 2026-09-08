@@ -110,6 +110,7 @@ MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 REQUEST_DELAY_SECONDS = 1.0
 MAX_CONSECUTIVE_PAGE_FAILURES = 5
+MAX_CONSECUTIVE_DETAIL_FAILURES = 5
 
 # Confirmed live (via debug_html_snippet): every request past the first in a
 # session gets a bot-challenge interstitial instead of the real page - title
@@ -405,26 +406,52 @@ def fetch_listings():
     return listings
 
 
-def fetch_listing_details(listings):
+def fetch_listing_details(listings, on_checkpoint=None, checkpoint_every=150, deadline=None):
     """The other half of fetch_listings(): visits each given listing's own
     detail page for district/photo/coordinates, mutating each dict in
     place. Self-contained (launches its own browser + geocoder) so it can
-    run as a separate, resumable pass - see backfill_detail_bcpea.py."""
+    run as a separate, resumable pass - see backfill_detail_bcpea.py.
+
+    deadline/on_checkpoint let the caller save progress as it goes and
+    stop cleanly before the workflow's own timeout would hard-kill the
+    process - same fix as backfill_detail_imoti_net.py/
+    backfill_detail_alo.py's own timeout problems. A run of several
+    consecutive "no coords" results is treated the same way alo.bg's own
+    fix treats a run of consecutive failures: a live site/geocoder issue
+    worth stopping this run for, not a reason to keep grinding through a
+    batch that's currently doomed."""
     geocoder = Geocoder()
     detail_failures = 0
+    consecutive_failures = 0
+    processed = 0
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         for i, l in enumerate(listings, 1):
+            if deadline is not None and time.monotonic() >= deadline:
+                print(f"DEBUG: stopping at {i - 1}/{len(listings)} - approaching this run's time budget", flush=True)
+                break
             time.sleep(REQUEST_DELAY_SECONDS)
             fetch_listing_detail(browser, l, geocoder)
+            processed = i
             if l.get("lat") is None:
                 detail_failures += 1
+                consecutive_failures += 1
                 if detail_failures <= 3:
                     print(f"DEBUG: detail fetch produced no coords for {l['url']}", flush=True)
+                if consecutive_failures >= MAX_CONSECUTIVE_DETAIL_FAILURES:
+                    print(f"DEBUG: {consecutive_failures} consecutive no-coords results at "
+                          f"{i}/{len(listings)} - looks like the site or geocoder is having "
+                          f"trouble, stopping here", flush=True)
+                    break
+            else:
+                consecutive_failures = 0
             if i % 200 == 0:
                 print(f"DEBUG: fetched detail for {i}/{len(listings)} listings ({detail_failures} failures so far)", flush=True)
+            if on_checkpoint and i % checkpoint_every == 0:
+                geocoder.save()
+                on_checkpoint()
         browser.close()
-    print(f"DEBUG: detail fetch finished, {detail_failures}/{len(listings)} listings got no coords", flush=True)
+    print(f"DEBUG: detail fetch finished, {detail_failures}/{processed} listings got no coords", flush=True)
     geocoder.save()
     for l in listings:
         l.pop("_settlement", None)

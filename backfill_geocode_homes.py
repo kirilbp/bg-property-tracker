@@ -23,9 +23,21 @@ zero, same as any other backfill.
 """
 
 import json
+import time
 
 import scraper_homes as sh
 from geo_utils import Geocoder
+
+# Stop visiting new listings once a run has spent this much of the
+# workflow's 45-minute timeout - a backstop against the same "fixed count
+# alone isn't a reliable guarantee" issue found in the detail backfills
+# (backfill_detail_imoti_net.py/backfill_detail_alo.py/
+# backfill_detail_bazar.py): occasional Nominatim slowness could in
+# principle still push a run past its budget even with a conservative
+# per-run cap. Checkpointing periodically means that stays cheap insurance
+# rather than a reason to lose a whole run's progress.
+TIME_BUDGET_SECONDS = 35 * 60
+CHECKPOINT_EVERY = 50
 
 # Caps a single run's live-lookup count so this can't itself balloon into
 # an unbounded, multi-hour job the way in-line geocoding did at nationwide
@@ -51,8 +63,19 @@ def main():
     ]
     print(f"DEBUG: {len(missing)} / {len(history)} listings missing coordinates")
 
+    def checkpoint():
+        sh.save_history(history)
+        geocoder.save()
+        leads = sh.compute_leads(history)
+        sh.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
     filled = 0
+    attempted = 0
     for lid, rec in missing[:MAX_LOOKUPS_PER_RUN]:
+        if time.monotonic() >= deadline:
+            print(f"DEBUG: stopping at {attempted}/{MAX_LOOKUPS_PER_RUN} - approaching this run's time budget")
+            break
         latest = rec["latest"]
         location = latest.get("title", "")
         area = latest.get("area", "")
@@ -62,17 +85,16 @@ def main():
         geo_query = f"{area}, България" if area else None
         if not geo_query:
             continue
+        attempted += 1
         coords = geocoder.geocode(geo_query)
         if coords:
             latest["lat"] = coords["lat"]
             latest["lng"] = coords["lng"]
             filled += 1
+        if attempted % CHECKPOINT_EVERY == 0:
+            checkpoint()
 
-    sh.save_history(history)
-    geocoder.save()
-
-    leads = sh.compute_leads(history)
-    sh.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    checkpoint()
 
     processed = min(len(missing), MAX_LOOKUPS_PER_RUN)
     print(f"DEBUG: filled {filled} / {processed} attempted this run ({len(missing) - processed} still queued for a future run)")
