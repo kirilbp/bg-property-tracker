@@ -100,7 +100,12 @@ jobs:
               echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
               git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
               git diff --name-only --diff-filter=U | xargs -r git add
-              GIT_EDITOR=true git rebase --continue
+              if ! GIT_EDITOR=true git rebase --continue; then
+                echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
+                git rebase --abort
+                sleep $((attempt * 5))
+                continue
+              fi
             fi
             if git push; then
               pushed=true
