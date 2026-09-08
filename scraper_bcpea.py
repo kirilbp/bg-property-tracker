@@ -91,7 +91,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, prune_snapshots
+from geo_utils import Geocoder, classify_category, listing_city_key, prune_snapshots
 
 SEARCH_URL = "https://sales.bcpea.org/properties"
 BASE_URL = "https://sales.bcpea.org"
@@ -533,15 +533,21 @@ def compute_leads(history):
         entry["score"] = score
         leads.append(entry)
 
+    # Keyed by (city_key, area), not area alone - see geo_utils.py's
+    # listing_city_key() comment / sync_to_supabase.py's group_listings()
+    # comment for the full "Център" cross-city collision story.
     area_totals = {}
     for l in leads:
-        if l["price_per_sqm"]:
-            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
-    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
+        city_key = listing_city_key(l)
+        if l["price_per_sqm"] and city_key:
+            area_totals.setdefault((city_key, l["area"]), []).append(l["price_per_sqm"])
+    area_avg = {key: sum(v) / len(v) for key, v in area_totals.items()}
 
     for l in leads:
-        if l["price_per_sqm"] and l["area"] in area_avg:
-            avg = area_avg[l["area"]]
+        city_key = listing_city_key(l)
+        area_key = (city_key, l["area"]) if city_key else None
+        if l["price_per_sqm"] and area_key in area_avg:
+            avg = area_avg[area_key]
             l["area_avg_price_per_sqm"] = round(avg)
             l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
         else:

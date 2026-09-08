@@ -112,7 +112,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from geo_utils import Geocoder, prune_snapshots
+from geo_utils import Geocoder, listing_city_key, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
@@ -452,15 +452,27 @@ def compute_leads(history):
         entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         leads.append(entry)
 
+    # Keyed by (city_key, area), not area alone - "Център" ("center") is
+    # the same literal text in dozens of Bulgarian towns, so a plain area
+    # key silently averaged Sofia's Center together with Dobrich's,
+    # Plovdiv's, etc. Same root cause as group_listings()'s own cross-city
+    # merge bug (see sync_to_supabase.py) - a generic area name needs a
+    # real, known city agreeing before it means anything on its own. A
+    # listing whose city can't be resolved is excluded from every area's
+    # average (same "leave unclassified rather than guess" rule
+    # listing_city_key() already follows) and gets no area average itself.
     area_totals = {}
     for l in leads:
-        if l["price_per_sqm"]:
-            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
-    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
+        city_key = listing_city_key(l)
+        if l["price_per_sqm"] and city_key:
+            area_totals.setdefault((city_key, l["area"]), []).append(l["price_per_sqm"])
+    area_avg = {key: sum(v) / len(v) for key, v in area_totals.items()}
 
     for l in leads:
-        if l["price_per_sqm"] and l["area"] in area_avg:
-            avg = area_avg[l["area"]]
+        city_key = listing_city_key(l)
+        area_key = (city_key, l["area"]) if city_key else None
+        if l["price_per_sqm"] and area_key in area_avg:
+            avg = area_avg[area_key]
             l["area_avg_price_per_sqm"] = round(avg)
             l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
         else:
