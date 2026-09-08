@@ -5,8 +5,15 @@
 # lives on each listing's own page, as a ld+json block). Runs hourly like
 # the other detail backfills - a fresh full backlog clears over a few days
 # at this run's cap, after which each run only needs to keep up with that
-# day's newly-discovered listings. Shares scrape.yml's concurrency group
-# since both write to data/*.json and commit.
+# day's newly-discovered listings. Own dedicated concurrency group, not
+# shared with scrape.yml or the other backfills - a shared group only
+# ever keeps one *queued* run, so with this many hourly-ish backfill/
+# geocode workflows funneling into one slot, a later schedule firing
+# while an earlier one was still queued canceled it outright rather than
+# just delaying it (confirmed live: runs were being canceled every few
+# minutes). Any git push race with a concurrent scrape/backfill is
+# already handled by the rebase-retry-with-ours fallback below, same as
+# always.
 name: Backfill olx.bg listing details
 
 on:
@@ -15,7 +22,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: scrape-property-listings
+  group: backfill-detail-olx
   cancel-in-progress: false
 
 permissions:

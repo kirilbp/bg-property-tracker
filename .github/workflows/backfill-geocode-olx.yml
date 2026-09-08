@@ -2,8 +2,15 @@
 # uncoordinated (see backfill_geocode_olx.py and scraper_olx.py's
 # module docstring for why: live geocoding at nationwide scale doesn't fit
 # in the scrape itself). Each run processes a bounded chunk
-# (MAX_LOOKUPS_PER_RUN), not everything at once. Shares scrape.yml's
-# concurrency group since both write to data/*.json and commit.
+# (MAX_LOOKUPS_PER_RUN), not everything at once. Own dedicated
+# concurrency group, not shared with scrape.yml or the other backfills -
+# a shared group only ever keeps one *queued* run, so with this many
+# hourly-ish backfill/geocode workflows funneling into one slot, a later
+# schedule firing while an earlier one was still queued canceled it
+# outright rather than just delaying it (confirmed live: runs were being
+# canceled every few minutes). Any git push race with a concurrent
+# scrape/backfill is already handled by the rebase-retry-with-ours
+# fallback below, same as always.
 #
 # Was workflow_dispatch-only - never actually re-run by hand at any real
 # volume, so ~70% of olx.bg (13,570 listings) sat with no coordinates
@@ -17,7 +24,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: scrape-property-listings
+  group: backfill-geocode-olx
   cancel-in-progress: false
 
 permissions:
