@@ -19,14 +19,64 @@ unclassified) is NOT counted as cross-city - only a group with two or
 more DIFFERENT known cities is real, confirmed corruption.
 
 Read-only, workflow_dispatch only.
+
+Paginates by keyset (the table's own primary key, portal+source_id) rather
+than OFFSET/LIMIT. Two live runs against this table both failed partway
+through with a 500 from Supabase - the first at offset=166000, a later
+one (after the table had grown further) at offset=221000 - after ~10+
+minutes of otherwise-silent successful paging. That's the classic
+deep-OFFSET failure mode: an OFFSET query still has to scan and discard
+every row before the offset, so its cost grows with how deep the page is,
+until it eventually exceeds the server's statement timeout - a genuine
+retry of the same offset would very likely fail again the same way, not
+just a one-off blip. Keyset pagination (order by the primary key, filter
+for "greater than the last row seen") does the same amount of work no
+matter how deep the page is, so it doesn't have this failure mode at all.
 """
 
 import json
 import os
 import sys
+import time
 from collections import defaultdict
 
 import requests
+
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
+
+
+def fetch_page(base_url, headers, page_size, cursor):
+    """cursor is None for the first page, else (last_portal, last_source_id)
+    of the previous page's final row - ordering matches the table's own
+    primary key, so this is a total order with no ties to worry about."""
+    params = {
+        "select": "portal,source_id,merged_id,city_key",
+        "order": "portal.asc,source_id.asc",
+        "limit": page_size,
+    }
+    if cursor is not None:
+        last_portal, last_source_id = cursor
+        params["or"] = (
+            f"(portal.gt.{last_portal},"
+            f"and(portal.eq.{last_portal},source_id.gt.{last_source_id}))"
+        )
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = requests.get(
+                f"{base_url}/rest/v1/listing_sources",
+                headers=headers,
+                params=params,
+                timeout=60,
+            )
+            resp.raise_for_status()
+            return resp.json()
+        except requests.RequestException as e:
+            print(f"DEBUG: page fetch failed at cursor {cursor} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+    print(f"ERROR: giving up on page at cursor {cursor} after {MAX_RETRIES} attempts", file=sys.stderr)
+    sys.exit(1)
 
 
 def main():
@@ -43,28 +93,19 @@ def main():
     base_url = supabase_url.rstrip("/")
 
     by_merged_id = defaultdict(list)
-    offset = 0
     page_size = 1000
     total_rows = 0
+    cursor = None
     while True:
-        resp = requests.get(
-            f"{base_url}/rest/v1/listing_sources",
-            headers=headers,
-            params={
-                "select": "portal,source_id,merged_id,city_key",
-                "limit": page_size,
-                "offset": offset,
-            },
-            timeout=60,
-        )
-        resp.raise_for_status()
-        rows = resp.json()
+        rows = fetch_page(base_url, headers, page_size, cursor)
         if not rows:
             break
         for r in rows:
             by_merged_id[r["merged_id"]].append(r)
         total_rows += len(rows)
-        offset += page_size
+        cursor = (rows[-1]["portal"], rows[-1]["source_id"])
+        if total_rows % 20000 == 0:
+            print(f"DEBUG: loaded {total_rows} rows so far...")
         if len(rows) < page_size:
             break
 
