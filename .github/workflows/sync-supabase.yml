@@ -28,7 +28,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - run: pip install requests
+      # sync_to_supabase.py now imports geo_utils.py (for listing_city_key,
+      # moved there so every scraper can share it too) - geo_utils.py
+      # imports bs4 at module load even though sync_to_supabase.py itself
+      # never parses HTML, the same "installs less than the import chain
+      # actually needs" bug already fixed for several other workflows this
+      # session (see backfill-geocode-*.yml's own comments for the fuller
+      # story - always install what the real import chain needs, not just
+      # what the entry-point script's own top-level imports suggest).
+      - run: pip install requests beautifulsoup4
 
       - run: python sync_to_supabase.py
         env:
