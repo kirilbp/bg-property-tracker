@@ -33,6 +33,7 @@ listings, a much smaller number.
 """
 
 import json
+import time
 
 import scraper_imot as si
 
@@ -40,8 +41,17 @@ import scraper_imot as si
 # fetch_listing_details()'s own comment) keeps the per-listing cost close
 # to a plain page navigation, letting this run a larger batch than
 # scraper_bcpea.py's own detail backfill (which needs a fresh browser
-# context per listing) within the same time budget.
+# context per listing) within the same time budget. Kept generous since
+# the internal time budget below (not this count) is what actually
+# decides when a run stops.
 MAX_LOOKUPS_PER_RUN = 500
+
+# Stop visiting new listings once a run has spent this much of the
+# workflow's 45-minute timeout - real headroom for whatever page is in
+# flight, the final checkpoint, computing leads, and the commit/push step.
+TIME_BUDGET_SECONDS = 35 * 60
+
+CHECKPOINT_EVERY = 150
 
 
 def main():
@@ -56,14 +66,18 @@ def main():
 
     batch = missing[:MAX_LOOKUPS_PER_RUN]
     to_check = [rec["latest"] for _, rec in batch]
-    si.fetch_listing_details(to_check)
 
-    si.save_history(history)
+    def checkpoint():
+        si.save_history(history)
+        leads = si.compute_leads(history)
+        si.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    leads = si.compute_leads(history)
-    si.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
+    si.fetch_listing_details(to_check, on_checkpoint=checkpoint, checkpoint_every=CHECKPOINT_EVERY, deadline=deadline)
 
-    processed = len(batch)
+    checkpoint()
+
+    processed = sum(1 for l in to_check if l.get("detail_checked"))
     print(f"DEBUG: detail-checked {processed} listings this run "
           f"({len(missing) - processed} still queued for a future run)")
 

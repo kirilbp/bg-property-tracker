@@ -32,6 +32,20 @@ workflow_dispatch-only since it only filled in map coordinates, a
 lower-priority field; now that it also fills in description (real
 listing content, not just a map pin), it needs to actually keep running
 rather than wait to be re-dispatched by hand.
+
+A live production run still timed out at 45 minutes despite the
+1000-listing cap below being sized with margin for the assumed-typical
+case - real per-listing timing varies enough (network conditions, a
+patch of slow-to-respond pages) that a fixed count is not a reliable
+guarantee, and nothing was saved until the very end, so that run's whole
+batch was discarded and reported as a failed run for zero reason (no
+error, just ordinary variance). Same fix as backfill_detail_imoti_net.py/
+backfill_detail_alo.py's own timeout problems: an internal time budget
+plus periodic checkpointing, so a run exits cleanly (and keeps what it
+found) well before the workflow's external timeout would ever need to
+step in, and a run that hits several consecutive failures in a row (the
+site throttling or blocking, same as alo.bg's own fix) stops early
+instead of grinding through the rest of a doomed batch.
 """
 
 import json
@@ -44,13 +58,22 @@ REQUEST_DELAY_SECONDS = 1.0
 # Caps a single run's detail-page-visit count so this can't itself balloon
 # into an unbounded, multi-hour job at nationwide scale - meant to be
 # re-run repeatedly (by hand, or on a schedule) until the backlog clears.
-# 1500 (the original value, from back when this ran via workflow_dispatch
-# with no explicit timeout) doesn't reliably fit inside the 45-minute
-# timeout added when this was converted to run hourly: at ~1.5-2.5s/listing
-# (1.0s delay + real fetch time), 1500 listings is 37.5-62.5 minutes - a
-# real run timed out and got killed partway through. 1000 comfortably fits
-# with margin (25-42 minutes).
+# Kept generous since the internal time budget below (not this count) is
+# what actually decides when a run stops.
 MAX_LOOKUPS_PER_RUN = 1000
+
+# Stop visiting new listings once a run has spent this much of the
+# workflow's 45-minute timeout - real headroom for whatever page is in
+# flight, the final checkpoint, computing leads, and the commit/push step.
+TIME_BUDGET_SECONDS = 35 * 60
+
+CHECKPOINT_EVERY = 150
+
+# Same reasoning as scraper_alo.py's MAX_CONSECUTIVE_DETAIL_FAILURES: a
+# run of consecutive failures across many different listings means the
+# site is currently blocking/throttling this run, not that particular
+# listings are bad - further retries in the same run are equally doomed.
+MAX_CONSECUTIVE_FAILURES = 5
 
 
 def main():
@@ -64,13 +87,33 @@ def main():
     print(f"DEBUG: {len(missing)} / {len(history)} listings not yet detail-checked")
 
     batch = missing[:MAX_LOOKUPS_PER_RUN]
+
+    def checkpoint():
+        sb.save_history(history)
+        leads = sb.compute_leads(history)
+        sb.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
     filled = 0
+    checked = 0
+    consecutive_failures = 0
     for i, (lid, rec) in enumerate(batch, 1):
+        if time.monotonic() >= deadline:
+            print(f"DEBUG: stopping at {i - 1}/{len(batch)} - approaching this run's time budget")
+            break
         latest = rec["latest"]
         time.sleep(REQUEST_DELAY_SECONDS)
         html = sb.fetch_html(latest["url"])
         latest["coords_checked"] = True
-        if html is not None:
+        checked += 1
+        if html is None:
+            consecutive_failures += 1
+            if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                print(f"DEBUG: {consecutive_failures} consecutive detail-page failures at "
+                      f"{i}/{len(batch)} - looks like the site is throttling this run, stopping here")
+                break
+        else:
+            consecutive_failures = 0
             coords = extract_coords_bazar(html)
             if coords:
                 latest["lat"] = coords["lat"]
@@ -84,15 +127,13 @@ def main():
                 latest["photos"] = photos
         if i % 200 == 0:
             print(f"DEBUG: checked {i}/{len(batch)} listings")
+        if i % CHECKPOINT_EVERY == 0:
+            checkpoint()
 
-    sb.save_history(history)
+    checkpoint()
 
-    leads = sb.compute_leads(history)
-    sb.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    processed = len(batch)
-    print(f"DEBUG: filled coords for {filled} / {processed} checked this run "
-          f"({len(missing) - processed} still queued for a future run)")
+    print(f"DEBUG: filled coords for {filled} / {checked} checked this run "
+          f"({len(missing) - checked} still queued for a future run)")
 
 
 if __name__ == "__main__":
