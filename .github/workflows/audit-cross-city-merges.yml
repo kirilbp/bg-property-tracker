@@ -1,0 +1,29 @@
+# One-time diagnostic for audit_cross_city_merges.py - counts how many
+# existing merged_listings groups in Supabase span more than one city, a
+# real bug reported live (group_listings() matches purely on price+area
+# with no city check - see that script's docstring for the full story).
+# Read-only (no data/ writes, no commit step).
+name: Audit cross-city merges
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python audit_cross_city_merges.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
