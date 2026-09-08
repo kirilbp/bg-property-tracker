@@ -140,6 +140,17 @@ PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
 AREA_LINE_RE = re.compile(r"^гр\.\s*\S.*?,\s*(.+)$")
 
 
+class PermanentlyGone(Exception):
+    """Raised by fetch_html() for a 404/410 - the listing is gone for
+    good, which is normal and expected in a large newest-first backlog and
+    proves the server is responding fine. Deliberately not just another
+    None return: backfill_detail_bazar.py's consecutive-failure early-stop
+    was folding "permanently gone" and "retries exhausted after a real
+    failure" into the same signal, so a handful of ordinary dead listings
+    could trip it and abort a run with zero progress. Only a real failure
+    should count toward that threshold."""
+
+
 def fetch_html(url):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
@@ -155,7 +166,7 @@ def fetch_html(url):
             status = e.response.status_code if e.response is not None else None
             if status in (404, 410):
                 print(f"DEBUG: {url} permanently gone ({status}) - not retrying")
-                return None
+                raise PermanentlyGone(url) from None
             print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_SECONDS * attempt)
@@ -182,7 +193,10 @@ def smallest_container_with_price(link_tag, max_levels=9):
 
 
 def fetch_listings_page(url, city_display):
-    html = fetch_html(url)
+    try:
+        html = fetch_html(url)
+    except PermanentlyGone:
+        return None
     if html is None:
         return None
     soup = BeautifulSoup(html, "html.parser")

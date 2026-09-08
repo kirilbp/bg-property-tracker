@@ -103,9 +103,17 @@ def main():
             break
         latest = rec["latest"]
         time.sleep(REQUEST_DELAY_SECONDS)
-        html = sb.fetch_html(latest["url"])
         latest["coords_checked"] = True
         checked += 1
+        try:
+            html = sb.fetch_html(latest["url"])
+        except sb.PermanentlyGone:
+            # A clean 404/410 proves the server is responding normally -
+            # it's not the site-health signal this early-stop exists for,
+            # so it resets the counter instead of feeding it (same fix as
+            # scraper_alo.py's own consecutive-failure regression).
+            consecutive_failures = 0
+            continue
         if html is None:
             consecutive_failures += 1
             if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
