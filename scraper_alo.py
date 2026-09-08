@@ -116,6 +116,17 @@ RETRY_BACKOFF_SECONDS = 5
 # (usually tied to a request-rate window) has likely cleared.
 MAX_CONSECUTIVE_DETAIL_FAILURES = 5
 
+
+class PermanentlyGone(Exception):
+    """Raised by fetch_with_retries() for a 404/410 - the listing is gone
+    for good, which is normal and expected in a large newest-first backlog
+    and proves the server is responding fine. Deliberately not just
+    another None return: a live run hit MAX_CONSECUTIVE_DETAIL_FAILURES
+    after only 5 ordinary dead listings and aborted with zero progress
+    despite a full time budget, because the old code folded "permanently
+    gone" and "retries exhausted after a real failure" into the same
+    signal. Only the latter should count toward that threshold."""
+
 LISTING_LINK_RE = re.compile(r"^/[a-z0-9\-]+-(\d{6,9})$")
 UPDATED_TEXT_RE = re.compile(r">((?:Актуализирана|Публикувана)[^<]{0,40})<")
 DAYS_AGO_RE = re.compile(r"преди\s+(\d+)\s+д")
@@ -196,6 +207,17 @@ def fetch_with_retries(url):
             resp = requests.get(url, headers=HEADERS, timeout=20)
             resp.raise_for_status()
             return resp.text
+        except requests.HTTPError as e:
+            # 404/410 mean the page is permanently gone - retrying can
+            # never succeed. Same fix as scraper.py/scraper_bazar.py's own
+            # fetch_with_retries/fetch_html (see their comments).
+            status = e.response.status_code if e.response is not None else None
+            if status in (404, 410):
+                print(f"DEBUG: {url} permanently gone ({status}) - not retrying")
+                raise PermanentlyGone(url) from None
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
         except requests.RequestException as e:
             print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES:
@@ -204,7 +226,10 @@ def fetch_with_retries(url):
 
 
 def fetch_listings_page(url, seen):
-    html = fetch_with_retries(url)
+    try:
+        html = fetch_with_retries(url)
+    except PermanentlyGone:
+        return None
     if html is None:
         return None
 
@@ -319,7 +344,16 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
             print(f"DEBUG: stopping at {i - 1}/{len(seen)} - approaching this run's time budget")
             break
         time.sleep(REQUEST_DELAY_SECONDS)
-        html = fetch_with_retries(l["url"])
+        try:
+            html = fetch_with_retries(l["url"])
+        except PermanentlyGone:
+            # A clean 404/410 proves the server is responding normally -
+            # it's not the site-health signal this early-stop exists for,
+            # and there's nothing left to gain from ever revisiting this
+            # URL, so mark it done same as a successful visit would.
+            consecutive_failures = 0
+            l["_detail_fetched"] = True
+            continue
         if html is None:
             consecutive_failures += 1
             if consecutive_failures >= MAX_CONSECUTIVE_DETAIL_FAILURES:
