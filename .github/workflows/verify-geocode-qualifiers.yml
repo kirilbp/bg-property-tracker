@@ -19,8 +19,14 @@
 # entries that predate geo_utils.Geocoder.geocode()'s own cross-check
 # (which protects every future geocode call automatically); re-run only
 # if a future audit finds more pre-existing entries worth re-checking.
-# Shares scrape.yml's concurrency group since a real (non-dry-run) run
-# writes to data/*.json and commits, same as any other backfill.
+# Own dedicated concurrency group, not shared with scrape.yml or the
+# other backfills - a shared group only ever keeps one *queued* run, so
+# with this many hourly-ish backfill/geocode workflows funneling into one
+# slot, a later schedule firing while an earlier one was still queued
+# canceled it outright rather than just delaying it (confirmed live: runs
+# were being canceled every few minutes). Any git push race with a
+# concurrent scrape/backfill is already handled by the rebase-retry-with-
+# ours fallback below, same as always.
 name: Verify geocode qualifiers (one-time correction)
 
 on:
@@ -32,7 +38,7 @@ on:
         default: true
 
 concurrency:
-  group: scrape-property-listings
+  group: verify-geocode-qualifiers
   cancel-in-progress: false
 
 permissions:

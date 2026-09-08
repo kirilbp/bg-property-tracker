@@ -6,8 +6,14 @@
 # nationwide listings). Runs hourly like the other high-churn detail
 # backfills (alo.bg, imoti.net) - a fresh full backlog clears in a few
 # hours, after which each run only needs to keep up with that day's newly
-# discovered listings. Shares scrape.yml's concurrency group since both
-# write to data/*.json and commit.
+# discovered listings. Own dedicated concurrency group, not shared with
+# scrape.yml or the other backfills - a shared group only ever keeps one
+# *queued* run, so with this many hourly-ish backfill/geocode workflows
+# funneling into one slot, a later schedule firing while an earlier one
+# was still queued canceled it outright rather than just delaying it
+# (confirmed live: runs were being canceled every few minutes). Any git
+# push race with a concurrent scrape/backfill is already handled by the
+# rebase-retry-with-ours fallback below, same as always.
 name: Backfill bcpea.org listing details
 
 on:
@@ -16,7 +22,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: scrape-property-listings
+  group: backfill-detail-bcpea
   cancel-in-progress: false
 
 permissions:

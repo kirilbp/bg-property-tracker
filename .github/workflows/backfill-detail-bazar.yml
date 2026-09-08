@@ -5,8 +5,14 @@
 # Previously workflow_dispatch-only (map coordinates alone didn't justify
 # an hourly cron) - now scheduled hourly like the other detail backfills,
 # since it also fills in description, real listing content users actually
-# see. Shares scrape.yml's concurrency group since both write to
-# data/*.json and commit.
+# see. Own dedicated concurrency group, not shared with scrape.yml or the
+# other backfills - a shared group only ever keeps one *queued* run, so
+# with this many hourly-ish backfill/geocode workflows funneling into one
+# slot, a later schedule firing while an earlier one was still queued
+# canceled it outright rather than just delaying it (confirmed live: runs
+# were being canceled every few minutes). Any git push race with a
+# concurrent scrape/backfill is already handled by the rebase-retry-with-
+# ours fallback below, same as always.
 name: Backfill bazar.bg listing details
 
 on:
@@ -15,7 +21,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: scrape-property-listings
+  group: backfill-detail-bazar
   cancel-in-progress: false
 
 permissions:
