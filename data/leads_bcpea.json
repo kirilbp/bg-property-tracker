@@ -3580,7 +3580,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 50,
+    "days_on_market": 51,
     "score": 14,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3611,7 +3611,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 50,
+    "days_on_market": 51,
     "score": 14,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3642,7 +3642,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 50,
+    "days_on_market": 51,
     "score": 14,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -3673,7 +3673,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 50,
+    "days_on_market": 51,
     "score": 14,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5132,6 +5132,37 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_90683",
+    "url": "https://sales.bcpea.org/properties/90683",
+    "photo": "https://sales.bcpea.org/upload/90683/453492/20260515_160555.jpg?w=270&h=270",
+    "price_eur": 86400,
+    "sqm": 46,
+    "area": "София",
+    "title": "Едностаен апартамент, София",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-29T12:18:00+00:00",
+    "category": "apartment",
+    "lat": 42.6977028,
+    "lng": 23.3217359,
+    "detail_checked": true,
+    "description": "АПАРТАМЕНТ № 77 (седемдесет и седем), находящ се в град София, Столична община, район „Надежда\", ж.к. „Надежда - 2 (втора) част\", в блок № 247 (двеста четиридесет и седем), стар блок № 25 (двадесет и пет), Вход „Г\", на III (третия) етаж, състоящ се от: стая, кухня и други сервизни помещения, със застроена площ от 46,46 (четиридесет и шест цяло и четиридесет и шест стотни) кв.метра, при граници: стълбище, Йордан Костадинов Илиев, Николай Славейков Давидков, ул. „Полк.Димитър Кирков\", заедно с ИЗБЕНО ПОМЕЩЕНИЕ № 17 (седемнадесет), с площ по декларирани данни от 5,00 (пет) кв.метра, при граници: коридор, ул. „Полк. Димитър Кирков\", заедно с 0,450% (нула цяло и четиристотин и петдесет хилядни върху сто) идеални части от общите части на сградата и съответните идеални части от правото на строеж върху мястото, който апартамент е заснет като САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА ИЛИ В СЪОРЪЖЕНИЕ НА ТЕХНИЧЕСКАТА ИНФРАСТРУКТУРА с идентификатор 68134.1382.2126.1.77, заснет по кадастралната карта и кадастралните регистри на гр. София, общ. Столична, обл. София (столица), одобрени със Заповед №РД-18-48/12.10.2011 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК, при последно изменение на кадастралната карта и кадастралните регистри, засягащо самостоятелния обект: няма извършено изменение на КККР със заповед, с адрес на самостоятелния обект: гр. София, район Надежда, ж.к. \"НАДЕЖДА-2\", бл. 247, вх. Г, ет. 3, ап. 77, който самостоятелен обект се намира на етаж 3 в сграда с идентификатор 68134.1382.2126.1, с предназначение: Жилищна сграда - многофамилна, брой етажи: 8, която сграда е разположена в поземлен имот с идентификатор 68134.1382.2126, с предназначение на самостоятелния обект: Жилище, апартамент - в жилищна или вилна сграда, или в сграда със смесено предназначение, при Брой нива на обекта: 1, с площ на самостоятелния обект: 46.46 кв.м., Прилежащи части: избено пом. № 17 - 5 кв.м. и 0,450 % ид.ч. от об.ч. на сградата, при съседни самостоятелни обекти в сградата: На същия етаж: 68134.1382.2126.1.78, 68134.1382.2126.1.76, под обекта: 68134.1382.2126.1.74, над обекта: 68134.1382.2126.1.80, с предишен идентификатор: 68134.1382.2022.1.77. За повече информация вижте прикаченото обявление!",
+    "price_per_sqm": 1878,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 86400
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 42,
+    "score": 12,
+    "area_avg_price_per_sqm": 2011,
+    "pct_vs_area_avg": -6.6
+  },
+  {
     "id": "bcpea_90682",
     "url": "https://sales.bcpea.org/properties/90682",
     "photo": "https://sales.bcpea.org/upload/90682/453484/20260403_131658.jpg?w=270&h=270",
@@ -5808,7 +5839,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 42,
+    "days_on_market": 43,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5839,7 +5870,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 42,
+    "days_on_market": 43,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6458,7 +6489,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -98.5
@@ -6489,7 +6520,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.8
@@ -6520,7 +6551,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.9
@@ -6551,7 +6582,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.0
@@ -6582,7 +6613,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.0
@@ -6613,7 +6644,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.0
@@ -6644,7 +6675,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.0
@@ -6675,7 +6706,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -99.0
@@ -6706,7 +6737,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -8997,7 +9028,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9058,7 +9089,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9367,7 +9398,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 40,
+    "days_on_market": 41,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9805,37 +9836,6 @@
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90683",
-    "url": "https://sales.bcpea.org/properties/90683",
-    "photo": "https://sales.bcpea.org/upload/90683/453492/20260515_160555.jpg?w=270&h=270",
-    "price_eur": 86400,
-    "sqm": 46,
-    "area": "София",
-    "title": "Едностаен апартамент, София",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-29T12:18:00+00:00",
-    "category": "apartment",
-    "lat": 42.6977028,
-    "lng": 23.3217359,
-    "detail_checked": true,
-    "description": "АПАРТАМЕНТ № 77 (седемдесет и седем), находящ се в град София, Столична община, район „Надежда\", ж.к. „Надежда - 2 (втора) част\", в блок № 247 (двеста четиридесет и седем), стар блок № 25 (двадесет и пет), Вход „Г\", на III (третия) етаж, състоящ се от: стая, кухня и други сервизни помещения, със застроена площ от 46,46 (четиридесет и шест цяло и четиридесет и шест стотни) кв.метра, при граници: стълбище, Йордан Костадинов Илиев, Николай Славейков Давидков, ул. „Полк.Димитър Кирков\", заедно с ИЗБЕНО ПОМЕЩЕНИЕ № 17 (седемнадесет), с площ по декларирани данни от 5,00 (пет) кв.метра, при граници: коридор, ул. „Полк. Димитър Кирков\", заедно с 0,450% (нула цяло и четиристотин и петдесет хилядни върху сто) идеални части от общите части на сградата и съответните идеални части от правото на строеж върху мястото, който апартамент е заснет като САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА ИЛИ В СЪОРЪЖЕНИЕ НА ТЕХНИЧЕСКАТА ИНФРАСТРУКТУРА с идентификатор 68134.1382.2126.1.77, заснет по кадастралната карта и кадастралните регистри на гр. София, общ. Столична, обл. София (столица), одобрени със Заповед №РД-18-48/12.10.2011 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК, при последно изменение на кадастралната карта и кадастралните регистри, засягащо самостоятелния обект: няма извършено изменение на КККР със заповед, с адрес на самостоятелния обект: гр. София, район Надежда, ж.к. \"НАДЕЖДА-2\", бл. 247, вх. Г, ет. 3, ап. 77, който самостоятелен обект се намира на етаж 3 в сграда с идентификатор 68134.1382.2126.1, с предназначение: Жилищна сграда - многофамилна, брой етажи: 8, която сграда е разположена в поземлен имот с идентификатор 68134.1382.2126, с предназначение на самостоятелния обект: Жилище, апартамент - в жилищна или вилна сграда, или в сграда със смесено предназначение, при Брой нива на обекта: 1, с площ на самостоятелния обект: 46.46 кв.м., Прилежащи части: избено пом. № 17 - 5 кв.м. и 0,450 % ид.ч. от об.ч. на сградата, при съседни самостоятелни обекти в сградата: На същия етаж: 68134.1382.2126.1.78, 68134.1382.2126.1.76, под обекта: 68134.1382.2126.1.74, над обекта: 68134.1382.2126.1.80, с предишен идентификатор: 68134.1382.2022.1.77. За повече информация вижте прикаченото обявление!",
-    "price_per_sqm": 1878,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 86400
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 41,
-    "score": 11,
-    "area_avg_price_per_sqm": 2011,
-    "pct_vs_area_avg": -6.6
   },
   {
     "id": "bcpea_90502",
@@ -10710,7 +10710,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -10741,7 +10741,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -10772,7 +10772,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -10803,7 +10803,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -10834,7 +10834,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -10865,7 +10865,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14802,7 +14802,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14833,7 +14833,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14864,7 +14864,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14895,7 +14895,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14926,7 +14926,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14957,7 +14957,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14988,7 +14988,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15019,7 +15019,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15050,7 +15050,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15081,7 +15081,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15112,7 +15112,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15143,7 +15143,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15174,7 +15174,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15205,7 +15205,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15236,7 +15236,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15267,7 +15267,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15298,7 +15298,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15329,7 +15329,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15360,7 +15360,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "score": 10,
     "area_avg_price_per_sqm": 852,
     "pct_vs_area_avg": 0.0
@@ -25010,7 +25010,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 27,
+    "days_on_market": 28,
     "score": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -25877,7 +25877,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "score": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -29033,7 +29033,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "score": 7,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -30683,6 +30683,37 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_91401",
+    "url": "https://sales.bcpea.org/properties/91401",
+    "photo": null,
+    "price_eur": 4944,
+    "sqm": 500,
+    "area": "Златия",
+    "title": "Парцел с къща, Златия",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-20T12:16:00+00:00",
+    "category": "land",
+    "lat": 43.583747,
+    "lng": 27.6852385,
+    "detail_checked": true,
+    "description": "ДВОРНО МЯСТО , находящо се в село Златия, община Вълчедръм, област Монтана, на ул. „Васил Коларов“ № 11 с площ от 1500 кв. м., съставляващо поземлен имот, кадастрален № 1035, за който са отредени УПИ I- 1035 и УПИ II- 1035 в кв. 115 по плана на село Златия, одобрен със Заповед № 3754 от 1969г., ЗАЕДНО с построените в него сграда 1, обект 1, представляващо жилище с РЗП 60 кв. м. с мазе от 10 кв. м. и таван от 60 кв. м., а съгласно нотариален акт за собственост – 66 кв. м., с мазе 9 кв. м. и таван от 66 кв. м., сграда 2, обект 1, представляващо жилище с РЗП 36 кв. м., с таван от 36 кв. м. /лятна кухня/, сграда 3, обект 1 , представляващ навес с оградни стени с РЗП 50кв. м., сграда 4, обект 1 – второстепенна сграда с РЗП 12 кв. м. и обект 2 – второстепенна сграда с РЗП 40 в. м., при граници и съседи, съгласно скицата: от две страни улици, УПИ III-1031, УПИ IV-1031, УПИ IX-1034.",
+    "price_per_sqm": 10,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 4944
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 20,
+    "score": 6,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_91399",
     "url": "https://sales.bcpea.org/properties/91399",
     "photo": "https://sales.bcpea.org/upload/91399/455931/IMG_3545.jpeg?w=270&h=270",
@@ -32103,7 +32134,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": 3103,
     "pct_vs_area_avg": -51.1
@@ -33714,7 +33745,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35210,7 +35241,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35241,7 +35272,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35272,7 +35303,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35303,7 +35334,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35334,7 +35365,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35365,7 +35396,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35396,7 +35427,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35427,7 +35458,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35458,7 +35489,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35489,7 +35520,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -35520,7 +35551,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -39477,37 +39508,6 @@
     "pct_vs_area_avg": -96.9
   },
   {
-    "id": "bcpea_91401",
-    "url": "https://sales.bcpea.org/properties/91401",
-    "photo": null,
-    "price_eur": 4944,
-    "sqm": 500,
-    "area": "Златия",
-    "title": "Парцел с къща, Златия",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-20T12:16:00+00:00",
-    "category": "land",
-    "lat": 43.583747,
-    "lng": 27.6852385,
-    "detail_checked": true,
-    "description": "ДВОРНО МЯСТО , находящо се в село Златия, община Вълчедръм, област Монтана, на ул. „Васил Коларов“ № 11 с площ от 1500 кв. м., съставляващо поземлен имот, кадастрален № 1035, за който са отредени УПИ I- 1035 и УПИ II- 1035 в кв. 115 по плана на село Златия, одобрен със Заповед № 3754 от 1969г., ЗАЕДНО с построените в него сграда 1, обект 1, представляващо жилище с РЗП 60 кв. м. с мазе от 10 кв. м. и таван от 60 кв. м., а съгласно нотариален акт за собственост – 66 кв. м., с мазе 9 кв. м. и таван от 66 кв. м., сграда 2, обект 1, представляващо жилище с РЗП 36 кв. м., с таван от 36 кв. м. /лятна кухня/, сграда 3, обект 1 , представляващ навес с оградни стени с РЗП 50кв. м., сграда 4, обект 1 – второстепенна сграда с РЗП 12 кв. м. и обект 2 – второстепенна сграда с РЗП 40 в. м., при граници и съседи, съгласно скицата: от две страни улици, УПИ III-1031, УПИ IV-1031, УПИ IX-1034.",
-    "price_per_sqm": 10,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 4944
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 19,
-    "score": 5,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_91588",
     "url": "https://sales.bcpea.org/properties/91588",
     "photo": null,
@@ -40828,7 +40828,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -40859,7 +40859,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44824,7 +44824,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44855,7 +44855,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": 2011,
     "pct_vs_area_avg": -74.0
@@ -44886,7 +44886,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44917,7 +44917,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44948,7 +44948,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44979,7 +44979,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45010,7 +45010,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45041,7 +45041,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45072,7 +45072,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": 250,
     "pct_vs_area_avg": -88.4
@@ -45103,7 +45103,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45134,7 +45134,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": 250,
     "pct_vs_area_avg": 88.4
@@ -45165,7 +45165,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45196,7 +45196,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45227,7 +45227,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45258,7 +45258,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45289,7 +45289,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45320,7 +45320,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45351,7 +45351,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45382,7 +45382,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45785,6 +45785,37 @@
     "source_status": "removed",
     "removed_at": "2026-08-28T04:43:47.507691+00:00",
     "days_on_market": 7,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91983",
+    "url": "https://sales.bcpea.org/properties/91983",
+    "photo": null,
+    "price_eur": 9121,
+    "sqm": 770,
+    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
+    "title": "Парцел, Козар Белене",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:42:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 1. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 3 770.00 кв.м. /три хиляди седемстотин и седемдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I – 1 / парцел първи, за имот с планоснимачен номер едно/, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: от три страни – улици, УПИ № III – 2 на Александър и Йорданка Филипови, УПИ № IV – 3 на Александър и Йорданка Филипови. при НАЧАЛНА ЦЕНА – 9 121.45 € / девет хиляди сто двадесет и едно евро и четиридесет и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
+    "price_per_sqm": 12,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 9121
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -46682,7 +46713,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -48666,7 +48697,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -48697,7 +48728,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": 1911,
     "pct_vs_area_avg": -96.3
@@ -48728,7 +48759,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": 1911,
     "pct_vs_area_avg": -73.1
@@ -48759,7 +48790,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -48790,7 +48821,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -48821,7 +48852,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -48852,7 +48883,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -50832,7 +50863,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -52481,6 +52512,192 @@
     "pct_vs_area_avg": -36.3
   },
   {
+    "id": "bcpea_91989",
+    "url": "https://sales.bcpea.org/properties/91989",
+    "photo": null,
+    "price_eur": 3027,
+    "sqm": 560,
+    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
+    "title": "Парцел, Козар Белене",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:51:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 4 . Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 56 0.00 кв.м. /хиляда петстотин и шестдесет квадратни метра/ по акт за собственост, а по скица с площ от 1590.00 кв.м. /хиляда петстотин и деветдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I I – 4 / парцел втори , за имот с планоснимачен номер четири /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: от две страни улици, УПИ № III – 2 на „Профиагро България“ ООД, УПИ № IV – 3 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА – 3 026.85 € / три хиляди двадесет и шест евро и осемдесет и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
+    "price_per_sqm": 5,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 3027
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91988",
+    "url": "https://sales.bcpea.org/properties/91988",
+    "photo": null,
+    "price_eur": 11588,
+    "sqm": 27,
+    "area": "Царево",
+    "title": "Парцел, Царево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:50:00+00:00",
+    "category": "land",
+    "lat": 42.1702827,
+    "lng": 27.8482856,
+    "detail_checked": true,
+    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор 48619.506.464 /четиридесет и осем хиляди шестстотин и деветнадесет точка петстотин и шест точка четиристотин шестдесет и четири/ по кадастралната карта на гр.Царево, обл. Бургас, одобрена със заповед №РД-18-56/24.08.2006г.на Изп.директор на АК, с адрес на поземления имот:ТРИДЕСЕТ И ПЕТА, с площ на целия поземлен имот 1027(хиляда двадесет и седем)кв.м.,трайно предназначение:урбанизирана, начин на трайно ползване: за друг вид застрояване, стар идентификатор:кв.0/нула №2153/две хиляди сто петдесет и три/, при съседи на поземления имот: поземлени имоти с идентификатори 48619.506.465; 48619.506.463; 48619.506.470; 48619.506. 403 ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 429,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 11588
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91987",
+    "url": "https://sales.bcpea.org/properties/91987",
+    "photo": null,
+    "price_eur": 21392,
+    "sqm": 766,
+    "area": "Царево",
+    "title": "Парцел, Царево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:48:00+00:00",
+    "category": "land",
+    "lat": 42.1702827,
+    "lng": 27.8482856,
+    "detail_checked": true,
+    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор 48619.507.144 /четиридесет и осем хиляди шестстотин и деветнадесет точка петстотин и седем точка сто четиридесет и четири/ по кадастралната карта на гр.Царево, обл,Бургас, одобрена със заповед №РД-18-56/24.08.2006г. на Изп. директор на АГКК , с административен адрес на поземления имот: гр .Царево, п.к.8260 , ТРИДЕСЕТ И ТРЕТА, с площ на целия поземлен имот 1766 (хиляда седемстотин шестдесет и шест) кв.м., трайно предназначение: урбанизирана, начин на трайно ползване : за друг вид застрояване, стар идентификатор: кв.0/нула/ №4120/четири хиляди сто и двадесет/, при съседи на поземления имот: поземлени имоти с идентификатори 48619.507.145; 48619.507.146; 4869.507.132. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 28,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 21392
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91986",
+    "url": "https://sales.bcpea.org/properties/91986",
+    "photo": null,
+    "price_eur": 25920,
+    "sqm": 140,
+    "area": "Царево",
+    "title": "Парцел, Царево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:46:00+00:00",
+    "category": "land",
+    "lat": 42.1702827,
+    "lng": 27.8482856,
+    "detail_checked": true,
+    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор № 48619.507.143 /четиридесет и осем хиляди шестстотин и деветнадесет, точка, петстотин и седем, точка, сто четиридесет и три/, находящ се в гр.Царево, общ.Царево, обл. Бургас, по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-56/24.08.2006 г. на изпълнителния директор на АГКК, с административен адрес на поземления имот: гр .Царево, п.к.8260, „Десета”, с площ от 2140 кв.м. /две хиляди сто и четиридесет квадратни метра/, трайно предназначение на територията: урбанизирана, начин на трайно ползване: за друг вид застрояване, номер по предходен план: 4017 /четири хиляди и седемнадесет/ съседи: 48619.507.138, 48619.507.132, 48619.507.146, 48619.507.142,48619.507.141. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 185,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 25920
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91985",
+    "url": "https://sales.bcpea.org/properties/91985",
+    "photo": null,
+    "price_eur": 3518,
+    "sqm": 450,
+    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
+    "title": "Парцел, Козар Белене",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:46:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 3. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 450.00 кв.м. /хиляда четиристотин и петдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № IV – 3 / парцел четвърти , за имот с планоснимачен номер три /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: улица, УПИ № I – 1 на „Профиагро България“ ООД, УПИ № III – 2 на „Профиагро България“ ООД, УПИ № II – 4 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА - 3 517.69 € / три хиляди петстотин и седемнадесет евро и шестдесет и девет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 3518
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91984",
+    "url": "https://sales.bcpea.org/properties/91984",
+    "photo": null,
+    "price_eur": 4213,
+    "sqm": 750,
+    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
+    "title": "Парцел, Козар Белене",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-03T12:44:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 2. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 750.00 кв.м. /хиляда седемстотин и петдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I II – 2 / парцел трети , за имот с планоснимачен номер две /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: улица, УПИ № I – 1 на „Профиагро България“ ООД, УПИ № II – 4 на „Профиагро България“ ООД, УПИ № IV – 3 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА – 4 213.05 € / четири хиляди двеста и тринадесет евро и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
+    "price_per_sqm": 6,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 4213
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_91384",
     "url": "https://sales.bcpea.org/properties/91384",
     "photo": null,
@@ -53657,37 +53874,6 @@
     "pct_vs_area_avg": 85.2
   },
   {
-    "id": "bcpea_91983",
-    "url": "https://sales.bcpea.org/properties/91983",
-    "photo": null,
-    "price_eur": 9121,
-    "sqm": 770,
-    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
-    "title": "Парцел, Козар Белене",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:42:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 1. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 3 770.00 кв.м. /три хиляди седемстотин и седемдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I – 1 / парцел първи, за имот с планоснимачен номер едно/, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: от три страни – улици, УПИ № III – 2 на Александър и Йорданка Филипови, УПИ № IV – 3 на Александър и Йорданка Филипови. при НАЧАЛНА ЦЕНА – 9 121.45 € / девет хиляди сто двадесет и едно евро и четиридесет и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
-    "price_per_sqm": 12,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 9121
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_92019",
     "url": "https://sales.bcpea.org/properties/92019",
     "photo": null,
@@ -53805,7 +53991,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54604,192 +54790,6 @@
       {
         "date": "2026-09-05T21:00:03.113156+00:00",
         "price_eur": 13556
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91989",
-    "url": "https://sales.bcpea.org/properties/91989",
-    "photo": null,
-    "price_eur": 3027,
-    "sqm": 560,
-    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
-    "title": "Парцел, Козар Белене",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:51:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 4 . Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 56 0.00 кв.м. /хиляда петстотин и шестдесет квадратни метра/ по акт за собственост, а по скица с площ от 1590.00 кв.м. /хиляда петстотин и деветдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I I – 4 / парцел втори , за имот с планоснимачен номер четири /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: от две страни улици, УПИ № III – 2 на „Профиагро България“ ООД, УПИ № IV – 3 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА – 3 026.85 € / три хиляди двадесет и шест евро и осемдесет и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
-    "price_per_sqm": 5,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 3027
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91988",
-    "url": "https://sales.bcpea.org/properties/91988",
-    "photo": null,
-    "price_eur": 11588,
-    "sqm": 27,
-    "area": "Царево",
-    "title": "Парцел, Царево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:50:00+00:00",
-    "category": "land",
-    "lat": 42.1702827,
-    "lng": 27.8482856,
-    "detail_checked": true,
-    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор 48619.506.464 /четиридесет и осем хиляди шестстотин и деветнадесет точка петстотин и шест точка четиристотин шестдесет и четири/ по кадастралната карта на гр.Царево, обл. Бургас, одобрена със заповед №РД-18-56/24.08.2006г.на Изп.директор на АК, с адрес на поземления имот:ТРИДЕСЕТ И ПЕТА, с площ на целия поземлен имот 1027(хиляда двадесет и седем)кв.м.,трайно предназначение:урбанизирана, начин на трайно ползване: за друг вид застрояване, стар идентификатор:кв.0/нула №2153/две хиляди сто петдесет и три/, при съседи на поземления имот: поземлени имоти с идентификатори 48619.506.465; 48619.506.463; 48619.506.470; 48619.506. 403 ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 429,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 11588
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91987",
-    "url": "https://sales.bcpea.org/properties/91987",
-    "photo": null,
-    "price_eur": 21392,
-    "sqm": 766,
-    "area": "Царево",
-    "title": "Парцел, Царево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:48:00+00:00",
-    "category": "land",
-    "lat": 42.1702827,
-    "lng": 27.8482856,
-    "detail_checked": true,
-    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор 48619.507.144 /четиридесет и осем хиляди шестстотин и деветнадесет точка петстотин и седем точка сто четиридесет и четири/ по кадастралната карта на гр.Царево, обл,Бургас, одобрена със заповед №РД-18-56/24.08.2006г. на Изп. директор на АГКК , с административен адрес на поземления имот: гр .Царево, п.к.8260 , ТРИДЕСЕТ И ТРЕТА, с площ на целия поземлен имот 1766 (хиляда седемстотин шестдесет и шест) кв.м., трайно предназначение: урбанизирана, начин на трайно ползване : за друг вид застрояване, стар идентификатор: кв.0/нула/ №4120/четири хиляди сто и двадесет/, при съседи на поземления имот: поземлени имоти с идентификатори 48619.507.145; 48619.507.146; 4869.507.132. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 28,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 21392
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91986",
-    "url": "https://sales.bcpea.org/properties/91986",
-    "photo": null,
-    "price_eur": 25920,
-    "sqm": 140,
-    "area": "Царево",
-    "title": "Парцел, Царево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:46:00+00:00",
-    "category": "land",
-    "lat": 42.1702827,
-    "lng": 27.8482856,
-    "detail_checked": true,
-    "description": "1/2 /една втора/ идеална част от ПОЗЕМЛЕН ИМОТ с идентификатор № 48619.507.143 /четиридесет и осем хиляди шестстотин и деветнадесет, точка, петстотин и седем, точка, сто четиридесет и три/, находящ се в гр.Царево, общ.Царево, обл. Бургас, по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-56/24.08.2006 г. на изпълнителния директор на АГКК, с административен адрес на поземления имот: гр .Царево, п.к.8260, „Десета”, с площ от 2140 кв.м. /две хиляди сто и четиридесет квадратни метра/, трайно предназначение на територията: урбанизирана, начин на трайно ползване: за друг вид застрояване, номер по предходен план: 4017 /четири хиляди и седемнадесет/ съседи: 48619.507.138, 48619.507.132, 48619.507.146, 48619.507.142,48619.507.141. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 185,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 25920
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91985",
-    "url": "https://sales.bcpea.org/properties/91985",
-    "photo": null,
-    "price_eur": 3518,
-    "sqm": 450,
-    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
-    "title": "Парцел, Козар Белене",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:46:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 3. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 450.00 кв.м. /хиляда четиристотин и петдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № IV – 3 / парцел четвърти , за имот с планоснимачен номер три /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: улица, УПИ № I – 1 на „Профиагро България“ ООД, УПИ № III – 2 на „Профиагро България“ ООД, УПИ № II – 4 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА - 3 517.69 € / три хиляди петстотин и седемнадесет евро и шестдесет и девет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 3518
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91984",
-    "url": "https://sales.bcpea.org/properties/91984",
-    "photo": null,
-    "price_eur": 4213,
-    "sqm": 750,
-    "area": "Козар Белене, с. Козар Белене, общ. Левски, обл. Плевен",
-    "title": "Парцел, Козар Белене",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-03T12:44:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ПУБЛИЧНА ПРОДАН НА НЕДВИЖИМИ ИМОТИ Подписаният Частен съдебен изпълнител Виктор Стоянов, рег. № 906, Район на действие ОС Плевен ОБЯВЯВАМ на интересуващите се, че от 08 . 09 . 202 6 г. до 08 . 10 . 202 6 г. ще се проведе в сградата на Съдебната палата – при Районен съд Левски , Съдебно изпълнителна служба, публична продажба приключваща в края на работното време на последния ден, на следни те недвижим и имот и , собственост на ПРОФИАГРО БЪЛГАРИЯ ООД по и.д. № 20249060401088, за удовлетворяване на вземането на УНИКРЕДИТ БУЛБАНК АД, а имен но: 2. Незастроен урегулиран поземлен имот в село Козар Белене , общ. Левски, обл. Плевен, обл. Плевен, с площ от 1 750.00 кв.м. /хиляда седемстотин и петдесет квадратни метра/, който съгласно дворищно-регулационния план на селото, утвърден със Заповед № 1026 от 1979г., е означен с № I II – 2 / парцел трети , за имот с планоснимачен номер две /, предназначен за КОО, в квартал 1 / първи /, при граници и съседи: улица, УПИ № I – 1 на „Профиагро България“ ООД, УПИ № II – 4 на „Профиагро България“ ООД, УПИ № IV – 3 на „Профиагро България“ АД, при НАЧАЛНА ЦЕНА – 4 213.05 € / четири хиляди двеста и тринадесет евро и пет цента /. Върху имотите са вписани следните вещни тежести: Учредена Договорна ипотека в полза на „Уникредит Булбанк“ АД, в вх. № 3244 / 30.11.2015г., на СВ – Левски. Възбрана в полза на „Община Левски с вх. № 413 / 07.03.2024г., на СВ – Левски. Възбрана в полза на „Витафер СП“, с вх. № 1248 / 18.06.2024г., на СВ – Левски. Възбрана в полза на „Агро Финанс“ АД, с вх. № 1818 / 30.08.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД с вх. № 2063 / 14.10.2024г. на СВ – Левски. Възбрана в полза на Община Левски , с вх. № 2390 / 03.12.2024г., на СВ – Левски. Възбрана в полза на „Уникредит Булбанк“ АД, с вх. № 2447 / 11.12.2024г., на СВ – Левски. Интересуващите се от имот ите могат да се явят в кантората на ЧСИ Виктор Стоянов всеки присъствен ден и час, за да прегледат книжата. Всички желаещи да прегледат имот ите могат да сторят това на посочения адрес след предварителна уговорка в кантората на ЧСИ. Задатъкът /залога/ - 10% върху началната цена на продаваемия се имот съгл. чл.489, ал.1 от ГПК за участие в проданта, се внася предварително по сметка на частен съдебен изпълнител в ОБЕДИНЕНА БЪЛГАРСКА БАНКА АД по и.д. № 20249060401088 IBAN: BG58UBBS81551006839010 , BIC: UBBSBGSF . Всеки наддавач посочва предложената от него цена с цифри и думи, и подава предложението си с вносна бележка за внесения задатък в запечатан плик. Предложенията се подават в деловодството на Съдебно изпълнителна служба при Р айонен съд – Левски , което се отразява в регистъра. Забележка: Съгласно чл.489 ал.2 ГПК изр.второ: „ Наддавачът може да направи само едно наддавателно предложение. Всяко наддавателно предложение се прави отделно.“. Съгласно чл.489 ал. 5 ГПК „ Проданта приключва в края на работното време в последния ден. Наддавателните предложения могат да се оттеглят най-късно в този срок.“. Съгласно чл.48 9 ал. 6 ГПК „ Наддавателни предложения от лица, които нямат право да вземат участие в публичната продан, предложения за цена под началната, както и предложения, надхвърлящи началната с повече от 30 на сто, са недействителни.“ На 09 . 10 . 202 6 г. в 10 : 30 часа , в сградата на Съдебната палата - Левски , в присъствието на явилите се наддавачи, ч астен съдебен изпълнител Виктор Стоянов обявява постъпилите наддавателни предложения за което съставя протокол и обявява купувача . На основание чл.492, ал.2 от ГПК, при обявяването на купувача, явилите се наддавачи могат устно да предлагат цена, по – висока с размер на един задатък.",
-    "price_per_sqm": 6,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 4213
       }
     ],
     "price_drop_count": 0,
