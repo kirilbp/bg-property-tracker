@@ -792,7 +792,40 @@ def build_rows(all_listings):
         merged["oblast_key"] = listing_oblast_key(best, city_key)
         merged_rows.append(merged)
 
-    return listing_source_rows, merged_rows
+    return dedupe_rows(listing_source_rows, ("portal", "source_id")), dedupe_rows(merged_rows, ("id",))
+
+
+def dedupe_rows(rows, key_fields):
+    # Supabase's upsert is a single INSERT ... ON CONFLICT DO UPDATE per
+    # batch - Postgres rejects the whole batch (error 21000, "ON CONFLICT
+    # DO UPDATE command cannot affect row a second time") if two rows in
+    # it share the same conflict key, so a single duplicate anywhere in
+    # ~250k+ rows fails the entire sync. Live-found: a batch of
+    # listing_sources rows failed this way. group_listings() deliberately
+    # never unions two listings from the same portal (cross-portal
+    # matching is the whole point - see its own comments), so if one
+    # portal's own leads_*.json ever has two entries whose extracted "id"
+    # collides (a rare scraper-side id-extraction bug, not reproduced in
+    # the current committed leads_*.json files - whatever caused it was
+    # already gone by the next run's fresh data), those two never merge
+    # into one group and surface as two separate rows sharing the same
+    # (portal, source_id) - exactly this failure. Rather than chase a
+    # transient one-bad-day upstream cause across 8+ leads-computation
+    # call sites, the dedupe belongs here, at the one place a duplicate
+    # actually becomes fatal.
+    seen = {}
+    dupes = 0
+    for row in rows:
+        key = tuple(row.get(f) for f in key_fields)
+        if key in seen:
+            dupes += 1
+            continue
+        seen[key] = row
+    if dupes:
+        print(f"WARNING: dropped {dupes} duplicate row(s) sharing a {key_fields} value before upsert - "
+              f"kept the first occurrence of each. This means the same key appeared more than once in "
+              f"the source data, which shouldn't happen - worth investigating upstream if it recurs.")
+    return list(seen.values())
 
 
 # --- Supabase REST upsert ---------------------------------------------------
