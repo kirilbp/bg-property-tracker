@@ -39,7 +39,25 @@ jobs:
           python-version: "3.11"
 
       - run: pip install requests beautifulsoup4 playwright
-      - run: playwright install --with-deps chromium
+      # Retried up to 3 times - live-found: dl.google.com (the Chrome APT repo
+      # playwright's --with-deps pulls Chromium's system dependencies from)
+      # served a corrupted package index ("Hash Sum mismatch") for about 20
+      # minutes on 2026-09-09, failing every workflow that happened to
+      # install Chromium in that window even though nothing on our side was
+      # wrong - the very next scheduled run of each, unchanged, succeeded
+      # once Google's mirror caught up. A short retry rides out exactly
+      # that kind of brief upstream inconsistency instead of failing the
+      # whole run over it.
+      - run: |
+          for attempt in 1 2 3; do
+            if playwright install --with-deps chromium; then
+              exit 0
+            fi
+            echo "playwright install failed (attempt $attempt/3) - likely a transient apt mirror issue, retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::playwright install --with-deps chromium failed after 3 attempts"
+          exit 1
 
       - run: python backfill_detail_imot.py
         timeout-minutes: 45
