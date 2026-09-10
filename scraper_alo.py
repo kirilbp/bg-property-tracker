@@ -204,7 +204,14 @@ def smallest_container_with_price(link_tag, max_levels=6):
 def fetch_with_retries(url):
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            resp = requests.get(url, headers=HEADERS, timeout=20)
+            # (connect, read) rather than one 20s timeout for both - live
+            # job logs showed backfill_detail_alo.py runs burning most of
+            # their 35-minute time budget on ConnectTimeoutErrors (TCP
+            # handshake never completing, not a slow response), at up to
+            # 20s x 3 retries = 60s per dead URL, and only clearing ~200 of
+            # the ~73,000-listing description backlog per run as a result.
+            # A connect that hasn't succeeded in 8s isn't going to.
+            resp = requests.get(url, headers=HEADERS, timeout=(8, 15))
             resp.raise_for_status()
             return resp.text
         except requests.HTTPError as e:
