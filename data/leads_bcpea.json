@@ -8879,6 +8879,36 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_90745",
+    "url": "https://sales.bcpea.org/properties/90745",
+    "photo": null,
+    "price_eur": 38880,
+    "sqm": 76,
+    "area": "Девня",
+    "title": "Къща с парцел, Девня",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-03T07:35:00+00:00",
+    "category": "land",
+    "lat": 43.2184213,
+    "lng": 27.5564948,
+    "detail_checked": true,
+    "price_per_sqm": 512,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 38880
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_90744",
     "url": "https://sales.bcpea.org/properties/90744",
     "photo": null,
@@ -10769,7 +10799,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "score": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -17249,36 +17279,6 @@
     "score": 10,
     "area_avg_price_per_sqm": 640,
     "pct_vs_area_avg": 33.8
-  },
-  {
-    "id": "bcpea_90745",
-    "url": "https://sales.bcpea.org/properties/90745",
-    "photo": null,
-    "price_eur": 38880,
-    "sqm": 76,
-    "area": "Девня",
-    "title": "Къща с парцел, Девня",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-03T07:35:00+00:00",
-    "category": "land",
-    "lat": 43.2184213,
-    "lng": 27.5564948,
-    "detail_checked": true,
-    "price_per_sqm": 512,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 38880
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
   },
   {
     "id": "bcpea_90551",
@@ -26605,7 +26605,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "score": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -43566,7 +43566,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
