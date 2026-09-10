@@ -33710,7 +33710,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": 717,
     "pct_vs_area_avg": 0.0
@@ -48089,6 +48089,130 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_92028",
+    "url": "https://sales.bcpea.org/properties/92028",
+    "photo": null,
+    "price_eur": 23683,
+    "sqm": 43,
+    "area": "Търговище",
+    "title": "Гараж, Търговище",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T19:28:00+00:00",
+    "category": "apartment",
+    "lat": 43.2530111,
+    "lng": 26.4141884,
+    "detail_checked": true,
+    "description": "НЕДВИЖИМ ИМОТ, находящ се в гр. Търговище, ул. „Девня“ № 6, ет.1, а именно: САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА, находящ се в източната половина на приземния етаж, с идентификатор № 73626.509.552.1.7 със застроена площ от 43,00 кв.м. по кадастралната карта на гр. Търговище . Предназначение на самостоятелния обект: за търговска дейност, брой нива на обекта: 1,",
+    "price_per_sqm": 551,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 23683
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": 551,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "bcpea_92027",
+    "url": "https://sales.bcpea.org/properties/92027",
+    "photo": null,
+    "price_eur": 18000,
+    "sqm": 969,
+    "area": "Садина, ПОПОВО, САДИНА",
+    "title": "Жилищна сграда, Садина",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T19:10:00+00:00",
+    "category": "apartment",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: Поземлен имот с кад. № 1138, с площ по док. - 969,000 кв.м., за който е отреден УПИ І с площ от 930 кв.м. парцел - І, ведно с построените в него ЖИЛИЩНА СГРАДА, СТОПНСКИ ПОСТРОЙКИ И ГАРАЖ, находящ се в кв. 137 по ПРЗ на с. Садина, общ. Попово, при граници и съседи на имота: от две страни улици и поземлен имот с кад. № 1137 на Кати Джейн Дъкмантън.",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 18000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_92026",
+    "url": "https://sales.bcpea.org/properties/92026",
+    "photo": null,
+    "price_eur": 2880,
+    "sqm": 900,
+    "area": "Садина, ПОПОВО, САДИНА",
+    "title": "Парцел, Садина",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T19:03:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "1/3 от НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: Урегулиран поземлен имот І, парцел  - ІІ, с площ по док. - 1900,000 кв.м.,/УПИ І незастроен отреден за имот № 1357 в кв. 145/ НИВА/ДВОРНО МЯСТО/, парцел ІІ - 276 в кв. 111 с. Садина, общ. Попово",
+    "price_per_sqm": 3,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2880
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_92025",
+    "url": "https://sales.bcpea.org/properties/92025",
+    "photo": null,
+    "price_eur": 80640,
+    "sqm": 896,
+    "area": "Садина, Попово, САДИНА",
+    "title": "Магазин, Садина",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T18:58:00+00:00",
+    "category": "commercial",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "description": "НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА, с предназначение - за търговска дейност, магазин на две нива с обща площ по док. - 896,240 кв.м., със застроена площ на първи етаж - 399,90 кв.м. и на втори етаж - 496,34 кв.м., всеки един от тях със самостоятелен вход - изход на етажа, ведно с припадащите му се ид.ч. от общите части на сградата и правото на строеж върху терена,  общинска собственост, представлващ УРЕГУЛИРАН ПОЗЕМЛЕН ИМОТ І , находящ се в кв.60 по ПРЗ на с. Садина, общ. Попово.",
+    "price_per_sqm": 90,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 80640
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 6,
+    "score": 2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_92024",
     "url": "https://sales.bcpea.org/properties/92024",
     "photo": "https://sales.bcpea.org/upload/92024/458731/IMG_20260812_110209.jpg?w=270&h=270",
@@ -54643,130 +54767,6 @@
       {
         "date": "2026-09-05T14:50:25.396351+00:00",
         "price_eur": 3677
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_92028",
-    "url": "https://sales.bcpea.org/properties/92028",
-    "photo": null,
-    "price_eur": 23683,
-    "sqm": 43,
-    "area": "Търговище",
-    "title": "Гараж, Търговище",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T19:28:00+00:00",
-    "category": "apartment",
-    "lat": 43.2530111,
-    "lng": 26.4141884,
-    "detail_checked": true,
-    "description": "НЕДВИЖИМ ИМОТ, находящ се в гр. Търговище, ул. „Девня“ № 6, ет.1, а именно: САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА, находящ се в източната половина на приземния етаж, с идентификатор № 73626.509.552.1.7 със застроена площ от 43,00 кв.м. по кадастралната карта на гр. Търговище . Предназначение на самостоятелния обект: за търговска дейност, брой нива на обекта: 1,",
-    "price_per_sqm": 551,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 23683
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": 551,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "bcpea_92027",
-    "url": "https://sales.bcpea.org/properties/92027",
-    "photo": null,
-    "price_eur": 18000,
-    "sqm": 969,
-    "area": "Садина, ПОПОВО, САДИНА",
-    "title": "Жилищна сграда, Садина",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T19:10:00+00:00",
-    "category": "apartment",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: Поземлен имот с кад. № 1138, с площ по док. - 969,000 кв.м., за който е отреден УПИ І с площ от 930 кв.м. парцел - І, ведно с построените в него ЖИЛИЩНА СГРАДА, СТОПНСКИ ПОСТРОЙКИ И ГАРАЖ, находящ се в кв. 137 по ПРЗ на с. Садина, общ. Попово, при граници и съседи на имота: от две страни улици и поземлен имот с кад. № 1137 на Кати Джейн Дъкмантън.",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 18000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_92026",
-    "url": "https://sales.bcpea.org/properties/92026",
-    "photo": null,
-    "price_eur": 2880,
-    "sqm": 900,
-    "area": "Садина, ПОПОВО, САДИНА",
-    "title": "Парцел, Садина",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T19:03:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "1/3 от НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: Урегулиран поземлен имот І, парцел  - ІІ, с площ по док. - 1900,000 кв.м.,/УПИ І незастроен отреден за имот № 1357 в кв. 145/ НИВА/ДВОРНО МЯСТО/, парцел ІІ - 276 в кв. 111 с. Садина, общ. Попово",
-    "price_per_sqm": 3,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2880
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 5,
-    "score": 1,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_92025",
-    "url": "https://sales.bcpea.org/properties/92025",
-    "photo": null,
-    "price_eur": 80640,
-    "sqm": 896,
-    "area": "Садина, Попово, САДИНА",
-    "title": "Магазин, Садина",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T18:58:00+00:00",
-    "category": "commercial",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "description": "НЕДЕВИЖИМ ИМОТ, находящ се в с. Садина, ощ. Попово, обл. Търговище, а именно: САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА, с предназначение - за търговска дейност, магазин на две нива с обща площ по док. - 896,240 кв.м., със застроена площ на първи етаж - 399,90 кв.м. и на втори етаж - 496,34 кв.м., всеки един от тях със самостоятелен вход - изход на етажа, ведно с припадащите му се ид.ч. от общите части на сградата и правото на строеж върху терена,  общинска собственост, представлващ УРЕГУЛИРАН ПОЗЕМЛЕН ИМОТ І , находящ се в кв.60 по ПРЗ на с. Садина, общ. Попово.",
-    "price_per_sqm": 90,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 80640
       }
     ],
     "price_drop_count": 0,
