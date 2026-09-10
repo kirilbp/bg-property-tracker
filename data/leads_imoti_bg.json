@@ -180,6 +180,42 @@
     "pct_vs_area_avg": -23.0
   },
   {
+    "id": "imotibg_515638",
+    "url": "https://imoti.bg/продажби/къща/софия/чепинци-515638.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a77134f5d583_6aa2f55bf07fc.jpg",
+    "price_eur": 296000,
+    "sqm": 99,
+    "area": "Чепинци",
+    "city": "София",
+    "title": "Къща, Чепинци",
+    "portal": "imoti.bg",
+    "lat": 42.7585157,
+    "lng": 23.4259689,
+    "description": "Нова къща на 10 км от центъра на гр.София.\r\n\r\nИмотът предстои да бъде въведен в експлоатация.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 2990,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 298000
+      },
+      {
+        "date": "2026-09-10T20:18:31.220898+00:00",
+        "price_eur": 296000
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 0.7,
+    "days_on_market": 16,
+    "score": 6,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1580,
+    "pct_vs_area_avg": 89.2
+  },
+  {
     "id": "imotibg_515653",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/лагера-515653.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a79d3c87201b_6a79d40da8f08.png",
@@ -4154,38 +4190,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 822,
     "pct_vs_area_avg": 94.6
-  },
-  {
-    "id": "imotibg_515638",
-    "url": "https://imoti.bg/продажби/къща/софия/чепинци-515638.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a77134f5d583_6a86eec3415a7.jpg",
-    "price_eur": 298000,
-    "sqm": 99,
-    "area": "Чепинци",
-    "city": "София",
-    "title": "Къща, Чепинци",
-    "portal": "imoti.bg",
-    "lat": 42.7585157,
-    "lng": 23.4259689,
-    "description": "3 спални\r\nхол\r\nкухня \r\nгардеробно\r\nбаня\r\n\r\nвъвеждане в експлоатация през м. декември  2026 г.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 3010,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 298000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 16,
-    "score": 4,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1590,
-    "pct_vs_area_avg": 89.3
   },
   {
     "id": "imotibg_515637",
@@ -15448,8 +15452,8 @@
     "score": 4,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1590,
-    "pct_vs_area_avg": -89.3
+    "area_avg_price_per_sqm": 1580,
+    "pct_vs_area_avg": -89.2
   },
   {
     "id": "imotibg_514591",
@@ -26884,7 +26888,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -26916,7 +26920,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -26948,7 +26952,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -26980,7 +26984,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
