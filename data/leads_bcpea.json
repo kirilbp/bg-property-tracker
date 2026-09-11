@@ -1924,6 +1924,99 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_90426",
+    "url": "https://sales.bcpea.org/properties/90426",
+    "photo": null,
+    "price_eur": 1907,
+    "sqm": 589,
+    "area": "Баните",
+    "title": "Земеделска земя, Баните",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-20T12:55:00+00:00",
+    "category": "land",
+    "lat": 41.6164267,
+    "lng": 25.0051984,
+    "detail_checked": true,
+    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.505 с площ 2589 кв.м. в с. Баните,община Баните, обл.Смолян, местност „Гюровица“, земеделска територия – нива,девета категория при съседи: имоти с иденификатори: 44402.50.503, 44402.50.504, 44402.50.467, 44402.50.506, 44402.50.465",
+    "price_per_sqm": 3,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 1907
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 53,
+    "score": 15,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90425",
+    "url": "https://sales.bcpea.org/properties/90425",
+    "photo": null,
+    "price_eur": 1668,
+    "sqm": 3,
+    "area": "Баните",
+    "title": "Земеделска земя, Баните",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-20T12:52:00+00:00",
+    "category": "land",
+    "lat": 41.6164267,
+    "lng": 25.0051984,
+    "detail_checked": true,
+    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.391 с площ 2003 кв.м. в с. Баните,община Баните,обл.Смолян, местност „Белнище“, земеделска територия – нива, девета категория при съседи: имоти с иденификатори: 44402.50.392, 44402.50.393, 44402.50.389",
+    "price_per_sqm": 556,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 1668
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 53,
+    "score": 15,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90424",
+    "url": "https://sales.bcpea.org/properties/90424",
+    "photo": null,
+    "price_eur": 865,
+    "sqm": 1,
+    "area": "Баните",
+    "title": "Земеделски имот, Баните",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-20T12:49:00+00:00",
+    "category": "apartment",
+    "lat": 41.6164267,
+    "lng": 25.0051984,
+    "detail_checked": true,
+    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.1 с площ 4001 кв.м. в с. Баните, община Баните,обл.Смолян, местност „Присойка“, горска територия – иглолистна гора при съседи: имоти с иденификатори: 44402.50.2, 44402.50.407, 44402.50.408, 44402.50.393, 44402.50.389, 44402.50.1014, 44402.50.11",
+    "price_per_sqm": 865,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 865
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 53,
+    "score": 15,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_90416",
     "url": "https://sales.bcpea.org/properties/90416",
     "photo": null,
@@ -3833,99 +3926,6 @@
     "pct_vs_area_avg": null
   },
   {
-    "id": "bcpea_90426",
-    "url": "https://sales.bcpea.org/properties/90426",
-    "photo": null,
-    "price_eur": 1907,
-    "sqm": 589,
-    "area": "Баните",
-    "title": "Земеделска земя, Баните",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-20T12:55:00+00:00",
-    "category": "land",
-    "lat": 41.6164267,
-    "lng": 25.0051984,
-    "detail_checked": true,
-    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.505 с площ 2589 кв.м. в с. Баните,община Баните, обл.Смолян, местност „Гюровица“, земеделска територия – нива,девета категория при съседи: имоти с иденификатори: 44402.50.503, 44402.50.504, 44402.50.467, 44402.50.506, 44402.50.465",
-    "price_per_sqm": 3,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 1907
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 52,
-    "score": 14,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90425",
-    "url": "https://sales.bcpea.org/properties/90425",
-    "photo": null,
-    "price_eur": 1668,
-    "sqm": 3,
-    "area": "Баните",
-    "title": "Земеделска земя, Баните",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-20T12:52:00+00:00",
-    "category": "land",
-    "lat": 41.6164267,
-    "lng": 25.0051984,
-    "detail_checked": true,
-    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.391 с площ 2003 кв.м. в с. Баните,община Баните,обл.Смолян, местност „Белнище“, земеделска територия – нива, девета категория при съседи: имоти с иденификатори: 44402.50.392, 44402.50.393, 44402.50.389",
-    "price_per_sqm": 556,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 1668
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 52,
-    "score": 14,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90424",
-    "url": "https://sales.bcpea.org/properties/90424",
-    "photo": null,
-    "price_eur": 865,
-    "sqm": 1,
-    "area": "Баните",
-    "title": "Земеделски имот, Баните",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-20T12:49:00+00:00",
-    "category": "apartment",
-    "lat": 41.6164267,
-    "lng": 25.0051984,
-    "detail_checked": true,
-    "description": "1/ 4 (една четвърт) идеална част от Поземлен имот с иденификатор 44402.50.1 с площ 4001 кв.м. в с. Баните, община Баните,обл.Смолян, местност „Присойка“, горска територия – иглолистна гора при съседи: имоти с иденификатори: 44402.50.2, 44402.50.407, 44402.50.408, 44402.50.393, 44402.50.389, 44402.50.1014, 44402.50.11",
-    "price_per_sqm": 865,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 865
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 52,
-    "score": 14,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_90159",
     "url": "https://sales.bcpea.org/properties/90159",
     "photo": null,
@@ -4493,6 +4493,277 @@
     "removed_at": "2026-08-24T21:39:00.972816+00:00",
     "days_on_market": 52,
     "score": 14,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90620",
+    "url": "https://sales.bcpea.org/properties/90620",
+    "photo": null,
+    "price_eur": 2648,
+    "sqm": 59,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:55:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 45,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 2648
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -96.4
+  },
+  {
+    "id": "bcpea_90619",
+    "url": "https://sales.bcpea.org/properties/90619",
+    "photo": null,
+    "price_eur": 3898,
+    "sqm": 559,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:53:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 7,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 3898
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -99.4
+  },
+  {
+    "id": "bcpea_90618",
+    "url": "https://sales.bcpea.org/properties/90618",
+    "photo": null,
+    "price_eur": 310,
+    "sqm": 131,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:51:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 2,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 310
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -99.8
+  },
+  {
+    "id": "bcpea_90617",
+    "url": "https://sales.bcpea.org/properties/90617",
+    "photo": null,
+    "price_eur": 15682,
+    "sqm": 488,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:49:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 32,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 15682
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_90616",
+    "url": "https://sales.bcpea.org/properties/90616",
+    "photo": null,
+    "price_eur": 15682,
+    "sqm": 488,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:47:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 32,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 15682
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_90615",
+    "url": "https://sales.bcpea.org/properties/90615",
+    "photo": null,
+    "price_eur": 15682,
+    "sqm": 488,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:44:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 32,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 15682
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_90614",
+    "url": "https://sales.bcpea.org/properties/90614",
+    "photo": null,
+    "price_eur": 15682,
+    "sqm": 488,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:39:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 32,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 15682
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_90613",
+    "url": "https://sales.bcpea.org/properties/90613",
+    "photo": null,
+    "price_eur": 15682,
+    "sqm": 488,
+    "area": "Бургас",
+    "title": "Земеделска земя, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:37:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 32,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 15682
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -97.5
+  },
+  {
+    "id": "bcpea_90612",
+    "url": "https://sales.bcpea.org/properties/90612",
+    "photo": null,
+    "price_eur": 28121,
+    "sqm": 206,
+    "area": "Бяло поле",
+    "title": "Заведение, Бяло поле",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-27T12:33:00+00:00",
+    "category": "commercial",
+    "lat": 42.1668301,
+    "lng": 25.7100901,
+    "detail_checked": true,
+    "description": "ОБЕКТ ЗА СТОПАНСКА ДЕЙНОСТ – РЕСТОРАНТ, находящ се в село Бяло поле, Община Опан, обл. Стара Загора, намиращ се на първия етаж на масивна двуетажна сграда/съставляваща имот с кад. № 200 (двеста) съгласно първичен документ за собственост – нотариален акт за право на собственост върху недвижим имот № 130, том I, рег. № 922, дело № 98 от 17.03.2005 г. на Нотариус Стефка Чавдарова  с рег. № 381 в Нотариалната камара/, построена с отстъпено право на строеж в югозападната част на общинско дворно място с площ от 2 170 кв. м. (две хиляди сто и седемдесет квадратни метра), съставляващо урегулиран поземлен имот – парцел XVI (шестнадесет) – „За ресторант, складкарница, клуб и кметство“ в квартал 50 (петдесет) по плана на с. Бяло поле, при граници на УПИ: от север – УПИ VIII – 186 и улица – тупик с о.т. 268-269, изток – улица с о.т. 269 – 129 и улица - тупик с о.т. 268-269, от юг – улица с о.т. 129 – 277, и от запад – УПИ XV “Църква“, който ресторант е със застроена площ от 206 кв. м. (двеста и шест квадратни метра) и се състои от търговска зала, кухненски блок и складово помещение, ЗАЕДНО с прилежащите му съответни идеални части от общите части на сградата и от отсъпеното право на строеж върху мястото.",
+    "price_per_sqm": 137,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 28121
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 46,
+    "score": 13,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
   },
@@ -5656,6 +5927,67 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_90733",
+    "url": "https://sales.bcpea.org/properties/90733",
+    "photo": "https://sales.bcpea.org/upload/90733/363319/20240119_103823.jpg?w=270&h=270",
+    "price_eur": 743156,
+    "sqm": 130,
+    "area": "Калояновец",
+    "title": "Фабрика, Калояновец",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-31T12:44:00+00:00",
+    "category": "apartment",
+    "lat": 42.3099913,
+    "lng": 25.5764726,
+    "detail_checked": true,
+    "price_per_sqm": 5717,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 743156
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 42,
+    "score": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90731",
+    "url": "https://sales.bcpea.org/properties/90731",
+    "photo": "https://sales.bcpea.org/upload/90731/453759/viber_image_2026-07-21_22-29-40-328.jpg?w=270&h=270",
+    "price_eur": 9400,
+    "sqm": 300,
+    "area": "Гроздьово",
+    "title": "Парцел, Гроздьово",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-31T12:16:00+00:00",
+    "category": "land",
+    "lat": 43.028867,
+    "lng": 27.5411099,
+    "detail_checked": true,
+    "description": "1/2 /една втора/ Поземлен имот с идентификатор 17912.501.919 /едно седем девет едно две точка пет нула едно точка девет едно девет/ по кадастралната карта и кадастралните регистри на с. Гроздьово, общ. Долни чифлик, обл. Варна, одобрени със Заповед №РД-18-80/19.04.2022 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК. Адрес на поземления имот: с. Гроздьово с площ от 1300 кв.м /хиляда и триста/. трайно предназначение на територията- Урбанизирана с начин на трайно ползване- ниско застрояване /до 10 м/. Номер на предходен план 377 /триста седемдесет и седем/, квартал:15 /петнадесети/, парцел XII /дванадесет- римско/. Съседи:17912.501.1251, 17912.501.384, 17912.501.376, 17912.501.378, 17912.501.375, 17912.501.377, а по акт за собственост- Нотариален акт:1/2 /една втора/ идеална част от ДВОРНО МЯСТО, с пространство от 1270 /хиляда двеста и седемдесет/ кв.м., съставляващо имот 377 /триста седемдесет и седем/, за който е отреден парцел XII-377 /дванадесети - триста седемдесет и седем/, в квартал 15 /петнадесет/ по плана на с. Гроздьово, Община Долни Чифлик, Област Варна, при граници за имота: улица, парцел XIII-377, парцел III-375, парцел IV-376, парцел V-384, парцел XI-378.",
+    "price_per_sqm": 31,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 9400
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 42,
+    "score": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_90730",
     "url": "https://sales.bcpea.org/properties/90730",
     "photo": null,
@@ -5959,7 +6291,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 42,
+    "days_on_market": 43,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -5989,7 +6321,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 42,
+    "days_on_market": 43,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6142,7 +6474,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 1934,
     "pct_vs_area_avg": -2.9
@@ -6173,7 +6505,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": 1934,
     "pct_vs_area_avg": -22.4
@@ -6204,7 +6536,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 43,
+    "days_on_market": 44,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6824,7 +7156,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 44,
+    "days_on_market": 45,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6855,7 +7187,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 44,
+    "days_on_market": 45,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -6886,7 +7218,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 44,
+    "days_on_market": 45,
     "score": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -7436,277 +7768,6 @@
     "score": 12,
     "area_avg_price_per_sqm": 1259,
     "pct_vs_area_avg": -99.8
-  },
-  {
-    "id": "bcpea_90620",
-    "url": "https://sales.bcpea.org/properties/90620",
-    "photo": null,
-    "price_eur": 2648,
-    "sqm": 59,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:55:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 45,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 2648
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -96.4
-  },
-  {
-    "id": "bcpea_90619",
-    "url": "https://sales.bcpea.org/properties/90619",
-    "photo": null,
-    "price_eur": 3898,
-    "sqm": 559,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:53:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 7,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 3898
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -99.4
-  },
-  {
-    "id": "bcpea_90618",
-    "url": "https://sales.bcpea.org/properties/90618",
-    "photo": null,
-    "price_eur": 310,
-    "sqm": 131,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:51:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 2,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 310
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -99.8
-  },
-  {
-    "id": "bcpea_90617",
-    "url": "https://sales.bcpea.org/properties/90617",
-    "photo": null,
-    "price_eur": 15682,
-    "sqm": 488,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:49:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 32,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 15682
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_90616",
-    "url": "https://sales.bcpea.org/properties/90616",
-    "photo": null,
-    "price_eur": 15682,
-    "sqm": 488,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:47:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 32,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 15682
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_90615",
-    "url": "https://sales.bcpea.org/properties/90615",
-    "photo": null,
-    "price_eur": 15682,
-    "sqm": 488,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:44:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 32,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 15682
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_90614",
-    "url": "https://sales.bcpea.org/properties/90614",
-    "photo": null,
-    "price_eur": 15682,
-    "sqm": 488,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:39:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 32,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 15682
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_90613",
-    "url": "https://sales.bcpea.org/properties/90613",
-    "photo": null,
-    "price_eur": 15682,
-    "sqm": 488,
-    "area": "Бургас",
-    "title": "Земеделска земя, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:37:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 32,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 15682
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -97.5
-  },
-  {
-    "id": "bcpea_90612",
-    "url": "https://sales.bcpea.org/properties/90612",
-    "photo": null,
-    "price_eur": 28121,
-    "sqm": 206,
-    "area": "Бяло поле",
-    "title": "Заведение, Бяло поле",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-27T12:33:00+00:00",
-    "category": "commercial",
-    "lat": 42.1668301,
-    "lng": 25.7100901,
-    "detail_checked": true,
-    "description": "ОБЕКТ ЗА СТОПАНСКА ДЕЙНОСТ – РЕСТОРАНТ, находящ се в село Бяло поле, Община Опан, обл. Стара Загора, намиращ се на първия етаж на масивна двуетажна сграда/съставляваща имот с кад. № 200 (двеста) съгласно първичен документ за собственост – нотариален акт за право на собственост върху недвижим имот № 130, том I, рег. № 922, дело № 98 от 17.03.2005 г. на Нотариус Стефка Чавдарова  с рег. № 381 в Нотариалната камара/, построена с отстъпено право на строеж в югозападната част на общинско дворно място с площ от 2 170 кв. м. (две хиляди сто и седемдесет квадратни метра), съставляващо урегулиран поземлен имот – парцел XVI (шестнадесет) – „За ресторант, складкарница, клуб и кметство“ в квартал 50 (петдесет) по плана на с. Бяло поле, при граници на УПИ: от север – УПИ VIII – 186 и улица – тупик с о.т. 268-269, изток – улица с о.т. 269 – 129 и улица - тупик с о.т. 268-269, от юг – улица с о.т. 129 – 277, и от запад – УПИ XV “Църква“, който ресторант е със застроена площ от 206 кв. м. (двеста и шест квадратни метра) и се състои от търговска зала, кухненски блок и складово помещение, ЗАЕДНО с прилежащите му съответни идеални части от общите части на сградата и от отсъпеното право на строеж върху мястото.",
-    "price_per_sqm": 137,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 28121
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 45,
-    "score": 12,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
   },
   {
     "id": "bcpea_90406",
@@ -9285,6 +9346,336 @@
     "removed_at": "2026-08-24T21:39:00.972816+00:00",
     "days_on_market": 45,
     "score": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90961",
+    "url": "https://sales.bcpea.org/properties/90961",
+    "photo": null,
+    "price_eur": 73840,
+    "sqm": 100,
+    "area": "Несебър",
+    "title": "Двустаен апартамент, Несебър",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:24:00+00:00",
+    "category": "apartment",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 738,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 73840
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90960",
+    "url": "https://sales.bcpea.org/properties/90960",
+    "photo": null,
+    "price_eur": 23262,
+    "sqm": 409,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:18:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 57,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 23262
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90959",
+    "url": "https://sales.bcpea.org/properties/90959",
+    "photo": null,
+    "price_eur": 5055,
+    "sqm": 431,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:17:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 12,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 5055
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90958",
+    "url": "https://sales.bcpea.org/properties/90958",
+    "photo": null,
+    "price_eur": 17755,
+    "sqm": 687,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:16:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 26,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 17755
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90957",
+    "url": "https://sales.bcpea.org/properties/90957",
+    "photo": null,
+    "price_eur": 6320,
+    "sqm": 43,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:15:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 147,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 6320
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90956",
+    "url": "https://sales.bcpea.org/properties/90956",
+    "photo": null,
+    "price_eur": 4169,
+    "sqm": 902,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:13:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 5,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 4169
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90955",
+    "url": "https://sales.bcpea.org/properties/90955",
+    "photo": null,
+    "price_eur": 9624,
+    "sqm": 475,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:11:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 20,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 9624
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90954",
+    "url": "https://sales.bcpea.org/properties/90954",
+    "photo": null,
+    "price_eur": 8844,
+    "sqm": 248,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:10:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 36,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 8844
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90953",
+    "url": "https://sales.bcpea.org/properties/90953",
+    "photo": null,
+    "price_eur": 8255,
+    "sqm": 566,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:08:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 15,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 8255
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90952",
+    "url": "https://sales.bcpea.org/properties/90952",
+    "photo": null,
+    "price_eur": 11156,
+    "sqm": 847,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:05:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 13,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 11156
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_90951",
+    "url": "https://sales.bcpea.org/properties/90951",
+    "photo": null,
+    "price_eur": 7763,
+    "sqm": 161,
+    "area": "Цапарево",
+    "title": "Земеделска земя, Цапарево",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-04T12:03:00+00:00",
+    "category": "land",
+    "lat": null,
+    "lng": null,
+    "detail_checked": true,
+    "price_per_sqm": 48,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 7763
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
   },
@@ -12828,7 +13219,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -12858,7 +13249,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -12888,7 +13279,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -12918,7 +13309,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -12948,7 +13339,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -12978,7 +13369,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13008,7 +13399,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13038,7 +13429,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13068,7 +13459,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13098,7 +13489,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13128,7 +13519,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13158,7 +13549,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13188,7 +13579,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13218,7 +13609,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13248,7 +13639,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13278,7 +13669,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13308,7 +13699,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13338,7 +13729,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13368,7 +13759,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": 1934,
     "pct_vs_area_avg": -55.9
@@ -13398,7 +13789,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13428,7 +13819,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13458,7 +13849,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13488,7 +13879,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13518,7 +13909,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -13548,7 +13939,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 38,
+    "days_on_market": 39,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -15209,36 +15600,6 @@
     "pct_vs_area_avg": 33.7
   },
   {
-    "id": "bcpea_90733",
-    "url": "https://sales.bcpea.org/properties/90733",
-    "photo": "https://sales.bcpea.org/upload/90733/363319/20240119_103823.jpg?w=270&h=270",
-    "price_eur": 743156,
-    "sqm": 130,
-    "area": "Калояновец",
-    "title": "Фабрика, Калояновец",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-31T12:44:00+00:00",
-    "category": "apartment",
-    "lat": 42.3099913,
-    "lng": 25.5764726,
-    "detail_checked": true,
-    "price_per_sqm": 5717,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 743156
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 41,
-    "score": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_90732",
     "url": "https://sales.bcpea.org/properties/90732",
     "photo": "https://sales.bcpea.org/upload/90732/414018/20250709_112335.jpg?w=270&h=270",
@@ -15264,37 +15625,6 @@
     "source_status": "removed",
     "removed_at": "2026-09-08T14:20:07.745688+00:00",
     "days_on_market": 39,
-    "score": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90731",
-    "url": "https://sales.bcpea.org/properties/90731",
-    "photo": "https://sales.bcpea.org/upload/90731/453759/viber_image_2026-07-21_22-29-40-328.jpg?w=270&h=270",
-    "price_eur": 9400,
-    "sqm": 300,
-    "area": "Гроздьово",
-    "title": "Парцел, Гроздьово",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-31T12:16:00+00:00",
-    "category": "land",
-    "lat": 43.028867,
-    "lng": 27.5411099,
-    "detail_checked": true,
-    "description": "1/2 /една втора/ Поземлен имот с идентификатор 17912.501.919 /едно седем девет едно две точка пет нула едно точка девет едно девет/ по кадастралната карта и кадастралните регистри на с. Гроздьово, общ. Долни чифлик, обл. Варна, одобрени със Заповед №РД-18-80/19.04.2022 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК. Адрес на поземления имот: с. Гроздьово с площ от 1300 кв.м /хиляда и триста/. трайно предназначение на територията- Урбанизирана с начин на трайно ползване- ниско застрояване /до 10 м/. Номер на предходен план 377 /триста седемдесет и седем/, квартал:15 /петнадесети/, парцел XII /дванадесет- римско/. Съседи:17912.501.1251, 17912.501.384, 17912.501.376, 17912.501.378, 17912.501.375, 17912.501.377, а по акт за собственост- Нотариален акт:1/2 /една втора/ идеална част от ДВОРНО МЯСТО, с пространство от 1270 /хиляда двеста и седемдесет/ кв.м., съставляващо имот 377 /триста седемдесет и седем/, за който е отреден парцел XII-377 /дванадесети - триста седемдесет и седем/, в квартал 15 /петнадесет/ по плана на с. Гроздьово, Община Долни Чифлик, Област Варна, при граници за имота: улица, парцел XIII-377, парцел III-375, парцел IV-376, парцел V-384, парцел XI-378.",
-    "price_per_sqm": 31,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 9400
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 41,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -17437,336 +17767,6 @@
     "pct_vs_area_avg": 27.8
   },
   {
-    "id": "bcpea_90961",
-    "url": "https://sales.bcpea.org/properties/90961",
-    "photo": null,
-    "price_eur": 73840,
-    "sqm": 100,
-    "area": "Несебър",
-    "title": "Двустаен апартамент, Несебър",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:24:00+00:00",
-    "category": "apartment",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 738,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 73840
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90960",
-    "url": "https://sales.bcpea.org/properties/90960",
-    "photo": null,
-    "price_eur": 23262,
-    "sqm": 409,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:18:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 57,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 23262
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90959",
-    "url": "https://sales.bcpea.org/properties/90959",
-    "photo": null,
-    "price_eur": 5055,
-    "sqm": 431,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:17:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 12,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 5055
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90958",
-    "url": "https://sales.bcpea.org/properties/90958",
-    "photo": null,
-    "price_eur": 17755,
-    "sqm": 687,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:16:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 26,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 17755
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90957",
-    "url": "https://sales.bcpea.org/properties/90957",
-    "photo": null,
-    "price_eur": 6320,
-    "sqm": 43,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:15:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 147,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 6320
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90956",
-    "url": "https://sales.bcpea.org/properties/90956",
-    "photo": null,
-    "price_eur": 4169,
-    "sqm": 902,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:13:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 5,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 4169
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90955",
-    "url": "https://sales.bcpea.org/properties/90955",
-    "photo": null,
-    "price_eur": 9624,
-    "sqm": 475,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:11:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 20,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 9624
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90954",
-    "url": "https://sales.bcpea.org/properties/90954",
-    "photo": null,
-    "price_eur": 8844,
-    "sqm": 248,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:10:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 36,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 8844
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90953",
-    "url": "https://sales.bcpea.org/properties/90953",
-    "photo": null,
-    "price_eur": 8255,
-    "sqm": 566,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:08:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 15,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 8255
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90952",
-    "url": "https://sales.bcpea.org/properties/90952",
-    "photo": null,
-    "price_eur": 11156,
-    "sqm": 847,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:05:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 13,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 11156
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_90951",
-    "url": "https://sales.bcpea.org/properties/90951",
-    "photo": null,
-    "price_eur": 7763,
-    "sqm": 161,
-    "area": "Цапарево",
-    "title": "Земеделска земя, Цапарево",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-04T12:03:00+00:00",
-    "category": "land",
-    "lat": null,
-    "lng": null,
-    "detail_checked": true,
-    "price_per_sqm": 48,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 7763
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_90845",
     "url": "https://sales.bcpea.org/properties/90845",
     "photo": null,
@@ -18669,6 +18669,37 @@
     "removed_at": "2026-08-26T17:10:09.431696+00:00",
     "days_on_market": 37,
     "score": 10,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91093",
+    "url": "https://sales.bcpea.org/properties/91093",
+    "photo": "https://sales.bcpea.org/upload/91093/454763/IMG_5379.jpeg?w=270&h=270",
+    "price_eur": 137280,
+    "sqm": 130,
+    "area": "Приморско, Приморско",
+    "title": "Други, Приморско",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-11T12:51:00+00:00",
+    "category": "apartment",
+    "lat": 42.2698672,
+    "lng": 27.7506179,
+    "detail_checked": true,
+    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА С идентификатор: 58356.503.436.1.6 /петдесет и осем хиляди триста петдесет и шест, точка, петстотин и три, точка, четиристотин тридесет и шест, точка, едно, точка, шест/ по КК и КР на гр. Приморско, община Приморско, област Бургас, одобрени със Заповед № РД-18-106/ 09.12.2008 г. на Изп. Директор на АГКК. Последно изменение на КК и КР, засягащо самостоятелния обект: Заповед № КД-14-02-62/ 12.01.2011 г. на Началника на СГКК- Бургас. Адрес на самостоятелния обект: гр. Приморско, ул. Трети март, ет.0 /нула/. Самостоятелния обект се намира на етаж 0, в сграда с идентификатор: 58356.503.436.1 с предназначение: Жилищна сграда със смесено предназначение, брой етажи: 5 /пет/. Сградата е разположена в поземлен имот с идентификатор: 58356.503.436. Предназначение на самостоятелния обект: Друг вид самостоятелен обект. Брой нива на обекта: 1/едно/, Площ на самостоятелния обект: 130,21 кв.метра /сто и тридесет цяло и 21 стотни квадратни метра/. Прилежащи части : 17.53 кв.метра идеални части от общите части на сградата и 3,517 % ид.части от правото на строеж върху терена . Ниво 1: Съседни самостоятелни обекти на сградата: На същия етаж: 58356.503.436.1.3, 58356.503.436.1.2. Под обекта: 58356.503.436.1.78, 58356.503.436.1.77, 58356.503.436.1.62, 58356.503.436.1.58; Над обекта: 58356.503.436.1.19, 58356.503.436.1.18, 58356.503.436.1.17, 58356.503.436.1.16, 58356.503.436.1.8. Недвижимият имот е се намира в гр. Приморско , ул. Трети март № 63, разположен е на партерен етаж, с достъп от парцела. Състоянието на имота е следното: Зала – кафе с височина около 4 метра с вградена аспирация и вградено осветление, изграден бар-плот с мивка. Подготвителна -кухня с аспирация, Тоалетна, Тоалетна с предверие. Обекта е работил като кафене, но в последните две години заведението не е работило. Има самостоятелни партиди за ток и вода, сградата е въведена в експлоатация през 2009 г.",
+    "price_per_sqm": 1056,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 137280
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 31,
+    "score": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
   },
@@ -25134,7 +25165,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 27,
+    "days_on_market": 28,
     "score": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -28763,7 +28794,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "score": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -29593,37 +29624,6 @@
       {
         "date": "2026-08-24T16:41:46.755459+00:00",
         "price_eur": 9248
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 30,
-    "score": 8,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91093",
-    "url": "https://sales.bcpea.org/properties/91093",
-    "photo": "https://sales.bcpea.org/upload/91093/454763/IMG_5379.jpeg?w=270&h=270",
-    "price_eur": 137280,
-    "sqm": 130,
-    "area": "Приморско, Приморско",
-    "title": "Други, Приморско",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-11T12:51:00+00:00",
-    "category": "apartment",
-    "lat": 42.2698672,
-    "lng": 27.7506179,
-    "detail_checked": true,
-    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА С идентификатор: 58356.503.436.1.6 /петдесет и осем хиляди триста петдесет и шест, точка, петстотин и три, точка, четиристотин тридесет и шест, точка, едно, точка, шест/ по КК и КР на гр. Приморско, община Приморско, област Бургас, одобрени със Заповед № РД-18-106/ 09.12.2008 г. на Изп. Директор на АГКК. Последно изменение на КК и КР, засягащо самостоятелния обект: Заповед № КД-14-02-62/ 12.01.2011 г. на Началника на СГКК- Бургас. Адрес на самостоятелния обект: гр. Приморско, ул. Трети март, ет.0 /нула/. Самостоятелния обект се намира на етаж 0, в сграда с идентификатор: 58356.503.436.1 с предназначение: Жилищна сграда със смесено предназначение, брой етажи: 5 /пет/. Сградата е разположена в поземлен имот с идентификатор: 58356.503.436. Предназначение на самостоятелния обект: Друг вид самостоятелен обект. Брой нива на обекта: 1/едно/, Площ на самостоятелния обект: 130,21 кв.метра /сто и тридесет цяло и 21 стотни квадратни метра/. Прилежащи части : 17.53 кв.метра идеални части от общите части на сградата и 3,517 % ид.части от правото на строеж върху терена . Ниво 1: Съседни самостоятелни обекти на сградата: На същия етаж: 58356.503.436.1.3, 58356.503.436.1.2. Под обекта: 58356.503.436.1.78, 58356.503.436.1.77, 58356.503.436.1.62, 58356.503.436.1.58; Над обекта: 58356.503.436.1.19, 58356.503.436.1.18, 58356.503.436.1.17, 58356.503.436.1.16, 58356.503.436.1.8. Недвижимият имот е се намира в гр. Приморско , ул. Трети март № 63, разположен е на партерен етаж, с достъп от парцела. Състоянието на имота е следното: Зала – кафе с височина около 4 метра с вградена аспирация и вградено осветление, изграден бар-плот с мивка. Подготвителна -кухня с аспирация, Тоалетна, Тоалетна с предверие. Обекта е работил като кафене, но в последните две години заведението не е работило. Има самостоятелни партиди за ток и вода, сградата е въведена в експлоатация през 2009 г.",
-    "price_per_sqm": 1056,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 137280
       }
     ],
     "price_drop_count": 0,
@@ -31202,7 +31202,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "score": 7,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32518,7 +32518,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32549,7 +32549,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32580,7 +32580,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32611,7 +32611,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32642,7 +32642,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32673,7 +32673,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32704,7 +32704,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32735,7 +32735,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32766,7 +32766,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32797,7 +32797,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32828,7 +32828,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32859,7 +32859,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -32890,7 +32890,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "score": 6,
     "area_avg_price_per_sqm": 1594,
     "pct_vs_area_avg": -63.4
@@ -36810,7 +36810,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -38236,7 +38236,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "score": 6,
     "area_avg_price_per_sqm": 9266,
     "pct_vs_area_avg": -83.6
@@ -40887,7 +40887,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -40918,7 +40918,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -40949,7 +40949,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -43085,7 +43085,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44511,7 +44511,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44542,7 +44542,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": 1934,
     "pct_vs_area_avg": -73.0
@@ -44573,7 +44573,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44604,7 +44604,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44635,7 +44635,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44666,7 +44666,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44697,7 +44697,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44728,7 +44728,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44759,7 +44759,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": 175,
     "pct_vs_area_avg": -83.4
@@ -44790,7 +44790,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44821,7 +44821,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": 175,
     "pct_vs_area_avg": 170.2
@@ -44852,7 +44852,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44883,7 +44883,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44914,7 +44914,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44945,7 +44945,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -44976,7 +44976,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45007,7 +45007,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45038,7 +45038,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45069,7 +45069,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -45409,6 +45409,223 @@
     "source_status": "removed",
     "removed_at": "2026-08-25T00:59:11.408124+00:00",
     "days_on_market": 11,
+    "score": 3,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91890",
+    "url": "https://sales.bcpea.org/properties/91890",
+    "photo": "https://sales.bcpea.org/upload/91890/438887/2792018lozevsdolnoablanovomestnostlozyata240F213593199MSzf0NZ93tRggOLciGtv47zscb97erpr.jpg?w=270&h=270",
+    "price_eur": 984,
+    "sqm": 790,
+    "area": "Бистренци",
+    "title": "Земеделска земя, Бистренци",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:51:00+00:00",
+    "category": "land",
+    "lat": 43.42202,
+    "lng": 25.8151,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ЕЛЕКТРОНЕН ПУБЛИЧЕН ТЪРГ № 17193 / 31.08.2026 Изпълнително дело №: 20268330400180 Подписаният Венцислав Маринов – частен съдебен изпълнител №833, обявявам на интересуващите се, ч е на онлайн платформата за електронни публични търгове към Министерството на правосъдието на адрес https://zapori.mjs.bg/#/ ще се проведе продажба на следн ото имущество, обект на принудително изпълнение по делото , собственост на РАДОСЛАВ СТИЛИЯНОВ РАДЕВ , а именно: Поземлен имот с идентификатор 04162.23.11 (нула четири хиляди сто шестдесет и две точка двадесет и три точка единадесет) по кадастралната карта и кадастралните регистри на с. Бистренци, общ. Бяла, обл. Русе, одобрени със Заповед № РД-18-1676/10.10.2018 г. (РД осемнадесет тире хиляда шестстотин седемдесет и шест наклонена черта десети октомври две хиляди и осемнадесета година) на Изпълнителния директор на АГКК, с адрес на поземления имот: с. Бистренци, местност „ПУНАРДЖИКА“, с площ 3790 (три хиляди седемстотин и деветдесет) кв.м (квадратни метра), с трайно предназначение на територията: земеделска, с начин на трайно ползване: нива, категория на земята при неполивни условия 7 (седма), с предишен идентификатор: няма, с номер от предходен план 023011 (нула две три нула едно едно), при съседи: 04162.19.57, 04162.23.17, 04162.23.10, 04162.17.1, 04162.23.16. НАЧАЛНА ЦЕНА: 984.00 € вписана Възбрана в полза на Уникредит Булбанк АД, и в полза на взискателя БАНКА ДСК АД, Определям Всеки Понеделник и Сряда от 15.00 до 17.00 ч. за запознаване с книжата на имотите. Срок за регистрация: от 15.09.2026 г. до 17,00 часа на 15.10.2026 г. Срок за наддаване: НАЧАЛО: 20.10.2026 г. 9:00ч. КРАЙ: 26.10.2026г. 17:00ч. Желаещите да купят могат да се явят в кантората на съдебния изпълнител в работно време, за да прегледат книжата. За участие в електронния търг , следва всеки наддавач следва да се регистрира на онлайн платформата за електронни публични търгове към Министерството на правосъдието. В секи наддавач следва да внесе задатък в размер на 10% от обявената цена по сметка в ЦКБ АД Русе: BG11 CECB 9790 1072 1049 01, BIC: CECBBGSF. На основание Наредба № Н-3/06.04.2023 г. на МП, Към момента на регистрацията участникът прилага: Д екларация по Закона за мерките срещу изпирането на пари; Д екларация за липса на обстоятелства по чл. 490 от Гражданския процесуален кодекс и чл. 185 от Закона за задълженията и договорите; К витанция за внесен задатък; П ълномощно, ако заявката се подава чрез пълномощник. Срокът за регистрация приключва на 15.10.2026 г. , След изтичане на срока за регистрация следва наддаване в посочения по-горе срок. Платформата изпраща по реда на чл. 26 автоматични съобщения до всички наддавачи за започване на наддаването двадесет и четири часа, както и един час преди неговото начало.Наддаването се извършва от всеки наддавач само в платформата чрез команда за наддаване.При постъпване на наддавателно предложение платформата отразява това в публичната информация, като автоматично изчислява и показва следващата цена, по-висока с една стъпка. Два часа преди изтичане на срока за наддаване платформата изпраща автоматично съобщение за това до всички наддавачи на електронен адрес. Наддаването приключва в посоченото време, ако няма подадено наддавателно предложение през последните 10 минути на търга. При подаване на ново предложение в последните 10 минути на търга той се удължава автоматично с още 10 минути, считано от изтичането на срока за наддаване. Купувачът в двуседмичен срок от обявяването му е длъжен да внесе предложената от него цена, като приспадане внесения задатък.",
+    "price_per_sqm": 1,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 984
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91889",
+    "url": "https://sales.bcpea.org/properties/91889",
+    "photo": null,
+    "price_eur": 2471,
+    "sqm": 35,
+    "area": "Бургас",
+    "title": "Търговски имот, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:48:00+00:00",
+    "category": "apartment",
+    "lat": 42.4936616,
+    "lng": 27.4721276,
+    "detail_checked": true,
+    "description": "ВРЕМЕНЕН ОБЕКТ, изграден по реда на отм. чл. 120, ал. 4, от ППЗТСУ по §17 ПР на ЗУТ, с размер 7 м. на 5,20 м., находящ се в гр. Бургас, жк Бр. Миладинови, ул. Струга и ул. Кавала, в общински парцел 15, квартал 36 по плана на гр. Бургас. Временния обект е изграден върху общински терен , поради което собственика му трябва да заплаща на Община Бургас наемна цена, в размер определен от Общинския съвет – Бургас. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 71,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 2471
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -94.4
+  },
+  {
+    "id": "bcpea_91888",
+    "url": "https://sales.bcpea.org/properties/91888",
+    "photo": "https://sales.bcpea.org/upload/91888/458287/20250320_151040.jpg?w=270&h=270",
+    "price_eur": 13880,
+    "sqm": 27,
+    "area": "Бургас",
+    "title": "Магазин, Бургас",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:45:00+00:00",
+    "category": "commercial",
+    "lat": 42.4936616,
+    "lng": 27.4721276,
+    "detail_checked": true,
+    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА с идентификатор 07079.651.122.1.88 в гр. Бургас, общ. Бургас, обл. Бургас, по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-9/30.01.2009 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК, последно изменение на кадастралната карта и кадастралните регистри, засягащо самостоятелния обект е от 28.02.2011 г. Адрес на имота: гр. Бургас, жк. Меден рудник, бл. 321, вх.А, ет. 0 / партер / , Магазин за промишлени стоки 12 . Предназначение на самостоятелния обект: за търговска дейност. Брой нива на обекта: 1. Посочена в документа площ: 27,22 кв.м. Прилежащи части: 0.421% и.ч.от О.Ч.на сгр.и пр. на строеж. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 514,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 13880
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": 1259,
+    "pct_vs_area_avg": -59.2
+  },
+  {
+    "id": "bcpea_91887",
+    "url": "https://sales.bcpea.org/properties/91887",
+    "photo": "https://sales.bcpea.org/upload/91887/438902/2792018lozevsdolnoablanovomestnostlozyata240F213593199MSzf0NZ93tRggOLciGtv47zscb97erpr.jpg?w=270&h=270",
+    "price_eur": 784,
+    "sqm": 797,
+    "area": "Бистренци",
+    "title": "Земеделска земя, Бистренци",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:45:00+00:00",
+    "category": "land",
+    "lat": 43.42202,
+    "lng": 25.8151,
+    "detail_checked": true,
+    "description": "ОБЯВЛЕНИЕ ЗА ЕЛЕКТРОНЕН ПУБЛИЧЕН ТЪРГ № 17186 / 31.08.2026 Изпълнително дело №: 20268330400180 Подписаният Венцислав Маринов – частен съдебен изпълнител №833, обявявам на интересуващите се, ч е на онлайн платформата за електронни публични търгове към Министерството на правосъдието на адрес https://zapori.mjs.bg/#/ ще се проведе продажба на следн ото имущество, обект на принудително изпълнение по делото , собственост на РАДОСЛАВ СТИЛИЯНОВ РАДЕВ , а именно: Поземлен имот с идентификатор 04162.23.10 (нула четири хиляди сто шестдесет и две точка двадесет и три точка десет) по кадастралната карта и кадастралните регистри на с. Бистренци, общ. Бяла, обл. Русе, одобрени със Заповед № РД-18-1676/10.10.2018 г. (РД осемнадесет тире хиляда шестстотин седемдесет и шест наклонена черта десети октомври две хиляди и осемнадесета година) на Изпълнителния директор на АГКК, с адрес на поземления имот: с. Бистренци, местност „ПУНАРДЖИКА“, с площ 3797 (три хиляди седемстотин деветдесет и седем) кв.м (квадратни метра), с трайно предназначение на територията: земеделска, с начин на трайно ползване: нива, категория на земята при неполивни условия 7 (седма), с предишен идентификатор: няма, с номер от предходен план 023010 (нула две три нула едно нула), при съседи: 04162.23.20, 04162.19.57, 04162.23.4, 04162.23.11, 04162.23.16. НАЧАЛНА ЦЕНА: 784.00 € вписана Възбрана в полза на Уникредит Булбанк АД, и в полза на взискателя БАНКА ДСК АД, Определям Всеки Понеделник и Сряда от 15.00 до 17.00 ч. за запознаване с книжата на имотите. Срок за регистрация: от 15.09.2026 г. до 17,00 часа на 15.10.2026 г. Срок за наддаване: НАЧАЛО: 20.10.2026г. 9:00ч. КРАЙ: 26.10.2026г. 17:00ч. Желаещите да купят могат да се явят в кантората на съдебния изпълнител в работно време, за да прегледат книжата. За участие в електронния търг , следва всеки наддавач следва да се регистрира на онлайн платформата за електронни публични търгове към Министерството на правосъдието. В секи наддавач следва да внесе задатък в размер на 10% от обявената цена по сметка в ЦКБ АД Русе: BG11 CECB 9790 1072 1049 01, BIC: CECBBGSF. На основание Наредба № Н-3/06.04.2023 г. на МП, Към момента на регистрацията участникът прилага: Д екларация по Закона за мерките срещу изпирането на пари; Д екларация за липса на обстоятелства по чл. 490 от Гражданския процесуален кодекс и чл. 185 от Закона за задълженията и договорите; К витанция за внесен задатък; П ълномощно, ако заявката се подава чрез пълномощник. Срокът за регистрация приключва на 15.10.2026 г. , След изтичане на срока за регистрация следва наддаване в посочения по-горе срок. Платформата изпраща по реда на чл. 26 автоматични съобщения до всички наддавачи за започване на наддаването двадесет и четири часа, както и един час преди неговото начало.Наддаването се извършва от всеки наддавач само в платформата чрез команда за наддаване.При постъпване на наддавателно предложение платформата отразява това в публичната информация, като автоматично изчислява и показва следващата цена, по-висока с една стъпка. Два часа преди изтичане на срока за наддаване платформата изпраща автоматично съобщение за това до всички наддавачи на електронен адрес. Наддаването приключва в посоченото време, ако няма подадено наддавателно предложение през последните 10 минути на търга. При подаване на ново предложение в последните 10 минути на търга той се удължава автоматично с още 10 минути, считано от изтичането на срока за наддаване. Купувачът в двуседмичен срок от обявяването му е длъжен да внесе предложената от него цена, като приспадане внесения задатък.",
+    "price_per_sqm": 1,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 784
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91886",
+    "url": "https://sales.bcpea.org/properties/91886",
+    "photo": null,
+    "price_eur": 7760,
+    "sqm": 183,
+    "area": "Желязово",
+    "title": "Парцел, Желязово",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:41:00+00:00",
+    "category": "land",
+    "lat": 42.48321,
+    "lng": 27.13879,
+    "detail_checked": true,
+    "description": "П оземлен имот с идентификатор № 29249.501.232 с площ от 1 1 83 /хиляда сто осемдесет и три / кв.м. , находящ се в с. Желязово, общ.Камено, обл.Бургас ,вид собственост частна, вид територия урбанизирана, НТП ниско застрояване до 10м., стар номер 68, квартал 29, парцел IX, брой върхове 7. Заповед за одобрение на КККР РД-18-125/06.10.2025г., издадена от изпълнителен директор на АГКК, ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 42,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 7760
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91885",
+    "url": "https://sales.bcpea.org/properties/91885",
+    "photo": null,
+    "price_eur": 9364,
+    "sqm": 12,
+    "area": "Кръстина",
+    "title": "Парцел, Кръстина",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:38:00+00:00",
+    "category": "land",
+    "lat": 42.58238,
+    "lng": 27.23595,
+    "detail_checked": true,
+    "description": "П оземлен имот с идентификатор № 4 0381.501.355 с площ от 1 0 12 хиляда и дванадесет / кв.м. , находящ се в с. К ръстина , общ.Камено, обл.Бургас ,вид собственост частна, вид територия урбанизирана, НТП ниско застрояване до 10м., стар номер 106, квартал 46, парцел X. Заповед за одобрение РД-18-126/05.10.2025г., издадена от изпълнителен директор на АГКК. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 780,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 9364
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
+    "score": 3,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91884",
+    "url": "https://sales.bcpea.org/properties/91884",
+    "photo": null,
+    "price_eur": 4172,
+    "sqm": 85,
+    "area": "Ливада",
+    "title": "Парцел, Ливада",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-01T12:33:00+00:00",
+    "category": "land",
+    "lat": 42.4459002,
+    "lng": 27.2166122,
+    "detail_checked": true,
+    "description": "1/2 ид.част от ПРАЗНО ДВОРНО МЯСТО, цялото с площ от 1085 / хиляда и осемдесет и пет / кв.м., образуващо урегулиран парцел III - 7 / парцел трети с планоснимачен номер седем /, в кв. 33 / тридесет и трети / по регулационния план на с. Ливада, общ. Камено , обл. Бургас. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
+    "price_per_sqm": 49,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 4172
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 10,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -47388,7 +47605,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -50301,7 +50518,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51199,7 +51416,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -53158,223 +53375,6 @@
     "pct_vs_area_avg": null
   },
   {
-    "id": "bcpea_91890",
-    "url": "https://sales.bcpea.org/properties/91890",
-    "photo": "https://sales.bcpea.org/upload/91890/438887/2792018lozevsdolnoablanovomestnostlozyata240F213593199MSzf0NZ93tRggOLciGtv47zscb97erpr.jpg?w=270&h=270",
-    "price_eur": 984,
-    "sqm": 790,
-    "area": "Бистренци",
-    "title": "Земеделска земя, Бистренци",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:51:00+00:00",
-    "category": "land",
-    "lat": 43.42202,
-    "lng": 25.8151,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ЕЛЕКТРОНЕН ПУБЛИЧЕН ТЪРГ № 17193 / 31.08.2026 Изпълнително дело №: 20268330400180 Подписаният Венцислав Маринов – частен съдебен изпълнител №833, обявявам на интересуващите се, ч е на онлайн платформата за електронни публични търгове към Министерството на правосъдието на адрес https://zapori.mjs.bg/#/ ще се проведе продажба на следн ото имущество, обект на принудително изпълнение по делото , собственост на РАДОСЛАВ СТИЛИЯНОВ РАДЕВ , а именно: Поземлен имот с идентификатор 04162.23.11 (нула четири хиляди сто шестдесет и две точка двадесет и три точка единадесет) по кадастралната карта и кадастралните регистри на с. Бистренци, общ. Бяла, обл. Русе, одобрени със Заповед № РД-18-1676/10.10.2018 г. (РД осемнадесет тире хиляда шестстотин седемдесет и шест наклонена черта десети октомври две хиляди и осемнадесета година) на Изпълнителния директор на АГКК, с адрес на поземления имот: с. Бистренци, местност „ПУНАРДЖИКА“, с площ 3790 (три хиляди седемстотин и деветдесет) кв.м (квадратни метра), с трайно предназначение на територията: земеделска, с начин на трайно ползване: нива, категория на земята при неполивни условия 7 (седма), с предишен идентификатор: няма, с номер от предходен план 023011 (нула две три нула едно едно), при съседи: 04162.19.57, 04162.23.17, 04162.23.10, 04162.17.1, 04162.23.16. НАЧАЛНА ЦЕНА: 984.00 € вписана Възбрана в полза на Уникредит Булбанк АД, и в полза на взискателя БАНКА ДСК АД, Определям Всеки Понеделник и Сряда от 15.00 до 17.00 ч. за запознаване с книжата на имотите. Срок за регистрация: от 15.09.2026 г. до 17,00 часа на 15.10.2026 г. Срок за наддаване: НАЧАЛО: 20.10.2026 г. 9:00ч. КРАЙ: 26.10.2026г. 17:00ч. Желаещите да купят могат да се явят в кантората на съдебния изпълнител в работно време, за да прегледат книжата. За участие в електронния търг , следва всеки наддавач следва да се регистрира на онлайн платформата за електронни публични търгове към Министерството на правосъдието. В секи наддавач следва да внесе задатък в размер на 10% от обявената цена по сметка в ЦКБ АД Русе: BG11 CECB 9790 1072 1049 01, BIC: CECBBGSF. На основание Наредба № Н-3/06.04.2023 г. на МП, Към момента на регистрацията участникът прилага: Д екларация по Закона за мерките срещу изпирането на пари; Д екларация за липса на обстоятелства по чл. 490 от Гражданския процесуален кодекс и чл. 185 от Закона за задълженията и договорите; К витанция за внесен задатък; П ълномощно, ако заявката се подава чрез пълномощник. Срокът за регистрация приключва на 15.10.2026 г. , След изтичане на срока за регистрация следва наддаване в посочения по-горе срок. Платформата изпраща по реда на чл. 26 автоматични съобщения до всички наддавачи за започване на наддаването двадесет и четири часа, както и един час преди неговото начало.Наддаването се извършва от всеки наддавач само в платформата чрез команда за наддаване.При постъпване на наддавателно предложение платформата отразява това в публичната информация, като автоматично изчислява и показва следващата цена, по-висока с една стъпка. Два часа преди изтичане на срока за наддаване платформата изпраща автоматично съобщение за това до всички наддавачи на електронен адрес. Наддаването приключва в посоченото време, ако няма подадено наддавателно предложение през последните 10 минути на търга. При подаване на ново предложение в последните 10 минути на търга той се удължава автоматично с още 10 минути, считано от изтичането на срока за наддаване. Купувачът в двуседмичен срок от обявяването му е длъжен да внесе предложената от него цена, като приспадане внесения задатък.",
-    "price_per_sqm": 1,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 984
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91889",
-    "url": "https://sales.bcpea.org/properties/91889",
-    "photo": null,
-    "price_eur": 2471,
-    "sqm": 35,
-    "area": "Бургас",
-    "title": "Търговски имот, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:48:00+00:00",
-    "category": "apartment",
-    "lat": 42.4936616,
-    "lng": 27.4721276,
-    "detail_checked": true,
-    "description": "ВРЕМЕНЕН ОБЕКТ, изграден по реда на отм. чл. 120, ал. 4, от ППЗТСУ по §17 ПР на ЗУТ, с размер 7 м. на 5,20 м., находящ се в гр. Бургас, жк Бр. Миладинови, ул. Струга и ул. Кавала, в общински парцел 15, квартал 36 по плана на гр. Бургас. Временния обект е изграден върху общински терен , поради което собственика му трябва да заплаща на Община Бургас наемна цена, в размер определен от Общинския съвет – Бургас. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 71,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 2471
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -94.4
-  },
-  {
-    "id": "bcpea_91888",
-    "url": "https://sales.bcpea.org/properties/91888",
-    "photo": "https://sales.bcpea.org/upload/91888/458287/20250320_151040.jpg?w=270&h=270",
-    "price_eur": 13880,
-    "sqm": 27,
-    "area": "Бургас",
-    "title": "Магазин, Бургас",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:45:00+00:00",
-    "category": "commercial",
-    "lat": 42.4936616,
-    "lng": 27.4721276,
-    "detail_checked": true,
-    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА с идентификатор 07079.651.122.1.88 в гр. Бургас, общ. Бургас, обл. Бургас, по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-9/30.01.2009 г. на ИЗПЪЛНИТЕЛЕН ДИРЕКТОР НА АГКК, последно изменение на кадастралната карта и кадастралните регистри, засягащо самостоятелния обект е от 28.02.2011 г. Адрес на имота: гр. Бургас, жк. Меден рудник, бл. 321, вх.А, ет. 0 / партер / , Магазин за промишлени стоки 12 . Предназначение на самостоятелния обект: за търговска дейност. Брой нива на обекта: 1. Посочена в документа площ: 27,22 кв.м. Прилежащи части: 0.421% и.ч.от О.Ч.на сгр.и пр. на строеж. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 514,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 13880
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": 1259,
-    "pct_vs_area_avg": -59.2
-  },
-  {
-    "id": "bcpea_91887",
-    "url": "https://sales.bcpea.org/properties/91887",
-    "photo": "https://sales.bcpea.org/upload/91887/438902/2792018lozevsdolnoablanovomestnostlozyata240F213593199MSzf0NZ93tRggOLciGtv47zscb97erpr.jpg?w=270&h=270",
-    "price_eur": 784,
-    "sqm": 797,
-    "area": "Бистренци",
-    "title": "Земеделска земя, Бистренци",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:45:00+00:00",
-    "category": "land",
-    "lat": 43.42202,
-    "lng": 25.8151,
-    "detail_checked": true,
-    "description": "ОБЯВЛЕНИЕ ЗА ЕЛЕКТРОНЕН ПУБЛИЧЕН ТЪРГ № 17186 / 31.08.2026 Изпълнително дело №: 20268330400180 Подписаният Венцислав Маринов – частен съдебен изпълнител №833, обявявам на интересуващите се, ч е на онлайн платформата за електронни публични търгове към Министерството на правосъдието на адрес https://zapori.mjs.bg/#/ ще се проведе продажба на следн ото имущество, обект на принудително изпълнение по делото , собственост на РАДОСЛАВ СТИЛИЯНОВ РАДЕВ , а именно: Поземлен имот с идентификатор 04162.23.10 (нула четири хиляди сто шестдесет и две точка двадесет и три точка десет) по кадастралната карта и кадастралните регистри на с. Бистренци, общ. Бяла, обл. Русе, одобрени със Заповед № РД-18-1676/10.10.2018 г. (РД осемнадесет тире хиляда шестстотин седемдесет и шест наклонена черта десети октомври две хиляди и осемнадесета година) на Изпълнителния директор на АГКК, с адрес на поземления имот: с. Бистренци, местност „ПУНАРДЖИКА“, с площ 3797 (три хиляди седемстотин деветдесет и седем) кв.м (квадратни метра), с трайно предназначение на територията: земеделска, с начин на трайно ползване: нива, категория на земята при неполивни условия 7 (седма), с предишен идентификатор: няма, с номер от предходен план 023010 (нула две три нула едно нула), при съседи: 04162.23.20, 04162.19.57, 04162.23.4, 04162.23.11, 04162.23.16. НАЧАЛНА ЦЕНА: 784.00 € вписана Възбрана в полза на Уникредит Булбанк АД, и в полза на взискателя БАНКА ДСК АД, Определям Всеки Понеделник и Сряда от 15.00 до 17.00 ч. за запознаване с книжата на имотите. Срок за регистрация: от 15.09.2026 г. до 17,00 часа на 15.10.2026 г. Срок за наддаване: НАЧАЛО: 20.10.2026г. 9:00ч. КРАЙ: 26.10.2026г. 17:00ч. Желаещите да купят могат да се явят в кантората на съдебния изпълнител в работно време, за да прегледат книжата. За участие в електронния търг , следва всеки наддавач следва да се регистрира на онлайн платформата за електронни публични търгове към Министерството на правосъдието. В секи наддавач следва да внесе задатък в размер на 10% от обявената цена по сметка в ЦКБ АД Русе: BG11 CECB 9790 1072 1049 01, BIC: CECBBGSF. На основание Наредба № Н-3/06.04.2023 г. на МП, Към момента на регистрацията участникът прилага: Д екларация по Закона за мерките срещу изпирането на пари; Д екларация за липса на обстоятелства по чл. 490 от Гражданския процесуален кодекс и чл. 185 от Закона за задълженията и договорите; К витанция за внесен задатък; П ълномощно, ако заявката се подава чрез пълномощник. Срокът за регистрация приключва на 15.10.2026 г. , След изтичане на срока за регистрация следва наддаване в посочения по-горе срок. Платформата изпраща по реда на чл. 26 автоматични съобщения до всички наддавачи за започване на наддаването двадесет и четири часа, както и един час преди неговото начало.Наддаването се извършва от всеки наддавач само в платформата чрез команда за наддаване.При постъпване на наддавателно предложение платформата отразява това в публичната информация, като автоматично изчислява и показва следващата цена, по-висока с една стъпка. Два часа преди изтичане на срока за наддаване платформата изпраща автоматично съобщение за това до всички наддавачи на електронен адрес. Наддаването приключва в посоченото време, ако няма подадено наддавателно предложение през последните 10 минути на търга. При подаване на ново предложение в последните 10 минути на търга той се удължава автоматично с още 10 минути, считано от изтичането на срока за наддаване. Купувачът в двуседмичен срок от обявяването му е длъжен да внесе предложената от него цена, като приспадане внесения задатък.",
-    "price_per_sqm": 1,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 784
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91886",
-    "url": "https://sales.bcpea.org/properties/91886",
-    "photo": null,
-    "price_eur": 7760,
-    "sqm": 183,
-    "area": "Желязово",
-    "title": "Парцел, Желязово",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:41:00+00:00",
-    "category": "land",
-    "lat": 42.48321,
-    "lng": 27.13879,
-    "detail_checked": true,
-    "description": "П оземлен имот с идентификатор № 29249.501.232 с площ от 1 1 83 /хиляда сто осемдесет и три / кв.м. , находящ се в с. Желязово, общ.Камено, обл.Бургас ,вид собственост частна, вид територия урбанизирана, НТП ниско застрояване до 10м., стар номер 68, квартал 29, парцел IX, брой върхове 7. Заповед за одобрение на КККР РД-18-125/06.10.2025г., издадена от изпълнителен директор на АГКК, ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 42,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 7760
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91885",
-    "url": "https://sales.bcpea.org/properties/91885",
-    "photo": null,
-    "price_eur": 9364,
-    "sqm": 12,
-    "area": "Кръстина",
-    "title": "Парцел, Кръстина",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:38:00+00:00",
-    "category": "land",
-    "lat": 42.58238,
-    "lng": 27.23595,
-    "detail_checked": true,
-    "description": "П оземлен имот с идентификатор № 4 0381.501.355 с площ от 1 0 12 хиляда и дванадесет / кв.м. , находящ се в с. К ръстина , общ.Камено, обл.Бургас ,вид собственост частна, вид територия урбанизирана, НТП ниско застрояване до 10м., стар номер 106, квартал 46, парцел X. Заповед за одобрение РД-18-126/05.10.2025г., издадена от изпълнителен директор на АГКК. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 780,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 9364
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91884",
-    "url": "https://sales.bcpea.org/properties/91884",
-    "photo": null,
-    "price_eur": 4172,
-    "sqm": 85,
-    "area": "Ливада",
-    "title": "Парцел, Ливада",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-01T12:33:00+00:00",
-    "category": "land",
-    "lat": 42.4459002,
-    "lng": 27.2166122,
-    "detail_checked": true,
-    "description": "1/2 ид.част от ПРАЗНО ДВОРНО МЯСТО, цялото с площ от 1085 / хиляда и осемдесет и пет / кв.м., образуващо урегулиран парцел III - 7 / парцел трети с планоснимачен номер седем /, в кв. 33 / тридесет и трети / по регулационния план на с. Ливада, общ. Камено , обл. Бургас. ПОДРОБНОСТИ В ПРИКАЧЕНОТО СКАНИРАНО ОБЯВЛЕНИЕ",
-    "price_per_sqm": 49,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 4172
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 9,
-    "score": 2,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_92019",
     "url": "https://sales.bcpea.org/properties/92019",
     "photo": null,
@@ -53492,7 +53492,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -53522,7 +53522,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54328,7 +54328,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54359,7 +54359,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54390,7 +54390,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54421,7 +54421,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54452,7 +54452,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54483,7 +54483,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "score": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -56409,6 +56409,37 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_92117",
+    "url": "https://sales.bcpea.org/properties/92117",
+    "photo": "https://sales.bcpea.org/upload/92117/459063/viber_изображение_2026-08-24_12-03-34-225.jpg?w=270&h=270",
+    "price_eur": 150400,
+    "sqm": 64,
+    "area": "София",
+    "title": "Офис, София",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-09T12:52:00+00:00",
+    "category": "commercial",
+    "lat": 42.6977028,
+    "lng": 23.3217359,
+    "detail_checked": true,
+    "description": "ОФИС № 5 /пет/, намиращ се в гр.София , в жилищната сграда на ул.“Никола Габровски“ № 61 /шестдесет и едно/, на 2 /втори/ етаж /кота +3.50 м./, състоящ се от работно помещение, тоалетна и тераса, със застроена площ 63.95 /шестдесет и три цяло и деветдесет и пет стотни/ кв. метра, а с прилежащите му идеални части от общите части на офисите в сградата, равняващи се на 8,67 /осем цяло и шестдесет и седем стотни/ кв. метра – с обща площ 72.62 /седемдесет и две цяло и шестдесет и две стотни/ кв. метра, при съседи: юг –двор, изток –офис № 4, север – офис № 4, коридор, асансьор, запад – стълбище, заедно с 13.10% /тринадесет цяло и десет стотни върху сто/ идеални части от общите части на офисите в сградата и 2,40 % /две цяло и четиридесет стотни върху сто/ идеални части от правото на строеж върху урегулирания поземлен имот, върху който е построена сградата, находящ се в гр.София, ул.“Никола Габровски“ № 61 /шестдесет и едно/, представляващ урегулиран поземлен имот V /пети/ общ., в квартал № 21б /двадесет и едно, буква „б“/ по плана на гр.София, местност „ Дианабад“, с площ 980/деветстотин и осемдесет/ кв. метра, при съседи: бул.“Никола Габровски“, УПИ VI-1579, улица-тупик, УПИ 1-ОЖС  и трафопост, УПИ VIII-1241.",
+    "price_per_sqm": 2350,
+    "price_history": [
+      {
+        "date": "2026-09-09T14:19:42.720487+00:00",
+        "price_eur": 150400
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 2,
+    "score": 1,
+    "area_avg_price_per_sqm": 1934,
+    "pct_vs_area_avg": 21.5
+  },
+  {
     "id": "bcpea_92058",
     "url": "https://sales.bcpea.org/properties/92058",
     "photo": "https://sales.bcpea.org/upload/92058/439423/WhatsApp Image 2026-03-18 at 10.22.14 (1).jpeg?w=270&h=270",
@@ -57399,37 +57430,6 @@
     "score": 0,
     "area_avg_price_per_sqm": 1594,
     "pct_vs_area_avg": -90.0
-  },
-  {
-    "id": "bcpea_92117",
-    "url": "https://sales.bcpea.org/properties/92117",
-    "photo": "https://sales.bcpea.org/upload/92117/459063/viber_изображение_2026-08-24_12-03-34-225.jpg?w=270&h=270",
-    "price_eur": 150400,
-    "sqm": 64,
-    "area": "София",
-    "title": "Офис, София",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-09T12:52:00+00:00",
-    "category": "commercial",
-    "lat": 42.6977028,
-    "lng": 23.3217359,
-    "detail_checked": true,
-    "description": "ОФИС № 5 /пет/, намиращ се в гр.София , в жилищната сграда на ул.“Никола Габровски“ № 61 /шестдесет и едно/, на 2 /втори/ етаж /кота +3.50 м./, състоящ се от работно помещение, тоалетна и тераса, със застроена площ 63.95 /шестдесет и три цяло и деветдесет и пет стотни/ кв. метра, а с прилежащите му идеални части от общите части на офисите в сградата, равняващи се на 8,67 /осем цяло и шестдесет и седем стотни/ кв. метра – с обща площ 72.62 /седемдесет и две цяло и шестдесет и две стотни/ кв. метра, при съседи: юг –двор, изток –офис № 4, север – офис № 4, коридор, асансьор, запад – стълбище, заедно с 13.10% /тринадесет цяло и десет стотни върху сто/ идеални части от общите части на офисите в сградата и 2,40 % /две цяло и четиридесет стотни върху сто/ идеални части от правото на строеж върху урегулирания поземлен имот, върху който е построена сградата, находящ се в гр.София, ул.“Никола Габровски“ № 61 /шестдесет и едно/, представляващ урегулиран поземлен имот V /пети/ общ., в квартал № 21б /двадесет и едно, буква „б“/ по плана на гр.София, местност „ Дианабад“, с площ 980/деветстотин и осемдесет/ кв. метра, при съседи: бул.“Никола Габровски“, УПИ VI-1579, улица-тупик, УПИ 1-ОЖС  и трафопост, УПИ VIII-1241.",
-    "price_per_sqm": 2350,
-    "price_history": [
-      {
-        "date": "2026-09-09T14:19:42.720487+00:00",
-        "price_eur": 150400
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 1,
-    "score": 0,
-    "area_avg_price_per_sqm": 1934,
-    "pct_vs_area_avg": 21.5
   },
   {
     "id": "bcpea_92149",
