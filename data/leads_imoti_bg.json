@@ -26612,6 +26612,134 @@
     "pct_vs_area_avg": 0.0
   },
   {
+    "id": "imotibg_270267",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/цветен-квартал-270267.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa16b8ae8c11_6aa16b8aee6f9.jpg",
+    "price_eur": 188000,
+    "sqm": 100,
+    "area": "Цветен квартал",
+    "city": "Варна",
+    "title": "Тристаен апартамент, Цветен квартал",
+    "portal": "imoti.bg",
+    "lat": 43.2238681,
+    "lng": 27.9138306,
+    "description": "Предлагаме Ви тристаен апартамент в Цветен квартал\r\nЖилището е на етаж 2 и се състои от: дневна 31 кв.м, спалня 1 - 15 кв.м, спалня 2 - 11 кв.м, антре - 6, кв.м, баня с тоалетна - 4 кв.м, килер  и тераса.\r\nИздава се по БДС. Стени: машинно обработена гипсова мазилка с турбозол, грундирани и боядисани в светла гама на Craft . Мокри Помещения: ръчно обработена циментова мазилка и положен фаянс, теракота и окачен таван. МДФ интериорни врати и ПВЦ дограма. Цветове и материали по избор.\r\nОтлична Локация на тиха и спокойна улица. Лесен и бърз достъп до главни пътни артерии, училища, детски градини, автобусни спирки, детски площадки, аптеки, търговски центрове, супермаркети, козметични студия, заведения .",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1880,
+    "price_history": [
+      {
+        "date": "2026-09-09T20:18:24.830820+00:00",
+        "price_eur": 188000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1880,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_515864",
+    "url": "https://imoti.bg/продажби/парцел/бургас-област/грпоморие-515864.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa170afa546f_6aa172b2d8c9d.jpg",
+    "price_eur": 390000,
+    "sqm": 2000,
+    "area": "гр.Поморие",
+    "city": "Бургас област",
+    "title": "Парцел, гр.Поморие",
+    "portal": "imoti.bg",
+    "lat": 42.558986,
+    "lng": 27.6437424,
+    "description": "м. Лахана  община Поморие е новия изграждащ се квартал!  На 100м.от брега на морето със 180градуса изглед. Има изтекъл ПУП който трябва да се поднови! Приемам всякакви оферти, продажба, частична сума + обещетение, готови апартаменти в градовете София Пловдив, Бургас В момента района се застрояват",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 195,
+    "price_history": [
+      {
+        "date": "2026-09-09T20:18:24.830820+00:00",
+        "price_eur": 390000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 98,
+    "pct_vs_area_avg": 98.0
+  },
+  {
+    "id": "imotibg_515865",
+    "url": "https://imoti.bg/продажби/нива/стара-загора-област/свиден-515865.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa173f3871cd_6aa175cb62c68.jpg",
+    "price_eur": 600000,
+    "sqm": 60000,
+    "area": "с.Виден",
+    "city": "Стара Загора област",
+    "title": "Нива, с.Виден",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "60дк земеделска земя над язовир Копринка , по новия ОУП на Павел баня е отредена за изграждане на жилищни сгради. Това е инвестиция в близкото бъдеще ЕКАТТЕ 10954",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 10,
+    "price_history": [
+      {
+        "date": "2026-09-09T20:18:24.830820+00:00",
+        "price_eur": 600000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 10,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_264907",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/аспарухово-264907.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_668d06da616a8_668d06da646c6.jpg",
+    "price_eur": 125000,
+    "sqm": 89,
+    "area": "Аспарухово",
+    "city": "Варна",
+    "title": "Тристаен апартамент, Аспарухово",
+    "portal": "imoti.bg",
+    "lat": 42.9789532,
+    "lng": 27.3211773,
+    "description": "Ап. 15 е с площ 89м2, разположен на четвърти етаж.\r\nЖилището се състои от коридор,дневна с кухненска част 24,73 м2, две спални по 11.76 м2. и 14,69 м2., баня с тоалет, килерна ниша и терасa към всекидневната с площ 18 кв.м.\r\nПрестижна локация, в тих и спокоен район с бърз достъп до центъра.\r\nВъзможност за закупуване на гараж или паркомясто.\r\nВнимателно подбрани строителни материали;.Сградата е с РЗП 2800 кв.м..С 24 жилища.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1404,
+    "price_history": [
+      {
+        "date": "2026-09-09T20:18:24.830820+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2850,
+    "pct_vs_area_avg": -50.7
+  },
+  {
     "id": "imotibg_515031",
     "url": "https://imoti.bg/продажби/нива/бургас-област/грпоморие-515031.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a199d5d2b5c9_6a199e6b37c99.jpg",
@@ -26866,134 +26994,6 @@
     "removed_at": "2026-08-25T20:39:50.077622+00:00",
     "area_avg_price_per_sqm": 9,
     "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "imotibg_270267",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/цветен-квартал-270267.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa16b8ae8c11_6aa16b8aee6f9.jpg",
-    "price_eur": 188000,
-    "sqm": 100,
-    "area": "Цветен квартал",
-    "city": "Варна",
-    "title": "Тристаен апартамент, Цветен квартал",
-    "portal": "imoti.bg",
-    "lat": 43.2238681,
-    "lng": 27.9138306,
-    "description": "Предлагаме Ви тристаен апартамент в Цветен квартал\r\nЖилището е на етаж 2 и се състои от: дневна 31 кв.м, спалня 1 - 15 кв.м, спалня 2 - 11 кв.м, антре - 6, кв.м, баня с тоалетна - 4 кв.м, килер  и тераса.\r\nИздава се по БДС. Стени: машинно обработена гипсова мазилка с турбозол, грундирани и боядисани в светла гама на Craft . Мокри Помещения: ръчно обработена циментова мазилка и положен фаянс, теракота и окачен таван. МДФ интериорни врати и ПВЦ дограма. Цветове и материали по избор.\r\nОтлична Локация на тиха и спокойна улица. Лесен и бърз достъп до главни пътни артерии, училища, детски градини, автобусни спирки, детски площадки, аптеки, търговски центрове, супермаркети, козметични студия, заведения .",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1880,
-    "price_history": [
-      {
-        "date": "2026-09-09T20:18:24.830820+00:00",
-        "price_eur": 188000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1880,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "imotibg_515864",
-    "url": "https://imoti.bg/продажби/парцел/бургас-област/грпоморие-515864.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa170afa546f_6aa172b2d8c9d.jpg",
-    "price_eur": 390000,
-    "sqm": 2000,
-    "area": "гр.Поморие",
-    "city": "Бургас област",
-    "title": "Парцел, гр.Поморие",
-    "portal": "imoti.bg",
-    "lat": 42.558986,
-    "lng": 27.6437424,
-    "description": "м. Лахана  община Поморие е новия изграждащ се квартал!  На 100м.от брега на морето със 180градуса изглед. Има изтекъл ПУП който трябва да се поднови! Приемам всякакви оферти, продажба, частична сума + обещетение, готови апартаменти в градовете София Пловдив, Бургас В момента района се застрояват",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 195,
-    "price_history": [
-      {
-        "date": "2026-09-09T20:18:24.830820+00:00",
-        "price_eur": 390000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 98,
-    "pct_vs_area_avg": 98.0
-  },
-  {
-    "id": "imotibg_515865",
-    "url": "https://imoti.bg/продажби/нива/стара-загора-област/свиден-515865.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa173f3871cd_6aa175cb62c68.jpg",
-    "price_eur": 600000,
-    "sqm": 60000,
-    "area": "с.Виден",
-    "city": "Стара Загора област",
-    "title": "Нива, с.Виден",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "60дк земеделска земя над язовир Копринка , по новия ОУП на Павел баня е отредена за изграждане на жилищни сгради. Това е инвестиция в близкото бъдеще ЕКАТТЕ 10954",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 10,
-    "price_history": [
-      {
-        "date": "2026-09-09T20:18:24.830820+00:00",
-        "price_eur": 600000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 10,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "imotibg_264907",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/аспарухово-264907.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_668d06da616a8_668d06da646c6.jpg",
-    "price_eur": 125000,
-    "sqm": 89,
-    "area": "Аспарухово",
-    "city": "Варна",
-    "title": "Тристаен апартамент, Аспарухово",
-    "portal": "imoti.bg",
-    "lat": 42.9789532,
-    "lng": 27.3211773,
-    "description": "Ап. 15 е с площ 89м2, разположен на четвърти етаж.\r\nЖилището се състои от коридор,дневна с кухненска част 24,73 м2, две спални по 11.76 м2. и 14,69 м2., баня с тоалет, килерна ниша и терасa към всекидневната с площ 18 кв.м.\r\nПрестижна локация, в тих и спокоен район с бърз достъп до центъра.\r\nВъзможност за закупуване на гараж или паркомясто.\r\nВнимателно подбрани строителни материали;.Сградата е с РЗП 2800 кв.м..С 24 жилища.",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1404,
-    "price_history": [
-      {
-        "date": "2026-09-09T20:18:24.830820+00:00",
-        "price_eur": 125000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2850,
-    "pct_vs_area_avg": -50.7
   },
   {
     "id": "imotibg_270275",
@@ -27442,5 +27442,37 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1560,
     "pct_vs_area_avg": 19.8
+  },
+  {
+    "id": "imotibg_515877",
+    "url": "https://imoti.bg/продажби/къща/ловеч-област/грлетница-515877.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa411b124c85_6aa412af3f568.jpeg",
+    "price_eur": 30000,
+    "sqm": 100,
+    "area": "гр.Летница",
+    "city": "Ловеч област",
+    "title": "Къща, гр.Летница",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продавам къща в гр. Летница, подходяща за постоянно живеене или вила. Имотът разполага с двор, просторни помещения и спокойна локация с добър достъп",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 300,
+    "price_history": [
+      {
+        "date": "2026-09-11T20:19:02.722372+00:00",
+        "price_eur": 30000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 300,
+    "pct_vs_area_avg": 0.0
   }
 ]
