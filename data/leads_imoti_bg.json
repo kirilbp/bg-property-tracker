@@ -3572,8 +3572,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2100,
-    "pct_vs_area_avg": 1.5
+    "area_avg_price_per_sqm": 2028,
+    "pct_vs_area_avg": 5.1
   },
   {
     "id": "imotibg_266884",
@@ -5048,8 +5048,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": 30.6
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 27.7
   },
   {
     "id": "imotibg_270045",
@@ -5176,8 +5176,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": 96.7
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 92.3
   },
   {
     "id": "imotibg_515541",
@@ -6712,7 +6712,7 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
+    "area_avg_price_per_sqm": 1560,
     "pct_vs_area_avg": -99.2
   },
   {
@@ -7128,8 +7128,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": 121.4
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 116.5
   },
   {
     "id": "imotibg_515386",
@@ -8152,8 +8152,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2100,
-    "pct_vs_area_avg": -0.0
+    "area_avg_price_per_sqm": 2028,
+    "pct_vs_area_avg": 3.5
   },
   {
     "id": "imotibg_265875",
@@ -8862,7 +8862,7 @@
   {
     "id": "imotibg_269918",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/център-269918.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a47ae56a255d_6a47ae56a853a.jpg",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a47ae56a255d_6aa402972c1ba.jpg",
     "price_eur": 233000,
     "sqm": 76,
     "area": "Център",
@@ -8871,7 +8871,7 @@
     "portal": "imoti.bg",
     "lat": 43.2058818,
     "lng": 27.9098338,
-    "description": "Апартамент за инвестиция в самия център на гр. Варна.\r\nЖилището е с функционално жилищно разпределение. две южни просторни стаи с тераса.Сграда със смесена функция, чиято концепция отразява два аспекта – пластичност на фасадата, вписана в градоустройствени параметри на идеален център и интегриране на биофилен дизайнОбщият обем на сградата е разделен от хоризонтални бели призми – балкони, които на места са прекъснати от кубични кашпи с дървета по цялата височина на фасадите подобно на морзова азбука. Така сложната даденост е овладяна в хармоничен ред, а директният контакт с природата по високите етажи – подчертан.Фасадата е окачена, изцяло вентилируема, от фиброциментови панели с вертикален растер в пясъчен и бял тон. Кулминацията от пресичане на нюансите, като два своеобразни флуида, елегантно акцентира цялостната ортогонална структура и допринася за баланса във визията на сградата.",
+    "description": "Апартамент за инвестиция в самия център на гр. Варна.\r\nЖилището е с функционално жилищно разпределение - две южни просторни стаи с тераса. Сграда със смесена функция, чиято концепция отразява два аспекта – пластичност на фасадата, вписана в градоустройствени параметри на идеален център, и интегриране на биофилен дизайн. Общият обем на сградата е разделен от хоризонтални бели призми – балкони, които на места са прекъснати от кубични кашпи с дървета по цялата височина на фасадите, подобно на морзова азбука. Така сложната даденост е овладяна в хармоничен ред, а директният контакт с природата по високите етажи – подчертан. Фасадата е окачена, изцяло вентилируема, от фиброциментови панели с вертикален растер в пясъчен и бял тон. Кулминацията от пресичане на нюансите, като два своеобразни флуида, елегантно акцентира цялостната ортогонална структура и допринася за баланса във визията на сградата.",
     "site_posted_at": null,
     "category": "flat",
     "category_confidence": "high",
@@ -8926,7 +8926,7 @@
   {
     "id": "imotibg_269917",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/център-269917.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a47a89729e5a_6a47a8972d5b4.jpg",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a47a89729e5a_6aa401adc1e17.jpg",
     "price_eur": 412800,
     "sqm": 103,
     "area": "Център",
@@ -8935,7 +8935,7 @@
     "portal": "imoti.bg",
     "lat": 43.2058818,
     "lng": 27.9098338,
-    "description": "Сградата е  на метри от Шишковата градина и пешеходния център на Варна, в тих район без автомобилен трафик. Изключителната локация, на 100 метра от Морската градина, и оригиналната архитектура, правят проектът без аналог в морската столица.Създадена да носи цялостно усещане за органичност - от концепцията и линията на дизайна, през симбиозата му с богатата растителност до порестата структура на белия видим бетон. Изключителното богатство на този материал с неговата непреходност се допълват по вълнуващ начин с меките линии и лекотата на стъклото. Зеленината . На първите три етажа над партера, които представляват апарт-хотел, са разположени зелени ивици от декоративни треви по цялата периферия. Озеленяването на сградата продължава във височина по етажите, където ритмично са разположени дървета от джел или самодивски чемшир, които отнемат терасите около тяхПродават се апартамент 103 кв.м. с хол27 кв.м.,спалня от 17 кв.м.,тераса 14 кв.м. и баня с тоалет.",
+    "description": "Сградата е  на метри от Шишковата градина и пешеходния център на Варна в тих район без автомобилен трафик. Изключителната локация, на 100 метра от Морската градина, и оригиналната архитектура, правят проектa без аналог в морската столица.Създадена да носи цялостно усещане за органичност - от концепцията и линията на дизайна, през симбиозата му с богатата растителност, до порестата структура на белия видим бетон. Изключителното богатство на този материал с неговата непреходност се допълват по вълнуващ начин с меките линии и лекотата на стъклото. На първите три етажа над партера, които представляват апарт-хотел, са разположени зелени ивици от декоративни треви по цялата периферия. Озеленяването на сградата продължава във височина по етажите, където ритмично са разположени дървета от джел или самодивски чемшир, които отнемат терасите около тях.\r\nПродава се апартамент 103 кв.м. с хол 27 кв.м., спалня от 17 кв.м., тераса 14 кв.м. и баня с тоалет.",
     "site_posted_at": null,
     "category": "flat",
     "category_confidence": "high",
@@ -9336,8 +9336,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": 28.3
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 25.5
   },
   {
     "id": "imotibg_269690",
@@ -11384,7 +11384,7 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
+    "area_avg_price_per_sqm": 1560,
     "pct_vs_area_avg": -99.2
   },
   {
@@ -11416,7 +11416,7 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
+    "area_avg_price_per_sqm": 1560,
     "pct_vs_area_avg": -99.2
   },
   {
@@ -13919,8 +13919,8 @@
     "id": "imotibg_268530",
     "url": "https://imoti.bg/продажби/склад/варна/кайсиева-градина-268530.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69244a669beae_69b820d02df17.jpg",
-    "price_eur": 294100,
-    "sqm": 173,
+    "price_eur": 938000,
+    "sqm": 830,
     "area": "Кайсиева градина",
     "city": "Варна",
     "title": "Склад, Кайсиева градина",
@@ -13931,21 +13931,25 @@
     "site_posted_at": null,
     "category": "business",
     "category_confidence": "high",
-    "price_per_sqm": 1700,
+    "price_per_sqm": 1130,
     "price_history": [
       {
         "date": "2026-08-24T23:43:33.818106+00:00",
         "price_eur": 294100
+      },
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 938000
       }
     ],
     "price_drop_count": 0,
-    "drop_pct": 0.0,
+    "drop_pct": -218.9,
     "days_on_market": 17,
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1950,
-    "pct_vs_area_avg": -12.8
+    "area_avg_price_per_sqm": 1782,
+    "pct_vs_area_avg": -36.6
   },
   {
     "id": "imotibg_268849",
@@ -15480,8 +15484,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": 24.6
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 21.8
   },
   {
     "id": "imotibg_69231",
@@ -17632,8 +17636,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1950,
-    "pct_vs_area_avg": 15.6
+    "area_avg_price_per_sqm": 1782,
+    "pct_vs_area_avg": 26.5
   },
   {
     "id": "imotibg_514274",
@@ -17792,8 +17796,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1950,
-    "pct_vs_area_avg": 15.6
+    "area_avg_price_per_sqm": 1782,
+    "pct_vs_area_avg": 26.5
   },
   {
     "id": "imotibg_514215",
@@ -18080,8 +18084,8 @@
     "score": 5,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1525,
-    "pct_vs_area_avg": -3.8
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": -5.9
   },
   {
     "id": "imotibg_514156",
@@ -24972,8 +24976,8 @@
     "score": 1,
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 2100,
-    "pct_vs_area_avg": -1.5
+    "area_avg_price_per_sqm": 2028,
+    "pct_vs_area_avg": 2.0
   },
   {
     "id": "imotibg_515399",
@@ -25612,8 +25616,8 @@
     "score": 1,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1950,
-    "pct_vs_area_avg": -18.3
+    "area_avg_price_per_sqm": 1782,
+    "pct_vs_area_avg": -10.6
   },
   {
     "id": "imotibg_515837",
@@ -26576,6 +26580,38 @@
     "pct_vs_area_avg": 0.0
   },
   {
+    "id": "imotibg_515862",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/сердика-515862.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa1324a1c9ab_6aa133961f3a8.jpeg",
+    "price_eur": 257000,
+    "sqm": 65,
+    "area": "Сердика",
+    "city": "София",
+    "title": "Двустаен апартамент, Сердика",
+    "portal": "imoti.bg",
+    "lat": 42.6977028,
+    "lng": 23.3217359,
+    "description": "Продавам 65 м2 апартамент, акт 16 /12.2025г. Нов изцяло обзаведен. Кухня с трапезария, маркови уреди, маса с 4 стола, диван -лежанка, холен модул.\r\nБаня напълно оборудвана, бойлер, спалня, матрак, възглавници, стая- дрешник изцяло с рафтове и система за ниско и високо закчане на закачлки.\r\nТераса, климатик, пердета, сектетно заключване, асансьор.\r\nКъм имота се предлагат и две парко места - цена 58 000 евро",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 3954,
+    "price_history": [
+      {
+        "date": "2026-09-09T14:17:13.210637+00:00",
+        "price_eur": 257000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 2,
+    "score": 1,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3954,
+    "pct_vs_area_avg": 0.0
+  },
+  {
     "id": "imotibg_515031",
     "url": "https://imoti.bg/продажби/нива/бургас-област/грпоморие-515031.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a199d5d2b5c9_6a199e6b37c99.jpg",
@@ -26832,38 +26868,6 @@
     "pct_vs_area_avg": 0.0
   },
   {
-    "id": "imotibg_515862",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/сердика-515862.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa1324a1c9ab_6aa133961f3a8.jpeg",
-    "price_eur": 257000,
-    "sqm": 65,
-    "area": "Сердика",
-    "city": "София",
-    "title": "Двустаен апартамент, Сердика",
-    "portal": "imoti.bg",
-    "lat": 42.6977028,
-    "lng": 23.3217359,
-    "description": "Продавам 65 м2 апартамент, акт 16 /12.2025г. Нов изцяло обзаведен. Кухня с трапезария, маркови уреди, маса с 4 стола, диван -лежанка, холен модул.\r\nБаня напълно оборудвана, бойлер, спалня, матрак, възглавници, стая- дрешник изцяло с рафтове и система за ниско и високо закчане на закачлки.\r\nТераса, климатик, пердета, сектетно заключване, асансьор.\r\nКъм имота се предлагат и две парко места - цена 58 000 евро",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 3954,
-    "price_history": [
-      {
-        "date": "2026-09-09T14:17:13.210637+00:00",
-        "price_eur": 257000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 1,
-    "score": 0,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 3954,
-    "pct_vs_area_avg": 0.0
-  },
-  {
     "id": "imotibg_270267",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/цветен-квартал-270267.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa16b8ae8c11_6aa16b8aee6f9.jpg",
@@ -27016,7 +27020,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27048,7 +27052,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27080,7 +27084,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27112,7 +27116,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27144,7 +27148,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27176,7 +27180,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27246,5 +27250,197 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 19,
     "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_270278",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/кайсиева-градина-270278.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa40566447ca_6aa4056648d4b.jpg",
+    "price_eur": 84000,
+    "sqm": 50,
+    "area": "Кайсиева градина",
+    "city": "Варна",
+    "title": "Двустаен апартамент, Кайсиева градина",
+    "portal": "imoti.bg",
+    "lat": 43.2367995,
+    "lng": 27.8571511,
+    "description": "Компоктен двустаен апартамент  в сграда с строеж.Разсрочено плащане.\r\nСградата ще е построена  сред зеленина ,тишина и комфорт.\r\nРазпределение на имота: входно антре, дневна с кухненска част, спалня, тераса, баня с тоалет и килер. Жилището ще бъде завършено по БДС.\r\nВ близост са  супермаркети, спирки на градския транспорт, банкови клонове, аптеки, училище, детска градина, бензиностанция и др.\r\n Удобна локация! Среден етаж! Отлична инвестиция!",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1680,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 84000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1782,
+    "pct_vs_area_avg": -5.7
+  },
+  {
+    "id": "imotibg_515871",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/видин/център-515871.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa3bdbc6dfca_6aa3be5d428db.jpg",
+    "price_eur": 60000,
+    "sqm": 54,
+    "area": "Център",
+    "city": "Видин",
+    "title": "Двустаен апартамент, Център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "продава двустаен тухлен апартамент в кв.Калето, гр.Видин, до магазин Фреш. Удобна локация. Площ 54кв.м., ет.3/3. Ремонтиран покрив. Ограничен достъп до входа. \r\nЦена: 60000евро.\r\nЗа оглед: 0888231075 - Стефка Стоилова",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1111,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 60000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1111,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_515872",
+    "url": "https://imoti.bg/продажби/къща/видин-област/грдунавци-515872.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa3bed72550b_6aa3bf6487533.jpg",
+    "price_eur": 15000,
+    "sqm": 74,
+    "area": "гр.Дунавци",
+    "city": "Видин област",
+    "title": "Къща, гр.Дунавци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продава застроен с две сгради имот в гр.Дунавци. Площ на имота 2072кв.м. Партиди за ток и вода. Сградите подлежат на основен ремонт.\r\nЦена: 15 000 евро.\r\n за контакт:\r\n0888231075 - Стефка Стоилова",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 203,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 15000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 203,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_515876",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/западен-парк-515876.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa3f4a6a4068_6aa3fcda7fdf4.jpg",
+    "price_eur": 135000,
+    "sqm": 55,
+    "area": "Западен парк",
+    "city": "София",
+    "title": "Двустаен апартамент, Западен парк",
+    "portal": "imoti.bg",
+    "lat": 42.7119828,
+    "lng": 23.2690519,
+    "description": "Огледи: извършват се само с купувачи.\r\nМестонахождение: апартаментът се намира на бул. „Александър Стамболийски“ и ул. „Булина ливада“.\r\nОриентация: север-юг, кухнята и банята са на север, а холът и спалнята на юг. Към хола има тераса. \r\nДопълнителна информация:\r\nПокривът на сградата е ремонтиран.\r\nАпартаментът е подходящ както за жилище, така и за бизнес цели – възможно е да се превърне в ателие или офис.\r\nСъстояние на апартамента: необходим е ремонт.\r\nЦена: посочената сума е цената за имота. Комисионни за агенции не са включени и не се заплащат за никакви услуги.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2455,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 135000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2455,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_270139",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/трошево-270139.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa40692999a7_6aa406929f67c.jpg",
+    "price_eur": 125000,
+    "sqm": 69,
+    "area": "Трошево",
+    "city": "Варна",
+    "title": "Двустаен апартамент, Трошево",
+    "portal": "imoti.bg",
+    "lat": 43.2236385,
+    "lng": 27.8837523,
+    "description": "Двустаен апартамент 69.83 кв.м в кв Трошево под супермаркет Лидл. гр Варна. В  Акт 14 и ще бъде завършен през 2028г.\r\nСъстои се от функционална дневна, спалня, баня с тоалет,, килер и тераса. Апартаментът е среден, изцяло южен. Намира се на 6 етаж от 16. Паркомясто може да се закупи допълнително от инвеститора.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1812,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2028,
+    "pct_vs_area_avg": -10.7
+  },
+  {
+    "id": "imotibg_267992",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/младост-267992.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_68dbb43682c1c_68dbb43688f09.jpg",
+    "price_eur": 200000,
+    "sqm": 107,
+    "area": "Младост",
+    "city": "Варна",
+    "title": "Тристаен апартамент, Младост",
+    "portal": "imoti.bg",
+    "lat": 43.2240158,
+    "lng": 27.8866856,
+    "description": "Тристаен апартамент в  нова модерна сграда с басейн с минерална вода,фитнес център и спа център., на мястото на емблематичния за града балнеоложки център.\r\n\r\n\tУдобства в комплекса:Четири басейна (два закрити и два открити) с термална минерална вода.Модерен СПА център, фитнес, джакузи и зони за релакс.Специализиран център за рехабилитация и спортно-възстановителни процедури.Апартамента е на среден седми етаж с югозападно изложение.Светло и функционално жилище.Изложение: Югозапад, което гарантира естествена светлина през целия ден.Състои се от две спални,две бани,килер,просторен хол с тераса.В момента сградата е пред  Акт 15.Очаква се въвеждане в експлоатация (Акт 16) до 2026 г..Възможност за покупка на паркомясто.\r\n\tСтефка Александрова-0888797275",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1869,
+    "price_history": [
+      {
+        "date": "2026-09-11T14:34:29.087809+00:00",
+        "price_eur": 200000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1560,
+    "pct_vs_area_avg": 19.8
   }
 ]
