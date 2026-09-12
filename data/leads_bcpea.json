@@ -1492,7 +1492,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 56,
+    "days_on_market": 57,
     "score": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -1523,7 +1523,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 56,
+    "days_on_market": 57,
     "score": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9473,6 +9473,37 @@
     "pct_vs_area_avg": null
   },
   {
+    "id": "bcpea_90974",
+    "url": "https://sales.bcpea.org/properties/90974",
+    "photo": "https://sales.bcpea.org/upload/90974/454227/За качване.jpg?w=270&h=270",
+    "price_eur": 670,
+    "sqm": 186,
+    "area": "Угърчин",
+    "title": "Парцел, Угърчин",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-05T17:18:00+00:00",
+    "category": "land",
+    "lat": 43.0960171,
+    "lng": 24.4209919,
+    "detail_checked": true,
+    "description": "ПОЗЕМЛЕН ИМОТ с идентификатор 75054.900.115 /седем пет нула пет четири, точка, девет нула нула, точка, едно едно пет/ одобрени със Заповед № РД – 18 – 28/01.04.2009 г. на Изпълнителен директор на АГКК; последно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот: няма; адрес на поземления имот: гр. Угърчин, ул. „Лепетура“; площ: 186 кв. м. /сто осемдесет и шест квадратни метра/; трайно предназначение на територията: Урбанизирана; начин на трайно ползване: ниско застрояване /до 10 м./; номер от предходен план: 115, квартал: 0; при съседи: 75054.900.117; 75054.900.114; 75054.900.2562; 75054.900.116. Допълнителна информация можете да намерите в прикаченото обявление по изп. дело № 20258790402541 Лице за контакт в кантората - Мария Генчева, 068 699 460 вътрешен 115 e-mail: gencheva_m@velislavpetrov.com",
+    "price_per_sqm": 4,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 670
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 38,
+    "score": 11,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
     "id": "bcpea_90973",
     "url": "https://sales.bcpea.org/properties/90973",
     "photo": "https://sales.bcpea.org/upload/90973/350911/0-02-05-2c2cbf94ae1c42613d5465369283ff06ac8d1bc1ee15d936697a77541f133217_f0e506740f6a8ec7.jpg?w=270&h=270",
@@ -9715,7 +9746,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9746,7 +9777,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -9777,7 +9808,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "score": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -14904,37 +14935,6 @@
     "pct_vs_area_avg": null
   },
   {
-    "id": "bcpea_90974",
-    "url": "https://sales.bcpea.org/properties/90974",
-    "photo": "https://sales.bcpea.org/upload/90974/454227/За качване.jpg?w=270&h=270",
-    "price_eur": 670,
-    "sqm": 186,
-    "area": "Угърчин",
-    "title": "Парцел, Угърчин",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-05T17:18:00+00:00",
-    "category": "land",
-    "lat": 43.0960171,
-    "lng": 24.4209919,
-    "detail_checked": true,
-    "description": "ПОЗЕМЛЕН ИМОТ с идентификатор 75054.900.115 /седем пет нула пет четири, точка, девет нула нула, точка, едно едно пет/ одобрени със Заповед № РД – 18 – 28/01.04.2009 г. на Изпълнителен директор на АГКК; последно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот: няма; адрес на поземления имот: гр. Угърчин, ул. „Лепетура“; площ: 186 кв. м. /сто осемдесет и шест квадратни метра/; трайно предназначение на територията: Урбанизирана; начин на трайно ползване: ниско застрояване /до 10 м./; номер от предходен план: 115, квартал: 0; при съседи: 75054.900.117; 75054.900.114; 75054.900.2562; 75054.900.116. Допълнителна информация можете да намерите в прикаченото обявление по изп. дело № 20258790402541 Лице за контакт в кантората - Мария Генчева, 068 699 460 вътрешен 115 e-mail: gencheva_m@velislavpetrov.com",
-    "price_per_sqm": 4,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 670
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 37,
-    "score": 10,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_90969",
     "url": "https://sales.bcpea.org/properties/90969",
     "photo": "https://sales.bcpea.org/upload/90969/454209/IMG_20260528_100544.jpg?w=270&h=270",
@@ -19167,6 +19167,68 @@
     "removed_at": "2026-08-26T17:10:09.431696+00:00",
     "days_on_market": 37,
     "score": 10,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91170",
+    "url": "https://sales.bcpea.org/properties/91170",
+    "photo": "https://sales.bcpea.org/upload/91170/455221/67270.73.7.jpg?w=270&h=270",
+    "price_eur": 1066,
+    "sqm": 35,
+    "area": "Слащен",
+    "title": "Земеделска земя, Слащен",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-12T17:24:00+00:00",
+    "category": "land",
+    "lat": 41.4972348,
+    "lng": 24.0199307,
+    "detail_checked": true,
+    "description": "2). ПОЗЕМЛЕН ИМОТ с идентификатор: 67270.73.7 (шест, седем, две, седем, нула, точка, седем, три, то чка, седем), Трайно предназначение натериторията: Земеделска, Начин на трайно ползване: Нива, категория на земята при неполивни условия: 6, с площ от 1035 кв.м., ЕКАТТЕ: 67270, в кадастрален район: 73, по кадастралната карта на с. Слащен, общ. Сатовча, местност „Боровяк“. Предишен идентификатор: няма. Номер па предходен план: 073007 . Съседи: 67270.153.366 Аадрес на поземления имот: с. Слащен, общ. Сатовча, местност „Боровяк“ Описание по стар идентификатор: ИЗОСТАВЕНА НИВА с площ от 1035 кв.м. (един декар и тридесет и пет квадратни метра), шеста категория, местност „Боровяк“, съставляващ имот №073007 (нула седемдесет и три хиляди и шест) в землището на с. Слащен, община Сатовча, област Благоевград, при граници, съседи: имот №000366 – пасище, мера на Община Сатовча. НАЧАЛНА ЦЕНА 1065,60 евро /хиляда и шестдесет и пет евро и шестдесет евроцента/",
+    "price_per_sqm": 30,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 1066
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 31,
+    "score": 9,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null
+  },
+  {
+    "id": "bcpea_91169",
+    "url": "https://sales.bcpea.org/properties/91169",
+    "photo": "https://sales.bcpea.org/upload/91169/455215/67270.73.6.jpg?w=270&h=270",
+    "price_eur": 1037,
+    "sqm": 7,
+    "area": "Слащен",
+    "title": "Земеделска земя, Слащен",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-12T17:21:00+00:00",
+    "category": "land",
+    "lat": 41.4972348,
+    "lng": 24.0199307,
+    "detail_checked": true,
+    "description": "1). ПОЗЕМЛЕН ИМОТ с идентификатор: 67270.73.6 (шест, седем, две, седем, нула, точка, седем, три, точка, шест), Трайно предназначение натериторията: Земеделска, Начин на трайно ползване: Изостанала нива, категория на земята при неполивни условия: 6, с площ от 1007 кв.м., ЕКАТТЕ: 67270, в кадастрален район: 73, по кадастралната карта на с. Слащен, общ. Сатовча, местност „Боровяк“. Предишен идентификатор: няма. Номер па предходен план: 073006. Съседи: 67270.153.366 Адрес на поземления имот: с. Слащен, общ. Сатовча, местност „Боровяк“ Описание по стар идентификатор: ИЗОСТАВЕНА НИВА с площ от 1007 кв.м. (един декар и седем квадратни метра), шеста категория, местност „Боровяк“, съставляващ имот №073006 (нула седемдесет и три хиляди и шест) в землището на с. Слащен, община Сатовча, област Благоевград, при граници, съседи: имот №000366 – пасище, мера на Община Сатовча. НАЧАЛНА ЦЕНА 1036,80 евро /хиляди и тридесет и шест евро и осемдесет евроцента/",
+    "price_per_sqm": 148,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 1037
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 31,
+    "score": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
   },
@@ -29574,68 +29636,6 @@
     "pct_vs_area_avg": null
   },
   {
-    "id": "bcpea_91170",
-    "url": "https://sales.bcpea.org/properties/91170",
-    "photo": "https://sales.bcpea.org/upload/91170/455221/67270.73.7.jpg?w=270&h=270",
-    "price_eur": 1066,
-    "sqm": 35,
-    "area": "Слащен",
-    "title": "Земеделска земя, Слащен",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-12T17:24:00+00:00",
-    "category": "land",
-    "lat": 41.4972348,
-    "lng": 24.0199307,
-    "detail_checked": true,
-    "description": "2). ПОЗЕМЛЕН ИМОТ с идентификатор: 67270.73.7 (шест, седем, две, седем, нула, точка, седем, три, то чка, седем), Трайно предназначение натериторията: Земеделска, Начин на трайно ползване: Нива, категория на земята при неполивни условия: 6, с площ от 1035 кв.м., ЕКАТТЕ: 67270, в кадастрален район: 73, по кадастралната карта на с. Слащен, общ. Сатовча, местност „Боровяк“. Предишен идентификатор: няма. Номер па предходен план: 073007 . Съседи: 67270.153.366 Аадрес на поземления имот: с. Слащен, общ. Сатовча, местност „Боровяк“ Описание по стар идентификатор: ИЗОСТАВЕНА НИВА с площ от 1035 кв.м. (един декар и тридесет и пет квадратни метра), шеста категория, местност „Боровяк“, съставляващ имот №073007 (нула седемдесет и три хиляди и шест) в землището на с. Слащен, община Сатовча, област Благоевград, при граници, съседи: имот №000366 – пасище, мера на Община Сатовча. НАЧАЛНА ЦЕНА 1065,60 евро /хиляда и шестдесет и пет евро и шестдесет евроцента/",
-    "price_per_sqm": 30,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 1066
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 30,
-    "score": 8,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
-    "id": "bcpea_91169",
-    "url": "https://sales.bcpea.org/properties/91169",
-    "photo": "https://sales.bcpea.org/upload/91169/455215/67270.73.6.jpg?w=270&h=270",
-    "price_eur": 1037,
-    "sqm": 7,
-    "area": "Слащен",
-    "title": "Земеделска земя, Слащен",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-12T17:21:00+00:00",
-    "category": "land",
-    "lat": 41.4972348,
-    "lng": 24.0199307,
-    "detail_checked": true,
-    "description": "1). ПОЗЕМЛЕН ИМОТ с идентификатор: 67270.73.6 (шест, седем, две, седем, нула, точка, седем, три, точка, шест), Трайно предназначение натериторията: Земеделска, Начин на трайно ползване: Изостанала нива, категория на земята при неполивни условия: 6, с площ от 1007 кв.м., ЕКАТТЕ: 67270, в кадастрален район: 73, по кадастралната карта на с. Слащен, общ. Сатовча, местност „Боровяк“. Предишен идентификатор: няма. Номер па предходен план: 073006. Съседи: 67270.153.366 Адрес на поземления имот: с. Слащен, общ. Сатовча, местност „Боровяк“ Описание по стар идентификатор: ИЗОСТАВЕНА НИВА с площ от 1007 кв.м. (един декар и седем квадратни метра), шеста категория, местност „Боровяк“, съставляващ имот №073006 (нула седемдесет и три хиляди и шест) в землището на с. Слащен, община Сатовча, област Благоевград, при граници, съседи: имот №000366 – пасище, мера на Община Сатовча. НАЧАЛНА ЦЕНА 1036,80 евро /хиляди и тридесет и шест евро и осемдесет евроцента/",
-    "price_per_sqm": 148,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 1037
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 30,
-    "score": 8,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null
-  },
-  {
     "id": "bcpea_90743",
     "url": "https://sales.bcpea.org/properties/90743",
     "photo": null,
@@ -33463,7 +33463,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "score": 6,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -42031,7 +42031,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -42062,7 +42062,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -42093,7 +42093,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "score": 4,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -54574,7 +54574,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "area_avg_price_per_sqm": 619,
     "pct_vs_area_avg": -48.3
@@ -57426,7 +57426,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "score": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -59743,7 +59743,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
