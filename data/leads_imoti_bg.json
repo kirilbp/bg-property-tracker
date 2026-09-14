@@ -13240,8 +13240,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2903,
-    "pct_vs_area_avg": 20.6
+    "area_avg_price_per_sqm": 2939,
+    "pct_vs_area_avg": 19.1
   },
   {
     "id": "imotibg_514836",
@@ -25144,8 +25144,8 @@
     "score": 2,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2903,
-    "pct_vs_area_avg": -20.6
+    "area_avg_price_per_sqm": 2939,
+    "pct_vs_area_avg": -21.5
   },
   {
     "id": "imotibg_515814",
@@ -26636,7 +26636,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -26668,7 +26668,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -26700,7 +26700,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -26732,7 +26732,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -27212,7 +27212,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -27730,5 +27730,69 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1991,
     "pct_vs_area_avg": 32.1
+  },
+  {
+    "id": "imotibg_515885",
+    "url": "https://imoti.bg/продажби/промишлени-терени/пазарджик-област/сславовица-515885.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa833c2857e0_6aa834237f71d.jpg",
+    "price_eur": 200000,
+    "sqm": 8000,
+    "area": "с.Славовица",
+    "city": "Пазарджик област",
+    "title": "Промишлени терени, с.Славовица",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продава 251.41    УПИ 8дка и  251.71    УПИ 3дка в с.Славовица общ.Септември обл.Пазарджик,имотите са с НТП Производствено -складова дейност и ФЕЦ. Становища ВиК , ЕВН и РИОСВ.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 25,
+    "price_history": [
+      {
+        "date": "2026-09-14T20:24:21.142241+00:00",
+        "price_eur": 200000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 25,
+    "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_515884",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/банишора-515884.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa831a2b7c7b_6aa8336ccd750.jpeg",
+    "price_eur": 286000,
+    "sqm": 95,
+    "area": "Банишора",
+    "city": "София",
+    "title": "Тристаен апартамент, Банишора",
+    "portal": "imoti.bg",
+    "lat": 42.8496892,
+    "lng": 23.2720545,
+    "description": "Частно лице продава просторен, напълно обзаведен тристаен апартамент в кв. Банишора. Жилището се намира на трети жилищен етаж от осем, с асансьор. Апартаментът впечатлява с функционално разпределение. Състои се от голям хол, две големи самостоятелни спални, отделна кухня, баня с тоалетна, отделно втора тоалетна и мокро помещение. Има балкон пред едната спалня и хола, които са с изложение югоизток. В апартамента има и втори балкон, който е приобщен към кухнята, с изложение северозапад. Апартаментът е след основен ремонт, саниран, с нова баня и тоалетна, нова бяла техника и мебели. Настилките са гранитогрес и фаянс в банята, тоалетната, мокрото и ламинат в останалите помещения. Към апартамента има мазе 4 кв.м. Входът е поддържан, с регулиран достъп. Локацията предлага богат набор от ежедневни удобства в непроследствена близост - хранителни вериги, училища, детски градини, спирки на градски транспорт и метро. Жилището е подходящо както за инвестиция, така и за живеене или отдаване под наем. Имотът е с отличен потенциал за хора, които търсят просторно жилище в комуникативен район, без необходимост от ремонт и допълнителни разходи за обзавеждане. Паркирането е свободно.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 3011,
+    "price_history": [
+      {
+        "date": "2026-09-14T20:24:21.142241+00:00",
+        "price_eur": 286000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2939,
+    "pct_vs_area_avg": 2.4
   }
 ]
