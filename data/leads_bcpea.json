@@ -22794,7 +22794,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "score": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -43204,7 +43204,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "score": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
