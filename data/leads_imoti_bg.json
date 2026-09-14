@@ -660,8 +660,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": 9.8
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": 11.1
   },
   {
     "id": "imotibg_514967",
@@ -1012,8 +1012,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": -4.9
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": -3.8
   },
   {
     "id": "imotibg_514285",
@@ -1172,8 +1172,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": -18.7
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": -17.7
   },
   {
     "id": "imotibg_514163",
@@ -1236,8 +1236,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1778,
-    "pct_vs_area_avg": 76.2
+    "area_avg_price_per_sqm": 1991,
+    "pct_vs_area_avg": 57.3
   },
   {
     "id": "imotibg_514073",
@@ -1716,8 +1716,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1778,
-    "pct_vs_area_avg": 2.6
+    "area_avg_price_per_sqm": 1991,
+    "pct_vs_area_avg": -8.3
   },
   {
     "id": "imotibg_513384",
@@ -1816,6 +1816,38 @@
     "pct_vs_area_avg": 1.4
   },
   {
+    "id": "imotibg_513079",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/манастирски-ливади-513079.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_68aef99e9368e_68aefa11df4a2.jpg",
+    "price_eur": 130000,
+    "sqm": 50,
+    "area": "Манастирски Ливади",
+    "city": "София",
+    "title": "Двустаен апартамент, Манастирски Ливади",
+    "portal": "imoti.bg",
+    "lat": 42.6616709,
+    "lng": 23.2795633,
+    "description": "Предлагаме имот до МОЛ България. Нова сграда, партерен етаж. Жилището се състои от хол с кухненски бокс с преход към стая, баня. Продава се с обзавеждане. Статут на гаражи. Паркомясто. Работим с комисионна, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. За директни клиенти. Референтен номер 1488711",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2600,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 130000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "score": 6,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3238,
+    "pct_vs_area_avg": -19.7
+  },
+  {
     "id": "imotibg_512910",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/овча-купел-512910.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6894a96591f5f_6894a99f58bce.jpg",
@@ -1844,8 +1876,40 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": -5.2
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": -4.0
+  },
+  {
+    "id": "imotibg_512896",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/център-512896.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6893704fa6c84_6893708e09750.jpg",
+    "price_eur": 440000,
+    "sqm": 85,
+    "area": "Център",
+    "city": "София",
+    "title": "Двустаен апартамент, Център",
+    "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "description": "Двустаен южен апартамент до НДК. Самостоятелен на етаж първи над партер в поддържана сграда. Жилището се състои от коридор, кухня, просторен хол с ветстибюл, стая, баня с тоалетна и две тераси. Възможност за преустройство. След основен ремонт с подменени инсталации, дограма. Прилежащи две мазета. Местоположението на сградата позволява лесно да достигнете до множество услуги, без да се налага да мислите за използването на автомобил. Предвид локацията е отличен както за инвестиция, така и за основно жилище. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 1160034",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 5176,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 440000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "score": 6,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3904,
+    "pct_vs_area_avg": 32.6
   },
   {
     "id": "imotibg_512778",
@@ -2004,8 +2068,40 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": 14.1
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": 15.5
+  },
+  {
+    "id": "imotibg_511224",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/център-511224.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_67a4d0d0b95f5_67a4d10e0aa9c.jpg",
+    "price_eur": 300000,
+    "sqm": 100,
+    "area": "Център",
+    "city": "София",
+    "title": "Тристаен апартамент, Център",
+    "portal": "imoti.bg",
+    "lat": 42.69679,
+    "lng": 23.3208549,
+    "description": "Предлагаме артистично жилище до Петте кьошета. Поддържана санирана сграда без асансьор. Апартаментът е след основен ремонт и е със следното разпределние - първо ниво коридор, кухня, дневна с преход към стая, баня с тоалетна, гардеробна и тераса, на второ ниво стая около 25 кв.м. Ново обзавеждане. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 20195709",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 3000,
+    "price_history": [
+      {
+        "date": "2026-08-22T12:42:14.065002+00:00",
+        "price_eur": 300000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "score": 6,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3904,
+    "pct_vs_area_avg": -23.1
   },
   {
     "id": "imotibg_515543",
@@ -5272,8 +5368,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1778,
-    "pct_vs_area_avg": -78.8
+    "area_avg_price_per_sqm": 1991,
+    "pct_vs_area_avg": -81.1
   },
   {
     "id": "imotibg_515521",
@@ -18922,7 +19018,7 @@
   {
     "id": "imotibg_513939",
     "url": "https://imoti.bg/продажби/къща/пловдив-област/струд-513939.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6945610eaca5c_6a99168b46eef.jpg",
+    "photo": "https://imoti.bg/assets/offers/small/r_6945610eaca5c_6aa7b015451e2.jpg",
     "price_eur": 289000,
     "sqm": 188,
     "area": "с.Труд",
@@ -20496,8 +20592,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2506,
-    "pct_vs_area_avg": 0.0
+    "area_avg_price_per_sqm": 2430,
+    "pct_vs_area_avg": 3.1
   },
   {
     "id": "imotibg_513562",
@@ -23640,38 +23736,6 @@
     "pct_vs_area_avg": -0.6
   },
   {
-    "id": "imotibg_512896",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/център-512896.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6893704fa6c84_6893708e09750.jpg",
-    "price_eur": 440000,
-    "sqm": 85,
-    "area": "Център",
-    "city": "София",
-    "title": "Двустаен апартамент, Център",
-    "portal": "imoti.bg",
-    "lat": 42.69679,
-    "lng": 23.3208549,
-    "description": "Двустаен южен апартамент до НДК. Самостоятелен на етаж първи над партер в поддържана сграда. Жилището се състои от коридор, кухня, просторен хол с ветстибюл, стая, баня с тоалетна и две тераси. Възможност за преустройство. След основен ремонт с подменени инсталации, дограма. Прилежащи две мазета. Местоположението на сградата позволява лесно да достигнете до множество услуги, без да се налага да мислите за използването на автомобил. Предвид локацията е отличен както за инвестиция, така и за основно жилище. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 1160034",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 5176,
-    "price_history": [
-      {
-        "date": "2026-08-22T12:42:14.065002+00:00",
-        "price_eur": 440000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 17,
-    "score": 5,
-    "source_status": "removed",
-    "removed_at": "2026-09-08T14:17:43.475267+00:00",
-    "area_avg_price_per_sqm": 3904,
-    "pct_vs_area_avg": 32.6
-  },
-  {
     "id": "imotibg_515153",
     "url": "https://imoti.bg/продажби/парцел/софия/магистртракия-515153.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a2d18857af04_6a2d1a8450552.png",
@@ -24604,38 +24668,6 @@
     "pct_vs_area_avg": 0.0
   },
   {
-    "id": "imotibg_513079",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/манастирски-ливади-513079.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_68aef99e9368e_68aefa11df4a2.jpg",
-    "price_eur": 130000,
-    "sqm": 50,
-    "area": "Манастирски Ливади",
-    "city": "София",
-    "title": "Двустаен апартамент, Манастирски Ливади",
-    "portal": "imoti.bg",
-    "lat": 42.6616709,
-    "lng": 23.2795633,
-    "description": "Предлагаме имот до МОЛ България. Нова сграда, партерен етаж. Жилището се състои от хол с кухненски бокс с преход към стая, баня. Продава се с обзавеждане. Статут на гаражи. Паркомясто. Работим с комисионна, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. За директни клиенти. Референтен номер 1488711",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2600,
-    "price_history": [
-      {
-        "date": "2026-08-22T12:42:14.065002+00:00",
-        "price_eur": 130000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 7,
-    "score": 2,
-    "source_status": "removed",
-    "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 3238,
-    "pct_vs_area_avg": -19.7
-  },
-  {
     "id": "imotibg_513008",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/борово-513008.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68a5ac242a07d_68a5ac6d251a0.jpg",
@@ -24666,38 +24698,6 @@
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
     "area_avg_price_per_sqm": 2858,
     "pct_vs_area_avg": -4.1
-  },
-  {
-    "id": "imotibg_511224",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/център-511224.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_67a4d0d0b95f5_67a4d10e0aa9c.jpg",
-    "price_eur": 300000,
-    "sqm": 100,
-    "area": "Център",
-    "city": "София",
-    "title": "Тристаен апартамент, Център",
-    "portal": "imoti.bg",
-    "lat": 42.69679,
-    "lng": 23.3208549,
-    "description": "Предлагаме артистично жилище до Петте кьошета. Поддържана санирана сграда без асансьор. Апартаментът е след основен ремонт и е със следното разпределние - първо ниво коридор, кухня, дневна с преход към стая, баня с тоалетна, гардеробна и тераса, на второ ниво стая около 25 кв.м. Ново обзавеждане. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 20195709",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 3000,
-    "price_history": [
-      {
-        "date": "2026-08-22T12:42:14.065002+00:00",
-        "price_eur": 300000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 7,
-    "score": 2,
-    "source_status": "removed",
-    "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 3904,
-    "pct_vs_area_avg": -23.1
   },
   {
     "id": "imotibg_515842",
@@ -25240,8 +25240,8 @@
     "score": 2,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2216,
-    "pct_vs_area_avg": 4.9
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": 6.2
   },
   {
     "id": "imotibg_515816",
@@ -26604,7 +26604,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "score": 1,
     "source_status": "active",
     "removed_at": null,
@@ -27602,5 +27602,133 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1276,
     "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_269214",
+    "url": "https://imoti.bg/продажби/жилищна-сграда/варна/жп-гара-269214.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa7c5de405dd_6aa7c5de55e56.jpg",
+    "price_eur": 4000000,
+    "sqm": 1700,
+    "area": "ЖП гара",
+    "city": "Варна",
+    "title": "Жилищна сграда, ЖП гара",
+    "portal": "imoti.bg",
+    "lat": 43.1986784,
+    "lng": 27.9123469,
+    "description": "Имотът е подходящ, както за многофамилна жилищна сграда, така и за административна сграда, хотел, клиника, консулство, детска градина, училище и други.\r\nКъщата е  построена през 1910г. по проект на именития арх. Никола Лазаров. Негов възложител е бил известният варненски търговец и общественик Никола Ючормански. Още с построяването си сградата се превръща във визитна картичка на улицата. Преди 25 години сградата е основно ремонтирана от банка, както конструктивно, така и с внимание към всички детайли. В последствие е претърпяла още две реконструкции, като последната е от 2025г, когато е напълно реставрирана фасадата на сградата.\r\nСградата застроена върху 340м?, като се състои от партерен етаж с междинно ниво,\r\nтри етажа с височини от 3.25м, 5ти тавански етаж с височини от 1.80м до 5м и сутерен (който не е включен в представеното РЗП). Сградата е в отлично състояние и в момента се ползва от банка.\r\nВърху обявената цена НЕ се начислява ДДС.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 2353,
+    "price_history": [
+      {
+        "date": "2026-09-14T14:19:09.652485+00:00",
+        "price_eur": 4000000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2430,
+    "pct_vs_area_avg": -3.1
+  },
+  {
+    "id": "imotibg_513398",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/овча-купел-513398.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_68e7b2f7a5f5d_68e7b33548c52.jpg",
+    "price_eur": 125000,
+    "sqm": 52,
+    "area": "Овча Купел",
+    "city": "София",
+    "title": "Двустаен апартамент, Овча Купел",
+    "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "description": "Предлагаме двустаен апартамент в новострояща се сграда. В близост до метростанция, търговски обекти. Жилището е със застроена площ 45 кв.м и се състои от коридор, дневна с кухненска част, стая, баня. Цената е с включен ДДС. Работим с комисионна, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 1459741",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2404,
+    "price_history": [
+      {
+        "date": "2026-09-14T14:19:09.652485+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": 9.8
+  },
+  {
+    "id": "imotibg_511225",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/овча-купел-511225.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_67a4d16fc0b42_67a4d1ac6b351.jpg",
+    "price_eur": 168500,
+    "sqm": 93,
+    "area": "Овча Купел",
+    "city": "София",
+    "title": "Двустаен апартамент, Овча Купел",
+    "portal": "imoti.bg",
+    "lat": 42.6774732,
+    "lng": 23.2052117,
+    "description": "Двустаен апартамент в новострояща се сграда с акт 14. Жилището е със застроена площ 78 кв.м и се състои от коридор, дневна с кухненска част, стая, баня, склад и тераса.  Очакван акт 16 2025 г. Агенцията работи с лицензиран кредитен посредник за избор на най-подходящ банков продукт, без допълнително оскъпяване. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 551529",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1812,
+    "price_history": [
+      {
+        "date": "2026-09-14T14:19:09.652485+00:00",
+        "price_eur": 168500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2189,
+    "pct_vs_area_avg": -17.2
+  },
+  {
+    "id": "imotibg_509963",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/княжево-509963.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_66d186ab7d286_66d186d539d76.jpg",
+    "price_eur": 405002,
+    "sqm": 154,
+    "area": "Княжево",
+    "city": "София",
+    "title": "Тристаен апартамент, Княжево",
+    "portal": "imoti.bg",
+    "lat": 42.6586899,
+    "lng": 23.2404891,
+    "description": "Предлагаме за продажба тристаен апартамент в новострояща се сграда. Местоположението е стратегическо за тези, които искат да живеят в тих жилищен квартал, но близо до основни услуги и комуникационни пътища. Характерното за този имот е просторно отворено помещение около 44 кв.м с тераса, две самостоятелни стаи, баня с тоалетна, тоалетна, гардеробна и тераса. Складово помещение. В допълнение може да се закупи гараж или паркомясто. Сградата е газифицирана, седемкамерна дограма с троен стъклопакет, стъкло четири сезона. Цената е с ДДС. Работим с комисиона, невключена в цената, при осъществяване на сделка за обекта. Преди оглед се подписва посреднически договор. Референтен номер 196193",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2630,
+    "price_history": [
+      {
+        "date": "2026-09-14T14:19:09.652485+00:00",
+        "price_eur": 405002
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1991,
+    "pct_vs_area_avg": 32.1
   }
 ]
