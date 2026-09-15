@@ -25728,6 +25728,38 @@
     "pct_vs_area_avg": 0.0
   },
   {
+    "id": "imotibg_515862",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/сердика-515862.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa1324a1c9ab_6aa133961f3a8.jpeg",
+    "price_eur": 257000,
+    "sqm": 65,
+    "area": "Сердика",
+    "city": "София",
+    "title": "Двустаен апартамент, Сердика",
+    "portal": "imoti.bg",
+    "lat": 42.6977028,
+    "lng": 23.3217359,
+    "description": "Продавам 65 м2 апартамент, акт 16 /12.2025г. Нов изцяло обзаведен. Кухня с трапезария, маркови уреди, маса с 4 стола, диван -лежанка, холен модул.\r\nБаня напълно оборудвана, бойлер, спалня, матрак, възглавници, стая- дрешник изцяло с рафтове и система за ниско и високо закчане на закачлки.\r\nТераса, климатик, пердета, сектетно заключване, асансьор.\r\nКъм имота се предлагат и две парко места - цена 58 000 евро",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 3954,
+    "price_history": [
+      {
+        "date": "2026-09-09T14:17:13.210637+00:00",
+        "price_eur": 257000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 6,
+    "score": 2,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 3954,
+    "pct_vs_area_avg": 0.0
+  },
+  {
     "id": "imotibg_515416",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/люлин-6-515416.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a563023533fd_6a56305e08919.jpg",
@@ -26581,38 +26613,6 @@
     "source_status": "removed",
     "removed_at": "2026-08-29T14:51:25.196538+00:00",
     "area_avg_price_per_sqm": 1417,
-    "pct_vs_area_avg": 0.0
-  },
-  {
-    "id": "imotibg_515862",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/сердика-515862.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa1324a1c9ab_6aa133961f3a8.jpeg",
-    "price_eur": 257000,
-    "sqm": 65,
-    "area": "Сердика",
-    "city": "София",
-    "title": "Двустаен апартамент, Сердика",
-    "portal": "imoti.bg",
-    "lat": 42.6977028,
-    "lng": 23.3217359,
-    "description": "Продавам 65 м2 апартамент, акт 16 /12.2025г. Нов изцяло обзаведен. Кухня с трапезария, маркови уреди, маса с 4 стола, диван -лежанка, холен модул.\r\nБаня напълно оборудвана, бойлер, спалня, матрак, възглавници, стая- дрешник изцяло с рафтове и система за ниско и високо закчане на закачлки.\r\nТераса, климатик, пердета, сектетно заключване, асансьор.\r\nКъм имота се предлагат и две парко места - цена 58 000 евро",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 3954,
-    "price_history": [
-      {
-        "date": "2026-09-09T14:17:13.210637+00:00",
-        "price_eur": 257000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 5,
-    "score": 1,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 3954,
     "pct_vs_area_avg": 0.0
   },
   {
@@ -27516,7 +27516,7 @@
     "url": "https://imoti.bg/продажби/къща/плевен-област/сновачене-515879.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa699f999bd6_6aa69aa9e6bd0.jpeg",
     "price_eur": 20000,
-    "sqm": 2145,
+    "sqm": 274,
     "area": "с.Новачене",
     "city": "Плевен област",
     "title": "Къща, с.Новачене",
@@ -27527,7 +27527,7 @@
     "site_posted_at": null,
     "category": "house",
     "category_confidence": "high",
-    "price_per_sqm": 9,
+    "price_per_sqm": 73,
     "price_history": [
       {
         "date": "2026-09-13T14:29:47.021340+00:00",
@@ -27540,7 +27540,7 @@
     "score": 0,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 9,
+    "area_avg_price_per_sqm": 73,
     "pct_vs_area_avg": 0.0
   },
   {
@@ -27632,7 +27632,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27664,7 +27664,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27696,7 +27696,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27728,7 +27728,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27798,5 +27798,37 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 2939,
     "pct_vs_area_avg": 2.4
+  },
+  {
+    "id": "imotibg_515890",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/видин/христо-ботев-515890.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa91a1eea0af_6aa91c9e3436f.jpg",
+    "price_eur": 70000,
+    "sqm": 98,
+    "area": "Христо Ботев",
+    "city": "Видин",
+    "title": "Двустаен апартамент, Христо Ботев",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "БДИН ИМОТИ продава светъл ДВУСТАЕН апартамент, до кв.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 714,
+    "price_history": [
+      {
+        "date": "2026-09-15T14:23:16.622487+00:00",
+        "price_eur": 70000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 714,
+    "pct_vs_area_avg": 0.0
   }
 ]
