@@ -29484,7 +29484,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T18:42:00+00:00",
     "category": "land",
-    "_settlement": "Равнец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 26,
@@ -29514,7 +29513,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T18:09:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2080,
@@ -29544,7 +29542,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T18:09:00+00:00",
     "category": "land",
-    "_settlement": "Мечка",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1200,
@@ -29574,7 +29571,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T17:04:00+00:00",
     "category": "apartment",
-    "_settlement": "Нови Искър",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1657,
@@ -29604,7 +29600,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:24:00+00:00",
     "category": "land",
-    "_settlement": "Страхилово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -29634,7 +29629,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:22:00+00:00",
     "category": "land",
-    "_settlement": "Белгун",
     "lat": null,
     "lng": null,
     "price_per_sqm": 271,
@@ -29664,7 +29658,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:17:00+00:00",
     "category": "land",
-    "_settlement": "Златарица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 72,
@@ -29694,7 +29687,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:16:00+00:00",
     "category": "land",
-    "_settlement": "Белгун",
     "lat": null,
     "lng": null,
     "price_per_sqm": 8740,
@@ -29724,7 +29716,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:10:00+00:00",
     "category": "land",
-    "_settlement": "Белгун",
     "lat": null,
     "lng": null,
     "price_per_sqm": 43,
@@ -29754,7 +29745,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:02:00+00:00",
     "category": "land",
-    "_settlement": "Нейково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 70,
@@ -29784,7 +29774,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T16:01:00+00:00",
     "category": "land",
-    "_settlement": "Страхилово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 14,
@@ -29814,7 +29803,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:57:00+00:00",
     "category": "land",
-    "_settlement": "Нейково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 70,
@@ -29844,7 +29832,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:49:00+00:00",
     "category": "land",
-    "_settlement": "Обединение",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -29874,7 +29861,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:48:00+00:00",
     "category": "land",
-    "_settlement": "Езерец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 166,
@@ -29904,7 +29890,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:36:00+00:00",
     "category": "land",
-    "_settlement": "Зимница",
     "lat": null,
     "lng": null,
     "price_per_sqm": 30,
@@ -29934,7 +29919,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:28:00+00:00",
     "category": "apartment",
-    "_settlement": "Горна Оряховица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 543,
@@ -29964,7 +29948,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:15:00+00:00",
     "category": "land",
-    "_settlement": "Каранци",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7,
@@ -29994,7 +29977,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:11:00+00:00",
     "category": "land",
-    "_settlement": "Загорци",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7600,
@@ -30024,7 +30006,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T15:01:00+00:00",
     "category": "land",
-    "_settlement": "Ефрейтор Бакалово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1773,
@@ -30054,7 +30035,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:53:00+00:00",
     "category": "land",
-    "_settlement": "Ефрейтор Бакалово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1773,
@@ -30084,7 +30064,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:41:00+00:00",
     "category": "land",
-    "_settlement": "Крушари",
     "lat": null,
     "lng": null,
     "price_per_sqm": 418,
@@ -30114,7 +30093,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:30:00+00:00",
     "category": "land",
-    "_settlement": "Страхилово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 14,
@@ -30144,7 +30122,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:26:00+00:00",
     "category": "commercial",
-    "_settlement": "Бургас",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1941,
@@ -30174,7 +30151,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:26:00+00:00",
     "category": "land",
-    "_settlement": "Чернооково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 128,
@@ -30204,7 +30180,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:22:00+00:00",
     "category": "land",
-    "_settlement": "Бургас",
     "lat": null,
     "lng": null,
     "price_per_sqm": 40988,
@@ -30234,7 +30209,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:11:00+00:00",
     "category": "commercial",
-    "_settlement": "Свищов",
     "lat": null,
     "lng": null,
     "price_per_sqm": 241,
@@ -30264,7 +30238,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:06:00+00:00",
     "category": "land",
-    "_settlement": "Преселенци",
     "lat": null,
     "lng": null,
     "price_per_sqm": null,
@@ -30294,7 +30267,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T14:03:00+00:00",
     "category": "land",
-    "_settlement": "Алеково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -30324,7 +30296,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T13:59:00+00:00",
     "category": "land",
-    "_settlement": "Василево",
     "lat": null,
     "lng": null,
     "price_per_sqm": 84,
@@ -30354,7 +30325,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T13:51:00+00:00",
     "category": "apartment",
-    "_settlement": "Велико Търново",
     "lat": null,
     "lng": null,
     "price_per_sqm": 606,
@@ -30384,7 +30354,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T13:48:00+00:00",
     "category": "land",
-    "_settlement": "Василево",
     "lat": null,
     "lng": null,
     "price_per_sqm": 46,
@@ -30414,7 +30383,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T13:41:00+00:00",
     "category": "apartment",
-    "_settlement": "Ресен",
     "lat": null,
     "lng": null,
     "price_per_sqm": 903,
@@ -30444,7 +30412,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T13:26:00+00:00",
     "category": "land",
-    "_settlement": "Бяла река",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3584,
@@ -30474,7 +30441,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T12:44:00+00:00",
     "category": "apartment",
-    "_settlement": "Бургас",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1516,
@@ -30504,7 +30470,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T11:23:00+00:00",
     "category": "land",
-    "_settlement": "Макреш",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -30534,7 +30499,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T11:08:00+00:00",
     "category": "land",
-    "_settlement": "Макреш",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -30564,7 +30528,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T10:34:00+00:00",
     "category": "land",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 125,
@@ -30594,7 +30557,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T10:30:00+00:00",
     "category": "apartment",
-    "_settlement": "Димово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 22,
@@ -30624,7 +30586,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-19T10:29:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1446,
@@ -34730,7 +34691,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T11:13:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 36,
@@ -34760,7 +34720,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T11:08:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 36,
@@ -34790,7 +34749,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:58:00+00:00",
     "category": "land",
-    "_settlement": "Разград",
     "lat": null,
     "lng": null,
     "price_per_sqm": 445,
@@ -34820,7 +34778,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:47:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 34,
@@ -34850,7 +34807,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:43:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 37,
@@ -34880,7 +34836,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:42:00+00:00",
     "category": "land",
-    "_settlement": "Разград",
     "lat": null,
     "lng": null,
     "price_per_sqm": null,
@@ -34910,7 +34865,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:34:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 34,
@@ -34940,7 +34894,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:27:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 51,
@@ -34970,7 +34923,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:25:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 39,
@@ -35000,7 +34952,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:22:00+00:00",
     "category": "apartment",
-    "_settlement": "Гълъбово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 37,
@@ -35030,7 +34981,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:20:00+00:00",
     "category": "land",
-    "_settlement": "Ситово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 65,
@@ -35060,7 +35010,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:17:00+00:00",
     "category": "land",
-    "_settlement": "Шейново",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4308,
@@ -35090,7 +35039,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:16:00+00:00",
     "category": "apartment",
-    "_settlement": "Свети Влас",
     "lat": null,
     "lng": null,
     "price_per_sqm": 925,
@@ -35120,7 +35068,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:16:00+00:00",
     "category": "land",
-    "_settlement": "Писменово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -35150,7 +35097,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:08:00+00:00",
     "category": "land",
-    "_settlement": "Писменово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7,
@@ -35180,7 +35126,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:08:00+00:00",
     "category": "land",
-    "_settlement": "Равда",
     "lat": null,
     "lng": null,
     "price_per_sqm": 28,
@@ -35210,7 +35155,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T10:05:00+00:00",
     "category": "land",
-    "_settlement": "Баня",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -35240,7 +35184,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T09:58:00+00:00",
     "category": "apartment",
-    "_settlement": "Сунгурларе",
     "lat": null,
     "lng": null,
     "price_per_sqm": 56,
@@ -35270,7 +35213,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T09:46:00+00:00",
     "category": "land",
-    "_settlement": "Меричлери",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -35300,7 +35242,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T08:28:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 770,
@@ -35330,7 +35271,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T08:21:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 595,
@@ -35360,7 +35300,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-21T08:18:00+00:00",
     "category": "land",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2071,
@@ -35390,7 +35329,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T19:25:00+00:00",
     "category": "apartment",
-    "_settlement": "Кюстендил",
     "lat": null,
     "lng": null,
     "price_per_sqm": 717,
@@ -35420,7 +35358,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T17:01:00+00:00",
     "category": "land",
-    "_settlement": "Ахтопол",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1036,
@@ -35450,7 +35387,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:47:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1571,
@@ -35480,7 +35416,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:45:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1539,
@@ -35510,7 +35445,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:43:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1897,
@@ -35540,7 +35474,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:43:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1570,
@@ -35570,7 +35503,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:40:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1208,
@@ -35600,7 +35532,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:37:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35630,7 +35561,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:35:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35660,7 +35590,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:33:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35690,7 +35619,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:32:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -35720,7 +35648,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:30:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35750,7 +35677,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:28:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -35780,7 +35706,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:27:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -35810,7 +35735,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:25:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35840,7 +35764,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:24:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35870,7 +35793,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:22:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -35900,7 +35822,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:21:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35930,7 +35851,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:20:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -35960,7 +35880,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:18:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -35990,7 +35909,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:17:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -36020,7 +35938,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:15:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -36050,7 +35967,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:14:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -36080,7 +35996,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:11:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -36110,7 +36025,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:10:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -36140,7 +36054,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:08:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -36170,7 +36083,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:07:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1175,
@@ -36200,7 +36112,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:05:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1253,
@@ -36230,7 +36141,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T16:02:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1533,
@@ -36260,7 +36170,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:59:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 692,
@@ -36290,7 +36199,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:58:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 681,
@@ -36320,7 +36228,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:56:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 678,
@@ -36350,7 +36257,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:55:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 692,
@@ -36380,7 +36286,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:53:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 681,
@@ -36410,7 +36315,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:51:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1528,
@@ -36440,7 +36344,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:49:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1528,
@@ -36470,7 +36373,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:46:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1554,
@@ -36500,7 +36402,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:36:00+00:00",
     "category": "commercial",
-    "_settlement": "Полена",
     "lat": null,
     "lng": null,
     "price_per_sqm": 99,
@@ -36530,7 +36431,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:35:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1535,
@@ -36560,7 +36460,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:32:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1543,
@@ -36590,7 +36489,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:30:00+00:00",
     "category": "land",
-    "_settlement": "Симитли",
     "lat": null,
     "lng": null,
     "price_per_sqm": 86,
@@ -36620,7 +36518,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:29:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1543,
@@ -36650,7 +36547,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:26:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1572,
@@ -36680,7 +36576,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:24:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 940,
@@ -36710,7 +36605,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:22:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 895,
@@ -36740,7 +36634,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:20:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 723,
@@ -36770,7 +36663,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:18:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1531,
@@ -36800,7 +36692,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:15:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 830,
@@ -36830,7 +36721,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:13:00+00:00",
     "category": "commercial",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 845,
@@ -36860,7 +36750,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:11:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1531,
@@ -36890,7 +36779,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:08:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1534,
@@ -36920,7 +36808,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:06:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1529,
@@ -36950,7 +36837,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:05:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -36980,7 +36866,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:04:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 23,
@@ -37010,7 +36895,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:03:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4,
@@ -37040,7 +36924,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:02:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1533,
@@ -37070,7 +36953,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T15:02:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4,
@@ -37100,7 +36982,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:59:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -37130,7 +37011,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:58:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -37160,7 +37040,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:57:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -37190,7 +37069,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:55:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1268,
@@ -37220,7 +37098,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:54:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -37250,7 +37127,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:53:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1208,
@@ -37280,7 +37156,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:53:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 8,
@@ -37310,7 +37185,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:52:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -37340,7 +37214,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:51:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 5,
@@ -37370,7 +37243,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:51:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -37400,7 +37272,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:50:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1153,
@@ -37430,7 +37301,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:50:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 12,
@@ -37460,7 +37330,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:49:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -37490,7 +37359,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:48:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1533,
@@ -37520,7 +37388,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:48:00+00:00",
     "category": "land",
-    "_settlement": "Царевец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 32,
@@ -37550,7 +37417,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:45:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1153,
@@ -37580,7 +37446,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:44:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1208,
@@ -37610,7 +37475,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:41:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1153,
@@ -37640,7 +37504,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:40:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1208,
@@ -37670,7 +37533,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:37:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1153,
@@ -37700,7 +37562,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:35:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1533,
@@ -37730,7 +37591,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:32:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1528,
@@ -37760,7 +37620,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:27:00+00:00",
     "category": "land",
-    "_settlement": "Самуил",
     "lat": null,
     "lng": null,
     "price_per_sqm": 15,
@@ -37790,7 +37649,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:26:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1536,
@@ -37820,7 +37678,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:25:00+00:00",
     "category": "land",
-    "_settlement": "Самуил",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -37850,7 +37707,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T14:24:00+00:00",
     "category": "land",
-    "_settlement": "Житница",
     "lat": null,
     "lng": null,
     "price_per_sqm": 10,
@@ -37880,7 +37736,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:47:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -37910,7 +37765,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:45:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 8,
@@ -37940,7 +37794,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:42:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -37970,7 +37823,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:34:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -38000,7 +37852,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:32:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 8,
@@ -38030,7 +37881,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:29:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 10,
@@ -38060,7 +37910,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:29:00+00:00",
     "category": "apartment",
-    "_settlement": "Варна",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1364,
@@ -38090,7 +37939,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:25:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 11,
@@ -38120,7 +37968,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T13:21:00+00:00",
     "category": "land",
-    "_settlement": "Видин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 10,
@@ -38150,7 +37997,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T12:16:00+00:00",
     "category": "land",
-    "_settlement": "Златия",
     "lat": null,
     "lng": null,
     "price_per_sqm": 10,
@@ -38180,7 +38026,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T11:56:00+00:00",
     "category": "land",
-    "_settlement": "Русе",
     "lat": null,
     "lng": null,
     "price_per_sqm": 572,
@@ -38210,7 +38055,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T10:54:00+00:00",
     "category": "land",
-    "_settlement": "Копривец",
     "lat": null,
     "lng": null,
     "price_per_sqm": 20,
@@ -38240,7 +38084,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T10:27:00+00:00",
     "category": "house",
-    "_settlement": "Раковица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4,
@@ -38270,7 +38113,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T10:22:00+00:00",
     "category": "land",
-    "_settlement": "Очуша",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1781,
@@ -38300,7 +38142,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T09:40:00+00:00",
     "category": "apartment",
-    "_settlement": "Мокреш",
     "lat": null,
     "lng": null,
     "price_per_sqm": 212,
@@ -38330,7 +38171,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T09:30:00+00:00",
     "category": "land",
-    "_settlement": "Граматиково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -38360,7 +38200,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T09:25:00+00:00",
     "category": "land",
-    "_settlement": "Граматиково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4,
@@ -38390,7 +38229,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T09:22:00+00:00",
     "category": "land",
-    "_settlement": "Граматиково",
     "lat": null,
     "lng": null,
     "price_per_sqm": 96,
@@ -38420,7 +38258,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T09:12:00+00:00",
     "category": "apartment",
-    "_settlement": "Мокреш",
     "lat": null,
     "lng": null,
     "price_per_sqm": 59,
@@ -38450,7 +38287,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T08:42:00+00:00",
     "category": "apartment",
-    "_settlement": "Барутин",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7,
@@ -38480,7 +38316,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T08:37:00+00:00",
     "category": "land",
-    "_settlement": "Септемврийци",
     "lat": null,
     "lng": null,
     "price_per_sqm": 4,
@@ -38510,7 +38345,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-20T08:36:00+00:00",
     "category": "land",
-    "_settlement": "Доспат",
     "lat": null,
     "lng": null,
     "price_per_sqm": 6,
@@ -41338,6 +41172,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 12,
     "price_history": [
       {
@@ -41367,6 +41202,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 52,
     "price_history": [
       {
@@ -41396,6 +41232,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 10,
     "price_history": [
       {
@@ -41425,6 +41262,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -41454,6 +41292,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 13,
     "price_history": [
       {
@@ -41483,6 +41322,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1256,
     "price_history": [
       {
@@ -41512,6 +41352,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8,
     "price_history": [
       {
@@ -41541,6 +41382,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -42585,6 +42427,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -42614,6 +42457,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 17,
     "price_history": [
       {
@@ -42643,6 +42487,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -42672,6 +42517,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 13,
     "price_history": [
       {
@@ -42701,6 +42547,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -42730,6 +42577,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 15,
     "price_history": [
       {
@@ -42759,6 +42607,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -42788,6 +42637,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -42817,6 +42667,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -42846,6 +42697,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 27,
     "price_history": [
       {
@@ -42875,6 +42727,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8,
     "price_history": [
       {
@@ -42904,6 +42757,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 470,
     "price_history": [
       {
@@ -42933,6 +42787,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -42962,6 +42817,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -42991,6 +42847,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1721,
     "price_history": [
       {
@@ -43020,6 +42877,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4444,
     "price_history": [
       {
@@ -43049,6 +42907,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": null,
     "price_history": [
       {
@@ -43078,6 +42937,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1539,
     "price_history": [
       {
@@ -43107,6 +42967,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -43136,6 +42997,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -43165,6 +43027,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 11,
     "price_history": [
       {
@@ -43194,6 +43057,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 32,
     "price_history": [
       {
@@ -43223,6 +43087,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 36,
     "price_history": [
       {
@@ -43252,6 +43117,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 38,
     "price_history": [
       {
@@ -43281,6 +43147,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 16,
     "price_history": [
       {
@@ -43310,6 +43177,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 24,
     "price_history": [
       {
@@ -43339,6 +43207,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 12,
     "price_history": [
       {
@@ -43368,6 +43237,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 90,
     "price_history": [
       {
@@ -43397,6 +43267,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 107,
     "price_history": [
       {
@@ -43426,6 +43297,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 158,
     "price_history": [
       {
@@ -43455,6 +43327,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 170,
     "price_history": [
       {
@@ -43484,6 +43357,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 312,
     "price_history": [
       {
@@ -43513,6 +43387,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 328,
     "price_history": [
       {
@@ -43542,6 +43417,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -43571,6 +43447,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 206,
     "price_history": [
       {
@@ -43600,6 +43477,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -43629,6 +43507,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 25,
     "price_history": [
       {
@@ -43658,6 +43537,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -43687,6 +43567,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 523,
     "price_history": [
       {
@@ -43716,6 +43597,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -43745,6 +43627,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 13,
     "price_history": [
       {
@@ -43774,6 +43657,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 200,
     "price_history": [
       {
@@ -43803,6 +43687,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 33023,
     "price_history": [
       {
@@ -43832,6 +43717,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 310,
     "price_history": [
       {
@@ -43861,6 +43747,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 55,
     "price_history": [
       {
@@ -43890,6 +43777,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 29,
     "price_history": [
       {
@@ -43919,6 +43807,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 15,
     "price_history": [
       {
@@ -43948,6 +43837,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 472,
     "price_history": [
       {
@@ -43977,6 +43867,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 74,
     "price_history": [
       {
@@ -44006,6 +43897,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 47,
     "price_history": [
       {
@@ -44035,6 +43927,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 5,
     "price_history": [
       {
@@ -44064,6 +43957,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -44093,6 +43987,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -44122,6 +44017,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -44151,6 +44047,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 11,
     "price_history": [
       {
@@ -44180,6 +44077,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -44209,6 +44107,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -44238,6 +44137,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -44267,6 +44167,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -44296,6 +44197,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1147,
     "price_history": [
       {
@@ -44325,6 +44227,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 738,
     "price_history": [
       {
@@ -44354,6 +44257,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 12,
     "price_history": [
       {
@@ -44383,6 +44287,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1085,
     "price_history": [
       {
@@ -44412,6 +44317,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 48,
     "price_history": [
       {
@@ -44441,6 +44347,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 469,
     "price_history": [
       {
@@ -50083,6 +49990,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 27,
     "price_history": [
       {
@@ -50112,6 +50020,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 101,
     "price_history": [
       {
@@ -50141,6 +50050,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 21,
     "price_history": [
       {
@@ -50170,6 +50080,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -50199,6 +50110,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 11,
     "price_history": [
       {
@@ -50228,6 +50140,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -50257,6 +50170,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 64,
     "price_history": [
       {
@@ -50286,6 +50200,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 76,
     "price_history": [
       {
@@ -50315,6 +50230,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 11,
     "price_history": [
       {
@@ -50344,6 +50260,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -50373,6 +50290,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 256,
     "price_history": [
       {
@@ -50402,6 +50320,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -50431,6 +50350,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 0,
     "price_history": [
       {
@@ -50460,6 +50380,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -50489,6 +50410,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 60,
     "price_history": [
       {
@@ -50518,6 +50440,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 16,
     "price_history": [
       {
@@ -50547,6 +50470,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 12,
     "price_history": [
       {
@@ -50576,6 +50500,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -50605,6 +50530,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 39,
     "price_history": [
       {
@@ -50634,6 +50560,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 44,
     "price_history": [
       {
@@ -50663,6 +50590,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 173,
     "price_history": [
       {
@@ -50692,6 +50620,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 58,
     "price_history": [
       {
@@ -50721,6 +50650,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -50750,6 +50680,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1860,
     "price_history": [
       {
@@ -50779,6 +50710,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 605,
     "price_history": [
       {
@@ -50808,6 +50740,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 114,
     "price_history": [
       {
@@ -50837,6 +50770,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 695,
     "price_history": [
       {
@@ -50939,7 +50873,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -50970,7 +50904,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51001,7 +50935,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51032,7 +50966,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51063,7 +50997,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51094,7 +51028,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51125,7 +51059,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51156,7 +51090,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51187,7 +51121,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51218,7 +51152,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51249,7 +51183,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
@@ -51280,7 +51214,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "score": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null
