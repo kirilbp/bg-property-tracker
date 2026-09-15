@@ -3939,7 +3939,7 @@
     "id": "imotibg_515644",
     "url": "https://imoti.bg/продажби/едностаен-апартамент/бургас-област/ссвети-влас-515644.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a7987fc6171a_6a798a8b93d65.jpg",
-    "price_eur": 27000,
+    "price_eur": 29000,
     "sqm": 16,
     "area": "с.Свети Влас",
     "city": "Бургас област",
@@ -3951,21 +3951,25 @@
     "site_posted_at": null,
     "category": "flat",
     "category_confidence": "high",
-    "price_per_sqm": 1688,
+    "price_per_sqm": 1812,
     "price_history": [
       {
         "date": "2026-08-24T23:43:33.818106+00:00",
         "price_eur": 27000
+      },
+      {
+        "date": "2026-09-15T08:17:48.555029+00:00",
+        "price_eur": 29000
       }
     ],
     "price_drop_count": 0,
-    "drop_pct": 0.0,
+    "drop_pct": -7.4,
     "days_on_market": 21,
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1671,
-    "pct_vs_area_avg": 1.0
+    "area_avg_price_per_sqm": 1713,
+    "pct_vs_area_avg": 5.8
   },
   {
     "id": "imotibg_515652",
@@ -13532,8 +13536,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1671,
-    "pct_vs_area_avg": -12.5
+    "area_avg_price_per_sqm": 1713,
+    "pct_vs_area_avg": -14.6
   },
   {
     "id": "imotibg_514799",
@@ -20208,8 +20212,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1671,
-    "pct_vs_area_avg": 11.5
+    "area_avg_price_per_sqm": 1713,
+    "pct_vs_area_avg": 8.8
   },
   {
     "id": "imotibg_513669",
