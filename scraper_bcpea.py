@@ -303,6 +303,17 @@ def fetch_listings_page(browser, url):
             "title": (f"{title}, {settlement}" if title else settlement)[:150],
             "portal": "sales.bcpea.org",
             "site_updated_at": site_updated_at,
+            # KNOWN-BAD for this portal - see classify_category()'s own
+            # docstring in geo_utils.py. bcpea's auctions cover every
+            # property type, not just apartments, so this column silently
+            # mislabels most of this portal's own non-apartment listings as
+            # "apartment". Never read this field directly for bcpea - every
+            # real type check already goes through type_filter_bucket()/
+            # typeFilterBucket(), which use bcpea_type_match() against this
+            # same title's precise controlled vocabulary instead. Kept
+            # (rather than removed) only because listing_sources/
+            # merged_listings' schema still has a generic "category" column
+            # shared by all 8 portals.
             "category": classify_category(title),
             "_settlement": settlement,
         }

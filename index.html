@@ -923,6 +923,13 @@ const TYPE_FILTER_BUCKETS = [
 ];
 
 function typeFilterBucket(l) {
+  // bcpea never falls through to CATEGORY_TO_BUCKET/raw l.category below -
+  // that field is known-bad for this one portal (see classify_category()'s
+  // docstring in geo_utils.py and sync_to_supabase.py's identical
+  // type_filter_bucket()): bcpea's auctions cover every property type, and
+  // most of its own non-apartment listings get silently mislabeled
+  // "apartment" in that column. BCPEA_TYPE_LOOKUP reads the same title
+  // through its own precise controlled vocabulary instead.
   if (l.portal === 'sales.bcpea.org') {
     if (!l.title) return 'other';
     const match = BCPEA_TYPE_LOOKUP.find(([rawType]) => l.title.startsWith(rawType));
