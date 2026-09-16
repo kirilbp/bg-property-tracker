@@ -15067,6 +15067,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 75,
     "price_history": [
       {
@@ -15096,6 +15097,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -15125,6 +15127,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1973,
     "price_history": [
       {
@@ -15154,6 +15157,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 82,
     "price_history": [
       {
@@ -15183,6 +15187,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1056,
     "price_history": [
       {
@@ -15212,6 +15217,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 145,
     "price_history": [
       {
@@ -15241,6 +15247,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 839,
     "price_history": [
       {
@@ -15270,6 +15277,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1070,
     "price_history": [
       {
@@ -15329,6 +15337,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 656,
     "price_history": [
       {
@@ -15358,6 +15367,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 629,
     "price_history": [
       {
@@ -15387,6 +15397,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 629,
     "price_history": [
       {
@@ -15416,6 +15427,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 631,
     "price_history": [
       {
@@ -15445,6 +15457,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -15474,6 +15487,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -15503,6 +15517,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 0,
     "price_history": [
       {
@@ -15532,6 +15547,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -15561,6 +15577,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -15590,6 +15607,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 833,
     "price_history": [
       {
@@ -15619,6 +15637,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 25,
     "price_history": [
       {
@@ -15648,6 +15667,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 22,
     "price_history": [
       {
@@ -15708,6 +15728,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -15737,6 +15758,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -15766,6 +15788,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1725,
     "price_history": [
       {
@@ -15795,6 +15818,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -15824,6 +15848,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 54580,
     "price_history": [
       {
@@ -15853,6 +15878,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 32,
     "price_history": [
       {
@@ -15882,6 +15908,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -15911,6 +15938,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -15940,6 +15968,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 139,
     "price_history": [
       {
@@ -15969,6 +15998,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 14,
     "price_history": [
       {
@@ -16029,6 +16059,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 84,
     "price_history": [
       {
@@ -16058,6 +16089,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -16087,6 +16119,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -16116,6 +16149,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {

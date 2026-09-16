@@ -13547,7 +13547,8 @@
       "site_updated_at": "2026-08-11T15:12:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91097": {
@@ -13574,7 +13575,8 @@
       "site_updated_at": "2026-08-11T14:38:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91096": {
@@ -13601,7 +13603,8 @@
       "site_updated_at": "2026-08-11T14:36:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91095": {
@@ -13628,7 +13631,8 @@
       "site_updated_at": "2026-08-11T14:07:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91094": {
@@ -13683,7 +13687,8 @@
       "site_updated_at": "2026-08-11T12:51:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91091": {
@@ -13766,7 +13771,8 @@
       "site_updated_at": "2026-08-11T10:21:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91088": {
@@ -13793,7 +13799,8 @@
       "site_updated_at": "2026-08-11T10:01:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91087": {
@@ -13820,7 +13827,8 @@
       "site_updated_at": "2026-08-11T09:03:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91086": {
@@ -13875,7 +13883,8 @@
       "site_updated_at": "2026-08-10T17:07:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91084": {
@@ -13902,7 +13911,8 @@
       "site_updated_at": "2026-08-10T17:05:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91083": {
@@ -13929,7 +13939,8 @@
       "site_updated_at": "2026-08-10T17:02:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91082": {
@@ -13956,7 +13967,8 @@
       "site_updated_at": "2026-08-10T16:59:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91081": {
@@ -13983,7 +13995,8 @@
       "site_updated_at": "2026-08-10T16:35:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91080": {
@@ -14010,7 +14023,8 @@
       "site_updated_at": "2026-08-10T16:27:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91079": {
@@ -14037,7 +14051,8 @@
       "site_updated_at": "2026-08-10T16:25:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91078": {
@@ -14064,7 +14079,8 @@
       "site_updated_at": "2026-08-10T16:23:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91077": {
@@ -14091,7 +14107,8 @@
       "site_updated_at": "2026-08-10T16:17:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91076": {
@@ -14118,7 +14135,8 @@
       "site_updated_at": "2026-08-10T16:12:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91075": {
@@ -14145,7 +14163,8 @@
       "site_updated_at": "2026-08-10T15:12:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91074": {
@@ -14172,7 +14191,8 @@
       "site_updated_at": "2026-08-10T15:09:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91073": {
@@ -14228,7 +14248,8 @@
       "site_updated_at": "2026-08-10T14:47:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91071": {
@@ -14255,7 +14276,8 @@
       "site_updated_at": "2026-08-10T14:46:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91070": {
@@ -14282,7 +14304,8 @@
       "site_updated_at": "2026-08-10T14:00:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91069": {
@@ -14309,7 +14332,8 @@
       "site_updated_at": "2026-08-10T13:40:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91068": {
@@ -14448,7 +14472,8 @@
       "site_updated_at": "2026-08-10T11:44:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91063": {
@@ -14475,7 +14500,8 @@
       "site_updated_at": "2026-08-10T11:35:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91062": {
@@ -14502,7 +14528,8 @@
       "site_updated_at": "2026-08-10T11:30:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91061": {
@@ -14529,7 +14556,8 @@
       "site_updated_at": "2026-08-10T11:27:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91060": {
@@ -14556,7 +14584,8 @@
       "site_updated_at": "2026-08-10T11:24:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91059": {
@@ -14583,7 +14612,8 @@
       "site_updated_at": "2026-08-10T11:20:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91058": {
@@ -14723,7 +14753,8 @@
       "site_updated_at": "2026-08-10T10:18:00+00:00",
       "category": "apartment",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91053": {
@@ -14806,7 +14837,8 @@
       "site_updated_at": "2026-08-10T09:54:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91050": {
@@ -14833,7 +14865,8 @@
       "site_updated_at": "2026-08-10T09:50:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91049": {
@@ -14860,7 +14893,8 @@
       "site_updated_at": "2026-08-10T09:41:00+00:00",
       "category": "land",
       "lat": null,
-      "lng": null
+      "lng": null,
+      "detail_checked": true
     }
   },
   "bcpea_91048": {
