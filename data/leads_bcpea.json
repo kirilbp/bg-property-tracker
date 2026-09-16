@@ -15053,7 +15053,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T15:12:00+00:00",
     "category": "land",
-    "_settlement": "Тетевен",
     "lat": null,
     "lng": null,
     "price_per_sqm": 75,
@@ -15083,7 +15082,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T14:38:00+00:00",
     "category": "land",
-    "_settlement": "Шишковци",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7,
@@ -15113,7 +15111,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T14:36:00+00:00",
     "category": "apartment",
-    "_settlement": "Ястребово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1973,
@@ -15143,7 +15140,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T14:07:00+00:00",
     "category": "apartment",
-    "_settlement": "Приморско",
     "lat": null,
     "lng": null,
     "price_per_sqm": 82,
@@ -15173,7 +15169,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T12:51:00+00:00",
     "category": "apartment",
-    "_settlement": "Приморско",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1056,
@@ -15203,7 +15198,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T10:21:00+00:00",
     "category": "land",
-    "_settlement": "Малко Търново",
     "lat": null,
     "lng": null,
     "price_per_sqm": 145,
@@ -15233,7 +15227,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T10:01:00+00:00",
     "category": "apartment",
-    "_settlement": "Несебър",
     "lat": null,
     "lng": null,
     "price_per_sqm": 839,
@@ -15263,7 +15256,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-11T09:03:00+00:00",
     "category": "apartment",
-    "_settlement": "Велико Търново",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1070,
@@ -15323,7 +15315,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T17:07:00+00:00",
     "category": "apartment",
-    "_settlement": "Балчик",
     "lat": null,
     "lng": null,
     "price_per_sqm": 656,
@@ -15353,7 +15344,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T17:05:00+00:00",
     "category": "apartment",
-    "_settlement": "Балчик",
     "lat": null,
     "lng": null,
     "price_per_sqm": 629,
@@ -15383,7 +15373,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T17:02:00+00:00",
     "category": "apartment",
-    "_settlement": "Балчик",
     "lat": null,
     "lng": null,
     "price_per_sqm": 629,
@@ -15413,7 +15402,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:59:00+00:00",
     "category": "apartment",
-    "_settlement": "Балчик",
     "lat": null,
     "lng": null,
     "price_per_sqm": 631,
@@ -15443,7 +15431,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:35:00+00:00",
     "category": "apartment",
-    "_settlement": "Твърдица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -15473,7 +15460,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:27:00+00:00",
     "category": "apartment",
-    "_settlement": "Твърдица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -15503,7 +15489,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:25:00+00:00",
     "category": "apartment",
-    "_settlement": "Твърдица",
     "lat": null,
     "lng": null,
     "price_per_sqm": 0,
@@ -15533,7 +15518,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:23:00+00:00",
     "category": "apartment",
-    "_settlement": "Оризари",
     "lat": null,
     "lng": null,
     "price_per_sqm": 3,
@@ -15563,7 +15547,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:17:00+00:00",
     "category": "apartment",
-    "_settlement": "Стрелци",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -15593,7 +15576,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T16:12:00+00:00",
     "category": "apartment",
-    "_settlement": "Сливен",
     "lat": null,
     "lng": null,
     "price_per_sqm": 833,
@@ -15623,7 +15605,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T15:12:00+00:00",
     "category": "land",
-    "_settlement": "Граф Игнатиево",
     "lat": null,
     "lng": null,
     "price_per_sqm": 25,
@@ -15653,7 +15634,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T15:09:00+00:00",
     "category": "land",
-    "_settlement": "Граф Игнатиево",
     "lat": null,
     "lng": null,
     "price_per_sqm": 22,
@@ -15714,7 +15694,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T14:47:00+00:00",
     "category": "land",
-    "_settlement": "Драганово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 9,
@@ -15744,7 +15723,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T14:46:00+00:00",
     "category": "land",
-    "_settlement": "Брезово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 2,
@@ -15774,7 +15752,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T14:00:00+00:00",
     "category": "land",
-    "_settlement": "Пловдив",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1725,
@@ -15804,7 +15781,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T13:40:00+00:00",
     "category": "land",
-    "_settlement": "Девня",
     "lat": null,
     "lng": null,
     "price_per_sqm": 7,
@@ -15834,7 +15810,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:44:00+00:00",
     "category": "apartment",
-    "_settlement": "Асеновград",
     "lat": null,
     "lng": null,
     "price_per_sqm": 54580,
@@ -15864,7 +15839,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:35:00+00:00",
     "category": "apartment",
-    "_settlement": "Пресяка",
     "lat": null,
     "lng": null,
     "price_per_sqm": 32,
@@ -15894,7 +15868,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:30:00+00:00",
     "category": "land",
-    "_settlement": "Церова кория",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -15924,7 +15897,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:27:00+00:00",
     "category": "land",
-    "_settlement": "Церова кория",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -15954,7 +15926,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:24:00+00:00",
     "category": "land",
-    "_settlement": "Церова кория",
     "lat": null,
     "lng": null,
     "price_per_sqm": 139,
@@ -15984,7 +15955,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T11:20:00+00:00",
     "category": "land",
-    "_settlement": "Церова кория",
     "lat": null,
     "lng": null,
     "price_per_sqm": 14,
@@ -16045,7 +16015,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T10:18:00+00:00",
     "category": "apartment",
-    "_settlement": "Раднево",
     "lat": null,
     "lng": null,
     "price_per_sqm": 84,
@@ -16075,7 +16044,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T09:54:00+00:00",
     "category": "land",
-    "_settlement": "Александрово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -16105,7 +16073,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T09:50:00+00:00",
     "category": "land",
-    "_settlement": "Александрово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -16135,7 +16102,6 @@
     "portal": "sales.bcpea.org",
     "site_updated_at": "2026-08-10T09:41:00+00:00",
     "category": "land",
-    "_settlement": "Калугерово",
     "lat": null,
     "lng": null,
     "price_per_sqm": 1,
@@ -29344,6 +29310,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 26,
     "price_history": [
       {
@@ -29373,6 +29340,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2080,
     "price_history": [
       {
@@ -29402,6 +29370,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1200,
     "price_history": [
       {
@@ -29431,6 +29400,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1657,
     "price_history": [
       {
@@ -29460,6 +29430,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -29489,6 +29460,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 271,
     "price_history": [
       {
@@ -29518,6 +29490,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 72,
     "price_history": [
       {
@@ -29547,6 +29520,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8740,
     "price_history": [
       {
@@ -29576,6 +29550,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 43,
     "price_history": [
       {
@@ -29605,6 +29580,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 70,
     "price_history": [
       {
@@ -29634,6 +29610,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 14,
     "price_history": [
       {
@@ -29663,6 +29640,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 70,
     "price_history": [
       {
@@ -29692,6 +29670,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -29721,6 +29700,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 166,
     "price_history": [
       {
@@ -29750,6 +29730,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 30,
     "price_history": [
       {
@@ -29779,6 +29760,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 543,
     "price_history": [
       {
@@ -29808,6 +29790,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -29837,6 +29820,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7600,
     "price_history": [
       {
@@ -29866,6 +29850,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1773,
     "price_history": [
       {
@@ -29895,6 +29880,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1773,
     "price_history": [
       {
@@ -29924,6 +29910,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 418,
     "price_history": [
       {
@@ -29953,6 +29940,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 14,
     "price_history": [
       {
@@ -29982,6 +29970,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1941,
     "price_history": [
       {
@@ -30011,6 +30000,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 128,
     "price_history": [
       {
@@ -30040,6 +30030,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 40988,
     "price_history": [
       {
@@ -30069,6 +30060,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 241,
     "price_history": [
       {
@@ -30098,6 +30090,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": null,
     "price_history": [
       {
@@ -30127,6 +30120,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -30156,6 +30150,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 84,
     "price_history": [
       {
@@ -30185,6 +30180,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 606,
     "price_history": [
       {
@@ -30214,6 +30210,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 46,
     "price_history": [
       {
@@ -30243,6 +30240,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 903,
     "price_history": [
       {
@@ -30272,6 +30270,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3584,
     "price_history": [
       {
@@ -30301,6 +30300,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1516,
     "price_history": [
       {
@@ -30330,6 +30330,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -30359,6 +30360,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -30388,6 +30390,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 125,
     "price_history": [
       {
@@ -30417,6 +30420,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 22,
     "price_history": [
       {
@@ -30446,6 +30450,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1446,
     "price_history": [
       {
@@ -36487,6 +36492,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 895,
     "price_history": [
       {
@@ -36516,6 +36522,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 723,
     "price_history": [
       {
@@ -36545,6 +36552,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1531,
     "price_history": [
       {
@@ -36574,6 +36582,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 830,
     "price_history": [
       {
@@ -36603,6 +36612,7 @@
     "category": "commercial",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 845,
     "price_history": [
       {
@@ -36632,6 +36642,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1531,
     "price_history": [
       {
@@ -36661,6 +36672,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1534,
     "price_history": [
       {
@@ -36690,6 +36702,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1529,
     "price_history": [
       {
@@ -36719,6 +36732,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -36748,6 +36762,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 23,
     "price_history": [
       {
@@ -36777,6 +36792,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -36806,6 +36822,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1533,
     "price_history": [
       {
@@ -36835,6 +36852,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -36864,6 +36882,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -36893,6 +36912,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -36922,6 +36942,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -36951,6 +36972,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1268,
     "price_history": [
       {
@@ -36980,6 +37002,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -37009,6 +37032,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1208,
     "price_history": [
       {
@@ -37038,6 +37062,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8,
     "price_history": [
       {
@@ -37067,6 +37092,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1,
     "price_history": [
       {
@@ -37096,6 +37122,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 5,
     "price_history": [
       {
@@ -37125,6 +37152,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -37154,6 +37182,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1153,
     "price_history": [
       {
@@ -37183,6 +37212,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 12,
     "price_history": [
       {
@@ -37212,6 +37242,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -37241,6 +37272,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1533,
     "price_history": [
       {
@@ -37270,6 +37302,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 32,
     "price_history": [
       {
@@ -37299,6 +37332,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1153,
     "price_history": [
       {
@@ -37328,6 +37362,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1208,
     "price_history": [
       {
@@ -37357,6 +37392,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1153,
     "price_history": [
       {
@@ -37386,6 +37422,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1208,
     "price_history": [
       {
@@ -37415,6 +37452,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1153,
     "price_history": [
       {
@@ -37444,6 +37482,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1533,
     "price_history": [
       {
@@ -37473,6 +37512,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1528,
     "price_history": [
       {
@@ -37502,6 +37542,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 15,
     "price_history": [
       {
@@ -37531,6 +37572,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1536,
     "price_history": [
       {
@@ -37560,6 +37602,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 3,
     "price_history": [
       {
@@ -37589,6 +37632,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 10,
     "price_history": [
       {
@@ -37618,6 +37662,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -37647,6 +37692,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8,
     "price_history": [
       {
@@ -37676,6 +37722,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
@@ -37705,6 +37752,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 9,
     "price_history": [
       {
@@ -37734,6 +37782,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 8,
     "price_history": [
       {
@@ -37763,6 +37812,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 10,
     "price_history": [
       {
@@ -37792,6 +37842,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1364,
     "price_history": [
       {
@@ -37821,6 +37872,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 11,
     "price_history": [
       {
@@ -37850,6 +37902,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 10,
     "price_history": [
       {
@@ -37879,6 +37932,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 10,
     "price_history": [
       {
@@ -37908,6 +37962,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 572,
     "price_history": [
       {
@@ -37937,6 +37992,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 20,
     "price_history": [
       {
@@ -37966,6 +38022,7 @@
     "category": "house",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -37995,6 +38052,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 1781,
     "price_history": [
       {
@@ -38024,6 +38082,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 212,
     "price_history": [
       {
@@ -38053,6 +38112,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 2,
     "price_history": [
       {
@@ -38082,6 +38142,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -38111,6 +38172,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 96,
     "price_history": [
       {
@@ -38140,6 +38202,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 59,
     "price_history": [
       {
@@ -38169,6 +38232,7 @@
     "category": "apartment",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 7,
     "price_history": [
       {
@@ -38198,6 +38262,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 4,
     "price_history": [
       {
@@ -38227,6 +38292,7 @@
     "category": "land",
     "lat": null,
     "lng": null,
+    "detail_checked": true,
     "price_per_sqm": 6,
     "price_history": [
       {
