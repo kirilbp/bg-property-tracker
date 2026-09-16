@@ -4552,8 +4552,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1357,
-    "pct_vs_area_avg": -15.4
+    "area_avg_price_per_sqm": 1117,
+    "pct_vs_area_avg": 2.7
   },
   {
     "id": "imotibg_515594",
@@ -11848,8 +11848,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1357,
-    "pct_vs_area_avg": 5.0
+    "area_avg_price_per_sqm": 1117,
+    "pct_vs_area_avg": 27.5
   },
   {
     "id": "imotibg_515083",
@@ -16532,8 +16532,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1357,
-    "pct_vs_area_avg": 25.9
+    "area_avg_price_per_sqm": 1117,
+    "pct_vs_area_avg": 52.9
   },
   {
     "id": "imotibg_514406",
@@ -21248,8 +21248,8 @@
     "score": 6,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1357,
-    "pct_vs_area_avg": -15.5
+    "area_avg_price_per_sqm": 1117,
+    "pct_vs_area_avg": 2.6
   },
   {
     "id": "imotibg_513436",
@@ -27864,7 +27864,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27896,7 +27896,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "score": 0,
     "source_status": "active",
     "removed_at": null,
@@ -27998,5 +27998,37 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 2,
     "pct_vs_area_avg": 0.0
+  },
+  {
+    "id": "imotibg_515898",
+    "url": "https://imoti.bg/продажби/парцел/пловдив/беломорски-остромила-515898.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aaad9547f96c_6aaad9d15e797.jpeg",
+    "price_eur": 93000,
+    "sqm": 582,
+    "area": "Беломорски- Остромила",
+    "city": "Пловдив",
+    "title": "Парцел, Беломорски- Остромила",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "СОБСТВЕНИК ПРОДАВА:\r\n\r\n2 УПИ (от общо осем) в кв. БЕЛОМОРСКИ,\r\nвсеки с площ от 582 кв. м и по 76,5 кв. м идеални части от тупик с широчина 6 м, обслужващ всички парцели. Челните два парцела имат лице от 22,5 м на общински\r\nчакълиран път и 27 м на тупика.\r\nЕдиният граничи на север с ограда от 40 см бетонов цокъл и мрежа, а срещуположният отстои на 20-30 м от обитаеми къщи.\r\nИма възможност за обединяване на два съседни парцела при желание за по-голям простор. Водата е на сондаж, а токът е в близост предвид наличието на къщи\r\nнаоколо. Канализация засега няма.\r\nВ парцелите има единични плодни дървета (млад орех, лешник), които могат да се запазят при интерес и ако бъдещият строителен проект позволява.\r\n\r\nЦена: 93 000 евро за един парцел.\r\n\r\nАз съм единствен собственик и не желая посредничество на агенции.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 160,
+    "price_history": [
+      {
+        "date": "2026-09-16T20:17:33.125506+00:00",
+        "price_eur": 93000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "score": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1117,
+    "pct_vs_area_avg": -85.7
   }
 ]
