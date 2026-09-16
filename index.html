@@ -543,7 +543,7 @@
           </div>
           <div class="help-section">
             <h3>Motivation score</h3>
-            <p>A 0–100 score combining how much a listing's price has dropped since first seen and how long it's been on the market. Higher usually means a more motivated seller.</p>
+            <p>A simple 0–100 staleness-plus-discount indicator, not a full motivation model: 50 points for price drop (capped at 20%) plus 50 points for days on market (capped at 180 days). It does <strong>not</strong> currently account for a listing being relisted after a failed sale, the number of separate price cuts (only the total drop %), or the same property being listed on multiple portals at once - all real motivation signals we don't factor in yet. Treat it as a rough first filter, not a verdict.</p>
           </div>
           <div class="help-section">
             <h3>Badges</h3>
@@ -1715,15 +1715,28 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // comparing against the deduped set is arguably more correct anyway: the
 // same physical property cross-posted on two portals no longer counts
 // twice toward the area average.
+//
+// Compares typeFilterBucket(), not the raw category field - category is a
+// mix of two different vocabularies depending on when each portal was
+// migrated to category_classifier.py (some listings still carry the old
+// "apartment"/"commercial" strings, others the new "flat"/"business" bucket
+// names directly - confirmed live: bcpea.org and olx.bg still store
+// "apartment", alo.bg already stores "flat"). Comparing raw category never
+// mixed a real apartment with land/a house (the two vocabularies' distinct
+// values never collide), but it did silently undercount comparables: an
+// alo.bg flat and an olx.bg apartment are the same real type and should
+// match, but "flat" !== "apartment" excluded them from each other's radius
+// average. typeFilterBucket() (already used by the Type filter) normalizes
+// both to the same bucket first.
 function findComparables(l, radiusM) {
   if (l.lat == null || l.lng == null) return [];
-  const category = l.category || 'apartment';
+  const bucket = typeFilterBucket(l);
   const radiusKm = radiusM / 1000;
   const out = [];
   MERGED_LISTINGS.forEach(m => {
     if (m.id === l.id) return;
     if (m.lat == null || m.lng == null) return;
-    if ((m.category || 'apartment') !== category) return;
+    if (typeFilterBucket(m) !== bucket) return;
     if (haversineKm(l.lat, l.lng, m.lat, m.lng) > radiusKm) return;
     out.push(m);
   });
@@ -3073,7 +3086,7 @@ function renderListingDetail(merged) {
         </div>
         <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
         <div class="detail-stats">
-          <div class="detail-stat"><p class="label">Motivation score</p><p class="value">${l.score ?? '–'}</p></div>
+          <div class="detail-stat" title="Simple staleness-plus-discount indicator (price drop % + days on market) - doesn't yet account for relisting history, number of separate price cuts, or multi-portal listing. See Help for details."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
