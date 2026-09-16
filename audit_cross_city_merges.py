@@ -132,6 +132,20 @@ def main():
         json.dump([mid for mid, _, _ in cross_city_groups], f)
     print(f"\nWrote {len(cross_city_groups)} affected merged_ids to cross_city_merge_ids.json")
 
+    # Runs daily now (see the workflow) as an ongoing watchdog, not a
+    # one-time diagnostic - the f63d126 fix stops new cross-city merges from
+    # being CREATED, but says nothing about whether a stale merged_id from
+    # before the fix could still be sitting in the live table (upserts don't
+    # retroactively split an already-wrong group unless something changes
+    # its membership). A non-zero count here is a real dedup regression, not
+    # noise - exiting non-zero surfaces it as a failed run/notification the
+    # same way every other scheduled workflow in this project already does,
+    # instead of silently succeeding either way.
+    if cross_city_groups:
+        print(f"\nERROR: {len(cross_city_groups)} cross-city merged group(s) found in the live table - "
+              f"dedup regression, see the sample above.", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,21 @@
-# One-time diagnostic for audit_cross_city_merges.py - counts how many
-# existing merged_listings groups in Supabase span more than one city, a
-# real bug reported live (group_listings() matches purely on price+area
-# with no city check - see that script's docstring for the full story).
-# Read-only (no data/ writes, no commit step).
+# Started as a one-time diagnostic, now a daily watchdog for
+# audit_cross_city_merges.py: counts how many existing merged_listings
+# groups in Supabase span more than one city. The f63d126 fix (city is a
+# hard blocking condition in group_listings()) stops new cross-city groups
+# from being created and a local re-run of that same logic against current
+# data confirms 0/41,005 cross-portal-matched groups cross a city line -
+# but that only proves the *logic* is correct, not that the *live table*
+# has no stale group left over from before the fix (upserts don't
+# retroactively re-split an already-wrong merged_id unless its membership
+# changes again). Running daily catches that without blocking anything;
+# audit_cross_city_merges.py exits non-zero when it finds any, so a bad
+# result shows up the same way every other scheduled workflow's failure
+# does. Read-only (no data/ writes, no commit step).
 name: Audit cross-city merges
 
 on:
+  schedule:
+    - cron: "30 3 * * *"
   workflow_dispatch:
 
 permissions:
