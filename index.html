@@ -466,10 +466,14 @@
               <select id="sortBy">
                 <option value="price-asc">Price (low to high)</option>
                 <option value="price-desc">Price (high to low)</option>
+                <option value="size-desc">Size (large to small)</option>
+                <option value="size-asc">Size (small to large)</option>
                 <option value="persqm-asc">€/m² (low to high)</option>
+                <option value="reduction-desc">Biggest price cut</option>
+                <option value="recent-drop-desc">Most recently reduced</option>
+                <option value="drops-desc">Most price drops</option>
                 <option value="vsavg-asc">Most below area average</option>
                 <option value="score-desc">Motivation score</option>
-                <option value="drops-desc">Most price drops</option>
               </select>
             </div>
           </div>
@@ -487,6 +491,23 @@
         <div class="card">
           <h2>🔖 Saved listings</h2>
           <p class="card-sub">Listings you've saved, right here in this browser — click ☆ on any listing to add it.</p>
+          <div class="filters" style="margin-bottom:12px; max-width:260px;">
+            <div>
+              <label>Sort by</label>
+              <select id="savedSortBy">
+                <option value="price-asc">Price (low to high)</option>
+                <option value="price-desc">Price (high to low)</option>
+                <option value="size-desc">Size (large to small)</option>
+                <option value="size-asc">Size (small to large)</option>
+                <option value="persqm-asc">€/m² (low to high)</option>
+                <option value="reduction-desc">Biggest price cut</option>
+                <option value="recent-drop-desc">Most recently reduced</option>
+                <option value="drops-desc">Most price drops</option>
+                <option value="vsavg-asc">Most below area average</option>
+                <option value="score-desc">Motivation score</option>
+              </select>
+            </div>
+          </div>
           <div class="grid" id="savedGrid"></div>
           <p class="empty" id="savedEmpty" style="display:none;">No saved listings yet — click ☆ on any listing to save it here.</p>
         </div>
@@ -2591,9 +2612,12 @@ function renderDashboard() {
   // storing a snapshot, so a saved listing's price/badges/etc. stay live;
   // a saved id no longer present (delisted, or from an older data set)
   // just silently drops out instead of showing a broken card. Most
-  // recently saved first.
+  // recently saved first, then re-sorted by whatever's picked below -
+  // same sortComparator() the main results grid uses, so both agree on
+  // what e.g. "Biggest price cut" means.
   const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
   const saved = SAVED_LISTING_IDS.slice().reverse().map(id => byId.get(id)).filter(Boolean);
+  saved.sort(sortComparator(document.getElementById('savedSortBy').value));
   const savedGrid = document.getElementById('savedGrid');
   const savedEmpty = document.getElementById('savedEmpty');
   savedGrid.innerHTML = '';
@@ -2736,6 +2760,41 @@ function listingMatchesSearch(l, q) {
   );
 }
 
+// Timestamp of the last real price change, or null if the price has never
+// changed. price_history only ever gets a new entry when the price
+// actually differs from the previous one (see compute_leads() in every
+// scraper), so a single-entry history is just the original list price,
+// not a reduction - treated as "never reduced" (sorts last for
+// "most recently reduced") rather than using that entry's date, which
+// would otherwise make every never-reduced listing look freshly cut.
+function lastReductionDate(l) {
+  if (!Array.isArray(l.price_history) || l.price_history.length < 2) return null;
+  const last = l.price_history[l.price_history.length - 1];
+  return last && last.date ? new Date(last.date).getTime() : null;
+}
+
+// Shared by the main results grid and the Dashboard's saved-listings grid,
+// so both sort identically instead of maintaining two copies of the same
+// branch list that could drift.
+function sortComparator(sortBy) {
+  return (a, b) => {
+    if (sortBy === 'price-asc') return a.price_eur - b.price_eur;
+    if (sortBy === 'price-desc') return b.price_eur - a.price_eur;
+    if (sortBy === 'size-desc') return (b.sqm ?? -Infinity) - (a.sqm ?? -Infinity);
+    if (sortBy === 'size-asc') return (a.sqm ?? Infinity) - (b.sqm ?? Infinity);
+    if (sortBy === 'persqm-asc') return (a.price_per_sqm||Infinity) - (b.price_per_sqm||Infinity);
+    if (sortBy === 'reduction-desc') return (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
+    if (sortBy === 'recent-drop-desc') return (lastReductionDate(b) ?? -Infinity) - (lastReductionDate(a) ?? -Infinity);
+    if (sortBy === 'vsavg-asc') return (a.pct_vs_area_avg??999) - (b.pct_vs_area_avg??999);
+    if (sortBy === 'score-desc') return b.score - a.score;
+    if (sortBy === 'drops-desc') {
+      const dropDiff = (b.price_drop_count ?? 0) - (a.price_drop_count ?? 0);
+      return dropDiff !== 0 ? dropDiff : (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
+    }
+    return 0;
+  };
+}
+
 function render() {
   const min = parseFloat(document.getElementById('minPrice').value) || 0;
   const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
@@ -2756,18 +2815,7 @@ function render() {
     matchesOblastFilter(l, activeOblastFilter)
   );
 
-  filtered.sort((a, b) => {
-    if (sortBy === 'price-asc') return a.price_eur - b.price_eur;
-    if (sortBy === 'price-desc') return b.price_eur - a.price_eur;
-    if (sortBy === 'persqm-asc') return (a.price_per_sqm||Infinity) - (b.price_per_sqm||Infinity);
-    if (sortBy === 'vsavg-asc') return (a.pct_vs_area_avg??999) - (b.pct_vs_area_avg??999);
-    if (sortBy === 'score-desc') return b.score - a.score;
-    if (sortBy === 'drops-desc') {
-      const dropDiff = (b.price_drop_count ?? 0) - (a.price_drop_count ?? 0);
-      return dropDiff !== 0 ? dropDiff : (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
-    }
-    return 0;
-  });
+  filtered.sort(sortComparator(sortBy));
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
@@ -3271,6 +3319,7 @@ document.getElementById('maxPrice').addEventListener('input', renderFromStart);
 document.getElementById('minSqm').addEventListener('input', renderFromStart);
 document.getElementById('areaFilter').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
+document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
 
