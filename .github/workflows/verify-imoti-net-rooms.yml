@@ -29,49 +29,55 @@ jobs:
 
       - run: |
           python3 - <<'PYEOF'
-          import json, re, random
+          import json, re
           import requests
           from bs4 import BeautifulSoup
 
-          data = json.loads(open("data/leads.json", encoding="utf-8").read())
-          bedroom_re = re.compile(r"(\d{1,2})\s*bedroom", re.IGNORECASE)
-          matches = [
-              (d["title"], d["url"])
-              for d in data
-              if d.get("title") and bedroom_re.search(d["title"]) and d.get("source_status") != "removed"
+          # Round 2: round 1's plain-text search for a Cyrillic room-word came
+          # up empty on 19/20 of these EN-language (/en/obiava/...) pages -
+          # inconclusive, not necessarily wrong, since the /en/ page may just
+          # not display that word in visible copy at all even though the
+          # portal's own URL slug states it. This dumps the actual property-
+          # details area of a few real pages verbatim so it can be read
+          # directly, rather than guessing at another substring pattern.
+          urls = [
+              "https://www.imoti.net/en/obiava/prodava/varna/briz/tristaen/6226556/",
+              "https://www.imoti.net/en/obiava/prodava/sofia/pavlovo/dvustaen/6255952/",
+              "https://www.imoti.net/en/obiava/prodava/vratsa/podbalkanska/chetiristaen/6231617/",
           ]
-          random.seed(42)
-          sample = random.sample(matches, 20)
-
           headers = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
-          expected_word = {1: "dvustaen", 2: "tristaen", 3: "chetiristaen", 4: "petstaen"}
-          # Bulgarian-language room words that might appear on the page itself
-          # (imoti.net's site nav / breadcrumbs / property-type field), not just
-          # the URL - this is the actual page-content check.
-          bg_room_words = {
-              1: ["двустаен", "dvustaen"], 2: ["тристаен", "tristaen"],
-              3: ["четиристаен", "chetiristaen"], 4: ["петстаен", "petstaen"],
-          }
 
-          results = []
-          for title, url in sample:
-              n = int(bedroom_re.search(title).group(1))
-              url_slug_match = expected_word.get(n, "???") in url
-              page_match = None
+          for url in urls:
+              print(f"\n{'='*100}\n{url}\n{'='*100}")
               try:
                   resp = requests.get(url, headers=headers, timeout=20)
                   resp.raise_for_status()
                   html = resp.text
                   soup = BeautifulSoup(html, "html.parser")
-                  page_text = soup.get_text(" ", strip=True).lower()
-                  page_match = any(w in page_text for w in bg_room_words.get(n, []))
-              except Exception as e:
-                  page_match = f"ERROR: {e}"
-              results.append((title, url, url_slug_match, page_match))
-              print(f"{title!r} | url_slug_match={url_slug_match} | page_content_match={page_match} | {url}")
 
-          n_url_match = sum(1 for _, _, u, _ in results if u)
-          n_page_match = sum(1 for _, _, _, p in results if p is True)
-          n_page_error = sum(1 for _, _, _, p in results if isinstance(p, str))
-          print(f"\nSUMMARY: {n_url_match}/20 URL slug matches, {n_page_match}/20 page-content matches, {n_page_error}/20 fetch errors")
+                  # Bulgarian-language alternate link, if the site publishes one -
+                  # its own URL would show the room word in the language the
+                  # portal's own users actually search it in.
+                  bg_alt = soup.find("link", attrs={"hreflang": "bg"})
+                  print("hreflang=bg alternate:", bg_alt.get("href") if bg_alt else None)
+
+                  # Any breadcrumb nav - often states property type/room count.
+                  breadcrumb = soup.find(class_=re.compile("breadcrumb", re.I))
+                  if breadcrumb:
+                      print("breadcrumb text:", breadcrumb.get_text(" | ", strip=True)[:300])
+
+                  # The page's own <title> and og:title often restate the type.
+                  print("title tag:", soup.title.get_text(strip=True) if soup.title else None)
+                  og_title = soup.find("meta", attrs={"property": "og:title"})
+                  print("og:title:", og_title.get("content") if og_title else None)
+
+                  # Raw visible text near any occurrence of "room" (English
+                  # page) - print real surrounding context instead of a
+                  # yes/no substring check.
+                  page_text = soup.get_text(" ", strip=True)
+                  for m in re.finditer(r"room", page_text, re.IGNORECASE):
+                      start = max(0, m.start() - 80)
+                      print("  ...context near 'room':", page_text[start:m.start()+80])
+              except Exception as e:
+                  print("ERROR:", e)
           PYEOF
