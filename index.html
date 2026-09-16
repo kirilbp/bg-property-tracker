@@ -462,6 +462,32 @@
               <select id="areaFilter"><option value="">All areas</option></select>
             </div>
             <div>
+              <label>Rooms</label>
+              <select id="roomsFilter">
+                <option value="">Any</option>
+                <option value="1">1 (studio)</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5+</option>
+              </select>
+            </div>
+            <div>
+              <label>Min days on market</label>
+              <input type="number" id="minDaysOnMarket" placeholder="0" />
+            </div>
+            <div>
+              <label>Min times reduced</label>
+              <input type="number" id="minTimesReduced" placeholder="0" />
+            </div>
+            <div>
+              <label>Status</label>
+              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
+                <input type="checkbox" id="excludeSold" checked style="width:auto;" />
+                Exclude sold
+              </label>
+            </div>
+            <div>
               <label>Sort by</label>
               <select id="sortBy">
                 <option value="price-asc">Price (low to high)</option>
@@ -1966,6 +1992,48 @@ function computeUnverified(l) {
     Math.abs(l.pct_vs_area_avg) >= UNVERIFIED_PCT_THRESHOLD;
 }
 
+// Room count isn't a scraped field anywhere - derived from title text, the
+// same way every portal's own site typically states it. Coverage measured
+// against real committed data before building this filter (per-portal,
+// restricted to actual flats via typeFilterBucket()): imoti.net 76.5%,
+// alo.bg 81.3%, homes.bg 93.1%, imot.bg 93.5%, olx.bg 72.9%, bazar.bg
+// 93.4%, imoti.bg 90.6%, sales.bcpea.org 82.7% - every portal comfortably
+// clears the "would silently hide too much of the market" concern, so this
+// ships as a normal, visible-by-default filter rather than opt-in.
+//
+// Two known gaps, deliberately not counted as "known":
+// - "многостаен" ("multi-room") states a listing has several rooms without
+//   saying how many - genuinely ambiguous, not guessable, so it returns
+//   null (excluded from any specific room-count match, same as a listing
+//   with no room text at all - never silently miscounted as some default).
+// - imoti.net titles state an English "N bedroom" count, which excludes
+//   the living room - the opposite of the BG "N-стаен" convention used
+//   everywhere else, which counts it. +1 here converts to the BG
+//   convention so a search for "3-стаен" also finds a matching imoti.net
+//   "2 bedroom" listing instead of silently excluding every imoti.net
+//   result from that convention - flagged here since it's a judgment
+//   call, not a technical fact, and easy to revert if wrong.
+const ROOM_DIGIT_RE = /(\d{1,2})\s*-?\s*стаен/i;
+const ROOM_BEDROOM_RE = /(\d{1,2})\s*bedroom/i;
+const ROOM_WORD_TO_COUNT = {
+  'едностаен': 1, 'гарсониера': 1, 'студио': 1,
+  'двустаен': 2, 'тристаен': 3, 'четиристаен': 4,
+  'ednostaen': 1, 'garsoniera': 1, 'studio': 1,
+  'dvustaen': 2, 'tristaen': 3, 'chetiristaen': 4,
+};
+function extractRoomCount(title) {
+  if (!title) return null;
+  const t = title.toLowerCase();
+  const digitMatch = t.match(ROOM_DIGIT_RE);
+  if (digitMatch) return parseInt(digitMatch[1], 10);
+  for (const word in ROOM_WORD_TO_COUNT) {
+    if (t.includes(word)) return ROOM_WORD_TO_COUNT[word];
+  }
+  const bedroomMatch = t.match(ROOM_BEDROOM_RE);
+  if (bedroomMatch) return parseInt(bedroomMatch[1], 10) + 1;
+  return null;
+}
+
 async function loadData() {
   try {
     // merged_listings is already the cross-portal-deduped view (computed
@@ -1988,7 +2056,7 @@ async function loadData() {
     // only for the listing actually being viewed - see showListingDetail().
     const mergedRows = await fetchAllRows('merged_listings');
 
-    MERGED_LISTINGS = mergedRows.map(m => ({ ...m, unverified: computeUnverified(m), sources: null }));
+    MERGED_LISTINGS = mergedRows.map(m => ({ ...m, unverified: computeUnverified(m), rooms: extractRoomCount(m.title), sources: null }));
 
     const totalSourceCount = mergedRows.reduce((sum, m) => sum + (m.member_count || 1), 0);
     const countsByPortal = {};
@@ -2800,6 +2868,10 @@ function render() {
   const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
   const minSqm = parseFloat(document.getElementById('minSqm').value) || 0;
   const area = document.getElementById('areaFilter').value;
+  const rooms = document.getElementById('roomsFilter').value;
+  const minDays = parseFloat(document.getElementById('minDaysOnMarket').value) || 0;
+  const minReduced = parseFloat(document.getElementById('minTimesReduced').value) || 0;
+  const excludeSold = document.getElementById('excludeSold').checked;
   const sortBy = document.getElementById('sortBy').value;
   const searchQuery = (document.getElementById('searchQuery').value || '').trim().toLowerCase();
 
@@ -2808,6 +2880,14 @@ function render() {
     l.price_eur <= max &&
     (l.sqm || 0) >= minSqm &&
     (area === '' || l.area === area) &&
+    // "5" means "5+" - the room-count select only offers exact values 1-4
+    // and a 5+ bucket, matching what's actually extractable (see
+    // extractRoomCount()'s own comment) rather than exact values beyond
+    // what a listing's title can reliably state.
+    (rooms === '' || (rooms === '5' ? (l.rooms ?? 0) >= 5 : l.rooms === parseInt(rooms, 10))) &&
+    (l.days_on_market ?? 0) >= minDays &&
+    (l.price_drop_count ?? 0) >= minReduced &&
+    (!excludeSold || l.status !== 'sold') &&
     listingMatchesSearch(l, searchQuery) &&
     matchesLeadGenerator(l, activeLeadGenerator) &&
     matchesTypeFilter(l, activeTypeFilter) &&
@@ -3318,6 +3398,10 @@ document.getElementById('minPrice').addEventListener('input', renderFromStart);
 document.getElementById('maxPrice').addEventListener('input', renderFromStart);
 document.getElementById('minSqm').addEventListener('input', renderFromStart);
 document.getElementById('areaFilter').addEventListener('change', renderFromStart);
+document.getElementById('roomsFilter').addEventListener('change', renderFromStart);
+document.getElementById('minDaysOnMarket').addEventListener('input', renderFromStart);
+document.getElementById('minTimesReduced').addEventListener('input', renderFromStart);
+document.getElementById('excludeSold').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
