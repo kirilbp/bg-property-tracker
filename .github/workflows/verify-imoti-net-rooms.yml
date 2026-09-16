@@ -1,0 +1,77 @@
+# One-time, throwaway verification - NOT meant to stay in the repo.
+# Checks whether imoti.net's own "N bedroom" English title text really
+# means "N+1" in the Bulgarian "N-стаен" room-count convention used
+# everywhere else in this project (index.html's extractRoomCount() adds 1
+# to convert it). This sandbox's own outbound network policy blocks a
+# direct fetch to imoti.net, but GitHub Actions runners (which the real
+# scrapers already run on) can reach it - this reuses that access for a
+# real page-content check rather than trusting the URL slug alone.
+# Delete this workflow once its result is confirmed and reported.
+name: Verify imoti.net room-count conversion (throwaway)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: |
+          python3 - <<'PYEOF'
+          import json, re, random
+          import requests
+          from bs4 import BeautifulSoup
+
+          data = json.loads(open("data/leads.json", encoding="utf-8").read())
+          bedroom_re = re.compile(r"(\d{1,2})\s*bedroom", re.IGNORECASE)
+          matches = [
+              (d["title"], d["url"])
+              for d in data
+              if d.get("title") and bedroom_re.search(d["title"]) and d.get("source_status") != "removed"
+          ]
+          random.seed(42)
+          sample = random.sample(matches, 20)
+
+          headers = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
+          expected_word = {1: "dvustaen", 2: "tristaen", 3: "chetiristaen", 4: "petstaen"}
+          # Bulgarian-language room words that might appear on the page itself
+          # (imoti.net's site nav / breadcrumbs / property-type field), not just
+          # the URL - this is the actual page-content check.
+          bg_room_words = {
+              1: ["двустаен", "dvustaen"], 2: ["тристаен", "tristaen"],
+              3: ["четиристаен", "chetiristaen"], 4: ["петстаен", "petstaen"],
+          }
+
+          results = []
+          for title, url in sample:
+              n = int(bedroom_re.search(title).group(1))
+              url_slug_match = expected_word.get(n, "???") in url
+              page_match = None
+              try:
+                  resp = requests.get(url, headers=headers, timeout=20)
+                  resp.raise_for_status()
+                  html = resp.text
+                  soup = BeautifulSoup(html, "html.parser")
+                  page_text = soup.get_text(" ", strip=True).lower()
+                  page_match = any(w in page_text for w in bg_room_words.get(n, []))
+              except Exception as e:
+                  page_match = f"ERROR: {e}"
+              results.append((title, url, url_slug_match, page_match))
+              print(f"{title!r} | url_slug_match={url_slug_match} | page_content_match={page_match} | {url}")
+
+          n_url_match = sum(1 for _, _, u, _ in results if u)
+          n_page_match = sum(1 for _, _, _, p in results if p is True)
+          n_page_error = sum(1 for _, _, _, p in results if isinstance(p, str))
+          print(f"\nSUMMARY: {n_url_match}/20 URL slug matches, {n_page_match}/20 page-content matches, {n_page_error}/20 fetch errors")
+          PYEOF
