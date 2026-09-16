@@ -314,6 +314,13 @@ CATEGORY_TO_BUCKET = {
 
 
 def type_filter_bucket(l):
+    # bcpea never goes through CATEGORY_TO_BUCKET/its own raw "category"
+    # column below - that field is known-bad for this one portal (see
+    # classify_category()'s docstring in geo_utils.py and the comment where
+    # scraper_bcpea.py sets it): bcpea's auctions cover every property type,
+    # so most of its own non-apartment listings get silently mislabeled
+    # "apartment" there. bcpea_type_match() reads the same title through its
+    # own precise controlled vocabulary instead, which is actually reliable.
     if l.get("portal") == "sales.bcpea.org":
         match = bcpea_type_match(l.get("title"))
         return match[1] if match else "other"

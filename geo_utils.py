@@ -68,7 +68,21 @@ CATEGORY_KEYWORDS = {
 def classify_category(title):
     """Best-effort category from a Bulgarian listing title. Defaults to
     'apartment' when nothing matches, which is correct for every portal
-    already scoped to an apartments-only search URL."""
+    already scoped to an apartments-only search URL.
+
+    KNOWN-BAD when called on a portal that ISN'T apartments-only: confirmed
+    live for sales.bcpea.org (scraper_bcpea.py), whose auctions cover every
+    property type - garages, farmland, production buildings, etc. - and
+    whose own Bulgarian type words for those (e.g. "Гараж", "Земеделска
+    земя") aren't all in CATEGORY_KEYWORDS below, so a majority of its own
+    non-apartment listings silently default to "apartment" here. Never read
+    a bcpea listing's raw "category" field expecting it to be accurate -
+    type_filter_bucket() in sync_to_supabase.py (and typeFilterBucket() in
+    index.html) already know this and use bcpea_type_match() against the
+    title's own precise controlled vocabulary instead for that one portal;
+    everything else in the app already goes through one of those two
+    functions rather than raw category, so this is a dead-field trap for
+    future code, not a live bug."""
     text = (title or "").lower()
     for category in ("land", "house", "commercial", "apartment"):
         if any(kw in text for kw in CATEGORY_KEYWORDS[category]):
