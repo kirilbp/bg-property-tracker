@@ -70,14 +70,30 @@ def main():
     # so this explicit marker is the only reliable "not yet enriched"
     # signal; a bare field-presence check would stop finding any work once
     # every field it could check is populated some other way.
-    missing = [
+    #
+    # "_photos_checked" is a second, separate marker for the same reason:
+    # extract_photos_alo() was added to fetch_update_dates() well after it
+    # had already been visiting pages for weeks, so every listing marked
+    # _detail_fetched before that point permanently looked "done" and would
+    # never get its gallery backfilled at all - live-confirmed, 18,010 such
+    # listings with 0 photos among them. Listings missing _photos_checked
+    # get a one-time re-visit for that; already-never-visited listings still
+    # come first (tier 0) since they're missing everything, not just photos
+    # (tier 1) - both sorted newest-first within their own tier.
+    never_fetched = [
         (lid, rec) for lid, rec in history.items()
         if not rec.get("latest", {}).get("_detail_fetched")
     ]
-    # Newest-discovered first, so freshly scraped listings get real
-    # dates/coordinates before older ones still waiting in the backlog.
-    missing.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
-    print(f"DEBUG: {len(missing)} / {len(history)} listings not yet detail-enriched")
+    photos_recheck = [
+        (lid, rec) for lid, rec in history.items()
+        if rec.get("latest", {}).get("_detail_fetched") and not rec.get("latest", {}).get("_photos_checked")
+    ]
+    never_fetched.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
+    photos_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
+    missing = never_fetched + photos_recheck
+    print(f"DEBUG: {len(never_fetched)} never detail-fetched, "
+          f"{len(photos_recheck)} detail-fetched but not yet photo-checked, "
+          f"{len(history)} total")
 
     batch = dict(missing[:MAX_LOOKUPS_PER_RUN])
     to_enrich = {lid: rec["latest"] for lid, rec in batch.items()}
@@ -92,7 +108,15 @@ def main():
 
     checkpoint()
 
-    processed = sum(1 for l in to_enrich.values() if l.get("_detail_fetched"))
+    # "_photos_checked" (not "_detail_fetched") is the right signal for
+    # "actually visited this run" - a photos-recheck listing already had
+    # _detail_fetched=True before this run started (that's the whole reason
+    # it's in this batch), so checking that flag here would count every
+    # recheck listing as "processed" whether or not fetch_update_dates()
+    # actually got to it before the time budget ran out. Both flags are set
+    # together on every real visit now, so this is accurate for freshly-
+    # visited listings too.
+    processed = sum(1 for l in to_enrich.values() if l.get("_photos_checked"))
     print(f"DEBUG: detail-enriched {processed} listings this run "
           f"({len(missing) - processed} still queued for a future run)")
 

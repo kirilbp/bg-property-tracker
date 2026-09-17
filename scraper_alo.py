@@ -360,6 +360,7 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
             # URL, so mark it done same as a successful visit would.
             consecutive_failures = 0
             l["_detail_fetched"] = True
+            l["_photos_checked"] = True
             continue
         if html is None:
             consecutive_failures += 1
@@ -390,6 +391,19 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
         # doesn't always show them), so presence of an actual field can't be
         # used as the "was this visited" signal; this explicit marker can.
         l["_detail_fetched"] = True
+        # Separate from _detail_fetched (not just folded into it) because
+        # extract_photos_alo() was added to this function well after it had
+        # already been visiting pages for weeks - every listing marked
+        # _detail_fetched before that point permanently looked "done" to
+        # backfill_detail_alo.py's missing-listing filter even though it was
+        # never actually checked for photos, so its gallery would never get
+        # backfilled at all. Live-confirmed: 18,010 _detail_fetched listings
+        # with a real visit already done, still 0 with photos. Set
+        # unconditionally (like _detail_fetched) so a real "this listing
+        # genuinely has no gallery" result still counts as checked and isn't
+        # retried forever - only listings visited before this flag existed
+        # get the one-time re-check backfill_detail_alo.py now does.
+        l["_photos_checked"] = True
         if on_checkpoint and i % checkpoint_every == 0:
             on_checkpoint()
 
