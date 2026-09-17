@@ -352,6 +352,24 @@
   .modal-btn-primary:hover { background: #1d4ed8; }
   .modal-error { color: #b91c1c; font-size: 13px; margin: -8px 0 14px; display: none; }
   .modal-error.show { display: block; }
+
+  /* Comparables modal */
+  .compare-modal .modal-panel { max-width: 920px; }
+  .compare-subject-row {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 14px;
+    margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .compare-subject-row strong { color: #1e3a8a; }
+  .compare-table-wrap { overflow-x: auto; }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
+  .compare-table th { color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .compare-table td.compare-title { white-space: normal; max-width: 220px; }
+  .compare-table tr.compare-subject-row-highlight td { background: #eff6ff; font-weight: 600; }
+  .compare-table a { color: #2563eb; text-decoration: none; }
+  .compare-table a:hover { text-decoration: underline; }
+  .compare-empty { text-align: center; color: #94a3b8; padding: 30px 20px; }
+  .compare-truncated-note { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }
 </style>
 </head>
 <body>
@@ -707,6 +725,22 @@
   </div>
 </div>
 
+<div class="modal-overlay compare-modal" id="compareModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Compare nearby listings</h2>
+      <button class="modal-close-btn" id="compareModalCloseBtn">✕</button>
+    </div>
+    <div class="radius-btn-row" id="compareRadiusButtons" style="margin-bottom:14px;">
+      <button type="button" class="radius-btn" data-compare-radius="250">250m</button>
+      <button type="button" class="radius-btn" data-compare-radius="500">500m</button>
+      <button type="button" class="radius-btn" data-compare-radius="1000">1000m</button>
+      <button type="button" class="radius-btn" data-compare-radius="1500">1500m</button>
+    </div>
+    <div id="compareModalBody"></div>
+  </div>
+</div>
+
 <script>
 // The publishable/anon key is meant to be public - it's rejected by Row
 // Level Security for anything but the read-only SELECT policy in
@@ -835,6 +869,12 @@ let detailRadiusM = null;
 let detailPhotos = [];
 let detailPhotoIndex = 0;
 let detailMap = null;
+// Separate from detailRadiusM - the inline radius panel and the Compare
+// modal are opened independently (a user can check the panel's average
+// without ever opening Compare, or vice versa), so each keeps its own
+// selected radius rather than fighting over one shared value.
+let compareRadiusM = 1000;
+let compareMergedListing = null;
 
 // --- Property-type filter (Home page) -----------------------------------------
 // Six type buckets spanning all 8 portals, plus a 7th "Auctions" bucket
@@ -1906,6 +1946,114 @@ function renderRadiusPanel(l) {
     </div>
   `;
 }
+
+// Compare modal - a dedicated side-by-side view of the same findComparables()
+// set the inline radius panel already computes, but with per-listing rows
+// (price, size, €/m², days on market, price change, distance) instead of
+// just an average, plus its own radius control so it doesn't fight over
+// detailRadiusM with the panel embedded in the page behind it.
+function openCompareModal(merged) {
+  compareMergedListing = merged;
+  document.getElementById('compareModalOverlay').classList.add('open');
+  renderCompareModal();
+}
+
+function closeCompareModal() {
+  document.getElementById('compareModalOverlay').classList.remove('open');
+  compareMergedListing = null;
+}
+
+function renderCompareModal() {
+  if (!compareMergedListing) return;
+  const merged = compareMergedListing;
+  const l = merged.sources[detailSourceIndex] || merged.sources[0];
+
+  document.querySelectorAll('#compareRadiusButtons .radius-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.compareRadius, 10) === compareRadiusM);
+  });
+
+  const body = document.getElementById('compareModalBody');
+
+  if (l.lat == null || l.lng == null) {
+    body.innerHTML = `<p class="compare-empty">Location data isn't available for this listing yet, so nearby comparables can't be found.</p>`;
+    return;
+  }
+
+  // Distance is computed here (not carried by findComparables(), which only
+  // needs it as a filter threshold) so rows can be sorted closest-first -
+  // the most useful default order for a side-by-side comparison, and the
+  // same ordering the map markers implicitly suggest.
+  const comparables = findComparables(l, compareRadiusM)
+    .map(m => ({ ...m, _distanceKm: haversineKm(l.lat, l.lng, m.lat, m.lng) }))
+    .sort((a, b) => a._distanceKm - b._distanceKm);
+
+  if (comparables.length === 0) {
+    body.innerHTML = `
+      <div class="compare-subject-row">
+        <span><strong>${escapeHtml(l.title)}</strong> · €${fmt(l.price_eur)}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</span>
+      </div>
+      <p class="compare-empty">No other ${l.category || 'apartment'} listings with a known location found within ${compareRadiusM}m.</p>
+    `;
+    return;
+  }
+
+  // Capped rather than rendering every match - a dense area at 1500m can
+  // return hundreds of comparables, and a table that long stops being a
+  // usable side-by-side view. Closest-first sort above means the cap always
+  // drops the least relevant (farthest) rows, not an arbitrary subset.
+  const MAX_ROWS = 30;
+  const shown = comparables.slice(0, MAX_ROWS);
+
+  const compareRow = (s, isSubject) => `
+    <tr${isSubject ? ' class="compare-subject-row-highlight"' : ''}>
+      <td class="compare-title">${isSubject ? escapeHtml(s.title) : `<a href="#" data-compare-goto="${s.id}">${escapeHtml(s.title)}</a>`}<br><span style="color:#94a3b8;font-weight:400;">${s.portal}</span></td>
+      <td>€${fmt(s.price_eur)}</td>
+      <td>${s.sqm ? s.sqm + ' m²' : '–'}</td>
+      <td>${s.price_per_sqm ? '€' + fmt(s.price_per_sqm) : '–'}</td>
+      <td>${s.days_on_market ?? '–'}</td>
+      <td>${s.drop_pct > 0 ? '↓' + s.drop_pct + '%' : '–'}</td>
+      <td>${isSubject ? '(this listing)' : Math.round(s._distanceKm * 1000) + 'm'}</td>
+    </tr>
+  `;
+
+  const truncatedNote = comparables.length > MAX_ROWS
+    ? `<p class="compare-truncated-note">Showing the closest ${MAX_ROWS} of ${comparables.length} comparables within ${compareRadiusM}m.</p>`
+    : '';
+
+  body.innerHTML = `
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
+        </thead>
+        <tbody>
+          ${compareRow(l, true)}
+          ${shown.map(s => compareRow(s, false)).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${truncatedNote}
+  `;
+
+  body.querySelectorAll('[data-compare-goto]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeCompareModal();
+      showListingDetail(a.dataset.compareGoto);
+    });
+  });
+}
+
+document.getElementById('compareModalCloseBtn').addEventListener('click', closeCompareModal);
+document.getElementById('compareModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'compareModalOverlay') closeCompareModal();
+});
+document.querySelectorAll('#compareRadiusButtons .radius-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    compareRadiusM = parseInt(btn.dataset.compareRadius, 10);
+    renderCompareModal();
+  });
+});
 
 // Cross-portal duplicate detection (price+sqm+area fuzzy matching - see
 // sync_to_supabase.py's group_listings() for the full algorithm and its
@@ -3220,6 +3368,7 @@ function renderListingDetail(merged) {
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
         <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
+        <button class="modal-btn-secondary" id="compareBtn" style="margin-left:8px;">⇄ Compare nearby</button>
         <div class="detail-stats">
           <div class="detail-stat" title="Simple staleness-plus-discount indicator (price drop % + days on market) - doesn't yet account for relisting history, number of separate price cuts, or multi-portal listing. See Help for details."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
@@ -3281,6 +3430,8 @@ function renderListingDetail(merged) {
       renderListingDetail(merged);
     });
   });
+
+  document.getElementById('compareBtn').addEventListener('click', () => openCompareModal(merged));
 
   if (detailActiveTab === 'pricehistory') {
     renderPriceHistoryChart(chartPriceHistory);
