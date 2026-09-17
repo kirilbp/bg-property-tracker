@@ -1,0 +1,69 @@
+# One-time, throwaway probe - NOT meant to stay in the repo. Checks
+# whether sales.bcpea.org's own detail page really has a multi-photo
+# gallery beyond the single cover image scraper_bcpea.py currently
+# extracts (its own module docstring already suspected so: "the real
+# gallery only exists on the detail page"). Reuses scraper_bcpea.py's own
+# fetch_html()/browser setup since this portal bot-blocks a plain fetch
+# (see that module's docstring). Delete once its result is known.
+name: Probe bcpea.org photo gallery (throwaway)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4 playwright
+      - run: playwright install --with-deps chromium
+
+      - run: |
+          python3 - <<'PYEOF'
+          from playwright.sync_api import sync_playwright
+          import scraper_bcpea as sb
+          from bs4 import BeautifulSoup
+
+          urls = [
+              "https://sales.bcpea.org/properties/89508",
+              "https://sales.bcpea.org/properties/89708",
+              "https://sales.bcpea.org/properties/89921",
+          ]
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              for url in urls:
+                  print(f"\n{'='*100}\n{url}\n{'='*100}")
+                  html = sb.fetch_html(browser, url)
+                  if html is None:
+                      print("fetch_html returned None")
+                      continue
+                  soup = BeautifulSoup(html, "html.parser")
+                  expanded = soup.find(class_="item__expanded")
+                  if expanded is None:
+                      print("no item__expanded found")
+                      continue
+
+                  imgs = expanded.find_all("img")
+                  print(f"{len(imgs)} <img> tags inside item__expanded:")
+                  for img in imgs:
+                      print("  src=", img.get("src"), " class=", img.get("class"), " data-src=", img.get("data-src"))
+
+                  # Any gallery/carousel/slider container - common naming
+                  # patterns worth checking directly.
+                  for cls_pattern in ["gallery", "slider", "carousel", "photos", "thumb"]:
+                      hits = expanded.find_all(class_=lambda c: c and cls_pattern in " ".join(c if isinstance(c, list) else [c]).lower())
+                      if hits:
+                          print(f"elements matching class*={cls_pattern!r}: {len(hits)}")
+                          for h in hits[:3]:
+                              print("   ", str(h)[:300])
+              browser.close()
+          PYEOF
