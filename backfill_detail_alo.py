@@ -48,6 +48,20 @@ import scraper_alo as sa
 # what actually decides when a run stops.
 MAX_LOOKUPS_PER_RUN = 1000
 
+# Guaranteed floor for the _photos_checked recheck tier (see below),
+# placed FIRST in this run's processing order rather than just included
+# somewhere in the candidate pool - live-confirmed the bug this fixes:
+# with recheck items appended after the much larger never-fetched tier
+# (currently ~69,000 vs ~18,000) and both drawn from the same
+# MAX_LOOKUPS_PER_RUN-sized slice, a real run's entire 1,000-listing batch
+# came from never-fetched alone - the recheck backlog got exactly zero
+# listings touched, run after run, until never-fetched first drops below
+# ~1,000. Giving recheck first claim on a fixed slice of every run's
+# budget means it actually clears in a predictable number of days instead
+# of waiting - potentially over a week, at real observed throughput - for
+# an unrelated, far larger backlog to finish first.
+PHOTOS_RECHECK_FLOOR = 250
+
 # Stop visiting new listings once a run has spent this much of the
 # workflow's 45-minute timeout - real headroom for whatever page is in
 # flight, the final checkpoint, computing leads, and the commit/push step,
@@ -90,12 +104,25 @@ def main():
     ]
     never_fetched.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
     photos_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
-    missing = never_fetched + photos_recheck
     print(f"DEBUG: {len(never_fetched)} never detail-fetched, "
           f"{len(photos_recheck)} detail-fetched but not yet photo-checked, "
           f"{len(history)} total")
 
-    batch = dict(missing[:MAX_LOOKUPS_PER_RUN])
+    # Recheck's guaranteed floor goes FIRST in processing order (not just
+    # included somewhere in the pool) so it gets first claim on this run's
+    # actual time budget too, not only a slot in the candidate list - see
+    # PHOTOS_RECHECK_FLOOR's own comment for the bug this avoids.
+    recheck_slice = photos_recheck[:PHOTOS_RECHECK_FLOOR]
+    remaining_cap = MAX_LOOKUPS_PER_RUN - len(recheck_slice)
+    never_fetched_slice = never_fetched[:remaining_cap]
+    # If never-fetched itself is smaller than its share of the cap (a
+    # near-empty backlog), spend the leftover room on more of the recheck
+    # tier instead of leaving it unused.
+    leftover_cap = remaining_cap - len(never_fetched_slice)
+    extra_recheck_slice = photos_recheck[PHOTOS_RECHECK_FLOOR:PHOTOS_RECHECK_FLOOR + leftover_cap] if leftover_cap > 0 else []
+    missing = recheck_slice + never_fetched_slice + extra_recheck_slice
+
+    batch = dict(missing)
     to_enrich = {lid: rec["latest"] for lid, rec in batch.items()}
 
     def checkpoint():
