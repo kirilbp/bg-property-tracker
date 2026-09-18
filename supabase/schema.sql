@@ -128,3 +128,56 @@ alter table merged_listings add column if not exists category_confidence text;
 alter table listing_sources add column if not exists oblast_key text;
 alter table merged_listings add column if not exists oblast_key text;
 create index if not exists merged_listings_oblast_key_idx on merged_listings (oblast_key);
+
+-- Manual reminders (backlog stage 8): a user-set note + date attached to a
+-- listing, checked once daily by check_reminders.py (see that script and
+-- .github/workflows/check-reminders.yml) and surfaced on the Dashboard.
+-- listing_title/listing_portal are a snapshot taken when the reminder is
+-- created, not a foreign key - merged_listings rows get deleted outright
+-- when a group's membership changes or a listing drops out entirely (see
+-- sync_to_supabase.py's delete_stale_merged_listings()), and a reminder
+-- for a listing that's since vanished should still show something
+-- meaningful rather than a broken reference or silently disappearing.
+--
+-- Unlike listing_sources/merged_listings above, this table IS writable by
+-- the anon/publishable key - insert (create a reminder) and a full update
+-- (dismiss it, from the browser, with no login system to scope it to a
+-- single user). That's a real, deliberate exception to this file's normal
+-- read-only-anon rule, accepted for now because the stakes are low - a
+-- personal date+note, not the saved-listings pipeline the user explicitly
+-- drew the line at (see backlog #62: saved listings/lead generators move
+-- to Supabase Auth with per-user RLS specifically BECAUSE that data is
+-- higher-stakes and multi-user-relevant). Anyone who finds the public anon
+-- key could create, read, or dismiss rows here today; reminders should
+-- move under the same per-user auth once #62 lands, not stay exposed
+-- indefinitely. notified_at is only ever written by check_reminders.py's
+-- service-role key (bypasses RLS, like sync_to_supabase.py), so it needs
+-- no browser-facing policy - the anon update policy touching it too is a
+-- known, accepted gap (worst case: someone suppresses or re-triggers their
+-- own already-low-stakes notification), not column-scoped for the sake of
+-- keeping this migration simple.
+create table if not exists reminders (
+  id             bigint generated always as identity primary key,
+  listing_id     text,
+  listing_title  text,
+  listing_portal text,
+  note           text not null,
+  remind_at      timestamptz not null,
+  dismissed      boolean not null default false,
+  notified_at    timestamptz,
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists reminders_remind_at_idx on reminders (remind_at) where not dismissed;
+create index if not exists reminders_listing_id_idx on reminders (listing_id) where not dismissed;
+
+alter table reminders enable row level security;
+
+drop policy if exists "public read" on reminders;
+create policy "public read" on reminders for select using (true);
+
+drop policy if exists "public insert" on reminders;
+create policy "public insert" on reminders for insert with check (true);
+
+drop policy if exists "public dismiss" on reminders;
+create policy "public dismiss" on reminders for update using (true) with check (true);
