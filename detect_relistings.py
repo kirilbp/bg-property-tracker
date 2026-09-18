@@ -115,12 +115,30 @@ def detect_portal(portal, history_filename, photo_key_fn):
             )
             if already:
                 continue
-            active_rec["snapshots"].insert(0, {
+            # Captured now, before inserting - this is the new listing's own
+            # earliest REAL (non-injected) snapshot, i.e. the actual moment
+            # it first appeared and the price it actually appeared at. Not
+            # necessarily active_rec["snapshots"][0]: a listing chained
+            # through more than one prior relisting already has an earlier
+            # injected marker sitting before its own real first entry.
+            # Recorded on the tag itself (came_back_at/came_back_price) so
+            # index.html can show the exact off-market gap and price instead
+            # of approximating from whenever price_history's next real price
+            # CHANGE happens to land, which can be well after the actual
+            # relist date if the price held steady for a while.
+            first_real_snap = next(
+                (s for s in active_rec["snapshots"] if s.get("source") != "relisted_from"), None
+            )
+            injected_snap = {
                 "seen_at": gone_last_snap["seen_at"],
                 "price_eur": gone_last_snap["price_eur"],
                 "source": "relisted_from",
                 "relisted_from": gid,
-            })
+            }
+            if first_real_snap:
+                injected_snap["came_back_at"] = first_real_snap["seen_at"]
+                injected_snap["came_back_price"] = first_real_snap["price_eur"]
+            active_rec["snapshots"].insert(0, injected_snap)
             active_rec["snapshots"].sort(key=lambda s: s["seen_at"])
             if gone_last_snap["seen_at"] < active_rec["first_seen"]:
                 active_rec["first_seen"] = gone_last_snap["seen_at"]
@@ -154,9 +172,26 @@ def compute_leads(history):
         last_hist_price = None
         for s in rec["snapshots"]:
             p = s.get("price_eur")
-            if not p or p == last_hist_price:
+            # This function's own relisted_from injection (detect_portal(),
+            # above) has to survive into the price_history it computes here,
+            # in the very same run - otherwise the tag detect_portal() just
+            # wrote is stripped again the moment this regenerates leads_*.json,
+            # before it was ever committed. See scraper.py's identical
+            # comment (every portal's compute_leads() needs this same fix)
+            # for why the tag matters and why it's kept even at an unchanged
+            # price.
+            is_relisting = s.get("source") == "relisted_from"
+            if not p or (p == last_hist_price and not is_relisting):
                 continue
-            price_history.append({"date": s["seen_at"], "price_eur": p})
+            entry = {"date": s["seen_at"], "price_eur": p}
+            if is_relisting:
+                entry["source"] = "relisted_from"
+                entry["relisted_from"] = s["relisted_from"]
+                if s.get("came_back_at"):
+                    entry["came_back_at"] = s["came_back_at"]
+                if s.get("came_back_price") is not None:
+                    entry["came_back_price"] = s["came_back_price"]
+            price_history.append(entry)
             last_hist_price = p
         price_drop_count = sum(
             1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]

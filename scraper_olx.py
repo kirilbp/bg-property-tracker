@@ -456,9 +456,32 @@ def compute_leads(history):
         last_hist_price = None
         for s in rec["snapshots"]:
             p = s.get("price_eur")
-            if not p or p == last_hist_price:
+            # detect_relistings.py/detect_relistings_by_photo.py inject a
+            # synthetic snapshot for the OLD (delisted) listing's own last
+            # real price at the moment this listing is believed to be its
+            # relisting - tagged "source": "relisted_from" rather than a
+            # normal scraped snapshot. That tag has to survive into
+            # price_history (not just live in the raw snapshots list) or
+            # nothing downstream - Supabase, the frontend's price chart, the
+            # eventual motivation-score rework - can tell an off-market gap
+            # apart from an ordinary same-ad price edit. Kept even when the
+            # relisted price happens to equal the prior entry's (still a
+            # real, meaningful event - the property came back on the market,
+            # whether or not the price moved) - the plain dedup rule below
+            # would otherwise silently drop it like any other unchanged
+            # price point.
+            is_relisting = s.get("source") == "relisted_from"
+            if not p or (p == last_hist_price and not is_relisting):
                 continue
-            price_history.append({"date": s["seen_at"], "price_eur": p})
+            entry = {"date": s["seen_at"], "price_eur": p}
+            if is_relisting:
+                entry["source"] = "relisted_from"
+                entry["relisted_from"] = s["relisted_from"]
+                if s.get("came_back_at"):
+                    entry["came_back_at"] = s["came_back_at"]
+                if s.get("came_back_price") is not None:
+                    entry["came_back_price"] = s["came_back_price"]
+            price_history.append(entry)
             last_hist_price = p
         price_drop_count = sum(
             1 for i in range(1, len(price_history)) if price_history[i]["price_eur"] < price_history[i - 1]["price_eur"]

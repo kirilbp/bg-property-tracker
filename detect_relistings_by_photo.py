@@ -161,12 +161,26 @@ def detect_portal(portal, history_filename, find_candidates_fn):
             dist = hamming(gone_hash, active_hash)
             if dist <= HASH_MATCH_THRESHOLD:
                 gone_last_snap = gone_rec["snapshots"][-1]
-                history[aid]["snapshots"].insert(0, {
+                # See detect_relistings.py's identical comment - this is the
+                # new listing's own earliest REAL (non-injected) snapshot,
+                # captured before inserting, so index.html can show the
+                # exact off-market gap/price instead of approximating from
+                # price_history's next recorded price CHANGE (which can
+                # postdate the actual relist by however long the price then
+                # held steady).
+                first_real_snap = next(
+                    (s for s in history[aid]["snapshots"] if s.get("source") != "relisted_from"), None
+                )
+                injected_snap = {
                     "seen_at": gone_last_snap["seen_at"],
                     "price_eur": gone_last_snap["price_eur"],
                     "source": "relisted_from",
                     "relisted_from": gid,
-                })
+                }
+                if first_real_snap:
+                    injected_snap["came_back_at"] = first_real_snap["seen_at"]
+                    injected_snap["came_back_price"] = first_real_snap["price_eur"]
+                history[aid]["snapshots"].insert(0, injected_snap)
                 history[aid]["snapshots"].sort(key=lambda s: s["seen_at"])
                 if gone_last_snap["seen_at"] < history[aid]["first_seen"]:
                     history[aid]["first_seen"] = gone_last_snap["seen_at"]

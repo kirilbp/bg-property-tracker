@@ -119,6 +119,7 @@
   .badge-unverified { background: #fef3c7; color: #92400e; }
   .badge-sold { background: #1e293b; color: white; }
   .badge-source-removed { background: #fef2f2; color: #b91c1c; }
+  .badge-relisted { background: #f5f3ff; color: #6d28d9; }
   .registry-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 12px; color: #64748b; text-decoration: none;
@@ -219,6 +220,10 @@
   .detail-tab-content.active { display: block; }
   .price-history-chart-wrap { height: 220px; margin-top: 8px; }
   .price-history-empty { font-size: 14px; color: #94a3b8; margin: 8px 0 0; }
+  .relisting-events { border-top: 1px solid #f1f5f9; padding-top: 4px; margin-top: 16px; }
+  .relisting-event { font-size: 13px; color: #334155; margin: 6px 0; }
+  .relisting-approx { color: #94a3b8; font-weight: 400; cursor: help; }
+  .relisting-caveat { font-size: 12px; color: #94a3b8; margin: 8px 0 0; }
   .source-link {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
     font-size: 13px; font-weight: 600; color: #475569; background: #f1f5f9;
@@ -608,7 +613,7 @@
           </div>
           <div class="help-section">
             <h3>Motivation score</h3>
-            <p>A simple 0–100 staleness-plus-discount indicator, not a full motivation model: 50 points for price drop (capped at 20%) plus 50 points for days on market (capped at 180 days). It does <strong>not</strong> currently account for a listing being relisted after a failed sale, the number of separate price cuts (only the total drop %), or the same property being listed on multiple portals at once - all real motivation signals we don't factor in yet. Treat it as a rough first filter, not a verdict.</p>
+            <p>A simple 0–100 staleness-plus-discount indicator, not a full motivation model: 50 points for price drop (capped at 20%) plus 50 points for days on market (capped at 180 days). It does <strong>not</strong> currently account for a listing being relisted, the number of separate price cuts (only the total drop %), or the same property being listed on multiple portals at once - all real motivation signals we don't factor in yet. Relisting is now detected and shown (🔁 badge, Price History tab) but deliberately left out of the score for now: listing data can't tell a genuine sale-then-new-owner relist apart from the same seller's listing failing to sell and going back up, so it's an ambiguous signal until that's resolved, not a clean "failed sale" flag. Treat the score as a rough first filter, not a verdict.</p>
           </div>
           <div class="help-section">
             <h3>Badges</h3>
@@ -1822,15 +1827,37 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // match, but "flat" !== "apartment" excluded them from each other's radius
 // average. typeFilterBucket() (already used by the Type filter) normalizes
 // both to the same bucket first.
+//
+// +/-25% of the subject's own sqm - a same-category bucket alone still
+// spans wildly incomparable properties (a 30m² studio and a 200m² house are
+// both bucket "flat"/"house" respectively at their own extremes, and a 30m²
+// studio and a 120m² "flat"-bucketed penthouse both land in "flat"). 25% is
+// a common comparable-sales tolerance (tight enough that a studio isn't
+// compared against a 3-bedroom, loose enough to still find real comparables
+// in a market where exact-sqm matches are rare) and scales with the
+// property itself rather than a fixed absolute cutoff that would be too
+// tight for a small flat and too loose for a large one.
+//
+// A missing sqm on either side can't be size-verified at all - rather than
+// guess, the subject having no sqm falls back to the old category+distance-
+// only behavior (no basis to bound against), and a *candidate* missing sqm
+// is excluded when the subject's own size IS known (can't confirm it's
+// actually comparable, so it doesn't count as one).
+const COMPARABLE_SIZE_TOLERANCE = 0.25;
+
 function findComparables(l, radiusM) {
   if (l.lat == null || l.lng == null) return [];
   const bucket = typeFilterBucket(l);
   const radiusKm = radiusM / 1000;
+  const sizeBoundKnown = l.sqm != null && l.sqm > 0;
+  const minSqm = sizeBoundKnown ? l.sqm * (1 - COMPARABLE_SIZE_TOLERANCE) : null;
+  const maxSqm = sizeBoundKnown ? l.sqm * (1 + COMPARABLE_SIZE_TOLERANCE) : null;
   const out = [];
   MERGED_LISTINGS.forEach(m => {
     if (m.id === l.id) return;
     if (m.lat == null || m.lng == null) return;
     if (typeFilterBucket(m) !== bucket) return;
+    if (sizeBoundKnown && (m.sqm == null || m.sqm < minSqm || m.sqm > maxSqm)) return;
     if (haversineKm(l.lat, l.lng, m.lat, m.lng) > radiusKm) return;
     out.push(m);
   });
@@ -2915,6 +2942,18 @@ function buildBadgesHtml(l) {
     const dropCountLabel = dropCount > 0 ? ` · ${dropCount} ${dropCount === 1 ? 'drop' : 'drops'}` : '';
     badges += `<span class="badge badge-drop">↓ ${l.drop_pct}% since first seen${dropCountLabel}</span>`;
   }
+
+  // Most recent relisting only - a property relisted more than once is rare
+  // enough that the full history belongs in the Price History tab, not
+  // stacked badges here. Deliberately doesn't say "failed sale" or
+  // "resold" - see relistingEventsFromHistory()'s own comment for why
+  // neither can be told apart from listing data alone.
+  const relistEvents = relistingEventsFromHistory(l.price_history);
+  if (relistEvents.length > 0) {
+    const latest = relistEvents[relistEvents.length - 1];
+    const daysLabel = latest.offMarketDays != null ? `${latest.offMarketDays}d off-market` : 'came back on market';
+    badges += `<span class="badge badge-relisted" title="Was delisted, then reappeared - could be a new owner or the same seller relisting; listing data can't tell which. See Price History for details.">🔁 Relisted (${daysLabel})</span>`;
+  }
   return badges;
 }
 
@@ -2994,6 +3033,64 @@ function lastReductionDate(l) {
   if (!Array.isArray(l.price_history) || l.price_history.length < 2) return null;
   const last = l.price_history[l.price_history.length - 1];
   return last && last.date ? new Date(last.date).getTime() : null;
+}
+
+// Reads relisting events straight out of price_history's own
+// "source": "relisted_from" entries (see detect_relistings.py/
+// detect_relistings_by_photo.py, and every scraper's compute_leads(),
+// which is what makes that tag survive into price_history at all - it
+// used to get silently dropped there before the tag was preserved).
+// A tagged entry's own date/price is the OLD (delisted) listing's last
+// known moment on the market - never fabricated, always a real past
+// observation carried over from the listing it's chained from.
+//
+// "Off-market days" and "price it came back at" need the date/price this
+// listing was FIRST actually seen again after that gap, which price_history
+// alone doesn't always give precisely: it only records points where the
+// price changed, so if the relisted price held steady for a while, the
+// next price_history entry could be much later than the real relist date.
+// Detections going forward record that real moment directly on the tagged
+// entry itself (came_back_at/came_back_price, captured at injection time
+// from the new listing's own earliest real snapshot) - used whenever
+// present. Older, already-detected relistings (committed before that field
+// existed) fall back to the next price_history entry as an approximation,
+// clearly marked as such rather than presented as exact.
+//
+// What this can NOT tell you, and never claims to: whether the property
+// actually sold and a new owner relisted it, or the same seller's listing
+// failed to sell and went back up unchanged - no portal exposes seller/
+// agent identity in a way this scrapes, so there's no signal here to tell
+// those apart. Every event is just "this property was off every tracked
+// portal for a period, then reappeared" - a real signal, but an ambiguous
+// one, and labelled that way everywhere it's shown.
+function relistingEventsFromHistory(priceHistory) {
+  if (!Array.isArray(priceHistory)) return [];
+  const events = [];
+  for (let i = 0; i < priceHistory.length; i++) {
+    const entry = priceHistory[i];
+    if (!entry || entry.source !== 'relisted_from') continue;
+    const wentOffAt = entry.date;
+    const priceBefore = entry.price_eur;
+    let cameBackAt = null;
+    let priceAfter = null;
+    let approximate = false;
+    if (entry.came_back_at) {
+      cameBackAt = entry.came_back_at;
+      priceAfter = entry.came_back_price ?? null;
+    } else {
+      const next = priceHistory[i + 1];
+      if (next) {
+        cameBackAt = next.date;
+        priceAfter = next.price_eur;
+        approximate = true;
+      }
+    }
+    const offMarketDays = cameBackAt
+      ? Math.max(0, Math.round((new Date(cameBackAt) - new Date(wentOffAt)) / 86400000))
+      : null;
+    events.push({ wentOffAt, cameBackAt, priceBefore, priceAfter, offMarketDays, approximate });
+  }
+  return events;
 }
 
 // Shared by the main results grid and the Dashboard's saved-listings grid,
@@ -3149,6 +3246,7 @@ function renderFromStart() {
 
 const PRICE_HISTORY_DROP_COLOR = '#dc2626';
 const PRICE_HISTORY_STABLE_COLOR = '#2563eb';
+const PRICE_HISTORY_RELIST_COLOR = '#7c3aed';
 
 // A step - not a diagonal slope - between each recorded price, since a real
 // listing's price doesn't drift smoothly: it sits still, then drops (every
@@ -3203,10 +3301,16 @@ function renderPriceHistoryChart(priceHistory) {
         backgroundColor: 'rgba(37,99,235,0.08)',
         borderColor: PRICE_HISTORY_STABLE_COLOR,
         borderWidth: 2,
-        pointRadius: (c) => points[c.dataIndex].isToday ? 0 : 4,
-        pointHoverRadius: (c) => points[c.dataIndex].isToday ? 0 : 6,
+        // A relisting point (this listing's price_history carries the OLD,
+        // delisted listing's own last real price/date - see
+        // relistingEventsFromHistory()) is a gap in the market, not a price
+        // edit on this same ad - drawn larger and in a third color so it
+        // never reads as just another drop/rise on the line.
+        pointRadius: (c) => points[c.dataIndex].isToday ? 0 : (points[c.dataIndex].source === 'relisted_from' ? 6 : 4),
+        pointHoverRadius: (c) => points[c.dataIndex].isToday ? 0 : (points[c.dataIndex].source === 'relisted_from' ? 8 : 6),
         pointBackgroundColor: (c) => {
           const i = c.dataIndex;
+          if (points[i].source === 'relisted_from') return PRICE_HISTORY_RELIST_COLOR;
           return i > 0 && points[i].price_eur < points[i - 1].price_eur
             ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR;
         },
@@ -3214,9 +3318,14 @@ function renderPriceHistoryChart(priceHistory) {
         pointBorderWidth: 1,
         // A segment is colored by the point it's DROPPING INTO, not the one
         // it starts from, so a drop's red starts exactly at the vertical
-        // step where the price actually falls.
+        // step where the price actually falls. The segment leading INTO a
+        // relisting point gets the same purple treatment - that whole
+        // segment spans the off-market gap, not a same-ad price change.
         segment: {
-          borderColor: (c) => c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR,
+          borderColor: (c) => {
+            if (points[c.p1.dataIndex].source === 'relisted_from') return PRICE_HISTORY_RELIST_COLOR;
+            return c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR;
+          },
         },
       }]
     },
@@ -3239,7 +3348,9 @@ function renderPriceHistoryChart(priceHistory) {
             title: c => points[c[0].dataIndex].isToday
               ? 'Today'
               : new Date(c[0].parsed.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-            label: c => '€' + fmt(c.parsed.y),
+            label: c => points[c.dataIndex].source === 'relisted_from'
+              ? '€' + fmt(c.parsed.y) + ' — price it left the market at (relisted later)'
+              : '€' + fmt(c.parsed.y),
           }
         }
       },
@@ -3322,6 +3433,7 @@ function renderListingDetail(merged) {
   const priceHistory = rawPriceHistory
     .filter(p => p && typeof p === 'object' && typeof p.price_eur === 'number' && p.date);
   const priceDropCount = l.price_drop_count ?? 0;
+  const relistEvents = relistingEventsFromHistory(priceHistory);
   // The chart always renders, even with nothing recorded yet - a synthesized
   // single "current price" point rather than blank text, so the graph is a
   // permanent part of every listing's page instead of appearing only once a
@@ -3329,6 +3441,36 @@ function renderListingDetail(merged) {
   const chartPriceHistory = priceHistory.length > 0
     ? priceHistory
     : [{ date: new Date().toISOString(), price_eur: l.price_eur }];
+
+  // Ambiguous on purpose in every phrase below ("came back", never "resold"
+  // or "failed to sell") - relistingEventsFromHistory()'s own comment
+  // explains why listing data can't distinguish those two cases.
+  const relistEventsHtml = relistEvents.length > 0 ? `
+    <div class="relisting-events">
+      <p class="label" style="margin:16px 0 8px;">Relisting history</p>
+      ${relistEvents.map(ev => {
+        const offLabel = ev.offMarketDays != null ? `${ev.offMarketDays} day${ev.offMarketDays === 1 ? '' : 's'}` : 'an unrecorded amount of time';
+        const cameBackDate = ev.cameBackAt
+          ? new Date(ev.cameBackAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+          : null;
+        let priceChangeHtml;
+        if (ev.priceAfter == null) {
+          priceChangeHtml = 'the price it came back at isn\'t recorded';
+        } else if (ev.priceAfter < ev.priceBefore) {
+          priceChangeHtml = `came back at <strong>€${fmt(ev.priceAfter)}</strong> — ${Math.round((1 - ev.priceAfter / ev.priceBefore) * 100)}% below where it left`;
+        } else if (ev.priceAfter > ev.priceBefore) {
+          priceChangeHtml = `came back at <strong>€${fmt(ev.priceAfter)}</strong> — ${Math.round((ev.priceAfter / ev.priceBefore - 1) * 100)}% above where it left`;
+        } else {
+          priceChangeHtml = `came back at the same price, <strong>€${fmt(ev.priceAfter)}</strong>`;
+        }
+        const approxNote = ev.approximate
+          ? ` <span class="relisting-approx" title="This detection predates precise relist-date tracking - these numbers are approximated from the next recorded price change, which may be later than the actual relist date.">(approx.)</span>`
+          : '';
+        return `<p class="relisting-event">🔁 Off market for ${offLabel}${cameBackDate ? ' (back on ' + cameBackDate + ')' : ''} — left at €${fmt(ev.priceBefore)}, ${priceChangeHtml}${approxNote}</p>`;
+      }).join('')}
+      <p class="relisting-caveat">We can't tell from listing data alone whether this means the property sold and a new owner relisted it, or the same listing failed to sell and was reposted — only that it was off every tracked portal for a period, then came back. Not currently factored into the motivation score above.</p>
+    </div>
+  ` : '';
 
   const thumbsHtml = photos.length > 1 ? `
     <div class="detail-thumbs">
@@ -3397,6 +3539,7 @@ function renderListingDetail(merged) {
           ${priceHistory.length <= 1
             ? `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing. The dot above is the current price; this chart will fill in as changes are observed.</p>`
             : ''}
+          ${relistEventsHtml}
         </div>
       </div>
     </div>
