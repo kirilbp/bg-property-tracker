@@ -375,6 +375,27 @@
   .compare-table a:hover { text-decoration: underline; }
   .compare-empty { text-align: center; color: #94a3b8; padding: 30px 20px; }
   .compare-truncated-note { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }
+
+  /* Reminders */
+  .reminders-section { margin-top: 16px; }
+  .reminder-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
+  }
+  .reminder-row.due { background: #fffbeb; border-color: #fcd34d; }
+  .reminder-row-main { font-size: 13px; color: #334155; }
+  .reminder-row-listing { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .reminder-row-listing a { color: #2563eb; text-decoration: none; }
+  .reminder-due-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; color: #b45309; background: #fef3c7;
+    border-radius: 999px; padding: 1px 7px; margin-right: 6px; vertical-align: middle;
+  }
+  .reminder-dismiss-btn {
+    background: white; border: 1px solid #cbd5e1; color: #64748b; padding: 4px 10px;
+    border-radius: 6px; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .reminder-dismiss-btn:hover { border-color: #94a3b8; color: #334155; }
+  .reminders-empty { font-size: 13px; color: #94a3b8; }
 </style>
 </head>
 <body>
@@ -537,6 +558,12 @@
 
       <!-- Dashboard -->
       <section class="page" id="section-dashboard">
+        <div class="card">
+          <h2>🔔 Reminders</h2>
+          <p class="card-sub">Dates and notes you've set on listings — set one from any listing's detail page. Overdue ones also open a GitHub issue once a day as a backup nudge.</p>
+          <div id="dashboardRemindersList"></div>
+          <p class="reminders-empty" id="dashboardRemindersEmpty" style="display:none;">No reminders set yet.</p>
+        </div>
         <div class="card">
           <h2>🔖 Saved listings</h2>
           <p class="card-sub">Listings you've saved, right here in this browser — click ☆ on any listing to add it.</p>
@@ -743,6 +770,28 @@
       <button type="button" class="radius-btn" data-compare-radius="1500">1500m</button>
     </div>
     <div id="compareModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reminderModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Set a reminder</h2>
+      <button class="modal-close-btn" id="reminderModalCloseBtn">✕</button>
+    </div>
+    <p class="modal-error" id="reminderModalError"></p>
+    <div class="modal-field">
+      <label>Remind me on</label>
+      <input type="date" id="reminderDate" />
+    </div>
+    <div class="modal-field">
+      <label>Note</label>
+      <input type="text" id="reminderNote" placeholder="e.g. Follow up with the agent" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="reminderModalCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="reminderModalSaveBtn">Save reminder</button>
+    </div>
   </div>
 </div>
 
@@ -2082,6 +2131,182 @@ document.querySelectorAll('#compareRadiusButtons .radius-btn').forEach(btn => {
   });
 });
 
+// --- Manual reminders (backlog stage 8) -------------------------------------
+// A user-set note + date on a listing, stored in Supabase's `reminders`
+// table (see supabase/schema.sql) so a scheduled job (check_reminders.py)
+// can see it too, not just this browser - unlike saved listings/lead
+// generators (still localStorage-only, see backlog #62), a reminder is
+// meant to survive independently of any one browser and to be checkable
+// from outside it. Deliberately writable by the anon key with no login -
+// see schema.sql's own comment for why that's an accepted, documented
+// exception rather than the norm this project otherwise holds to.
+//
+// Cross-listing (Dashboard) and per-listing (detail page) reminder lists
+// share this one row-rendering function so both look and behave
+// identically - only whether the listing itself is named/linked differs,
+// since a listing's own detail page obviously doesn't need to re-link to
+// itself.
+function reminderRowHtml(r, showListingLink) {
+  const due = new Date(r.remind_at).getTime() <= Date.now();
+  const dateLabel = new Date(r.remind_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  let listingHtml = '';
+  if (showListingLink) {
+    const label = r.listing_title
+      ? `${r.listing_title}${r.listing_portal ? ' · ' + r.listing_portal : ''}`
+      : (r.listing_id || 'Listing');
+    // A reminder outlives the listing it was set on: merged_listings rows
+    // get deleted outright when a group's membership changes or a listing
+    // drops out of tracking entirely (sync_to_supabase.py's
+    // delete_stale_merged_listings()). Only link to it if it's still
+    // actually there - the snapshot title/portal (taken when the reminder
+    // was created) is what keeps this row meaningful either way.
+    const stillTracked = r.listing_id && MERGED_LISTINGS.some(m => m.id === r.listing_id);
+    listingHtml = stillTracked
+      ? `<div class="reminder-row-listing"><a href="#/listing/${encodeURIComponent(r.listing_id)}">${escapeHtml(label)}</a></div>`
+      : `<div class="reminder-row-listing">${escapeHtml(label)}${r.listing_id ? ' (no longer tracked)' : ''}</div>`;
+  }
+  return `
+    <div class="reminder-row${due ? ' due' : ''}">
+      <div>
+        <div class="reminder-row-main">${due ? '<span class="reminder-due-badge">DUE</span>' : ''}${escapeHtml(r.note)} — ${dateLabel}</div>
+        ${listingHtml}
+      </div>
+      <button class="reminder-dismiss-btn" data-dismiss-reminder="${r.id}">Dismiss</button>
+    </div>
+  `;
+}
+
+function renderListingReminders(merged) {
+  const reminders = (merged._reminders || []).slice().sort((a, b) => new Date(a.remind_at) - new Date(b.remind_at));
+  if (reminders.length === 0) return '';
+  return `<div class="reminders-section">${reminders.map(r => reminderRowHtml(r, false)).join('')}</div>`;
+}
+
+// Loaded fresh into this one module-level array whenever the Dashboard
+// renders (see renderDashboard()) rather than cached per-listing like
+// showListingDetail()'s merged._reminders - the Dashboard's whole point is
+// showing reminders across every listing at once, so there's no single
+// object to cache the fetch on the way the detail page has.
+let DASHBOARD_REMINDERS = [];
+
+function renderDashboardReminders() {
+  const list = document.getElementById('dashboardRemindersList');
+  const empty = document.getElementById('dashboardRemindersEmpty');
+  const sorted = DASHBOARD_REMINDERS.slice().sort((a, b) => new Date(a.remind_at) - new Date(b.remind_at));
+  list.innerHTML = sorted.map(r => reminderRowHtml(r, true)).join('');
+  empty.style.display = sorted.length === 0 ? 'block' : 'none';
+}
+
+function loadDashboardReminders() {
+  sb.from('reminders').select('*').eq('dismissed', false).order('remind_at').then(({ data, error }) => {
+    if (error || !data) { console.error('Failed to load reminders', error); return; }
+    DASHBOARD_REMINDERS = data;
+    renderDashboardReminders();
+  }).catch(e => console.error('Failed to load reminders', e));
+}
+
+// Filters the dismissed reminder out of every cache that might be holding
+// it (the Dashboard's own list, plus any listing detail page's cached
+// merged._reminders) and re-renders whichever of those is actually
+// visible right now, rather than forcing a full page reload/refetch for
+// what's otherwise a single-row update.
+function dismissReminder(id) {
+  sb.from('reminders').update({ dismissed: true }).eq('id', id).then(({ error }) => {
+    if (error) { console.error('Failed to dismiss reminder', error); return; }
+    DASHBOARD_REMINDERS = DASHBOARD_REMINDERS.filter(r => r.id !== id);
+    MERGED_LISTINGS.forEach(m => {
+      if (Array.isArray(m._reminders)) m._reminders = m._reminders.filter(r => r.id !== id);
+    });
+    if (document.getElementById('section-dashboard').classList.contains('active')) {
+      renderDashboardReminders();
+    }
+    const listingMatch = location.hash.match(/^#\/listing\/(.+)$/);
+    if (listingMatch) {
+      const merged = MERGED_LISTINGS.find(x => x.id === decodeURIComponent(listingMatch[1]));
+      if (merged) renderListingDetail(merged);
+    }
+  }).catch(e => console.error('Failed to dismiss reminder', e));
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.reminder-dismiss-btn');
+  if (btn) dismissReminder(parseInt(btn.dataset.dismissReminder, 10));
+});
+
+let reminderTargetMerged = null;
+
+function openReminderModal(merged) {
+  reminderTargetMerged = merged;
+  const dateInput = document.getElementById('reminderDate');
+  dateInput.value = '';
+  dateInput.min = new Date().toISOString().slice(0, 10);
+  document.getElementById('reminderNote').value = '';
+  document.getElementById('reminderModalError').classList.remove('show');
+  document.getElementById('reminderModalOverlay').classList.add('open');
+}
+
+function closeReminderModal() {
+  document.getElementById('reminderModalOverlay').classList.remove('open');
+  reminderTargetMerged = null;
+}
+
+function saveReminderFromModal() {
+  const errorEl = document.getElementById('reminderModalError');
+  errorEl.classList.remove('show');
+  const dateStr = document.getElementById('reminderDate').value;
+  const note = document.getElementById('reminderNote').value.trim();
+  if (!dateStr) {
+    errorEl.textContent = 'Pick a date.';
+    errorEl.classList.add('show');
+    return;
+  }
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  if (new Date(dateStr + 'T00:00:00') < todayStart) {
+    errorEl.textContent = 'Pick today or a future date.';
+    errorEl.classList.add('show');
+    return;
+  }
+  if (!note) {
+    errorEl.textContent = 'Add a short note.';
+    errorEl.classList.add('show');
+    return;
+  }
+  const merged = reminderTargetMerged;
+  if (!merged) { closeReminderModal(); return; }
+  const l = (merged.sources && (merged.sources[detailSourceIndex] || merged.sources[0])) || merged;
+  const row = {
+    listing_id: merged.id,
+    listing_title: l.title || merged.title || null,
+    listing_portal: l.portal || merged.portal || null,
+    note,
+    remind_at: new Date(dateStr + 'T00:00:00').toISOString(),
+  };
+  sb.from('reminders').insert(row).select().then(({ data, error }) => {
+    if (error) {
+      console.error('Failed to save reminder', error);
+      errorEl.textContent = 'Could not save the reminder - please try again.';
+      errorEl.classList.add('show');
+      return;
+    }
+    const saved = (data && data[0]) || row;
+    merged._reminders = [...(merged._reminders || []), saved];
+    closeReminderModal();
+    if (location.hash === '#/listing/' + merged.id) renderListingDetail(merged);
+  }).catch(e => {
+    console.error('Failed to save reminder', e);
+    errorEl.textContent = 'Could not save the reminder - please try again.';
+    errorEl.classList.add('show');
+  });
+}
+
+document.getElementById('reminderModalCloseBtn').addEventListener('click', closeReminderModal);
+document.getElementById('reminderModalCancelBtn').addEventListener('click', closeReminderModal);
+document.getElementById('reminderModalSaveBtn').addEventListener('click', saveReminderFromModal);
+document.getElementById('reminderModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'reminderModalOverlay') closeReminderModal();
+});
+
 // Cross-portal duplicate detection (price+sqm+area fuzzy matching - see
 // sync_to_supabase.py's group_listings() for the full algorithm and its
 // reasoning) now runs server-side in sync_to_supabase.py after every
@@ -2851,6 +3076,12 @@ function renderHomeChart() {
 }
 
 function renderDashboard() {
+  // Fire-and-forget, same pattern as showListingDetail()'s lazy sources/
+  // reminders fetch - renders once the network round-trip resolves rather
+  // than blocking the rest of the (synchronous, already-loaded-data)
+  // Dashboard render on it.
+  loadDashboardReminders();
+
   // A sold listing can't be acted on anymore, so it has no business in a
   // "hottest deals right now" ranking even if its frozen score is high.
   const top = [...MERGED_LISTINGS].filter(l => l.status !== 'sold').sort((a, b) => b.score - a.score).slice(0, 6);
@@ -3511,6 +3742,8 @@ function renderListingDetail(merged) {
         </div>
         <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
         <button class="modal-btn-secondary" id="compareBtn" style="margin-left:8px;">⇄ Compare nearby</button>
+        <button class="modal-btn-secondary" id="reminderBtn" style="margin-left:8px;">🔔 Remind me</button>
+        ${renderListingReminders(merged)}
         <div class="detail-stats">
           <div class="detail-stat" title="Simple staleness-plus-discount indicator (price drop % + days on market) - doesn't yet account for relisting history, number of separate price cuts, or multi-portal listing. See Help for details."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
@@ -3575,6 +3808,7 @@ function renderListingDetail(merged) {
   });
 
   document.getElementById('compareBtn').addEventListener('click', () => openCompareModal(merged));
+  document.getElementById('reminderBtn').addEventListener('click', () => openReminderModal(merged));
 
   if (detailActiveTab === 'pricehistory') {
     renderPriceHistoryChart(chartPriceHistory);
@@ -3638,6 +3872,19 @@ function showListingDetail(id) {
       // Only re-render if the user is still looking at this same listing.
       if (location.hash === '#/listing/' + id) renderListingDetail(merged);
     }).catch(e => console.error('Failed to load cross-posted sources for', id, e));
+  }
+
+  // Same lazy, cached-on-the-object pattern as the sources fetch above -
+  // fetched once per listing actually opened, cached on merged._reminders
+  // so re-opening the same listing (or a radius/tab click, which fully
+  // rebuilds the page via renderListingDetail()) doesn't re-fetch.
+  if (merged._remindersFetched !== true) {
+    merged._remindersFetched = true;
+    sb.from('reminders').select('*').eq('listing_id', merged.id).eq('dismissed', false).order('remind_at').then(({ data, error }) => {
+      if (error || !data) return;
+      merged._reminders = data;
+      if (location.hash === '#/listing/' + id) renderListingDetail(merged);
+    }).catch(e => console.error('Failed to load reminders for', id, e));
   }
 }
 
