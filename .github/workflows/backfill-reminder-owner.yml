@@ -1,0 +1,31 @@
+# One-off migration step for backlog #62 - see backfill_reminder_owner.py.
+# workflow_dispatch only, not scheduled: this only ever needs to run once,
+# right after the account is created and supabase/schema.sql's reminders.
+# user_id column has been added. Safe to delete this workflow (and the
+# script) once it's been run and confirmed - a rerun is harmless (it only
+# touches rows still missing a user_id) but there's nothing left for it to
+# do after the first successful run.
+name: Backfill reminder owner (one-off, backlog #62)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - run: python backfill_reminder_owner.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

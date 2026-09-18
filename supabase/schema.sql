@@ -181,3 +181,79 @@ create policy "public insert" on reminders for insert with check (true);
 
 drop policy if exists "public dismiss" on reminders;
 create policy "public dismiss" on reminders for update using (true) with check (true);
+
+-- Per-user data (backlog #62): saved listings, lead generators, and
+-- reminders (see the migration below) all move here from localStorage or
+-- the open, login-less anon policies above, behind Supabase Auth + row-
+-- level security scoped to auth.uid(). One real account exists today, but
+-- every policy is written as genuine per-user isolation from the start -
+-- auth.uid() = user_id, never a shared/open table - so adding a second
+-- (paying) subscriber later needs no RLS rework, just a second row in
+-- auth.users. "for all" covers select/insert/update/delete with one
+-- policy per table rather than four near-identical ones.
+--
+-- user_id defaults to auth.uid() so an authenticated insert doesn't need
+-- to name it explicitly (index.html's inserts below rely on this) - and
+-- because that default expression evaluates server-side against the
+-- request's own verified JWT, a client can never override it to claim a
+-- row as belonging to a different user.
+create table if not exists saved_listings (
+  id          bigint generated always as identity primary key,
+  user_id     uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  listing_id  text not null,
+  created_at  timestamptz not null default now(),
+  unique (user_id, listing_id)
+);
+
+create index if not exists saved_listings_user_id_idx on saved_listings (user_id);
+
+alter table saved_listings enable row level security;
+
+drop policy if exists "own rows only" on saved_listings;
+create policy "own rows only" on saved_listings for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- The whole lead-generator object (filters + whichever area-mode config it
+-- uses - neighborhoods, or center+radius, or a drawn polygon) is stored
+-- as-is in `data`, mirroring exactly what saveLeadGenFromModal() already
+-- builds client-side today - one flexible jsonb column rather than
+-- exploding a shape-varying, still-evolving structure into many nullable
+-- columns. `id` keeps the same client-generated "lg_<timestamp>_<random>"
+-- string the app has always used (not a fresh server-generated key), so
+-- migrating existing localStorage generators is a straight insert with no
+-- id remapping.
+create table if not exists lead_generators (
+  id          text primary key,
+  user_id     uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  name        text not null,
+  data        jsonb not null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists lead_generators_user_id_idx on lead_generators (user_id);
+
+alter table lead_generators enable row level security;
+
+drop policy if exists "own rows only" on lead_generators;
+create policy "own rows only" on lead_generators for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- reminders moves under the same per-user auth, for the same reason - see
+-- the anon policies above being dropped. user_id is nullable (a reminder
+-- created before this migration ran has none yet, until the one-time
+-- migration in index.html backfills it for the account that owns it) but
+-- every policy below still requires auth.uid() = user_id, so a null-owner
+-- row is simply invisible and unreachable to everyone rather than cross-
+-- user-visible once the old public policies are gone - a safe failure
+-- mode, not a hole. check_reminders.py's service-role key bypasses RLS
+-- entirely (like sync_to_supabase.py), so none of this affects it.
+alter table reminders add column if not exists user_id uuid references auth.users(id) on delete cascade default auth.uid();
+create index if not exists reminders_user_id_idx on reminders (user_id);
+
+drop policy if exists "public read" on reminders;
+drop policy if exists "public insert" on reminders;
+drop policy if exists "public dismiss" on reminders;
+drop policy if exists "own rows only" on reminders;
+create policy "own rows only" on reminders for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);

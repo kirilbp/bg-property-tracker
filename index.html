@@ -34,6 +34,12 @@
   .nav-item .icon { font-size: 16px; width: 18px; text-align: center; }
   .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
   .nav-item.active { background: #2563eb; color: white; font-weight: 600; }
+  .sidebar-account { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .account-email { padding: 0 20px 6px; font-size: 12px; color: #94a3b8; word-break: break-all; }
+
+  /* Login gate */
+  .login-gate-prompt { text-align: center; padding: 32px 20px; }
+  .login-gate-prompt h2 { margin-bottom: 6px; }
 
   /* Main area */
   .main { flex: 1; min-width: 0; }
@@ -409,6 +415,9 @@
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
+    <div class="sidebar-account" id="sidebarAccount">
+      <button class="nav-item" id="accountLoginBtn"><span class="icon">🔑</span> Log in</button>
+    </div>
   </aside>
 
   <div class="main">
@@ -459,10 +468,17 @@
 
       <!-- Lead Generators gallery -->
       <section class="page" id="section-leadgen">
-        <div class="leadgen-toolbar">
-          <p class="leadgen-count" id="leadgenCount"></p>
+        <div class="card login-gate-prompt" id="leadgenLoginPrompt" style="display:none;">
+          <h2>🔑 Log in to use Lead Generators</h2>
+          <p class="card-sub">Saved searches are tied to your account now, not just this browser.</p>
+          <button class="cta-btn" id="leadgenLoginPromptBtn">Log in</button>
         </div>
-        <div class="leadgen-grid" id="leadgenGrid"></div>
+        <div id="leadgenGatedContent">
+          <div class="leadgen-toolbar">
+            <p class="leadgen-count" id="leadgenCount"></p>
+          </div>
+          <div class="leadgen-grid" id="leadgenGrid"></div>
+        </div>
       </section>
 
       <!-- Lead Generator results (browse-all or a specific generator's leads) -->
@@ -558,34 +574,41 @@
 
       <!-- Dashboard -->
       <section class="page" id="section-dashboard">
-        <div class="card">
-          <h2>🔔 Reminders</h2>
-          <p class="card-sub">Dates and notes you've set on listings — set one from any listing's detail page. Overdue ones also open a GitHub issue once a day as a backup nudge.</p>
-          <div id="dashboardRemindersList"></div>
-          <p class="reminders-empty" id="dashboardRemindersEmpty" style="display:none;">No reminders set yet.</p>
+        <div class="card login-gate-prompt" id="dashboardLoginPrompt" style="display:none;">
+          <h2>🔑 Log in to see your reminders and saved listings</h2>
+          <p class="card-sub">These are tied to your account now, not just this browser.</p>
+          <button class="cta-btn" id="dashboardLoginPromptBtn">Log in</button>
         </div>
-        <div class="card">
-          <h2>🔖 Saved listings</h2>
-          <p class="card-sub">Listings you've saved, right here in this browser — click ☆ on any listing to add it.</p>
-          <div class="filters" style="margin-bottom:12px; max-width:260px;">
-            <div>
-              <label>Sort by</label>
-              <select id="savedSortBy">
-                <option value="price-asc">Price (low to high)</option>
-                <option value="price-desc">Price (high to low)</option>
-                <option value="size-desc">Size (large to small)</option>
-                <option value="size-asc">Size (small to large)</option>
-                <option value="persqm-asc">€/m² (low to high)</option>
-                <option value="reduction-desc">Biggest price cut</option>
-                <option value="recent-drop-desc">Most recently reduced</option>
-                <option value="drops-desc">Most price drops</option>
-                <option value="vsavg-asc">Most below area average</option>
-                <option value="score-desc">Motivation score</option>
-              </select>
-            </div>
+        <div id="dashboardGatedContent">
+          <div class="card">
+            <h2>🔔 Reminders</h2>
+            <p class="card-sub">Dates and notes you've set on listings — set one from any listing's detail page. Overdue ones also open a GitHub issue once a day as a backup nudge.</p>
+            <div id="dashboardRemindersList"></div>
+            <p class="reminders-empty" id="dashboardRemindersEmpty" style="display:none;">No reminders set yet.</p>
           </div>
-          <div class="grid" id="savedGrid"></div>
-          <p class="empty" id="savedEmpty" style="display:none;">No saved listings yet — click ☆ on any listing to save it here.</p>
+          <div class="card">
+            <h2>🔖 Saved listings</h2>
+            <p class="card-sub">Listings you've saved to your account — click ☆ on any listing to add it.</p>
+            <div class="filters" style="margin-bottom:12px; max-width:260px;">
+              <div>
+                <label>Sort by</label>
+                <select id="savedSortBy">
+                  <option value="price-asc">Price (low to high)</option>
+                  <option value="price-desc">Price (high to low)</option>
+                  <option value="size-desc">Size (large to small)</option>
+                  <option value="size-asc">Size (small to large)</option>
+                  <option value="persqm-asc">€/m² (low to high)</option>
+                  <option value="reduction-desc">Biggest price cut</option>
+                  <option value="recent-drop-desc">Most recently reduced</option>
+                  <option value="drops-desc">Most price drops</option>
+                  <option value="vsavg-asc">Most below area average</option>
+                  <option value="score-desc">Motivation score</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid" id="savedGrid"></div>
+            <p class="empty" id="savedEmpty" style="display:none;">No saved listings yet — click ☆ on any listing to save it here.</p>
+          </div>
         </div>
         <div class="card">
           <h2>🔥 Hottest deals right now</h2>
@@ -795,12 +818,38 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="loginModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Log in</h2>
+      <button class="modal-close-btn" id="loginModalCloseBtn">✕</button>
+    </div>
+    <p class="modal-error" id="loginModalError"></p>
+    <div class="modal-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" autocomplete="username" />
+    </div>
+    <div class="modal-field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" />
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="loginModalCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="loginModalSubmitBtn">Log in</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// The publishable/anon key is meant to be public - it's rejected by Row
-// Level Security for anything but the read-only SELECT policy in
-// supabase/schema.sql. Writes only ever happen server-side (sync_to_
-// supabase.py, in GitHub Actions) with the separate secret key, which
-// never appears in this repo.
+// The publishable/anon key is meant to be public - most tables are still
+// protected by Row Level Security down to read-only SELECT (listing_
+// sources/merged_listings - written only server-side by sync_to_supabase.py
+// with the separate secret key, which never appears in this repo).
+// saved_listings/lead_generators/reminders are the deliberate exceptions:
+// real per-user data, writable by an authenticated session, scoped by RLS
+// to auth.uid() = user_id (see supabase/schema.sql) rather than to this
+// key - the anon key alone, with no valid session, still can't read or
+// write a single row of it.
 const SUPABASE_URL = 'https://eoufgmmgwczixfajebhc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_8m7t7ejFdAr9wWqxz26fcw_LUWURIcL';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -827,30 +876,34 @@ let chartInitialized = false;
 let homeChart = null;
 
 // --- Saved listings (Dashboard bookmarks) -------------------------------------
-// Stored in this browser's localStorage, same as lead generators - just the
-// ids, in save order, resolved against MERGED_LISTINGS at render time so a
-// saved listing's price/badges/etc. stay live rather than freezing a copy
-// from the moment it was saved. A ★/☆ toggle button appears wherever a
-// listing is rendered (grid cards and the detail page).
+// Backlog #62: moved from this browser's localStorage (the ONLY copy, lost
+// entirely on a cache clear, never available on a second device) into
+// Supabase, behind Supabase Auth + RLS scoped to auth.uid() (see
+// supabase/schema.sql's saved_listings table). SAVED_LISTINGS_KEY/
+// LEAD_GEN_STORAGE_KEY below are read only by migrateLocalDataIfNeeded()
+// now, as the one-time source to migrate FROM - not the live store.
+//
+// SAVED_LISTING_IDS itself stays a plain in-memory array, in save order,
+// resolved against MERGED_LISTINGS at render time exactly as before - only
+// where it's loaded from and persisted to changed. A ★/☆ toggle button
+// appears wherever a listing is rendered (grid cards and the detail page).
 const SAVED_LISTINGS_KEY = 'savedListingIds';
-let SAVED_LISTING_IDS = loadSavedListingIds();
+let SAVED_LISTING_IDS = [];
 
-function loadSavedListingIds() {
-  try {
-    const raw = localStorage.getItem(SAVED_LISTINGS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error('Failed to load saved listings from storage', e);
-    return [];
-  }
-}
-
-function persistSavedListingIds() {
-  try {
-    localStorage.setItem(SAVED_LISTINGS_KEY, JSON.stringify(SAVED_LISTING_IDS));
-  } catch (e) {
-    console.error('Failed to save saved listings to storage', e);
-  }
+function loadSavedListings() {
+  return sb.from('saved_listings').select('listing_id').order('created_at').then(({ data, error }) => {
+    if (error) { console.error('Failed to load saved listings', error); return; }
+    SAVED_LISTING_IDS = (data || []).map(r => r.listing_id);
+    if (document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+    // The main leads grid (unlike the Dashboard) isn't re-rendered just by
+    // navigating back to it - showSection() only toggles which page is
+    // visible, so a card built before this fetch resolved would otherwise
+    // keep showing its stale ☆/★ state until some unrelated filter change
+    // happened to trigger a fresh render(). This fetch itself is exactly
+    // that kind of state change, so it re-renders (preserving whatever
+    // filters/page are already set) if that grid is the one on screen.
+    if (document.getElementById('section-leads').classList.contains('active')) render();
+  }).catch(e => console.error('Failed to load saved listings', e));
 }
 
 function isListingSaved(id) {
@@ -858,16 +911,33 @@ function isListingSaved(id) {
 }
 
 function toggleSavedListing(id) {
-  if (isListingSaved(id)) {
-    SAVED_LISTING_IDS = SAVED_LISTING_IDS.filter(x => x !== id);
-  } else {
-    SAVED_LISTING_IDS.push(id);
-  }
-  persistSavedListingIds();
+  if (!CURRENT_USER) { openLoginModal(); return; }
+  const wasSaved = isListingSaved(id);
+  SAVED_LISTING_IDS = wasSaved ? SAVED_LISTING_IDS.filter(x => x !== id) : [...SAVED_LISTING_IDS, id];
+  rerenderSavedListingUi(id);
 
-  // The Dashboard's Saved listings grid needs a full re-render (a card must
-  // appear/disappear there, not just have its button flip) - everywhere
-  // else, only the button(s) for this one listing need updating in place.
+  // Optimistic - the UI above already reflects the new state, so a failure
+  // has to roll it back rather than just log it, or the button would keep
+  // showing a state that was never actually saved to the account.
+  const req = wasSaved
+    ? sb.from('saved_listings').delete().eq('listing_id', id)
+    : sb.from('saved_listings').insert({ listing_id: id });
+  req.then(({ error }) => {
+    if (!error) return;
+    console.error('Failed to sync saved listing, rolling back', error);
+    SAVED_LISTING_IDS = wasSaved ? [...SAVED_LISTING_IDS, id] : SAVED_LISTING_IDS.filter(x => x !== id);
+    rerenderSavedListingUi(id);
+  }).catch(e => {
+    console.error('Failed to sync saved listing, rolling back', e);
+    SAVED_LISTING_IDS = wasSaved ? [...SAVED_LISTING_IDS, id] : SAVED_LISTING_IDS.filter(x => x !== id);
+    rerenderSavedListingUi(id);
+  });
+}
+
+// The Dashboard's Saved listings grid needs a full re-render (a card must
+// appear/disappear there, not just have its button flip) - everywhere
+// else, only the button(s) for this one listing need updating in place.
+function rerenderSavedListingUi(id) {
   if (document.getElementById('section-dashboard').classList.contains('active')) {
     renderDashboard();
   } else {
@@ -893,12 +963,10 @@ function updateSaveButtonsFor(id) {
 }
 
 // --- Lead generators (saved searches) ----------------------------------------
-// Stored in this browser's localStorage - there's no backend/login on this
-// site yet (a Supabase-backed version is planned later), so a saved lead
-// generator lives on this device/browser only, not synced anywhere. The
-// storage access is isolated behind loadLeadGenerators()/saveLeadGenerators()
-// so swapping in a real backend later only means rewriting those two
-// functions, not the UI around them.
+// Backlog #62: moved to Supabase, behind auth - see loadLeadGenerators()/
+// upsertLeadGenerator()/removeLeadGenerator() further down. LEAD_GEN_
+// STORAGE_KEY below is now read only by migrateLocalDataIfNeeded(), as the
+// one-time source to migrate this browser's old data FROM.
 const LEAD_GEN_STORAGE_KEY = 'leadGenerators';
 const LEAD_GEN_MAX = 20;
 let LEAD_GENERATORS = [];
@@ -2236,6 +2304,7 @@ document.addEventListener('click', (e) => {
 let reminderTargetMerged = null;
 
 function openReminderModal(merged) {
+  if (!CURRENT_USER) { openLoginModal(); return; }
   reminderTargetMerged = merged;
   const dateInput = document.getElementById('reminderDate');
   dateInput.value = '';
@@ -2306,6 +2375,186 @@ document.getElementById('reminderModalSaveBtn').addEventListener('click', saveRe
 document.getElementById('reminderModalOverlay').addEventListener('click', (e) => {
   if (e.target.id === 'reminderModalOverlay') closeReminderModal();
 });
+
+// --- Auth (backlog #62) -----------------------------------------------------
+// Saved listings, lead generators, and reminders all now live behind
+// Supabase Auth + RLS scoped to auth.uid() (see supabase/schema.sql) -
+// this is the login/session half. No public sign-up form: this app has
+// exactly one real account, created once via the Supabase dashboard's own
+// Auth panel, not through this page - only signInWithPassword/signOut are
+// wired up here. supabase-js persists the session in this browser's own
+// localStorage and auto-refreshes it, so logging in once is normally a
+// one-time thing per browser, not a per-visit chore.
+let CURRENT_USER = null;
+
+function openLoginModal() {
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginModalError').classList.remove('show');
+  document.getElementById('loginModalOverlay').classList.add('open');
+}
+
+function closeLoginModal() {
+  document.getElementById('loginModalOverlay').classList.remove('open');
+}
+
+function submitLogin() {
+  const errorEl = document.getElementById('loginModalError');
+  errorEl.classList.remove('show');
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) {
+    errorEl.textContent = 'Enter your email and password.';
+    errorEl.classList.add('show');
+    return;
+  }
+  sb.auth.signInWithPassword({ email, password }).then(({ error }) => {
+    if (error) {
+      errorEl.textContent = 'Could not log in - check your email and password.';
+      errorEl.classList.add('show');
+      return;
+    }
+    closeLoginModal();
+    // applyAuthState() runs itself via onAuthStateChange's own callback
+    // below, not from here - signInWithPassword succeeding IS what fires
+    // that event, so wiring it twice would just double-run everything.
+  }).catch(() => {
+    errorEl.textContent = 'Could not log in - check your email and password.';
+    errorEl.classList.add('show');
+  });
+}
+
+function logout() {
+  sb.auth.signOut();
+}
+
+document.getElementById('accountLoginBtn').addEventListener('click', openLoginModal);
+document.getElementById('loginModalCloseBtn').addEventListener('click', closeLoginModal);
+document.getElementById('loginModalCancelBtn').addEventListener('click', closeLoginModal);
+document.getElementById('loginModalSubmitBtn').addEventListener('click', submitLogin);
+document.getElementById('loginModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'loginModalOverlay') closeLoginModal();
+});
+document.getElementById('leadgenLoginPromptBtn').addEventListener('click', openLoginModal);
+document.getElementById('dashboardLoginPromptBtn').addEventListener('click', openLoginModal);
+
+// One-time migration (backlog #62's first constraint: don't lose the
+// current saved list) - reads whatever's still in this browser's
+// localStorage under the OLD keys and uploads it to the newly-logged-in
+// account, strictly BEFORE loadSavedListings()/loadLeadGenerators() below
+// ever switch the app over to reading from Supabase instead. Guarded by
+// MIGRATION_DONE_KEY so it only ever runs once per browser; guarded
+// separately by checking for existing server-side rows so logging into
+// the same account from a SECOND browser (which also still has its own
+// old localStorage data) doesn't re-upload on top of what browser #1
+// already migrated - the server's existing state wins, nothing local gets
+// re-uploaded once anything is already there.
+//
+// Deliberately never marks itself done on failure (network error, RLS
+// rejection) - the next page load simply retries rather than silently
+// giving up with local data now stranded and unmigrated.
+const MIGRATION_DONE_KEY = 'supabaseMigrationDone_v1';
+
+function migrateLocalDataIfNeeded() {
+  if (localStorage.getItem(MIGRATION_DONE_KEY) === 'true') return Promise.resolve();
+
+  return Promise.all([
+    sb.from('saved_listings').select('id', { count: 'exact', head: true }),
+    sb.from('lead_generators').select('id', { count: 'exact', head: true }),
+  ]).then(([savedCountRes, gensCountRes]) => {
+    if ((savedCountRes.count || 0) > 0 || (gensCountRes.count || 0) > 0) {
+      localStorage.setItem(MIGRATION_DONE_KEY, 'true');
+      return;
+    }
+
+    let localSavedIds = [];
+    let localGens = [];
+    try {
+      localSavedIds = JSON.parse(localStorage.getItem(SAVED_LISTINGS_KEY) || '[]')
+        .filter(id => typeof id === 'string' && id);
+    } catch (e) { console.error('Could not parse local saved listings for migration', e); }
+    try {
+      localGens = JSON.parse(localStorage.getItem(LEAD_GEN_STORAGE_KEY) || '[]')
+        .filter(g => g && typeof g.id === 'string' && typeof g.name === 'string');
+    } catch (e) { console.error('Could not parse local lead generators for migration', e); }
+
+    if (localSavedIds.length === 0 && localGens.length === 0) {
+      localStorage.setItem(MIGRATION_DONE_KEY, 'true');
+      return;
+    }
+
+    const savedReq = localSavedIds.length > 0
+      ? sb.from('saved_listings')
+          .upsert(localSavedIds.map(id => ({ listing_id: id })), { onConflict: 'user_id,listing_id', ignoreDuplicates: true })
+          .select()
+      : Promise.resolve({ data: [], error: null });
+    const gensReq = localGens.length > 0
+      ? sb.from('lead_generators')
+          .upsert(localGens.map(g => ({ id: g.id, name: g.name, data: { filters: g.filters, area: g.area } })), { onConflict: 'id' })
+          .select()
+      : Promise.resolve({ data: [], error: null });
+
+    return Promise.all([savedReq, gensReq]).then(([savedRes, gensRes]) => {
+      if (savedRes.error || gensRes.error) {
+        console.error('Migration to Supabase failed', savedRes.error, gensRes.error);
+        alert('Could not migrate your saved listings/lead generators automatically - nothing in this browser was deleted or changed. Check the console for details; this will retry next time you load the page.');
+        return;
+      }
+      const savedMigrated = (savedRes.data || []).length;
+      const gensMigrated = (gensRes.data || []).length;
+      localStorage.setItem(MIGRATION_DONE_KEY, 'true');
+      const countsMatch = savedMigrated === localSavedIds.length && gensMigrated === localGens.length;
+      alert(
+        'Migrated to your account:\n' +
+        `Saved listings: ${localSavedIds.length} found in this browser -> ${savedMigrated} now in your account.\n` +
+        `Lead generators: ${localGens.length} found in this browser -> ${gensMigrated} now in your account.\n\n` +
+        (countsMatch
+          ? 'Counts match - nothing lost.'
+          : "Counts don't match exactly - check the browser console before assuming anything is missing.")
+      );
+    }).catch(e => {
+      console.error('Migration to Supabase failed', e);
+      alert('Could not migrate your saved listings/lead generators automatically - nothing in this browser was deleted or changed. Check the console for details; this will retry next time you load the page.');
+    });
+  }).catch(e => {
+    console.error('Failed to check for already-migrated data', e);
+  });
+}
+
+function applyAuthState(session) {
+  CURRENT_USER = session ? session.user : null;
+
+  const accountEl = document.getElementById('sidebarAccount');
+  accountEl.innerHTML = CURRENT_USER
+    ? `<p class="account-email">${escapeHtml(CURRENT_USER.email || '')}</p><button class="nav-item" id="accountLogoutBtn"><span class="icon">🚪</span> Log out</button>`
+    : `<button class="nav-item" id="accountLoginBtn"><span class="icon">🔑</span> Log in</button>`;
+  const loginBtn = document.getElementById('accountLoginBtn');
+  if (loginBtn) loginBtn.addEventListener('click', openLoginModal);
+  const logoutBtn = document.getElementById('accountLogoutBtn');
+  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
+  document.getElementById('leadgenLoginPrompt').style.display = CURRENT_USER ? 'none' : 'block';
+  document.getElementById('leadgenGatedContent').style.display = CURRENT_USER ? 'block' : 'none';
+  document.getElementById('dashboardLoginPrompt').style.display = CURRENT_USER ? 'none' : 'block';
+  document.getElementById('dashboardGatedContent').style.display = CURRENT_USER ? 'block' : 'none';
+
+  if (CURRENT_USER) {
+    migrateLocalDataIfNeeded().then(() => {
+      loadSavedListings();
+      loadLeadGenerators();
+      if (document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+    });
+  } else {
+    SAVED_LISTING_IDS = [];
+    LEAD_GENERATORS = [];
+    DASHBOARD_REMINDERS = [];
+    renderLeadGenGallery();
+    if (document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+  }
+}
+
+sb.auth.getSession().then(({ data }) => applyAuthState(data.session)).catch(e => console.error('Failed to check session', e));
+sb.auth.onAuthStateChange((_event, session) => applyAuthState(session));
 
 // Cross-portal duplicate detection (price+sqm+area fuzzy matching - see
 // sync_to_supabase.py's group_listings() for the full algorithm and its
@@ -2504,23 +2753,48 @@ function populateAreaFilter() {
 }
 
 // --- Lead generators -----------------------------------------------------
+// Backlog #62: moved from localStorage into Supabase's lead_generators
+// table, same reasoning and same auth.uid()-scoped RLS as saved listings
+// above. The whole gen object's variable part (filters + whichever area
+// mode it uses) is round-tripped through one `data` jsonb column - see
+// supabase/schema.sql's own comment on why that's simpler than a column
+// per field for a shape that already varies by area mode and keeps
+// evolving. name/created_at get their own columns since every generator
+// always has them.
 
-function loadLeadGeneratorsFromStorage() {
-  try {
-    const raw = localStorage.getItem(LEAD_GEN_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error('Failed to load lead generators from storage', e);
-    return [];
-  }
+function loadLeadGenerators() {
+  return sb.from('lead_generators').select('*').order('created_at').then(({ data, error }) => {
+    if (error) { console.error('Failed to load lead generators', error); return; }
+    LEAD_GENERATORS = (data || []).map(row => ({
+      id: row.id,
+      name: row.name,
+      createdAt: row.created_at,
+      filters: row.data.filters,
+      area: row.data.area,
+    }));
+    renderLeadGenGallery();
+  }).catch(e => console.error('Failed to load lead generators', e));
 }
 
-function saveLeadGenerators(list) {
-  try {
-    localStorage.setItem(LEAD_GEN_STORAGE_KEY, JSON.stringify(list));
-  } catch (e) {
-    console.error('Failed to save lead generators to storage', e);
-  }
+// One row per mutation (upsert-by-id / delete-by-id) rather than the old
+// "rewrite the whole array" pattern localStorage needed - the in-memory
+// LEAD_GENERATORS array is still updated synchronously first (unchanged
+// from before) so the gallery re-renders immediately; this just persists
+// that one change instead of the full list.
+function upsertLeadGenerator(gen) {
+  return sb.from('lead_generators').upsert({
+    id: gen.id,
+    name: gen.name,
+    data: { filters: gen.filters, area: gen.area },
+  }).then(({ error }) => {
+    if (error) console.error('Failed to save lead generator', error);
+  }).catch(e => console.error('Failed to save lead generator', e));
+}
+
+function removeLeadGenerator(id) {
+  return sb.from('lead_generators').delete().eq('id', id).then(({ error }) => {
+    if (error) console.error('Failed to delete lead generator', error);
+  }).catch(e => console.error('Failed to delete lead generator', e));
 }
 
 // Ray-casting point-in-polygon test; polygon is an array of [lat, lng] pairs.
@@ -2954,7 +3228,7 @@ function saveLeadGenFromModal() {
   } else {
     LEAD_GENERATORS.push(gen);
   }
-  saveLeadGenerators(LEAD_GENERATORS);
+  upsertLeadGenerator(gen);
   renderLeadGenGallery();
   closeLeadGenModal();
 }
@@ -2971,7 +3245,7 @@ function duplicateLeadGenerator(genId) {
   copy.name = gen.name + ' (copy)';
   copy.createdAt = new Date().toISOString();
   LEAD_GENERATORS.push(copy);
-  saveLeadGenerators(LEAD_GENERATORS);
+  upsertLeadGenerator(copy);
   renderLeadGenGallery();
 }
 
@@ -2980,7 +3254,7 @@ function deleteLeadGenerator(genId) {
   if (!gen) return;
   if (!confirm(`Delete "${gen.name}"? This can't be undone.`)) return;
   LEAD_GENERATORS = LEAD_GENERATORS.filter(g => g.id !== genId);
-  saveLeadGenerators(LEAD_GENERATORS);
+  removeLeadGenerator(genId);
   renderLeadGenGallery();
   if (activeLeadGenerator && activeLeadGenerator.id === genId) clearActiveLeadGenerator();
 }
@@ -4023,7 +4297,11 @@ document.getElementById('lgRadiusCustom').addEventListener('input', () => {
   updateLgRadiusCircle();
 });
 
-LEAD_GENERATORS = loadLeadGeneratorsFromStorage();
+// LEAD_GENERATORS/SAVED_LISTING_IDS are no longer initialized here -
+// they're now loaded from Supabase once a session exists, via
+// applyAuthState() (see the Auth section above, triggered by
+// sb.auth.getSession()/onAuthStateChange() which already ran by this
+// point in the script).
 renderLeadGenGallery();
 
 setGreeting();
