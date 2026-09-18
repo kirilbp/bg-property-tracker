@@ -43,6 +43,8 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from geo_utils import compute_motivation_score, listing_city_key
+
 DATA_DIR = Path(__file__).parent / "data"
 
 # Listings not seen in a scrape for at least this long are treated as
@@ -166,7 +168,6 @@ def compute_leads(history):
         source_status = "active" if (datetime.now(timezone.utc) - last_seen) <= GONE_AFTER else "removed"
         effective_now = last_seen if source_status == "removed" else datetime.now(timezone.utc)
         days_on_market = (effective_now - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
 
         price_history = []
         last_hist_price = None
@@ -207,25 +208,37 @@ def compute_leads(history):
         entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
-        entry["score"] = score
         entry["source_status"] = source_status
         entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         leads.append(entry)
 
+    # Keyed by (city_key, area), not area alone - this diagnostic script's
+    # own compute_leads() had never received the city-blind-area-average
+    # fix the real scrapers got (task #49: "Център" and other generic area
+    # names collide across different real cities otherwise) until this was
+    # noticed while wiring in the motivation-score rework below, which
+    # depends on a correct pct_vs_area_avg. See sync_to_supabase.py's
+    # group_listings() for the full story.
     area_totals = {}
     for l in leads:
-        if l["price_per_sqm"]:
-            area_totals.setdefault(l["area"], []).append(l["price_per_sqm"])
-    area_avg = {area: sum(v) / len(v) for area, v in area_totals.items()}
+        city_key = listing_city_key(l)
+        if l["price_per_sqm"] and city_key:
+            area_totals.setdefault((city_key, l["area"]), []).append(l["price_per_sqm"])
+    area_avg = {key: sum(v) / len(v) for key, v in area_totals.items()}
 
     for l in leads:
-        if l["price_per_sqm"] and l["area"] in area_avg:
-            avg = area_avg[l["area"]]
+        city_key = listing_city_key(l)
+        area_key = (city_key, l["area"]) if city_key else None
+        if l["price_per_sqm"] and area_key in area_avg:
+            avg = area_avg[area_key]
             l["area_avg_price_per_sqm"] = round(avg)
             l["pct_vs_area_avg"] = round((l["price_per_sqm"] - avg) / avg * 100, 1)
         else:
             l["area_avg_price_per_sqm"] = None
             l["pct_vs_area_avg"] = None
+        l["score"] = compute_motivation_score(
+            l["drop_pct"], l["price_drop_count"], l["days_on_market"], l["pct_vs_area_avg"], l["price_history"]
+        )
 
     leads.sort(key=lambda x: x["score"], reverse=True)
     return leads

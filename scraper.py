@@ -80,7 +80,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net, listing_city_key, prune_snapshots
+from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net, compute_motivation_score, listing_city_key, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.imoti.net/en/obiavi/r/prodava"
@@ -427,8 +427,6 @@ def compute_leads(history):
             else datetime.fromisoformat(rec["first_seen"])
         )
         days_on_market = max((effective_now - reference_date).days, 0)
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
-
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         leads.append({
@@ -448,7 +446,6 @@ def compute_leads(history):
             "price_drop_count": price_drop_count,
             "drop_pct": drop_pct,
             "days_on_market": days_on_market,
-            "score": score,
             "source_status": source_status,
             "removed_at": last_seen.isoformat() if source_status == "removed" else None,
         })
@@ -473,6 +470,15 @@ def compute_leads(history):
         else:
             l["area_avg_price_per_sqm"] = None
             l["pct_vs_area_avg"] = None
+        # Computed here, not in the loop above, because the motivation
+        # score's area-average component needs pct_vs_area_avg, which
+        # isn't known until this second pass over "leads" completes its
+        # own area_totals aggregation - see geo_utils.compute_motivation_
+        # score()'s own docstring for the full formula and the real-data
+        # reasoning behind every cap.
+        l["score"] = compute_motivation_score(
+            l["drop_pct"], l["price_drop_count"], l["days_on_market"], l["pct_vs_area_avg"], l["price_history"]
+        )
 
     leads.sort(key=lambda x: x["score"], reverse=True)
     return leads

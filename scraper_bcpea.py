@@ -91,7 +91,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, listing_city_key, prune_snapshots
+from geo_utils import Geocoder, classify_category, compute_motivation_score, listing_city_key, prune_snapshots
 
 SEARCH_URL = "https://sales.bcpea.org/properties"
 BASE_URL = "https://sales.bcpea.org"
@@ -541,8 +541,6 @@ def compute_leads(history):
         site_updated_at = latest.get("site_updated_at")
         reference_date = datetime.fromisoformat(site_updated_at) if site_updated_at else datetime.fromisoformat(rec["first_seen"])
         days_on_market = max((effective_now - reference_date).days, 0)
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
-
         price_per_sqm = round(last_price / latest["sqm"]) if latest.get("sqm") else None
 
         entry = dict(latest)
@@ -554,7 +552,6 @@ def compute_leads(history):
         entry["source_status"] = source_status
         entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         entry["days_on_market"] = days_on_market
-        entry["score"] = score
         leads.append(entry)
 
     # Keyed by (city_key, area), not area alone - see geo_utils.py's
@@ -577,6 +574,15 @@ def compute_leads(history):
         else:
             l["area_avg_price_per_sqm"] = None
             l["pct_vs_area_avg"] = None
+        # Computed here, not in the loop above, because the motivation
+        # score's area-average component needs pct_vs_area_avg, which
+        # isn't known until this second pass over "leads" completes its
+        # own area_totals aggregation - see geo_utils.compute_motivation_
+        # score()'s own docstring for the full formula and the real-data
+        # reasoning behind every cap.
+        l["score"] = compute_motivation_score(
+            l["drop_pct"], l["price_drop_count"], l["days_on_market"], l["pct_vs_area_avg"], l["price_history"]
+        )
 
     leads.sort(key=lambda x: x["score"], reverse=True)
     return leads
