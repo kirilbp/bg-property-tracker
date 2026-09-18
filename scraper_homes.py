@@ -112,7 +112,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from geo_utils import Geocoder, listing_city_key, prune_snapshots
+from geo_utils import Geocoder, compute_motivation_score, listing_city_key, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
@@ -423,8 +423,6 @@ def compute_leads(history):
         source_status = "active" if (datetime.now(timezone.utc) - last_seen) <= GONE_AFTER else "removed"
         effective_now = last_seen if source_status == "removed" else datetime.now(timezone.utc)
         days_on_market = (effective_now - first_seen).days
-        score = round(min(max(drop_pct, 0) / 20, 1) * 50 + min(days_on_market / 180, 1) * 50)
-
         price_history = []
         last_hist_price = None
         for s in rec["snapshots"]:
@@ -470,7 +468,6 @@ def compute_leads(history):
         entry["price_drop_count"] = price_drop_count
         entry["drop_pct"] = drop_pct
         entry["days_on_market"] = days_on_market
-        entry["score"] = score
         entry["source_status"] = source_status
         entry["removed_at"] = last_seen.isoformat() if source_status == "removed" else None
         leads.append(entry)
@@ -501,6 +498,15 @@ def compute_leads(history):
         else:
             l["area_avg_price_per_sqm"] = None
             l["pct_vs_area_avg"] = None
+        # Computed here, not in the loop above, because the motivation
+        # score's area-average component needs pct_vs_area_avg, which
+        # isn't known until this second pass over "leads" completes its
+        # own area_totals aggregation - see geo_utils.compute_motivation_
+        # score()'s own docstring for the full formula and the real-data
+        # reasoning behind every cap.
+        l["score"] = compute_motivation_score(
+            l["drop_pct"], l["price_drop_count"], l["days_on_market"], l["pct_vs_area_avg"], l["price_history"]
+        )
 
     leads.sort(key=lambda x: x["score"], reverse=True)
     return leads

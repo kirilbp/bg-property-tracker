@@ -682,3 +682,106 @@ def listing_city_key(l):
     if field_key and title_key and field_key != title_key:
         return title_key
     return field_key or title_key
+
+
+# --- Motivation score (backlog item, reworked after relisting detection was
+# built) ------------------------------------------------------------------
+#
+# A single shared implementation, unlike most of this project's per-scraper
+# compute_leads() logic (deliberately duplicated there - see e.g.
+# scraper.py's own comments - because those tweaks are a few inline lines
+# woven into each scraper's own loop). This is different: a self-contained
+# function with plain inputs and no scraper-specific state, exactly the
+# kind of logic this module already centralizes for the same reason
+# listing_city_key() lives here instead of copy-pasted 8 times - one
+# implementation that can't drift, not eight that could.
+#
+# Original formula (still what every scraper computes today, before this
+# rework ships) was two inputs only: min(drop_pct,0..20)/20*50 +
+# min(days_on_market,0..180)/180*50. Reworked per direct user request once
+# relisting detection existed to feed it: five inputs, weighted and capped
+# from real distributions measured against the live committed dataset
+# (all 8 portals, deduped through the same merge sync_to_supabase.py's
+# group_listings() does) - not guessed. See each cap's own comment for the
+# specific percentile that justified it.
+#
+# Matches index.html's own UNVERIFIED_PCT_THRESHOLD (computeUnverified()) -
+# a price/m² this far from its area average is flagged there as a likely
+# data error rather than a real bargain, and the same judgment applies
+# here: an "unverified" pct_vs_area_avg must not earn motivation-score
+# points, or a parsing error could outscore a genuine below-market deal.
+UNVERIFIED_PCT_THRESHOLD = 60
+
+# Below this many points, the caller couldn't compute a real distinct-
+# reduction/drop-size/days-on-market picture at all (see the docstring on
+# compute_motivation_score for when that happens) - not currently used to
+# gate anything here, kept only as a named constant so the 85/100 rescale
+# factor below has a name instead of a bare magic number.
+_RESCALE_WITHOUT_AREA_AVG = 85
+
+
+def _relisting_score_component(price_history):
+    """Up to 25 points: 10 base for having been delisted and relisted at
+    all (a real, behavioral "this deal stalled and the ad restarted"
+    event - the strongest single signal this formula has, per the user's
+    own framing), plus up to 15 more scaled to how much cheaper it came
+    back. Real data: of 112 relistings where both the old and new price
+    are known, 74% came back lower, median cut 3.9%, 90th percentile
+    17.5% - capped at a 15% price cut for full marks on the bonus, so it's
+    reachable by genuinely large capitulations without needing an extreme
+    outlier to max out. A relisting at the same or a higher price still
+    earns the 10-point base (something changed enough for the ad to be
+    pulled and restarted) but no bonus.
+
+    price_history is chronological (see every compute_leads()'s own
+    price_history construction) - a listing relisted more than once uses
+    its LAST (most recent) tagged event, the freshest signal, rather than
+    whichever event happened to produce the highest score.
+    """
+    before = after = None
+    for entry in price_history:
+        if not isinstance(entry, dict) or entry.get("source") != "relisted_from":
+            continue
+        before = entry.get("price_eur")
+        after = entry.get("came_back_price")
+    if before is None:
+        return 0
+    points = 10
+    if before and after and after < before:
+        drop_on_relist = (before - after) / before * 100
+        points += min(drop_on_relist, 15) / 15 * 15
+    return points
+
+
+def compute_motivation_score(drop_pct, price_drop_count, days_on_market, pct_vs_area_avg, price_history):
+    """The five components, each capped, summed, and rescaled to 0-100.
+
+    Every component except the area-average one is always computable - a
+    listing that was never reduced or never relisted legitimately scores 0
+    there, which isn't missing data, it's a real answer. pct_vs_area_avg is
+    the one genuine gap: None when the listing (or too few of its area
+    peers) has no sqm/price_per_sqm to compare, and treated as unusable
+    (not just missing, actively excluded) when it's flagged unverified -
+    see UNVERIFIED_PCT_THRESHOLD above. When that component isn't usable,
+    the other four are rescaled from their 0-85 raw sum up to 0-100 rather
+    than leaving every affected listing capped below the real top end -
+    the deliberate "rescale" choice over "cap at 85", made because the gap
+    is a data-collection artifact (alo.bg in particular has sparse sqm
+    coverage) rather than a real signal about the listing, and capping
+    would systematically punish whichever portals/areas happen to have
+    thinner coverage rather than reflecting anything about the property
+    itself.
+    """
+    relist_pts = _relisting_score_component(price_history)
+    drop_count_pts = min(price_drop_count or 0, 3) / 3 * 20  # real p90=1, p95=2, p99=3 among ever-reduced listings - a cap of 4+ would be unreachable
+    drop_pct_pts = min(max(drop_pct or 0, 0), 20) / 20 * 20  # unchanged cap from the original formula - real data confirms it still sits near the ~96th percentile of reduced listings
+    days_pts = min(days_on_market or 0, 180) / 180 * 20  # unchanged cap - kept for when tracking history matures rather than fitted to today's artificially compressed (~23-28 day) distribution
+
+    area_available = pct_vs_area_avg is not None and abs(pct_vs_area_avg) < UNVERIFIED_PCT_THRESHOLD
+    area_pts = 0
+    if area_available and pct_vs_area_avg < 0:
+        area_pts = min(abs(pct_vs_area_avg), 40) / 40 * 15  # real data (verified listings only): cap sits near the 90th percentile of below-average listings
+
+    raw_total = relist_pts + drop_count_pts + drop_pct_pts + days_pts + (area_pts if area_available else 0)
+    denom = 100 if area_available else _RESCALE_WITHOUT_AREA_AVG
+    return round(raw_total * 100 / denom)

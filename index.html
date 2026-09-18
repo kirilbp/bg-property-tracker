@@ -663,12 +663,20 @@
           </div>
           <div class="help-section">
             <h3>Motivation score</h3>
-            <p>A simple 0–100 staleness-plus-discount indicator, not a full motivation model: 50 points for price drop (capped at 20%) plus 50 points for days on market (capped at 180 days). It does <strong>not</strong> currently account for a listing being relisted, the number of separate price cuts (only the total drop %), or the same property being listed on multiple portals at once - all real motivation signals we don't factor in yet. Relisting is now detected and shown (🔁 badge, Price History tab) but deliberately left out of the score for now: listing data can't tell a genuine sale-then-new-owner relist apart from the same seller's listing failing to sell and going back up, so it's an ambiguous signal until that's resolved, not a clean "failed sale" flag. Treat the score as a rough first filter, not a verdict.</p>
+            <p>A 0–100 score across five signals, each capped from real distributions measured against the live tracked dataset, not guessed:</p>
+            <ul>
+              <li><strong>Relisted (up to 25 pts)</strong> — 10 points for having been delisted and relisted at all, plus up to 15 more if it came back cheaper (capped at a 15% price cut).</li>
+              <li><strong>Distinct price reductions (up to 20 pts)</strong> — capped at 3 separate cuts, not just whether it was ever reduced.</li>
+              <li><strong>Size of the price drop (up to 20 pts)</strong> — capped at a 20% total drop.</li>
+              <li><strong>Days on market (up to 20 pts)</strong> — capped at 180 days. Most listings score low here right now simply because nationwide tracking is still young (most inventory has only been tracked a few weeks) - not because they're not stale.</li>
+              <li><strong>Below the area average price/m² (up to 15 pts)</strong> — capped at 40% below average, and only counted when that figure isn't already flagged ⚠️ Unverified (a likely data error, not a real bargain).</li>
+            </ul>
+            <p>When a listing has no usable area-average figure (roughly 4 in 10 listings today, mostly on portals with sparser size data), the other four signals are rescaled to still reach 100 rather than capping that listing's ceiling for a data gap outside its control. We still can't tell a listing that sold and was relisted by a new owner apart from one that simply failed to sell and came back unchanged - relisting is a real, now-scored signal, but an ambiguous one, not a confirmed "failed sale" flag. Multi-portal listing (the same property posted on more than one site at once) isn't factored in yet. Treat the score as a strong first filter, not a verdict.</p>
           </div>
           <div class="help-section">
             <h3>Badges</h3>
             <ul>
-              <li><strong>🔥 Hot deal / Warm</strong> — motivation score thresholds.</li>
+              <li><strong>🔥 Hot deal (≥40) / Warm (≥15)</strong> — motivation score thresholds, recalibrated against the real achievable range now that days-on-market is still compressed (see above) - these will likely need revisiting again as tracking history matures.</li>
               <li><strong>X% below/above area avg</strong> — this listing's €/m² vs. the average for its area, across all sources.</li>
               <li><strong>⚠️ Unverified price</strong> — the €/m² is far enough from the area average that it might be a data error (e.g. a misparsed price) rather than a real deal. Worth double-checking against the original listing.</li>
               <li><strong>↓ X% since first seen</strong> — price has dropped since this listing was first scraped.</li>
@@ -867,6 +875,16 @@ const REGISTRY_URL = 'https://portal.registryagency.bg/';
 // a currency/decimal slip. Flag it as unverified rather than trust it at
 // face value; never drop it from the results.
 const UNVERIFIED_PCT_THRESHOLD = 60;
+// Recalibrated alongside the 5-component motivation score rework (see
+// geo_utils.compute_motivation_score() for the formula and its real-data
+// calibration) - the old 65/35 thresholds were already unreachable in
+// practice (4 of ~115,000 non-sold listings hit 65 under even the OLD
+// two-input formula) because days-on-market is still deeply compressed
+// while nationwide tracking history is young. These match the real top
+// few percent of the NEW formula's score distribution today and will
+// likely need revisiting again as days-on-market spreads out over time.
+const HOT_SCORE_THRESHOLD = 40;
+const WARM_SCORE_THRESHOLD = 15;
 const PAGE_SIZE = 100;
 
 let MERGED_LISTINGS = [];
@@ -3290,7 +3308,7 @@ function clearActiveLeadGenerator(skipRender) {
 function renderHome() {
   // Matches renderDashboard()'s Hottest Deals filter - a sold listing isn't
   // an actionable hot deal anymore, however high its frozen score is.
-  const hot = MERGED_LISTINGS.filter(l => l.status !== 'sold' && l.score >= 65).length;
+  const hot = MERGED_LISTINGS.filter(l => l.status !== 'sold' && l.score >= HOT_SCORE_THRESHOLD).length;
   const stats = [
     { value: fmt(MERGED_LISTINGS.length), label: 'Total listings' },
     { value: fmt(hot), label: '🔥 Hot deals' },
@@ -3430,8 +3448,8 @@ function buildBadgesHtml(l) {
   }
   // A sold listing isn't an actionable "deal" of any temperature anymore.
   if (l.status !== 'sold') {
-    if (l.score >= 65) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
-    else if (l.score >= 35) badges += '<span class="badge badge-warm">Warm</span>';
+    if (l.score >= HOT_SCORE_THRESHOLD) badges += '<span class="badge badge-hot">🔥 Hot deal</span>';
+    else if (l.score >= WARM_SCORE_THRESHOLD) badges += '<span class="badge badge-warm">Warm</span>';
   }
 
   if (l.pct_vs_area_avg !== null && l.pct_vs_area_avg !== undefined) {
@@ -3973,7 +3991,7 @@ function renderListingDetail(merged) {
           : '';
         return `<p class="relisting-event">🔁 Off market for ${offLabel}${cameBackDate ? ' (back on ' + cameBackDate + ')' : ''} — left at €${fmt(ev.priceBefore)}, ${priceChangeHtml}${approxNote}</p>`;
       }).join('')}
-      <p class="relisting-caveat">We can't tell from listing data alone whether this means the property sold and a new owner relisted it, or the same listing failed to sell and was reposted — only that it was off every tracked portal for a period, then came back. Not currently factored into the motivation score above.</p>
+      <p class="relisting-caveat">We can't tell from listing data alone whether this means the property sold and a new owner relisted it, or the same listing failed to sell and was reposted — only that it was off every tracked portal for a period, then came back. Now factored into the motivation score above as an ambiguous "came back on market" signal (especially if it came back cheaper) — never as a confirmed "failed sale" flag.</p>
     </div>
   ` : '';
 
@@ -4019,7 +4037,7 @@ function renderListingDetail(merged) {
         <button class="modal-btn-secondary" id="reminderBtn" style="margin-left:8px;">🔔 Remind me</button>
         ${renderListingReminders(merged)}
         <div class="detail-stats">
-          <div class="detail-stat" title="Simple staleness-plus-discount indicator (price drop % + days on market) - doesn't yet account for relisting history, number of separate price cuts, or multi-portal listing. See Help for details."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
+          <div class="detail-stat" title="0-100 across 5 signals: relisting (esp. cheaper), distinct price cuts, size of drop, days on market, and below-area-average price. Doesn't yet account for multi-portal listing, and can't tell a genuine sale-then-relist apart from a failed-sale repost. See Help for the full formula."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
