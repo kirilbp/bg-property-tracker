@@ -317,16 +317,25 @@ def goto_with_retries(page, url):
 
 
 def fetch_listing_detail(page, listing):
-    # Marked unconditionally so a backlog scan can tell "already attempted,
-    # nothing more to gain" apart from "never visited yet" - same marker
-    # pattern scraper.py/scraper_bcpea.py/scraper_imot.py already
-    # established for their own detail backfills. Returns whether the page
-    # actually loaded (used by fetch_listing_details() to detect a run of
-    # consecutive failures).
-    listing["detail_checked"] = True
+    # Returns whether the page actually loaded (used by
+    # fetch_listing_details() to detect a run of consecutive failures).
     html = goto_with_retries(page, listing["url"])
     if html is None:
+        # NOT marked detail_checked - goto_with_retries() already exhausted
+        # its own in-page retries, but that failure could still be
+        # transient (site throttling, a timeout), not a confirmed-gone
+        # page. This used to mark detail_checked=True unconditionally
+        # before even attempting the fetch, which meant a listing that hit
+        # one bad request was silently and permanently skipped by every
+        # future backfill run, losing its description/photos for good.
+        # Leaving detail_checked unset lets a later run retry it.
         return False
+    # Marked only once html is confirmed real, so a backlog scan can tell
+    # "already attempted, got a real page, nothing more to gain" apart
+    # from "never successfully visited yet" - same marker pattern
+    # scraper.py/scraper_bcpea.py/scraper_imot.py/scraper_alo.py use for
+    # their own detail backfills.
+    listing["detail_checked"] = True
     description = extract_description_ldjson(html)
     if description:
         listing["description"] = description

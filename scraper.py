@@ -273,13 +273,25 @@ def fetch_listing_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline
             break
         time.sleep(REQUEST_DELAY_SECONDS)
         html = fetch_with_retries(l["url"])
-        # Marked regardless of outcome - some listings genuinely have no
-        # datePosted/coords on their own page, and without an explicit
-        # marker those would get needlessly re-visited by every future
-        # backfill run instead of being treated as done.
-        l["detail_checked"] = True
         if html is None:
+            # NOT marked detail_checked here - fetch_with_retries() already
+            # exhausted its own in-page retries, but that failure could
+            # still be transient (a momentary block/timeout, not a
+            # confirmed-gone 404/410, which fetch_with_retries() itself
+            # already treats as a real page load returning None-with-no-
+            # further-retry rather than reaching here). Marking this done
+            # anyway - as this used to, unconditionally - meant a listing
+            # that just got unlucky once was silently and permanently
+            # skipped by every future backfill run, losing its
+            # datePosted/coords/photos for good with nothing to show for
+            # it. Leaving detail_checked unset lets a later run retry it.
             continue
+        # Marked only once html is confirmed real - some listings
+        # genuinely have no datePosted/coords on their own page even when
+        # it loads fine, and without an explicit marker those would get
+        # needlessly re-visited by every future backfill run instead of
+        # being treated as done.
+        l["detail_checked"] = True
         date_posted = parse_date_posted(html)
         if date_posted:
             l["site_posted_at"] = date_posted
