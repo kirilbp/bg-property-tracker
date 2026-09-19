@@ -888,6 +888,89 @@ def upsert(base_url, headers, table, rows, on_conflict):
         print(f"  upserted {len(batch)} rows into {table} ({min(i + len(batch), len(rows))}/{len(rows)})")
 
 
+# --- Data-loss safety guard --------------------------------------------
+# A scraper's own parser can silently break (a site markup change) without
+# raising any exception - it just returns 0 or near-0 listings for that
+# portal, and nothing upstream of this file (the scraper's own exit code,
+# the git commit step) can tell that apart from a genuinely quiet run.
+# Without this guard, delete_stale_merged_listings()/delete_stale_listing_
+# sources() below would read "not in what I just loaded from disk" as
+# "genuinely gone" and delete it from the live tables in this same sync -
+# for a portal the size of alo.bg (83,939 listings at the time this guard
+# was added), that's an unrecoverable, one-run deletion of real, live data
+# over what was actually just a broken scrape. Comparing this run's count
+# against what's already live catches that before any DELETE fires: stale
+# data sitting in the live tables one cycle longer than necessary is
+# always the safer failure than deleting real, current listings a scraper
+# just failed to see.
+MIN_PORTAL_RATIO = 0.5
+MIN_PORTAL_ABSOLUTE = 10
+
+
+class DataLossGuardTripped(Exception):
+    pass
+
+
+def _fetch_stored_source_ids(base_url, headers, portal):
+    stored_ids = set()
+    cursor = None
+    while True:
+        query_params = {"select": "source_id", "portal": f"eq.{portal}", "order": "source_id", "limit": 1000}
+        if cursor is not None:
+            query_params["source_id"] = f"gt.{cursor}"
+        resp = request_with_retries(
+            "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60
+        )
+        resp.raise_for_status()
+        rows = resp.json()
+        stored_ids.update(r["source_id"] for r in rows)
+        if len(rows) < 1000:
+            break
+        cursor = rows[-1]["source_id"]
+    return stored_ids
+
+
+def check_portal_counts(base_url, headers, current_by_portal):
+    """Fetches each portal's currently-live source_ids (so callers doing
+    the actual deletion don't have to re-fetch them) and raises
+    DataLossGuardTripped if any portal's freshly-scraped count looks like
+    a broken scrape rather than a real drop - below MIN_PORTAL_ABSOLUTE in
+    absolute terms, or below MIN_PORTAL_RATIO of what's already live.
+    A portal with nothing live yet (a first-ever sync) has no baseline to
+    protect and always passes."""
+    stored_by_portal = {}
+    problems = []
+    for portal in PORTAL_FILES:
+        stored_ids = _fetch_stored_source_ids(base_url, headers, portal)
+        stored_by_portal[portal] = stored_ids
+
+        stored_count = len(stored_ids)
+        current_count = len(current_by_portal.get(portal, set()))
+        if stored_count == 0:
+            continue
+        if current_count < MIN_PORTAL_ABSOLUTE:
+            problems.append(
+                f"{portal}: {current_count} listing(s) this run (was {stored_count} live) - "
+                f"near-zero, treating as a broken scrape rather than a real drop"
+            )
+        elif current_count / stored_count < MIN_PORTAL_RATIO:
+            problems.append(
+                f"{portal}: {current_count} listings this run vs {stored_count} already live "
+                f"({current_count / stored_count:.0%}, below the {MIN_PORTAL_RATIO:.0%} floor)"
+            )
+
+    if problems:
+        raise DataLossGuardTripped(
+            "Refusing to delete any stale rows this run - one or more portals produced "
+            "implausibly few listings, which looks like a broken scrape, not a real drop:\n  "
+            + "\n  ".join(problems)
+            + "\nExisting listing_sources/merged_listings rows are untouched. Investigate the "
+            "scraper(s) named above before the next scheduled sync - this guard will otherwise "
+            "keep blocking cleanup (harmlessly) every run until the count recovers."
+        )
+    return stored_by_portal
+
+
 def delete_stale_merged_listings(base_url, headers, current_ids):
     # merged_id changes whenever a group's real membership changes (a dedup
     # fix, a category/city reclassification) - upsert-only syncing leaves
@@ -943,7 +1026,7 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
     print(f"  deleted {len(stale)} stale rows from merged_listings")
 
 
-def delete_stale_listing_sources(base_url, headers, current_by_portal):
+def delete_stale_listing_sources(base_url, headers, current_by_portal, stored_by_portal):
     # Same orphaned-row problem as merged_listings (see
     # delete_stale_merged_listings()'s comment), for the per-source table -
     # a listing that stops appearing in a portal's own leads_*.json (sold,
@@ -952,26 +1035,14 @@ def delete_stale_listing_sources(base_url, headers, current_by_portal):
     # this time (it isn't bulk-loaded at all - see index.html's loadData()
     # comment), but the same unbounded growth is still real waste worth
     # cleaning up here while already fixing the sibling table.
+    #
+    # stored_by_portal is passed in (from check_portal_counts(), called
+    # first in main()) rather than re-fetched here - it already had to
+    # fetch every portal's live source_ids to run the data-loss guard
+    # before any DELETE was allowed to proceed at all, so re-fetching the
+    # same data a second time would just be wasted round-trips.
     for portal, current_ids in current_by_portal.items():
-        # Keyset pagination, not OFFSET - same reasoning as
-        # delete_stale_merged_listings() (some portals track well over
-        # 100k listings, e.g. alo.bg's ~156,000 nationwide).
-        stored_ids = set()
-        cursor = None
-        while True:
-            query_params = {"select": "source_id", "portal": f"eq.{portal}", "order": "source_id", "limit": 1000}
-            if cursor is not None:
-                query_params["source_id"] = f"gt.{cursor}"
-            resp = request_with_retries(
-                "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60
-            )
-            resp.raise_for_status()
-            rows = resp.json()
-            stored_ids.update(r["source_id"] for r in rows)
-            if len(rows) < 1000:
-                break
-            cursor = rows[-1]["source_id"]
-
+        stored_ids = stored_by_portal.get(portal, set())
         stale = list(stored_ids - current_ids)
         if not stale:
             continue
@@ -1014,14 +1085,25 @@ def main():
     upsert(base_url, headers, "listing_sources", listing_source_rows, on_conflict="portal,source_id")
     upsert(base_url, headers, "merged_listings", merged_rows, on_conflict="id")
 
-    print("Cleaning up stale rows left behind by earlier syncs...")
-    current_merged_ids = {r["id"] for r in merged_rows}
-    delete_stale_merged_listings(base_url, headers, current_merged_ids)
-
     current_by_portal = {}
     for r in listing_source_rows:
         current_by_portal.setdefault(r["portal"], set()).add(r["source_id"])
-    delete_stale_listing_sources(base_url, headers, current_by_portal)
+
+    print("Checking this run's per-portal counts against what's already live before cleaning up stale rows...")
+    try:
+        stored_by_portal = check_portal_counts(base_url, headers, current_by_portal)
+    except DataLossGuardTripped as e:
+        print(f"::error::{e}", file=sys.stderr)
+        print(
+            "This run's upserts above already completed (new/updated listings are live) - "
+            "only the stale-row cleanup was skipped, so nothing was deleted."
+        )
+        sys.exit(1)
+
+    print("Cleaning up stale rows left behind by earlier syncs...")
+    current_merged_ids = {r["id"] for r in merged_rows}
+    delete_stale_merged_listings(base_url, headers, current_merged_ids)
+    delete_stale_listing_sources(base_url, headers, current_by_portal, stored_by_portal)
 
     print("Sync complete")
 
