@@ -3846,7 +3846,15 @@ function renderPriceHistoryChart(priceHistory) {
         // segment spans the off-market gap, not a same-ad price change.
         segment: {
           borderColor: (c) => {
-            if (points[c.p1.dataIndex].source === 'relisted_from') return PRICE_HISTORY_RELIST_COLOR;
+            // Chart.js's SegmentContext puts the point ELEMENTS at p0/p1
+            // (no .dataIndex property on them) and the actual indices in
+            // separate top-level p0DataIndex/p1DataIndex fields - c.p1.
+            // dataIndex was always undefined, so points[undefined].source
+            // threw on every single segment (every listing with 2+ price
+            // points has at least one), breaking the whole line/fill draw
+            // and leaving just the axes visible - exactly the "graph is
+            // blank/missing" bug this fixes.
+            if (points[c.p1DataIndex].source === 'relisted_from') return PRICE_HISTORY_RELIST_COLOR;
             return c.p1.parsed.y < c.p0.parsed.y ? PRICE_HISTORY_DROP_COLOR : PRICE_HISTORY_STABLE_COLOR;
           },
         },
