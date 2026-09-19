@@ -321,13 +321,6 @@ def fetch_listings_page(browser, url):
 
 
 def fetch_listing_detail(browser, listing, geocoder):
-    # Marked unconditionally (even when the fetch or parse below fails) so a
-    # backlog scan can tell "already attempted, nothing more to gain" apart
-    # from "never visited yet" - without this, a listing whose detail page
-    # never loads would get needlessly re-visited by every future backfill
-    # run instead of being treated as done, same marker pattern
-    # scraper.py/backfill_detail_imoti_net.py established.
-    #
     # Returns whether the page itself actually loaded - used by
     # fetch_listing_details() to detect a run of consecutive *fetch*
     # failures. A page that loads fine but simply has no matching markup
@@ -336,10 +329,24 @@ def fetch_listing_detail(browser, listing, geocoder):
     # geocoder can't resolve) unrelated to site health, and treating it as
     # one let a run of ordinary no-coords listings falsely trip the
     # early-stop.
-    listing["detail_checked"] = True
     html = fetch_html(browser, listing["url"])
     if html is None:
+        # NOT marked detail_checked - fetch_html() already exhausted its
+        # own in-page retries, but that failure could still be transient
+        # (site throttling, a timeout), not a confirmed-gone page. This
+        # used to mark detail_checked=True unconditionally before even
+        # attempting the fetch, which meant a listing that hit one bad
+        # request was silently and permanently skipped by every future
+        # backfill run, losing its description/district/photo for good.
+        # Leaving detail_checked unset lets a later run retry it.
         return False
+    # Marked only once html is confirmed real, so a backlog scan can tell
+    # "already attempted, got a real page, nothing more to gain" (even if
+    # that real page had no matching markup) apart from "never
+    # successfully visited yet" - same marker pattern
+    # scraper.py/scraper_imot.py/scraper_alo.py use for their own detail
+    # backfills.
+    listing["detail_checked"] = True
     soup = BeautifulSoup(html, "html.parser")
     expanded = soup.find(class_="item__expanded")
     if expanded is None:
