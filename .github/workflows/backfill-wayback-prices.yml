@@ -52,6 +52,23 @@ jobs:
           for attempt in 1 2 3 4 5; do
             git add data/
             git diff --cached --quiet || git commit -m "Backfill pre-tracking price history from Wayback Machine captures"
+            # Defensive: git pull --rebase refuses to even START if the
+            # tree isn't perfectly clean - it should be, right after the
+            # commit above, but a real production run of scrape.yml hit
+            # "cannot pull with rebase: You have unstaged changes" here
+            # anyway (run 35435925692), which the conflict-recovery below
+            # can't fix (there's no rebase in progress yet to resolve),
+            # burning through all 5 attempts on repeated no-op retries and
+            # losing that whole run's freshly-scraped data. Committing
+            # whatever is still dirty - whatever it turns out to be - is
+            # always safe here: this step's only job is committing scraped
+            # data, so an extra "residual" commit can't lose anything, and
+            # it's what actually unblocks the rebase.
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "Tree still dirty after the commit above - committing the remainder before rebase"
+              git add -A
+              git commit -m "Update listings (residual)"
+            fi
             if ! git pull --rebase origin main; then
               echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
               git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
