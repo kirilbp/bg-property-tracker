@@ -32,6 +32,21 @@ retry of the same offset would very likely fail again the same way, not
 just a one-off blip. Keyset pagination (order by the primary key, filter
 for "greater than the last row seen") does the same amount of work no
 matter how deep the page is, so it doesn't have this failure mode at all.
+
+That first keyset attempt paginated across the WHOLE table in one pass,
+using PostgREST's or=(portal.gt.X,and(portal.eq.X,source_id.gt.Y)) to
+emulate a single composite-key cursor spanning all 8 portals - the same
+row (('alo.bg', 'alo_11255428')) then failed identically across multiple
+separate days with a genuine Postgres 57014 ("canceling statement due to
+statement timeout"), not a data problem. An OR-of-two-conditions filter
+isn't guaranteed to use the (portal, source_id) primary key index as
+tightly as a real tuple comparison would, and alo.bg is this table's
+largest portal by far - a bad plan landing mid-scan through it is exactly
+where a timeout would show up. Paginating one portal at a time instead
+(a fixed, known set of 8) turns every single page into `portal=eq.<X>
+AND source_id>Y`, a plain single-column range scan bounded by an
+equality filter - about as index-friendly as a query gets, and there's
+no OR left for the planner to potentially get wrong.
 """
 
 import json
@@ -45,22 +60,27 @@ import requests
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 
+# Same 8 portals sync_to_supabase.py's PORTAL_FILES writes - listing_sources
+# has no other values in this column, so this is an exhaustive partition,
+# not a filter that could quietly skip real rows.
+PORTALS = [
+    "imoti.net", "alo.bg", "homes.bg", "imot.bg",
+    "olx.bg", "bazar.bg", "imoti.bg", "sales.bcpea.org",
+]
 
-def fetch_page(base_url, headers, page_size, cursor):
-    """cursor is None for the first page, else (last_portal, last_source_id)
-    of the previous page's final row - ordering matches the table's own
-    primary key, so this is a total order with no ties to worry about."""
+
+def fetch_page(base_url, headers, page_size, portal, cursor):
+    """cursor is None for this portal's first page, else the last
+    source_id seen for THIS portal - single-column range, no cross-portal
+    OR needed since each portal is paginated to completion on its own."""
     params = {
         "select": "portal,source_id,merged_id,city_key",
-        "order": "portal.asc,source_id.asc",
+        "portal": f"eq.{portal}",
+        "order": "source_id.asc",
         "limit": page_size,
     }
     if cursor is not None:
-        last_portal, last_source_id = cursor
-        params["or"] = (
-            f"(portal.gt.{last_portal},"
-            f"and(portal.eq.{last_portal},source_id.gt.{last_source_id}))"
-        )
+        params["source_id"] = f"gt.{cursor}"
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = requests.get(
@@ -72,26 +92,19 @@ def fetch_page(base_url, headers, page_size, cursor):
             resp.raise_for_status()
             return resp.json()
         except requests.RequestException as e:
-            # The exact same cursor failed identically across multiple
-            # separate days' runs (2026-09-19 and 2026-09-20, both at
-            # ('alo.bg', 'alo_11255428')) - a real timeout/capacity issue
-            # would vary with how much the table has grown since; landing
-            # on the literal same row every time points at a genuine
-            # PostgREST/Postgres error tied to this specific query or row,
-            # not transient flakiness. str(e) on an HTTPError is just the
-            # status line ("500 Server Error: ..."), which is exactly why
-            # this failure has stayed a mystery through 8+ runs - printing
-            # the response body too surfaces the actual Postgres error
-            # (message/details/hint/code) instead of just "500".
+            # str(e) on an HTTPError is just the status line ("500 Server
+            # Error: ..."); the response body is where Postgres actually
+            # puts its real error (message/details/hint/code) - this is
+            # what surfaced the 57014 statement-timeout above.
             body = getattr(e, "response", None)
             body_text = body.text[:2000] if body is not None else "(no response body available)"
             print(
-                f"DEBUG: page fetch failed at cursor {cursor} (attempt {attempt}/{MAX_RETRIES}): {e}\n"
+                f"DEBUG: page fetch failed for {portal!r} at cursor {cursor} (attempt {attempt}/{MAX_RETRIES}): {e}\n"
                 f"  response body: {body_text}"
             )
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_SECONDS * attempt)
-    print(f"ERROR: giving up on page at cursor {cursor} after {MAX_RETRIES} attempts", file=sys.stderr)
+    print(f"ERROR: giving up on {portal!r} at cursor {cursor} after {MAX_RETRIES} attempts", file=sys.stderr)
     sys.exit(1)
 
 
@@ -111,19 +124,23 @@ def main():
     by_merged_id = defaultdict(list)
     page_size = 1000
     total_rows = 0
-    cursor = None
-    while True:
-        rows = fetch_page(base_url, headers, page_size, cursor)
-        if not rows:
-            break
-        for r in rows:
-            by_merged_id[r["merged_id"]].append(r)
-        total_rows += len(rows)
-        cursor = (rows[-1]["portal"], rows[-1]["source_id"])
-        if total_rows % 20000 == 0:
-            print(f"DEBUG: loaded {total_rows} rows so far...")
-        if len(rows) < page_size:
-            break
+    for portal in PORTALS:
+        portal_rows = 0
+        cursor = None
+        while True:
+            rows = fetch_page(base_url, headers, page_size, portal, cursor)
+            if not rows:
+                break
+            for r in rows:
+                by_merged_id[r["merged_id"]].append(r)
+            total_rows += len(rows)
+            portal_rows += len(rows)
+            cursor = rows[-1]["source_id"]
+            if total_rows % 20000 == 0:
+                print(f"DEBUG: loaded {total_rows} rows so far...")
+            if len(rows) < page_size:
+                break
+        print(f"DEBUG: {portal}: {portal_rows} rows")
 
     print(f"Loaded {total_rows} listing_sources rows across {len(by_merged_id)} merged groups")
 
