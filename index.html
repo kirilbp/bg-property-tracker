@@ -415,9 +415,7 @@
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
-    <div class="sidebar-account" id="sidebarAccount">
-      <button class="nav-item" id="accountLoginBtn"><span class="icon">🔑</span> Log in</button>
-    </div>
+    <div class="sidebar-account" id="sidebarAccount"></div>
   </aside>
 
   <div class="main">
@@ -2446,7 +2444,6 @@ function logout() {
   sb.auth.signOut();
 }
 
-document.getElementById('accountLoginBtn').addEventListener('click', openLoginModal);
 document.getElementById('loginModalCloseBtn').addEventListener('click', closeLoginModal);
 document.getElementById('loginModalCancelBtn').addEventListener('click', closeLoginModal);
 document.getElementById('loginModalSubmitBtn').addEventListener('click', submitLogin);
@@ -2543,18 +2540,25 @@ function applyAuthState(session) {
   CURRENT_USER = session ? session.user : null;
 
   const accountEl = document.getElementById('sidebarAccount');
+  // No "Log in" nag in the sidebar when logged out - a session that isn't
+  // persisting the way it should (see backlog: login keeps reappearing)
+  // is a separate bug to fix on its own, not something to paper over by
+  // constantly asking. Saving a listing or setting a reminder while
+  // logged out still opens the login modal (toggleSavedListing()/
+  // openReminderModal() below) - that's a direct response to a deliberate
+  // action, not a standing nag, so it's kept as the only way back in.
   accountEl.innerHTML = CURRENT_USER
     ? `<p class="account-email">${escapeHtml(CURRENT_USER.email || '')}</p><button class="nav-item" id="accountLogoutBtn"><span class="icon">🚪</span> Log out</button>`
-    : `<button class="nav-item" id="accountLoginBtn"><span class="icon">🔑</span> Log in</button>`;
-  const loginBtn = document.getElementById('accountLoginBtn');
-  if (loginBtn) loginBtn.addEventListener('click', openLoginModal);
+    : '';
   const logoutBtn = document.getElementById('accountLogoutBtn');
   if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
-  document.getElementById('leadgenLoginPrompt').style.display = CURRENT_USER ? 'none' : 'block';
-  document.getElementById('leadgenGatedContent').style.display = CURRENT_USER ? 'block' : 'none';
-  document.getElementById('dashboardLoginPrompt').style.display = CURRENT_USER ? 'none' : 'block';
-  document.getElementById('dashboardGatedContent').style.display = CURRENT_USER ? 'block' : 'none';
+  // Lead Generators/Dashboard show their normal (empty) state when logged
+  // out instead of a "please log in" banner - same reasoning as above.
+  document.getElementById('leadgenLoginPrompt').style.display = 'none';
+  document.getElementById('leadgenGatedContent').style.display = 'block';
+  document.getElementById('dashboardLoginPrompt').style.display = 'none';
+  document.getElementById('dashboardGatedContent').style.display = 'block';
 
   if (CURRENT_USER) {
     migrateLocalDataIfNeeded().then(() => {
