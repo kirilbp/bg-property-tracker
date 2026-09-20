@@ -4868,7 +4868,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2647,
@@ -24400,6 +24400,38 @@
     "score": 3
   },
   {
+    "id": "imotibg_515788",
+    "url": "https://imoti.bg/продажби/едностаен-апартамент/бургас-област/грприморско-515788.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a8f34b5d6c4f_6a8f36b240428.jpg",
+    "price_eur": 92000,
+    "sqm": 41,
+    "area": "гр.Приморско",
+    "city": "Бургас област",
+    "title": "Едностаен апартамент, гр.Приморско",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Ново обзаведено студио - на ул. Надежда. Само на 3 минути пешеходно разстояние до въжения мост на южния плаж. Площ  с общите части 41 кв.м. Разпределение: входно антре, дневна с кухненски бокс, баня със санитарен възел и тераса.\r\nЗа повече информация, моля обадете се на тел. 0886101635. \r\nCAMO ЗА ЧАСТНИ ЛИЦА - БЕЗ ПОСРЕДНИЦИ!",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2244,
+    "price_history": [
+      {
+        "date": "2026-08-28T04:41:50.772578+00:00",
+        "price_eur": 92000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2244,
+    "pct_vs_area_avg": 0.0,
+    "score": 3
+  },
+  {
     "id": "imotibg_270278",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/кайсиева-градина-270278.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa40566447ca_6aa4056648d4b.jpg",
@@ -25452,38 +25484,6 @@
     "source_status": "removed",
     "removed_at": "2026-09-11T20:19:02.722372+00:00",
     "area_avg_price_per_sqm": 300,
-    "pct_vs_area_avg": 0.0,
-    "score": 2
-  },
-  {
-    "id": "imotibg_515788",
-    "url": "https://imoti.bg/продажби/едностаен-апартамент/бургас-област/грприморско-515788.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a8f34b5d6c4f_6a8f36b240428.jpg",
-    "price_eur": 92000,
-    "sqm": 41,
-    "area": "гр.Приморско",
-    "city": "Бургас област",
-    "title": "Едностаен апартамент, гр.Приморско",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Ново обзаведено студио - на ул. Надежда. Само на 3 минути пешеходно разстояние до въжения мост на южния плаж. Площ  с общите части 41 кв.м. Разпределение: входно антре, дневна с кухненски бокс, баня със санитарен възел и тераса.\r\nЗа повече информация, моля обадете се на тел. 0886101635. \r\nCAMO ЗА ЧАСТНИ ЛИЦА - БЕЗ ПОСРЕДНИЦИ!",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2244,
-    "price_history": [
-      {
-        "date": "2026-08-28T04:41:50.772578+00:00",
-        "price_eur": 92000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 22,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2244,
     "pct_vs_area_avg": 0.0,
     "score": 2
   },
