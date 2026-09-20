@@ -72,7 +72,23 @@ def fetch_page(base_url, headers, page_size, cursor):
             resp.raise_for_status()
             return resp.json()
         except requests.RequestException as e:
-            print(f"DEBUG: page fetch failed at cursor {cursor} (attempt {attempt}/{MAX_RETRIES}): {e}")
+            # The exact same cursor failed identically across multiple
+            # separate days' runs (2026-09-19 and 2026-09-20, both at
+            # ('alo.bg', 'alo_11255428')) - a real timeout/capacity issue
+            # would vary with how much the table has grown since; landing
+            # on the literal same row every time points at a genuine
+            # PostgREST/Postgres error tied to this specific query or row,
+            # not transient flakiness. str(e) on an HTTPError is just the
+            # status line ("500 Server Error: ..."), which is exactly why
+            # this failure has stayed a mystery through 8+ runs - printing
+            # the response body too surfaces the actual Postgres error
+            # (message/details/hint/code) instead of just "500".
+            body = getattr(e, "response", None)
+            body_text = body.text[:2000] if body is not None else "(no response body available)"
+            print(
+                f"DEBUG: page fetch failed at cursor {cursor} (attempt {attempt}/{MAX_RETRIES}): {e}\n"
+                f"  response body: {body_text}"
+            )
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_SECONDS * attempt)
     print(f"ERROR: giving up on page at cursor {cursor} after {MAX_RETRIES} attempts", file=sys.stderr)
