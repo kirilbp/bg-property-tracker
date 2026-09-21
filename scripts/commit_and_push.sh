@@ -35,9 +35,30 @@ for attempt in 1 2 3 4 5; do
     git commit -m "$MSG (residual)"
   fi
   if ! git pull --rebase origin main; then
-    echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-    git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-    git diff --name-only --diff-filter=U | xargs -r git add
+    echo "Rebase hit a content conflict - resolving each file"
+    # For the paths THIS call is committing, keep our new content (--theirs
+    # during a rebase means "the commit being replayed", i.e. ours) - a
+    # blanket --ours here would silently keep main's older version of the
+    # very file we're trying to add/update and still report success, e.g.
+    # if this script fires twice for the same day's findings file (see
+    # docs/decisions.md 2026-09-21: exactly the "reports success but did
+    # nothing" bug class Missy's audit looks for). For every other
+    # conflicted file (unrelated to this call, just present in a dirty
+    # tree), keep main's version, since that's always the safe default.
+    for f in $(git diff --name-only --diff-filter=U); do
+      is_target=false
+      for target in "$@"; do
+        [ "$f" = "$target" ] && is_target=true && break
+      done
+      if [ "$is_target" = "true" ]; then
+        echo "  keeping OUR new content for $f (one of this call's own target paths)"
+        git checkout --theirs -- "$f"
+      else
+        echo "  keeping main's version of $f (unrelated to this call)"
+        git checkout --ours -- "$f"
+      fi
+      git add "$f"
+    done
     if ! GIT_EDITOR=true git rebase --continue; then
       echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
       git rebase --abort || true
