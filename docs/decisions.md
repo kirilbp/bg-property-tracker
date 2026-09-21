@@ -86,3 +86,39 @@ portal at a time - every page becomes `portal=eq.<X> AND source_id>Y`, a
 plain single-column range scan with no OR left for the planner to
 mishandle. Verified against production: all 301,596 rows load cleanly,
 0 cross-city groups found.
+
+### 2026-09-21 - Missy's daily routine: commits a findings file instead of filing issues directly; a separate push-triggered workflow opens the issue
+
+Confirmed (by test-firing it) that a Routine created with
+`create_new_session_on_fire: true` spawns a session with no
+`mcp__github__*` tools at all - it does not inherit the calling session's
+GitHub access. That broke the original design, where Missy's own daily
+routine invocation would sample live Supabase data and open a GitHub
+issue herself. Two constraints stack here: this sandbox's egress proxy
+also blocks `*.supabase.co` outright, so even sampling couldn't happen
+live from this environment regardless of GitHub access.
+
+Chose (user-approved) to keep the routine self-contained rather than try
+to grant it GitHub tools: the fired session invokes Missy scoped to the
+repo's own committed `data/leads_*.json`/`data/history_*.json` files
+(refreshed every 6 hours by the scrapers already), writes her returned
+findings to `docs/missy-findings/<date>.md`, and pushes it with
+`scripts/commit_and_push.sh` (Bash + git credentials, no GitHub API
+needed). A separate workflow, `.github/workflows/missy-findings-issue.yml`,
+triggers on that push and opens the GitHub issue itself using its own
+ambient `GITHUB_TOKEN` - the same pattern `check_reminders.py` already
+uses, so the repo owner gets GitHub's normal notification email with no
+new email service. `open_findings_issue.py` diffs against the push
+event's `before` SHA (not `HEAD~1`) specifically because
+`commit_and_push.sh`'s own "residual commit" fallback can turn one
+logical push into two commits - `HEAD~1` would silently miss the findings
+file if it landed in the earlier of the two.
+
+Accepted limitation: the daily audit now checks committed data, not the
+live Supabase table, so it can't catch corruption introduced purely
+inside `sync_to_supabase.py` or via a manual Supabase edit after sync.
+Not treated as a full gap: `audit-cross-city-merges.yml` already runs
+daily directly against the live table and covers the most serious version
+of that bug class (cross-city merge corruption). Bossy now also reads
+`docs/missy-findings/` at the start of every session, so a finding
+surfaces even if the user doesn't look at the emailed issue right away.
