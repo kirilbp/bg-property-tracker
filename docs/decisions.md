@@ -122,3 +122,35 @@ daily directly against the live table and covers the most serious version
 of that bug class (cross-city merge corruption). Bossy now also reads
 `docs/missy-findings/` at the start of every session, so a finding
 surfaces even if the user doesn't look at the emailed issue right away.
+
+### 2026-09-21 - Routine test-fires: subagent delegation silently dropped the persistence step; fixed by removing the handoff, not by warning harder
+
+End-to-end test-firing the new Missy routine (above) surfaced a real
+failure: a routine session that invoked the `missy` subagent via the
+Agent tool, got a complete findings report back, then ended its turn
+without ever writing or pushing the file - real cost was incurred
+(subagent ran to completion) but nothing landed in git. Adding an
+explicit "your turn isn't done until the push lands" warning to the same
+subagent-delegation structure didn't get a conclusive re-test (interrupted
+once a cleaner fix was ready), so the structure itself was changed instead
+of just warning harder: the routine no longer calls the Agent tool at all.
+It reads `missy.md` and does the sampling/verification/writing/pushing
+itself in one continuous turn, removing the handoff boundary where a
+polished subagent report reads like a finished answer and invites the
+model to summarize-and-stop instead of treating persistence as mandatory.
+
+Had a general-purpose agent run Missy's own fault-finding process against
+this failure (the `missy` subagent type had become unavailable in the
+orchestrating session after an unrelated branch-reset side effect, so it
+adopted her role/rules from `missy.md` directly rather than via the
+registered subagent type). It confirmed tool availability wasn't the
+constraint (Bash/Write/Edit/Agent were all present in the routine
+session - only `mcp__github__*` tools are actually missing, per the entry
+above) and flagged a second, independent bug while reviewing the pipeline:
+`scripts/commit_and_push.sh`'s conflict-resolution path kept main's
+already-pushed version of every conflicted file, including whatever the
+current call was trying to add - so two same-day firings (exactly what
+today's repeated test-fires produced) could silently discard the later
+run's findings while still reporting success. Fixed separately (see
+scripts/commit_and_push.sh's own inline comment) and verified with a real
+two-clone push race in a throwaway repo.
