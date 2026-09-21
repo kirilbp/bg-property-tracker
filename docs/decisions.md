@@ -154,3 +154,39 @@ today's repeated test-fires produced) could silently discard the later
 run's findings while still reporting success. Fixed separately (see
 scripts/commit_and_push.sh's own inline comment) and verified with a real
 two-clone push race in a throwaway repo.
+
+**Superseded (2026-09-21, later same day):** the "remove the Agent-tool
+handoff" fix above was the wrong diagnosis. A follow-up test-fire using
+that exact no-subagent structure *also* failed to push anything, which
+ruled out prompt structure entirely. The real cause, found by firing
+minimal diagnostics instead of further prompt variants: (1) a Routine
+created with `create_new_session_on_fire: true` spawns a session with no
+MCP connectors at all - not just GitHub's, all of them - so `mcp__github__*`
+tools were never available to any of these routine-fired sessions,
+confirming the very first finding at the top of this section was correct;
+and, independently, (2) this repo's `main` branch has push protection that
+a non-owner session's git credentials can't bypass - even a bare
+`git commit --allow-empty && git push origin main` from a routine session
+got a 403, while pushing a *new* branch from that same session succeeded
+fine. Both facts were verified with disposable diagnostic firings that
+left observable evidence (a branch that did or didn't appear, an issue
+that did or didn't get filed) rather than trusting any session's own
+self-report, since there's no tool available to read a Claude Code Remote
+session's actual response text - only status metadata.
+
+Fix: stopped using `create_new_session_on_fire` for this Routine entirely.
+It now fires into a dedicated persistent session ("Missy daily audit
+runner", created via `create_session`) using `persistent_session_id`. That
+session type has normal MCP connector access confirmed working (it opened
+a real GitHub issue directly, see issue #182/#183) and can push new
+branches, so the design simplified back down: the routine now opens the
+`missy-finding` GitHub issue *directly* via `mcp__github__issue_write` -
+no committed file or separate push-triggered workflow needed for the
+notification path to work. The `docs/missy-findings/<date>.md` +
+`missy-findings-issue.yml` pipeline built earlier today is kept as a
+secondary, best-effort record only (pushed on its own branch + a PR,
+since direct-to-main is still blocked) - useful for Bossy's start-of-
+session check, but the emailed notification no longer depends on it.
+Verified end to end for real on the first live run: issue #183 (a genuine
+finding - alo.bg's grid crawl silently dead since 2026-09-16) plus PR #184
+carrying the committed record, both landed from a single firing.
