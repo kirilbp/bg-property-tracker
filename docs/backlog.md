@@ -480,7 +480,10 @@ size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE (2026-09-22, Dessy)
+## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE, MERGED (2026-09-22, Dessy)
+
+Reviewed by Missy (verdict: no blocking findings, all claims independently verified against real committed data) and merged in
+[PR #200](https://github.com/kirilbp/bg-property-tracker/pull/200).
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -715,7 +718,36 @@ of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
 
-## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22)
+## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
+
+Reviewed by Missy (verdict: safe to merge - independently reproduced every
+numeric claim against real data: the JS port of `normalize_area()`
+matched the Python original with 0 mismatches across all 9,246 real
+distinct area strings, the platform-wide 58.7%/179,061-listing figure and
+the Cherven Bryag 28-listings-collapsing-to-19-merged-rows figure both
+reproduced exactly, the `gen.area.city` wiring tested with no regression
+for unrecognized-city Lead Generators) and merged in
+[PR #200](https://github.com/kirilbp/bg-property-tracker/pull/200).
+
+**One open item, not a code defect, needs a human:** the
+`supabase/schema.sql` migration (new `area_key` column + index) has not
+been confirmed applied to the live Supabase table - no session this far
+has had console access. The site works correctly today regardless, via
+the client-side `normalizeArea()` fallback in `index.html` (verified);
+the server-side column is a performance optimization for later, not a
+correctness blocker. **Action needed from Kiril**: run the migration in
+the Supabase SQL editor. The exact statement (idempotent, additive only,
+matches the existing `city_key`/`oblast_key` pattern):
+
+```sql
+alter table listing_sources add column if not exists area_key text;
+alter table merged_listings add column if not exists area_key text;
+create index if not exists merged_listings_area_key_idx on merged_listings (area_key);
+```
+
+After running it, the next scheduled sync (or a manual dispatch of
+`sync-supabase.yml`) backfills every row automatically - no separate
+backfill script needed.
 
 **Numbered last but work this immediately after item 6/7 - do not let its
 position at the end of this list imply low priority.** From the user
