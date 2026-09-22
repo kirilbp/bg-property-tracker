@@ -49,6 +49,9 @@ def get_total_count():
         params={"select": "id", "limit": "1"},
         timeout=30,
     )
+    if not r.ok:
+        print(f"get_total_count failed: {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"response body: {r.text[:2000]}", file=sys.stderr)
     r.raise_for_status()
     content_range = r.headers.get("content-range", "")
     # format: "0-0/123456"
@@ -64,6 +67,9 @@ def measure(select_clause, sample_size, label):
         params={"select": select_clause, "order": "id", "limit": str(sample_size)},
         timeout=60,
     )
+    if not r.ok:
+        print(f"[{label}] failed: {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"response body: {r.text[:2000]}", file=sys.stderr)
     r.raise_for_status()
     elapsed = time.time() - t0
     rows = r.json()
