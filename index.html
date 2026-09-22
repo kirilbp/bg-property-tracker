@@ -786,6 +786,113 @@
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px;
   }
   .market-evo-chart-wrap { height: 280px; margin-top: 8px; }
+
+  /* --- Send Letters: campaigns, letter designs, reverse address lookup
+     (docs/property-filter-spec.md section 6; backlog item 13) -----------
+     Reuses .pl-*/.cmp-*/.brass-btn tokens and components rather than a
+     fifth visual language. Own .letters-tab-btn/.letters-tab-content pair
+     for the same reason item 12's .market-tab-* is its own class rather
+     than reusing .detail-tab-* - switchDetailTab()/switchMarketTab() each
+     toggle every element of their own class document-wide with no
+     scoping, so a shared class risks an accidental cross-page toggle. */
+  .letters-tabs { display: flex; gap: 4px; margin: 24px 0 0; border-bottom: 1px solid var(--taupe-light); flex-wrap: wrap; }
+  .letters-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 4px; margin-right: 20px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--taupe); cursor: pointer;
+  }
+  .letters-tab-btn:hover { color: var(--ink-soft); }
+  .letters-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
+  .letters-tab-content { display: none; padding-top: 20px; }
+  .letters-tab-content.active { display: block; }
+
+  .letters-empty-state { text-align: center; color: var(--taupe); padding: 48px 20px; font-family: var(--font-sans); font-size: 14px; }
+  .letters-section-title { font-family: var(--font-serif); font-weight: 500; font-size: 17px; color: var(--ink); margin: 28px 0 4px; }
+  .letters-section-title:first-child { margin-top: 0; }
+  .letters-section-sub { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 0 0 12px; line-height: 1.5; }
+
+  /* Design pills - situation-keyed template bank */
+  .letters-pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .letters-pill {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 999px; cursor: pointer; text-align: left;
+  }
+  .letters-pill:hover { border-color: var(--taupe); }
+  .letters-pill.custom { border-style: dashed; }
+  .letters-pill.create-own { color: var(--brass-deep); border-color: var(--brass); }
+
+  /* Address-completeness + PII editing - never presented as a verified
+     postal address (docs/decisions.md's 2026-09-22 Send Letters entry) */
+  .letters-address-note {
+    font-family: var(--font-sans); font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px;
+  }
+  .letters-recipient-row {
+    display: grid; grid-template-columns: 1fr 1.6fr auto auto; gap: 10px; align-items: start;
+    padding: 12px 0; border-bottom: 1px solid var(--taupe-light);
+  }
+  .letters-recipient-row:last-child { border-bottom: none; }
+  .letters-recipient-row input[type="text"], .letters-recipient-row textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--ink); resize: vertical;
+  }
+  .letters-recipient-meta { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin-top: 4px; }
+  .letters-confirm-label { display: flex; align-items: center; gap: 6px; font-family: var(--font-sans); font-size: 11px; color: var(--ink-soft); white-space: nowrap; padding-top: 8px; }
+  .letters-confirm-label.unconfirmed { color: var(--brass-deep); font-weight: 600; }
+
+  .letters-add-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .letters-add-row select, .letters-add-row input[type="text"] {
+    padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 13px; background: white; color: var(--ink-soft);
+  }
+  .letters-source-picker { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; border: 1px solid var(--taupe-light); border-radius: 6px; padding: 10px; margin-top: 8px; }
+  .letters-source-picker .checkbox-item { padding: 4px 2px; font-size: 13px; }
+  .letters-source-picker-hint { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin: 4px 0 0; }
+
+  .letters-batch-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--taupe-light); font-family: var(--font-sans); font-size: 13px; }
+  .letters-batch-row:last-child { border-bottom: none; }
+  .letters-batch-status { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; }
+  .letters-batch-status.not-sent { color: var(--brass-deep); }
+  .letters-batch-status.sent { color: var(--sage); }
+
+  .letters-response-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--taupe-light); font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); }
+  .letters-response-row:last-child { border-bottom: none; }
+
+  .letters-token-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .letters-token-btn {
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); color: var(--ink-soft); font-family: var(--font-sans);
+    font-size: 11px; padding: 5px 10px; border-radius: 999px; cursor: pointer;
+  }
+  .letters-token-btn:hover { border-color: var(--taupe); }
+  .letters-linecount { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); text-align: right; margin-top: 4px; }
+  .letters-body-textarea {
+    width: 100%; min-height: 220px; padding: 12px 14px; border: 1px solid var(--taupe-light); border-radius: 6px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--ink); line-height: 1.6; resize: vertical;
+  }
+
+  .letters-lookup-row { display: flex; gap: 10px; margin-bottom: 20px; }
+  .letters-lookup-row input[type="text"] {
+    flex: 1; padding: 11px 14px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 14px;
+  }
+  .letters-lookup-result { border: 1px solid var(--taupe-light); border-radius: 6px; padding: 16px; margin-bottom: 12px; background: white; }
+  .letters-lookup-result-name { font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
+  .letters-lookup-result-address { font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; }
+  .letters-lookup-result-meta { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
+
+  .letters-cost-placeholder { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); font-style: italic; }
+  .letters-danger-link { background: none; border: none; color: var(--ink-soft); font-family: var(--font-sans); font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline; }
+  .letters-danger-link:hover { color: var(--brass-deep); }
+
+  /* Per-listing "Send Letter" tab (property-filter-spec.md section 5) */
+  .letters-detail-panel { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 20px; }
+  .letters-detail-field { margin-bottom: 14px; }
+  .letters-detail-field label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); display: block; margin: 0 0 6px;
+  }
+  .letters-detail-field input, .letters-detail-field select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--ink);
+  }
+  .letters-added-confirm { font-family: var(--font-sans); font-size: 13px; color: var(--sage); margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -800,6 +907,7 @@
     <button class="nav-item" data-section="comparables"><span class="icon">📐</span> Comparables</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
+    <button class="nav-item" data-section="letters"><span class="icon">✉️</span> Send Letters</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
   </aside>
 
@@ -1205,6 +1313,32 @@
         </div>
       </section>
 
+      <!-- Send Letters (backlog item 13) -->
+      <section class="page" id="section-letters">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Send Letters</h2>
+              <p class="pl-sub">Motivated-seller outreach campaigns: build a letter campaign against your own saved listings, a Lead Generator, or the Pipeline, track batches and responses, and look an inbound call back up to the letter that reached them. The actual outbound mail send is stubbed - see the notice on the Campaigns tab.</p>
+            </div>
+          </div>
+
+          <div class="letters-address-note">
+            <strong>Important, before sending anything for real:</strong> imotenradar has no street-level postal address for any scraped listing - only neighborhood/city text and, for some listings, map coordinates. Every delivery address below is pre-filled from that best-available text only and must be reviewed/corrected by a person before a letter is considered ready - it is never a verified postal address.
+          </div>
+
+          <div class="letters-tabs" id="lettersTabs">
+            <button type="button" class="letters-tab-btn active" data-letters-tab="campaigns">Campaigns</button>
+            <button type="button" class="letters-tab-btn" data-letters-tab="designs">Letter Designs</button>
+            <button type="button" class="letters-tab-btn" data-letters-tab="lookup">Property Lookup</button>
+          </div>
+
+          <div class="letters-tab-content active" data-letters-tab-content="campaigns" id="lettersCampaignsTab"></div>
+          <div class="letters-tab-content" data-letters-tab-content="designs" id="lettersDesignsTab"></div>
+          <div class="letters-tab-content" data-letters-tab-content="lookup" id="lettersLookupTab"></div>
+        </div>
+      </section>
+
       <!-- Help -->
       <section class="page" id="section-help">
         <div class="card">
@@ -1416,6 +1550,71 @@
     <div class="modal-footer">
       <button type="button" class="modal-btn-secondary" id="reminderModalCancelBtn">Cancel</button>
       <button type="button" class="modal-btn-primary" id="reminderModalSaveBtn">Save reminder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send Letters (backlog item 13) modals -->
+<div class="modal-overlay" id="letterCampaignCreateModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Create a new campaign</h2>
+      <button class="modal-close-btn" id="letterCampaignCreateCloseBtn">✕</button>
+    </div>
+    <p class="modal-error" id="letterCampaignCreateError"></p>
+    <div class="modal-field">
+      <label>Campaign name</label>
+      <input type="text" id="letterCampaignNameInput" placeholder="e.g. Sofia relisted, October" />
+    </div>
+    <div class="modal-field">
+      <label>Letter design</label>
+      <select id="letterCampaignDesignSelect"></select>
+      <p class="modal-hint">Pick a situation-keyed template or one of your own. Manage templates on the Letter Designs tab.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="letterCampaignCreateCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="letterCampaignCreateSaveBtn">Create &amp; add recipients</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay compare-modal" id="letterCampaignDetailModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="letterCampaignDetailTitle">Campaign</h2>
+      <button class="modal-close-btn" id="letterCampaignDetailCloseBtn">✕</button>
+    </div>
+    <div id="letterCampaignDetailBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="letterDesignModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="letterDesignModalTitle">Letter design</h2>
+      <button class="modal-close-btn" id="letterDesignModalCloseBtn">✕</button>
+    </div>
+    <p class="modal-error" id="letterDesignModalError"></p>
+    <p class="letters-section-sub" id="letterDesignSignalHint"></p>
+    <div class="modal-field">
+      <label>Template name</label>
+      <input type="text" id="letterDesignNameInput" placeholder="e.g. My Back on Market letter" />
+    </div>
+    <div class="modal-field">
+      <label>Letter body</label>
+      <div class="letters-token-row">
+        <button type="button" class="letters-token-btn" data-token="{property_address}">+ Property address</button>
+        <button type="button" class="letters-token-btn" data-token="{homeowner_name}">+ Homeowner name</button>
+        <button type="button" class="letters-token-btn" data-token="{phone_number}">+ Phone number</button>
+        <button type="button" class="letters-token-btn" data-token="{email_address}">+ Email address</button>
+      </div>
+      <textarea class="letters-body-textarea" id="letterDesignBodyInput"></textarea>
+      <p class="letters-linecount" id="letterDesignLineCount">0 lines</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="letters-danger-link" id="letterDesignDeleteBtn" style="display:none; margin-right:auto;">Delete this template</button>
+      <button type="button" class="modal-btn-secondary" id="letterDesignCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="letterDesignSaveBtn">Save template</button>
     </div>
   </div>
 </div>
@@ -1702,6 +1901,329 @@ function pipelineStageCounts() {
     counts[deal.stageId] = (counts[deal.stageId] || 0) + 1;
   });
   return counts;
+}
+
+// --- Send Letters: campaigns, letter designs, reverse address lookup ----
+// (docs/property-filter-spec.md section 6; backlog item 13). Same
+// no-login, this-browser-only localStorage pattern as LEAD_GENERATORS/
+// PIPELINE_DEALS (see docs/decisions.md's login-removal entry) - the
+// whole array is read/written back on every mutation.
+//
+// PII note (for Missy's AND Revy's review - this feature stores seller
+// names/addresses even with no login system, per docs/backlog.md item
+// 13's explicit dual-review requirement): a recipient's addresseeName/
+// addressText/phone/email are typed in by the person running the
+// campaign, not scraped - imotenradar has no seller name or phone data
+// anywhere. All of it lives in this one browser's localStorage only,
+// same trust boundary as every other feature in this file.
+//
+// Address-data gap (see docs/decisions.md's 2026-09-22 Send Letters
+// entry): no scraped listing anywhere has a street-level postal address,
+// only area/city/oblast_key/lat/lng. addressText is therefore always
+// pre-filled from that best-available text and left fully editable, and
+// a recipient's `confirmed` flag - never defaulted true - is what a
+// person uses to mark it human-reviewed. Never presented as verified.
+const SEND_LETTERS_CAMPAIGNS_KEY = 'sendLettersCampaigns';
+const SEND_LETTERS_DESIGNS_KEY = 'sendLettersDesigns';
+let SEND_LETTERS_CAMPAIGNS = [];
+let SEND_LETTERS_DESIGNS = [];
+
+function loadSendLettersCampaigns() {
+  try {
+    SEND_LETTERS_CAMPAIGNS = JSON.parse(localStorage.getItem(SEND_LETTERS_CAMPAIGNS_KEY) || '[]');
+    if (!Array.isArray(SEND_LETTERS_CAMPAIGNS)) SEND_LETTERS_CAMPAIGNS = [];
+  } catch (e) {
+    console.error('Failed to load Send Letters campaigns from localStorage', e);
+    SEND_LETTERS_CAMPAIGNS = [];
+  }
+}
+function saveSendLettersCampaigns() {
+  try {
+    localStorage.setItem(SEND_LETTERS_CAMPAIGNS_KEY, JSON.stringify(SEND_LETTERS_CAMPAIGNS));
+  } catch (e) {
+    console.error('Failed to save Send Letters campaigns to localStorage', e);
+  }
+}
+function loadSendLettersDesigns() {
+  try {
+    SEND_LETTERS_DESIGNS = JSON.parse(localStorage.getItem(SEND_LETTERS_DESIGNS_KEY) || '[]');
+    if (!Array.isArray(SEND_LETTERS_DESIGNS)) SEND_LETTERS_DESIGNS = [];
+  } catch (e) {
+    console.error('Failed to load Send Letters designs from localStorage', e);
+    SEND_LETTERS_DESIGNS = [];
+  }
+}
+function saveSendLettersDesigns() {
+  try {
+    localStorage.setItem(SEND_LETTERS_DESIGNS_KEY, JSON.stringify(SEND_LETTERS_DESIGNS));
+  } catch (e) {
+    console.error('Failed to save Send Letters designs to localStorage', e);
+  }
+}
+
+// Situation-keyed template bank (property-filter-spec.md section 6),
+// each triggered off a real, already-live signal in this file - verified
+// against the actual field names computed elsewhere in this file, not
+// assumed. "Low EPC"/"Short Lease" dropped per docs/backlog.md's
+// "Confirmed drops" (UK-only, no BG relevance).
+const LETTER_SITUATIONS = [
+  {
+    key: 'general', label: 'General',
+    signalHint: 'No specific trigger - a general motivated-seller outreach letter, usable for any listing.',
+  },
+  {
+    key: 'back_on_market', label: 'Back on Market',
+    signalHint: 'Triggers off relistingEventsFromHistory(l.price_history) - the same signal that already powers this listing\'s "Relisted" badge: it went off-market and came back.',
+  },
+  {
+    key: 'price_reduced', label: 'Price Reduced',
+    signalHint: 'Triggers off price_drop_count / drop_pct - the listing has had one or more recorded price cuts since first tracked.',
+  },
+  {
+    key: 'withdrawn', label: 'Withdrawn',
+    signalHint: "Triggers off source_status === 'removed' with no relisting recorded yet - the listing came off this portal and hasn't come back.",
+  },
+  {
+    key: 'long_time_on_market', label: 'Long Time On Market',
+    signalHint: 'Triggers off days_on_market - the listing has been active for an unusually long stretch.',
+  },
+  {
+    key: 'multiple_agents', label: 'Multiple Agents',
+    signalHint: 'Triggers off member_count / member_portals - cross-posted on more than one portal, the closest real Bulgarian analog to "listed with multiple agents".',
+  },
+];
+
+function defaultLetterBody(situationKey) {
+  const opener = 'Dear {homeowner_name},';
+  const closer = 'If you\'d ever consider a straightforward, no-obligation sale, I\'d welcome a short conversation.\n\nKind regards,\n[Your name]\n[Your phone / email]';
+  const bodies = {
+    general: `${opener}\n\nI'm reaching out about your property at {property_address}. I buy properties directly in this area and wanted to introduce myself in case a sale is ever something you'd consider - no pressure, no agents, no fees.\n\n${closer}`,
+    back_on_market: `${opener}\n\nI noticed the listing for {property_address} came back on the market after being off it for a while. Sales don't always fall through for a bad reason, but if the last attempt was stressful, I buy directly and can often move faster and more simply than a typical buyer chain.\n\n${closer}`,
+    price_reduced: `${opener}\n\nI've been tracking listings in your area and saw the asking price for {property_address} has been reduced. If timing or a smoother, more certain sale matters more to you right now than chasing the original price, I'd be glad to make a direct offer.\n\n${closer}`,
+    withdrawn: `${opener}\n\nI noticed {property_address} is no longer listed for sale. If you're still open to selling but the listing process itself wasn't working for you, I buy directly - often a faster, simpler alternative to relisting.\n\n${closer}`,
+    long_time_on_market: `${opener}\n\nYour property at {property_address} has been on the market for a while now. If it would help to have a straightforward, direct offer alongside whatever else you're trying, I'd be happy to discuss one - no obligation either way.\n\n${closer}`,
+    multiple_agents: `${opener}\n\nI noticed {property_address} is listed with more than one agent/portal at once. If juggling multiple listings has become more hassle than help, I buy directly and can make this part simple.\n\n${closer}`,
+  };
+  return bodies[situationKey] || bodies.general;
+}
+
+// designRef shape: { type: 'builtin', key } | { type: 'custom', id }
+function resolveLetterDesign(designRef) {
+  if (!designRef) return null;
+  if (designRef.type === 'custom') {
+    const custom = SEND_LETTERS_DESIGNS.find(d => d.id === designRef.id);
+    if (!custom) return null;
+    return { name: custom.name, body: custom.body, situationKey: custom.situationKey, isCustom: true, id: custom.id };
+  }
+  const situation = LETTER_SITUATIONS.find(s => s.key === designRef.key) || LETTER_SITUATIONS[0];
+  return { name: situation.label, body: defaultLetterBody(situation.key), situationKey: situation.key, isCustom: false, key: situation.key };
+}
+
+function saveLetterDesign({ id, name, situationKey, body }) {
+  if (id) {
+    const existing = SEND_LETTERS_DESIGNS.find(d => d.id === id);
+    if (existing) {
+      existing.name = name;
+      existing.body = body;
+      saveSendLettersDesigns();
+      return existing;
+    }
+  }
+  const row = {
+    id: 'design_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    name, situationKey: situationKey || 'custom', body,
+    createdAt: new Date().toISOString(),
+  };
+  SEND_LETTERS_DESIGNS.push(row);
+  saveSendLettersDesigns();
+  return row;
+}
+
+function deleteLetterDesign(id) {
+  SEND_LETTERS_DESIGNS = SEND_LETTERS_DESIGNS.filter(d => d.id !== id);
+  saveSendLettersDesigns();
+  // A campaign referencing a deleted custom design keeps its designRef but
+  // resolveLetterDesign() returns null for it - callers already handle a
+  // null design (shows "Template deleted" rather than throwing).
+}
+
+// Best-available delivery-address text, honestly labeled - never a real
+// street address (see the address-data-gap note at the top of this
+// block). Uses the Cyrillic city/oblast name since a real Bulgarian
+// postal recipient reads Cyrillic, not the English admin-UI label.
+function prefillAddressForListing(l) {
+  const parts = [];
+  if (l.area) parts.push(l.area);
+  const city = BG_CITIES.find(c => c.key === l.city_key);
+  if (city) {
+    parts.push(city.name);
+  } else {
+    const oblast = BG_OBLASTS.find(o => o.key === l.oblast_key);
+    if (oblast) parts.push(oblast.name);
+  }
+  parts.push('България');
+  return parts.join(', ');
+}
+
+function campaignById(id) {
+  return SEND_LETTERS_CAMPAIGNS.find(c => c.id === id) || null;
+}
+
+function campaignIsActive(c) {
+  return Array.isArray(c.batches) && c.batches.length > 0;
+}
+
+function createLetterCampaign(name, designRef) {
+  const row = {
+    id: 'camp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    name: name || 'Untitled campaign',
+    designRef,
+    createdAt: new Date().toISOString(),
+    recipients: [],
+    batches: [],
+    responses: [],
+    nextDeliveryDate: null,
+    lastDeliveryDate: null,
+  };
+  SEND_LETTERS_CAMPAIGNS.push(row);
+  saveSendLettersCampaigns();
+  return row;
+}
+
+function deleteLetterCampaign(id) {
+  SEND_LETTERS_CAMPAIGNS = SEND_LETTERS_CAMPAIGNS.filter(c => c.id !== id);
+  saveSendLettersCampaigns();
+}
+
+// listings: array of merged listing objects (or bare {id:null, ...} for a
+// manual entry with no underlying listing). source is a short label shown
+// in the recipient row ('listing' | 'leadgen' | 'pipeline' | 'manual').
+function addRecipientsToCampaign(campaignId, listings, source) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  const existingListingIds = new Set(camp.recipients.filter(r => r.listingId).map(r => r.listingId));
+  listings.forEach(l => {
+    if (l.id && existingListingIds.has(l.id)) return; // no duplicate listing in one campaign
+    camp.recipients.push({
+      id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      listingId: l.id || null,
+      addresseeName: 'The Homeowner',
+      addressText: l.id ? prefillAddressForListing(l) : '',
+      phone: '', email: '',
+      source: source || 'manual',
+      confirmed: false,
+    });
+  });
+  saveSendLettersCampaigns();
+}
+
+function addManualRecipient(campaignId) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  camp.recipients.push({
+    id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    listingId: null, addresseeName: 'The Homeowner', addressText: '', phone: '', email: '',
+    source: 'manual', confirmed: false,
+  });
+  saveSendLettersCampaigns();
+}
+
+function updateRecipientField(campaignId, recipientId, field, value) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  const rec = camp.recipients.find(r => r.id === recipientId);
+  if (!rec) return;
+  rec[field] = value;
+  // Editing the address or name is itself evidence a person looked at it -
+  // still requires the explicit confirm checkbox before a batch can send
+  // (see the letters-confirm-label UI), never auto-set true here.
+  saveSendLettersCampaigns();
+}
+
+function setRecipientConfirmed(campaignId, recipientId, confirmed) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  const rec = camp.recipients.find(r => r.id === recipientId);
+  if (!rec) return;
+  rec.confirmed = !!confirmed;
+  saveSendLettersCampaigns();
+}
+
+function removeRecipient(campaignId, recipientId) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  camp.recipients = camp.recipients.filter(r => r.id !== recipientId);
+  saveSendLettersCampaigns();
+}
+
+function logCampaignResponse(campaignId, note) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  camp.responses = camp.responses || [];
+  camp.responses.push({
+    id: 'resp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    loggedAt: new Date().toISOString(),
+    note: note || '',
+  });
+  saveSendLettersCampaigns();
+}
+
+// --- Stubbed, pluggable mail-send interface -----------------------------
+// TODO(mail-provider): this is a stub, not a real integration - per this
+// project's standing rule that a new recurring paid external vendor
+// commitment is a human sign-off decision, not something an autonomous
+// session can pick and pay for (see docs/decisions.md's 2026-09-22 Send
+// Letters entry for the full reasoning). To go live: (1) pick a real
+// Bulgarian or EU direct-mail/print-and-post fulfillment API, (2) sign up
+// for an account and obtain an API key, (3) since an API key can't
+// safely live in this static frontend's client-side JS, add a small
+// server-side proxy endpoint that holds the key and forwards the request,
+// (4) replace this stub's body with a real fetch() to that proxy, shaped
+// roughly like:
+//   POST /api/send-batch
+//   { sender: {...}, recipients: [{name, address, letterBody}], batchRef }
+// Until that's done, sendBatch() always resolves { ok: false } - it must
+// never silently pretend to send (this repo's "fail loud, never silent"
+// standing rule - see e.g. check_scrape_freshness.py's own framing).
+const mailProvider = {
+  isConfigured() {
+    return false; // TODO(mail-provider): flip once a real provider + API key exist.
+  },
+  async sendBatch(campaign, recipients) {
+    if (!this.isConfigured()) {
+      return { ok: false, reason: 'NO_PROVIDER_CONFIGURED', message: 'Not sent - no mail provider configured.' };
+    }
+    // TODO(mail-provider): real HTTP call goes here once configured.
+    return { ok: false, reason: 'NO_PROVIDER_CONFIGURED', message: 'Not sent - no mail provider configured.' };
+  },
+};
+
+async function sendCampaignBatch(campaignId) {
+  const camp = campaignById(campaignId);
+  if (!camp) return;
+  if (!camp.recipients.length) {
+    alert('Add at least one recipient before sending a batch.');
+    return;
+  }
+  const incomplete = camp.recipients.filter(r => !r.confirmed || !r.addressText || !r.addressText.trim());
+  if (incomplete.length > 0) {
+    alert(`${incomplete.length} of ${camp.recipients.length} recipient(s) still need a reviewed, confirmed address before this batch can be sent. Every address is pre-filled from scraped area/city text only - open each recipient below, correct the address if needed, and check "Address reviewed".`);
+    return;
+  }
+  const result = await mailProvider.sendBatch(camp, camp.recipients);
+  const batch = {
+    id: 'batch_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    attemptedAt: new Date().toISOString(),
+    recipientCount: camp.recipients.length,
+    deliveredCount: result.ok ? camp.recipients.length : 0,
+    status: result.ok ? 'sent' : 'not_sent_no_provider',
+    message: result.ok ? 'Sent' : (result.message || 'Not sent - no mail provider configured'),
+  };
+  camp.batches = camp.batches || [];
+  camp.batches.push(batch);
+  if (result.ok) camp.lastDeliveryDate = batch.attemptedAt;
+  saveSendLettersCampaigns();
+  return batch;
 }
 
 let currentPage = 1;
@@ -6579,6 +7101,7 @@ function renderListingDetail(merged) {
           <button class="detail-tab-btn${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab="comparables">Comparables</button>
           <button class="detail-tab-btn${detailActiveTab === 'areadata' ? ' active' : ''}" data-tab="areadata">Area Data</button>
           <button class="detail-tab-btn${detailActiveTab === 'btl' ? ' active' : ''}" data-tab="btl">BTL Stress Test</button>
+          <button class="detail-tab-btn${detailActiveTab === 'sendletter' ? ' active' : ''}" data-tab="sendletter">Send Letter</button>
         </div>
         <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
           ${l.description
@@ -6617,6 +7140,9 @@ function renderListingDetail(merged) {
         </div>
         <div class="detail-tab-content${detailActiveTab === 'btl' ? ' active' : ''}" data-tab-content="btl">
           ${renderBtlTabHtml(l)}
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'sendletter' ? ' active' : ''}" data-tab-content="sendletter">
+          ${renderSendLetterTabHtml(merged, l)}
         </div>
       </div>
     </div>
@@ -6724,6 +7250,7 @@ function renderListingDetail(merged) {
   // renderListingDetail() re-render the way the radius/view-toggle buttons
   // do - the listeners need to already be live by the time that happens.
   wireBtlTabInputs(l);
+  wireSendLetterTabInputs(merged, l);
 
   updateRadiusMap(l);
 }
@@ -6858,6 +7385,9 @@ function showSection(name) {
     renderPipeline();
   } else if (name === 'comparables' && cmpSearched) {
     renderComparablesResults();
+  } else if (name === 'letters') {
+    if (!lettersSectionInitialized) { initSendLettersSection(); lettersSectionInitialized = true; }
+    else { renderActiveLettersTab(); }
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -7434,6 +7964,596 @@ function updatePipelineButtonsFor(id) {
   });
 }
 
+// --- Send Letters: per-listing "Send Letter" tab (property-filter-spec.md
+// section 5) ---------------------------------------------------------
+// The data model, mailProvider stub, and CRUD helpers live earlier in this
+// file, right after pipelineStageCounts() - this is just the render/wiring
+// for the per-listing tab and the top-level Send Letters section.
+function renderSendLetterTabHtml(merged, l) {
+  const draftAndActive = SEND_LETTERS_CAMPAIGNS;
+  const prefill = prefillAddressForListing(l);
+  return `
+    <div class="letters-detail-panel">
+      <p class="letters-section-sub">Pre-filled from imotenradar's own area/city text only - imotenradar has no verified street-level address for Bulgarian listings (only neighborhood/city text and, for some listings, map coordinates). Review and correct this before adding it to a campaign.</p>
+      <div class="letters-detail-field">
+        <label>Delivery address</label>
+        <input type="text" id="sendLetterAddressInput" value="${escapeHtml(prefill)}" />
+      </div>
+      <div class="letters-detail-field">
+        <label>Addressee name</label>
+        <input type="text" id="sendLetterNameInput" value="The Homeowner" />
+      </div>
+      <div class="letters-detail-field">
+        <label>Add to campaign</label>
+        <select id="sendLetterCampaignSelect">
+          <option value="">+ New campaign (General template)</option>
+          ${draftAndActive.map(c => `<option value="${c.id}">${escapeHtml(c.name)}${campaignIsActive(c) ? ' (active)' : ' (draft)'}</option>`).join('')}
+        </select>
+      </div>
+      <button type="button" class="brass-btn" id="sendLetterAddBtn">Add to Letter Campaign</button>
+      <p class="letters-added-confirm" id="sendLetterConfirm" style="display:none;"></p>
+    </div>
+  `;
+}
+
+function wireSendLetterTabInputs(merged, l) {
+  const btn = document.getElementById('sendLetterAddBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const addressVal = document.getElementById('sendLetterAddressInput').value.trim();
+    const nameVal = document.getElementById('sendLetterNameInput').value.trim() || 'The Homeowner';
+    const select = document.getElementById('sendLetterCampaignSelect');
+    let campaignId = select.value;
+    if (!campaignId) {
+      const camp = createLetterCampaign(`Campaign - ${l.area || l.portal || 'new'}`, { type: 'builtin', key: 'general' });
+      campaignId = camp.id;
+    }
+    addRecipientsToCampaign(campaignId, [merged], 'listing');
+    const campNow = campaignById(campaignId);
+    const rec = campNow.recipients.find(r => r.listingId === merged.id);
+    if (rec) {
+      rec.addressText = addressVal;
+      rec.addresseeName = nameVal;
+      saveSendLettersCampaigns();
+    }
+    // Deliberately not a full renderListingDetail() re-render here - that
+    // would wipe the confirmation message this same click needs to show.
+    // Just refresh the campaign dropdown in place (in case a new campaign
+    // was just created) and select it.
+    const select2 = document.getElementById('sendLetterCampaignSelect');
+    select2.innerHTML = `<option value="">+ New campaign (General template)</option>` +
+      SEND_LETTERS_CAMPAIGNS.map(c => `<option value="${c.id}">${escapeHtml(c.name)}${campaignIsActive(c) ? ' (active)' : ' (draft)'}</option>`).join('');
+    select2.value = campaignId;
+    const confirmEl = document.getElementById('sendLetterConfirm');
+    confirmEl.textContent = `Added to "${campNow.name}" - open Send Letters to review and send.`;
+    confirmEl.style.display = '';
+  });
+}
+
+// --- Send Letters top-level section (Campaigns / Letter Designs /
+// Property Lookup sub-tabs) ---------------------------------------------
+let lettersActiveTab = 'campaigns';
+let lettersSectionInitialized = false;
+let lettersDetailAddSource = 'saved';
+let lettersDetailLeadGenId = '';
+let currentLetterCampaignId = null;
+let letterDesignEditingId = null;
+let letterDesignEditingCampaignId = null;
+
+function initSendLettersSection() {
+  document.getElementById('lettersTabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('.letters-tab-btn');
+    if (!btn) return;
+    switchLettersTab(btn.dataset.lettersTab);
+  });
+  renderActiveLettersTab();
+}
+
+function switchLettersTab(tab) {
+  lettersActiveTab = tab;
+  document.querySelectorAll('.letters-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.lettersTab === tab));
+  document.querySelectorAll('.letters-tab-content').forEach(c => c.classList.toggle('active', c.dataset.lettersTabContent === tab));
+  renderActiveLettersTab();
+}
+
+function renderActiveLettersTab() {
+  if (!document.getElementById('lettersTabs')) return;
+  if (lettersActiveTab === 'campaigns') renderLettersCampaignsTab();
+  else if (lettersActiveTab === 'designs') renderLettersDesignsTab();
+  else if (lettersActiveTab === 'lookup') renderLettersLookupTab();
+}
+
+// --- Campaigns tab: Draft/Active tables ---------------------------------
+function renderLettersCampaignsTab() {
+  const wrap = document.getElementById('lettersCampaignsTab');
+  const drafts = SEND_LETTERS_CAMPAIGNS.filter(c => !campaignIsActive(c));
+  const active = SEND_LETTERS_CAMPAIGNS.filter(c => campaignIsActive(c));
+
+  const draftRows = drafts.map(c => {
+    const design = resolveLetterDesign(c.designRef);
+    return `
+      <tr>
+        <td>${escapeHtml(c.name)}</td>
+        <td>${design ? escapeHtml(design.name) : 'Template deleted'}</td>
+        <td>${c.recipients.length}</td>
+        <td class="letters-cost-placeholder">no provider configured</td>
+        <td><button type="button" class="pl-secondary-btn" data-open-campaign="${c.id}">Review &amp; Send</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  const activeRows = active.map(c => {
+    const design = resolveLetterDesign(c.designRef);
+    const lastBatch = c.batches[c.batches.length - 1];
+    const deliveredTotal = c.batches.reduce((s, b) => s + b.deliveredCount, 0);
+    const attemptedTotal = c.batches.reduce((s, b) => s + b.recipientCount, 0);
+    return `
+      <tr>
+        <td>${escapeHtml(c.name)}</td>
+        <td>${design ? escapeHtml(design.name) : 'Template deleted'}</td>
+        <td>${c.recipients.length}</td>
+        <td>${deliveredTotal}/${attemptedTotal}</td>
+        <td>${(c.responses || []).length}</td>
+        <td>${c.lastDeliveryDate ? new Date(c.lastDeliveryDate).toLocaleDateString() : '–'}</td>
+        <td>${c.nextDeliveryDate ? new Date(c.nextDeliveryDate).toLocaleDateString() : '–'}</td>
+        <td><span class="letters-batch-status ${lastBatch.status === 'sent' ? 'sent' : 'not-sent'}">${escapeHtml(lastBatch.message)}</span></td>
+        <td><button type="button" class="pl-secondary-btn" data-open-campaign="${c.id}">Manage</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="letters-add-row">
+      <button type="button" class="brass-btn" id="lettersCreateCampaignBtn">+ Create a new campaign</button>
+    </div>
+
+    <h3 class="letters-section-title">Draft (${drafts.length})</h3>
+    ${drafts.length === 0 ? `<p class="letters-empty-state">No draft campaigns yet.</p>` : `
+      <div class="pl-table-wrap">
+        <table class="pl-table">
+          <thead><tr><th>Name</th><th>Letter design</th><th>Addresses</th><th>Batch cost</th><th></th></tr></thead>
+          <tbody>${draftRows}</tbody>
+        </table>
+      </div>
+    `}
+
+    <h3 class="letters-section-title">Active (${active.length})</h3>
+    ${active.length === 0 ? `<p class="letters-empty-state">No active campaigns yet - a draft moves here once you attempt to send its first batch.</p>` : `
+      <div class="pl-table-wrap">
+        <table class="pl-table">
+          <thead><tr><th>Name</th><th>Letter design</th><th>Addresses</th><th>Delivered</th><th>Responses</th><th>Last delivery</th><th>Next delivery</th><th>Last batch</th><th></th></tr></thead>
+          <tbody>${activeRows}</tbody>
+        </table>
+      </div>
+    `}
+  `;
+
+  wrap.querySelectorAll('[data-open-campaign]').forEach(btn => {
+    btn.addEventListener('click', () => openLetterCampaignDetailModal(btn.dataset.openCampaign));
+  });
+  document.getElementById('lettersCreateCampaignBtn').addEventListener('click', openLetterCampaignCreateModal);
+}
+
+// --- Create-campaign modal -----------------------------------------------
+function populateLetterCampaignDesignSelect() {
+  const select = document.getElementById('letterCampaignDesignSelect');
+  const builtinOptions = LETTER_SITUATIONS.map(s => `<option value="builtin:${s.key}">${escapeHtml(s.label)}</option>`).join('');
+  const customOptions = SEND_LETTERS_DESIGNS.length
+    ? `<optgroup label="My templates">${SEND_LETTERS_DESIGNS.map(d => `<option value="custom:${d.id}">${escapeHtml(d.name)}</option>`).join('')}</optgroup>`
+    : '';
+  select.innerHTML = `<optgroup label="Built-in situations">${builtinOptions}</optgroup>${customOptions}`;
+}
+
+function openLetterCampaignCreateModal() {
+  document.getElementById('letterCampaignNameInput').value = '';
+  document.getElementById('letterCampaignCreateError').classList.remove('show');
+  populateLetterCampaignDesignSelect();
+  document.getElementById('letterCampaignCreateModalOverlay').classList.add('open');
+}
+function closeLetterCampaignCreateModal() {
+  document.getElementById('letterCampaignCreateModalOverlay').classList.remove('open');
+}
+function saveLetterCampaignFromModal() {
+  const errorEl = document.getElementById('letterCampaignCreateError');
+  errorEl.classList.remove('show');
+  const name = document.getElementById('letterCampaignNameInput').value.trim();
+  if (!name) {
+    errorEl.textContent = 'Name this campaign.';
+    errorEl.classList.add('show');
+    return;
+  }
+  const raw = document.getElementById('letterCampaignDesignSelect').value;
+  const sepIdx = raw.indexOf(':');
+  const type = raw.slice(0, sepIdx);
+  const key = raw.slice(sepIdx + 1);
+  const designRef = type === 'custom' ? { type: 'custom', id: key } : { type: 'builtin', key };
+  const camp = createLetterCampaign(name, designRef);
+  closeLetterCampaignCreateModal();
+  renderLettersCampaignsTab();
+  openLetterCampaignDetailModal(camp.id);
+}
+
+// --- Campaign detail modal: recipients, batches, responses --------------
+function renderLettersSourcePickerHtml(camp) {
+  let candidates = [];
+  if (lettersDetailAddSource === 'saved') {
+    candidates = SAVED_LISTING_IDS.map(id => MERGED_LISTINGS.find(l => l.id === id)).filter(Boolean);
+  } else if (lettersDetailAddSource === 'leadgen') {
+    if (!lettersDetailLeadGenId) return `<p class="letters-source-picker-hint">Choose a Lead Generator above to see its current matches.</p>`;
+    const gen = LEAD_GENERATORS.find(g => g.id === lettersDetailLeadGenId);
+    if (!gen) return '';
+    candidates = MERGED_LISTINGS.filter(l => matchesLeadGenerator(l, gen));
+  } else if (lettersDetailAddSource === 'pipeline') {
+    candidates = resolvedPipelineDeals().map(d => d.listing);
+  }
+  if (candidates.length === 0) {
+    return `<p class="letters-source-picker-hint">No matching listings found for this source.</p>`;
+  }
+  const existingIds = new Set(camp.recipients.filter(r => r.listingId).map(r => r.listingId));
+  const capped = candidates.slice(0, 200);
+  return `
+    <div class="letters-source-picker" id="lettersSourcePicker">
+      ${capped.map(l => `
+        <label class="checkbox-item">
+          <input type="checkbox" value="${l.id}" ${existingIds.has(l.id) ? 'checked disabled' : ''} />
+          ${escapeHtml(l.title || l.area || l.id)} - €${fmt(l.price_eur)}${existingIds.has(l.id) ? ' (already added)' : ''}
+        </label>
+      `).join('')}
+    </div>
+    ${candidates.length > capped.length ? `<p class="letters-source-picker-hint">Showing first ${capped.length} of ${fmt(candidates.length)} matches.</p>` : ''}
+    <div class="letters-add-row">
+      <button type="button" class="pl-secondary-btn" id="lettersAddSelectedBtn">+ Add selected</button>
+    </div>
+  `;
+}
+
+function renderLettersRecipientRowHtml(r) {
+  const sourceLabel = { listing: 'Listing detail', saved: 'Saved listing', leadgen: 'Lead Generator', pipeline: 'Pipeline', manual: 'Manual' }[r.source] || r.source;
+  return `
+    <div class="letters-recipient-row" data-recipient-id="${r.id}">
+      <div>
+        <input type="text" class="letters-recipient-name" value="${escapeHtml(r.addresseeName)}" />
+        <p class="letters-recipient-meta">${sourceLabel}${r.listingId ? ` · <a href="#/listing/${encodeURIComponent(r.listingId)}" target="_blank">view listing</a>` : ''}</p>
+      </div>
+      <div>
+        <textarea class="letters-recipient-address" rows="2">${escapeHtml(r.addressText)}</textarea>
+      </div>
+      <label class="letters-confirm-label ${r.confirmed ? '' : 'unconfirmed'}">
+        <input type="checkbox" class="letters-recipient-confirm" ${r.confirmed ? 'checked' : ''} /> Address reviewed
+      </label>
+      <button type="button" class="pl-icon-btn danger letters-recipient-remove" title="Remove">✕</button>
+    </div>
+  `;
+}
+
+function openLetterCampaignDetailModal(campaignId) {
+  currentLetterCampaignId = campaignId;
+  lettersDetailAddSource = 'saved';
+  lettersDetailLeadGenId = '';
+  renderLetterCampaignDetailBody(campaignId);
+  document.getElementById('letterCampaignDetailModalOverlay').classList.add('open');
+}
+function closeLetterCampaignDetailModal() {
+  document.getElementById('letterCampaignDetailModalOverlay').classList.remove('open');
+  currentLetterCampaignId = null;
+  renderLettersCampaignsTab();
+}
+
+function renderLetterCampaignDetailBody(campaignId) {
+  const camp = campaignById(campaignId);
+  const titleEl = document.getElementById('letterCampaignDetailTitle');
+  const body = document.getElementById('letterCampaignDetailBody');
+  if (!camp) {
+    titleEl.textContent = 'Campaign';
+    body.innerHTML = `<p class="letters-empty-state">This campaign no longer exists.</p>`;
+    return;
+  }
+  titleEl.textContent = camp.name;
+  const design = resolveLetterDesign(camp.designRef);
+  const unconfirmedCount = camp.recipients.filter(r => !r.confirmed || !r.addressText || !r.addressText.trim()).length;
+  const leadGenOptions = LEAD_GENERATORS.map(g => `<option value="${g.id}"${g.id === lettersDetailLeadGenId ? ' selected' : ''}>${escapeHtml(g.name)}</option>`).join('');
+  const batches = camp.batches || [];
+  const responses = camp.responses || [];
+
+  body.innerHTML = `
+    <p class="letters-section-sub">
+      Template: <strong>${design ? escapeHtml(design.name) : 'Template deleted'}</strong>
+      <button type="button" class="pl-text-link" id="letterCampaignEditDesignBtn" style="margin-left:8px;">Edit letter body</button>
+    </p>
+
+    <h3 class="letters-section-title">Recipients (${camp.recipients.length})</h3>
+    <p class="letters-section-sub">Add addresses from your Saved Listings, a Lead Generator's current matches, the Pipeline, or type one in by hand.</p>
+    <div class="letters-add-row">
+      <select id="lettersAddSourceSelect">
+        <option value="saved"${lettersDetailAddSource === 'saved' ? ' selected' : ''}>Saved Listings</option>
+        <option value="leadgen"${lettersDetailAddSource === 'leadgen' ? ' selected' : ''}>A Lead Generator's matches</option>
+        <option value="pipeline"${lettersDetailAddSource === 'pipeline' ? ' selected' : ''}>Pipeline deals</option>
+        <option value="manual"${lettersDetailAddSource === 'manual' ? ' selected' : ''}>Manual entry (no listing)</option>
+      </select>
+      ${lettersDetailAddSource === 'leadgen' ? `
+        <select id="lettersAddLeadGenSelect">
+          <option value="">Choose a Lead Generator...</option>
+          ${leadGenOptions}
+        </select>
+      ` : ''}
+      ${lettersDetailAddSource === 'manual' ? `
+        <button type="button" class="pl-secondary-btn" id="lettersAddManualBtn">+ Add a manual recipient</button>
+      ` : ''}
+    </div>
+    ${lettersDetailAddSource !== 'manual' ? renderLettersSourcePickerHtml(camp) : ''}
+
+    ${camp.recipients.length === 0 ? `<p class="letters-empty-state">No recipients yet.</p>` : camp.recipients.map(r => renderLettersRecipientRowHtml(r)).join('')}
+
+    <h3 class="letters-section-title">Batches</h3>
+    ${unconfirmedCount > 0 ? `<p class="letters-section-sub">${unconfirmedCount} recipient(s) still need a reviewed, confirmed address before a batch can be sent.</p>` : ''}
+    <div class="letters-add-row">
+      <button type="button" class="brass-btn" id="lettersSendBatchBtn">Send batch</button>
+      <span class="letters-cost-placeholder">Batch cost: — (no mail provider configured to price against)</span>
+    </div>
+    ${batches.length === 0 ? `<p class="letters-empty-state">No batches sent yet.</p>` : batches.slice().reverse().map(b => `
+      <div class="letters-batch-row">
+        <span>${new Date(b.attemptedAt).toLocaleString()} · ${b.recipientCount} recipient(s)</span>
+        <span class="letters-batch-status ${b.status === 'sent' ? 'sent' : 'not-sent'}">${escapeHtml(b.message)}</span>
+      </div>
+    `).join('')}
+
+    <h3 class="letters-section-title">Responses (${responses.length})</h3>
+    <p class="letters-section-sub">No inbound-mail integration exists to detect a response automatically - log one manually when a seller calls or writes back.</p>
+    <div class="letters-add-row">
+      <button type="button" class="pl-secondary-btn" id="lettersLogResponseBtn">+ Log a response</button>
+    </div>
+    ${responses.length === 0 ? '' : responses.slice().reverse().map(r => `
+      <div class="letters-response-row"><span>${escapeHtml(r.note || '(no note)')}</span><span>${new Date(r.loggedAt).toLocaleDateString()}</span></div>
+    `).join('')}
+
+    <h3 class="letters-section-title">Delivery dates</h3>
+    <div class="modal-field" style="max-width:220px;">
+      <label>Next planned delivery</label>
+      <input type="date" id="lettersNextDeliveryInput" value="${camp.nextDeliveryDate ? camp.nextDeliveryDate.slice(0, 10) : ''}" />
+    </div>
+    <p class="letters-section-sub">Last delivery: ${camp.lastDeliveryDate ? new Date(camp.lastDeliveryDate).toLocaleDateString() : 'none yet'}</p>
+
+    <div class="modal-footer">
+      <button type="button" class="letters-danger-link" id="lettersDeleteCampaignBtn">Delete this campaign</button>
+    </div>
+  `;
+
+  wireLetterCampaignDetailEvents(campaignId);
+}
+
+function wireLetterCampaignDetailEvents(campaignId) {
+  const sourceSelect = document.getElementById('lettersAddSourceSelect');
+  if (sourceSelect) sourceSelect.addEventListener('change', () => {
+    lettersDetailAddSource = sourceSelect.value;
+    lettersDetailLeadGenId = '';
+    renderLetterCampaignDetailBody(campaignId);
+  });
+  const leadGenSelect = document.getElementById('lettersAddLeadGenSelect');
+  if (leadGenSelect) leadGenSelect.addEventListener('change', () => {
+    lettersDetailLeadGenId = leadGenSelect.value;
+    renderLetterCampaignDetailBody(campaignId);
+  });
+  const addManualBtn = document.getElementById('lettersAddManualBtn');
+  if (addManualBtn) addManualBtn.addEventListener('click', () => {
+    addManualRecipient(campaignId);
+    renderLetterCampaignDetailBody(campaignId);
+  });
+  const addSelectedBtn = document.getElementById('lettersAddSelectedBtn');
+  if (addSelectedBtn) addSelectedBtn.addEventListener('click', () => {
+    const picker = document.getElementById('lettersSourcePicker');
+    const ids = Array.from(picker.querySelectorAll('input[type=checkbox]:checked:not(:disabled)')).map(cb => cb.value);
+    const listings = ids.map(id => MERGED_LISTINGS.find(l => l.id === id)).filter(Boolean);
+    addRecipientsToCampaign(campaignId, listings, lettersDetailAddSource);
+    renderLetterCampaignDetailBody(campaignId);
+  });
+  document.querySelectorAll('#letterCampaignDetailBody .letters-recipient-row').forEach(row => {
+    const rid = row.dataset.recipientId;
+    row.querySelector('.letters-recipient-name').addEventListener('change', (e) => updateRecipientField(campaignId, rid, 'addresseeName', e.target.value));
+    row.querySelector('.letters-recipient-address').addEventListener('change', (e) => updateRecipientField(campaignId, rid, 'addressText', e.target.value));
+    row.querySelector('.letters-recipient-confirm').addEventListener('change', (e) => {
+      setRecipientConfirmed(campaignId, rid, e.target.checked);
+      renderLetterCampaignDetailBody(campaignId);
+    });
+    row.querySelector('.letters-recipient-remove').addEventListener('click', () => {
+      removeRecipient(campaignId, rid);
+      renderLetterCampaignDetailBody(campaignId);
+    });
+  });
+  const sendBatchBtn = document.getElementById('lettersSendBatchBtn');
+  if (sendBatchBtn) sendBatchBtn.addEventListener('click', async () => {
+    await sendCampaignBatch(campaignId);
+    renderLetterCampaignDetailBody(campaignId);
+    renderLettersCampaignsTab();
+  });
+  const logResponseBtn = document.getElementById('lettersLogResponseBtn');
+  if (logResponseBtn) logResponseBtn.addEventListener('click', () => {
+    const note = prompt('Note about this response (e.g. "Called back, interested"):');
+    if (note === null) return;
+    logCampaignResponse(campaignId, note.trim());
+    renderLetterCampaignDetailBody(campaignId);
+    renderLettersCampaignsTab();
+  });
+  const nextDeliveryInput = document.getElementById('lettersNextDeliveryInput');
+  if (nextDeliveryInput) nextDeliveryInput.addEventListener('change', () => {
+    const camp = campaignById(campaignId);
+    if (!camp) return;
+    camp.nextDeliveryDate = nextDeliveryInput.value ? new Date(nextDeliveryInput.value + 'T00:00:00').toISOString() : null;
+    saveSendLettersCampaigns();
+    renderLettersCampaignsTab();
+  });
+  const editDesignBtn = document.getElementById('letterCampaignEditDesignBtn');
+  if (editDesignBtn) editDesignBtn.addEventListener('click', () => {
+    const camp = campaignById(campaignId);
+    if (camp) openLetterDesignModal(camp.designRef, campaignId);
+  });
+  const deleteBtn = document.getElementById('lettersDeleteCampaignBtn');
+  if (deleteBtn) deleteBtn.addEventListener('click', () => {
+    if (!confirm('Delete this campaign? This cannot be undone.')) return;
+    deleteLetterCampaign(campaignId);
+    closeLetterCampaignDetailModal();
+  });
+}
+
+// --- Letter Designs tab + editor modal -----------------------------------
+function renderLettersDesignsTab() {
+  const wrap = document.getElementById('lettersDesignsTab');
+  wrap.innerHTML = `
+    <h3 class="letters-section-title">Templates</h3>
+    <p class="letters-section-sub">Situation-keyed templates tied to signals imotenradar already computes from its own scraped listing history, plus your own saved/customized versions. Click one to view or edit its copy.</p>
+    <div class="letters-pill-row" id="lettersDesignPills">
+      ${LETTER_SITUATIONS.map(s => `<button type="button" class="letters-pill" data-builtin-key="${s.key}">${escapeHtml(s.label)}</button>`).join('')}
+      ${SEND_LETTERS_DESIGNS.map(d => `<button type="button" class="letters-pill custom" data-custom-id="${d.id}">${escapeHtml(d.name)}</button>`).join('')}
+      <button type="button" class="letters-pill create-own" id="lettersCreateOwnBtn">+ Create your own</button>
+    </div>
+  `;
+  wrap.querySelectorAll('[data-builtin-key]').forEach(btn => {
+    btn.addEventListener('click', () => openLetterDesignModal({ type: 'builtin', key: btn.dataset.builtinKey }, null));
+  });
+  wrap.querySelectorAll('[data-custom-id]').forEach(btn => {
+    btn.addEventListener('click', () => openLetterDesignModal({ type: 'custom', id: btn.dataset.customId }, null));
+  });
+  document.getElementById('lettersCreateOwnBtn').addEventListener('click', () => openLetterDesignModal(null, null));
+}
+
+function updateLetterDesignLineCount() {
+  const bodyText = document.getElementById('letterDesignBodyInput').value;
+  const lines = bodyText.split('\n').length;
+  document.getElementById('letterDesignLineCount').textContent = `${lines} line${lines === 1 ? '' : 's'}`;
+}
+
+function openLetterDesignModal(designRef, forCampaignId) {
+  letterDesignEditingCampaignId = forCampaignId || null;
+  const resolved = resolveLetterDesign(designRef) || { name: '', body: '', situationKey: 'custom', isCustom: false };
+  letterDesignEditingId = resolved.isCustom ? resolved.id : null;
+  document.getElementById('letterDesignModalTitle').textContent = resolved.isCustom
+    ? 'Edit letter design'
+    : (designRef ? 'Customize this design' : 'Create your own design');
+  document.getElementById('letterDesignModalError').classList.remove('show');
+  document.getElementById('letterDesignNameInput').value = resolved.name || '';
+  document.getElementById('letterDesignBodyInput').value = resolved.body || '';
+  const situation = LETTER_SITUATIONS.find(s => s.key === resolved.situationKey);
+  document.getElementById('letterDesignSignalHint').textContent = situation
+    ? situation.signalHint
+    : 'Free-form template - no specific trigger signal.';
+  document.getElementById('letterDesignDeleteBtn').style.display = letterDesignEditingId ? '' : 'none';
+  document.getElementById('letterDesignModalOverlay').dataset.situationKey = resolved.situationKey || 'custom';
+  updateLetterDesignLineCount();
+  document.getElementById('letterDesignModalOverlay').classList.add('open');
+}
+function closeLetterDesignModal() {
+  document.getElementById('letterDesignModalOverlay').classList.remove('open');
+  letterDesignEditingId = null;
+  letterDesignEditingCampaignId = null;
+}
+function saveLetterDesignFromModal() {
+  const errorEl = document.getElementById('letterDesignModalError');
+  errorEl.classList.remove('show');
+  const name = document.getElementById('letterDesignNameInput').value.trim();
+  const bodyText = document.getElementById('letterDesignBodyInput').value;
+  if (!name) { errorEl.textContent = 'Name this template.'; errorEl.classList.add('show'); return; }
+  if (!bodyText.trim()) { errorEl.textContent = 'Write the letter body.'; errorEl.classList.add('show'); return; }
+  const situationKey = document.getElementById('letterDesignModalOverlay').dataset.situationKey || 'custom';
+  const row = saveLetterDesign({ id: letterDesignEditingId, name, situationKey, body: bodyText });
+  const forCampaignId = letterDesignEditingCampaignId;
+  if (forCampaignId) {
+    const camp = campaignById(forCampaignId);
+    if (camp) { camp.designRef = { type: 'custom', id: row.id }; saveSendLettersCampaigns(); }
+  }
+  closeLetterDesignModal();
+  renderLettersDesignsTab();
+  renderLettersCampaignsTab();
+  if (forCampaignId) renderLetterCampaignDetailBody(forCampaignId);
+}
+function deleteLetterDesignFromModal() {
+  if (!letterDesignEditingId) return;
+  if (!confirm('Delete this template? Any campaign using it will show "Template deleted" instead.')) return;
+  deleteLetterDesign(letterDesignEditingId);
+  closeLetterDesignModal();
+  renderLettersDesignsTab();
+  renderLettersCampaignsTab();
+}
+
+// --- Property Lookup tab: reverse address lookup -------------------------
+function renderLettersLookupTab() {
+  const wrap = document.getElementById('lettersLookupTab');
+  wrap.innerHTML = `
+    <p class="letters-section-sub">Reverse lookup: when a seller calls back, find which campaign/letter reached that address. Matches against every recipient's name/address/phone/email and, where a recipient is tied to a tracked listing, that listing's own area/title too - pure client-side against imotenradar's own data, no external API.</p>
+    <div class="letters-lookup-row">
+      <input type="text" id="lettersLookupInput" placeholder="Type a name, phone, or partial address..." />
+      <button type="button" class="brass-btn" id="lettersLookupBtn">Search</button>
+    </div>
+    <div id="lettersLookupResults"><p class="letters-empty-state">Type something above and search.</p></div>
+  `;
+  document.getElementById('lettersLookupBtn').addEventListener('click', runLettersLookup);
+  document.getElementById('lettersLookupInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runLettersLookup(); });
+}
+
+function runLettersLookup() {
+  const q = document.getElementById('lettersLookupInput').value.trim().toLowerCase();
+  const resultsEl = document.getElementById('lettersLookupResults');
+  if (!q) { resultsEl.innerHTML = `<p class="letters-empty-state">Type something above and search.</p>`; return; }
+  const results = [];
+  SEND_LETTERS_CAMPAIGNS.forEach(camp => {
+    (camp.recipients || []).forEach(r => {
+      const listing = r.listingId ? MERGED_LISTINGS.find(l => l.id === r.listingId) : null;
+      const haystack = [
+        r.addresseeName, r.addressText, r.phone, r.email,
+        listing ? listing.title : '', listing ? listing.area : '',
+      ].join(' ').toLowerCase();
+      if (haystack.includes(q)) results.push({ campaign: camp, recipient: r, listing });
+    });
+  });
+  if (results.length === 0) {
+    resultsEl.innerHTML = `<p class="letters-empty-state">No matches in any campaign.</p>`;
+    return;
+  }
+  resultsEl.innerHTML = results.map(({ campaign, recipient, listing }) => {
+    const d = resolveLetterDesign(campaign.designRef);
+    return `
+      <div class="letters-lookup-result">
+        <p class="letters-lookup-result-name">${escapeHtml(recipient.addresseeName)}</p>
+        <p class="letters-lookup-result-address">${escapeHtml(recipient.addressText || '(no address on file)')}</p>
+        <p class="letters-lookup-result-meta">
+          Campaign: <strong>${escapeHtml(campaign.name)}</strong> · Letter: ${d ? escapeHtml(d.name) : 'Template deleted'}
+          ${listing ? ` · <a href="#/listing/${encodeURIComponent(listing.id)}">View listing</a>` : ''}
+        </p>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('letterCampaignCreateCloseBtn').addEventListener('click', closeLetterCampaignCreateModal);
+document.getElementById('letterCampaignCreateCancelBtn').addEventListener('click', closeLetterCampaignCreateModal);
+document.getElementById('letterCampaignCreateSaveBtn').addEventListener('click', saveLetterCampaignFromModal);
+document.getElementById('letterCampaignCreateModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'letterCampaignCreateModalOverlay') closeLetterCampaignCreateModal();
+});
+
+document.getElementById('letterCampaignDetailCloseBtn').addEventListener('click', closeLetterCampaignDetailModal);
+document.getElementById('letterCampaignDetailModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'letterCampaignDetailModalOverlay') closeLetterCampaignDetailModal();
+});
+
+document.getElementById('letterDesignModalCloseBtn').addEventListener('click', closeLetterDesignModal);
+document.getElementById('letterDesignCancelBtn').addEventListener('click', closeLetterDesignModal);
+document.getElementById('letterDesignSaveBtn').addEventListener('click', saveLetterDesignFromModal);
+document.getElementById('letterDesignDeleteBtn').addEventListener('click', deleteLetterDesignFromModal);
+document.getElementById('letterDesignModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'letterDesignModalOverlay') closeLetterDesignModal();
+});
+document.querySelectorAll('#letterDesignModalOverlay .letters-token-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const textarea = document.getElementById('letterDesignBodyInput');
+    const token = btn.dataset.token;
+    const start = textarea.selectionStart, end = textarea.selectionEnd;
+    textarea.value = textarea.value.slice(0, start) + token + textarea.value.slice(end);
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + token.length;
+    updateLetterDesignLineCount();
+  });
+});
+document.getElementById('letterDesignBodyInput').addEventListener('input', updateLetterDesignLineCount);
+
 // No login/session to wait on - saved listings, lead generators, and the
 // Deal Pipeline's stages/tags/deals load straight from this browser's own
 // localStorage. loadLeadGenerators() renders the gallery itself once loaded.
@@ -7442,6 +8562,8 @@ loadLeadGenerators();
 loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
+loadSendLettersCampaigns();
+loadSendLettersDesigns();
 maybeImportSharedLeadGenerator();
 
 setGreeting();

@@ -1123,7 +1123,77 @@ decisions.md` have already flagged). This PR is open on `main`, **not
 self-merged**, specifically so Missy's real review happens before it ships,
 per this repo's standing rule.
 
-## 13. Send Letters / motivated-seller outreach campaigns - DESIGN FORK RESOLVED, BROKEN INTO TASKS, AWAITING DISPATCH (2026-09-22)
+## 13. Send Letters / motivated-seller outreach campaigns - BUILT, AWAITING MISSY'S AND REVY'S REVIEW (2026-09-22, Dessy)
+
+**Status (2026-09-22): all 4 dispatched tasks (campaign management, Letter
+Designs template bank, reverse address lookup, stubbed mailProvider)
+implemented as one cohesive change in `index.html`, self-verified against
+real committed field names and a real rendered/interacted-with build (not
+just read) - see `docs/decisions.md`'s matching entry for the full detail.
+Not yet reviewed - per this item's own dispatch note, this needs BOTH
+Missy's review AND Revy's (PII: seller names/addresses, even with no
+login system) before it ships. PR not yet opened as of this status line -
+see whoever picks up the dispatch for the actual PR link.** Summary:
+
+- **Campaign management**: `SEND_LETTERS_CAMPAIGNS`/`SEND_LETTERS_DESIGNS`
+  localStorage state (same no-login, this-browser-only pattern as
+  `LEAD_GENERATORS`/`PIPELINE_DEALS`). Draft/Active campaign tables (a
+  campaign is "Active" once it has at least one attempted batch, computed
+  from data rather than a separate status field), recipient management
+  (add from Saved Listings/a Lead Generator's live matches via the
+  existing `matchesLeadGenerator()`/Pipeline deals via the existing
+  `resolvedPipelineDeals()`, or manual entry), batch history, and manual
+  response logging (no inbound-mail integration exists to detect a
+  response automatically, so this is a deliberate manual counter/log, per
+  the dispatch note).
+- **Letter Designs**: 6 built-in situation-keyed templates (General, Back
+  on Market, Price Reduced, Withdrawn, Long Time On Market, Multiple
+  Agents), each referencing the real, already-live signal it's keyed to
+  (verified against actual field names in this file, not assumed):
+  `relistingEventsFromHistory(l.price_history)`, `price_drop_count`/
+  `drop_pct`, `source_status === 'removed'`, `days_on_market`,
+  `member_count`/`member_portals`. "Low EPC"/"Short Lease" dropped per
+  the "Confirmed drops" list. Rich-text editor (plain textarea - no WYSIWYG
+  dependency added) with insertable `{property_address}`/
+  `{homeowner_name}`/`{phone_number}`/`{email_address}` tokens and a live
+  line-count indicator. "Create your own" free-form option included.
+- **Reverse address lookup ("Property Lookup")**: pure client-side text
+  search across every campaign's recipients (name/address/phone/email)
+  plus, where a recipient is tied to a tracked listing, that listing's own
+  area/title from `MERGED_LISTINGS` - no external API, confirmed working
+  end-to-end in testing.
+- **Stubbed `mailProvider.sendBatch()`**: `isConfigured()` returns `false`
+  with an explicit `TODO(mail-provider)` comment naming the exact human
+  steps (pick a real Bulgarian/EU direct-mail API, sign up, add an API
+  key behind a server-side proxy since a key can't live in this static
+  frontend). "Send batch" runs full address-completeness validation first
+  (rejects if any recipient's address isn't both non-empty and explicitly
+  marked "Address reviewed" by a person), then creates a real batch record
+  visibly marked "Not sent - no mail provider configured" - confirmed in
+  testing this never silently pretends to send.
+- **Address-data gap, honored throughout**: no scraped listing has a
+  street-level postal address (re-confirmed against the real
+  `MERGED_LISTINGS_BULK_COLUMNS` field list already in this file - only
+  `area`/`city_key`/`oblast_key`/`lat`/`lng`). Every delivery address is
+  pre-filled from `area` + the Cyrillic city/oblast name only, shown in an
+  always-visible notice on the Send Letters page and the per-listing tab,
+  and never marked ready without the explicit human "Address reviewed"
+  checkbox described above.
+- **Per-listing "Send Letter" tab** (property-filter-spec.md section 5)
+  added to the existing listing-detail page (item 9's redesign) alongside
+  Details/Price History/Comparables/Area Data/BTL Stress Test - pre-filled
+  editable address + addressee name + "Add to Letter Campaign" (existing
+  draft/active campaign, or creates a new one on the General template).
+- Verified with a real rendered build (Playwright against a local static
+  server, with the Supabase/Chart.js/Leaflet CDN calls this sandbox's
+  egress proxy blocks stubbed out) - the full create-campaign ->
+  add-recipient -> attempt-send -> not-sent -> log-response ->
+  reverse-lookup flow, and the per-listing tab's add-to-campaign flow,
+  all exercised end to end, not just read as code.
+- **No scraper/schema/backend change needed or made** - this is entirely
+  `index.html` frontend/localStorage work, per this builder's own scope.
+
+Original dispatch note (kept below for history):
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully

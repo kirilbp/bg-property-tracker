@@ -1369,3 +1369,100 @@ here, backlog item 13 is broken into concrete dispatchable tasks (see
 what context/acceptance criteria) is handed back to the invoking session
 so it can make the actual `Agent` calls itself. Nothing in this entry has
 been built, self-reviewed, or merged.
+
+### 2026-09-22 - Backlog item 13 (Send Letters) built end to end: campaigns, letter designs, reverse lookup, stubbed mailProvider
+
+Picked up the dispatch list from the entry immediately above. Built as one
+cohesive `index.html` change on an isolated worktree/branch off
+`origin/main` (`dessy/send-letters-campaigns`), not the shared checkout,
+per this session's own standing rule about not colliding with Placy's
+in-progress work on other files in the main checkout.
+
+**Re-verified both of Bossy's real-data findings myself before building,
+per this repo's "verify, don't just trust the writeup" rule:**
+- Re-checked `MERGED_LISTINGS_BULK_COLUMNS` (`index.html`, the actual
+  narrowed column list backlog item 6 shipped) directly: confirmed no
+  street-level address field exists client-side either, only
+  `area`/`city_key`/`oblast_key`/`lat`/`lng` - consistent with Bossy's
+  `data/leads_*.json`/`supabase/schema.sql` finding, from the frontend's
+  own vantage point.
+- Re-confirmed every situation-template trigger field is real and live by
+  grepping `index.html` directly rather than trusting the dispatch note's
+  claim: `relistingEventsFromHistory(priceHistory)` (line ~5365 pre-change),
+  `price_drop_count`/`drop_pct`, `days_on_market`, `member_count`/
+  `member_portals`, and `source_status === 'removed'` (set from
+  `synthesizeSingleSource()`'s `m.status === 'sold' ? 'removed' : 'active'`)
+  are all genuinely used elsewhere in the file already, not proposed-but-
+  unbuilt fields.
+
+**What shipped** (see `docs/backlog.md` item 13 for the full per-piece
+summary): campaign management (`SEND_LETTERS_CAMPAIGNS` localStorage,
+Draft/Active tables, recipient picker reusing the existing
+`matchesLeadGenerator()`/`resolvedPipelineDeals()` rather than
+reimplementing selection logic, batch history, manual response log);
+Letter Designs (6 built-in situation templates + free-form custom ones,
+token-insert editor with a live line count); Property Lookup (client-side
+text search across every campaign's recipients, cross-referenced against
+`MERGED_LISTINGS` for a listing link); the stubbed `mailProvider` module
+with an explicit `TODO(mail-provider)`; and a new per-listing "Send
+Letter" tab on the existing listing-detail page (item 9's redesign),
+matching `docs/property-filter-spec.md` section 5's per-listing tab.
+
+**Judgment calls made, flagged rather than silently decided:**
+- **No fabricated "batch cost" figure.** The original UK spec and the
+  dispatch note both call for a "Batch Cost" column, but with no real mail
+  vendor integrated there is no real per-letter price to show - inventing
+  a plausible-looking BGN/letter number would imply a capability the
+  product doesn't have yet. Shows "no mail provider configured to price
+  against" instead of a number.
+- **Default letter copy is in English**, matching the rest of this app's
+  UI language, not Bulgarian - the actual recipients of a real letter
+  would be Bulgarian homeowners, so a real deployment should localize the
+  templates before ever sending anything for real. Since the send path is
+  stubbed (nothing can actually go out yet), this was judged a reasonable
+  placeholder rather than a blocker, but it's a real gap for whoever
+  eventually flips `mailProvider.isConfigured()` to `true` to close first.
+  The delivery-address text itself does use Cyrillic (the city/oblast
+  name), since that part genuinely would go on a real envelope as-is.
+- **A campaign's "custom" letter design created by editing a built-in
+  template creates a new saved design rather than overwriting the shared
+  built-in default** - so other campaigns/situations keep the original
+  reference copy available to start fresh from. Treated this as the
+  obviously-correct behavior rather than a genuine fork worth escalating.
+- Address-completeness gate is an explicit, separate "Address reviewed"
+  checkbox rather than treating "the user edited the text field" as
+  implicit confirmation - a person could edit a field and still not have
+  actually verified it's right; requiring the explicit checkbox is a
+  stricter reading of "never presented as verified" than the minimum the
+  dispatch note asked for.
+
+**Verified with a real rendered build, not just read as code**: this
+sandbox's egress proxy blocks the CDN hosts `index.html` loads
+Supabase-js/Chart.js/Leaflet from (confirmed live, same block prior
+entries in this file already hit for `unpkg.com`/`fonts.googleapis.com`),
+so real Supabase network access wasn't available either way. Used
+Playwright (already installed in this environment) against a local static
+server with those three CDN scripts and the `/rest/v1/*` calls
+intercepted and replaced with minimal local stubs/fixture data - the
+app's own unmodified `index.html` and JS ran for real in a real browser
+against that fixture data, not a rewritten test harness. Exercised end to
+end: create campaign -> add recipient from Saved Listings -> attempt send
+with an unconfirmed address (correctly blocked with a clear message) ->
+confirm the address -> send batch (correctly recorded as "Not sent - no
+mail provider configured", never a fake success) -> log a response ->
+close and reopen from the Campaigns tab (Active table shows the right
+delivered/response/last-batch-status figures) -> Property Lookup finds
+the recipient by name. Also exercised the per-listing "Send Letter" tab's
+own add-to-campaign flow on a second fixture listing. Found and fixed one
+real bug during this testing: the "Added to campaign" confirmation
+message was being immediately wiped by a full `renderListingDetail()`
+re-render right after showing it - fixed to update just the campaign
+dropdown in place instead. Also checked the page at 900px and 480px
+viewport widths - wraps the same way the rest of this pre-existing,
+not-yet-mobile-optimized site already does, no new breakage introduced.
+
+**Not done in this pass, flagged rather than assumed:** Missy's and
+Revy's review (both required per this item's own dispatch note - PII:
+seller names/addresses stored in localStorage even with no login system),
+and the real merge/PR. This entry is a build report, not a review
+sign-off.
