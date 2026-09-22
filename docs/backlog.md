@@ -266,7 +266,7 @@ and 4 implemented..."); summary per task:**
    access to homes.bg (to check whether the detail page has more) - this
    sandbox's egress proxy blocks it, same block Missy hit. Left open.
 
-## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - real, scale-confirmed bug, not yet worked - URGENT
+## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - fixed and verified, awaiting Missy's review before merge - URGENT
 
 From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
 filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
@@ -292,13 +292,57 @@ filters. Not the same as the already-documented bcpea.org case (that
 portal's own apartment-only search URL makes the "apartment" default
 correct there); imoti.net has no such workaround.
 
-**Not yet worked - no tasks defined this session.** A real fix likely
-means either (a) crawling imoti.net's Bulgarian-language URL/title
-instead of `/en/` (bigger change - re-verify whether other already-
-working extraction, e.g. price/sqm parsing, assumes English text), or (b)
-adding an English-keyword table to `classify_category()` alongside the
-Bulgarian one. Needs its own diagnosis pass before a builder can start,
-same as items 3/4 got before implementation.
+**Status (2026-09-22): root-caused, fixed, verified against real data,
+already-committed data remediated - not yet merged, needs Missy's real
+review (this session had no `Agent` tool access, see the hand-back/dispatch
+note below).** Full investigation, the real regression caught and fixed
+before shipping (a keyword collision with a common Bulgarian district
+name), the regression check against the portals already on this
+classifier, and a second related bug found and fixed in the same change
+(Lead Generator saved-search filtering) are all in `docs/decisions.md`'s
+2026-09-22 entry ("imoti.net 100%-'apartment' miscategorization... root-
+caused and fixed"). Summary:
+
+- **Real fix**: `scraper.py` migrated from `geo_utils.classify_category()`
+  (Bulgarian-keyword-only) to `category_classifier.classify_listing()` -
+  the shared classifier `scraper_alo.py`/`scraper_imoti_bg.py` already use
+  for this exact reason - passing both the scraped title and the listing's
+  own URL (which embeds a reliable Bulgarian-language type slug, e.g.
+  `.../kashta/1234/`) as independent signals. Chose this over switching
+  the whole scraper to crawl imoti.net's Bulgarian-language pages (the
+  bigger, riskier option) since price/sqm/date extraction there doesn't
+  depend on title language at all.
+- Added a handful of English/Latin keywords to `category_classifier.py`
+  for gaps confirmed live in imoti.net's own English titles/URLs
+  (agricultural/development land, industrial/commercial property,
+  restaurant, etc.) - scoped to the exact phrases observed, after an
+  initial broader version caused a real false positive against a common
+  Bulgarian district name ("Industrial Zone") and was tightened.
+  Regression-checked with zero category changes against a 5,000-listing
+  alo.bg sample and the full imoti.bg dataset.
+- **Already-committed data remediated**, not just fixed forward:
+  `backfill_category_imoti_net.py` reclassified all 26,881 existing
+  `data/history.json`/`data/leads.json` records locally (title/url already
+  stored, no re-crawl needed). Result: 21,399 flat, 2,360 land, 1,436
+  house, 750 business, 603 shop, 333 garage (was 100% "apartment"); 92.6%
+  high confidence, 0.26% low-confidence residual left as a documented gap
+  (same pattern as item 4's task 5).
+- **Second bug found and fixed in the same change**: `index.html`'s
+  `matchesLeadGenerator()` compared raw `category` against the Lead
+  Generator modal's old-vocabulary checkboxes, which this fix would have
+  made meaningfully worse (26,881 more listings changing vocabulary).
+  Fixed to normalize through `typeFilterBucket()` like `findComparables()`
+  already does.
+
+**Not yet done - dispatch needed:** this session had no `Agent` tool
+available to spawn Missy for real review, or to open the PR through the
+usual multi-agent flow. Implemented and verified directly against real
+data instead of skipped, but that isn't a substitute for her review, per
+the standing "nothing ships without Missy" rule. The branch/PR (or the
+local diff, if not yet pushed - check the session's own hand-back message
+for current state) needs: (1) Missy's real review against her rubric, (2)
+merge to `main` once she signs off. Revy's review is not required (no
+auth/security/credentials/personal-data surface touched).
 
 ## 6. Supabase Pro plan follow-ups - PENDING
 
