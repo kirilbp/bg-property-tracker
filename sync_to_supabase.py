@@ -1026,8 +1026,28 @@ def request_with_retries(method, url, **kwargs):
         time.sleep(RETRY_BACKOFF_SECONDS * attempt)
 
 
+# A real production failure (2026-09-22): backlog item 18 added `area_key`
+# to every listing_sources/merged_listings row this script builds, but the
+# schema.sql migration that adds the column itself is a manual step in the
+# Supabase SQL editor - nothing in this pipeline applies it automatically.
+# Every sync since that code shipped failed outright on Postgres/PostgREST's
+# own "PGRST204: Could not find the '<col>' column... in the schema cache"
+# for a column this script sends but the live table doesn't have yet - and
+# since this crashed before the cleanup step further down in main() ever
+# ran, a code change with a pending manual migration step was silently
+# taking down the ENTIRE sync, not just failing to populate that one new
+# column. Detect this specific error, strip the missing column from every
+# row for this table (not just the current batch, so later batches don't
+# hit the same wall), and retry - the sync stays fully functional either
+# side of whenever the migration actually gets applied, and the moment it
+# is, this stops triggering (PostgREST's schema cache has the column, no
+# more 204) with no code change needed.
+_MISSING_COLUMN_RE = re.compile(r"Could not find the '([^']+)' column of '([^']+)' in the schema cache")
+
+
 def upsert(base_url, headers, table, rows, on_conflict):
-    for i in range(0, len(rows), BATCH_SIZE):
+    i = 0
+    while i < len(rows):
         batch = rows[i : i + BATCH_SIZE]
         resp = request_with_retries(
             "POST",
@@ -1037,9 +1057,19 @@ def upsert(base_url, headers, table, rows, on_conflict):
             timeout=60,
         )
         if not resp.ok:
+            match = _MISSING_COLUMN_RE.search(resp.text)
+            if match and match.group(2) == table:
+                missing_col = match.group(1)
+                print(f"::warning::{table} is missing column '{missing_col}' on the live Supabase table "
+                      f"(pending manual schema.sql migration, see docs/backlog.md) - stripping it from "
+                      f"every {table} row and retrying so this sync isn't blocked on that migration landing.")
+                for row in rows:
+                    row.pop(missing_col, None)
+                continue  # retry this same batch index, now without the missing column
             print(f"ERROR upserting into {table} (batch starting at {i}): {resp.status_code} {resp.text[:500]}")
             resp.raise_for_status()
         print(f"  upserted {len(batch)} rows into {table} ({min(i + len(batch), len(rows))}/{len(rows)})")
+        i += BATCH_SIZE
 
 
 # --- Data-loss safety guard --------------------------------------------
