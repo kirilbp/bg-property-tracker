@@ -1281,3 +1281,91 @@ diagnostic-only change (PR #201) as a mistake earlier the same day, not
 repeated here. `docs/backlog.md` item 6 updated with this status and the
 real numbers above; the dispatch list at the end of that entry names
 exactly what's still needed.
+
+### 2026-09-22 - Backlog item 13 (Send Letters): mail-send path resolved as a stubbed, pluggable provider interface, not a real paid integration - plus a real address-data gap found and scoped around
+
+Backlog item 13 itself flags one open design fork before the "Active
+campaigns" half is buildable: "Requires deciding a real physical-mail
+send path (partner/API)." Resolving it now, per the standing rule that a
+design fork gets decided by Bossy and logged here rather than waiting on
+the user.
+
+**Decision: build the full campaign-management UI, letter-design
+template bank, and reverse address lookup for real, but make the actual
+outbound "send" call a clearly-stubbed, pluggable `mailProvider` module**
+- one function (`mailProvider.sendBatch(campaign, letters)` or
+equivalent) shaped like a typical direct-mail API request (recipient
+address, letter content/PDF, sender return address, batch reference),
+documented inline with an explicit `TODO(mail-provider)`: sign up for a
+real Bulgarian or EU direct-mail API provider (e.g. an EU letter-fulfillment
+API), obtain an account and API key, and swap the stub for a real HTTP
+call. Until that TODO is done, "Send batch" in the UI runs the full
+flow (address validation, letter rendering, batch record creation) and
+then visibly marks the batch "Not sent - no mail provider configured"
+rather than silently pretending to send or silently no-op'ing (per this
+repo's "fail loud, never silent" standing rule).
+
+**Why this over picking one real provider and integrating for real
+(the other option on the table):** (1) this platform's whole design
+philosophy this session, in both `docs/strategy/customer-service-ai-strategy.md`
+and `docs/strategy/subscription-strategy.md`, and in the earlier
+no-login/no-backend-accounts call (this file, login-removal entry), has
+been "automation running it, with no new manual account-admin burden for
+Kiril" - signing up for and paying for a physical-mail-send vendor is
+exactly the kind of new recurring manual/financial commitment that
+philosophy has been steering away from, and it is a different category
+of thing than the pure frontend/data work items 9-12 shipped (a real
+external paid service with a real per-letter cost, not a client-side
+feature). (2) No session in this environment has any way to actually
+sign up for or pay an external vendor - a "real" integration attempted
+here would necessarily be untested against a live API anyway. (3) The
+standing rule explicitly carves out "anything that costs money" as one
+of the few categories that gets a real human sign-off rather than being
+silently decided autonomously - building the stub now and leaving the
+vendor choice + payment + API key as an explicit, documented human task
+respects that rule instead of working around it by picking a vendor
+nobody asked for. (4) This ships essentially all of the real value
+(campaign management, templates, reverse lookup all work end-to-end
+against real data) without blocking on, or silently committing to, a
+paid vendor relationship.
+
+**A second, separate real finding, not the design fork itself but load-bearing
+for how "Property Lookup" and campaign delivery addresses must be built:
+imotenradar's scraped data has no street-level postal address anywhere.**
+Checked the real field union of every committed `data/leads_*.json` file
+plus `supabase/schema.sql`: the only location fields that exist are
+`area` (a neighborhood/quarter or м-т name, e.g. "ж.к. Славейков" or
+"м-т Пчелина"), `city`, `oblast_key`, and `lat`/`lng` (present for a
+minority of listings, mainly imot.bg/olx.bg backfilled ones). Sampled 5
+real `description` values (present for ~17% of imot.bg listings, synced
+to Supabase's `description` column) looking for a street+number - found
+none; agency-listed Bulgarian ads describe the district/building name but
+deliberately withhold the exact street address (standard practice, so a
+buyer can't go around the agent to the owner directly), the same reason
+none of the 8 scrapers extract one. This means a real physical letter
+cannot be auto-addressed from scraped data alone for the large majority
+of listings - there is no Bulgarian equivalent available to this project
+of the UK's public Land-Registry address record Property Filter itself
+relies on. **Scoped around, not blocking:** "Property Lookup" (reverse
+lookup of an inbound call back to its letter/campaign) works today
+against imotenradar's own data with no external API, exactly as the
+backlog item says, using whatever combination of area/city/lat-lng/title
+a listing has - it is a lookup tool, not a delivery-address generator, so
+this gap doesn't block it. The campaign "delivery address" field must be
+pre-filled from the best available scraped text (area + city, plus a
+short description excerpt when present) but built and clearly labeled as
+an **editable, human-completed** field before a letter can be marked
+ready to send - never presented as a verified postal address. This is
+the honest equivalent of Property Filter's own pre-filled-address flow,
+adapted to what Bulgarian source data actually contains.
+
+**No `Agent` tool available this session** (confirmed via a live
+`ToolSearch` before starting, same limitation prior entries have
+flagged) - could not dispatch a builder, Dessy, Missy, or Revy directly.
+Per the "real constraint" section of `.claude/agents/bossy.md`, this pass
+is planning/breakdown only: the two decisions above are made and logged
+here, backlog item 13 is broken into concrete dispatchable tasks (see
+`docs/backlog.md`), and a full dispatch list (which agent, what task,
+what context/acceptance criteria) is handed back to the invoking session
+so it can make the actual `Agent` calls itself. Nothing in this entry has
+been built, self-reviewed, or merged.

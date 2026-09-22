@@ -1123,7 +1123,7 @@ decisions.md` have already flagged). This PR is open on `main`, **not
 self-merged**, specifically so Missy's real review happens before it ships,
 per this repo's standing rule.
 
-## 13. Send Letters / motivated-seller outreach campaigns
+## 13. Send Letters / motivated-seller outreach campaigns - DESIGN FORK RESOLVED, BROKEN INTO TASKS, AWAITING DISPATCH (2026-09-22)
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
@@ -1135,20 +1135,105 @@ integration/partner, none of which imotenradar has any of today), so it
 sits after the smaller, faster-to-ship analytics items despite the high
 value rating.
 
-- Campaign management: Draft/Active campaign tables, batch delivery
-  tracking, response tracking.
-- Letter Designs: situation-keyed template bank tied directly to signals
-  imotenradar's scrapers already detect - Back on Market, Price Reduced,
-  Withdrawn, Long Time On Market, Multiple Agents, plus General and a
-  free-form "create your own". These should trigger off the same
-  motivation-score signals already computed (item "Motivation score
-  rework", done). Drop the "Low EPC" and "Short Lease" situation types
-  (UK-only, no BG relevance - see "Confirmed drops").
-- Reverse address lookup ("Property Lookup"): so an inbound call from a
-  seller can be matched back to the letter/campaign that reached them.
-- Requires deciding a real physical-mail send path (partner/API) before
-  the "Active campaigns" half is buildable - flag this as a dependency
-  to resolve (likely a design-fork decision) when this item is picked up.
+**Design fork resolved (2026-09-22), see `docs/decisions.md` for full
+reasoning:** the "real physical-mail send path" dependency is resolved as
+a clearly-stubbed, pluggable `mailProvider` interface (typical
+Bulgarian/EU direct-mail API request shape: recipient address, letter
+content, sender return address, batch reference) with a documented
+`TODO(mail-provider)` for a human to pick a real vendor, sign up, and add
+an API key - not a real paid integration. Chosen over integrating a real
+vendor because that would be a new recurring paid external commitment
+(a different category than items 9-12's frontend/data work) that this
+session cannot itself sign up for or pay for, and because "anything that
+costs money" is one of the few categories this project's standing rules
+require real human sign-off on rather than an autonomous call. Everything
+else below is built for real against real data; only the literal outbound
+send call is stubbed.
+
+**A second real finding also resolved into scope (see decisions.md):**
+imotenradar's scraped data has no street-level postal address anywhere
+(checked the real field union of every `data/leads_*.json` file and
+`supabase/schema.sql` - only `area`/`city`/`oblast_key`/`lat`/`lng`
+exist, and sampled real `description` text confirms Bulgarian listings
+deliberately omit exact addresses). "Property Lookup" itself is unaffected
+(it's a reverse lookup against imotenradar's own data, not an address
+generator). But a campaign's per-letter delivery address must be built as
+an **editable, human-completed field**, pre-filled from best-available
+scraped text (area + city + description excerpt) and never presented as a
+verified postal address, before a letter can be marked ready to send.
+
+**No `Agent` tool available this session (confirmed via `ToolSearch`)** -
+per the platform-constraint section of `.claude/agents/bossy.md`, this
+pass is planning/breakdown only. The dispatch list below is for whoever
+picks this item up next to execute as their own `Agent` calls (a builder
+per task, Dessy for the Letter Designs UI, Missy + Revy before merge -
+Revy because outbound mail batches carry seller PII, personal names and
+addresses, even though no auth/login is involved).
+
+**Dispatch list (independently shippable, serialize any two that touch
+`index.html`'s Send Letters section rather than parallelizing them):**
+
+1. **Campaign management (general-purpose builder).** `localStorage`
+   state, same pattern as `LEAD_GENERATORS`/`ALL_REMINDERS`
+   (`SEND_LETTERS_CAMPAIGNS_KEY` or similar, JSON array, load/save
+   helpers mirroring `loadLeadGenerators()`/`saveLeadGenerators()`).
+   Draft campaigns table (addresses count, letter design used, batch
+   cost estimate, "Review & Send" action) and an Active campaigns table
+   (adds batch-delivered progress e.g. "1/4", a response-tracking count
+   the user can increment/log manually since there's no inbound-mail API
+   to detect responses automatically, last/next delivery dates). "Create
+   a new campaign" flow: pick a Letter Design, pick addresses (from
+   saved listings, a Lead Generator, or the Deal Pipeline - reuse
+   whichever selection pattern items 9/10 already established). No
+   design-guidelines-only work here (Dessy not needed), but style with
+   the existing brass/sage/ink CSS variables from item 9's redesign
+   rather than introducing new ones.
+2. **Letter Designs template bank + editor (Dessy).** Situation-keyed
+   template pills: General, Back on Market, Price Reduced, Withdrawn,
+   Long Time On Market, Multiple Agents, plus free-form "Create your
+   own." Each built-in template's default copy should reference the real
+   signal it's keyed to using fields that already exist and are verified
+   live in `index.html`: Back on Market -> `relistingEventsFromHistory(l.price_history)`
+   (already powers the existing "Relisted" badge), Price Reduced ->
+   `price_drop_count`/`drop_pct`, Withdrawn -> `source_status === 'removed'`
+   with no relisting yet, Long Time On Market -> `days_on_market`,
+   Multiple Agents -> `member_count`/`member_portals` (cross-posted on
+   multiple portals - the closest real Bulgarian analog to "listed with
+   multiple agents"). Rich-text editor with insertable tokens
+  (`{property_address}`, `{phone_number}`, `{email_address}`,
+  `{homeowner_name}` - default "The Homeowner" per spec, since no
+  verified owner name exists in scraped data either) and a line-count
+  indicator. Do NOT build "Low EPC"/"Short Lease"/"R2R guaranteed rent"/
+  "Long time sold STC" situation types (UK-only or reliant on a BG
+  transaction-status this project doesn't track - see "Confirmed drops").
+  If this task turns up a need to touch a scraper/schema/workflow file,
+  stop and split it back to Bossy per Dessy's own standing instruction.
+3. **Reverse address lookup / "Property Lookup" (general-purpose
+   builder).** Pure client-side search against imotenradar's own already-
+   loaded listing data (`MERGED_LISTINGS`) plus the campaign/letter
+   records from task 1: given a typed address/area/phone, find which
+   campaign(s) and letter(s) targeted that listing. No external API
+   needed - confirmed, this is the one piece of the feature that doesn't
+   depend on the address-data gap above, since it only needs to match
+   against whatever partial address text a campaign was actually built
+   with, not a verified postal address.
+4. **Stubbed `mailProvider` send interface (general-purpose builder,
+   same task as #1 or immediately after it).** `sendBatch()` stub per
+   the decisions.md entry, wired into "Send batch" in the UI: runs
+   address-completeness validation (rejects/flags any letter whose
+   address field was never manually completed per the finding above),
+   renders the letter, creates the batch record, then marks it "Not sent
+   - no mail provider configured" rather than silently no-op'ing. Include
+   the `TODO(mail-provider)` comment with the exact human steps (pick a
+   Bulgarian/EU direct-mail API provider, sign up, add API key, replace
+   the stub's HTTP call).
+
+**After each task lands (real unit/dry-run tests against real listing
+data, not just visual):** send straight to Missy, and to Revy alongside
+her since this handles seller PII (names/addresses) even without login.
+Don't batch multiple tasks' review together - each goes the moment it's
+locally verified, per this project's standing "nothing ships without
+Missy, and she sees it immediately" rule.
 
 ## 14. Deal Calculator (investment strategy modeling) - needs formula work before building
 
