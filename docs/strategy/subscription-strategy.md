@@ -65,23 +65,70 @@ substantially — flagged as the first open question below.
 
 ## 2. Tier structure
 
-**Recommendation — needs Kiril's sign-off**, following the model
-`docs/property-filter-spec.md` section 0 documents Property Filter using
-(gate *quantities*, not *features* — Nosy's spec explicitly calls this
-"a generic SaaS pattern, not UK-specific data," i.e. safe to reuse):
+**Recommendation — needs Kiril's sign-off.** `docs/property-filter-spec.md`
+section 0 documents Property Filter itself gating *quantities*, not
+*features* (Nosy's spec calls this "a generic SaaS pattern, not
+UK-specific data," i.e. safe to reuse in principle) — but that pattern
+assumes Property Filter's tiers sit behind its own account system.
+imotenradar's free tier deliberately has none (§1), and that changes
+which gate mechanism actually works here:
 
 | Tier | Price (rec.) | Gate mechanism |
 |---|---|---|
-| **Free** | €0 | Full current feature set (search, filters, city/oblast browse, saved listings, Lead Generators, comparables once shipped) but capped: **3 saved Lead Generators**, **20 saved listings**, no email alerts, no CSV/export, ads/no-ads is Kiril's call (see open questions) |
-| **Investor** (mid, default recommended tier) | €14.99/mo or €149/yr | Unlimited saved listings, **15 Lead Generators**, daily email digest of new/changed matches (once built — see `docs/backlog.md` item 9), full Comparables + Area Data access (item 10), CSV export |
-| **Deal Maker** (top) | €39.99/mo or €399/yr | Everything in Investor, **unlimited Lead Generators**, Market Data hub (item 11) full access, Send Letters campaigns (item 12, once shipped), Deal Calculator (item 13, once shipped), priority position in the AI support escalation queue (see `docs/strategy/customer-service-ai-strategy.md`) |
+| **Free** | €0 | Full current feature set, **unchanged**: search, filters, city/oblast browse, unlimited saved listings, unlimited Lead Generators, unlimited reminders — exactly as it works today, no new caps. Not included: CSV/export, full Comparables + Area Data (item 10), Market Data hub (item 11), Send Letters (item 12), Deal Calculator (item 13), the email digest below (once it's actually scoped), ads/no-ads is Kiril's call (see open questions) |
+| **Investor** (mid, default recommended tier) | €14.99/mo or €149/yr | Everything in Free, plus: full Comparables + Area Data access (item 10), CSV export |
+| **Deal Maker** (top) | €39.99/mo or €399/yr | Everything in Investor, plus Market Data hub (item 11) full access, Send Letters campaigns (item 12, once shipped), Deal Calculator (item 13, once shipped), priority position in the AI support escalation queue (see `docs/strategy/customer-service-ai-strategy.md`) |
 
-Reasoning for quantity-gating over feature-gating: it's simpler to build
-(one `subscription_tier` + numeric limits, no per-feature flag matrix),
-it matches the exact pattern Nosy already found working for this genre
-of product, and it naturally upsells as an engaged user's own saved-search
-count grows past the free cap — the limit is hit through normal use, not
-an artificial paywall interruption.
+**Why feature-gating instead of quantity-gating, despite Property
+Filter's own precedent:** an earlier draft of this table capped the free
+tier's Lead Generators/saved listings (3 / 20) the way Property Filter
+does. That's dropped here for two compounding reasons, not just
+tidiness:
+
+1. **It would contradict §1's own load-bearing claim** that the free
+   tier "stays exactly as it is today" — a cap that doesn't exist in the
+   product today is a real product change, not a description of the
+   status quo, and §1 is the paragraph this whole document leans on to
+   argue the subscription system doesn't quietly reintroduce the
+   friction Kiril explicitly removed.
+2. **It wouldn't actually function as a paywall.** The free tier has no
+   accounts and no login (`docs/decisions.md`, 2026-09-22) — Lead
+   Generators and saved listings live in plain, unauthenticated
+   `localStorage`. A visitor who hits a "3 Lead Generators" cap can
+   clear site data, open a private window, or use a second browser and
+   get another 3 for free, with zero friction and nothing to detect
+   server-side. A quantity cap only works once there's an identity to
+   count against — exactly the account infrastructure §1 argues this
+   document avoids building for the free majority.
+
+Feature-gating avoids both problems: it never touches the free tier's
+existing unlimited local storage, and it gates things that are
+inherently server-side (Comparables/Area Data aggregation, CSV export,
+Market Data hub, campaign tooling) where "who has access" is already
+something the paid checkout flow (§3-4) has to resolve regardless —
+there's no separate enforcement problem to solve.
+
+**Email digest — Recommendation, not yet scoped, needs Kiril's
+sign-off:** a periodic (daily or weekly) email digest of new/changed
+matches for a user's saved Lead Generators would be a strong
+Investor-tier value-add, but it is **new, unscoped build work**, not
+something `docs/backlog.md` item 9 already covers. Item 9 builds the
+in-app "new since last check" badge only — an in-app notification, no
+outbound email. `docs/backlog.md`'s "Gaps in Nosy's spec" section
+explicitly lists "alert-email behavior (vs. in-app notifications)" as an
+open, unspecified gap needing its own follow-up capture, not confirmed
+scope. Before this can be promised at a price point it needs: (a) its
+own scoping pass (frequency, content, unsubscribe handling), (b) the
+outbound-email sending infrastructure §4 below already specs for
+transactional email (Resend/Postmark), extended from one-off
+transactional sends to a scheduled/triggered digest job, and (c) a
+decision on whether it ships at Investor-tier launch or as a fast-follow.
+Recommend treating it as a near-term roadmap item rather than a
+launch-blocking one — the Investor tier is still viable on Comparables +
+Area Data access and CSV export alone. See
+`docs/strategy/marketing-strategy.md` §3, which flags this exact same
+gap for the same feature — the two documents describe one shared,
+not-yet-scoped build item, not two independent ones.
 
 **Do not gate the core listing data itself** (search, filters, browse) —
 per the design-guidelines' positioning as a serious investor tool, the
