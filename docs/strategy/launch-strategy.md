@@ -45,7 +45,7 @@ billing, marketing) just recreates the manual-founder-bottleneck problem
 this whole strategy exists to avoid — so gate on readiness, not time.
 
 ### Stage 0 → Stage 1 gate (start the redesign beta)
-- `docs/backlog.md` items 8 and 9 (listing detail redesign,
+- `docs/backlog.md` items 9 and 10 (listing detail redesign,
   Lead Generators/dashboard/pipeline) shipped and reviewed by Missy per
   the repo's standing rule.
 - Item 5 (imoti.net miscategorization fix) merged — a correctness bug
@@ -175,8 +175,8 @@ rollback story for each stage is simple and low-risk:
    beta) rather than after, since it's the one gate with a long,
    externally-controlled lead time.
 3. Confirm the **Stage 0→1 gate's list of backlog items** is the right
-   minimum bar — Selly picked items 8/9 (and the already-fixed item 5)
-   as "enough redesign to meaningfully beta-test," not the full 8-16
+   minimum bar — Selly picked items 9/10 (and the already-fixed item 5)
+   as "enough redesign to meaningfully beta-test," not the full 9-17
    range, to avoid delaying the beta behind every planned feature;
    confirm this trade-off is right or whether a larger minimum feature
    set is wanted before opening to testers.

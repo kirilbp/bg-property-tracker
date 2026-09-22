@@ -17,7 +17,7 @@ search/filtering, city/oblast browse, saved listings, Lead Generators,
 reminders (all `localStorage`-based per `docs/decisions.md`'s 2026-09-22
 login-removal entry). This is **not** a beta of an unlaunched product —
 it's a structured beta specifically for the redesign work in
-`docs/backlog.md` items 8-16 (listing detail redesign, comparables/area
+`docs/backlog.md` items 9-17 (listing detail redesign, comparables/area
 data, the premium visual refresh) plus, once built, the subscription
 tiers themselves.
 
@@ -25,7 +25,7 @@ tiers themselves.
 sequential phases rather than one, since they're testing different
 things and mixing them muddies the signal:
 
-- **Phase 1 — Free product beta** (once `docs/backlog.md` items 8-9 at
+- **Phase 1 — Free product beta** (once `docs/backlog.md` items 9-10 at
   minimum have shipped: the listing detail redesign and Lead
   Generators/pipeline). Tests: does the redesigned product work, is the
   new visual direction actually landing as "classy/luxurious" with real

@@ -111,7 +111,7 @@ existing docs so nothing is invented:
   `localStorage`-only storage means **switching browsers/devices loses
   saved data**, a real, foreseeable point of confusion worth answering
   proactively rather than waiting for it to become a ticket), what the
-  motivation score means (`docs/backlog.md` item 7's 5-component
+  motivation score means (`docs/backlog.md` item 8's 5-component
   formula, translated into plain language), subscription tier
   differences and how to upgrade/downgrade/cancel (links straight to the
   Stripe Customer Portal).

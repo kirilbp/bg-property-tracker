@@ -28,14 +28,14 @@ data/analysis-driven content, not lifestyle imagery alone.
 all major portals in one place, with the investor signals (motivation
 score, price history) the portals themselves don't show you."* This
 leads with the two genuinely differentiating, already-built capabilities
-(`docs/backlog.md` item 7's motivation score, and the multi-portal
+(`docs/backlog.md` item 8's motivation score, and the multi-portal
 aggregation Nosy's spec calls "arguably the single highest-value feature
 to prioritize") rather than generic "browse listings" language every
 competing portal already uses. (An earlier draft of this tagline also
 listed "comparables" alongside motivation score and price history —
-dropped here since Comparables is `docs/backlog.md` item 10, unshipped,
+dropped here since Comparables is `docs/backlog.md` item 11, unshipped,
 and this paragraph's own framing is explicitly "already-built
-capabilities," not a forward-looking one. Add it back once item 10
+capabilities," not a forward-looking one. Add it back once item 11
 ships, not before.)
 
 ---
@@ -55,24 +55,24 @@ because the scrapers already collect it.**
   (`area_avg_price_per_sqm`) every scraper already computes for every
   listing and `sync_to_supabase.py` already writes through to
   `merged_listings` (see its `SOURCE_FIELDS`/`MERGED_FIELDS`), plus the
-  motivation-score work (`docs/backlog.md` item 7, DONE) that already
+  motivation-score work (`docs/backlog.md` item 8, DONE) that already
   flags how many active listings in an area sit meaningfully below that
   average ("Hot"/"Warm"). A first-launch page needs nothing more than:
   "Property investment guide: [Area] — average price/m², X active
   listings across 8 portals, Y currently priced below the area average."
   This is deliberately **not** the same thing as the fuller Market Data
-  hub / Comparables aggregation work in `docs/backlog.md` item 11
+  hub / Comparables aggregation work in `docs/backlog.md` item 12
   (Postcode/city Performance, Adverts Evolution, a real historical
-  price-trend chart, days-on-market trends) — item 11 is sequenced near
-  the bottom of the backlog, after items 8/9/10, well after
-  `docs/strategy/launch-strategy.md`'s own Stage 0→1 gate (items 5/8/9)
+  price-trend chart, days-on-market trends) — item 12 is sequenced near
+  the bottom of the backlog, after items 9/10/11, well after
+  `docs/strategy/launch-strategy.md`'s own Stage 0→1 gate (items 5/9/10)
   and well before it would realistically ship, while this SEO channel is
   meant to go live *during* Stage 1 (`docs/strategy/launch-strategy.md`
-  §2). Scoping the launch pages to what item 7 and the existing
+  §2). Scoping the launch pages to what item 8 and the existing
   per-area averages already compute means the SEO engine doesn't wait on
-  item 11 at all.
+  item 12 at all.
 - **Later enhancement, not a blocking dependency:** once `docs/backlog.md`
-  item 11 ships, the same already-live, already-indexed pages gain
+  item 12 ships, the same already-live, already-indexed pages gain
   days-on-market trends, a real historical price-trend chart, and
   Adverts Evolution stock-change data — an enrichment of pages that
   already exist, not a precondition for launching them.
@@ -134,10 +134,10 @@ recommendation.
     genuine product feature as much as a marketing one (re-engagement
     via real value, not a promotional blast), and its *content* would be
     generated from data the product already computes — the motivation
-    score (`docs/backlog.md` item 7, DONE) and the same matching logic
-    behind the in-app "new since last check" badge (item 9). But
+    score (`docs/backlog.md` item 8, DONE) and the same matching logic
+    behind the in-app "new since last check" badge (item 10). But
     **delivering it as email is new, unscoped build work**, not
-    something item 9 already covers: item 9 only builds the in-app badge
+    something item 10 already covers: item 10 only builds the in-app badge
     (an in-app notification, no outbound email), and `docs/backlog.md`'s
     "Gaps in Nosy's spec" section explicitly lists "alert-email behavior
     (vs. in-app notifications)" as an open, unspecified gap needing its

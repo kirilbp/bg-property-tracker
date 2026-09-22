@@ -45,7 +45,7 @@ site** (see the repo's `CNAME` file) with:
   channel of any kind** — every one of these five documents is a
   build-from-zero plan for the respective area, not a tune-up of
   something already running.
-- A real, active engineering backlog (`docs/backlog.md` items 8-16) that
+- A real, active engineering backlog (`docs/backlog.md` items 9-17) that
   will substantially change the product's information density and visual
   design before a public launch makes sense — see `launch-strategy.md`
   §2 for exactly which items gate which stage.

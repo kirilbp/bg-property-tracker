@@ -75,9 +75,9 @@ which gate mechanism actually works here:
 
 | Tier | Price (rec.) | Gate mechanism |
 |---|---|---|
-| **Free** | €0 | Full current feature set, **unchanged**: search, filters, city/oblast browse, unlimited saved listings, unlimited Lead Generators, unlimited reminders — exactly as it works today, no new caps. Not included: CSV/export, full Comparables + Area Data (item 10), Market Data hub (item 11), Send Letters (item 12), Deal Calculator (item 13), the email digest below (once it's actually scoped), ads/no-ads is Kiril's call (see open questions) |
-| **Investor** (mid, default recommended tier) | €14.99/mo or €149/yr | Everything in Free, plus: full Comparables + Area Data access (item 10), CSV export |
-| **Deal Maker** (top) | €39.99/mo or €399/yr | Everything in Investor, plus Market Data hub (item 11) full access, Send Letters campaigns (item 12, once shipped), Deal Calculator (item 13, once shipped), priority position in the AI support escalation queue (see `docs/strategy/customer-service-ai-strategy.md`) |
+| **Free** | €0 | Full current feature set, **unchanged**: search, filters, city/oblast browse, unlimited saved listings, unlimited Lead Generators, unlimited reminders — exactly as it works today, no new caps. Not included: CSV/export, full Comparables + Area Data (item 11), Market Data hub (item 12), Send Letters (item 13), Deal Calculator (item 14), the email digest below (once it's actually scoped), ads/no-ads is Kiril's call (see open questions) |
+| **Investor** (mid, default recommended tier) | €14.99/mo or €149/yr | Everything in Free, plus: full Comparables + Area Data access (item 11), CSV export |
+| **Deal Maker** (top) | €39.99/mo or €399/yr | Everything in Investor, plus Market Data hub (item 12) full access, Send Letters campaigns (item 13, once shipped), Deal Calculator (item 14, once shipped), priority position in the AI support escalation queue (see `docs/strategy/customer-service-ai-strategy.md`) |
 
 **Why feature-gating instead of quantity-gating, despite Property
 Filter's own precedent:** an earlier draft of this table capped the free
@@ -112,7 +112,7 @@ there's no separate enforcement problem to solve.
 sign-off:** a periodic (daily or weekly) email digest of new/changed
 matches for a user's saved Lead Generators would be a strong
 Investor-tier value-add, but it is **new, unscoped build work**, not
-something `docs/backlog.md` item 9 already covers. Item 9 builds the
+something `docs/backlog.md` item 10 already covers. Item 10 builds the
 in-app "new since last check" badge only — an in-app notification, no
 outbound email. `docs/backlog.md`'s "Gaps in Nosy's spec" section
 explicitly lists "alert-email behavior (vs. in-app notifications)" as an
@@ -190,7 +190,7 @@ architecture that avoids standing up a full backend:
    and sends the magic-link email (e.g. via Resend or Postmark's
    transactional API — cheap, simple, good deliverability).
 3. **Where to store subscription status:** Supabase is already paid for
-   (Pro plan per `docs/backlog.md` item 6) and already has a schema with
+   (Pro plan per `docs/backlog.md` item 7) and already has a schema with
    `auth.users`-based RLS that's currently dormant (per the 2026-09-22
    login-removal decision) — reusing Supabase here (a new
    `subscriptions` table keyed by email, *not* reviving the old
@@ -251,7 +251,7 @@ signed token Stripe/the magic link already handles.
    it's a real alternative/supplementary revenue lever some free-tier
    products use.
 5. **Should paid tiers launch at the same time as the redesign
-   (`docs/backlog.md` items 8-16), or after, once there's a larger free
+   (`docs/backlog.md` items 9-17), or after, once there's a larger free
    user base to convert?** Recommendation is in
    `docs/strategy/launch-strategy.md` §3 (paid tier launches after the
    beta and after the core redesign ships, not simultaneously) — confirm
