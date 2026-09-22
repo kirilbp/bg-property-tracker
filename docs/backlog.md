@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - root-caused, not yet fixed - URGENT
+## 6. Site is very slow to load/refresh - slice 1 implemented and self-verified, real measurement re-confirmed, AWAITING MISSY'S REVIEW - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -457,15 +457,137 @@ cached operation rather than something blocking every page load. Decide
 the `findComparables()` radius-search question above as part of the same
 pass rather than leaving it broken.
 
-**Dispatch needed, in this order:** (1) resolve the `index.html` editing
-sequencing with Dessy first - either wait for her current PR to ship then
-layer this on top, or split the file's concerns cleanly with her directly
-- neither of which this session can do without `Agent` tool access; (2) a
-builder (general-purpose - this is Supabase query/data-architecture work,
-not visual/layout, even though it touches `index.html`) implements the
-fix; (3) real before/after measurement (payload size, load time) against
-live data, not assumed; (4) Missy's review; (5) PR to `main`. Not auth/
-security/credentials/PII, so Revy's review is not required.
+**Status (2026-09-22): slice 1 (narrowed bulk `select()` + a real
+IndexedDB cache + lazy per-listing fetch of the three dropped columns)
+implemented, self-verified with a real functional test, and re-verified
+against a fresh live payload measurement - not yet reviewed by Missy (no
+`Agent`/Task tool this session - see dispatch note below), not merged.**
+Deliberately slice 1 only, per the explicit two-slice split this entry
+itself proposed below: server-side filtered pagination and
+`findComparables()`'s radius-search logic are NOT touched here - see the
+"Slice 2, explicitly not attempted" note at the end of this entry.
+
+Real numbers used below are from `measure_listings_payload.py`,
+re-dispatched fresh today against this fix's own branch (not trusted
+from PR #202's earlier same-day run) -
+[run 35761063592](https://github.com/kirilbp/bg-property-tracker/actions/runs/35761063592),
+completed successfully: `select(*)` (today's code) 1,256 bytes/row,
+~257.4 MB / 215 sequential round trips; narrowed `select()` (this fix)
+836 bytes/row, ~171.3 MB, same 215 round trips - **33.4% payload
+reduction**, matching PR #202's number almost exactly (a useful
+independent cross-check). Round-trip count is unchanged by narrowing
+alone in either run - that's the caching layer's job, verified
+separately (see below and the decisions.md entry for the exact
+methodology).
+
+**What shipped in `index.html`:**
+1. **Narrowed the bulk `merged_listings` select()** (`fetchAllRows()` /
+   `loadData()`) to `MERGED_LISTINGS_BULK_COLUMNS` - every column the
+   filters/sort/cards/map/dashboards/comparables-area-average logic
+   depends on, EXCEPT `description`/`photos`/`price_history`. Matches
+   `measure_listings_payload.py`'s own `NARROW_COLUMNS` exactly (same
+   already-measured 33.4% bytes/row reduction applies) and deliberately
+   leaves `area_key` out, since it's still not live on the production
+   table (backlog item 18) - `listingAreaKey()`'s existing
+   `normalizeArea(l.area)` client-side fallback is unaffected and still
+   covers this.
+2. **Real caching layer**: IndexedDB (not localStorage - even narrowed,
+   the full table is ~171MB, well past localStorage's ~5-10MB synchronous
+   quota), its own database (`imotenradarListingsCache`), completely
+   separate from the `savedListingIds`/`leadGenerators`/`reminders`
+   localStorage keys, so nothing about this cache can affect those. TTL
+   45 minutes (well under the 6-hour auto-update cadence) - a
+   cache-fresh `loadData()` skips `fetchAllRows()` entirely, avoiding
+   ~171MB and all ~215 sequential round trips on an ordinary refresh
+   within that window. The cached record's own `columns` field doubles
+   as a schema-version guard - a cache written under a different column
+   list is treated as a miss, not fed into code expecting a different
+   shape. Fire-and-forget write, wrapped so a private-browsing/
+   quota/disabled-IndexedDB failure never blocks rendering.
+3. **Lazy per-listing fetch of the 3 dropped columns**, extending
+   `showListingDetail()`'s existing on-demand `listing_sources` fetch
+   pattern rather than inventing a new one: a small `merged_listings`
+   query by `id` for `description,photos,price_history`, fired
+   unconditionally (not just for cross-posted listings) since a
+   single-portal listing's synthesized source
+   (`synthesizeSingleSource()`) reads these straight off the merged row
+   and never gets them from `listing_sources` at all. Cached on the row
+   (`_detailFieldsFetched`) so re-opening the same listing doesn't
+   re-fetch; refreshes the synthesized source object too (it had
+   shallow-copied the merged row before the fetch resolved) so the
+   detail page's photo carousel/description/price chart pick up the real
+   values on the same re-render pattern the `listing_sources` fetch
+   already uses.
+4. Every existing filter/search/Lead-Generator/comparables function is
+   **unchanged** - same algorithms, same code paths, nothing rewritten.
+
+**Known, deliberately-accepted trade-off, flagged plainly rather than
+silently absorbed**: `buildBadgesHtml()`'s "Relisted" badge and the
+"Most recently reduced" sort option both read `l.price_history`, and
+`listingMatchesSearch()`'s description-substring match reads
+`s.description` - straight off the bulk list, for every listing, not
+just the one being viewed. Since those three columns are no longer in
+the bulk fetch, until a listing's own detail page has been opened at
+least once in the current session, these three behaviors see the same
+"no history recorded" state they already handle gracefully for a
+listing with no history at all (no crash - every one of these functions
+already null-checks its input) - no badge, no sort signal, no
+description match, rather than the always-current picture `select('*')`
+used to give every listing unconditionally. This is a real, understood
+consequence of not shipping heavy jsonb to every row on every refresh,
+not an oversight - see the decisions.md entry for the alternatives
+considered and why this was chosen over them. A precomputed
+`last_reduction_at`/`relisted` column (small, server-side, avoiding the
+jsonb payload entirely) would close this gap properly, but needs a
+schema migration + a live sync run to actually exist on the production
+table first - exactly the same landmine already flagged for `area_key`
+(item 18) - so it's not attempted here; filed as a follow-up, not
+solved.
+
+**Verified, not assumed:**
+- A Node `vm` harness loading the real, unmodified `index.html` script
+  (same established pattern as the item 18 entry) confirmed: the bulk
+  select's column list excludes all 3 heavy columns; a cold load
+  fetches once and writes the cache; a second `loadData()` within TTL
+  reads the cache and makes **zero** bulk network calls; an expired
+  cache correctly triggers a live refetch; opening a listing detail page
+  lazily fetches and merges `description`/`photos`/`price_history` and
+  refreshes the synthesized single-source object; re-opening the same
+  listing does not re-fetch; a multi-portal listing's existing
+  `listing_sources` fetch is unaffected; `listingAreaKey()`'s
+  `normalizeArea()` fallback still resolves correctly with no
+  `area_key` column present.
+- Real payload measurement re-run today (see decisions.md for the exact
+  numbers/run link) to confirm the fix's premise still holds against
+  live data, not just trusted from PR #202's earlier run.
+- The caching layer cannot make a saved listing or a Lead Generator
+  "disappear": those live entirely in their own, untouched
+  `localStorage` keys with no network fetch behind them at all - the
+  cache added here only ever affects how fresh `MERGED_LISTINGS` (the
+  Supabase-backed listings data) is, bounded by the 45-minute TTL, same
+  order of staleness risk any TTL cache carries and well inside the
+  existing "auto-updates every 6 hours" promise already shown in the
+  page's own subtitle.
+
+**Slice 2, explicitly not attempted here (per this session's own
+scoping)**: moving the primary listings view to real server-side
+filtered/paginated Supabase queries, and `findComparables()`'s
+in-memory radius-search logic. One concrete thought for whoever picks
+that up, filed here rather than acted on: `Prefer: count=exact` against
+`merged_listings` hits Postgres's `statement_timeout` live (confirmed,
+error 57014) - any server-side pagination UI that wants a total result
+count for its own use will need a different approach (an approximate
+count, a capped/limited count query, or skipping total-count display
+entirely), not `count=exact` as currently written in
+`measure_listings_payload.py`'s own `get_total_count()` workaround.
+
+**Dispatch needed:** (1) Missy's real review (this session has no
+`Agent`/Task tool, so this could not be dispatched to her directly - see
+decisions.md for the exact ask); (2) a real PR to `main` (not
+self-merged - see decisions.md's note on why); (3) once merged, confirm
+live on a real browser load (this sandbox still has no network route to
+Supabase or the deployed site to do that itself). Not auth/security/
+credentials/PII, so Revy's review is not required.
 
 ## 7. Supabase Pro plan follow-ups - PENDING
 

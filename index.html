@@ -2561,13 +2561,26 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 //
 // Only ever called for merged_listings now - listing_sources isn't bulk-
 // loaded any more at all (see loadData()'s comment for that story).
-async function fetchAllRows(table) {
+//
+// `columns` narrows the select() (backlog item 6: the site is slow to
+// load/refresh) - defaults to '*' so this stays a generic helper, but
+// loadData() below always passes MERGED_LISTINGS_BULK_COLUMNS. Narrowing
+// alone doesn't reduce the round-trip count (still (rows/1000) sequential
+// pages either way, per fetchBatch()'s own keyset loop) - that's what the
+// caching layer in loadData() is for - but it does cut real transferred
+// bytes: a live GitHub Actions measurement (measure_listings_payload.py,
+// backlog item 6) found select('*') pulls 1,256 bytes/row (~257MB across
+// the real ~214,889-row table) vs. 836 bytes/row (~171MB, 33.4% smaller)
+// once description/photos/price_history are dropped - see
+// MERGED_LISTINGS_BULK_COLUMNS below for exactly which columns and why.
+async function fetchAllRows(table, columns) {
   const batchSize = 1000;
   const maxRetries = 3;
+  const select = columns || '*';
 
   async function fetchBatch(cursor) {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      let query = sb.from(table).select('*').order('id').limit(batchSize);
+      let query = sb.from(table).select(select).order('id').limit(batchSize);
       if (cursor !== null) query = query.gt('id', cursor);
       const { data, error } = await query;
       if (!error) return data;
@@ -2638,6 +2651,121 @@ function extractRoomCount(title) {
   return null;
 }
 
+// Columns the bulk merged_listings list-view fetch actually needs - every
+// filter/sort/card/map/dashboard/comparables-area-average field currently
+// depends on, EXCEPT the three heavy jsonb/text columns (description,
+// photos, price_history) that make select('*') pull 1,256 bytes/row
+// (~257MB/215 sequential round trips across the real ~214,889-row table,
+// live-measured via measure_listings_payload.py) on every single page
+// load (backlog item 6). Matches that script's own NARROW_COLUMNS
+// exactly (836 bytes/row, 33.4% smaller, also live-measured) - kept in
+// sync deliberately, since that script is this fix's own verification
+// tool, not a separate spec.
+//
+// area_key deliberately left out even though supabase/schema.sql defines
+// it (backlog item 18) - live-confirmed (42703 "column does not exist")
+// that its migration hasn't actually been applied to the production
+// table yet. listingAreaKey() already has its own normalizeArea(l.area)
+// client-side fallback for exactly this - unaffected by leaving the
+// column out of this select.
+//
+// The three dropped columns are fetched lazily, by id, only once a
+// listing's own detail page actually opens - see showListingDetail()'s
+// existing listing_sources lazy-fetch, extended there to also cover
+// these. Known, accepted trade-off, not an oversight: until a listing's
+// detail page has been opened at least once in the current session, the
+// bulk list view's "Relisted" badge (buildBadgesHtml ->
+// relistingEventsFromHistory(l.price_history)), the "Most recently
+// reduced" sort option (lastReductionDate(l)), and description-substring
+// search (listingMatchesSearch's s.description check) behave exactly as
+// they already did for a listing with no recorded history - no badge, no
+// sort signal, no match - rather than reflecting real (possibly stale
+// anyway, given the cache below) history data. Nothing crashes; every one
+// of those functions already null-checks its input. Flagged plainly here
+// per this repo's own documentation standard, not silently accepted -
+// see docs/decisions.md's 2026-09-22 backlog-item-6 entry for the full
+// reasoning on why this was chosen over the alternatives.
+const MERGED_LISTINGS_BULK_COLUMNS =
+  'id,portal,url,photo,price_eur,sqm,area,title,category,' +
+  'category_confidence,type_bucket,city_key,oblast_key,lat,lng,' +
+  'price_per_sqm,price_drop_count,drop_pct,days_on_market,score,status,' +
+  'member_count,member_portals,area_avg_price_per_sqm,pct_vs_area_avg,' +
+  'site_updated_at,site_posted_at,updated_at';
+
+// --- Bulk listings cache (backlog item 6) --------------------------------
+// IndexedDB, not localStorage: even narrowed, the full merged_listings
+// table is ~171MB (live-measured, see MERGED_LISTINGS_BULK_COLUMNS above)
+// - localStorage's synchronous ~5-10MB-per-origin quota can't hold that at
+// all (would throw QuotaExceededError on every write), while IndexedDB's
+// quota is disk-relative and comfortably handles it in every real browser.
+// Deliberately its own database/store, never touching the existing
+// savedListingIds/leadGenerators/reminders localStorage keys - those are
+// independent, purely-local user data with no network fetch behind them
+// at all, so nothing about this cache can make a saved listing or a Lead
+// Generator "disappear"; the only thing a stale or missing cache entry
+// here can do is show this-session's listings data as up to CACHE_TTL_MS
+// old, same as any TTL cache, well inside the existing "auto-updates
+// every 6 hours" promise already shown in the subtitle.
+const LISTINGS_CACHE_DB = 'imotenradarListingsCache';
+const LISTINGS_CACHE_STORE = 'mergedListings';
+const LISTINGS_CACHE_KEY = 'bulk';
+// 45 minutes: meaningfully under the 6-hour auto-update cadence (so an
+// ordinary refresh mid-session skips the ~171MB/215-round-trip fetch
+// entirely), short enough that a real price/status change is never stale
+// for more than part of one working session.
+const LISTINGS_CACHE_TTL_MS = 45 * 60 * 1000;
+
+function openListingsCacheDb() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) { reject(new Error('IndexedDB unavailable')); return; }
+    const req = indexedDB.open(LISTINGS_CACHE_DB, 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(LISTINGS_CACHE_STORE)) {
+        req.result.createObjectStore(LISTINGS_CACHE_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function readListingsCache() {
+  try {
+    const db = await openListingsCacheDb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(LISTINGS_CACHE_STORE, 'readonly');
+      const req = tx.objectStore(LISTINGS_CACHE_STORE).get(LISTINGS_CACHE_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch (e) {
+    // Private browsing, disabled storage, a corrupt DB, etc. - never fatal,
+    // just means this load falls back to a live fetch like every load did
+    // before this cache existed.
+    console.warn('Listings cache read failed, falling back to a live fetch', e);
+    return null;
+  }
+}
+
+// Fire-and-forget from loadData() - a slow or failed cache write should
+// never block or break rendering the page the user is actually waiting on.
+async function writeListingsCache(rows) {
+  try {
+    const db = await openListingsCacheDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(LISTINGS_CACHE_STORE, 'readwrite');
+      tx.objectStore(LISTINGS_CACHE_STORE).put(
+        { rows, cachedAt: Date.now(), columns: MERGED_LISTINGS_BULK_COLUMNS },
+        LISTINGS_CACHE_KEY
+      );
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (e) {
+    console.warn('Listings cache write failed, continuing without it', e);
+  }
+}
+
 async function loadData() {
   try {
     // merged_listings is already the cross-portal-deduped view (computed
@@ -2658,7 +2786,24 @@ async function loadData() {
     // specific listing's own detail page (source-switcher/description),
     // and that's now fetched lazily, one small indexed query at a time,
     // only for the listing actually being viewed - see showListingDetail().
-    const mergedRows = await fetchAllRows('merged_listings');
+    //
+    // Cache-first (backlog item 6): a fresh-enough cached copy (see
+    // LISTINGS_CACHE_TTL_MS above) skips fetchAllRows() - and its real
+    // 215 sequential round trips - entirely. `columns` doubles as a cheap
+    // schema-version guard: a cache written under a different column list
+    // (e.g. a future deploy that narrows/widens MERGED_LISTINGS_BULK_
+    // COLUMNS) is treated as a miss rather than fed into code expecting a
+    // different shape.
+    const cached = await readListingsCache();
+    const cacheIsFresh = !!cached && Array.isArray(cached.rows) && cached.rows.length > 0 &&
+      cached.columns === MERGED_LISTINGS_BULK_COLUMNS &&
+      (Date.now() - cached.cachedAt) < LISTINGS_CACHE_TTL_MS;
+
+    const mergedRows = cacheIsFresh
+      ? cached.rows
+      : await fetchAllRows('merged_listings', MERGED_LISTINGS_BULK_COLUMNS);
+
+    if (!cacheIsFresh) writeListingsCache(mergedRows); // fire-and-forget
 
     MERGED_LISTINGS = mergedRows.map(m => ({ ...m, unverified: computeUnverified(m), rooms: extractRoomCount(m.title), sources: null }));
 
@@ -4507,6 +4652,33 @@ function showListingDetail(id) {
       // Only re-render if the user is still looking at this same listing.
       if (location.hash === '#/listing/' + id) renderListingDetail(merged);
     }).catch(e => console.error('Failed to load cross-posted sources for', id, e));
+  }
+
+  // The bulk merged_listings fetch drops description/photos/price_history
+  // now (see MERGED_LISTINGS_BULK_COLUMNS, backlog item 6) - fetch them
+  // lazily here, by id, the same on-demand pattern as the listing_sources
+  // fetch just above, cached on the merged row (_detailFieldsFetched) so
+  // re-opening the same listing doesn't re-fetch. Runs unconditionally
+  // (not just for member_count > 1), since a single-portal listing's
+  // synthesized source (see synthesizeSingleSource()) reads these straight
+  // off `merged` and never gets them from listing_sources at all.
+  if (merged._detailFieldsFetched !== true) {
+    merged._detailFieldsFetched = true;
+    sb.from('merged_listings').select('description,photos,price_history').eq('id', merged.id).maybeSingle()
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        Object.assign(merged, data);
+        // synthesizeSingleSource() shallow-copied merged's fields at
+        // creation time, before this fetch resolved - refresh it so the
+        // currently-displayed (single, synthesized) source picks up the
+        // real values too. A cross-posted listing's real per-source rows
+        // (fetched above) already carry their own description/photos/
+        // price_history and don't need this.
+        if (merged.sources && merged.sources.length === 1 && merged._sourcesFetched !== true) {
+          merged.sources[0] = synthesizeSingleSource(merged);
+        }
+        if (location.hash === '#/listing/' + id) renderListingDetail(merged);
+      }).catch(e => console.error('Failed to load description/photos/price_history for', id, e));
   }
 }
 
