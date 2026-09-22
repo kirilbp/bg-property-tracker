@@ -22,13 +22,37 @@ Actions secrets point at the same `SUPABASE_URL`
 (`eoufgmmgwczixfajebhc.supabase.co`); that project's REST API returns
 real listing data fine; but its Auth admin API (`/auth/v1/admin/users`)
 reports **0 registered accounts**, both before and after the Supabase
-Pro upgrade - strong evidence the user's real account lives in a
-different Supabase project (they specifically flagged a "Paris" project
-in another organisation as a candidate). Cannot be resolved further from
-here: needs the user to open their Supabase dashboard, confirm which
-project owns Project Reference `eoufgmmgwczixfajebhc`, and check
-Authentication -> Users there directly. Do not change any auth wiring
-until the user confirms which project is correct - this is an auth
+Pro upgrade.
+
+**Correction (2026-09-22):** an earlier version of this entry claimed
+the user had "flagged a Paris project in another organisation as a
+candidate" for where their real account might live. The user has since
+stated plainly they never said this and no such project exists -
+that claim was wrong and should not have been written here; apologies
+for the confusion it caused. The user then confirmed directly from the
+Supabase dashboard: `eoufgmmgwczixfajebhc` genuinely is imotenradar.com's
+own project (matches by name and URL in the dashboard header), and the
+account has exactly one Supabase project total, across all 3 orgs on the
+account (imotenradar, imotenradar.com, and the personal "Kiril Petrov"
+org) - "All Organizations" view shows a single project card. There is no
+other project this could be.
+
+The Authentication -> Users screen for this project shows "No users in
+your project" with zero rows rendered, but a footer count of "Total: 10
+users (estimated)" - the mismatch between an empty rendered table and a
+non-zero "(estimated)" count is consistent with a stale Postgres
+statistic (`pg_class.reltuples`-style estimate that hasn't been
+re-analyzed since rows were deleted), not real hidden users - i.e. the
+table is most likely genuinely empty now, matching the Auth API's "0
+registered accounts" result, not contradicting it.
+
+Reframed problem: this is not a wrong-project routing issue. It's that
+no real user account currently exists in imotenradar.com's own Supabase
+project. Open questions for the user, not yet answered: did they ever
+complete a real sign-up on the live site (possible the sign-up flow
+silently failed without creating the Auth user - worth checking if so),
+or do they just want to sign up fresh now that nothing is blocking it.
+Do not change any auth wiring until the user answers - this is an auth
 change, which the standing rules require asking about anyway.
 
 ## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - URGENT
