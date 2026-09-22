@@ -856,7 +856,7 @@
     <div class="modal-field">
       <label>City</label>
       <input type="text" id="lgCity" value="Sofia" />
-      <p class="modal-hint">Only Sofia has live listing data right now — another city will show zero results until that portal is added.</p>
+      <p class="modal-hint">The platform now covers all of Bulgaria (8 sites, 305,000+ listings). When this is a recognized major city (Sofia, Plovdiv, Varna, Burgas, etc.) it narrows Neighborhood matches to that city; for a smaller town, leave the neighborhood picker to match by name alone and the town's own name will usually already be in that list.</p>
     </div>
 
     <div class="modal-field">
@@ -2689,13 +2689,87 @@ async function loadData() {
   }
 }
 
+// --- Area/neighborhood key normalization (backlog item 18) --------------
+// The area filter and Lead Generator neighborhood picker used to build
+// their dropdown/checkbox options straight from raw, unnormalized l.area
+// strings and compare against them with exact string equality. The same
+// real settlement/neighborhood is formatted differently per portal (кв./
+// жк./в. prefix, Cyrillic vs. transliterated Latin, capitalization), so it
+// silently split across multiple entries and picking one excluded real
+// listings genuinely in that area - confirmed live: Cherven Bryag's own 28
+// real listings split 26/2 between "Червен бряг" and "Cherven Bryag",
+// undercounting whichever one a user picked. Platform-wide, 481 of 8,507
+// distinct normalized area keys had more than one raw-string variant,
+// affecting 179,061 listings (58.7% of everything with a non-empty area).
+//
+// normalizeArea() below is ported 1:1 from sync_to_supabase.py's
+// normalize_area() - already trustworthy there (load-bearing for
+// group_listings()'s own cross-portal merge-group matching) - verified
+// byte-for-byte against all 9,246 distinct raw area strings in the real
+// committed data (zero mismatches) rather than assumed equivalent.
+const AREA_CYR_TO_LAT = {
+  'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ж': 'zh', 'з': 'z',
+  'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p',
+  'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
+  'ш': 'sh', 'щ': 'sht', 'ъ': 'a', 'ь': '', 'ю': 'yu', 'я': 'ya',
+};
+const AREA_PREFIX_RE = /^(v|kv\.?|zh\.?k?\.?)\s+/;
+function normalizeArea(area) {
+  if (!area) return '';
+  let s = Array.from(area.toLowerCase().trim())
+    .map(c => (c in AREA_CYR_TO_LAT ? AREA_CYR_TO_LAT[c] : c)).join('');
+  for (let i = 0; i < 3; i++) s = s.replace(AREA_PREFIX_RE, '').trim();
+  return s;
+}
+
+// Same "prefer the already-computed server column, fall back to computing
+// it client-side" pattern listingCityKey() already uses above - area_key
+// is synced server-side by sync_to_supabase.py once the schema.sql
+// migration is applied and the next scrape/sync run completes, but
+// normalizeArea() being a pure function of l.area means the fix is
+// effective immediately either way, not gated on that migration landing.
+function listingAreaKey(l) {
+  return l.area_key || normalizeArea(l.area);
+}
+
+// Groups listings by normalized area key and picks one representative raw
+// label per group - the most frequently-occurring raw l.area string in
+// that group (same "pick by frequency" precedent as build_rows()'s own
+// best.get(), extended here to picking a representative label instead of
+// a representative listing). Used by both the area <select> and the Lead
+// Generator neighborhood checkbox list so a user only ever sees one entry
+// per real area, not one per raw-string variant.
+function areaKeyGroups() {
+  const counts = new Map(); // key -> Map(rawLabel -> count)
+  MERGED_LISTINGS.forEach(l => {
+    if (!l.area) return;
+    const key = listingAreaKey(l);
+    if (!key) return;
+    if (!counts.has(key)) counts.set(key, new Map());
+    const labels = counts.get(key);
+    labels.set(l.area, (labels.get(l.area) || 0) + 1);
+  });
+  const groups = [];
+  counts.forEach((labels, key) => {
+    let repLabel = null, repCount = -1;
+    labels.forEach((count, label) => {
+      if (count > repCount || (count === repCount && label < repLabel)) {
+        repLabel = label;
+        repCount = count;
+      }
+    });
+    groups.push({ key, label: repLabel });
+  });
+  groups.sort((a, b) => a.label.localeCompare(b.label, 'bg'));
+  return groups;
+}
+
 function populateAreaFilter() {
-  const areas = [...new Set(MERGED_LISTINGS.map(l => l.area))].sort();
   const select = document.getElementById('areaFilter');
-  areas.forEach(area => {
+  areaKeyGroups().forEach(({ key, label }) => {
     const opt = document.createElement('option');
-    opt.value = area;
-    opt.textContent = area;
+    opt.value = key;
+    opt.textContent = label;
     select.appendChild(opt);
   });
 }
@@ -2787,7 +2861,22 @@ function matchesLeadGenerator(l, gen) {
 
   const area = gen.area || {};
   if (area.mode === 'neighborhood') {
-    if (area.neighborhoods && area.neighborhoods.length && !area.neighborhoods.includes(l.area)) return false;
+    // Compares normalized area keys, not raw l.area strings (backlog item
+    // 18) - normalizeArea() is applied to both sides so this also matches
+    // correctly against an older saved generator whose neighborhoods array
+    // still holds a pre-fix raw label, not just newly-saved ones.
+    if (area.neighborhoods && area.neighborhoods.length &&
+        !area.neighborhoods.some(n => normalizeArea(n) === listingAreaKey(l))) return false;
+    // gen.area.city used to be pure decoration - stored but never checked
+    // against a listing at all (backlog item 18's second bug). cityKey is
+    // only set when the typed city text resolves to one of BG_CITIES'
+    // major cities; for a smaller town (e.g. Cherven Bryag) it's left
+    // unset deliberately rather than guessed, so the neighborhood-key match
+    // above (which already carries the town's own identity via its area
+    // text) is the only constraint applied - exactly the case that
+    // motivated this whole fix, and requiring a city match here would have
+    // broken it again a different way.
+    if (area.cityKey && listingCityKey(l) !== area.cityKey) return false;
   } else if (area.mode === 'radius') {
     if (!area.center || l.lat == null || l.lng == null) return false;
     if (haversineKm(area.center.lat, area.center.lng, l.lat, l.lng) > (area.radiusM || 0) / 1000) return false;
@@ -2799,10 +2888,16 @@ function matchesLeadGenerator(l, gen) {
 }
 
 function populateLeadGenNeighborhoods() {
-  const areas = [...new Set(MERGED_LISTINGS.map(l => l.area))].sort();
+  // One checkbox per normalized area key (backlog item 18), not one per
+  // raw-string variant - value stays the representative human-readable raw
+  // label (not the machine key) so a saved generator's neighborhoods array
+  // stays readable in describeLeadGenerator() and stays backward-compatible
+  // in shape with generators saved before this fix; matchesLeadGenerator()
+  // normalizes both sides at match time regardless of which raw variant
+  // ended up stored.
   const container = document.getElementById('lgNeighborhoods');
-  container.innerHTML = areas.map(area => `
-    <label class="checkbox-item"><input type="checkbox" value="${escapeHtml(area)}" /> ${escapeHtml(area)}</label>
+  container.innerHTML = areaKeyGroups().map(({ label }) => `
+    <label class="checkbox-item"><input type="checkbox" value="${escapeHtml(label)}" /> ${escapeHtml(label)}</label>
   `).join('');
 }
 
@@ -2953,9 +3048,14 @@ function renderLeadgenMiniMap(gen) {
   }
 
   if (area.mode === 'neighborhood') {
+    // Same normalized-key comparison as matchesLeadGenerator() (backlog
+    // item 18) - this mini-map preview had the identical raw-string bug,
+    // undercounting the exact same way the real filter did.
+    const wantedAreaKeys = area.neighborhoods && area.neighborhoods.length
+      ? new Set(area.neighborhoods.map(normalizeArea)) : null;
     const matches = MERGED_LISTINGS.filter(l =>
       l.lat != null && l.lng != null &&
-      (!area.neighborhoods || !area.neighborhoods.length || area.neighborhoods.includes(l.area))
+      (!wantedAreaKeys || wantedAreaKeys.has(listingAreaKey(l)))
     );
     if (matches.length) {
       const markers = matches.slice(0, 300).map(l => L.circleMarker([l.lat, l.lng], {
@@ -3105,8 +3205,13 @@ function openLeadGenModal(genId) {
     });
 
     if (gen.area.mode === 'neighborhood') {
+      // Normalized comparison (backlog item 18), not exact string equality -
+      // restores checked state correctly whether this generator's saved
+      // neighborhoods array holds a pre-fix raw-string variant or the
+      // current representative label for the same real area.
+      const savedAreaKeys = new Set((gen.area.neighborhoods || []).map(normalizeArea));
       document.querySelectorAll('#lgNeighborhoods input').forEach(cb => {
-        cb.checked = (gen.area.neighborhoods || []).includes(cb.value);
+        cb.checked = savedAreaKeys.has(normalizeArea(cb.value));
       });
       switchAreaModeTab('neighborhood');
     } else if (gen.area.mode === 'radius') {
@@ -3173,6 +3278,18 @@ function saveLeadGenFromModal() {
   const area = { mode: lgAreaMode, city };
   if (lgAreaMode === 'neighborhood') {
     area.neighborhoods = Array.from(document.querySelectorAll('#lgNeighborhoods input:checked')).map(cb => cb.value);
+    // Backlog item 18's second bug: this field used to be stored and never
+    // checked against a listing at all. Only set when the typed text
+    // resolves to one of BG_CITIES' ~29 major cities - tries Cyrillic
+    // (cityKeyFromName/cityKeyFromNamePrefix) then Latin/English
+    // (latinCityKeyFromText, needed since the field's own default value,
+    // "Sofia", is Latin script and would otherwise never resolve) and
+    // otherwise returns null rather than guess, same "leave unclassified
+    // rather than guess" rule listingCityKey() itself already follows -
+    // matchesLeadGenerator() only applies it as an extra constraint when
+    // it's actually set, so a smaller-town search (e.g. Cherven Bryag,
+    // not one of the 29) still matches correctly by neighborhood key alone.
+    area.cityKey = cityKeyFromName(city) || cityKeyFromNamePrefix(city) || latinCityKeyFromText(city) || null;
   } else if (lgAreaMode === 'radius') {
     area.center = lgRadiusCenter;
     area.radiusM = lgRadiusM;
@@ -3603,7 +3720,10 @@ function render() {
     l.price_eur >= min &&
     l.price_eur <= max &&
     (l.sqm || 0) >= minSqm &&
-    (area === '' || l.area === area) &&
+    // area is now an areaFilter <option> value, which populateAreaFilter()
+    // sets to the normalized area_key (not the raw label) - see
+    // listingAreaKey()/areaKeyGroups() above (backlog item 18).
+    (area === '' || listingAreaKey(l) === area) &&
     // "5" means "5+" - the room-count select only offers exact values 1-4
     // and a 5+ bucket, matching what's actually extractable (see
     // extractRoomCount()'s own comment) rather than exact values beyond

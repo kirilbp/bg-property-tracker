@@ -715,7 +715,7 @@ of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
 
-## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - URGENT
+## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22)
 
 **Numbered last but work this immediately after item 6/7 - do not let its
 position at the end of this list imply low priority.** From the user
@@ -781,6 +781,45 @@ it and its stale hint honestly) rather than leaving it decorative.
 
 Full investigation detail (exact sample data, file/line references):
 `docs/decisions.md`'s 2026-09-22 entry.
+
+**Status (2026-09-22): implemented and self-verified against real data,
+not yet reviewed by Missy (no `Agent` tool this session - see
+`docs/decisions.md`'s matching entry for the full detail and the exact
+dispatch needed).** Summary:
+- `area_key` column added to `listing_sources`/`merged_listings`
+  (`supabase/schema.sql`), computed via the existing `normalize_area()`
+  in `sync_to_supabase.py`'s `build_rows()`. No separate backfill script
+  needed - the next real `sync_to_supabase.py` run (both scrape workflows
+  already call it) backfills every row automatically once the schema
+  migration is applied in the Supabase SQL editor.
+- `index.html`: also ported `normalize_area()` to JS (`normalizeArea()`,
+  verified byte-for-byte identical against all 9,246 real distinct raw
+  area strings) so the fix is effective immediately, independent of the
+  backend migration's timing - `listingAreaKey(l)` prefers the server
+  `area_key` column when present, falls back to computing it client-side
+  otherwise. `populateAreaFilter()`/`populateLeadGenNeighborhoods()` now
+  group by normalized key and show one representative (most frequent raw
+  string) label per group; `render()` and `matchesLeadGenerator()` compare
+  normalized keys, with the match normalizing both sides so an older saved
+  Lead Generator's raw-string `neighborhoods` array still matches
+  correctly with no data migration needed. Found and fixed the same bug
+  in a third spot while tracing this: the Lead Generator gallery's own
+  mini-map preview had the identical exact-match issue.
+- `gen.area.city` wired into the real match logic (not just relabeled):
+  resolves to a `city_key` when it's one of `BG_CITIES`' ~29 major cities
+  (verified this correctly prevents a same-named-area cross-city false
+  positive, e.g. Sofia's "Център" vs. Dobrich's), left unconstrained
+  otherwise so a smaller town like Cherven Bryag still matches correctly
+  by area key alone. Stale "Only Sofia..." hint text replaced.
+- Verified against real data throughout: reproduced Missy's exact
+  platform-wide figures independently (8,507 keys, 481 multi-variant,
+  179,061/58.7% affected), ran the real `build_rows()` against the full
+  305,065-listing dataset, and functionally tested the real `index.html`
+  JS (not a rewritten copy) via a Node `vm` harness against realistic
+  fake data and the full real 214,889-row merged dataset.
+- **Not done**: Missy's actual review, and confirming the Supabase SQL
+  migration has actually been applied live (this sandbox has no network
+  route to Supabase to check).
 
 ## 19. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
 

@@ -823,3 +823,120 @@ suggested entry as response text and I added it. Recommended fix: add an
 script, reusing `normalize_area()` verbatim), backfill, switch the area
 dropdown/Lead Generator neighborhood picker and both match sites to
 compare `area_key` instead of raw `l.area`. Dispatched to Bossy.
+
+### 2026-09-22 - Backlog item 18 implemented and self-verified against real data; Missy's actual review still needed (no `Agent` tool this session)
+
+**No `Agent` tool available this session** (confirmed by trying it, per
+the standing platform-constraint note in `.claude/agents/bossy.md`) - so
+this was implemented directly rather than dispatched to a builder, and
+self-verified rigorously (real data, a real functional test against the
+actual file, not just "it runs") rather than skipped, following the same
+precedent already set for backlog item 5's imoti.net fix in an earlier
+no-`Agent` session. **This is explicitly not a substitute for Missy's own
+review** - see the hand-back message for the exact dispatch (Missy only;
+not auth/security/PII, so Revy's narrower gate doesn't apply).
+
+**Sequencing with Dessy, resolved before touching `index.html`:** at
+dispatch time `index.html` had a 554-line uncommitted diff from Dessy's
+backlog item 9 listing-detail redesign. Checked git state before editing
+rather than assuming either way - by the time backend work was done and
+frontend work was about to start, that diff had been committed (locally,
+not yet pushed) as `a2685e4`, and `git status` showed a clean working
+tree. Built this fix directly on top of her commit rather than layering
+in parallel, so no collision risk from working the same file concurrently.
+
+**Backend (`supabase/schema.sql`, `sync_to_supabase.py`):** added an
+`area_key` column to both `listing_sources` and `merged_listings`,
+computed via `normalize_area()` (reused verbatim, unchanged) in
+`build_rows()`, same pattern as `city_key`/`oblast_key`. No separate
+backfill script needed - unlike backlog item 5's category fix (which
+needed one because that data wasn't due for a fresh scrape/sync anytime
+soon), both `scrape.yml` and `scrape-large.yml` already call
+`sync_to_supabase.py` at the end of every run and its `upsert()` always
+sends the full row payload with `resolution=merge-duplicates`, so the
+very next real sync after this ships (scheduled, or a manual
+`sync-supabase.yml` dispatch) backfills `area_key` on every row
+automatically. Real caveat, same as `city_key`/`oblast_key` before it:
+the `alter table` in `schema.sql` needs to actually be run in the
+Supabase SQL editor first (this sandbox has no network route to run DDL
+itself, per that file's own header) - flagging this plainly rather than
+assuming it happens on its own.
+
+Verified against the real committed data, not assumed: reproduced
+Missy's exact platform-wide figures independently (8,507 distinct
+normalized area keys, 481 with >1 raw variant, 179,061 affected listings,
+58.7%) by running the real `normalize_area()` against all 9,246 distinct
+raw `area` strings across all 8 `data/leads_*.json` files. Ran the real
+`build_rows()` end-to-end against the full real dataset (305,065 raw
+listings -> 214,889 merged) and confirmed: every row with a non-empty
+`area` gets a non-null `area_key`; Cherven Bryag's 28 real raw listings
+(6 portals, not quite Missy's estimated 5, but the same real town) all
+resolve to the one shared key `"cherven bryag"` and collapse to 19
+correctly-deduped merged listings - previously split 26/2 across two
+dropdown entries, undercounting whichever one was picked.
+
+**Frontend (`index.html`):** rather than only wiring the server column
+in (which wouldn't take effect until the manual SQL migration + a fresh
+sync run both happen, timing this session can't control or verify), also
+ported `normalize_area()` to JS as `normalizeArea()` - verified
+byte-for-byte identical output against all 9,246 real distinct raw area
+strings (zero mismatches) before relying on it. `listingAreaKey(l)`
+follows the same "prefer the precomputed server column, fall back to
+computing it client-side" pattern `listingCityKey()` already established
+for `city_key` - so the fix is effective immediately on page load,
+independent of whether the backend migration has landed yet, and
+automatically starts using the authoritative server value once it has.
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` now group by
+`normalizeArea(l.area)` and show one representative raw label per group -
+the most frequent raw string in that group, the same frequency-based
+"representative value" precedent `build_rows()`'s own `best.get()`
+already follows, just applied to picking a label instead of a row.
+`render()`'s area filter and `matchesLeadGenerator()`'s neighborhood
+match both compare normalized keys now, not raw strings; the match
+additionally normalizes *both* sides so an older saved Lead Generator
+whose `neighborhoods` array still holds a pre-fix raw label keeps
+matching correctly with no data migration needed. Found and fixed the
+same raw-string bug in a third place while tracing this, not called out
+by name in the backlog item: the Lead Generator gallery's own mini-map
+preview (`renderLeadgenMiniMap()`) had the identical exact-match bug,
+which would otherwise have kept showing the old, wrong preview even after
+the real filter was fixed.
+
+**Second bug (`gen.area.city` decorative, stale hint text) - wired in,
+not just relabeled**, since a real, low-risk fix was reachable: typed
+city text now resolves to a `city_key` via the existing Cyrillic
+resolvers (`cityKeyFromName`/`cityKeyFromNamePrefix`) plus
+`latinCityKeyFromText` (needed because the field's own default value,
+"Sofia", is Latin script and the Cyrillic-only resolvers alone return
+null for it - caught this with a real test, not assumed). When it
+resolves to one of `BG_CITIES`' ~29 major cities, `matchesLeadGenerator()`
+now requires that city match too, on top of the area-key match -
+verified this prevents a real cross-city false positive (a Sofia-scoped
+"Център" search no longer also matches a same-named "Център" area in
+Dobrich, which the pre-fix code would have silently included). When it
+doesn't resolve (any town outside those ~29, e.g. Cherven Bryag itself),
+`cityKey` is left `null` and no city constraint is applied, deliberately -
+verified requiring a city match unconditionally would have broken the
+exact Cherven Bryag case that motivated this whole fix a second way.
+Replaced the stale "Only Sofia has live listing data right now" hint text
+with accurate wording.
+
+**Verification method, not just "it runs":** wrote a Node `vm`-based
+harness that loads the real `index.html`'s actual script content
+(extracted, not hand-copied) into a sandboxed context with minimal
+DOM/Supabase/Leaflet stubs, confirmed the whole file still parses and
+loads without throwing, then exercised the real functions
+(`normalizeArea`, `listingAreaKey`, `areaKeyGroups`, `matchesLeadGenerator`,
+`cityKeyFromName`/`latinCityKeyFromText`) with realistic fake listing
+data mirroring the actual Cherven Bryag/Sofia-Dobrich-Center scenarios,
+and separately against the full real 214,889-row merged dataset (8,507
+distinct area keys reproduced exactly, matching the pre-merge raw-level
+count). All results matched hand-verified expectations.
+
+**Dispatch, since this session has no `Agent` tool:** Missy's real review
+is still needed before this merges - not done here, not claimed as done.
+See the hand-back message for the exact ask. Not auth/security/
+credentials/personal-data, so Revy's narrower gate doesn't apply by this
+session's own read of the standing rule (same read as backlog item 5's
+entry above). Opened as a PR (`claude/bg-property-tracker-setup-30c2rp`
+-> `main`) for review before merge.

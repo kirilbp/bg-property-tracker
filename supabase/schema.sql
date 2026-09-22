@@ -129,6 +129,22 @@ alter table listing_sources add column if not exists oblast_key text;
 alter table merged_listings add column if not exists oblast_key text;
 create index if not exists merged_listings_oblast_key_idx on merged_listings (oblast_key);
 
+-- Normalized area/neighborhood key, computed server-side by sync_to_
+-- supabase.py's normalize_area() (backlog item 18). The area filter and
+-- Lead Generator neighborhood picker used to compare raw, unnormalized
+-- per-portal l.area strings directly - the same real settlement or
+-- neighborhood is formatted differently portal to portal (кв./жк. prefix,
+-- Cyrillic vs. transliterated Latin, capitalization), so it silently split
+-- across multiple dropdown entries and picking one excluded real listings
+-- genuinely in that area (confirmed platform-wide: 481 of 8,507 distinct
+-- normalized area keys had >1 raw-string variant, affecting 58.7% of all
+-- listings with a non-empty area). normalize_area() already existed and
+-- was already trustworthy - it's load-bearing for group_listings()'s own
+-- merge-group matching above - just never stored as a column before.
+alter table listing_sources add column if not exists area_key text;
+alter table merged_listings add column if not exists area_key text;
+create index if not exists merged_listings_area_key_idx on merged_listings (area_key);
+
 -- Manual reminders (backlog stage 8): a user-set note + date attached to a
 -- listing, checked once daily by check_reminders.py (see that script and
 -- .github/workflows/check-reminders.yml) and surfaced on the Dashboard.

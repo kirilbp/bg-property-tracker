@@ -933,6 +933,7 @@ def build_rows(all_listings):
             city_key = listing_city_key(s)
             row["city_key"] = city_key
             row["oblast_key"] = listing_oblast_key(s, city_key)
+            row["area_key"] = normalize_area(s.get("area")) or None
             listing_source_rows.append(row)
 
         best = sorted_sources[0]
@@ -949,6 +950,7 @@ def build_rows(all_listings):
         city_key = listing_city_key(best)
         merged["city_key"] = city_key
         merged["oblast_key"] = listing_oblast_key(best, city_key)
+        merged["area_key"] = normalize_area(best.get("area")) or None
         merged_rows.append(merged)
 
     return dedupe_rows(listing_source_rows, ("portal", "source_id")), dedupe_rows(merged_rows, ("id",))
