@@ -820,7 +820,20 @@ shared checkout - PR to follow. Summary:
 - **Not done**: Missy's review, and a real PR to `main` (branch is pushed,
   PR still to be opened as part of this same pass).
 
-## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
+## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test) - DONE, MERGED (2026-09-22, Dessy)
+
+Reviewed by Missy (verdict: blocked on one real bug, fixed and re-verified
+before merge - `areaDataMatches()` matched on area name alone, and common
+Bulgarian area names like "Център" are real in dozens of unrelated towns/
+cities, so it would have silently pooled prices across them, e.g. Sofia
+city-center with a small town's; confirmed with 5 real listings named
+"Център" across 5 different cities. `runComparablesSearch()` already
+AND'd city into its own match filter for exactly this reason -
+`areaDataMatches()` now does too, verified against that exact real-data
+scenario. Everything else - the BTL math, the "no rent field anywhere"
+data-gap claims, the lazy/bounded trend-chart fetch not reintroducing
+item 6's bulk-load problem, design-guideline compliance - checked out.)
+and merged in [PR #209](https://github.com/kirilbp/bg-property-tracker/pull/209).
 
 Aggregate analytics built entirely from imotenradar's own already-scraped
 listing history - no new data source required. Spec sections 4 and 5
