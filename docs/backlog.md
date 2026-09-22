@@ -697,7 +697,7 @@ scope, not redone piecemeal here.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
+## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
 
 The core recurring-workflow loop: a paying investor's day-to-day use of
 the tool. Fully Bulgarian-replicable per spec sections 1-3 - workflow
@@ -721,6 +721,97 @@ patterns, not data-dependent.
   count.
 - Excludes the EPC icon and "yield-like %" stat on pipeline cards until
   their respective data/formula questions below are resolved.
+
+**Status (2026-09-22): implemented in `index.html` (frontend/JS only, no
+scraper/schema changes), self-verified end to end in a real headless
+Chromium via Playwright against realistic fake data (this sandbox's egress
+proxy blocks live Supabase/CDN access, same documented limitation prior
+sessions hit - `sb`/`Chart`/CDN calls were stubbed, the app's own JS was not
+modified for testing), not yet reviewed by Missy. Built on a separate branch
+(`dessy/pipeline-lead-gen-dashboard`, off a fresh `origin/main` worktree) to
+avoid colliding with Placy's concurrent `geo_utils.py`/data-file work in the
+shared checkout - PR to follow. Summary:
+
+- **Lead Generators list**: existing map-thumbnail/edit/duplicate/delete
+  infrastructure kept as-is; added the green "N matches"/orange "N new"
+  badge pair (`computeLeadGenCounts()` - "new" = matches first seen, via
+  `price_history[0].date`, since a new `gen.lastCheckedAt` timestamp set
+  every time "Check Leads" is clicked), a working **Share** action
+  (`shareLeadGenerator()`/`maybeImportSharedLeadGenerator()` - encodes the
+  search into a `#/import-leadgen/<data>` URL, no backend involved, same
+  no-login localStorage architecture as everything else here; a duplicate
+  correctly starts unchecked with a fresh "N new" count rather than
+  inheriting the original's), a sort dropdown (most matches / most new /
+  recently created / name), and All/For Sale/To Rent/For Sale & To Rent
+  tabs. **Real data gap, flagged rather than faked**: no scraped listing
+  anywhere carries a rent-vs-sale field - rental scraping is separately
+  Parked (under 400 usable listings nationwide) - so the sale-type tabs
+  filter the *generators* by a new `gen.saleType` tag (defaults to `sale`)
+  rather than pretending to filter real listing data that doesn't exist;
+  picking "To Rent" honestly shows an empty state explaining why, right in
+  the UI, instead of silently showing zero results with no explanation.
+- **Home dashboard**: added to the existing `section-dashboard` page (kept
+  the existing Reminders/Saved/Hottest-deals cards below it rather than
+  reorganizing nav - see design-scope note below) - a "Start Here"
+  checklist whose 5 items reflect real app state (has a Lead Generator, has
+  a pipeline deal, has a saved listing/reminder, has checked a Lead
+  Generator, has customized stages/tags) rather than a separately-tracked
+  flag, a Lead Generators inbox card (top 5 by current sort, click-through
+  to `checkLeads()`), and a Pipeline Actions card (one live-counted row per
+  configured stage, click-through to that stage in the Pipeline board).
+- **Deal Pipeline (kanban)**: new "Pipeline" nav item/section. Stages
+  (`PIPELINE_STAGES`, default 5, seeded from the spec's own arrow-flow
+  names) and tags (`PIPELINE_TAGS`, name/icon/color, empty by default) are
+  both fully arbitrary-length and user-editable via a "Manage stages &
+  tags" modal (add/rename/re-icon/recolor/delete) - every stage/tag loop in
+  the code iterates the array rather than assuming a fixed count, per the
+  spec's own explicit warning. Deals (`PIPELINE_DEALS`, keyed by listing
+  id) persist stage + tags + which Lead Generator surfaced the listing, all
+  in localStorage, same no-login pattern as Lead Generators/saved
+  listings/reminders. Stage tabs show live counts; toolbar has search + tag
+  filter + Lead Generator filter + Card/Table/Map/Export view toggle
+  (Export is a real client-side CSV download). Cards show status ("Active
+  · Nd"/"Removed"/"Sold"), a price-change label ("Reduced N% · N drops")
+  when relevant, listing date, photo, price, price/m², address, rooms,
+  floor area (m²), and distance-from-search-point when the deal came from
+  a radius-mode Lead Generator (the only case with an unambiguous "distance
+  from what" answer in a login-free app - omitted otherwise rather than
+  measured from an arbitrary point). Entry points: a "+ Add to Pipeline"
+  control (becomes a stage `<select>` + "Remove from Pipeline" once added)
+  on the listing detail page, and a quick ＋/✓ toggle button on every
+  listing card everywhere cards render (results grid, Saved listings,
+  Hottest deals).
+  - **Two spec fields flagged, not built - real data gaps, not
+    oversights**: "floor level" isn't scraped by any of the 8 portals
+    (checked the full field union across `data/leads_*.json`) - omitted
+    from cards rather than faked. "Filter by Agent" isn't buildable either
+    - same already-flagged gap as item 9's Agent panel (no scraped listing
+    carries an agent/agency name or contact field) - the toolbar says so
+    explicitly instead of showing a control that can't do anything.
+  - **Design-guidelines judgment call**: the spec's own card description
+    calls for colored status/price-change *ribbons* and a dense 2x3
+    icon-grid of stats - both are `docs/design-guidelines.md` section 9's
+    explicitly named anti-patterns (items 1-2). Built the same *content*
+    the spec asks for, presented as small-caps muted text labels and plain
+    inline facts instead, matching the restrained treatment item 9 already
+    established for the listing detail page - not a silent improvisation,
+    the guidelines document directly instructs this substitution.
+- **Design-scope note**: the new/redesigned surfaces (Lead Generators
+  gallery, the three new dashboard widgets, the whole Pipeline board) draw
+  on `docs/design-guidelines.md`'s warm ivory/brass palette and Playfair/
+  Inter type pairing - the same CSS variables item 9 introduced. Shared
+  chrome those surfaces still reuse (the generic `.modal-*` classes, the
+  sidebar nav) intentionally keeps its existing blue-accented look, same
+  scoping call item 9 made - a full site-wide reskin is item 15's Pipeline
+  sub-item name aside, really item 17's job, not repeated piecemeal here.
+- **Storage**: `pipelineStages`/`pipelineTags`/`pipelineDeals` are three
+  new plain localStorage keys, following the existing no-login,
+  this-browser-only pattern used by `leadGenerators`/`savedListingIds`/
+  `reminders` - not flagged as a concern, this is what the dispatch asked
+  for by default, but noting it plainly per the standing instruction to
+  flag rather than silently decide if a stronger reason existed (none did).
+- **Not done**: Missy's review, and a real PR to `main` (branch is pushed,
+  PR still to be opened as part of this same pass).
 
 ## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test)
 

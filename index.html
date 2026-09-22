@@ -402,50 +402,80 @@
   .radius-map .leaflet-popup-content { font-size: 13px; }
 
   /* Lead generators gallery */
-  .leadgen-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-  .leadgen-count { font-size: 13px; color: #64748b; }
-  .leadgen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-  .leadgen-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
-  .leadgen-card h3 { font-size: 15px; margin: 0 0 6px; }
-  .leadgen-card .leadgen-summary-line { font-size: 12px; color: #64748b; margin: 0 0 3px; }
+  /* Lead Generators, Dashboard widgets, and the Deal Pipeline (docs/backlog.md
+     item 10) all draw on docs/design-guidelines.md's warm ivory/brass palette
+     and Playfair/Inter type pairing - the same CSS variables item 9's listing
+     detail redesign introduced (see the :root comment above). Scoped to these
+     specific components, same scoping call item 9 made - a full site-wide
+     reskin (sidebar, results grid, other modals) stays item 17's job. */
+  .leadgen-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; font-family: var(--font-sans); }
+  .leadgen-count { font-size: 13px; color: var(--taupe); }
+  .leadgen-toolbar-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .leadgen-saletype-tabs { display: flex; gap: 4px; }
+  .leadgen-saletype-tab-btn {
+    background: none; border: 1px solid var(--taupe-light); color: var(--ink-soft); font: inherit;
+    font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .leadgen-saletype-tab-btn:hover { border-color: var(--taupe); }
+  .leadgen-saletype-tab-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
+  #leadgenSortBy { padding: 7px 10px; border: 1px solid var(--taupe-light); border-radius: 6px; font: inherit; font-size: 12px; color: var(--ink-soft); background: white; }
+  .leadgen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+  .leadgen-card {
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px; padding: 24px;
+    display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,0,0,0.05); font-family: var(--font-sans);
+  }
+  .leadgen-badge-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .leadgen-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 3px 9px; border-radius: 999px; }
+  .leadgen-badge-total { background: rgba(122,139,111,0.14); color: var(--sage); }
+  .leadgen-badge-new { background: rgba(169,129,46,0.14); color: var(--brass-deep); }
+  .leadgen-card h3 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 8px; color: var(--ink); }
+  .leadgen-card .leadgen-summary-line { font-size: 12px; color: var(--taupe); margin: 0 0 3px; }
   .leadgen-card-body { flex: 1; }
-  .leadgen-mini-map { height: 130px; border-radius: 8px; margin-top: 8px; z-index: 0; background: #f1f5f9; }
+  .leadgen-mini-map { height: 130px; border-radius: 6px; margin-top: 10px; z-index: 0; background: var(--ivory-deep); }
   .leadgen-mini-map-empty {
     display: flex; align-items: center; justify-content: center; text-align: center;
-    font-size: 12px; color: #94a3b8; padding: 8px;
+    font-size: 12px; color: var(--taupe); padding: 8px;
   }
   .leadgen-check-btn {
-    display: block; width: 100%; text-align: center; background: #2563eb; color: white; border: none;
-    padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
+    display: block; width: 100%; text-align: center; background: var(--brass); color: var(--ink); border: 1px solid var(--brass);
+    padding: 11px; border-radius: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; margin-top: 16px;
   }
-  .leadgen-check-btn:hover { background: #1d4ed8; }
+  .leadgen-check-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
   .leadgen-icon-row { display: flex; gap: 8px; margin-top: 10px; }
   .leadgen-icon-btn {
-    flex: 1; padding: 7px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;
-    cursor: pointer; font-size: 14px; color: #475569;
+    flex: 1; padding: 7px; border: 1px solid var(--taupe-light); border-radius: 4px; background: white;
+    cursor: pointer; font-size: 14px; color: var(--ink-soft);
   }
-  .leadgen-icon-btn:hover { border-color: #94a3b8; background: #f8fafc; }
-  .leadgen-icon-btn.danger:hover { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+  .leadgen-icon-btn:hover { border-color: var(--taupe); background: var(--ivory-deep); }
+  .leadgen-icon-btn.danger:hover { border-color: #b08d3f; background: var(--ivory-deep); color: #7a3b2e; }
   .leadgen-type-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-  .leadgen-type-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #4338ca; }
+  .leadgen-type-badge { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; padding: 2px 9px; border-radius: 999px; background: var(--ivory-deep); color: var(--ink-soft); }
+  .leadgen-saletype-badge { background: rgba(169,129,46,0.12); color: var(--brass-deep); }
   .leadgen-add-tile {
-    border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; flex-direction: column;
+    border: 1px dashed var(--taupe); border-radius: 8px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 8px; cursor: pointer; padding: 16px;
-    color: #2563eb; font-weight: 600; font-size: 14px; min-height: 200px; background: none;
+    color: var(--ink-soft); font-weight: 500; font-size: 14px; min-height: 200px; background: none; font-family: var(--font-sans);
   }
-  .leadgen-add-tile:hover { border-color: #2563eb; background: #f8fafc; }
-  .leadgen-add-tile .plus-icon { font-size: 28px; }
-  .leadgen-empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
+  .leadgen-add-tile:hover { border-color: var(--brass); color: var(--brass-deep); }
+  .leadgen-add-tile .plus-icon { font-size: 28px; font-weight: 300; }
+  .leadgen-empty { text-align: center; color: var(--taupe); padding: 60px 20px; font-family: var(--font-sans); font-size: 14px; }
   .leadgen-banner {
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 14px 18px; margin-bottom: 16px;
+    font-family: var(--font-sans);
   }
-  .leadgen-banner strong { color: #1e3a8a; }
+  .leadgen-banner strong { color: var(--ink); }
   .leadgen-banner button {
-    background: white; border: 1px solid #93c5fd; color: #1d4ed8; padding: 6px 12px; border-radius: 8px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); padding: 6px 12px; border-radius: 4px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
   }
-  .leadgen-banner button:hover { background: #dbeafe; }
+  .leadgen-banner button:hover { border-color: var(--taupe); }
+  .pill-toggle-row { display: flex; gap: 6px; }
+  .lg-saletype-btn {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-size: 13px;
+    padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
+  }
+  .lg-saletype-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
 
   /* Modal */
   .modal-overlay {
@@ -509,6 +539,112 @@
   .compare-empty { text-align: center; color: #94a3b8; padding: 30px 20px; }
   .compare-truncated-note { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }
 
+  /* Deal Pipeline + Home dashboard widgets (docs/backlog.md item 10) - same
+     scoped-palette approach as the Lead Generators block above. */
+  .pl-card {
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
+    padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); font-family: var(--font-sans);
+  }
+  .pl-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .pl-h2 { font-family: var(--font-serif); font-weight: 500; font-size: 22px; margin: 0 0 6px; color: var(--ink); }
+  .pl-sub { font-size: 13px; color: var(--taupe); margin: 0 0 16px; line-height: 1.5; }
+  .pl-icon-inline { font-weight: 600; color: var(--brass-deep); }
+  .pl-secondary-btn {
+    background: transparent; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 4px; cursor: pointer;
+  }
+  .pl-secondary-btn:hover { border-color: var(--taupe); }
+  .pl-text-link { background: none; border: none; color: var(--brass-deep); font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer; padding: 0; }
+  .pl-text-link:hover { text-decoration: underline; }
+  .pl-hint { font-size: 12px; color: var(--taupe); margin: -6px 0 16px; line-height: 1.5; }
+  .pl-empty-inline { font-size: 13px; color: var(--taupe); }
+
+  .pl-stage-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 16px 0; }
+  .pl-stage-tab {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+  }
+  .pl-stage-tab:hover { border-color: var(--taupe); }
+  .pl-stage-tab.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
+  .pl-stage-tab-count { opacity: 0.75; font-weight: 400; }
+
+  .pl-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+  .pl-search { flex: 1; min-width: 200px; padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 13px; }
+  .pl-toolbar select { padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 13px; background: white; color: var(--ink-soft); }
+  .pl-view-toggle { display: flex; gap: 4px; }
+  .pl-view-btn {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-family: var(--font-sans);
+    font-size: 13px; padding: 9px 14px; border-radius: 4px; cursor: pointer;
+  }
+  .pl-view-btn:hover { border-color: var(--taupe); }
+  .pl-view-btn.active { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
+
+  .pl-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; margin-top: 16px; }
+  .pl-card-item { background: white; border: 1px solid var(--taupe-light); border-radius: 6px; overflow: hidden; }
+  .pl-card-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: var(--ivory-deep); display: block; }
+  .pl-card-body { padding: 16px; }
+  .pl-status-line { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--sage); margin: 0 0 8px; }
+  .pl-card-title { font-size: 13px; }
+  .pl-fact-line { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
+  .pl-card-footer { padding: 0 16px 16px; }
+  .pl-tag-chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .pl-tag-chip { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 999px; color: var(--ink); }
+  .pl-card-controls { display: flex; gap: 6px; align-items: center; margin-top: 12px; position: relative; }
+  .pl-stage-select { flex: 1; padding: 7px 8px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 12px; background: white; color: var(--ink-soft); }
+  .pl-icon-btn { border: 1px solid var(--taupe-light); background: white; border-radius: 4px; padding: 6px 9px; cursor: pointer; font-size: 13px; color: var(--ink-soft); }
+  .pl-icon-btn:hover { border-color: var(--taupe); background: var(--ivory-deep); }
+  .pl-icon-btn.danger:hover { border-color: #b08d3f; color: #7a3b2e; }
+  .pl-tag-popover {
+    position: absolute; bottom: calc(100% + 6px); left: 0; background: white; border: 1px solid var(--taupe-light);
+    border-radius: 6px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 5; min-width: 180px;
+  }
+  .pl-tag-popover .checkbox-item { padding: 4px 2px; }
+
+  .pl-table-wrap { overflow-x: auto; margin-top: 16px; }
+  .pl-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 13px; }
+  .pl-table th, .pl-table td { padding: 10px; border-bottom: 1px solid var(--taupe-light); text-align: left; white-space: nowrap; }
+  .pl-table th { color: var(--taupe); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .pl-table-photo { width: 60px; height: 45px; object-fit: cover; border-radius: 4px; background: var(--ivory-deep); }
+  .pl-table .listing-link { cursor: pointer; color: var(--ink); }
+  .pl-table .listing-link:hover { color: var(--brass-deep); }
+
+  .pl-map { height: 480px; border-radius: 6px; margin-top: 16px; z-index: 0; }
+
+  .pl-config-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
+  .pl-config-row { display: flex; gap: 8px; align-items: center; }
+  .pl-config-icon { width: 44px; text-align: center; padding: 8px 4px; border: 1px solid var(--taupe-light); border-radius: 4px; font-size: 15px; }
+  .pl-config-name { flex: 1; padding: 8px 10px; border: 1px solid var(--taupe-light); border-radius: 4px; font-size: 13px; font-family: var(--font-sans); }
+  .pl-config-color { width: 40px; height: 36px; padding: 2px; border: 1px solid var(--taupe-light); border-radius: 4px; cursor: pointer; }
+
+  .pipeline-listing-btn {
+    position: absolute; top: 8px; right: 44px; z-index: 1;
+    width: 30px; height: 30px; border-radius: 999px; border: none;
+    background: rgba(255,255,255,0.92); box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer; font-size: 15px; line-height: 1; color: #64748b;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pipeline-listing-btn:hover { background: white; color: var(--brass-deep); }
+  .pipeline-listing-btn.added { color: var(--brass-deep); }
+
+  .start-here-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .start-here-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+  .start-here-check {
+    width: 24px; height: 24px; border-radius: 999px; border: 1px solid var(--taupe-light); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--taupe);
+  }
+  .start-here-item.done .start-here-check { background: var(--sage); border-color: var(--sage); color: white; }
+  .start-here-label { background: none; border: none; text-align: left; font-family: var(--font-sans); font-size: 14px; color: var(--ink-soft); cursor: pointer; padding: 0; }
+  .start-here-item.done .start-here-label { color: var(--taupe); text-decoration: line-through; }
+  .start-here-label:hover { color: var(--brass-deep); }
+
+  .dash-inbox-row {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none;
+    border-top: 1px solid var(--taupe-light); padding: 12px 0; cursor: pointer; font-family: var(--font-sans);
+  }
+  .dash-inbox-row:first-child { border-top: none; }
+  .dash-inbox-row:hover .dash-inbox-name { color: var(--brass-deep); }
+  .dash-inbox-name { flex: 1; font-size: 14px; color: var(--ink); }
+
   /* Reminders */
   .reminders-section { margin-top: 16px; }
   .reminder-row {
@@ -539,6 +675,7 @@
     <div class="sidebar-brand">🏠 Property Tracker</div>
     <button class="nav-item active" data-section="home"><span class="icon">🏡</span> Home</button>
     <button class="nav-item" data-section="leadgen"><span class="icon">🎯</span> Lead Generators</button>
+    <button class="nav-item" data-section="pipeline"><span class="icon">🗂️</span> Pipeline</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
@@ -594,6 +731,20 @@
       <section class="page" id="section-leadgen">
         <div class="leadgen-toolbar">
           <p class="leadgen-count" id="leadgenCount"></p>
+          <div class="leadgen-toolbar-controls">
+            <div class="leadgen-saletype-tabs" id="leadgenSaleTypeTabs">
+              <button type="button" class="leadgen-saletype-tab-btn active" data-saletype="all">All</button>
+              <button type="button" class="leadgen-saletype-tab-btn" data-saletype="sale">For Sale</button>
+              <button type="button" class="leadgen-saletype-tab-btn" data-saletype="rent">To Rent</button>
+              <button type="button" class="leadgen-saletype-tab-btn" data-saletype="both">For Sale &amp; To Rent</button>
+            </div>
+            <select id="leadgenSortBy">
+              <option value="matches-desc">Sort: Most matches</option>
+              <option value="new-desc">Sort: Most new leads</option>
+              <option value="created-desc">Sort: Recently created</option>
+              <option value="name-asc">Sort: Name A-Z</option>
+            </select>
+          </div>
         </div>
         <div class="leadgen-grid" id="leadgenGrid"></div>
       </section>
@@ -689,8 +840,64 @@
         <div class="pagination" id="paginationBottom" style="display:none;"></div>
       </section>
 
+      <!-- Deal Pipeline (kanban) -->
+      <section class="page" id="section-pipeline">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Deal Pipeline</h2>
+              <p class="pl-sub">Track promising leads from first look to closed deal. Add a listing here from its detail page, or the <span class="pl-icon-inline">＋</span> button on any listing card.</p>
+            </div>
+            <button type="button" class="pl-secondary-btn" id="plConfigBtn">⚙ Manage stages &amp; tags</button>
+          </div>
+
+          <div class="pl-stage-tabs" id="plStageTabs"></div>
+
+          <div class="pl-toolbar">
+            <input type="text" id="plSearch" class="pl-search" placeholder="Search by address or title…" />
+            <select id="plTagFilter"><option value="">All tags</option></select>
+            <select id="plGenFilter"><option value="">All lead generators</option></select>
+            <div class="pl-view-toggle" id="plViewToggle">
+              <button type="button" class="pl-view-btn active" data-view="card">Card</button>
+              <button type="button" class="pl-view-btn" data-view="table">Table</button>
+              <button type="button" class="pl-view-btn" data-view="map">Map</button>
+              <button type="button" class="pl-view-btn" id="plExportBtn">⬇ Export</button>
+            </div>
+          </div>
+          <p class="pl-hint">Filtering by agent isn't available yet - no scraped listing includes an agent/agency name or contact field today (same gap flagged for the listing detail page's Agent panel).</p>
+
+          <div id="plCardView" class="pl-card-grid"></div>
+          <div id="plTableView" class="pl-table-wrap" style="display:none;"></div>
+          <div id="plMapView" class="pl-map" style="display:none;"></div>
+          <p class="empty" id="plEmpty" style="display:none;">No deals in the pipeline yet — open any listing and click "+ Add to Pipeline", or use the ＋ button on a listing card.</p>
+        </div>
+      </section>
+
       <!-- Dashboard -->
       <section class="page" id="section-dashboard">
+        <div class="pl-card" id="startHereCard">
+          <div class="pl-header-row">
+            <h2 class="pl-h2">Start Here</h2>
+            <button type="button" class="pl-text-link" id="startHereDismissBtn">Hide this checklist</button>
+          </div>
+          <ul class="start-here-list" id="startHereList"></ul>
+        </div>
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <h2 class="pl-h2">Lead Generators</h2>
+            <button type="button" class="pl-text-link" id="dashLeadgenViewAllBtn">View all →</button>
+          </div>
+          <p class="pl-sub">New motivated sellers to look at.</p>
+          <div id="dashLeadgenInbox"></div>
+        </div>
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <h2 class="pl-h2">Pipeline Actions</h2>
+            <button type="button" class="pl-text-link" id="dashPipelineViewAllBtn">Open Pipeline →</button>
+          </div>
+          <p class="pl-sub" id="dashPipelineSummary"></p>
+          <div id="dashPipelineActions"></div>
+        </div>
         <div class="card">
           <h2>🔔 Reminders</h2>
           <p class="card-sub">Dates and notes you've set on listings — set one from any listing's detail page. Stored only in this browser, so they won't follow you to a different device.</p>
@@ -860,6 +1067,16 @@
     </div>
 
     <div class="modal-field">
+      <label>Sale type</label>
+      <div class="pill-toggle-row">
+        <button type="button" class="lg-saletype-btn active" data-saletype="sale">For Sale</button>
+        <button type="button" class="lg-saletype-btn" data-saletype="rent">To Rent</button>
+        <button type="button" class="lg-saletype-btn" data-saletype="both">Both</button>
+      </div>
+      <p class="modal-hint">imotenradar doesn't scrape rental listings yet (nationwide rental inventory is currently too thin to track reliably), so a "To Rent" or "Both" generator won't have real matches until that changes - tag it now so it's ready when it does.</p>
+    </div>
+
+    <div class="modal-field">
       <label>Area</label>
       <div class="area-mode-tabs">
         <button type="button" class="area-mode-tab-btn active" data-mode="neighborhood">Neighborhoods</button>
@@ -911,6 +1128,35 @@
       <button type="button" class="radius-btn" data-compare-radius="1500">1500m</button>
     </div>
     <div id="compareModalBody"></div>
+  </div>
+</div>
+
+<!-- Pipeline stages + tags configuration (property-filter-spec.md section 9:
+     both are arbitrary-length and fully user-editable, not a fixed set). -->
+<div class="modal-overlay compare-modal" id="plConfigModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Manage stages &amp; tags</h2>
+      <button class="modal-close-btn" id="plConfigModalCloseBtn">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label>Pipeline stages</label>
+      <p class="modal-hint">Shown as the tabs above the Pipeline board, in this order. Every deal in a removed stage moves to "To Review" (or the first remaining stage) rather than being deleted.</p>
+      <div id="plStagesConfigList" class="pl-config-list"></div>
+      <button type="button" class="pl-secondary-btn" id="plAddStageBtn" style="margin-top:10px;">+ Add a stage</button>
+    </div>
+
+    <div class="modal-field">
+      <label>Tags</label>
+      <p class="modal-hint">Usable across both the Pipeline and (in future) Lead Generators. Each tag has a name, an icon (any emoji), and a color for its chip.</p>
+      <div id="plTagsConfigList" class="pl-config-list"></div>
+      <button type="button" class="pl-secondary-btn" id="plAddTagBtn" style="margin-top:10px;">+ Add a tag</button>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-primary" id="plConfigDoneBtn">Done</button>
+    </div>
   </div>
 </div>
 
@@ -1072,6 +1318,155 @@ let lgRadiusMapMarker = null;
 let lgRadiusMapCircle = null;
 let lgPolygonMap = null;
 let lgDrawnItems = null;
+
+// --- Deal Pipeline (kanban) ---------------------------------------------
+// Same no-login, this-browser-only localStorage pattern as Lead Generators/
+// saved listings/reminders above (docs/backlog.md item 10 standing rule).
+// Three separate localStorage keys, all arrays/objects of arbitrary length -
+// per property-filter-spec.md section 9, pipeline stages AND the tag system
+// are fully user-configurable (name + icon, and for tags a color too), not
+// a fixed count. Every place this file reads PIPELINE_STAGES/PIPELINE_TAGS
+// iterates them (.forEach/.map/.find) rather than assuming a fixed length -
+// keep it that way in any future edit.
+const PIPELINE_STAGES_KEY = 'pipelineStages';
+const PIPELINE_TAGS_KEY = 'pipelineTags';
+const PIPELINE_DEALS_KEY = 'pipelineDeals';
+
+// Seed stages, editable/removable/reorderable-in-length (not position, to
+// keep the config UI simple) like every other user-added stage - not a
+// hardcoded, protected set. Modeled on the arrow-flow stage names in
+// property-filter-spec.md section 3.
+const DEFAULT_PIPELINE_STAGES = [
+  { id: 'to_review', name: 'To Review', icon: '🔍' },
+  { id: 'viewing', name: 'Organise a Viewing', icon: '📅' },
+  { id: 'offer', name: 'Make an Offer', icon: '✉️' },
+  { id: 'follow_up', name: 'Follow Up', icon: '🤝' },
+  { id: 'under_contract', name: 'Under Contract', icon: '✅' },
+];
+
+let PIPELINE_STAGES = [];
+let PIPELINE_TAGS = [];
+// Keyed by listing id -> { stageId, tagIds: [], addedAt, leadGenId }.
+let PIPELINE_DEALS = {};
+let pipelineActiveStage = 'all';
+let pipelineTagFilter = '';
+let pipelineGenFilter = '';
+let pipelineSearchQuery = '';
+let pipelineViewMode = 'card'; // card | table | map
+let pipelineMap = null;
+
+function loadPipelineStages() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PIPELINE_STAGES_KEY) || 'null');
+    PIPELINE_STAGES = Array.isArray(saved) && saved.length > 0
+      ? saved.filter(s => s && typeof s.id === 'string' && typeof s.name === 'string')
+      : DEFAULT_PIPELINE_STAGES.slice();
+  } catch (e) {
+    console.error('Failed to load pipeline stages from localStorage', e);
+    PIPELINE_STAGES = DEFAULT_PIPELINE_STAGES.slice();
+  }
+}
+function savePipelineStages() {
+  try {
+    localStorage.setItem(PIPELINE_STAGES_KEY, JSON.stringify(PIPELINE_STAGES));
+  } catch (e) {
+    console.error('Failed to save pipeline stages', e);
+  }
+}
+
+function loadPipelineTags() {
+  try {
+    PIPELINE_TAGS = JSON.parse(localStorage.getItem(PIPELINE_TAGS_KEY) || '[]')
+      .filter(t => t && typeof t.id === 'string' && typeof t.name === 'string');
+  } catch (e) {
+    console.error('Failed to load pipeline tags from localStorage', e);
+    PIPELINE_TAGS = [];
+  }
+}
+function savePipelineTags() {
+  try {
+    localStorage.setItem(PIPELINE_TAGS_KEY, JSON.stringify(PIPELINE_TAGS));
+  } catch (e) {
+    console.error('Failed to save pipeline tags', e);
+  }
+}
+
+function loadPipelineDeals() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PIPELINE_DEALS_KEY) || '{}');
+    PIPELINE_DEALS = (saved && typeof saved === 'object' && !Array.isArray(saved)) ? saved : {};
+  } catch (e) {
+    console.error('Failed to load pipeline deals from localStorage', e);
+    PIPELINE_DEALS = {};
+  }
+}
+function savePipelineDeals() {
+  try {
+    localStorage.setItem(PIPELINE_DEALS_KEY, JSON.stringify(PIPELINE_DEALS));
+  } catch (e) {
+    console.error('Failed to save pipeline deals', e);
+  }
+}
+
+function isInPipeline(listingId) {
+  return Object.prototype.hasOwnProperty.call(PIPELINE_DEALS, listingId);
+}
+
+// stageId defaults to the first configured stage - if every stage has been
+// deleted (edge case, the config UI always leaves at least one), falls back
+// to a bare 'unstaged' id so the deal is still tracked rather than dropped.
+function addToPipeline(listingId, stageId, leadGenId) {
+  const deal = PIPELINE_DEALS[listingId] || {
+    stageId: stageId || (PIPELINE_STAGES[0] && PIPELINE_STAGES[0].id) || 'unstaged',
+    tagIds: [],
+    addedAt: new Date().toISOString(),
+    leadGenId: leadGenId || null,
+  };
+  if (stageId) deal.stageId = stageId;
+  PIPELINE_DEALS[listingId] = deal;
+  savePipelineDeals();
+}
+
+function removeFromPipeline(listingId) {
+  delete PIPELINE_DEALS[listingId];
+  savePipelineDeals();
+}
+
+function setDealStage(listingId, stageId) {
+  if (!PIPELINE_DEALS[listingId]) return;
+  PIPELINE_DEALS[listingId].stageId = stageId;
+  savePipelineDeals();
+}
+
+function toggleDealTag(listingId, tagId) {
+  const deal = PIPELINE_DEALS[listingId];
+  if (!deal) return;
+  deal.tagIds = deal.tagIds || [];
+  deal.tagIds = deal.tagIds.includes(tagId) ? deal.tagIds.filter(t => t !== tagId) : [...deal.tagIds, tagId];
+  savePipelineDeals();
+}
+
+// Resolves every stored deal against MERGED_LISTINGS by id, same
+// "drop silently if no longer tracked" pattern reminderRowHtml()/
+// renderDashboardReminders() already use - a merged_listings row can be
+// deleted outright when a group's membership changes (sync_to_supabase.py's
+// delete_stale_merged_listings()), and a deal outlives the listing it was
+// added for.
+function resolvedPipelineDeals() {
+  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
+  return Object.entries(PIPELINE_DEALS)
+    .map(([listingId, deal]) => ({ listing: byId.get(listingId), deal, listingId }))
+    .filter(row => row.listing);
+}
+
+function pipelineStageCounts() {
+  const counts = {};
+  PIPELINE_STAGES.forEach(s => { counts[s.id] = 0; });
+  resolvedPipelineDeals().forEach(({ deal }) => {
+    counts[deal.stageId] = (counts[deal.stageId] || 0) + 1;
+  });
+  return counts;
+}
 
 let currentPage = 1;
 let detailSourceIndex = 0;
@@ -3068,6 +3463,69 @@ function describeLeadGenerator(gen) {
   return lines;
 }
 
+// "Tracked since" proxy for a listing's own first-seen date - same source
+// sourceListedMetaHtml() already uses for the multi-portal badge row's
+// "Tracked since" fallback (backlog item 9). Used here to work out whether
+// a Lead Generator match is "new since last check".
+function listingFirstSeenDate(l) {
+  return Array.isArray(l.price_history) && l.price_history.length > 0 && l.price_history[0].date
+    ? l.price_history[0].date
+    : null;
+}
+
+// Green "total matches" / orange "new since last check" badge pair
+// (property-filter-spec.md section 2). Total mirrors the default Leads view
+// (sold listings excluded, "Exclude sold" defaults to checked there) so the
+// count a user sees on the card is the same one they'll see after clicking
+// "Check Leads". "New" = matches first seen after this generator's
+// lastCheckedAt (never checked yet = every current match counts as new,
+// same as Property Filter's own described badge behavior for a
+// never-opened saved search).
+function computeLeadGenCounts(gen) {
+  let total = 0, fresh = 0;
+  MERGED_LISTINGS.forEach(l => {
+    if (l.status === 'sold') return;
+    if (!matchesLeadGenerator(l, gen)) return;
+    total++;
+    const firstSeen = listingFirstSeenDate(l);
+    if (!gen.lastCheckedAt || (firstSeen && new Date(firstSeen) > new Date(gen.lastCheckedAt))) fresh++;
+  });
+  return { total, fresh };
+}
+
+// Sale-type tab (property-filter-spec.md section 2: "tabs All / For Sale /
+// To Rent / For Sale & To Rent"). Every listing imotenradar currently
+// scrapes is a for-sale advert - rental scraping is explicitly Parked in
+// docs/backlog.md (under 400 usable listings nationwide) - so gen.saleType
+// defaults to 'sale' for every generator and there is no real per-listing
+// rent/sale field to filter against yet. This tab genuinely filters the
+// *generators themselves* by how the user tagged them (forward-compatible
+// for whenever rental data exists), not a fake filter over listing data
+// that doesn't exist.
+function leadGenMatchesSaleTypeTab(gen, tab) {
+  const saleType = gen.saleType || 'sale';
+  if (tab === 'all') return true;
+  if (tab === 'both') return saleType === 'both';
+  return saleType === tab || saleType === 'both';
+}
+
+let leadgenSaleTypeTab = 'all';
+let leadgenSortBy = 'matches-desc';
+
+function sortedFilteredLeadGenerators() {
+  const rows = LEAD_GENERATORS
+    .filter(gen => leadGenMatchesSaleTypeTab(gen, leadgenSaleTypeTab))
+    .map(gen => ({ gen, counts: computeLeadGenCounts(gen) }));
+  const cmp = {
+    'matches-desc': (a, b) => b.counts.total - a.counts.total,
+    'new-desc': (a, b) => b.counts.fresh - a.counts.fresh,
+    'name-asc': (a, b) => a.gen.name.localeCompare(b.gen.name),
+    'created-desc': (a, b) => new Date(b.gen.createdAt) - new Date(a.gen.createdAt),
+  }[leadgenSortBy] || (() => 0);
+  rows.sort(cmp);
+  return rows;
+}
+
 function renderLeadGenGallery() {
   const grid = document.getElementById('leadgenGrid');
   document.getElementById('leadgenCount').textContent =
@@ -3078,6 +3536,10 @@ function renderLeadGenGallery() {
   // pointing at DOM nodes no longer in the tree) - tear them down first.
   teardownLeadgenMiniMaps();
 
+  document.querySelectorAll('.leadgen-saletype-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === leadgenSaleTypeTab));
+  const sortSelect = document.getElementById('leadgenSortBy');
+  if (sortSelect) sortSelect.value = leadgenSortBy;
+
   if (LEAD_GENERATORS.length === 0) {
     grid.innerHTML = `
       <button class="leadgen-add-tile" id="leadgenAddTile"><span class="plus-icon">+</span> Add New Lead Generator</button>
@@ -3086,17 +3548,30 @@ function renderLeadGenGallery() {
     return;
   }
 
-  const cardsHtml = LEAD_GENERATORS.map(gen => {
+  const rows = sortedFilteredLeadGenerators();
+
+  if (rows.length === 0) {
+    grid.innerHTML = `<p class="leadgen-empty">No lead generators match this tab yet.${leadgenSaleTypeTab === 'rent' ? ' Rental listings aren’t scraped yet (see the backlog’s Parked section), so a "To Rent" generator won’t find any matches until that changes.' : ''}</p>`;
+    return;
+  }
+
+  const cardsHtml = rows.map(({ gen, counts }) => {
     const lines = describeLeadGenerator(gen);
     const types = (gen.filters.propertyTypes && gen.filters.propertyTypes.length)
       ? gen.filters.propertyTypes : ['apartment', 'house', 'land', 'commercial'];
+    const saleTypeLabel = { sale: 'For Sale', rent: 'To Rent', both: 'For Sale & To Rent' }[gen.saleType || 'sale'];
     return `
       <div class="leadgen-card">
         <div class="leadgen-card-body">
+          <div class="leadgen-badge-row">
+            <span class="leadgen-badge leadgen-badge-total" title="Current matches, sold listings excluded">${fmt(counts.total)} match${counts.total === 1 ? '' : 'es'}</span>
+            <span class="leadgen-badge leadgen-badge-new" title="Matches first seen since you last checked this generator">${fmt(counts.fresh)} new</span>
+          </div>
           <h3>${escapeHtml(gen.name)}</h3>
           ${lines.map(l => `<p class="leadgen-summary-line">${escapeHtml(l)}</p>`).join('')}
           <div id="leadgenMap-${gen.id}" class="leadgen-mini-map"></div>
           <div class="leadgen-type-row">
+            <span class="leadgen-type-badge leadgen-saletype-badge">${saleTypeLabel}</span>
             ${types.map(t => `<span class="leadgen-type-badge">${escapeHtml(t)}</span>`).join('')}
           </div>
         </div>
@@ -3104,6 +3579,7 @@ function renderLeadGenGallery() {
         <div class="leadgen-icon-row">
           <button class="leadgen-icon-btn" data-edit-id="${gen.id}" title="Edit">✏️</button>
           <button class="leadgen-icon-btn" data-dup-id="${gen.id}" title="Duplicate">⧉</button>
+          <button class="leadgen-icon-btn" data-share-id="${gen.id}" title="Share">🔗</button>
           <button class="leadgen-icon-btn danger" data-del-id="${gen.id}" title="Delete">🗑</button>
         </div>
       </div>
@@ -3122,8 +3598,13 @@ function renderLeadGenGallery() {
   grid.querySelectorAll('[data-check-id]').forEach(btn => btn.addEventListener('click', () => checkLeads(btn.dataset.checkId)));
   grid.querySelectorAll('[data-edit-id]').forEach(btn => btn.addEventListener('click', () => openLeadGenModal(btn.dataset.editId)));
   grid.querySelectorAll('[data-dup-id]').forEach(btn => btn.addEventListener('click', () => duplicateLeadGenerator(btn.dataset.dupId)));
+  grid.querySelectorAll('[data-share-id]').forEach(btn => btn.addEventListener('click', () => shareLeadGenerator(btn.dataset.shareId)));
   grid.querySelectorAll('[data-del-id]').forEach(btn => btn.addEventListener('click', () => deleteLeadGenerator(btn.dataset.delId)));
 
+  // renderLeadgenMiniMaps() iterates every LEAD_GENERATORS entry but
+  // renderLeadgenMiniMap() itself no-ops for any gen whose card wasn't
+  // actually rendered above (its `leadgenMap-<id>` container won't exist
+  // when the sale-type tab filtered it out) - safe to call unconditionally.
   // The leadgen gallery section may still be display:none at this point
   // (e.g. this render happened right after page load or from an edit made
   // while browsing another tab) - Leaflet can't size a map inside a hidden
@@ -3318,6 +3799,7 @@ function resetLeadGenModalFields() {
   document.getElementById('lgMinSqm').value = '';
   document.querySelectorAll('.lgPropertyType').forEach(cb => cb.checked = true);
   document.getElementById('lgCity').value = 'Sofia';
+  document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === 'sale'));
   document.getElementById('leadgenModalError').classList.remove('show');
   lgRadiusCenter = null;
   lgRadiusM = null;
@@ -3344,6 +3826,7 @@ function openLeadGenModal(genId) {
     document.getElementById('lgMaxPrice').value = gen.filters.maxPrice ?? '';
     document.getElementById('lgMinSqm').value = gen.filters.minSqm ?? '';
     document.getElementById('lgCity').value = gen.area.city || 'Sofia';
+    document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === (gen.saleType || 'sale')));
     const types = gen.filters.propertyTypes || [];
     document.querySelectorAll('.lgPropertyType').forEach(cb => {
       cb.checked = types.length === 0 || types.includes(cb.value);
@@ -3442,13 +3925,18 @@ function saveLeadGenFromModal() {
     area.polygon = lgPolygonLatLngs;
   }
 
+  const saleTypeBtn = document.querySelector('.lg-saletype-btn.active');
+  const saleType = saleTypeBtn ? saleTypeBtn.dataset.saletype : 'sale';
+
   const existing = editingLeadGeneratorId ? LEAD_GENERATORS.find(g => g.id === editingLeadGeneratorId) : null;
   const gen = {
     id: editingLeadGeneratorId || ('lg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
     name,
     createdAt: existing ? existing.createdAt : new Date().toISOString(),
+    lastCheckedAt: existing ? existing.lastCheckedAt : null,
     filters: { minPrice, maxPrice, minSqm, propertyTypes },
     area,
+    saleType,
   };
 
   if (editingLeadGeneratorId) {
@@ -3473,6 +3961,11 @@ function duplicateLeadGenerator(genId) {
   copy.id = 'lg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
   copy.name = gen.name + ' (copy)';
   copy.createdAt = new Date().toISOString();
+  // A duplicate is a fresh saved search from this point on - starts
+  // unchecked so its own "new" badge counts every current match, same as
+  // any other brand-new Lead Generator, rather than inheriting the
+  // original's lastCheckedAt.
+  copy.lastCheckedAt = null;
   LEAD_GENERATORS.push(copy);
   upsertLeadGenerator(copy);
   renderLeadGenGallery();
@@ -3502,9 +3995,85 @@ function checkLeads(genId) {
   document.getElementById('areaFilter').value = '';
   document.getElementById('leadgenBanner').style.display = 'flex';
   document.getElementById('leadgenBannerName').textContent = gen.name;
+  // "New since last check" (property-filter-spec.md sections 1/2/9) - the
+  // moment this generator's own results are actually opened counts as the
+  // check, same event Preferences > Notifications describes it keying off.
+  gen.lastCheckedAt = new Date().toISOString();
+  upsertLeadGenerator(gen);
+  if (document.getElementById('section-leadgen').classList.contains('active') ||
+      document.getElementById('section-dashboard').classList.contains('active')) {
+    renderLeadGenGallery();
+  }
   currentPage = 1;
   showSection('leads');
   render();
+}
+
+// Encodes a generator's filters/area/name/saleType (never its id, createdAt,
+// or lastCheckedAt - those are local bookkeeping, not part of the shareable
+// search definition) into a URL the same browser or a different one can
+// open to import a copy. No backend involved - this is a pure client-side
+// "export this search as a link" feature, consistent with the no-login
+// localStorage architecture everything else in this section uses.
+function shareLeadGenerator(genId) {
+  const gen = LEAD_GENERATORS.find(g => g.id === genId);
+  if (!gen) return;
+  const payload = { name: gen.name, filters: gen.filters, area: gen.area, saleType: gen.saleType || 'sale' };
+  let encoded;
+  try {
+    encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+  } catch (e) {
+    alert('Could not create a share link for this lead generator.');
+    return;
+  }
+  const url = `${location.origin}${location.pathname}#/import-leadgen/${encoded}`;
+  const done = () => alert(`Share link copied to clipboard:\n\n${url}\n\nAnyone who opens it (in this app) can import their own copy of "${gen.name}".`);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(done).catch(() => prompt('Copy this share link:', url));
+  } else {
+    prompt('Copy this share link:', url);
+  }
+}
+
+// Companion to shareLeadGenerator() - checked once on load and on every
+// hashchange (same routing style as the #/listing/<id> pattern already used
+// for the listing detail page). Imports as a brand-new generator (its own
+// id/createdAt/lastCheckedAt) rather than overwriting anything, so opening a
+// shared link never silently clobbers one of this browser's own saved
+// searches.
+function maybeImportSharedLeadGenerator() {
+  const m = location.hash.match(/^#\/import-leadgen\/(.+)$/);
+  if (!m) return;
+  history.replaceState('', document.title, window.location.pathname + window.location.search);
+  let payload;
+  try {
+    payload = JSON.parse(decodeURIComponent(atob(decodeURIComponent(m[1]))));
+  } catch (e) {
+    alert('This share link looks invalid or corrupted.');
+    return;
+  }
+  if (!payload || typeof payload.name !== 'string' || !payload.filters || !payload.area) {
+    alert('This share link looks invalid or corrupted.');
+    return;
+  }
+  if (LEAD_GENERATORS.length >= LEAD_GEN_MAX) {
+    alert(`You've reached the ${LEAD_GEN_MAX} lead generator limit. Delete one before importing another.`);
+    return;
+  }
+  if (!confirm(`Import shared Lead Generator "${payload.name}" as a new saved search?`)) return;
+  const gen = {
+    id: 'lg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    name: payload.name,
+    createdAt: new Date().toISOString(),
+    filters: payload.filters,
+    area: payload.area,
+    saleType: payload.saleType || 'sale',
+  };
+  LEAD_GENERATORS.push(gen);
+  upsertLeadGenerator(gen);
+  renderLeadGenGallery();
+  showSection('leadgen');
+  alert(`Imported "${gen.name}" - it's now in your Lead Generators list.`);
 }
 
 function clearActiveLeadGenerator(skipRender) {
@@ -3514,6 +4083,367 @@ function clearActiveLeadGenerator(skipRender) {
   document.getElementById('maxPrice').value = '';
   document.getElementById('minSqm').value = '';
   if (!skipRender) renderFromStart();
+}
+
+// --- Deal Pipeline board (property-filter-spec.md section 3) -----------
+// Design note (docs/design-guidelines.md section 9, anti-patterns 1-2):
+// Property Filter's own pipeline cards use a dense 2x3 icon-grid of stats
+// plus saturated multi-color status/price-change ribbons - both explicitly
+// named anti-patterns for this rebuild. The content below is the same
+// (status, price change, listing date, photo, price, price/m², address,
+// beds, floor area, distance-when-known - EPC and the yield-like % are
+// excluded per docs/backlog.md item 10's own scope note), just presented as
+// small-caps muted text labels and plain inline facts instead of ribbons/
+// icon grids, matching the restrained treatment already applied to the
+// listing detail page (backlog item 9). "Floor level" from the spec's card
+// list isn't included - no scraper captures it, see this PR's handoff for
+// the flagged data gap. "Distance" only renders when the deal's own Lead
+// Generator was saved in radius mode (the only case with a real reference
+// point to measure from in a login-free, no-fixed-location context) -
+// otherwise it's silently omitted rather than measured from an arbitrary
+// point.
+function pipelineStatusLabel(l) {
+  if (l.status === 'sold') return 'Sold';
+  if (l.source_status === 'removed') return 'Removed';
+  return `Active${l.days_on_market != null ? ' · ' + fmt(l.days_on_market) + 'd' : ''}`;
+}
+
+function pipelinePriceChangeLabel(l) {
+  if (!(l.drop_pct > 0)) return '';
+  const dropCount = l.price_drop_count ?? 0;
+  return `Reduced ${l.drop_pct}%${dropCount > 0 ? ` · ${dropCount} ${dropCount === 1 ? 'drop' : 'drops'}` : ''}`;
+}
+
+// Distance from the deal's originating Lead Generator's saved radius-mode
+// center, if it has one - the only case in this no-login app with an
+// unambiguous "distance from what" answer. See the block comment above.
+function pipelineDistanceLabel(l, deal) {
+  if (!deal.leadGenId || l.lat == null || l.lng == null) return null;
+  const gen = LEAD_GENERATORS.find(g => g.id === deal.leadGenId);
+  if (!gen || !gen.area || gen.area.mode !== 'radius' || !gen.area.center) return null;
+  const km = haversineKm(gen.area.center.lat, gen.area.center.lng, l.lat, l.lng);
+  return `${km < 1 ? Math.round(km * 1000) + 'm' : km.toFixed(1) + 'km'} from search point`;
+}
+
+function pipelineTagChipsHtml(deal) {
+  const tagIds = deal.tagIds || [];
+  if (tagIds.length === 0) return '';
+  return `<div class="pl-tag-chip-row">${tagIds.map(tid => {
+    const tag = PIPELINE_TAGS.find(t => t.id === tid);
+    if (!tag) return '';
+    return `<span class="pl-tag-chip" style="background:${escapeHtml(tag.color || '#efe9dc')};">${tag.icon || ''} ${escapeHtml(tag.name)}</span>`;
+  }).join('')}</div>`;
+}
+
+function pipelineFilteredDeals() {
+  const q = pipelineSearchQuery.trim().toLowerCase();
+  return resolvedPipelineDeals().filter(({ listing, deal }) => {
+    if (pipelineActiveStage !== 'all' && deal.stageId !== pipelineActiveStage) return false;
+    if (pipelineTagFilter && !(deal.tagIds || []).includes(pipelineTagFilter)) return false;
+    if (pipelineGenFilter && deal.leadGenId !== pipelineGenFilter) return false;
+    if (q && !(`${listing.title || ''} ${listing.area || ''}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function renderPipelineStageTabs() {
+  const counts = pipelineStageCounts();
+  const totalAll = Object.values(counts).reduce((a, b) => a + b, 0);
+  const tabs = [{ id: 'all', name: 'All', icon: '' }, ...PIPELINE_STAGES];
+  document.getElementById('plStageTabs').innerHTML = tabs.map(s => `
+    <button type="button" class="pl-stage-tab${pipelineActiveStage === s.id ? ' active' : ''}" data-stage-tab="${s.id}">
+      ${s.icon ? escapeHtml(s.icon) + ' ' : ''}${escapeHtml(s.name)} <span class="pl-stage-tab-count">${fmt(s.id === 'all' ? totalAll : (counts[s.id] || 0))}</span>
+    </button>
+  `).join('');
+  document.querySelectorAll('#plStageTabs [data-stage-tab]').forEach(btn => {
+    btn.addEventListener('click', () => { pipelineActiveStage = btn.dataset.stageTab; renderPipeline(); });
+  });
+}
+
+function populatePipelineFilterSelects() {
+  const tagSel = document.getElementById('plTagFilter');
+  tagSel.innerHTML = '<option value="">All tags</option>' +
+    PIPELINE_TAGS.map(t => `<option value="${t.id}">${escapeHtml(t.icon || '')} ${escapeHtml(t.name)}</option>`).join('');
+  tagSel.value = pipelineTagFilter;
+  const genSel = document.getElementById('plGenFilter');
+  genSel.innerHTML = '<option value="">All lead generators</option>' +
+    LEAD_GENERATORS.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('');
+  genSel.value = pipelineGenFilter;
+}
+
+function createPipelineCard(listing, deal) {
+  const l = listing;
+  const distanceLabel = pipelineDistanceLabel(l, deal);
+  const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
+  const photoHtml = l.photo
+    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
+    : '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo available</span></div>';
+  const listedLabel = listingFirstSeenDate(l) ? shortDateLabel(listingFirstSeenDate(l)) : null;
+  const priceChange = pipelinePriceChangeLabel(l);
+  return `
+    <div class="pl-card-item">
+      <div class="listing-link" data-listing-id="${l.id}">
+        ${photoHtml}
+        <div class="pl-card-body">
+          <p class="pl-status-line">${escapeHtml(pipelineStatusLabel(l))}${priceChange ? ' · ' + escapeHtml(priceChange) : ''}${listedLabel ? ' · Listed ' + listedLabel : ''}</p>
+          <p class="listing-title pl-card-title">${escapeHtml(l.title)}</p>
+          <p class="listing-area">📍 ${escapeHtml(l.area || '')}</p>
+          <div class="listing-price-row">
+            <span class="listing-price">€${fmt(l.price_eur)}</span>
+            <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+          </div>
+          <p class="pl-fact-line">${[
+            l.rooms ? `${l.rooms} room${l.rooms === 1 ? '' : 's'}` : null,
+            l.sqm ? `${l.sqm} m²` : null,
+            distanceLabel,
+          ].filter(Boolean).join(' · ') || '—'}</p>
+        </div>
+      </div>
+      <div class="pl-card-footer">
+        ${pipelineTagChipsHtml(deal)}
+        <div class="pl-card-controls">
+          <select class="pl-stage-select" data-listing-id="${l.id}">
+            ${PIPELINE_STAGES.map(s => `<option value="${s.id}" ${s.id === deal.stageId ? 'selected' : ''}>${s.icon || ''} ${escapeHtml(s.name)}</option>`).join('')}
+          </select>
+          <button type="button" class="pl-icon-btn" data-pl-tags-id="${l.id}" title="Tags">🏷</button>
+          <button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove from Pipeline">🗑</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPipelineCardView(rows) {
+  const el = document.getElementById('plCardView');
+  el.innerHTML = rows.map(({ listing, deal }) => createPipelineCard(listing, deal)).join('');
+  el.querySelectorAll('.pl-stage-select').forEach(sel => {
+    sel.addEventListener('change', () => { setDealStage(sel.dataset.listingId, sel.value); renderPipeline(); });
+  });
+  el.querySelectorAll('[data-pl-remove-id]').forEach(btn => {
+    btn.addEventListener('click', () => { removeFromPipeline(btn.dataset.plRemoveId); renderPipeline(); });
+  });
+  el.querySelectorAll('[data-pl-tags-id]').forEach(btn => {
+    btn.addEventListener('click', () => openPipelineTagPicker(btn.dataset.plTagsId, btn));
+  });
+}
+
+// A lightweight inline checklist popover rather than a full modal - toggling
+// a tag is a quick, frequent action and doesn't need its own dialog chrome.
+function openPipelineTagPicker(listingId, anchorBtn) {
+  document.querySelectorAll('.pl-tag-popover').forEach(p => p.remove());
+  if (PIPELINE_TAGS.length === 0) {
+    alert('No tags configured yet - add one via "Manage stages & tags".');
+    return;
+  }
+  const deal = PIPELINE_DEALS[listingId];
+  if (!deal) return;
+  const pop = document.createElement('div');
+  pop.className = 'pl-tag-popover';
+  pop.innerHTML = PIPELINE_TAGS.map(t => `
+    <label class="checkbox-item"><input type="checkbox" data-tag-id="${t.id}" ${((deal.tagIds || []).includes(t.id)) ? 'checked' : ''} /> ${t.icon || ''} ${escapeHtml(t.name)}</label>
+  `).join('');
+  anchorBtn.parentElement.appendChild(pop);
+  pop.querySelectorAll('input').forEach(cb => {
+    cb.addEventListener('change', () => { toggleDealTag(listingId, cb.dataset.tagId); renderPipeline(); });
+  });
+  setTimeout(() => {
+    document.addEventListener('click', function onDocClick(e) {
+      if (!pop.contains(e.target) && e.target !== anchorBtn) { pop.remove(); document.removeEventListener('click', onDocClick); }
+    });
+  }, 0);
+}
+
+function renderPipelineTableView(rows) {
+  const el = document.getElementById('plTableView');
+  el.innerHTML = `
+    <table class="pl-table">
+      <thead><tr>
+        <th>Stage</th><th>Photo</th><th>Title</th><th>Price</th><th>€/m²</th>
+        <th>Rooms</th><th>m²</th><th>Listed</th><th>Tags</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(({ listing: l, deal }) => {
+          const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
+          const listedLabel = listingFirstSeenDate(l) ? shortDateLabel(listingFirstSeenDate(l)) : '–';
+          return `<tr>
+            <td>${stage ? (stage.icon || '') + ' ' + escapeHtml(stage.name) : '–'}</td>
+            <td><img class="pl-table-photo" src="${l.photo || ''}" onerror="this.style.visibility='hidden'" /></td>
+            <td class="listing-link" data-listing-id="${l.id}">${escapeHtml(l.title)}</td>
+            <td>€${fmt(l.price_eur)}</td>
+            <td>${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) : '–'}</td>
+            <td>${l.rooms ?? '–'}</td>
+            <td>${l.sqm ?? '–'}</td>
+            <td>${listedLabel}</td>
+            <td>${(deal.tagIds || []).map(tid => { const t = PIPELINE_TAGS.find(x => x.id === tid); return t ? (t.icon || '') : ''; }).join(' ')}</td>
+            <td><button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove">🗑</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  el.querySelectorAll('[data-pl-remove-id]').forEach(btn => {
+    btn.addEventListener('click', () => { removeFromPipeline(btn.dataset.plRemoveId); renderPipeline(); });
+  });
+}
+
+function teardownPipelineMap() {
+  if (pipelineMap) { pipelineMap.remove(); pipelineMap = null; }
+}
+
+function renderPipelineMapView(rows) {
+  teardownPipelineMap();
+  const container = document.getElementById('plMapView');
+  if (typeof L === 'undefined') {
+    container.textContent = "Map unavailable (couldn't load the map library).";
+    return;
+  }
+  const located = rows.filter(({ listing: l }) => l.lat != null && l.lng != null);
+  pipelineMap = L.map(container).setView([42.6977, 23.3219], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(pipelineMap);
+  if (located.length === 0) return;
+  // Single restrained marker color (brass), not a per-stage rainbow of pins -
+  // consistent with docs/design-guidelines.md's one-accent-color rule.
+  const markers = located.map(({ listing: l, deal }) => {
+    const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
+    return L.circleMarker([l.lat, l.lng], { radius: 7, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.85, weight: 2 })
+      .bindPopup(`<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}<br>${stage ? escapeHtml(stage.name) : ''}`)
+      .addTo(pipelineMap);
+  });
+  pipelineMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
+}
+
+function csvEscape(v) {
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function exportPipelineCsv(rows) {
+  const header = ['Stage', 'Title', 'Address', 'Price EUR', 'Price per sqm', 'Rooms', 'Sqm', 'Listed', 'Tags', 'URL'];
+  const lines = [header.join(',')];
+  rows.forEach(({ listing: l, deal }) => {
+    const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
+    const tags = (deal.tagIds || []).map(tid => { const t = PIPELINE_TAGS.find(x => x.id === tid); return t ? t.name : ''; }).filter(Boolean).join('; ');
+    lines.push([
+      stage ? stage.name : '', l.title, l.area, l.price_eur, l.price_per_sqm ?? '', l.rooms ?? '', l.sqm ?? '',
+      listingFirstSeenDate(l) || '', tags, l.url || '',
+    ].map(csvEscape).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'imotenradar-pipeline-export.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function goToPipelineStage(stageId) {
+  pipelineActiveStage = stageId;
+  showSection('pipeline');
+}
+
+function renderPipeline() {
+  renderPipelineStageTabs();
+  populatePipelineFilterSelects();
+  const rows = pipelineFilteredDeals();
+  document.getElementById('plEmpty').style.display = rows.length === 0 ? 'block' : 'none';
+  document.getElementById('plCardView').style.display = pipelineViewMode === 'card' && rows.length > 0 ? 'grid' : 'none';
+  document.getElementById('plTableView').style.display = pipelineViewMode === 'table' && rows.length > 0 ? 'block' : 'none';
+  document.getElementById('plMapView').style.display = pipelineViewMode === 'map' && rows.length > 0 ? 'block' : 'none';
+  if (rows.length === 0) { teardownPipelineMap(); return; }
+  if (pipelineViewMode === 'card') renderPipelineCardView(rows);
+  else if (pipelineViewMode === 'table') renderPipelineTableView(rows);
+  else if (pipelineViewMode === 'map') renderPipelineMapView(rows);
+  else teardownPipelineMap();
+}
+
+// --- Pipeline stage/tag configuration modal -----------------------------
+function openPipelineConfigModal() {
+  renderPipelineConfigLists();
+  document.getElementById('plConfigModalOverlay').classList.add('open');
+}
+function closePipelineConfigModal() {
+  document.getElementById('plConfigModalOverlay').classList.remove('open');
+  renderPipeline();
+  renderDashPipelineActions();
+}
+
+function renderPipelineConfigLists() {
+  const stagesEl = document.getElementById('plStagesConfigList');
+  stagesEl.innerHTML = PIPELINE_STAGES.map((s, i) => `
+    <div class="pl-config-row" data-stage-row="${s.id}">
+      <input type="text" class="pl-config-icon" value="${escapeHtml(s.icon || '')}" maxlength="2" data-stage-icon="${s.id}" />
+      <input type="text" class="pl-config-name" value="${escapeHtml(s.name)}" data-stage-name="${s.id}" />
+      <button type="button" class="pl-icon-btn danger" data-remove-stage="${s.id}" title="Remove stage" ${PIPELINE_STAGES.length <= 1 ? 'disabled' : ''}>🗑</button>
+    </div>
+  `).join('');
+  stagesEl.querySelectorAll('[data-stage-icon]').forEach(inp => inp.addEventListener('input', () => {
+    const s = PIPELINE_STAGES.find(x => x.id === inp.dataset.stageIcon); if (s) { s.icon = inp.value; savePipelineStages(); }
+  }));
+  stagesEl.querySelectorAll('[data-stage-name]').forEach(inp => inp.addEventListener('input', () => {
+    const s = PIPELINE_STAGES.find(x => x.id === inp.dataset.stageName); if (s) { s.name = inp.value; savePipelineStages(); }
+  }));
+  stagesEl.querySelectorAll('[data-remove-stage]').forEach(btn => btn.addEventListener('click', () => removeStage(btn.dataset.removeStage)));
+
+  const tagsEl = document.getElementById('plTagsConfigList');
+  tagsEl.innerHTML = PIPELINE_TAGS.map(t => `
+    <div class="pl-config-row" data-tag-row="${t.id}">
+      <input type="text" class="pl-config-icon" value="${escapeHtml(t.icon || '')}" maxlength="2" data-tag-icon="${t.id}" />
+      <input type="text" class="pl-config-name" value="${escapeHtml(t.name)}" data-tag-name="${t.id}" />
+      <input type="color" class="pl-config-color" value="${t.color || '#efe9dc'}" data-tag-color="${t.id}" />
+      <button type="button" class="pl-icon-btn danger" data-remove-tag="${t.id}" title="Remove tag">🗑</button>
+    </div>
+  `).join('') || '<p class="pl-empty-inline">No tags yet.</p>';
+  tagsEl.querySelectorAll('[data-tag-icon]').forEach(inp => inp.addEventListener('input', () => {
+    const t = PIPELINE_TAGS.find(x => x.id === inp.dataset.tagIcon); if (t) { t.icon = inp.value; savePipelineTags(); }
+  }));
+  tagsEl.querySelectorAll('[data-tag-name]').forEach(inp => inp.addEventListener('input', () => {
+    const t = PIPELINE_TAGS.find(x => x.id === inp.dataset.tagName); if (t) { t.name = inp.value; savePipelineTags(); }
+  }));
+  tagsEl.querySelectorAll('[data-tag-color]').forEach(inp => inp.addEventListener('input', () => {
+    const t = PIPELINE_TAGS.find(x => x.id === inp.dataset.tagColor); if (t) { t.color = inp.value; savePipelineTags(); }
+  }));
+  tagsEl.querySelectorAll('[data-remove-tag]').forEach(btn => btn.addEventListener('click', () => removeTag(btn.dataset.removeTag)));
+}
+
+function addPipelineStage() {
+  const id = 'stage_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  PIPELINE_STAGES.push({ id, name: 'New stage', icon: '📌' });
+  savePipelineStages();
+  renderPipelineConfigLists();
+}
+
+function removeStage(stageId) {
+  if (PIPELINE_STAGES.length <= 1) return;
+  if (!confirm('Remove this stage? Deals in it will move to the first remaining stage.')) return;
+  PIPELINE_STAGES = PIPELINE_STAGES.filter(s => s.id !== stageId);
+  const fallbackId = PIPELINE_STAGES[0].id;
+  Object.values(PIPELINE_DEALS).forEach(deal => { if (deal.stageId === stageId) deal.stageId = fallbackId; });
+  savePipelineStages();
+  savePipelineDeals();
+  if (pipelineActiveStage === stageId) pipelineActiveStage = 'all';
+  renderPipelineConfigLists();
+}
+
+function addPipelineTag() {
+  const id = 'tag_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  PIPELINE_TAGS.push({ id, name: 'New tag', icon: '🏷', color: '#efe9dc' });
+  savePipelineTags();
+  renderPipelineConfigLists();
+}
+
+function removeTag(tagId) {
+  if (!confirm('Remove this tag? It will be unassigned from every deal.')) return;
+  PIPELINE_TAGS = PIPELINE_TAGS.filter(t => t.id !== tagId);
+  Object.values(PIPELINE_DEALS).forEach(deal => { if (deal.tagIds) deal.tagIds = deal.tagIds.filter(t => t !== tagId); });
+  savePipelineTags();
+  savePipelineDeals();
+  renderPipelineConfigLists();
 }
 
 function renderHome() {
@@ -3578,12 +4508,86 @@ function renderHomeChart() {
   });
 }
 
+// --- Home dashboard widgets (property-filter-spec.md section 1) ---------
+const START_HERE_DISMISSED_KEY = 'startHereDismissed';
+
+// Every task's "done" state is read straight off real app state, never a
+// separately-tracked checklist flag - so it stays honest even if the user
+// did the thing from somewhere other than this exact checklist link.
+function startHereTasks() {
+  return [
+    { label: 'Save a search as a Lead Generator', done: LEAD_GENERATORS.length > 0, go: () => showSection('leadgen') },
+    { label: 'Add a property to the Pipeline', done: Object.keys(PIPELINE_DEALS).length > 0, go: () => showSection('pipeline') },
+    { label: 'Save a listing or set a reminder', done: SAVED_LISTING_IDS.length > 0 || ALL_REMINDERS.length > 0, go: () => showSection('leads') },
+    { label: 'Check a Lead Generator for new leads', done: LEAD_GENERATORS.some(g => g.lastCheckedAt), go: () => showSection('leadgen') },
+    { label: 'Set up your Pipeline stages and tags', done: PIPELINE_TAGS.length > 0 || JSON.stringify(PIPELINE_STAGES) !== JSON.stringify(DEFAULT_PIPELINE_STAGES), go: () => { showSection('pipeline'); openPipelineConfigModal(); } },
+  ];
+}
+
+function renderStartHere() {
+  const card = document.getElementById('startHereCard');
+  if (localStorage.getItem(START_HERE_DISMISSED_KEY) === '1') {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  const tasks = startHereTasks();
+  document.getElementById('startHereList').innerHTML = tasks.map((t, i) => `
+    <li class="start-here-item${t.done ? ' done' : ''}">
+      <span class="start-here-check">${t.done ? '✓' : (i + 1)}</span>
+      <button type="button" class="start-here-label" data-task-index="${i}">${escapeHtml(t.label)}</button>
+    </li>
+  `).join('');
+  document.querySelectorAll('.start-here-label').forEach(btn => {
+    btn.addEventListener('click', () => tasks[parseInt(btn.dataset.taskIndex, 10)].go());
+  });
+}
+
+function renderDashLeadgenInbox() {
+  const el = document.getElementById('dashLeadgenInbox');
+  if (LEAD_GENERATORS.length === 0) {
+    el.innerHTML = `<p class="pl-empty-inline">No Lead Generators saved yet - <a href="#" id="dashLeadgenCreateLink">create your first one</a>.</p>`;
+    document.getElementById('dashLeadgenCreateLink').addEventListener('click', (e) => { e.preventDefault(); showSection('leadgen'); openLeadGenModal(null); });
+    return;
+  }
+  const rows = sortedFilteredLeadGenerators().slice(0, 5);
+  el.innerHTML = rows.map(({ gen, counts }) => `
+    <button type="button" class="dash-inbox-row" data-inbox-check-id="${gen.id}">
+      <span class="dash-inbox-name">${escapeHtml(gen.name)}</span>
+      <span class="leadgen-badge leadgen-badge-total">${fmt(counts.total)}</span>
+      <span class="leadgen-badge leadgen-badge-new">${fmt(counts.fresh)} new</span>
+    </button>
+  `).join('');
+  el.querySelectorAll('[data-inbox-check-id]').forEach(btn => btn.addEventListener('click', () => checkLeads(btn.dataset.inboxCheckId)));
+}
+
+function renderDashPipelineActions() {
+  const counts = pipelineStageCounts();
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  document.getElementById('dashPipelineSummary').textContent = `${fmt(total)} ${total === 1 ? 'property' : 'properties'} to check`;
+  const el = document.getElementById('dashPipelineActions');
+  if (PIPELINE_STAGES.length === 0) {
+    el.innerHTML = '<p class="pl-empty-inline">No pipeline stages configured.</p>';
+    return;
+  }
+  el.innerHTML = PIPELINE_STAGES.map(s => `
+    <button type="button" class="dash-inbox-row" data-stage-goto="${s.id}">
+      <span class="dash-inbox-name">${s.icon || ''} ${escapeHtml(s.name)}</span>
+      <span class="leadgen-badge leadgen-badge-total">${fmt(counts[s.id] || 0)}</span>
+    </button>
+  `).join('');
+  el.querySelectorAll('[data-stage-goto]').forEach(btn => btn.addEventListener('click', () => goToPipelineStage(btn.dataset.stageGoto)));
+}
+
 function renderDashboard() {
   // Fire-and-forget, same pattern as showListingDetail()'s lazy sources/
   // reminders fetch - renders once the network round-trip resolves rather
   // than blocking the rest of the (synchronous, already-loaded-data)
   // Dashboard render on it.
   loadDashboardReminders();
+  renderStartHere();
+  renderDashLeadgenInbox();
+  renderDashPipelineActions();
 
   // A sold listing can't be acted on anymore, so it has no business in a
   // "hottest deals right now" ranking even if its frozen score is high.
@@ -3720,8 +4724,10 @@ function createListingCard(l) {
     : photoPlaceholderHtml;
 
   const saved = isListingSaved(l.id);
+  const inPipeline = isInPipeline(l.id);
   card.innerHTML = `
     <button class="save-listing-btn${saved ? ' saved' : ''}" data-save-id="${l.id}" title="${saved ? 'Remove from Dashboard' : 'Save to Dashboard'}">${saved ? '★' : '☆'}</button>
+    <button class="pipeline-listing-btn${inPipeline ? ' added' : ''}" data-pipeline-id="${l.id}" title="${inPipeline ? 'In Pipeline (click to remove)' : 'Add to Pipeline'}">${inPipeline ? '✓' : '＋'}</button>
     <div class="listing-link" data-listing-id="${l.id}">
       ${photoHtml}
       <div class="listing-body">
@@ -4461,10 +5467,18 @@ function renderListingDetail(merged) {
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
           <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
           <button class="detail-secondary-btn" id="reminderBtn">🔔 Remind me</button>
+          ${isInPipeline(merged.id) ? `
+            <select class="pl-stage-select" id="detailPipelineStageSelect" data-listing-id="${merged.id}">
+              ${PIPELINE_STAGES.map(s => `<option value="${s.id}" ${s.id === PIPELINE_DEALS[merged.id].stageId ? 'selected' : ''}>${s.icon || ''} ${escapeHtml(s.name)}</option>`).join('')}
+            </select>
+            <button class="detail-secondary-btn" id="detailPipelineRemoveBtn" data-listing-id="${merged.id}">Remove from Pipeline</button>
+          ` : `
+            <button class="detail-secondary-btn" id="detailPipelineAddBtn" data-listing-id="${merged.id}">+ Add to Pipeline</button>
+          `}
         </div>
         ${renderListingReminders(merged)}
         <div class="detail-stats">
@@ -4544,6 +5558,23 @@ function renderListingDetail(merged) {
 
   document.getElementById('compareBtn').addEventListener('click', () => openCompareModal(merged));
   document.getElementById('reminderBtn').addEventListener('click', () => openReminderModal(merged));
+
+  const detailPlAddBtn = document.getElementById('detailPipelineAddBtn');
+  if (detailPlAddBtn) detailPlAddBtn.addEventListener('click', () => {
+    addToPipeline(detailPlAddBtn.dataset.listingId, null, activeLeadGenerator ? activeLeadGenerator.id : null);
+    updatePipelineButtonsFor(detailPlAddBtn.dataset.listingId);
+    renderListingDetail(merged);
+  });
+  const detailPlRemoveBtn = document.getElementById('detailPipelineRemoveBtn');
+  if (detailPlRemoveBtn) detailPlRemoveBtn.addEventListener('click', () => {
+    removeFromPipeline(detailPlRemoveBtn.dataset.listingId);
+    updatePipelineButtonsFor(detailPlRemoveBtn.dataset.listingId);
+    renderListingDetail(merged);
+  });
+  const detailPlStageSelect = document.getElementById('detailPipelineStageSelect');
+  if (detailPlStageSelect) detailPlStageSelect.addEventListener('change', () => {
+    setDealStage(detailPlStageSelect.dataset.listingId, detailPlStageSelect.value);
+  });
 
   const descToggleBtn = document.getElementById('detailDescToggle');
   if (descToggleBtn) {
@@ -4694,6 +5725,8 @@ function showSection(name) {
     renderLeadgenMiniMaps();
   } else if (name === 'dashboard') {
     renderDashboard();
+  } else if (name === 'pipeline') {
+    renderPipeline();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -4817,11 +5850,90 @@ document.getElementById('lgRadiusCustom').addEventListener('input', () => {
   updateLgRadiusCircle();
 });
 
-// No login/session to wait on - saved listings and lead generators load
-// straight from this browser's localStorage. loadLeadGenerators() renders
-// the gallery itself once loaded.
+document.querySelectorAll('.lg-saletype-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+document.getElementById('leadgenSaleTypeTabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.leadgen-saletype-tab-btn');
+  if (!btn) return;
+  leadgenSaleTypeTab = btn.dataset.saletype;
+  renderLeadGenGallery();
+});
+document.getElementById('leadgenSortBy').addEventListener('change', (e) => {
+  leadgenSortBy = e.target.value;
+  renderLeadGenGallery();
+});
+
+window.addEventListener('hashchange', maybeImportSharedLeadGenerator);
+
+// --- Deal Pipeline wiring ------------------------------------------------
+document.getElementById('plConfigBtn').addEventListener('click', openPipelineConfigModal);
+document.getElementById('plConfigModalCloseBtn').addEventListener('click', closePipelineConfigModal);
+document.getElementById('plConfigDoneBtn').addEventListener('click', closePipelineConfigModal);
+document.getElementById('plConfigModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'plConfigModalOverlay') closePipelineConfigModal();
+});
+document.getElementById('plAddStageBtn').addEventListener('click', addPipelineStage);
+document.getElementById('plAddTagBtn').addEventListener('click', addPipelineTag);
+
+document.getElementById('plSearch').addEventListener('input', (e) => { pipelineSearchQuery = e.target.value; renderPipeline(); });
+document.getElementById('plTagFilter').addEventListener('change', (e) => { pipelineTagFilter = e.target.value; renderPipeline(); });
+document.getElementById('plGenFilter').addEventListener('change', (e) => { pipelineGenFilter = e.target.value; renderPipeline(); });
+document.getElementById('plViewToggle').addEventListener('click', (e) => {
+  const exportBtn = e.target.closest('#plExportBtn');
+  if (exportBtn) { exportPipelineCsv(pipelineFilteredDeals()); return; }
+  const btn = e.target.closest('.pl-view-btn[data-view]');
+  if (!btn) return;
+  pipelineViewMode = btn.dataset.view;
+  document.querySelectorAll('.pl-view-btn[data-view]').forEach(b => b.classList.toggle('active', b === btn));
+  renderPipeline();
+});
+
+document.getElementById('startHereDismissBtn').addEventListener('click', () => {
+  localStorage.setItem(START_HERE_DISMISSED_KEY, '1');
+  renderStartHere();
+});
+document.getElementById('dashLeadgenViewAllBtn').addEventListener('click', () => showSection('leadgen'));
+document.getElementById('dashPipelineViewAllBtn').addEventListener('click', () => { pipelineActiveStage = 'all'; showSection('pipeline'); });
+
+// Quick add/remove from any listing card's ＋ button (mirrors the existing
+// ★/☆ save-listing-btn global click handler just above).
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.pipeline-listing-btn');
+  if (!btn) return;
+  const id = btn.dataset.pipelineId;
+  if (isInPipeline(id)) {
+    removeFromPipeline(id);
+  } else {
+    addToPipeline(id, null, activeLeadGenerator ? activeLeadGenerator.id : null);
+  }
+  updatePipelineButtonsFor(id);
+  if (document.getElementById('section-pipeline').classList.contains('active')) renderPipeline();
+});
+
+function updatePipelineButtonsFor(id) {
+  const inPipeline = isInPipeline(id);
+  document.querySelectorAll('.pipeline-listing-btn').forEach(btn => {
+    if (btn.dataset.pipelineId !== id) return;
+    btn.classList.toggle('added', inPipeline);
+    btn.textContent = inPipeline ? '✓' : '＋';
+    btn.title = inPipeline ? 'In Pipeline (click to remove)' : 'Add to Pipeline';
+  });
+}
+
+// No login/session to wait on - saved listings, lead generators, and the
+// Deal Pipeline's stages/tags/deals load straight from this browser's own
+// localStorage. loadLeadGenerators() renders the gallery itself once loaded.
 loadSavedListings();
 loadLeadGenerators();
+loadPipelineStages();
+loadPipelineTags();
+loadPipelineDeals();
+maybeImportSharedLeadGenerator();
 
 setGreeting();
 loadData();
