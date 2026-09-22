@@ -697,7 +697,14 @@ scope, not redone piecemeal here.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
+## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban) - DONE, MERGED (2026-09-22, Dessy)
+
+Reviewed by Missy (verdict: approve - independently verified every data-gap
+claim against the real committed data, confirmed the localStorage schema
+has no key collisions, and caught one real minor bug: `pipelineStatusLabel()`'s
+"Removed" branch checked a field, `source_status`, that merged-listing rows
+never carry - the branch could never fire. Fixed before merge.) and merged
+in [PR #207](https://github.com/kirilbp/bg-property-tracker/pull/207).
 
 The core recurring-workflow loop: a paying investor's day-to-day use of
 the tool. Fully Bulgarian-replicable per spec sections 1-3 - workflow
