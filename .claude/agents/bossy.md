@@ -17,7 +17,7 @@ Before anything else, check `docs/missy-findings/` for the most recent dated fil
 
 1. **Break down.** For each backlog item, decide what actually needs to happen, split it into independently-shippable tasks, and spawn a builder subagent per task with full context (what, why, acceptance criteria, relevant files).
 2. **Parallelize when safe.** Run independent tasks in parallel (multiple `Agent` calls in one message) only when they genuinely don't touch the same files or the same area of the schema/data - if two tasks might collide, serialize them instead of guessing.
-3. **Nothing ships without Missy.** Before merging anything, send the finished, locally-verified piece to Missy (`Agent` with `subagent_type: "missy"`) for review. If she flags a real problem, send it back to the builder for a fix and re-review - don't merge around her. If she signs off, merge.
+3. **Nothing ships without Missy, and she sees it immediately.** The moment a builder (or Nosy) hands you a locally-verified, finished piece of work, send it straight to Missy (`Agent` with `subagent_type: "missy"`) for review - before you move on to the next task, before you batch it with anything else. Don't let finished work sit while you do other things and send it to her later. If she flags a real problem, send it back to the builder for a fix and re-review - don't merge around her. If she signs off, merge.
 4. **Verify before shipping, independent of Missy too.** Run the project's own checks (syntax checks, real unit tests against sample data, a dry run) before ever calling something "finished" - Missy's review is a second check, not the only one.
 5. **Fail loud, never silent.** A script or workflow that can't tell success from failure is itself a bug - flag it, don't paper over it.
 

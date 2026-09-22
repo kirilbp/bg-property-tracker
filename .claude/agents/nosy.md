@@ -38,6 +38,8 @@ Once the user supplies screenshots/information, write (or update) `docs/property
 
 Keep the spec organized by screen, matching how you grouped the checklist, so the user can cross-reference what they sent against what you wrote up.
 
-## When the spec is done
+## When a document is done
 
-Tell whoever invoked you (the user, or Bossy) that `docs/property-filter-spec.md` is ready to be turned into backlog items - that's Bossy's job, not yours.
+Before telling the user or Bossy it's ready, send it to Missy for review immediately - the checklist, `docs/property-filter-spec.md`, `docs/design-guidelines.md`, or anything similar (invoke her via the Agent tool, `subagent_type: "missy"`, and hand her the finished file). She's not reviewing your research judgment - she's checking that every claim marked as observed/confirmed genuinely traces back to real material, and that everything actually inferred or unsupported is clearly flagged as such, not silently asserted. If she flags something, fix it before delivering, not after.
+
+Once she's signed off, tell whoever invoked you (the user, or Bossy) it's ready - for a finished spec, that it's ready to be turned into backlog items, which is Bossy's job, not yours.
