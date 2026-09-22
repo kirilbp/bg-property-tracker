@@ -467,10 +467,18 @@ itself proposed below: server-side filtered pagination and
 `findComparables()`'s radius-search logic are NOT touched here - see the
 "Slice 2, explicitly not attempted" note at the end of this entry.
 
-Real numbers used below are from `measure_listings_payload.py` (this
-same script, re-dispatched fresh today rather than trusting PR #202's
-numbers as still current) - see the decisions.md entry for the exact
-run link and output.
+Real numbers used below are from `measure_listings_payload.py`,
+re-dispatched fresh today against this fix's own branch (not trusted
+from PR #202's earlier same-day run) -
+[run 35761063592](https://github.com/kirilbp/bg-property-tracker/actions/runs/35761063592),
+completed successfully: `select(*)` (today's code) 1,256 bytes/row,
+~257.4 MB / 215 sequential round trips; narrowed `select()` (this fix)
+836 bytes/row, ~171.3 MB, same 215 round trips - **33.4% payload
+reduction**, matching PR #202's number almost exactly (a useful
+independent cross-check). Round-trip count is unchanged by narrowing
+alone in either run - that's the caching layer's job, verified
+separately (see below and the decisions.md entry for the exact
+methodology).
 
 **What shipped in `index.html`:**
 1. **Narrowed the bulk `merged_listings` select()** (`fetchAllRows()` /

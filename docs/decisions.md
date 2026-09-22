@@ -1106,3 +1106,178 @@ entries have flagged) - could not dispatch to Missy directly. All of the
 above is filed in `docs/backlog.md` (items 20-22) for her/Bossy's
 attention rather than self-certified; nothing here has been merged or
 treated as reviewed.
+
+### 2026-09-22 - Backlog item 6 slice 1 implemented: narrowed bulk select, real IndexedDB cache, lazy per-listing fetch of the heavy columns
+
+Picked up the dispatch this entry's earlier same-day sibling ("Site
+performance (backlog item 6): root-caused, deliberately not implemented
+this session") left open, plus PR #202's real live measurements (docs-
+only, open, unmerged at the time this started - read for context, not
+assumed merged). Implemented exactly the two-slice split that entry
+proposed: slice 1 only (narrow `select()` + caching + lazy per-listing
+fetch of the dropped columns), explicitly not slice 2 (server-side
+filtered pagination, `findComparables()`'s radius-search logic).
+
+**Collision check before touching anything**: `git status`/`git log`
+showed a clean working tree on `placy/location-allocation-fixes`
+(Placy's own commit `27d6c48` already landed, local-only, not yet
+pushed) with two files (`data/leads_homes.json`, `geo_utils.py`)
+showing live uncommitted changes from a concurrently-running session
+partway through this work - left both completely untouched per the
+standing collision rule, and built this change in its own git worktree
++ branch (`bossy/backlog-6-fast-loads`, based on `origin/main`, not on
+top of Placy's uncommitted work or her unpushed commit) rather than
+committing from the shared working directory at all, so there was no
+risk of dragging her in-flight, unreviewed changes into this PR. Verified
+after the fact by diffing this PR's actual `docs/backlog.md`/`index.html`
+changes against `27d6c48` (the base commit before any of this session's
+edits) to confirm the patch carried only this session's own edits, not
+Placy's already-committed item 20/21 backlog additions that happen to
+live in the same file.
+
+**What shipped** (`index.html`): see `docs/backlog.md` item 6's own
+status section for the full description of `MERGED_LISTINGS_BULK_
+COLUMNS`, the IndexedDB cache (`imotenradarListingsCache`, 45-minute
+TTL), and the extended `showListingDetail()` lazy fetch - not repeated
+here. One design-fork worth recording: `synthesizeSingleSource()`
+shallow-copies the merged row into a "source" object at listing-detail-
+open time, before the async lazy fetch of `description`/`photos`/
+`price_history` resolves - so simply `Object.assign(merged, data)` after
+the fetch would NOT have updated the already-created single-source
+object the detail page actually renders from (a stale-photo-carousel
+bug, not a crash - would have silently kept showing the old, empty
+state). Fixed by re-running `synthesizeSingleSource(merged)` after the
+fetch resolves, but only when the listing is genuinely single-source
+(`merged.sources.length === 1 && merged._sourcesFetched !== true`) - a
+cross-posted listing's real per-source rows come from `listing_sources`
+and already carry their own values, so re-synthesizing there would have
+thrown away real, already-fetched, possibly-different per-portal data.
+Caught this by the `vm` harness test asserting
+`m1.sources[0].description` specifically, not just `merged.description` -
+an earlier version of the fix that only checked the latter passed a
+weaker test and would have shipped this bug.
+
+**Known, deliberately-accepted degradation, not silently absorbed**
+(full reasoning, not just the what): narrowing the bulk fetch means
+`buildBadgesHtml()`'s "Relisted" badge, the "Most recently reduced" sort
+option, and `listingMatchesSearch()`'s description-substring match all
+read `l.price_history`/`s.description` straight off the bulk list for
+every row, not just the one being viewed - so until a listing's detail
+page has been opened at least once this session, these three see the
+same graceful "no history recorded" state every one of these functions
+already handles for a listing with no history at all. Options
+considered and rejected: (a) keep `price_history`/`description` in the
+bulk select anyway - directly contradicts the explicit fix scope and
+would blunt the real, measured payload win (833 vs. 1,256 bytes/row
+compares narrowing all three columns out, not two of three); (b) add a
+small precomputed `last_reduction_at`/`relisted` column server-side to
+close the gap without the jsonb payload - rejected for this slice
+specifically because it would need a schema migration + a live sync run
+to actually exist on the production table, the exact same landmine
+already flagged for `area_key` (item 18) - a second not-yet-migrated
+column this fix would then silently depend on is a worse failure mode
+than an honestly-documented feature gap; (c) have the caching layer
+opportunistically background-fetch the heavy columns for cached
+listings - rejected as directly undermining this fix's own round-trip
+reduction goal (would reintroduce many more sequential requests, the
+exact thing being fixed). Chose to ship the narrowing as scoped and
+document the trade-off plainly instead, consistent with how every other
+caveat in this backlog gets handled (e.g. item 9's `removed_at`
+caveat) rather than silently smoothed over.
+
+**Also fixed, needed to actually verify this fix**:
+`measure_listings_payload.py`'s `get_total_count()`/`measure()` were
+missing an already-written, already-tested fallback for the
+`Prefer: count=exact` statement-timeout landmine (present on the
+`diagnostic/measure-listings-payload` branch as commits `e439ba5`/
+`252a032`, and independently also present in Placy's local-only
+`27d6c48`, but absent from `origin/main`'s committed version, `b3a3037` -
+apparently never merged from either place). Confirmed live: dispatching
+the unmodified `main` version of this script today reproduced the exact
+same `57014` crash rather than falling back gracefully. Restored the
+already-proven fix (byte-for-byte the same as the diagnostic branch's
+working version) rather than re-deriving it. Also found and fixed a
+second, closely-related gap the same way: `NARROW_COLUMNS` on `main`
+still included `area_key` (removed on the diagnostic branch and,
+separately, in Placy's local-only `27d6c48`, but likewise never merged
+to `main`) - a live dispatch against the fix-in-progress reproduced
+exactly the `column merged_listings.area_key does not exist` error this
+was already known to cause, confirmed by checking it byte-for-byte
+matches `index.html`'s own `MERGED_LISTINGS_BULK_COLUMNS` after the fix.
+Both are small, already-vetted restorations, not new authoring - filed
+here rather than left as a silent detour, since a future reader diffing
+this PR against `main` will otherwise wonder why an unrelated-looking
+`measure_listings_payload.py` change is included.
+
+**Real measurement, re-run fresh against this fix's own branch, not
+assumed from PR #202's numbers**: dispatched
+`measure-listings-payload.yml` against `bossy/backlog-6-fast-loads`
+(after fixing the two landmines above) -
+[run 35761063592](https://github.com/kirilbp/bg-property-tracker/actions/runs/35761063592),
+completed successfully:
+
+- `select(*)` (today's code, still what's live on `main` until this
+  merges): 1,256 bytes/row, ~257.4 MB / 215 sequential round trips
+  extrapolated across the real table.
+- Narrowed `select()` (this fix's `MERGED_LISTINGS_BULK_COLUMNS`): 836
+  bytes/row, ~171.3 MB, same 215 round trips - **33.4% payload
+  reduction**, reproducing PR #202's earlier same-day number almost
+  exactly (836 vs. 836 bytes/row, 33.4% vs. 33.4%), a useful independent
+  cross-check that the earlier measurement wasn't a one-off artifact.
+- Round-trip count is unchanged by column narrowing alone (both figures
+  above show 215) - confirms the reasoning already in `docs/backlog.md`:
+  the caching layer, not the narrowed `select()`, is what actually
+  removes round trips on an ordinary refresh. That half of the fix isn't
+  something this live-Supabase measurement script can demonstrate on its
+  own (it has no notion of a browser's IndexedDB), so it was verified
+  separately - see below.
+- `Prefer: count=exact` reproduced the exact `57014` statement-timeout
+  failure a second time live (this time on the ORIGINAL, unfixed script
+  dispatched against `main` first, before the fallback fix landed on
+  this branch) - independently reconfirms the landmine both PR #202 and
+  `docs/backlog.md` already flag, not a new finding.
+
+**Caching layer and lazy-fetch verified separately, with a real
+functional test, not just read through**: a Node `vm` harness (same
+established pattern as the item 18 entry above - loads the real,
+unmodified `index.html` inline script into a sandboxed context with
+minimal DOM/Supabase/IndexedDB/Leaflet stubs) confirmed: the bulk
+`select()` clause excludes all 3 heavy columns; a cold `loadData()`
+fetches once via `fetchAllRows()` and writes the cache; a second
+`loadData()` call within the 45-minute TTL makes **zero** bulk network
+calls (cache hit); an artificially-expired cache entry correctly
+triggers a live refetch; opening a listing's detail page fetches and
+merges `description`/`photos`/`price_history` by id and refreshes the
+synthesized single-source object (the bug described above, caught by
+this same test); re-opening the same listing doesn't re-fetch
+(`_detailFieldsFetched` cache hit); a multi-portal listing's existing
+`listing_sources` fetch is completely unaffected; `listingAreaKey()`'s
+`normalizeArea()` client-side fallback still resolves correctly with no
+`area_key` column present in the response at all (confirms the fix
+doesn't quietly assume item 18's still-unapplied migration).
+
+**Stale-cache/Lead-Generator concern, checked directly rather than
+assumed safe**: `savedListingIds`/`leadGenerators`/`reminders` all live
+in their own, pre-existing `localStorage` keys with zero network fetch
+behind them - this cache is a completely separate IndexedDB database
+(`imotenradarListingsCache`) that never reads or writes any of those
+keys, so there is no code path by which it could make a saved listing
+or a Lead Generator "disappear." The real (and only) staleness risk this
+cache introduces is `MERGED_LISTINGS` itself reading up to 45 minutes
+old within a session - bounded, well inside the page's own existing
+"auto-updates every 6 hours" promise, and no different in kind from the
+staleness every visitor already tolerates on the 6-hour scraper cadence.
+
+**Not done, explicitly deferred, since this session has no `Agent`/Task
+tool** (same limitation this file has flagged repeatedly today): Missy's
+real review. Implemented and self-verified as rigorously as tooling
+allows - a real functional test against the actual unmodified script, a
+real live measurement re-run against this fix's own branch, not a
+design read-through - but per this repo's own "nothing ships without
+Missy" rule, that is not a substitute for her actually looking at it.
+Opened as a PR (`bossy/backlog-6-fast-loads` -> `main`) rather than
+self-merged - Bossy's own PR #202 already flagged self-merging a
+diagnostic-only change (PR #201) as a mistake earlier the same day, not
+repeated here. `docs/backlog.md` item 6 updated with this status and the
+real numbers above; the dispatch list at the end of that entry names
+exactly what's still needed.
