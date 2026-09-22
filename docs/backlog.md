@@ -782,6 +782,37 @@ it and its stale hint honestly) rather than leaving it decorative.
 Full investigation detail (exact sample data, file/line references):
 `docs/decisions.md`'s 2026-09-22 entry.
 
+## 19. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
+
+Found by Dessy while testing backlog item 9's price/status history chart,
+confirmed and reproduced independently by Missy during PR #200's review -
+not a one-off glitch.
+
+**Confirmed facts:** `homes_208381` ("Къща, 480m², с.Богдан, Пловдив",
+https://www.homes.bg/offer/kyshta-za-prodazhba/kyshta-480m2-plovdiv-s.bogdan/hs208381)
+has 23 `price_history` entries (2026-08-25 through 2026-09-21+) that
+alternate almost every single scrape between exactly **€233,000** and
+**€1,227,520** - 22 of 22 transitions are flips between those two exact
+values, not a gradual drift or a single bad read. The current
+`price_eur`/`price_per_sqm` (233000 / 485) are internally consistent with
+the listing's own 480m², so €233,000 looks like the real figure;
+€1,227,520 doesn't correspond to any clean unit-conversion or
+decimal-shift of €233,000 (ratio ≈5.27 - not a BGN/EUR mixup or a stray
+decimal).
+
+**Not yet investigated further** - needs live network access to
+homes.bg's actual listing page (blocked from this sandbox's egress
+proxy, same documented limitation as Missy's daily audit routine) to
+determine whether: (a) this is a scraper-side bug (e.g. occasionally
+grabbing a neighboring card's price off the search-results grid instead
+of this listing's own), or (b) homes.bg's own page genuinely alternates
+between two displayed prices (e.g. cash vs. financed, with/without VAT)
+and the scraper is faithfully capturing both. Whoever picks this up
+should check the real live page first before assuming either explanation.
+Likely a `scraper_homes.py` bug given the pattern (a clean, repeated
+2-value flip looks more like "reading the wrong DOM element on
+alternating scrapes" than a real site behavior), but not confirmed.
+
 ---
 
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
