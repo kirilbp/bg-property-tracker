@@ -287,3 +287,42 @@ This is a real, load-bearing gap in this session specifically (not a
 one-off) - worth the user's attention if they want every future Bossy
 session to reliably have subagent-spawning access for exactly this
 reason.
+
+### 2026-09-22 - "Others" province bucket: Missy's investigation (backlog item 4)
+
+The user reported the live "Browse by Council" section's "Others"
+bucket (9,247 listings) as inherently suspicious, since Bulgaria's 28
+oblasts cover 100% of its territory. Dispatched Missy directly to
+investigate (not through Bossy, given the just-documented Agent-tool
+gap above - this session did the dispatching itself as the reliable
+path). Full findings are in `docs/backlog.md` item 4; summary here for
+the decision log: confirmed real, not a false alarm - sampling ~8,787
+raw listings that fail the live matching logic found only ~5-6% is
+legitimately foreign/unparseable, the rest splits roughly evenly
+between an `scraper_alo.py` bug (a `"Bulgaria"` placeholder written
+whenever its location regex fails, compounded by a title-extraction
+fallback that truncates listing text before the recoverable location
+words) and a structural `BG_MUNICIPALITY_TO_OBLAST` coverage gap (the
+table only covers municipality *seat* names, not Bulgaria's ~5,300
+actual settlements).
+
+Verification method worth recording: this sandbox still can't reach
+alo.bg/olx.bg/homes.bg/bcpea.org directly (same egress-proxy block
+noted in the 2026-09-21 entry above), so Missy verified by running the
+project's own real functions (`listing_city_key()`/`listing_oblast_key()`,
+imported unmodified from `geo_utils.py`/`sync_to_supabase.py`, not
+reimplemented) against the committed `data/leads_*.json` files, then
+manually checked a sample of the results against her own knowledge of
+Bulgarian geography rather than live portal pages. Flagged plainly in
+her own report as the reason this is "verified against the project's
+own logic" rather than "verified against live source pages" - the
+usual standard when live network access isn't blocked.
+
+While characterizing the settlement-name gap, also found a genuinely
+ambiguous name the eventual gazetteer-table fix will need to handle
+carefully: "Средец" is both a real Burgas-oblast town/municipality and
+a central Sofia-grad district name - the same class of collision
+`BG_MUNICIPALITY_TO_OBLAST` already excludes "Бяла" for (real, different
+municipality in both Varna and Ruse oblasts). Flag-and-exclude on
+collision, don't guess, is the established precedent to follow when
+this gets built.
