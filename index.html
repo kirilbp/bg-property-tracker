@@ -10,8 +10,37 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Playfair Display (serif, headline/price accent) + Inter (sans, body/UI) -
+     see docs/design-guidelines.md section 3. Both ship full Cyrillic glyph
+     sets, a hard requirement for a Bulgarian-primary-language site. Loaded
+     site-wide (harmless if unused elsewhere yet) but only actually applied
+     within the listing detail view for now - see the scoping note on the
+     "Listing detail page" CSS block below. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
   * { box-sizing: border-box; }
+  :root {
+    /* docs/design-guidelines.md section 4 palette. Defined globally (cheap,
+       harmless) but so far only drawn on within the listing detail view's
+       own rules below - the rest of the site (sidebar, cards, modals)
+       intentionally keeps its existing look for now. A full site reskin
+       against this palette is a separate, larger pass, out of scope for
+       the listing-detail-page redesign this was built for - see the PR
+       description for that scoping call spelled out in full. */
+    --ink: #241f1a;
+    --ink-soft: #4a433c;
+    --taupe: #8c8378;
+    --taupe-light: #ded6c8;
+    --ivory: #f7f4ee;
+    --ivory-deep: #efe9dc;
+    --brass: #a9812e;
+    --brass-deep: #8a6a24;
+    --sage: #7a8b6f;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f8fafc;
@@ -173,98 +202,203 @@
   .help-section h3 { font-size: 15px; margin: 0 0 6px; }
   .help-section p, .help-section li { font-size: 14px; color: #334155; line-height: 1.6; }
 
-  /* Listing detail page */
+  /* ==========================================================================
+     Listing detail page - docs/design-guidelines.md applied (warm ivory
+     canvas, serif/sans pairing, brass accent, restrained single-action
+     buttons, generous spacing). Scoped to #section-listing / its own
+     elements only - see the :root comment above for why the rest of the
+     site (sidebar, cards, modals) isn't touched in this pass.
+     ========================================================================== */
+  #section-listing {
+    background: var(--ivory);
+    border: 1px solid var(--taupe-light);
+    border-radius: 12px;
+    padding: 32px;
+    font-family: var(--font-sans);
+    color: var(--ink);
+  }
+  @media (max-width: 700px) { #section-listing { padding: 20px; } }
+  /* The shared .card component (white box, 16px padding, used everywhere
+     else on the site) is deliberately neutralized here - #section-listing
+     itself is now the visual container, so the inner body sits flush on
+     the ivory canvas rather than nesting a second white box inside it. */
+  #listingDetailBody { background: transparent; border: none; padding: 0; margin: 0; }
   .back-btn {
     display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
-    color: #2563eb; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; margin-bottom: 16px;
+    color: var(--ink-soft); font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    letter-spacing: 0.03em; cursor: pointer; padding: 0; margin: 0 0 24px;
+    transition: color 200ms ease-out;
   }
-  .back-btn:hover { color: #1d4ed8; }
-  .detail-grid { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 24px; align-items: start; }
-  @media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; } }
-  .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; background: #e2e8f0; display: block; }
+  .back-btn:hover { color: var(--brass-deep); }
+  .detail-grid { display: grid; grid-template-columns: minmax(280px, 460px) 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; background: var(--ivory-deep); display: block; }
   .detail-photo-wrap { position: relative; }
   .detail-photo-nav {
-    position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px;
-    border-radius: 50%; border: none; background: rgba(15, 23, 42, 0.55); color: #fff;
+    position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px;
+    border-radius: 50%; border: none; background: rgba(36, 31, 26, 0.55); color: #fff;
     font-size: 18px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 200ms ease-out;
   }
-  .detail-photo-nav:hover { background: rgba(15, 23, 42, 0.8); }
+  .detail-photo-nav:hover { background: rgba(36, 31, 26, 0.8); }
   .detail-photo-nav.prev { left: 10px; }
   .detail-photo-nav.next { right: 10px; }
-  .detail-title { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
-  .detail-area { font-size: 14px; color: #64748b; margin: 0 0 16px; }
-  .detail-price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
-  .detail-price { font-size: 28px; font-weight: 700; }
-  .detail-persqm { font-size: 15px; color: #64748b; }
-  .detail-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin: 16px 0; }
-  .detail-stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; }
-  .detail-stat .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
-  .detail-stat .value { font-size: 15px; font-weight: 700; margin: 0; }
-  .detail-thumbs { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .detail-title {
+    font-family: var(--font-serif); font-weight: 400; font-size: 26px; line-height: 1.25;
+    color: var(--ink); margin: 0 0 8px;
+  }
+  .detail-area {
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+    color: var(--taupe); margin: 0 0 20px; text-transform: uppercase;
+  }
+  .detail-price-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
+  .detail-price { font-family: var(--font-serif); font-weight: 400; font-size: 34px; color: var(--ink); }
+  .detail-persqm { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); }
+  .detail-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; margin: 24px 0; background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px; overflow: hidden; }
+  .detail-stat { background: var(--ivory); padding: 14px 16px; }
+  .detail-stat .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 4px; }
+  .detail-stat .value { font-family: var(--font-sans); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0; }
+  .detail-thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .detail-thumb {
-    width: 64px; height: 48px; object-fit: cover; border-radius: 6px; cursor: pointer;
-    border: 2px solid transparent; background: #e2e8f0;
+    width: 64px; height: 48px; object-fit: cover; border-radius: 4px; cursor: pointer;
+    border: 2px solid transparent; background: var(--ivory-deep); opacity: 0.7; transition: opacity 200ms ease-out, border-color 200ms ease-out;
   }
-  .detail-thumb.active { border-color: #2563eb; }
-  .detail-description { font-size: 14px; color: #334155; line-height: 1.6; margin-top: 16px; white-space: pre-line; }
-  .detail-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-  .detail-tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid #e2e8f0; }
+  .detail-thumb:hover { opacity: 1; }
+  .detail-thumb.active { border-color: var(--brass); opacity: 1; }
+  .detail-description { font-family: var(--font-sans); font-size: 14px; color: var(--ink-soft); line-height: 1.65; margin-top: 20px; white-space: pre-line; }
+  .detail-description-toggle {
+    display: inline-block; margin-top: 8px; background: none; border: none; padding: 0; cursor: pointer;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--brass-deep);
+  }
+  .detail-description-toggle:hover { text-decoration: underline; }
+  .detail-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .detail-tabs { display: flex; gap: 4px; margin: 24px 0 0; border-bottom: 1px solid var(--taupe-light); }
   .detail-tab-btn {
-    padding: 8px 14px; border: none; background: none; color: #64748b; font-size: 14px;
-    font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    padding: 10px 16px; border: none; background: none; color: var(--taupe); font-family: var(--font-sans); font-size: 13px;
+    font-weight: 500; letter-spacing: 0.02em; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 200ms ease-out, border-color 200ms ease-out;
   }
-  .detail-tab-btn:hover { color: #334155; }
-  .detail-tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
-  .detail-tab-content { display: none; padding-top: 16px; }
+  .detail-tab-btn:hover { color: var(--ink-soft); }
+  .detail-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
+  .detail-tab-content { display: none; padding-top: 20px; }
   .detail-tab-content.active { display: block; }
-  .price-history-chart-wrap { height: 220px; margin-top: 8px; }
-  .price-history-empty { font-size: 14px; color: #94a3b8; margin: 8px 0 0; }
-  .relisting-events { border-top: 1px solid #f1f5f9; padding-top: 4px; margin-top: 16px; }
-  .relisting-event { font-size: 13px; color: #334155; margin: 6px 0; }
-  .relisting-approx { color: #94a3b8; font-weight: 400; cursor: help; }
-  .relisting-caveat { font-size: 12px; color: #94a3b8; margin: 8px 0 0; }
+  .price-history-chart-wrap { height: 240px; margin-top: 12px; }
+  .price-history-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 0 0; }
+  .price-history-legend span { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--taupe); display: inline-flex; align-items: center; gap: 6px; }
+  .price-history-legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .price-history-empty { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); margin: 8px 0 0; }
+  .relisting-events { border-top: 1px solid var(--taupe-light); padding-top: 8px; margin-top: 20px; }
+  .relisting-events .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); }
+  .relisting-event { font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
+  .relisting-approx { color: var(--taupe); font-weight: 400; cursor: help; }
+  .relisting-caveat { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 10px 0 0; line-height: 1.5; }
   .source-link {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-    font-size: 13px; font-weight: 600; color: #475569; background: #f1f5f9;
-    padding: 8px 14px; border-radius: 8px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--taupe-light); padding: 9px 16px; border-radius: 4px; transition: border-color 200ms ease-out;
   }
-  .source-link:hover { background: #e2e8f0; }
+  .source-link:hover { border-color: var(--taupe); }
+  /* Save to Dashboard is the one primary action on this page (docs/
+     design-guidelines.md section 5/6: "one primary action per view") -
+     solid brass fill, ink text. Compare/Remind (below) are demoted to the
+     outline treatment .source-link already uses, not a second solid button. */
   .save-detail-btn {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-    font-size: 13px; font-weight: 600; color: #475569; background: white;
-    border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; cursor: pointer;
-    margin-top: 10px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink);
+    background: var(--brass); border: 1px solid var(--brass); padding: 10px 18px; border-radius: 4px; cursor: pointer;
+    margin-top: 12px; transition: background 200ms ease-out, box-shadow 200ms ease-out;
   }
-  .save-detail-btn:hover { border-color: #94a3b8; }
-  .save-detail-btn.saved { background: #fffbeb; border-color: #fcd34d; color: #b45309; }
+  .save-detail-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .save-detail-btn.saved { background: var(--ivory-deep); border-color: var(--taupe-light); color: var(--ink-soft); }
+  .detail-secondary-btn {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-soft); background: transparent;
+    border: 1px solid var(--taupe-light); padding: 10px 16px; border-radius: 4px; cursor: pointer;
+    margin-top: 12px; transition: border-color 200ms ease-out;
+  }
+  .detail-secondary-btn:hover { border-color: var(--taupe); }
+
+  /* Multi-portal badge row - the up-to-N portals a single physical
+     property is cross-posted under, each with its own "Listed" date and
+     the currently-viewed one highlighted (docs/property-filter-spec.md
+     section 5, "Advert Details" tab). Sourced from listing_sources'
+     cross-portal dedup (sync_to_supabase.py's group_listings()) - no new
+     data, just surfaced. */
+  .portal-badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 24px; }
+  .portal-badge {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+    min-width: 130px; padding: 10px 14px; border-radius: 4px; border: 1px solid var(--taupe-light);
+    background: transparent; cursor: pointer; text-align: left; font-family: var(--font-sans);
+    opacity: 0.85; transition: border-color 200ms ease-out, background 200ms ease-out, opacity 200ms ease-out;
+  }
+  .portal-badge:hover { border-color: var(--taupe); opacity: 1; }
+  /* A removed source still gets a dashed border as a quiet "no longer
+     live here" cue, but .active is what actually needs to read as
+     selected - declared after .is-removed (and repeated as a combined
+     selector) so a removed-but-currently-viewed source still gets the
+     full highlighted treatment instead of the two states fighting over
+     background/opacity and the selection becoming invisible. */
+  .portal-badge.is-removed { border-style: dashed; opacity: 0.7; }
+  .portal-badge.active { background: rgba(169, 129, 46, 0.12); border-color: var(--brass); opacity: 1; }
+  .portal-badge.active.is-removed { border-style: dashed; opacity: 1; }
+  .portal-badge-name {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .portal-badge.active .portal-badge-name { color: var(--ink); }
+  .portal-badge-price { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .portal-badge-meta { font-size: 11px; color: var(--taupe); }
+
+  /* Property Details & Keywords panel - auto-extracted tags from each
+     source's free-text description (see extractKeywordTags()). Pure
+     keyword/pattern matching on data already scraped, no new data source. */
+  .keywords-panel { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--taupe-light); }
+  .keywords-panel .kp-heading {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 16px 0 8px;
+  }
+  .keywords-panel .kp-heading:first-child { margin-top: 0; }
+  .kp-tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .kp-tag {
+    display: inline-block; font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    color: var(--ink-soft); border: 1px solid var(--taupe-light); border-radius: 4px; padding: 5px 11px;
+  }
+  .kp-type-pill {
+    display: inline-block; font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.02em; color: var(--ink); background: var(--ivory-deep); border-radius: 999px;
+    padding: 5px 14px; margin-bottom: 16px;
+  }
+  .kp-empty { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 4px 0 0; }
+
+  /* Prev/Next paging through the current filtered result set. */
+  .detail-pager { display: flex; gap: 16px; align-items: center; margin: 0 0 20px; font-family: var(--font-sans); }
+  .detail-pager-btn {
+    background: none; border: none; padding: 0; cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--ink-soft); transition: color 200ms ease-out;
+  }
+  .detail-pager-btn:hover:not(:disabled) { color: var(--brass-deep); }
+  .detail-pager-btn:disabled { color: var(--taupe-light); cursor: default; }
+  .detail-pager-pos { font-size: 12px; color: var(--taupe); }
 
   .badge-alt-portal { background: #eef2ff; color: #4338ca; }
-  .source-switcher { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
-  .source-switcher-btn {
-    padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: white;
-    color: #475569; font-size: 13px; font-weight: 600; cursor: pointer;
-  }
-  .source-switcher-btn:hover { border-color: #94a3b8; }
-  .source-switcher-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
-  .source-switcher-btn.removed:not(.active) { color: #94a3b8; border-style: dashed; }
   .radius-panel {
-    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
-    padding: 12px 14px; margin: 0 0 16px;
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
+    padding: 16px 18px; margin: 0 0 20px;
   }
   .radius-panel-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-  .radius-panel .label { font-size: 11px; color: #64748b; margin: 0; }
+  .radius-panel .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0; }
   .radius-btn-row { display: flex; gap: 6px; }
   .radius-btn {
-    padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: white;
-    color: #475569; font-size: 12px; font-weight: 600; cursor: pointer;
+    padding: 6px 12px; border-radius: 4px; border: 1px solid var(--taupe-light); background: var(--ivory);
+    color: var(--ink-soft); font-family: var(--font-sans); font-size: 12px; font-weight: 500; cursor: pointer;
+    transition: border-color 200ms ease-out;
   }
-  .radius-btn:hover { border-color: #94a3b8; }
-  .radius-btn.active { background: #2563eb; border-color: #2563eb; color: white; }
-  .radius-hint { font-size: 13px; color: #94a3b8; margin: 10px 0 0; }
+  .radius-btn:hover { border-color: var(--taupe); }
+  .radius-btn.active { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
+  .radius-hint { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 10px 0 0; }
   .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
-  .radius-result .label { font-size: 11px; color: #64748b; margin: 0 0 2px; }
-  .radius-result .value { font-size: 15px; font-weight: 700; margin: 0; }
-  .radius-map { height: 260px; border-radius: 8px; margin-top: 10px; z-index: 0; }
+  .radius-result .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 2px; }
+  .radius-result .value { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
+  .radius-map { height: 260px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
 
   /* Lead generators gallery */
@@ -946,6 +1080,12 @@ let detailActiveTab = 'details';
 let detailRadiusM = null;
 let detailPhotos = [];
 let detailPhotoIndex = 0;
+// Ids only (not full objects) of the current filtered+sorted result set, in
+// display order - refreshed on every render() call. Powers the listing
+// detail page's Prev/Next paging (docs/property-filter-spec.md section 5:
+// "Prev/Next navigation through the current result set") without needing
+// to duplicate render()'s own filter/sort logic there.
+let CURRENT_RESULT_IDS = [];
 let detailMap = null;
 // Separate from detailRadiusM - the inline radius panel and the Compare
 // modal are opened independently (a user can check the panel's average
@@ -3481,6 +3621,8 @@ function render() {
 
   filtered.sort(sortComparator(sortBy));
 
+  CURRENT_RESULT_IDS = filtered.map(l => l.id);
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
@@ -3576,9 +3718,24 @@ function renderFromStart() {
   render();
 }
 
-const PRICE_HISTORY_DROP_COLOR = '#dc2626';
-const PRICE_HISTORY_STABLE_COLOR = '#2563eb';
-const PRICE_HISTORY_RELIST_COLOR = '#7c3aed';
+// docs/design-guidelines.md's palette (brass/sage/ink) reused for data
+// encoding here rather than the site's old blue/red/purple - "price
+// dropped" reuses the same muted sage the rest of the page reserves for a
+// "price reduced" signal (section 4), "steady" uses the brass accent, and
+// a relisting gap uses ink-soft (no purple in the palette at all) - still
+// three visually distinct marks, just drawn from the restrained palette
+// instead of introducing new hues.
+const PRICE_HISTORY_DROP_COLOR = '#7a8b6f';
+const PRICE_HISTORY_STABLE_COLOR = '#8a6a24';
+const PRICE_HISTORY_RELIST_COLOR = '#4a433c';
+// Status-band background shading (docs/property-filter-spec.md section 5:
+// "background color-coded by status band"). Deliberately not a full
+// green/yellow/pink traffic-light fill (that's Property Filter's own
+// anti-pattern, called out by name in docs/design-guidelines.md section 9)
+// - just a single, barely-there ink tint over the period this SOURCE was
+// off-market, so "currently listed" reads as the calm default and "no
+// longer listed here" reads as quietly muted, not alarmed.
+const PRICE_HISTORY_BAND_COLOR = 'rgba(36, 31, 26, 0.055)';
 
 // A step - not a diagonal slope - between each recorded price, since a real
 // listing's price doesn't drift smoothly: it sits still, then drops (every
@@ -3591,10 +3748,18 @@ function isSameDay(a, b) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-function renderPriceHistoryChart(priceHistory) {
+// statusInfo: { removedAt, isRemoved } for the SOURCE currently shown (not
+// necessarily the whole merged property - a different cross-posted source
+// may still be live even if this one isn't, exactly what the badge row
+// above already shows). removedAt marks the boundary between the
+// "currently listed here" and "no longer listed here" bands; isRemoved
+// without a removedAt (older data, or the field just not recorded) skips
+// the band rather than guessing a boundary date.
+function renderPriceHistoryChart(priceHistory, statusInfo) {
   const ctx = document.getElementById('detailPriceChart');
   if (!ctx) return;
   if (detailChart) { detailChart.destroy(); detailChart = null; }
+  statusInfo = statusInfo || {};
 
   // The last recorded price_history entry is only as recent as the last
   // scrape that happened to catch a change - the price has held at that
@@ -3615,8 +3780,29 @@ function renderPriceHistoryChart(priceHistory) {
   const firstTs = new Date(points[0].date).getTime();
   const todayTs = today.getTime();
 
+  // Status-band background: a plain custom plugin (beforeDraw), not a
+  // separate chartjs-plugin-annotation dependency - one fewer CDN script,
+  // and full control over how restrained the fill looks (see
+  // PRICE_HISTORY_BAND_COLOR's comment above). Shades from removedAt to
+  // the right edge of the plotted area, clamped to the chart's own bounds.
+  const removedAtTs = statusInfo.removedAt ? new Date(statusInfo.removedAt).getTime() : null;
+  const statusBandPlugin = {
+    id: 'statusBand',
+    beforeDraw(chart) {
+      if (removedAtTs == null || removedAtTs < firstTs || removedAtTs > todayTs) return;
+      const { ctx: c, chartArea, scales } = chart;
+      if (!chartArea) return;
+      const xStart = Math.max(scales.x.getPixelForValue(removedAtTs), chartArea.left);
+      c.save();
+      c.fillStyle = PRICE_HISTORY_BAND_COLOR;
+      c.fillRect(xStart, chartArea.top, chartArea.right - xStart, chartArea.bottom - chartArea.top);
+      c.restore();
+    },
+  };
+
   detailChart = new Chart(ctx, {
     type: 'line',
+    plugins: [statusBandPlugin],
     data: {
       // A real (linear/numeric) x-axis, not Chart.js's default category
       // scale - a category scale spaces every point EQUALLY regardless of
@@ -3630,7 +3816,7 @@ function renderPriceHistoryChart(priceHistory) {
         data: points.map(p => ({ x: new Date(p.date).getTime(), y: p.price_eur })),
         stepped: true,
         fill: true,
-        backgroundColor: 'rgba(37,99,235,0.08)',
+        backgroundColor: 'rgba(169,129,46,0.08)',
         borderColor: PRICE_HISTORY_STABLE_COLOR,
         borderWidth: 2,
         // A relisting point (this listing's price_history carries the OLD,
@@ -3730,14 +3916,149 @@ function renderPriceHistoryChart(priceHistory) {
   });
 }
 
-function switchDetailTab(tab, chartPriceHistory) {
+function switchDetailTab(tab, chartPriceHistory, statusInfo) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
   if (tab === 'pricehistory') {
-    renderPriceHistoryChart(chartPriceHistory);
+    renderPriceHistoryChart(chartPriceHistory, statusInfo);
   }
 }
+
+// --- Multi-portal badge row helpers -----------------------------------
+// "Listed on: [date]" per docs/property-filter-spec.md section 5. No
+// per-source first_seen column is synced to Supabase (see SOURCE_FIELDS in
+// sync_to_supabase.py) - site_posted_at (the portal's own stated posting
+// date, when a portal exposes one) is used when present. Most listings
+// don't have it (confirmed against the real committed data/leads_*.json
+// files - only a minority of records carry it), so this falls back to
+// this source's own earliest recorded price_history entry, worded as
+// "Tracked since" rather than "Listed" so it's never presented as a real
+// listing date it isn't - same honesty convention the relisting-events
+// caption above already follows.
+function shortDateLabel(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function sourceListedMetaHtml(s) {
+  const lines = [];
+  if (s.site_posted_at) {
+    lines.push(`Listed ${shortDateLabel(s.site_posted_at)}`);
+  } else if (Array.isArray(s.price_history) && s.price_history.length > 0 && s.price_history[0].date) {
+    lines.push(`Tracked since ${shortDateLabel(s.price_history[0].date)}`);
+  }
+  if (s.source_status === 'removed' && s.removed_at) {
+    lines.push(`Removed ${shortDateLabel(s.removed_at)}`);
+  } else if (s.source_status === 'removed') {
+    lines.push('Removed');
+  }
+  return lines.join(' · ');
+}
+
+// --- Property Details & Keywords panel ----------------------------------
+// Auto-extracted keyword tags from each source's own free-text description
+// (docs/property-filter-spec.md section 5: "Sale Feature tags... Property
+// Feature tags... Close By tags... read as auto-extracted keyword tags
+// from the free-text listing description"). Plain substring matching on
+// already-scraped text, same spirit as geo_utils.py's classify_category()
+// keyword table server-side - no ML, no new data source. Checked against
+// every cross-posted source's description (like listingMatchesSearch()
+// already does for search), not just the one currently displayed, since a
+// duplicate on a different portal often has a fuller description than the
+// one the user happens to be looking at.
+// Plain substring matching is deliberately used for most patterns below
+// (intentional - lets a short root like "инвестицион" also catch
+// "инвестиционен"/"инвестиционни" without listing every inflected form).
+// A couple of short BG roots are real "false friends" with an unrelated
+// word once matched as a bare substring though - live-found against real
+// scraped descriptions: "търг" (auction) is also the literal opening of
+// "търговия"/"търговски" ("trade"/"commercial", an unrelated word family -
+// a commercial-property listing mentioning "онлайн търговия" was
+// wrongly tagged "Auction"), and "парк" (park) is also the opening of
+// "паркинг"/"паркомясто" ("parking"). Those two are wrapped in
+// { exact: '...' } to require a non-letter boundary on both sides instead.
+function wordMatch(text, word) {
+  const isLetter = (ch) => !!ch && /\p{L}/u.test(ch);
+  let from = 0;
+  while (true) {
+    const idx = text.indexOf(word, from);
+    if (idx === -1) return false;
+    if (!isLetter(text[idx - 1]) && !isLetter(text[idx + word.length])) return true;
+    from = idx + 1;
+  }
+}
+function keywordPatternMatches(text, pattern) {
+  return typeof pattern === 'object' ? wordMatch(text, pattern.exact) : text.includes(pattern);
+}
+const KEYWORD_DICTIONARY = {
+  'Sale features': [
+    { label: 'Investment property', patterns: ['инвестицион', 'под наем', 'отдаване под наем', 'investment'] },
+    { label: 'Auction', patterns: ['публична продан', { exact: 'търг' }, 'auction'] },
+    { label: 'For sale by owner', patterns: ['от собственик', 'без комисион'] },
+    { label: 'Vacant / empty', patterns: ['свободен имот', 'освободен', 'незаето', 'vacant'] },
+    { label: 'New construction', patterns: ['ново строителство', 'новострой', 'акт 16', 'нова сграда'] },
+  ],
+  'Property features': [
+    { label: 'Parking', patterns: ['паркомясто', 'паркинг', 'parking'] },
+    { label: 'Garage', patterns: ['гараж', 'garage'] },
+    { label: 'Elevator', patterns: ['асансьор', 'elevator', 'lift'] },
+    { label: 'Balcony / terrace', patterns: ['тераса', 'балкон', 'balcony', 'terrace'] },
+    { label: 'Furnished', patterns: ['обзаведен', 'мебелиран', 'furnished'] },
+    { label: 'Renovated', patterns: ['ремонтиран', 'нов ремонт', 'реновиран', 'renovated'] },
+    { label: 'Brick construction', patterns: ['тухла', 'тухлена', 'brick'] },
+    { label: 'Air conditioning', patterns: ['климатик', 'air condition'] },
+    { label: 'High ceilings', patterns: ['висок таван', 'висока височина'] },
+  ],
+  'Close by': [
+    { label: 'Public transport', patterns: ['спирка', 'транспорт', 'автобус', 'bus stop', 'transport'] },
+    { label: 'Metro', patterns: ['метро', 'metro'] },
+    { label: 'School / kindergarten', patterns: ['училище', 'детска градина', 'school', 'kindergarten'] },
+    { label: 'Shops', patterns: ['магазин', 'търговск', { exact: 'мол' }, 'shop'] },
+    { label: 'Park', patterns: [{ exact: 'парк' }, 'градина', { exact: 'park' }] },
+    { label: 'Hospital', patterns: ['болница', 'медицин', 'hospital'] },
+    { label: 'City centre', patterns: ['центъра на', 'центъра, ', 'city centre', 'city center'] },
+  ],
+};
+function extractKeywordTags(merged) {
+  const sources = (merged.sources && merged.sources.length) ? merged.sources : [merged];
+  const text = sources.map(s => (s.description || '') + ' ' + (s.title || '')).join(' \n ').toLowerCase();
+  const hadAnyDescription = sources.some(s => s.description);
+  // sales.bcpea.org listings are, categorically, public court-ordered
+  // auctions (see the Help copy elsewhere on the site) - worth tagging
+  // even when the description text itself doesn't happen to say so.
+  const isAuctionPortal = sources.some(s => s.portal === 'sales.bcpea.org');
+  const result = {};
+  let any = false;
+  for (const [group, entries] of Object.entries(KEYWORD_DICTIONARY)) {
+    const tags = entries
+      .filter(e => (e.label === 'Auction' && isAuctionPortal) || e.patterns.some(p => keywordPatternMatches(text, p)))
+      .map(e => e.label);
+    if (tags.length > 0) { result[group] = tags; any = true; }
+  }
+  return { groups: result, any, hadAnyDescription };
+}
+function renderKeywordsPanel(merged, l) {
+  const { groups, any, hadAnyDescription } = extractKeywordTags(merged);
+  const typeLabel = PROPERTY_TYPE_LABELS[typeFilterBucket(l)] || null;
+  if (!any && !typeLabel) return '';
+  const groupsHtml = Object.entries(groups).map(([group, tags]) => `
+    <p class="kp-heading">${group}</p>
+    <div class="kp-tag-row">${tags.map(t => `<span class="kp-tag">${escapeHtml(t)}</span>`).join('')}</div>
+  `).join('');
+  return `
+    <div class="keywords-panel">
+      ${typeLabel ? `<span class="kp-type-pill">${escapeHtml(typeLabel)}</span>` : ''}
+      ${groupsHtml}
+      ${!any ? `<p class="kp-empty">${hadAnyDescription ? 'No notable sale, property, or nearby-amenity keywords detected in the listing description.' : 'No description available to extract keywords from yet.'}</p>` : ''}
+    </div>
+  `;
+}
+const PROPERTY_TYPE_LABELS = {
+  flat: 'Flat / Apartment', house: 'House', land: 'Land plot',
+  garage: 'Garage', shop: 'Shop', business: 'Commercial property',
+};
 
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
@@ -3818,18 +4139,44 @@ function renderListingDetail(merged) {
     </div>
   ` : '';
 
-  const switcherHtml = merged.sources.length > 1 ? `
-    <div class="source-switcher">
+  // Multi-portal badge row (docs/property-filter-spec.md section 5) - the
+  // up-to-N portals this same physical property is cross-posted under,
+  // each with its own "Listed"/"Removed" date, the currently-viewed one
+  // highlighted. Sourced entirely from merged.sources, i.e. imotenradar's
+  // existing cross-portal dedup (sync_to_supabase.py's group_listings()) -
+  // no new data.
+  const badgeRowHtml = merged.sources.length > 1 ? `
+    <div class="portal-badge-row">
       ${merged.sources.map((s, i) => `
-        <button class="source-switcher-btn${i === detailSourceIndex ? ' active' : ''}${s.source_status === 'removed' ? ' removed' : ''}" data-source-index="${i}" title="${s.source_status === 'removed' ? 'No longer listed on ' + s.portal : ''}">
-          ${s.portal} · €${fmt(s.price_eur)}${s.source_status === 'removed' ? ' (removed)' : ''}
+        <button class="portal-badge${i === detailSourceIndex ? ' active' : ''}${s.source_status === 'removed' ? ' is-removed' : ''}" data-source-index="${i}">
+          <span class="portal-badge-name">${escapeHtml(s.portal)}</span>
+          <span class="portal-badge-price">€${fmt(s.price_eur)}</span>
+          <span class="portal-badge-meta">${sourceListedMetaHtml(s)}</span>
         </button>
       `).join('')}
     </div>
   ` : '';
 
+  const pos = merged._resultPos;
+  const pagerHtml = pos ? `
+    <div class="detail-pager">
+      <button class="detail-pager-btn" id="detailPrevBtn" ${pos.prevId ? '' : 'disabled'}>← Previous</button>
+      <span class="detail-pager-pos">${fmt(pos.index + 1)} of ${fmt(pos.total)}</span>
+      <button class="detail-pager-btn" id="detailNextBtn" ${pos.nextId ? '' : 'disabled'}>Next →</button>
+    </div>
+  ` : '';
+
+  // "See more" for long descriptions (docs/property-filter-spec.md
+  // section 5: "full text + See More expand"). Truncated at a whole word,
+  // never mid-word.
+  const DESC_TRUNCATE_LEN = 420;
+  const fullDesc = l.description || '';
+  const descIsLong = fullDesc.length > DESC_TRUNCATE_LEN;
+  const truncatedDesc = descIsLong ? fullDesc.slice(0, DESC_TRUNCATE_LEN).replace(/\s+\S*$/, '') + '…' : fullDesc;
+
   document.getElementById('listingDetailBody').innerHTML = `
-    ${switcherHtml}
+    ${pagerHtml}
+    ${badgeRowHtml}
     <div class="detail-grid">
       <div>
         <div class="detail-photo-wrap">
@@ -3849,9 +4196,11 @@ function renderListingDetail(merged) {
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
-        <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
-        <button class="modal-btn-secondary" id="compareBtn" style="margin-left:8px;">⇄ Compare nearby</button>
-        <button class="modal-btn-secondary" id="reminderBtn" style="margin-left:8px;">🔔 Remind me</button>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
+          <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
+          <button class="detail-secondary-btn" id="reminderBtn">🔔 Remind me</button>
+        </div>
         ${renderListingReminders(merged)}
         <div class="detail-stats">
           <div class="detail-stat" title="0-100 across 5 signals: relisting (esp. cheaper), distinct price cuts, size of drop, days on market, and below-area-average price. Doesn't yet account for multi-portal listing, and can't tell a genuine sale-then-relist apart from a failed-sale repost. See Help for the full formula."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
@@ -3865,11 +4214,15 @@ function renderListingDetail(merged) {
           <button class="detail-tab-btn${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab="pricehistory">Price History${priceDropCount > 0 ? ` (${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'})` : ''}</button>
         </div>
         <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
-          ${l.description ? `<p class="detail-description">${escapeHtml(l.description)}</p>` : `<p class="detail-description" style="color:#94a3b8;">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
+          ${l.description
+            ? `<p class="detail-description" id="detailDescriptionText">${escapeHtml(descIsLong ? truncatedDesc : fullDesc)}</p>
+               ${descIsLong ? `<button class="detail-description-toggle" id="detailDescToggle" data-expanded="false">See more</button>` : ''}`
+            : `<p class="detail-description" style="color:var(--taupe);">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
           <div class="detail-links">
             <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
             <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
           </div>
+          ${renderKeywordsPanel(merged, l)}
         </div>
         <div class="detail-tab-content${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab-content="pricehistory">
           <div class="detail-stats" style="margin-top:0;">
@@ -3878,6 +4231,12 @@ function renderListingDetail(merged) {
             <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
           </div>
           <div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>
+          <div class="price-history-legend">
+            <span><span class="swatch" style="background:${PRICE_HISTORY_STABLE_COLOR};"></span>Price</span>
+            <span><span class="swatch" style="background:${PRICE_HISTORY_DROP_COLOR};"></span>Price drop</span>
+            ${relistEvents.length > 0 ? `<span><span class="swatch" style="background:${PRICE_HISTORY_RELIST_COLOR};"></span>Relisted</span>` : ''}
+            ${l.source_status === 'removed' && l.removed_at ? `<span><span class="swatch" style="background:${PRICE_HISTORY_BAND_COLOR.replace('0.055', '0.5')};"></span>No longer listed on ${escapeHtml(l.portal)}</span>` : ''}
+          </div>
           ${priceHistory.length <= 1
             ? `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing. The dot above is the current price; this chart will fill in as changes are observed.</p>`
             : ''}
@@ -3896,7 +4255,7 @@ function renderListingDetail(merged) {
   if (prevPhotoBtn) prevPhotoBtn.addEventListener('click', () => setDetailPhoto(detailPhotoIndex - 1));
   if (nextPhotoBtn) nextPhotoBtn.addEventListener('click', () => setDetailPhoto(detailPhotoIndex + 1));
 
-  document.getElementById('listingDetailBody').querySelectorAll('.source-switcher-btn').forEach(btn => {
+  document.getElementById('listingDetailBody').querySelectorAll('.portal-badge').forEach(btn => {
     btn.addEventListener('click', () => {
       detailSourceIndex = parseInt(btn.dataset.sourceIndex, 10);
       renderListingDetail(merged);
@@ -3904,8 +4263,10 @@ function renderListingDetail(merged) {
     });
   });
 
+  const statusInfo = { removedAt: l.removed_at, isRemoved: l.source_status === 'removed' };
+
   document.getElementById('listingDetailBody').querySelectorAll('.detail-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory));
+    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory, statusInfo));
   });
 
   document.getElementById('listingDetailBody').querySelectorAll('.radius-btn').forEach(btn => {
@@ -3919,8 +4280,23 @@ function renderListingDetail(merged) {
   document.getElementById('compareBtn').addEventListener('click', () => openCompareModal(merged));
   document.getElementById('reminderBtn').addEventListener('click', () => openReminderModal(merged));
 
+  const descToggleBtn = document.getElementById('detailDescToggle');
+  if (descToggleBtn) {
+    descToggleBtn.addEventListener('click', () => {
+      const expanded = descToggleBtn.dataset.expanded === 'true';
+      document.getElementById('detailDescriptionText').textContent = expanded ? truncatedDesc : fullDesc;
+      descToggleBtn.textContent = expanded ? 'See more' : 'See less';
+      descToggleBtn.dataset.expanded = expanded ? 'false' : 'true';
+    });
+  }
+
+  const prevBtn = document.getElementById('detailPrevBtn');
+  const nextBtn = document.getElementById('detailNextBtn');
+  if (prevBtn && pos && pos.prevId) prevBtn.addEventListener('click', () => showListingDetail(pos.prevId));
+  if (nextBtn && pos && pos.nextId) nextBtn.addEventListener('click', () => showListingDetail(pos.nextId));
+
   if (detailActiveTab === 'pricehistory') {
-    renderPriceHistoryChart(chartPriceHistory);
+    renderPriceHistoryChart(chartPriceHistory, statusInfo);
   } else if (detailChart) {
     detailChart.destroy();
     detailChart = null;
@@ -3958,12 +4334,26 @@ function setDetailPhoto(index) {
 // indexed query (listing_sources_merged_id_idx) per listing actually
 // opened, cached on the merged row so re-opening the same listing doesn't
 // re-fetch.
+// Position of this listing within the last-rendered results grid (see
+// CURRENT_RESULT_IDS), null if it's not in the current filtered set at all
+// (e.g. opened via a bookmarked/shared #/listing/<id> link whose filters
+// no longer match, or before any grid render has happened yet) - Prev/Next
+// simply don't render in that case rather than guessing a position.
+function currentResultPosition(id) {
+  const idx = CURRENT_RESULT_IDS.indexOf(id);
+  if (idx === -1) return null;
+  return { index: idx, total: CURRENT_RESULT_IDS.length,
+    prevId: idx > 0 ? CURRENT_RESULT_IDS[idx - 1] : null,
+    nextId: idx < CURRENT_RESULT_IDS.length - 1 ? CURRENT_RESULT_IDS[idx + 1] : null };
+}
+
 function showListingDetail(id) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
   detailSourceIndex = 0;
   detailActiveTab = 'details';
   detailRadiusM = null;
+  merged._resultPos = currentResultPosition(id);
   if (!merged.sources) merged.sources = [synthesizeSingleSource(merged)];
 
   // Reminders live in localStorage now (see ALL_REMINDERS above) - a
