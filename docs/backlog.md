@@ -80,7 +80,47 @@ entirely, which is what shipped above.
 
 </details>
 
-## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - URGENT
+## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - IMPLEMENTED, NOT YET MERGED/REVIEWED (2026-09-22)
+
+**Status: all 4 tasks implemented and locally verified; PR open, not
+merged. No `Agent` tool access this session (confirmed by checking, per
+the standing note in `.claude/agents/bossy.md`), so Missy has not
+reviewed this yet - see the hand-back message / PR description for the
+exact dispatch list.** Full investigation and what was actually done is
+in `docs/decisions.md`'s 2026-09-22 entry ("Backlog items 3 and 4
+implemented..."); summary:
+
+- **Task 1 (why the crawl "died") - root cause found, and it was NOT
+  `fetch_listings()`.** The grid crawl itself was working every single
+  day (77,625-89,324 real listings found per run, confirmed from GitHub
+  Actions job logs for 2026-09-16 through 2026-09-19). The real bug was
+  in `scrape-large.yml`'s commit step: `git checkout --ours` during a
+  `git pull --rebase` conflict keeps the *upstream* (main's) version, not
+  the local run's - backwards from what its own comment claimed - and a
+  real conflict against `backfill-detail-alo.yml`'s *hourly* commits to
+  the exact same files happens near-daily, not rarely (that workflow's
+  own header comment claiming these files were "disjoint from... any
+  hourly backfill" was wrong). Fixed via `merge_history_conflict.py`, a
+  real per-listing merge for conflicted `data/history*.json` files, wired
+  into both workflows' conflict fallback in place of blind
+  `checkout --ours` for those specific files.
+- **Task 2 (fail loud)**: `check_scrape_freshness.py`, a new
+  non-`continue-on-error` step at the end of `scrape-large.yml` - fails
+  the whole run if the freshest committed snapshot is stale (>30h) or a
+  portal's active-listing share collapses (<40%, every portal's healthy
+  range is 72-91%). Confirmed it correctly fails loud against the
+  currently-still-corrupted real data in the repo right now.
+- **Task 3 (remediate corrupted status data)**: deliberately not a
+  revert script - `source_status`/`"sold"` both recompute fresh from
+  `history_alo.json`'s own snapshot recency every run, so a real
+  successful crawl self-heals it. **Still needs an actual post-merge run**
+  (next scheduled 03:00 UTC, or a manual dispatch) - flagged for whoever
+  picks up the dispatch list, not run from here.
+- **Task 4 (git-log-hygiene)**: turned out to be entangled with task 1
+  after all (not just possibly, per the original task wording) - same
+  `checkout --ours` bug, same fix.
+
+## 4. "Browse by Council" province matching: ~90%+ of the 9,247 "Others" bucket is a real bug, not genuinely non-Bulgarian data - MOSTLY IMPLEMENTED, NOT YET MERGED/REVIEWED (2026-09-22)
 
 From Missy's 2026-09-21 daily audit (`docs/missy-findings/2026-09-21.md`),
 filed as [issue #183](https://github.com/kirilbp/bg-property-tracker/issues/183),
@@ -211,6 +251,90 @@ well-isolated root causes account for essentially all of it, only
 5. Fix homes.bg's empty-address capture gap (scraper-side, separate from
    this bug's matching logic) if it turns out to be cheap alongside
    task 1-2's work; file separately otherwise.
+
+**Status (2026-09-22): tasks 1, 3, 4 implemented and locally verified;
+task 2 implemented and locally verified with a measured real impact; task
+5 investigated, not fixed. PR open, not merged - no Missy review yet (no
+`Agent` tool access this session). Full detail in `docs/decisions.md`'s
+2026-09-22 entry ("Backlog items 3 and 4 implemented..."); summary per
+task:**
+1. **Done.** `LOCATION_RE`'s own miss rate wasn't touched (that needs live
+   alo.bg samples this sandbox's egress proxy blocks - same block Missy
+   hit), but both compounding bugs are fixed: the `"Bulgaria"` placeholder
+   is now `None`/`None` (confirmed it was leaking into the frontend's own
+   neighborhood filter dropdown as a literal value), and the title
+   fallback now keeps the text immediately before the price marker
+   (where the location phrase actually lives) instead of blindly the
+   first 100 characters. Verified end-to-end against the project's own
+   unmodified `listing_oblast_key()` with a realistic reproduction: old
+   behavior -> unresolved, new behavior -> correctly resolves to `burgas`.
+2. **Done, different approach than originally scoped.** Rather than a
+   hand-built table, sourced `yurukov/Bulgaria-geocoding`'s
+   `settlements.csv`/`municipalities.csv` - the same dataset already
+   backing `data/bg_oblast_boundaries.json` - and derived
+   `data/bg_settlements_to_oblast.json` (3,784 new names, purely
+   additive to the existing table) with automated ambiguous-name exclusion
+   (521 of 4,513 names excluded for spanning >1 oblast - this
+   independently rediscovered both "Бяла" and "Средец" with no special-
+   casing, a good sign the rule generalizes). Cross-validated with zero
+   contradictions against every name already in `BG_MUNICIPALITY_TO_
+   OBLAST`. Measured real impact against the actual committed data: the
+   "Others" bucket across all 8 portals drops from 8,763/304,988 (2.9%)
+   to 5,633/304,988 (1.8%) - 3,130 listings newly resolved by this table
+   alone, before task 1's alo.bg fix even gets a fresh crawl.
+3. **Done.** Added to `BG_MUNICIPALITY_TO_OBLAST`'s Varna section.
+4. **Done - real cause found, conservative fix shipped.** Not a bug in
+   the point-in-ring algorithm itself (verified correct by hand-tracing
+   real ring-edge crossings against the actual Близнаци coordinates) - the
+   real point sits ~8m outside Varna's own simplified boundary polygon,
+   ordinary coastline-simplification/GPS noise. Added a tested, tolerance-
+   based fallback (`NEAR_BOUNDARY_TOLERANCE_DEG`, ~200-330m) that only
+   resolves when exactly one oblast is within tolerance - two-or-more (a
+   real shared border) stays unresolved rather than guessed. 34 of the
+   real 36 Близнаци-cluster listings now resolve.
+5. **Investigated, not fixed - filed as its own follow-up.** Confirmed
+   Missy's exact numbers against real data (94 correctly-excluded "Бяла",
+   92 genuinely empty). Traced the cause: `scraper_homes.py` reads
+   `location` straight from homes.bg's own structured per-listing data
+   object with no HTML parsing involved, so this isn't a parsing bug -
+   homes.bg's own data genuinely has nothing for these listings on
+   whatever endpoint this scraper reads. A real fix needs live network
+   access to homes.bg (to check whether the detail page has more) - this
+   sandbox's egress proxy blocks it, same block Missy hit. Left open.
+
+## 4.5. imoti.net: 100% of listings mislabeled `category: "apartment"` - real, scale-confirmed bug, not yet worked - URGENT
+
+From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
+filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
+Folded in per the standing rule (a real Missy finding gets added
+proactively, not only when the user points at it) - placed below items
+3/4 since those were the ones explicitly requested this session and are
+already in flight, above everything else since it's a real, live-site
+correctness bug at meaningful scale, not speculative.
+
+**Confirmed facts:** `scraper.py` crawls imoti.net's `/en/` (English)
+search URL and calls `classify_category(title)` on the scraped *English*
+title. `classify_category()`'s keyword table (`geo_utils.py:55-65`) is
+Bulgarian-only, so an English title can never match anything and every
+single imoti.net listing (26,804 of 26,804) silently falls through to
+the function's own documented default, `"apartment"` - even though
+imoti.net's own search isn't apartment-scoped (scraped URLs carry 20+
+distinct property-type path segments: `garaj` 279, `parcel` 1932,
+`kashta` 938, `zemedelski-imot` 119, `magazin` 431, `ofis` 408, etc). At
+minimum 4,916/26,804 (18.3%) carry a non-apartment type word in their own
+scraped title/URL and are nonetheless bucketed "apartment" on the live
+site - never showing under "Houses"/"Land"/"Garages"/"Shops"/"Business"
+filters. Not the same as the already-documented bcpea.org case (that
+portal's own apartment-only search URL makes the "apartment" default
+correct there); imoti.net has no such workaround.
+
+**Not yet worked - no tasks defined this session.** A real fix likely
+means either (a) crawling imoti.net's Bulgarian-language URL/title
+instead of `/en/` (bigger change - re-verify whether other already-
+working extraction, e.g. price/sqm parsing, assumes English text), or (b)
+adding an English-keyword table to `classify_category()` alongside the
+Bulgarian one. Needs its own diagnosis pass before a builder can start,
+same as items 3/4 got before implementation.
 
 ## 5. Supabase Pro plan follow-ups - PENDING
 

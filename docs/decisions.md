@@ -326,3 +326,218 @@ a central Sofia-grad district name - the same class of collision
 municipality in both Varna and Ruse oblasts). Flag-and-exclude on
 collision, don't guess, is the established precedent to follow when
 this gets built.
+
+### 2026-09-22 - Backlog items 3 and 4 implemented; no Agent-tool access this
+session, so Missy/Revy review is still pending on a dispatch list
+
+Worked both items per the user's explicit request. **No `Agent` tool was
+available in this session** (confirmed by checking, per `.claude/agents/
+bossy.md`'s own standing instruction for this - it did not assume either
+way). Everything below was implemented and verified directly by this
+session, as thoroughly as tooling allowed, but **none of it has been
+reviewed by Missy, and none of it has shipped/merged** - see the
+hand-back message for the exact dispatch list. This entry records the
+real findings and calls made along the way.
+
+**Item 3 root cause - the "dead crawl" was never actually dead.** Before
+touching anything, pulled the real GitHub Actions job logs for
+`scrape-large.yml`'s runs on 2026-09-16 through 2026-09-19 (the ones
+covering the window Missy flagged). `scraper_alo.py`'s `fetch_listings()`
+succeeded on every single one of them - 77,625 to 89,324 real listings
+found per run, no crash, no early stop. The actual failure was one level
+up: the commit step's `git pull --rebase origin main` hit a real content
+conflict against `backfill-detail-alo.yml` (which runs *hourly* and
+writes to the exact same `data/history_alo.json`/`data/leads_alo.json`
+files - the workflow's own header comment claiming these files were
+"disjoint from... any hourly backfill" was simply wrong, confirmed by
+reading `backfill-detail-alo.yml` directly) on 2026-09-16, -18, and -19
+(checked; didn't check every single day, the pattern was already
+unambiguous). The conflict fallback then ran `git checkout --ours`,
+which - during an active `git rebase` - keeps the *upstream* (main's)
+side, not the local run's, the opposite of what its own comment claimed
+("keeping main's version" is what it does, but that's backwards when
+main's version is the stale one). On 2026-09-18/19 this conflict hit
+`data/history_alo.json` itself (not just the derived `leads_alo.json`),
+so the entire day's freshly-scraped data was discarded, every single
+day - which is exactly why every listing's last real snapshot froze at
+2026-09-16T07:57:07Z regardless of how many "successful" runs followed.
+
+Real fix shipped (not yet merged): `merge_history_conflict.py`, a real
+per-listing merge (union of snapshots, min first_seen, shallow-merged
+"latest") for any conflicted `data/history*.json`, wired into both
+`scrape-large.yml` and `backfill-detail-alo.yml`'s conflict fallback in
+place of `checkout --ours` for those specific files (anything else still
+falls back to the old behavior, now logged loudly via `::warning::`
+instead of silently). Tested against a real simulated git rebase conflict
+(not just unit-level dict merging) - built a scratch git repo, reproduced
+the exact conflict shape from the real logs (`CONFLICT (content): Merge
+conflict in data/history_alo.json`), ran the resolver, confirmed
+`git rebase --continue` completes and the merged file has zero data loss
+from either side (both listings' fresh snapshots kept, backfill's
+enrichment fields on `"latest"` survived the merge). `data/leads_*.json`
+deliberately gets no custom merger - it's a fully-derived file every
+scraper's own `compute_leads()` rebuilds from `history*.json` on its next
+run, so it self-heals within one cycle once the real source-of-truth file
+stops losing data; writing a bespoke merger for an unkeyed array would be
+real added risk for no lasting benefit.
+
+Task 2 ("fail loud"): added `check_scrape_freshness.py` as a new,
+non-`continue-on-error` step at the end of `scrape-large.yml`, checking
+(a) the freshest snapshot across the whole committed history file isn't
+older than 30h and (b) the computed leads file's active-listing share
+isn't below 40% (every portal's own healthy range is 72-91% active per
+Missy's 2026-09-21 sampling, so this floor has real margin without being
+loose enough to miss a real incident). Ran it against the actual,
+currently-still-corrupted `data/history_alo.json`/`leads_alo.json` in the
+repo right now - it correctly fails loud (`::error::` on both checks, 0%
+active). This is the generic, reusable version of the class of guard
+Finding 1 already established in `sync_to_supabase.py` (near-zero-count
+guard) - same principle, different failure shape (total staleness with a
+healthy count, not a collapsed count).
+
+Task 3 (remediate corrupted status data): deliberately did NOT write any
+script to revert/patch existing `"removed"`/`"sold"` flags. Per the
+backlog's own explicit instruction (5.6+ days of real removals are
+genuinely mixed into that window - a blind revert would be as wrong as
+the bug), the fix is letting the crawl and commit pipeline work correctly
+again and re-run for real: `source_status`/`"sold"` are both computed
+fresh from `history_alo.json`'s own snapshot recency on every run, so
+once a real crawl's data lands on `main` without being discarded, every
+listing's status recomputes correctly on its own - no separate
+remediation script needed, just an actual successful run. **This still
+needs to happen post-merge** - either the next scheduled 03:00 UTC run or
+a manual `workflow_dispatch`, and someone should watch that first
+post-merge run's commit-step log to confirm a conflict resolves via the
+real merge (near-certain given the hourly backfill's cadence) rather than
+falling through to the old behavior. Left for the dispatch list, not run
+from here - this session doesn't merge its own unreviewed PR to main and
+trigger a production run against it.
+
+**Item 3/4 overlap, resolved:** the task brief asked whether item 3 task 1
+(why the crawl "died") and item 4 task 1 (`scraper_alo.py`'s `"Bulgaria"`
+placeholder/title-truncation bug) might be the same root cause, since
+both live in `scraper_alo.py`. They are **not** - confirmed independently
+verified: item 3's actual cause is entirely in the git-commit workflow
+layer (above), nothing to do with `fetch_listings_page()`'s own parsing;
+item 4's bug is a genuine, separate content-extraction issue inside
+`fetch_listings_page()` itself (`LOCATION_RE` missing a card's location
+text, independent of whether that data ever successfully reaches disk).
+Pure coincidence of living in the same file.
+
+**Item 4 task 1** (scraper_alo.py placeholder/title bug): changed
+`area, city = "Bulgaria", None` to `None, None` on a `LOCATION_RE` miss -
+confirmed via `index.html` (line ~2553/2635) that `l.area` feeds directly
+into the frontend's own neighborhood-filter dropdown, so `"Bulgaria"` was
+literally a user-visible value, not just an internal placeholder.
+Confirmed via `backfill_others_alo_detail.py` that no existing script
+keys off the literal string `"Bulgaria"` for its own targeting logic (it
+already selects by "`listing_oblast_key()` returns None", not by field
+value), so this change doesn't break that script. Fixed the title
+fallback to keep the text immediately *before* the price marker (where
+this project's own `LOCATION_RE` docstring already says the location
+phrase lives) instead of blindly keeping the first 100 characters of
+container text (agency name/"преди N дни" boilerplate) - verified with a
+synthetic-but-realistic card reproduction that this changes a real
+`oblast_key_from_latlng`-style outcome from `None` to a correct resolved
+oblast (`burgas`), using the project's own unmodified `listing_oblast_key()`.
+
+**Item 4 task 2** (settlement gazetteer): the backlog flagged this as
+needing "an authoritative source (NSI or similar gazetteer)". This
+sandbox's egress proxy blocks every property-portal domain but does
+**not** block `raw.githubusercontent.com`/`github.com` - confirmed live.
+Used `yurukov/Bulgaria-geocoding`'s `settlements.csv` +
+`municipalities.csv` - **the same maintained public dataset this project
+already uses** for `data/bg_oblast_boundaries.json` (see that file's own
+comment in `sync_to_supabase.py`), not a new/unvetted source. Cross-
+validated the derived municipality-code-prefix -> oblast mapping against
+every name already in `BG_MUNICIPALITY_TO_OBLAST`: 27 of 28 prefixes
+derived with **zero contradictions** against this project's own
+hand-verified entries; the 28th ("SOF" = Столична, Sofia-grad's single
+municipality) is unambiguous by construction. Applied the same
+ambiguous-name discipline as the existing table's own "Бяла" exclusion,
+but automatically: any settlement name appearing under more than one
+oblast anywhere in the raw 5,284-settlement dataset is excluded outright
+(521 of 4,513 distinct names, ~11.5%). That automatic rule independently
+rediscovered both names already flagged by hand - "Бяла" (turns out to
+span 3 oblasts at the full settlement level, not just the 2 known from
+municipality seats) and "Средец" (spans 3 oblasts on its own, before even
+counting the separate Sofia-grad-district collision Missy flagged) - with
+no special-casing needed, which is a real signal the rule generalizes
+correctly rather than just covering the two cases already known. Wrote
+the result to `data/bg_settlements_to_oblast.json` (3,784 names, purely
+additive - never overrides an existing `BG_MUNICIPALITY_TO_OBLAST` entry,
+checked second in `oblast_key_from_municipality()`) and measured the real
+impact against the actual committed `data/leads_*.json` files (all 8
+portals, using the project's own unmodified `listing_oblast_key()`, not a
+reimplementation): the "Others" bucket drops from 8,763/304,988 (2.9%) to
+5,633/304,988 (1.8%) - **3,130 listings newly resolved** by this table
+alone, before even counting item 4 task 1's alo.bg fix's own impact
+(alo.bg's committed data hasn't been re-crawled with that fix yet). Full
+304,988-listing set processed with zero exceptions and no meaningful
+performance cost (~7s).
+
+**Item 4 task 3** (Вълчи Дол): added to the Varna section of
+`BG_MUNICIPALITY_TO_OBLAST`, matching the capitalization convention every
+other multi-word entry in that table already uses.
+
+**Item 4 task 4** (`oblast_key_from_latlng` point-in-ring investigation):
+found a real, reproducible cause using the actual committed coordinates
+of the Близнаци cluster Missy flagged (e.g. `43.1032247, 27.9233784`,
+real olx.bg data already in `data/leads_olx.json`) - `_point_in_ring`'s
+own ray-casting algorithm is correct (verified by hand-tracing the real
+ring-edge crossings), but this specific point sits about 8 meters outside
+Varna oblast's own simplified boundary polygon (`yurukov/Bulgaria-
+geocoding`'s data is intentionally simplified for file size) - ordinary
+coastline-simplification + GPS/geocoding precision noise, not a wrong-
+oblast bug. Added a conservative, tested fallback:
+`NEAR_BOUNDARY_TOLERANCE_DEG = 0.003` (~200-330m across Bulgaria's own
+latitude range) - if the strict point-in-ring test finds nothing, checks
+distance-to-boundary for every oblast and returns a match only when
+exactly one oblast is within tolerance (two-or-more within tolerance - a
+real shared border - stays unresolved, same "don't guess" discipline as
+everywhere else in this matching logic). Tested against: the real
+Близнаци point (now resolves to `varna`; 34 of the actual 36 committed
+listings in that cluster now resolve), Sofia/Varna city centers (still
+resolve via the strict test, unaffected), a point in Istanbul (correctly
+stays unresolved, no false-positive risk demonstrated), and two synthetic
+adjacent-polygon tests specifically built to exercise the new fallback's
+own near-single-oblast and ambiguous-shared-border code paths (both
+behaved correctly - one non-guessed exact match, one correctly withheld).
+
+**Item 4 task 5** (homes.bg empty-address gap): investigated, not fixed.
+Confirmed the exact number from Missy's report against real data: of
+homes.bg's 221 "Others"-bucket listings, 94 are the already-correctly-
+excluded "Бяла" case and 92 have completely empty location signal
+(`city: null`, `area: ","` or blank, and no location words anywhere in
+`title` either - e.g. `homes_296683`'s title is just `"Къща, 64m²"`).
+Traced `scraper_homes.py`'s own extraction: `location = offer.get(
+"location", "")` reads directly from homes.bg's own structured per-
+listing data object, with no further HTML text-parsing involved - so this
+isn't a parsing bug to fix, it's homes.bg's own data genuinely carrying
+nothing for these specific listings on whatever page/endpoint this
+scraper reads. A real fix would mean checking whether homes.bg's own
+listing *detail* page (not the list/API response this scraper currently
+reads) carries better location data - that needs live network access to
+homes.bg to verify, which this sandbox's egress proxy blocks (same block
+Missy hit on 2026-09-21/22). Left open, filed as its own follow-up rather
+than guessed at.
+
+**Not done, explicitly deferred to the dispatch list:** Missy's own
+review (and this repo's own "nothing ships without Missy" rule) - no
+`Agent` tool access this session means none of the above has had a real
+second set of eyes yet. This is not auth/security/credentials/personal-
+data work, so Revy's narrower gate doesn't apply here by this session's
+own read of the standing rule - but that's this session's own judgment,
+not a substitute for Missy actually looking at it. See the hand-back
+message for the exact dispatch list (repo, PR link, and what each
+reviewer needs to check).
+
+**Also folded into the backlog per the standing rule** (a real Missy
+finding gets added even when not the thing currently being worked):
+Missy's 2026-09-22 finding #2 (imoti.net: 100% of listings mislabeled
+`category: "apartment"` because `classify_category()`'s Bulgarian-keyword
+table is fed the *English* `/en/` version of imoti.net's own scraped
+titles) - added as backlog item 4.5, below items 3/4 since those were the
+ones explicitly requested this session, above the rest since it's a real,
+scale-confirmed (at minimum 4,916/26,804 listings, 18.3%) live-site
+correctness bug, not speculative.

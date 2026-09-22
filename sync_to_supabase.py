@@ -483,6 +483,66 @@ def _point_in_ring(lng, lat, ring):
     return inside
 
 
+def _point_to_segment_distance_deg(lng, lat, p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    dx, dy = x2 - x1, y2 - y1
+    if dx == 0 and dy == 0:
+        return ((lng - x1) ** 2 + (lat - y1) ** 2) ** 0.5
+    t = ((lng - x1) * dx + (lat - y1) * dy) / (dx * dx + dy * dy)
+    t = max(0.0, min(1.0, t))
+    proj_x, proj_y = x1 + t * dx, y1 + t * dy
+    return ((lng - proj_x) ** 2 + (lat - proj_y) ** 2) ** 0.5
+
+
+def _point_to_ring_distance_deg(lng, lat, ring):
+    n = len(ring)
+    best = None
+    j = n - 1
+    for i in range(n):
+        d = _point_to_segment_distance_deg(lng, lat, ring[j], ring[i])
+        if best is None or d < best:
+            best = d
+        j = i
+    return best
+
+
+# Live-investigated (docs/backlog.md item 4, task 4): a real cluster of
+# olx.bg listings near Близнаци (Varna's own coastline, e.g. lat/lng
+# 43.1032247/27.9233784 - a genuine, live-scraped in-Bulgaria coordinate)
+# came back unresolved from the strict point-in-ring test above even
+# though they're plainly inside Varna oblast. Traced to the actual edge
+# geometry, not a logic bug in _point_in_ring (that algorithm - standard
+# ray-casting - was verified correct against the raw ring data): the
+# nearest ring edge crossing at this point's own latitude sits at
+# lng=27.923306, and the listing's own lng is 27.9233784 - about 8 meters
+# further east, outside Varna's own simplified coastline polygon by less
+# than the width of a single building. This is coastline-simplification +
+# ordinary GPS/geocoding precision noise, not a wrong-oblast bug - the
+# yurukov/Bulgaria-geocoding boundary data this project already uses (see
+# OBLAST_BOUNDARIES' own comment above) is intentionally simplified for
+# file size, and a beachfront-adjacent point is exactly where that
+# simplification bites hardest. NEAR_BOUNDARY_TOLERANCE_DEG below adds a
+# small, deliberately conservative fallback for this specific shape of
+# miss - a point that's just barely OUTSIDE exactly one oblast's own
+# boundary, not a name-matching gap and not a substitute for the strict
+# test above (still tried first, unconditionally).
+#
+# ~0.003 degrees is roughly 200-330m in Bulgaria's own latitude range
+# (parallels/meridians aren't equal-length in degrees - ~111km/degree
+# latitude, ~78-85km/degree longitude across Bulgaria's 41-44N range) -
+# comfortably past this real incident's ~8m gap and ordinary consumer-GPS/
+# geocoder error, while still far too small to bridge the gap between two
+# genuinely different oblasts anywhere they share a real inland border
+# (every BG_OBLASTS pair's own shared-border segments are tens of km long,
+# not meters) - and even then, only fires when exactly one oblast is
+# within tolerance; two oblasts both within tolerance (a real shared
+# border) is left unresolved rather than guessed, same "don't guess an
+# ambiguous case" discipline as BG_MUNICIPALITY_TO_OBLAST's own "Бяла"
+# exclusion.
+NEAR_BOUNDARY_TOLERANCE_DEG = 0.003
+
+
 def oblast_key_from_latlng(lat, lng):
     if lat is None or lng is None:
         return None
@@ -496,6 +556,23 @@ def oblast_key_from_latlng(lat, lng):
             if any(_point_in_ring(lng, lat, hole) for hole in poly["holes"]):
                 continue
             return entry["key"]
+
+    near = set()
+    for entry in OBLAST_BOUNDARIES:
+        for poly in entry["polygons"]:
+            min_lng, min_lat, max_lng, max_lat = poly["exterior_bbox"]
+            # Widen the bbox check by the tolerance itself - the strict
+            # bbox above would otherwise reject a point just outside it,
+            # exactly the case this fallback exists for.
+            if not (
+                min_lng - NEAR_BOUNDARY_TOLERANCE_DEG <= lng <= max_lng + NEAR_BOUNDARY_TOLERANCE_DEG
+                and min_lat - NEAR_BOUNDARY_TOLERANCE_DEG <= lat <= max_lat + NEAR_BOUNDARY_TOLERANCE_DEG
+            ):
+                continue
+            if _point_to_ring_distance_deg(lng, lat, poly["exterior"]) <= NEAR_BOUNDARY_TOLERANCE_DEG:
+                near.add(entry["key"])
+    if len(near) == 1:
+        return next(iter(near))
     return None
 
 
@@ -528,7 +605,7 @@ BG_MUNICIPALITY_TO_OBLAST = {
     # Varna oblast (Byala deliberately excluded - see docstring above)
     "Аврен": "varna", "Аксаково": "varna", "Белослав": "varna", "Долни Чифлик": "varna",
     "Провадия": "varna", "Суворово": "varna", "Ветрино": "varna", "Вeтринo": "varna",
-    "Девня": "varna", "Долен чифлик": "varna",
+    "Девня": "varna", "Долен чифлик": "varna", "Вълчи Дол": "varna",
     # Dobrich oblast
     "Балчик": "dobrich", "Генерал Тошево": "dobrich", "Каварна": "dobrich", "Тервел": "dobrich",
     "Крушари": "dobrich", "Шабла": "dobrich", "Кранево": "dobrich", "Рогачево": "dobrich",
@@ -645,6 +722,73 @@ BG_MUNICIPALITY_TO_OBLAST = {
 }
 
 
+# BG_MUNICIPALITY_TO_OBLAST above is municipality-*seat*-only (265 names) -
+# structural, not a "just missing a few" gap: most of Bulgaria's ~5,300 real
+# settlements sit in a municipality whose SEAT has a different name, so
+# they're invisible to it even though their own municipality unambiguously
+# determines an oblast (docs/backlog.md item 4, task 2 - live-sampled:
+# 1,545 distinct real settlement names unmatched, e.g. Типченица,
+# Изворово, Илинденци, Цалапица).
+#
+# data/bg_settlements_to_oblast.json is the real fix: derived from
+# yurukov/Bulgaria-geocoding's settlements.csv + municipalities.csv (the
+# SAME maintained public dataset this module already uses for
+# OBLAST_BOUNDARIES above - not a new, unvetted source) via
+# settlement -> municipality code -> oblast, cross-validated against every
+# name already in BG_MUNICIPALITY_TO_OBLAST above (27 of the resulting 28
+# municipality-code prefixes derived with ZERO contradictions against this
+# table's own hand-verified entries; the 28th, "SOF" = Столична, Sofia-
+# grad's own single municipality, is unambiguous by construction - Sofia-
+# grad has exactly one). 4,513 distinct settlement names found in the raw
+# data; of those, 521 (~11.5%) appear under more than one oblast anywhere
+# in Bulgaria and are EXCLUDED from the generated file entirely - same
+# "don't guess an ambiguous name" discipline as this table's own "Бяла"
+# exclusion above, just applied programmatically instead of by hand. That
+# automated rule independently rediscovered "Бяла" (spans 3 oblasts in the
+# full settlement-level data, not just the 2 known from municipality
+# seats) and "Средец" (spans 3 oblasts on its own, before even accounting
+# for the separate Sofia-grad-district collision Missy flagged) with no
+# special-casing needed - a good sign the rule is doing the right thing
+# generally, not just on the two cases already known about. The 3,784
+# names left (well past the 1,545 actually observed missing, so real
+# margin) are purely ADDITIVE: any name already decided by hand above
+# (checked first in oblast_key_from_municipality() below, unchanged) is
+# never overridden by this generated file, even on the rare case both
+# would have agreed anyway.
+#
+# Regeneration: re-run the derivation described above against a fresh
+# settlements.csv/municipalities.csv if Bulgaria's own municipality map
+# ever changes (rare - the last real changes were years ago) or if a
+# future audit finds more names needing the ambiguous-exclusion treatment
+# by hand (add them to _MANUALLY_EXCLUDED_SETTLEMENTS below rather than
+# editing the generated file directly).
+_SETTLEMENTS_TO_OBLAST_PATH = Path(__file__).parent / "data" / "bg_settlements_to_oblast.json"
+
+
+def _load_settlements_to_oblast():
+    if not _SETTLEMENTS_TO_OBLAST_PATH.exists():
+        return {}
+    return json.loads(_SETTLEMENTS_TO_OBLAST_PATH.read_text(encoding="utf-8"))
+
+
+# Names the automated ambiguity check above wouldn't catch on its own,
+# because one side of the real-world collision isn't a separate EKATTE
+# settlement at all (so it never appears in settlements.csv to trigger the
+# "spans more than one oblast" exclusion) - specifically, a Sofia-grad
+# intra-city district sharing a name with a genuine, different settlement
+# elsewhere. "Средец" already excludes itself automatically (a real
+# settlement of that name also exists in Stara Zagora/Smolyan, not just
+# Burgas), kept here as a documented belt-and-suspenders entry since it's
+# the exact case Missy flagged live. Add future finds here, never by
+# editing the generated JSON file directly.
+_MANUALLY_EXCLUDED_SETTLEMENTS = {"Средец"}
+
+BG_SETTLEMENT_TO_OBLAST = {
+    name: key for name, key in _load_settlements_to_oblast().items()
+    if name not in _MANUALLY_EXCLUDED_SETTLEMENTS
+}
+
+
 # Portals prefix a settlement-type label onto the name itself
 # ("гр.Несебър" - town, "с.Владая" - village, "кв. Виница" - quarter) and
 # sometimes leave stray leading punctuation from a malformed split
@@ -658,11 +802,19 @@ def oblast_key_from_municipality(name):
     if not name:
         return None
     stripped = name.strip()
-    key = BG_MUNICIPALITY_TO_OBLAST.get(stripped)
-    if key:
-        return key
     normalized = _MUNICIPALITY_PREFIX_RE.sub("", stripped).strip()
-    return BG_MUNICIPALITY_TO_OBLAST.get(normalized)
+    # BG_MUNICIPALITY_TO_OBLAST (hand-verified, including its typo-
+    # tolerant variants for real scraper quirks) always wins first -
+    # BG_SETTLEMENT_TO_OBLAST (generated, ~3,800 names wide) never
+    # overrides an existing decision, only adds coverage beyond it. See
+    # BG_SETTLEMENT_TO_OBLAST's own comment for why the two never actually
+    # disagree where both happen to cover the same name.
+    return (
+        BG_MUNICIPALITY_TO_OBLAST.get(stripped)
+        or BG_MUNICIPALITY_TO_OBLAST.get(normalized)
+        or BG_SETTLEMENT_TO_OBLAST.get(stripped)
+        or BG_SETTLEMENT_TO_OBLAST.get(normalized)
+    )
 
 
 def listing_oblast_key(l, city_key):
