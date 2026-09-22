@@ -613,14 +613,29 @@ classified category against the listing's own stored title/URL by hand
 `"Garage, ..."` -> `garage`; `magazin` + `"Shop, ..."` -> `shop`) across
 dozens of listings, all correct. Full-dataset result after the fix:
 21,399 flat, 2,360 land, 1,436 house, 750 business, 603 shop, 333 garage
-(was 26,881/26,881 "apartment", 100%, before) - 92.6% high confidence (two
-independent signals agreeing), 71/26,881 (0.26%) low-confidence
-`no_keyword_match` residual (things like "Building"/"Hall"/"Forest"/
-"Farm" with no recognizable keyword in either signal - the same small,
-accepted-residual pattern already established for backlog item 4's task 5,
-left as a documented gap rather than chased further; `category_confidence`
-is stored on every listing precisely so this residual is flagged, not
-silent).
+(was 26,881/26,881 "apartment", 100%, before).
+
+**Correction (Missy's PR #199 review, 2026-09-22):** this entry originally
+claimed "92.6% high confidence, 0.26% low-confidence residual," implying
+those two numbers accounted for the whole dataset. They don't - the real
+breakdown, recomputed independently from the committed data, is 91.73%
+high confidence (24,659) / 8.27% low confidence (2,222). The 0.26% figure
+(71/26,881) is accurate but only covers the `no_keyword_match` subset
+(things like "Building"/"Hall"/"Forest"/"Farm" with no recognizable
+keyword in either signal - the same small, accepted-residual pattern
+already established for backlog item 4's task 5). It silently omitted the
+other 2,150 records (8.0%) that are low-confidence for a different,
+previously-undocumented reason: `single_signal_only`. Missy hand-checked
+15 of those and found all correctly categorized (e.g. "3 bedroom
+apartment"/`chetiristaen` URL -> flat), so this isn't a misclassification
+risk - it's a real but pre-existing gap in `category_classifier.py`'s
+`flat` keyword list, which has "ednostaen"/"dvustaen"/"tristaen" but is
+missing "chetiristaen" (4-room) and "mnogostaen" (multi-room), so the
+URL-slug signal silently fails to match on those even though the title
+signal still does. Not introduced by this PR (the diff never touched the
+`flat` keyword list) - filed as its own small follow-up rather than
+re-opening this fix. `category_confidence` is stored on every listing
+precisely so a gap like this gets flagged accurately, not undersold.
 
 **Remediated already-committed data, not just fixed forward:** wrote
 `backfill_category_imoti_net.py`, a one-off, purely-local script (title

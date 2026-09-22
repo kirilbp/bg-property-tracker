@@ -324,9 +324,20 @@ caused and fixed"). Summary:
   `backfill_category_imoti_net.py` reclassified all 26,881 existing
   `data/history.json`/`data/leads.json` records locally (title/url already
   stored, no re-crawl needed). Result: 21,399 flat, 2,360 land, 1,436
-  house, 750 business, 603 shop, 333 garage (was 100% "apartment"); 92.6%
-  high confidence, 0.26% low-confidence residual left as a documented gap
-  (same pattern as item 4's task 5).
+  house, 750 business, 603 shop, 333 garage (was 100% "apartment").
+  **Corrected by Missy's PR review (2026-09-22)**: confidence breakdown is
+  actually 91.73% high confidence (24,659) / 8.27% low confidence (2,222),
+  not the "92.6%/0.26%" originally claimed here - that 0.26% figure
+  (71/26,881) only covered the `no_keyword_match` subset and omitted
+  2,150 records (8.0%) that are low-confidence for a separate reason,
+  `single_signal_only`. Missy hand-checked 15 `single_signal_only`
+  records and found all correctly categorized - traced to a real but
+  pre-existing gap in `category_classifier.py`'s `flat` keyword list
+  (has "ednostaen"/"dvustaen"/"tristaen" but is missing "chetiristaen"
+  4-room and "mnogostaen" multi-room), which silently fails the URL-slug
+  signal on those listings even though the title signal still matches -
+  a scoring artifact, not a misclassification risk, and not introduced by
+  this PR. Worth its own small follow-up to add the missing keywords.
 - **Second bug found and fixed in the same change**: `index.html`'s
   `matchesLeadGenerator()` compared raw `category` against the Lead
   Generator modal's old-vocabulary checkboxes, which this fix would have
