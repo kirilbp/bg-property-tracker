@@ -278,7 +278,27 @@ def fetch_listings_page(url, seen):
             area = dedup_area(location_match.group(1).strip())
             city = dedup_area(location_match.group(2).strip())
         else:
-            area, city = "Bulgaria", None
+            # Used to write area, city = "Bulgaria", None here - a literal
+            # placeholder, not a real signal, that ended up user-visible
+            # (index.html's neighborhood filter dropdown pulls straight
+            # from every listing's own l.area) and, worse, fed straight
+            # into sync_to_supabase.py's listing_oblast_key() as if it
+            # were real location text to try matching - it never matches
+            # anything (it isn't a real Bulgarian place name), so it
+            # never actively caused a WRONG match, but it dressed up "we
+            # have no location text for this card" as if it were a
+            # (wrong) answer instead of a plain unknown. None/None is the
+            # honest value: sync_to_supabase.py's own field loop already
+            # treats a falsy city/area as "try the next source" (the
+            # title-based fallback, or - since backfill_others_alo_
+            # detail.py exists specifically for this LOCATION_RE-miss
+            # case - a later coordinate backfill), same as it does for
+            # every other portal's genuinely-missing location text. See
+            # docs/backlog.md item 4 and docs/decisions.md's 2026-09-22
+            # entry for the full investigation (confirmed independent of
+            # item 3's "grid crawl looked dead" bug - different root
+            # cause, same file, pure coincidence).
+            area, city = None, None
 
         # An agency-posted card has TWO images in this container: its own
         # branding/avatar (class "listtop-logo") *before* the real property
@@ -311,7 +331,32 @@ def fetch_listings_page(url, seen):
                 img_url = BASE_URL + "/" + img_url
 
         full_url = BASE_URL + a["href"]
-        title = a.get_text(" ", strip=True) or text[:100]
+        title = a.get_text(" ", strip=True)
+        if not title:
+            # The <a> tag itself carries no text on this card layout (the
+            # common case - see LOCATION_RE's own docstring for how often
+            # LOCATION_RE alone already misses this shape). Used to fall
+            # back to a blind text[:100] here, which kept whatever
+            # happened to sit at the very START of the container's own
+            # text (agency name, "преди N дни", other boilerplate) and
+            # cut off before the location phrase, which this project's
+            # own real samples confirm sits at the very END, immediately
+            # before "Цена :" (same shape LOCATION_RE matches on - see
+            # its docstring). Since price_match already matched above,
+            # "Цена" is guaranteed present in text at least once, so
+            # slicing up to it and keeping the TAIL nearest to it (not
+            # the head, which is only guaranteed to be non-empty, not
+            # short - the "Bulgaria"/None-area fix above already stopped
+            # LOCATION_RE misses from being silently mislabeled, but the
+            # stored title itself needs the location words too, both for
+            # a human glancing at the listing and for sync_to_supabase.
+            # py's own title-based oblast fallback) survives the [:120]
+            # cut just below. Real example this fixes: alo_11149326 used
+            # to truncate mid-word right before "Слънчев бряг ...
+            # Бургас" would have appeared - see docs/backlog.md item 4.
+            price_pos = text.find("Цена")
+            pre_price = text[:price_pos].strip() if price_pos != -1 else text
+            title = pre_price[-100:] if len(pre_price) > 100 else pre_price
 
         listing_title = title[:120]
         category, category_confidence, _ = classify_listing(title=listing_title, url=full_url)

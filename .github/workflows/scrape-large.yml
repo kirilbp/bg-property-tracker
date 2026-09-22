@@ -24,13 +24,25 @@ on:
 # listings": this job kept getting bumped from that shared queue before it
 # ever started (0 successful runs from Sep 1 to Sep 5, confirmed via
 # workflow run history) - a newer hourly cron always displaced it while it
-# waited behind whichever job was currently running. It doesn't actually
-# need to share a group with anything: scraper.py (imoti.net) and
-# scraper_alo.py (alo.bg) touch only leads.json/history.json and
-# leads_alo.json/history_alo.json - disjoint from every file scrape.yml or
-# any hourly backfill writes - and the commit step's own conflict fallback
-# below (keep main's version of just the conflicted file) already covers
-# the one real remaining case, a PR merge landing on main mid-run.
+# waited behind whichever job was currently running.
+#
+# Correction (2026-09-22, docs/backlog.md item 3): the claim that used to
+# be here - that scraper.py/scraper_alo.py's files are "disjoint from
+# every file scrape.yml or any hourly backfill writes" - was wrong.
+# backfill-detail-alo.yml runs hourly and writes to these exact same
+# data/leads_alo.json/data/history_alo.json files, so a real content
+# conflict here against that workflow's own concurrent commits isn't a
+# rare edge case, it's near-daily - confirmed live as the actual root
+# cause of alo.bg's grid crawl looking "dead" for 6 days: the conflict
+# fallback below used to be `git checkout --ours`, which during an active
+# `git rebase` keeps the *upstream* (main's) version, not this run's own -
+# so every one of those near-daily conflicts silently discarded this run's
+# freshly-scraped data/history_alo.json. See merge_history_conflict.py's
+# docstring and docs/decisions.md's 2026-09-22 entry for the full story
+# and the actual fix (a real merge for data/history*.json instead of
+# discarding a side) - this comment is being corrected rather than removed
+# so the wrong assumption doesn't get re-introduced without someone
+# reading why it's wrong.
 concurrency:
   group: scrape-large
   cancel-in-progress: false
@@ -114,9 +126,27 @@ jobs:
               git commit -m "Update listings (residual)"
             fi
             if ! git pull --rebase origin main; then
-              echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-              git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-              git diff --name-only --diff-filter=U | xargs -r git add
+              # merge_history_conflict.py actually merges any conflicted
+              # data/history*.json (the append-only source of truth every
+              # scraper's own compute_leads() derives from) instead of
+              # discarding one side - see its own docstring for why
+              # checkout --ours here was silently eating this run's real
+              # scraped data every time it fired (confirmed root cause of
+              # alo.bg's grid crawl looking "dead" for 6 days - docs/
+              # backlog.md item 3, docs/decisions.md 2026-09-22). Anything
+              # it doesn't recognize (data/leads_alo.json/leads.json -
+              # fully derived, self-heals from history*.json on the very
+              # next run, see that script's docstring for why a merger for
+              # those isn't needed) still falls back to the old behavior,
+              # now logged loudly instead of silently.
+              echo "Rebase hit a content conflict - attempting a real merge for data/history*.json files"
+              python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
+              remaining=$(git diff --name-only --diff-filter=U)
+              if [ -n "$remaining" ]; then
+                echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
+                echo "$remaining" | xargs -r git checkout --ours --
+                echo "$remaining" | xargs -r git add
+              fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true
@@ -148,3 +178,15 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+      # Deliberately NOT continue-on-error and NOT feeding into whether
+      # earlier steps' data reaches Supabase (this runs last, after
+      # sync_to_supabase.py, and doesn't gate it) - its only job is making
+      # sure a staleness event like alo.bg's (docs/backlog.md item 3) makes
+      # this workflow run itself report red instead of looking identical to
+      # a normal day, which continue-on-error on the scraper steps plus
+      # if: always() on the commit step otherwise guarantees it never does.
+      # See check_scrape_freshness.py's own docstring for what it checks
+      # and why.
+      - if: always()
+        run: python check_scrape_freshness.py alo ""

@@ -12,8 +12,11 @@
 # funneling into one slot, a later schedule firing while an earlier one
 # was still queued canceled it outright rather than just delaying it
 # (confirmed live: runs were being canceled every few minutes). Any git
-# push race with a concurrent scrape/backfill is already handled by the
-# rebase-retry-with-ours fallback below, same as always.
+# push race with a concurrent scrape/backfill is handled by the
+# rebase-retry fallback below - a real merge for data/history*.json (see
+# merge_history_conflict.py), the old keep-one-side-only behavior for
+# anything else (now logged loudly, not silently - see docs/backlog.md
+# item 3 for why that mattered here specifically).
 name: Backfill alo.bg listing details
 
 on:
@@ -69,9 +72,21 @@ jobs:
               git commit -m "Update listings (residual)"
             fi
             if ! git pull --rebase origin main; then
-              echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-              git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-              git diff --name-only --diff-filter=U | xargs -r git add
+              # See merge_history_conflict.py's own docstring: this used to
+              # be `git checkout --ours`, which during an active `git
+              # rebase` keeps the *upstream* (main's) version, silently
+              # discarding this run's own enrichment (site_updated_at/lat,
+              # lng/description/photos) on every conflict against
+              # scrape-large.yml's daily grid crawl - confirmed as (half
+              # of) the real root cause behind docs/backlog.md item 3.
+              echo "Rebase hit a content conflict - attempting a real merge for data/history*.json files"
+              python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
+              remaining=$(git diff --name-only --diff-filter=U)
+              if [ -n "$remaining" ]; then
+                echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
+                echo "$remaining" | xargs -r git checkout --ours --
+                echo "$remaining" | xargs -r git add
+              fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true
