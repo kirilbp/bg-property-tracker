@@ -1132,8 +1132,9 @@ real committed field names and a real rendered/interacted-with build (not
 just read) - see `docs/decisions.md`'s matching entry for the full detail.
 Not yet reviewed - per this item's own dispatch note, this needs BOTH
 Missy's review AND Revy's (PII: seller names/addresses, even with no
-login system) before it ships. PR not yet opened as of this status line -
-see whoever picks up the dispatch for the actual PR link.** Summary:
+login system) before it ships. Opened as
+[PR #214](https://github.com/kirilbp/bg-property-tracker/pull/214),
+not merged.** Summary:
 
 - **Campaign management**: `SEND_LETTERS_CAMPAIGNS`/`SEND_LETTERS_DESIGNS`
   localStorage state (same no-login, this-browser-only pattern as
