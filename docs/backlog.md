@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - slice 1 implemented and self-verified, real measurement re-confirmed, AWAITING MISSY'S REVIEW - URGENT
+## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - slice 2 open - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -581,13 +581,20 @@ count, a capped/limited count query, or skipping total-count display
 entirely), not `count=exact` as currently written in
 `measure_listings_payload.py`'s own `get_total_count()` workaround.
 
-**Dispatch needed:** (1) Missy's real review (this session has no
-`Agent`/Task tool, so this could not be dispatched to her directly - see
-decisions.md for the exact ask); (2) a real PR to `main` (not
-self-merged - see decisions.md's note on why); (3) once merged, confirm
-live on a real browser load (this sandbox still has no network route to
-Supabase or the deployed site to do that itself). Not auth/security/
-credentials/PII, so Revy's review is not required.
+Reviewed by Missy (verdict: approve, no blocking issues - verified the
+IndexedDB cache is genuinely isolated from saved listings/Lead
+Generators, the `synthesizeSingleSource()` race-condition fix is real
+and correctly scoped, and the live measurement run) and merged in
+[PR #203](https://github.com/kirilbp/bg-property-tracker/pull/203).
+
+**Slice 2 remains open**: real server-side filtered/paginated Supabase
+queries and `findComparables()`'s in-memory radius-search redesign - not
+attempted, deliberately scoped out of slice 1. Whoever picks it up should
+note `Prefer: count=exact` against `merged_listings` hits Postgres's
+statement_timeout live (confirmed, error 57014) - any pagination UI
+needing a total result count will need a different approach (approximate
+count, a capped query, or skipping total-count display), not
+`count=exact`.
 
 ## 7. Supabase Pro plan follow-ups - PENDING
 
@@ -602,7 +609,11 @@ size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE (2026-09-22, Dessy)
+## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE, MERGED (2026-09-22, Dessy)
+
+Reviewed by Missy (verdict: no blocking findings, all claims independently
+verified against real committed data) and merged in
+[PR #200](https://github.com/kirilbp/bg-property-tracker/pull/200).
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -837,7 +848,7 @@ of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
 
-## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22)
+## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
 
 **Numbered last but work this immediately after item 6/7 - do not let its
 position at the end of this list imply low priority.** From the user
@@ -939,9 +950,47 @@ dispatch needed).** Summary:
   305,065-listing dataset, and functionally tested the real `index.html`
   JS (not a rewritten copy) via a Node `vm` harness against realistic
   fake data and the full real 214,889-row merged dataset.
-- **Not done**: Missy's actual review, and confirming the Supabase SQL
-  migration has actually been applied live (this sandbox has no network
-  route to Supabase to check).
+- Reviewed by Missy (verdict: safe to merge - independently reproduced
+  every numeric claim against real data) and merged in
+  [PR #200](https://github.com/kirilbp/bg-property-tracker/pull/200).
+
+**One open item, not a code defect, needs a human:** the
+`supabase/schema.sql` migration (new `area_key` column + index) has not
+been confirmed applied to the live Supabase table - no session this far
+has had console access. The site works correctly today regardless, via
+the client-side `normalizeArea()` fallback in `index.html` (verified);
+the server-side column is a performance optimization for later, not a
+correctness blocker. **Action needed from Kiril**: run the migration in
+the Supabase SQL editor. The exact statement (idempotent, additive only,
+matches the existing `city_key`/`oblast_key` pattern):
+
+```sql
+alter table listing_sources add column if not exists area_key text;
+alter table merged_listings add column if not exists area_key text;
+create index if not exists merged_listings_area_key_idx on merged_listings (area_key);
+```
+
+After running it, the next scheduled sync (or a manual dispatch of
+`sync-supabase.yml`) backfills every row automatically - no separate
+backfill script needed.
+
+**Real production consequence of this migration still being pending
+(found and fixed 2026-09-22, [PR #205](https://github.com/kirilbp/bg-property-tracker/pull/205)):**
+every `sync_to_supabase.py` run started crashing outright the moment this
+item's code shipped, on Postgres/PostgREST's own "PGRST204: Could not
+find the 'area_key' column... in the schema cache" - since `upsert()` had
+zero handling for a column the code sends but the live table doesn't
+have yet, and this happened before `main()`'s cleanup step ever ran, a
+pending manual migration was silently taking down the entire sync, not
+just failing to populate one column. `upsert()` now detects this specific
+error, strips the missing column from every row for that table, and
+retries - the sync stays fully functional whether or not the migration
+has landed, and the moment it has, this stops triggering with no further
+code change needed. This was caught from a real user-reported
+`scrape-large.yml` failure (run 35744137997) - the scraping/git-merge
+pipeline underneath was fine throughout (alo.bg's history grew from
+87,979 to 90,159 listings with zero data loss); only the Supabase sync
+step was broken.
 
 ## 19. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
 
