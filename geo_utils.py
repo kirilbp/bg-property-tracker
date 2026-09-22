@@ -517,11 +517,22 @@ def bcpea_type_match(title):
 
 def bcpea_settlement_from_title(title):
     match = bcpea_type_match(title)
-    if not match:
-        return None
-    raw_type, _ = match
-    rest = title[len(raw_type):]
-    return re.sub(r"^,\s*", "", rest).strip() or None
+    if match:
+        raw_type, _ = match
+        rest = title[len(raw_type):]
+        return re.sub(r"^,\s*", "", rest).strip() or None
+    # "Други" ("Other") is a real bcpea.org category label outside
+    # BCPEA_RAW_TYPES' controlled vocabulary - deliberately NOT added there,
+    # since bcpea_type_match() returning None for it is exactly what makes
+    # type_filter_bucket() correctly bucket these listings "other" (backlog
+    # item 21). But the settlement name still follows the same
+    # "<category label>, <settlement>" shape every other bcpea title uses
+    # (e.g. "Други, Брезово"), so settlement extraction alone needs its own
+    # narrow handling of this one label to not lose the location signal.
+    if title and title.startswith("Други"):
+        rest = title[len("Други"):]
+        return re.sub(r"^,\s*", "", rest).strip() or None
+    return None
 
 
 BG_CITIES = [

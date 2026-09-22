@@ -33,8 +33,15 @@ HEADERS = {
 # Every column merged_listings has today (supabase/schema.sql) EXCEPT the
 # three heavy jsonb columns the fix direction says to drop from the bulk
 # list-view fetch: description, photos, price_history.
+#
+# area_key deliberately left OUT here even though schema.sql defines it
+# (backlog item 18) - a live run of this script (2026-09-22) got
+# "column merged_listings.area_key does not exist" back from Supabase
+# itself, independently confirming backlog item 18's already-flagged open
+# item: that migration has not actually been applied to the live table yet.
+# Add it back in once that's confirmed applied.
 NARROW_COLUMNS = (
-    "id,portal,url,photo,price_eur,sqm,area,area_key,title,category,"
+    "id,portal,url,photo,price_eur,sqm,area,title,category,"
     "category_confidence,type_bucket,city_key,oblast_key,lat,lng,"
     "price_per_sqm,price_drop_count,drop_pct,days_on_market,score,status,"
     "member_count,member_portals,area_avg_price_per_sqm,pct_vs_area_avg,"
