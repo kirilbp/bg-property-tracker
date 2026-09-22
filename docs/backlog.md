@@ -820,7 +820,7 @@ shared checkout - PR to follow. Summary:
 - **Not done**: Missy's review, and a real PR to `main` (branch is pushed,
   PR still to be opened as part of this same pass).
 
-## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test)
+## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
 
 Aggregate analytics built entirely from imotenradar's own already-scraped
 listing history - no new data source required. Spec sections 4 and 5
@@ -845,6 +845,123 @@ listing history - no new data source required. Spec sections 4 and 5
   math (LTV, interest rate, rent-cover ratio) is not UK-specific: ship
   with Bulgarian-market default assumptions (BG mortgage rates, typical
   LTV terms) in place of Property Filter's UK defaults.
+
+**Status (2026-09-22): all four sub-items implemented in `index.html`,
+self-tested against real committed data via a headless-browser harness
+(no `Agent`/subagent-spawning tool available this session to hand off to
+Missy directly - same documented gap as item 18's dispatch), not yet
+reviewed by her.** Summary:
+
+- **Comparables tool - built as two surfaces, not one**, reusing the
+  existing `findComparables()`/radius-search logic already in `index.html`
+  as the base per the dispatch, rather than starting from scratch:
+  - A new standalone top-level nav section (`#section-comparables`,
+    "Comparables" in the sidebar) - the spec's own separate section-4
+    "postcode-search-first tool, independent of any single listing." City
+    + quarter (кв.) dropdowns (quarter deliberately disabled until a city
+    is picked - see below) + radius-in-km input + property-type/bedroom/
+    price/size filters + a "Search" button, running averages bar, and a
+    Card/Table/Map/Export view toggle reusing item 10's own `.pl-*`
+    component classes (card grid, table, map, view toggle) rather than a
+    new visual language.
+  - The listing detail page's existing radius-average panel and Compare
+    modal (spec's section-5 "Tab: Comparables," pre-scoped to one listing)
+    upgraded into a proper **Comparables tab** alongside Details/Price
+    History, with the same Card/Table/Map/Export treatment - matching the
+    spec's tab-based design more closely than the old popup-modal pattern
+    while leaving the modal itself untouched (still reachable, not
+    removed, to avoid a bigger-than-asked-for refactor of working code).
+  - A real, non-hypothetical bug caught and fixed during this work: an
+    area-only match (no city AND-ed in) would have matched a same-named
+    area/quarter across every Bulgarian city sharing that name (e.g.
+    "Център" exists in dozens of towns) - the exact collision class item
+    18 already documented and guarded against elsewhere in this codebase.
+    Fixed by requiring a city before the quarter dropdown becomes
+    selectable at all (populateComparablesAreaSelect()), and by AND-ing
+    city+area in the actual match filter, not just the UI.
+  - Bedrooms filter reuses the existing title-derived `l.rooms` field
+    (`extractRoomCount()`), already used by the main Leads filter - no new
+    field invented. "Distance from subject" doesn't apply to the
+    standalone tool (it has no single subject listing) - distance is
+    computed from the searched city/quarter's own geocoded centroid
+    instead, which is what the spec's postcode-radius-search concept
+    actually maps to at this section's (non-listing-scoped) level.
+- **Area Data tab** (new, on the listing detail page): Market Live Data
+  stats (avg asking price, avg €/m², avg days on market) for the
+  listing's own area+type, a real historical €/m² trend line chart, and
+  three "Last Sold Data (asking-price version)" histograms (price, €/m²,
+  size) with the subject listing's own bucket highlighted in brass - all
+  computed from imotenradar's own already-scraped data, with an explicit
+  `AREA_DATA_MIN_SAMPLE = 5` graceful empty state for thin areas (tested
+  against a real sparse-area listing in the harness). **Deliberately NOT
+  built, flagged rather than faked: the Est. Yield gauge and the For Sale
+  vs. To Rent comparison** - both need a rental-listing dataset to compare
+  against, and imotenradar doesn't have one; this repo's own "Parked"
+  section already investigated rental scraping directly and found under
+  ~400 usable whole-property rental listings nationwide, not enough for a
+  reliable per-area rent/yield figure. A visible gap-note explains this in
+  the UI itself rather than silently omitting the panel or faking numbers.
+  The trend chart needed one real architectural judgment call: `MERGED_
+  LISTINGS`'s bulk load (backlog item 6) deliberately excludes
+  `price_history` for performance, so building a genuine historical trend
+  needed a small, explicitly bounded, chunked `id`-list-scoped fetch
+  (capped at 200 listings, same lazy-fetch shape as the existing
+  listing_sources/description fetches) rather than either reintroducing a
+  bulk load or faking a trend from non-historical data.
+- **Last Sold Data histograms**: shipped as the asking-price version only,
+  per the spec's own recommended sequencing - labeled honestly in the UI
+  ("asking-price version... not Registry Agency transaction data") rather
+  than implying it's real sold-price data. True last-sold data remains an
+  open question (Имотен регистър/Кадастър scrapability unconfirmed) per
+  this file's "Open questions" section, unchanged by this work.
+- **BTL Stress Test tab** (new, on the listing detail page): a live,
+  reactive calculator (LTV %, interest rate %, Interest Cover Ratio %,
+  purchase price defaulting to the listing's own price) computing
+  "Minimum rental income per month to pass" and "Maximum price offer to
+  pass," with illustrative Bulgarian-market default assumptions (70% LTV,
+  4.0% interest, 125% ICR - all editable, explicitly labeled as
+  illustrative defaults, not live rates) replacing Property Filter's UK
+  defaults. Monthly rent is a **required user input, never defaulted or
+  estimated** - imotenradar has no Bulgarian rental dataset to estimate it
+  from (same gap as the Area Data tab's own note, and the same gap item
+  10 already flagged for its own "yield-like %" pipeline-card stat), so
+  the calculator asks the user for their own rent research rather than
+  fabricating one. The underlying math is pure and UK-non-specific (LTV ×
+  interest rate × interest-cover ratio), verified by hand in the test
+  harness against known inputs.
+- **Verification**: syntax-checked (`node --check`), then exercised
+  end-to-end with Playwright against a headless Chromium, driven by a
+  ~130-row fixture sampled from the real committed `data/leads_imot.json`/
+  `data/history_imot.json` (this sandbox's egress proxy blocks the live
+  Supabase project directly, same documented limitation prior sessions
+  hit - Supabase-js/Chart.js/Leaflet were served from local npm-installed
+  copies of the exact same pinned CDN versions rather than skipped, since
+  cdnjs.cloudflare.com/unpkg.com are also proxy-blocked). Covered: standalone
+  Comparables search + all three view modes + CSV export + the
+  city-before-area guard; the listing detail page's new Comparables/Area
+  Data/BTL tabs including a genuinely sparse area's empty state; a real
+  bug found and fixed in the process (a `type="number"` input threw on
+  `selectionStart`/`selectionEnd` assignment in the BTL tab's keystroke-
+  preserving refocus logic - fixed by dropping cursor-position restoration
+  for number inputs). Checked responsively at 1440px/900px/390px - the
+  new sections inherit the same non-collapsing-sidebar limitation the
+  entire rest of the site already has at phone width (confirmed identical
+  on the pre-existing Home page, not a regression introduced here; a real
+  gap, but a site-wide one already flagged as unaddressed in the spec's
+  "Gaps in Nosy's spec" section, not something to fix piecemeal in this
+  pass).
+- **Design-guideline judgment calls made, not covered explicitly by
+  `docs/design-guidelines.md`**: reused item 10's `.pl-*` component
+  classes (card grid/table/map/view-toggle) for both new Comparables
+  surfaces rather than inventing new markup for the same visual pattern;
+  histogram "subject bucket" highlighting uses a single brass bar against
+  muted taupe bars (no second accent color, no traffic-light coding);
+  BTL pass/fail uses the sage signal color for "pass" and the ink-soft
+  tone for "fail" rather than green/red, per the design guidelines'
+  explicit red-reads-as-alarm rule.
+- **Not done**: Missy's review, and a live check against the real
+  Supabase project (blocked from this sandbox, same as every other recent
+  item).
 
 ## 12. Market Data hub (portfolio-level aggregate tiles)
 
