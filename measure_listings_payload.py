@@ -33,8 +33,18 @@ HEADERS = {
 # Every column merged_listings has today (supabase/schema.sql) EXCEPT the
 # three heavy jsonb columns the fix direction says to drop from the bulk
 # list-view fetch: description, photos, price_history.
+#
+# area_key deliberately left OUT here even though schema.sql defines it
+# (backlog item 18) - a live run of this script (2026-09-22) got
+# "column merged_listings.area_key does not exist" back from Supabase
+# itself (a 400, not the earlier-suspected 42703 alone - same underlying
+# cause), independently confirming backlog item 18's already-flagged open
+# item: that migration has not actually been applied to the live table
+# yet. Add it back in once that's confirmed applied. Matches
+# index.html's own MERGED_LISTINGS_BULK_COLUMNS, which excludes it for
+# the identical reason.
 NARROW_COLUMNS = (
-    "id,portal,url,photo,price_eur,sqm,area,area_key,title,category,"
+    "id,portal,url,photo,price_eur,sqm,area,title,category,"
     "category_confidence,type_bucket,city_key,oblast_key,lat,lng,"
     "price_per_sqm,price_drop_count,drop_pct,days_on_market,score,status,"
     "member_count,member_portals,area_avg_price_per_sqm,pct_vs_area_avg,"
@@ -49,6 +59,9 @@ def get_total_count():
         params={"select": "id", "limit": "1"},
         timeout=30,
     )
+    if not r.ok:
+        print(f"get_total_count failed: {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"response body: {r.text[:2000]}", file=sys.stderr)
     r.raise_for_status()
     content_range = r.headers.get("content-range", "")
     # format: "0-0/123456"
@@ -64,6 +77,9 @@ def measure(select_clause, sample_size, label):
         params={"select": select_clause, "order": "id", "limit": str(sample_size)},
         timeout=60,
     )
+    if not r.ok:
+        print(f"[{label}] failed: {r.status_code} {r.reason}", file=sys.stderr)
+        print(f"response body: {r.text[:2000]}", file=sys.stderr)
     r.raise_for_status()
     elapsed = time.time() - t0
     rows = r.json()
@@ -77,8 +93,22 @@ def measure(select_clause, sample_size, label):
 
 def main():
     print("=== backlog item 6: measuring merged_listings payload size ===")
-    total_rows = get_total_count()
-    print(f"merged_listings total row count: {total_rows:,}")
+    # count=exact itself hit Postgres's statement_timeout live on a prior run
+    # (a real finding in its own right, not just a script bug - see
+    # docs/backlog.md item 6/docs/decisions.md) - this fallback (already
+    # proven live on a real successful run) keeps the actual byte-per-row
+    # comparison below from being blocked by that.
+    try:
+        total_rows = get_total_count()
+        print(f"merged_listings total row count (Prefer: count=exact): {total_rows:,}")
+    except requests.exceptions.HTTPError as e:
+        print(f"count=exact itself failed ({e}) - this is itself a real finding, "
+              f"not just a script bug: an exact COUNT(*) over merged_listings is "
+              f"apparently expensive enough to hit Postgres's statement_timeout. "
+              f"Falling back to the last known real row count from backlog item "
+              f"18's own investigation (~214,889) to still get the per-row byte "
+              f"comparison below.", file=sys.stderr)
+        total_rows = 214889
 
     sample_size = 500
     full_bpr = measure("*", sample_size, "select(*) - current code")
