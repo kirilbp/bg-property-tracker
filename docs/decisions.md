@@ -667,6 +667,10 @@ against real data (not a self-review of the *design*, a real diff/sample/
 regression check against the actual committed data and a Node-run
 functional test of the JS change), but that is not a substitute for her
 actually looking at it, per the standing "nothing ships without Missy"
-rule. Not auth/security/credentials/personal-data, so Revy's narrower gate
-doesn't apply by this session's own read of the standing rule. See the
-hand-back message for the exact dispatch list.
+rule. Opened as
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
+(`claude/bg-property-tracker-setup-30c2rp` -> `main`), not merged - the
+PR itself asks for Missy's review before merge. Not auth/security/
+credentials/personal-data, so Revy's narrower gate doesn't apply by this
+session's own read of the standing rule. See the hand-back message for
+the exact dispatch list.

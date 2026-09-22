@@ -335,14 +335,15 @@ caused and fixed"). Summary:
   already does.
 
 **Not yet done - dispatch needed:** this session had no `Agent` tool
-available to spawn Missy for real review, or to open the PR through the
-usual multi-agent flow. Implemented and verified directly against real
-data instead of skipped, but that isn't a substitute for her review, per
-the standing "nothing ships without Missy" rule. The branch/PR (or the
-local diff, if not yet pushed - check the session's own hand-back message
-for current state) needs: (1) Missy's real review against her rubric, (2)
-merge to `main` once she signs off. Revy's review is not required (no
-auth/security/credentials/personal-data surface touched).
+available to spawn Missy for real review. Implemented and verified
+directly against real data instead of skipped, but that isn't a
+substitute for her review, per the standing "nothing ships without Missy"
+rule. Opened as
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
+(`claude/bg-property-tracker-setup-30c2rp` -> `main`) rather than merged -
+needs: (1) Missy's real review against her rubric, (2) merge to `main`
+once she signs off. Revy's review is not required (no auth/security/
+credentials/personal-data surface touched).
 
 ## 6. Supabase Pro plan follow-ups - PENDING
 
