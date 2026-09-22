@@ -674,3 +674,66 @@ PR itself asks for Missy's review before merge. Not auth/security/
 credentials/personal-data, so Revy's narrower gate doesn't apply by this
 session's own read of the standing rule. See the hand-back message for
 the exact dispatch list.
+
+### 2026-09-22 - Site performance (backlog item 6): root-caused, deliberately not implemented this session
+
+The user raised this directly and unprompted, mid-session, while the
+imoti.net category fix above was in flight: the live site is very slow to
+load/refresh. Confirmed the coordinator's own quick diagnosis by reading
+the real code rather than taking it on faith - `index.html`'s
+`loadData()` -> `fetchAllRows('merged_listings')` does
+`sb.from('merged_listings').select('*').order('id').limit(1000)` in a
+sequential keyset-pagination loop, pulling the *entire* `merged_listings`
+table into the browser on every single page load, for every visitor,
+regardless of what they're viewing - hundreds of thousands of rows, each
+one heavy (`description`, a `photos` jsonb array, and a `price_history`
+jsonb array per row, per `supabase/schema.sql`, all pulled via
+unrestricted `select('*')`). Confirmed no caching layer exists at all
+(grepped for `localStorage`/`IndexedDB` usage against `MERGED_LISTINGS` -
+none), so this repeats in full on every refresh, not just first visit.
+Confirmed the schema already has 10 real indexes on `merged_listings`
+(price/sqm/area/city_key/type_bucket/score/days_on_market/drop_pct/
+status/oblast_key) - so this isn't a missing-index problem, it's purely
+architectural (fetch-everything-then-filter-client-side). One real open
+design question found and flagged, not resolved: `area_avg_price_per_sqm`/
+`pct_vs_area_avg` are already precomputed server-side per row, so most of
+the app doesn't actually need the full dataset in memory - but
+`findComparables()`'s radius search does an in-memory scan by lat/lng
+that would need a real geo index (none exists yet) to move server-side
+properly.
+
+**Deliberately not implemented this session, for two real reasons, not
+laziness:**
+
+1. **No `Agent` tool access**, and the coordinator's own message flagged
+   that `index.html` may be under active concurrent edit by Dessy (backlog
+   item 9's listing-detail redesign) - confirmed the underlying risk is
+   real, not hypothetical: another agent (Selly) pushed a commit to this
+   exact shared branch (`claude/bg-property-tracker-setup-30c2rp`) while
+   this session was mid-task. Editing the same large file in parallel with
+   an agent this session has no way to message or check the live state of
+   risks a real collision. Rather than guess at sequencing blindly, this
+   is left for the coordinator to resolve directly with Dessy (or by
+   sequencing after her current PR ships) before any builder touches
+   `index.html` for this.
+2. **This sandbox's egress proxy blocks direct network access to
+   Supabase** (confirmed live: a `curl` to `eoufgmmgwczixfajebhc.
+   supabase.co` from this session returned a 403 from the proxy) - so a
+   real "before" measurement (payload size/row count/load time), which
+   the user explicitly asked to be verified against real measurements
+   rather than assumed, needs a live browser/network-capable environment
+   or a GitHub Actions dispatch to get real numbers. Estimated the order
+   of magnitude from what's actually committed (the ~304,988-raw-listing
+   figure already measured for backlog item 4) rather than fabricating a
+   precise number, and said so plainly in the backlog entry.
+
+Added as backlog item 6 (urgent, second in the active queue after item 5,
+which is already fixed and awaiting only Missy's review/merge) with a
+recommended fix direction (server-side filtered/paginated queries scoped
+to what's actually being viewed, narrower `select()` columns, a real
+cache layer, the `findComparables()` open question flagged for the
+implementer) and an explicit dispatch order: (1) resolve the Dessy
+sequencing question, (2) a general-purpose builder implements (Supabase
+query/architecture work, not visual/layout, despite touching
+`index.html`), (3) real before/after measurement, (4) Missy's review, (5)
+PR to `main`. See the hand-back message for the exact dispatch list.
