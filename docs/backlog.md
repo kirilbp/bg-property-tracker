@@ -976,7 +976,25 @@ reviewed by her.** Summary:
   Supabase project (blocked from this sandbox, same as every other recent
   item).
 
-## 12. Market Data hub (portfolio-level aggregate tiles) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
+## 12. Market Data hub (portfolio-level aggregate tiles) - DONE, MERGED (2026-09-22, Dessy)
+
+Reviewed by Missy (verdict: one real bug found and fixed before merge -
+the Adverts Evolution chart's "newly tracked" series sampled the OLDEST
+200 listings in scope, not a representative set, since `MERGED_LISTINGS`
+loads ascending by id and is never re-sorted - for any real portfolio-
+wide scope this meant the chart was built almost entirely from ancient
+months and typically showed nothing recent. Fixed to sample the most
+recent 200 instead, and stopped needlessly capping the "marked sold"
+series, which costs no extra fetch. Also caught and corrected an
+invented mechanism in this entry's own item-22 cross-reference - this
+codebase has no lat/lng-based city resolution anywhere; the stale
+"Bulgaria" rows actually resolve via ordinary title-text matching.
+The city-vs-area collision risk this line of work has hit twice before -
+Area Performance's nationwide-by-city / drilled-into-quarters grouping,
+the new `.market-tab-btn` CSS-class separation from item 9's tabs to
+avoid state cross-talk - were both independently verified correct, not
+just trusted.) and merged in
+[PR #211](https://github.com/kirilbp/bg-property-tracker/pull/211).
 
 Reuses item 11's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
