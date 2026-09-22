@@ -665,6 +665,87 @@
   }
   .reminder-dismiss-btn:hover { border-color: #94a3b8; color: #334155; }
   .reminders-empty { font-size: 13px; color: #94a3b8; }
+
+  /* --- Comparables & Area Data analytics (backlog item 11) --------------
+     Standalone Comparables nav section + the listing detail page's new
+     Comparables/Area Data/BTL Stress Test tabs. Reuses item 9/10's own
+     --ink/--taupe/--brass/--ivory/--sage variables and the .pl-* component
+     classes item 10 already established (card grid, table, map, view
+     toggle) rather than inventing a third visual language - per
+     docs/design-guidelines.md's restraint principle and this repo's own
+     precedent of reusing, not duplicating, an established treatment. */
+  .cmp-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .cmp-field label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); display: block; margin: 0 0 6px;
+  }
+  .cmp-field input, .cmp-field select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 13px; background: white; color: var(--ink-soft);
+  }
+  .cmp-search-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+  /* One primary action per view (design-guidelines.md section 5/6) - the
+     one solid-brass button on this page, everything else (view toggle,
+     export) demoted to the existing outline .pl-view-btn treatment. */
+  .brass-btn {
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink);
+    background: var(--brass); border: 1px solid var(--brass); padding: 10px 20px; border-radius: 4px; cursor: pointer;
+    transition: background 200ms ease-out;
+  }
+  .brass-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .cmp-summary-bar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px;
+    background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px;
+    overflow: hidden; margin: 16px 0;
+  }
+  .cmp-summary-bar > div { background: var(--ivory); padding: 14px 16px; }
+  .cmp-summary-bar .label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); margin: 0 0 4px;
+  }
+  .cmp-summary-bar .value { font-family: var(--font-sans); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0; }
+  .cmp-empty-state { text-align: center; color: var(--taupe); padding: 48px 20px; font-family: var(--font-sans); font-size: 14px; }
+  .cmp-note {
+    font-family: var(--font-sans); font-size: 12px; color: var(--taupe); line-height: 1.5; margin: 8px 0 0;
+  }
+  .cmp-gap-note {
+    font-family: var(--font-sans); font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 12px 0;
+  }
+  .cmp-panel { margin-bottom: 32px; }
+  .cmp-panel-title { font-family: var(--font-serif); font-weight: 500; font-size: 17px; color: var(--ink); margin: 0 0 4px; }
+  .cmp-panel-sub { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 0 0 14px; line-height: 1.5; }
+  .cmp-hist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .cmp-hist-chart-wrap { height: 200px; }
+  .cmp-hist-caption { font-family: var(--font-sans); font-size: 12px; color: var(--ink-soft); text-align: center; margin: 8px 0 0; }
+  .cmp-trend-chart-wrap { height: 240px; }
+
+  /* BTL Stress Test */
+  .btl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media (max-width: 700px) { .btl-grid { grid-template-columns: 1fr; } }
+  .btl-input-row { margin-bottom: 16px; }
+  .btl-input-row label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); display: block; margin: 0 0 6px;
+  }
+  .btl-input-row input {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 14px; color: var(--ink);
+  }
+  .btl-input-hint { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin: 5px 0 0; line-height: 1.4; }
+  .btl-outputs { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 24px; }
+  .btl-output-row { margin-bottom: 20px; }
+  .btl-output-row:last-child { margin-bottom: 0; }
+  .btl-output-label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); margin: 0 0 4px;
+  }
+  .btl-output-value { font-family: var(--font-serif); font-weight: 500; font-size: 26px; color: var(--ink); margin: 0; }
+  .btl-pass-line { font-family: var(--font-sans); font-size: 13px; font-weight: 500; margin: 10px 0 0; }
+  .btl-pass-line.pass { color: var(--sage); }
+  .btl-pass-line.fail { color: var(--ink-soft); }
+  .btl-disclaimer { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); line-height: 1.5; margin-top: 20px; }
 </style>
 </head>
 <body>
@@ -676,6 +757,7 @@
     <button class="nav-item active" data-section="home"><span class="icon">🏡</span> Home</button>
     <button class="nav-item" data-section="leadgen"><span class="icon">🎯</span> Lead Generators</button>
     <button class="nav-item" data-section="pipeline"><span class="icon">🗂️</span> Pipeline</button>
+    <button class="nav-item" data-section="comparables"><span class="icon">📐</span> Comparables</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
@@ -870,6 +952,92 @@
           <div id="plTableView" class="pl-table-wrap" style="display:none;"></div>
           <div id="plMapView" class="pl-map" style="display:none;"></div>
           <p class="empty" id="plEmpty" style="display:none;">No deals in the pipeline yet — open any listing and click "+ Add to Pipeline", or use the ＋ button on a listing card.</p>
+        </div>
+      </section>
+
+      <!-- Comparables (standalone, top-level nav - docs/property-filter-spec.md
+           section 4). City/quarter + radius-in-km search, the direct
+           substitute for Property Filter's UK-postcode-radius search (no
+           BG equivalent to a postcode's precise sector/district hierarchy -
+           see docs/backlog.md item 11). Independent of any single listing -
+           the per-listing pre-scoped version lives on the listing detail
+           page's own Comparables tab (spec section 5), which reuses the
+           same findComparables() logic this page's search also calls. -->
+      <section class="page" id="section-comparables">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Comparables</h2>
+              <p class="pl-sub">Search imotenradar's own tracked listings by city and quarter (кв.), with an optional radius to widen the search to nearby areas too - the Bulgarian substitute for a UK postcode-radius search.</p>
+            </div>
+          </div>
+
+          <div class="cmp-filters">
+            <div class="cmp-field">
+              <label>City</label>
+              <select id="cmpCity"><option value="">All cities</option></select>
+            </div>
+            <div class="cmp-field">
+              <label>Quarter / area (кв.)</label>
+              <select id="cmpArea"><option value="">Any area</option></select>
+            </div>
+            <div class="cmp-field">
+              <label>Radius beyond that area (km)</label>
+              <input type="number" id="cmpRadiusKm" min="0" max="15" step="0.5" value="0" />
+            </div>
+            <div class="cmp-field">
+              <label>Property type</label>
+              <select id="cmpType"><option value="">Any type</option></select>
+            </div>
+            <div class="cmp-field">
+              <label>Bedrooms</label>
+              <select id="cmpRooms">
+                <option value="">Any</option>
+                <option value="1">1 (studio)</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5+</option>
+              </select>
+            </div>
+            <div class="cmp-field">
+              <label>Min price (€)</label>
+              <input type="number" id="cmpMinPrice" placeholder="0" />
+            </div>
+            <div class="cmp-field">
+              <label>Max price (€)</label>
+              <input type="number" id="cmpMaxPrice" placeholder="No limit" />
+            </div>
+            <div class="cmp-field">
+              <label>Min size (m²)</label>
+              <input type="number" id="cmpMinSqm" placeholder="0" />
+            </div>
+            <div class="cmp-field">
+              <label>Max size (m²)</label>
+              <input type="number" id="cmpMaxSqm" placeholder="No limit" />
+            </div>
+          </div>
+          <p class="cmp-note">Bedroom count isn't a scraped field on any portal - it's read from each listing's own title text (e.g. "2-стаен"), so a listing whose title doesn't state it won't match a specific bedroom filter. Leave it on "Any" to include those too.</p>
+          <div class="cmp-search-row">
+            <button type="button" class="brass-btn" id="cmpSearchBtn">Search →</button>
+          </div>
+
+          <div id="cmpResultsWrap" style="display:none;">
+            <div class="cmp-summary-bar" id="cmpSummaryBar"></div>
+            <div class="pl-toolbar">
+              <p class="pl-sub" id="cmpCountLine" style="margin:0;"></p>
+              <div class="pl-view-toggle" id="cmpViewToggle">
+                <button type="button" class="pl-view-btn active" data-cmp-view="card">Card</button>
+                <button type="button" class="pl-view-btn" data-cmp-view="table">Table</button>
+                <button type="button" class="pl-view-btn" data-cmp-view="map">Map</button>
+                <button type="button" class="pl-view-btn" id="cmpExportBtn">⬇ Export</button>
+              </div>
+            </div>
+            <div id="cmpCardView" class="pl-card-grid"></div>
+            <div id="cmpTableView" class="pl-table-wrap" style="display:none;"></div>
+            <div id="cmpMapView" class="pl-map" style="display:none;"></div>
+          </div>
+          <p class="cmp-empty-state" id="cmpEmptyState">Pick a city (and, optionally, a quarter), then run a search to see comparable listings.</p>
         </div>
       </section>
 
@@ -1488,6 +1656,24 @@ let detailMap = null;
 // selected radius rather than fighting over one shared value.
 let compareRadiusM = 1000;
 let compareMergedListing = null;
+// Listing detail page's own Comparables tab (docs/property-filter-spec.md
+// section 5) - shares detailRadiusM with the inline radius-average panel
+// above the tabs (one radius selection, both surfaces agree), but keeps
+// its own view mode and map instance, same pattern as the Pipeline's
+// card/table/map toggle (backlog item 10).
+let detailCompViewMode = 'card';
+let detailCompMap = null;
+// BTL Stress Test tab - user-entered assumptions, not derived from scraped
+// data (no Bulgarian rental data exists to default this from - see the
+// tab's own gap note). Kept in memory only, reset per listing opened.
+let btlInputs = null;
+
+// --- Standalone Comparables nav section (docs/property-filter-spec.md
+// section 4; docs/backlog.md item 11) ------------------------------------
+let CMP_RESULTS = [];
+let cmpViewMode = 'card';
+let cmpMap = null;
+let cmpSearched = false;
 
 // --- Property-type filter (Home page) -----------------------------------------
 // Six type buckets spanning all 8 portals, plus a 7th "Auctions" bucket
@@ -2477,12 +2663,14 @@ function computeRadiusAverage(l, radiusM) {
   const comparables = findComparables(l, radiusM);
   const prices = comparables.filter(s => s.price_eur).map(s => s.price_eur);
   const pricesPerSqm = comparables.filter(s => s.price_per_sqm).map(s => s.price_per_sqm);
+  const sqms = comparables.filter(s => s.sqm).map(s => s.sqm);
   if (prices.length === 0) return { count: 0 };
   const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
   const avgPerSqm = pricesPerSqm.length
     ? Math.round(pricesPerSqm.reduce((a, b) => a + b, 0) / pricesPerSqm.length)
     : null;
-  return { count: prices.length, avgPrice, avgPerSqm };
+  const avgSqm = sqms.length ? Math.round(sqms.reduce((a, b) => a + b, 0) / sqms.length) : null;
+  return { count: prices.length, avgPrice, avgPerSqm, avgSqm };
 }
 
 // Tears down any previous Leaflet instance (its container div gets replaced
@@ -2561,6 +2749,7 @@ function renderRadiusPanel(l) {
       resultHtml = `
         <div class="radius-result">
           <div><p class="label">Avg asking price</p><p class="value">€${fmt(r.avgPrice)}</p></div>
+          <div><p class="label">Avg surface area</p><p class="value">${r.avgSqm ? r.avgSqm + ' m²' : '–'}</p></div>
           <div><p class="label">Avg €/m²</p><p class="value">${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</p></div>
           <div><p class="label">Comparables</p><p class="value">${r.count} ${l.category || 'apartment'}${r.count === 1 ? '' : 's'}</p></div>
         </div>
@@ -2587,6 +2776,27 @@ function renderRadiusPanel(l) {
 // (price, size, €/m², days on market, price change, distance) instead of
 // just an average, plus its own radius control so it doesn't fight over
 // detailRadiusM with the panel embedded in the page behind it.
+// Shared by the Compare modal, the listing detail page's own Comparables
+// tab, and the standalone Comparables nav section's table view - one row
+// shape for "a comparable listing" everywhere it's shown as a table, so
+// the three surfaces don't drift into three slightly different tables.
+// isSubject rows (only used by the first two, which are anchored to one
+// specific listing) render a plain, unlinked distance label instead of
+// a real one, since "distance from itself" is always zero/meaningless.
+function comparableTableRowHtml(s, isSubject) {
+  return `
+    <tr${isSubject ? ' class="compare-subject-row-highlight"' : ''}>
+      <td class="compare-title">${isSubject ? escapeHtml(s.title) : `<a href="#" data-compare-goto="${s.id}">${escapeHtml(s.title)}</a>`}<br><span style="color:#94a3b8;font-weight:400;">${s.portal}</span></td>
+      <td>€${fmt(s.price_eur)}</td>
+      <td>${s.sqm ? s.sqm + ' m²' : '–'}</td>
+      <td>${s.price_per_sqm ? '€' + fmt(s.price_per_sqm) : '–'}</td>
+      <td>${s.days_on_market ?? '–'}</td>
+      <td>${s.drop_pct > 0 ? '↓' + s.drop_pct + '%' : '–'}</td>
+      <td>${isSubject ? '(this listing)' : (s._distanceKm != null ? Math.round(s._distanceKm * 1000) + 'm' : '–')}</td>
+    </tr>
+  `;
+}
+
 function openCompareModal(merged) {
   compareMergedListing = merged;
   document.getElementById('compareModalOverlay').classList.add('open');
@@ -2639,18 +2849,6 @@ function renderCompareModal() {
   const MAX_ROWS = 30;
   const shown = comparables.slice(0, MAX_ROWS);
 
-  const compareRow = (s, isSubject) => `
-    <tr${isSubject ? ' class="compare-subject-row-highlight"' : ''}>
-      <td class="compare-title">${isSubject ? escapeHtml(s.title) : `<a href="#" data-compare-goto="${s.id}">${escapeHtml(s.title)}</a>`}<br><span style="color:#94a3b8;font-weight:400;">${s.portal}</span></td>
-      <td>€${fmt(s.price_eur)}</td>
-      <td>${s.sqm ? s.sqm + ' m²' : '–'}</td>
-      <td>${s.price_per_sqm ? '€' + fmt(s.price_per_sqm) : '–'}</td>
-      <td>${s.days_on_market ?? '–'}</td>
-      <td>${s.drop_pct > 0 ? '↓' + s.drop_pct + '%' : '–'}</td>
-      <td>${isSubject ? '(this listing)' : Math.round(s._distanceKm * 1000) + 'm'}</td>
-    </tr>
-  `;
-
   const truncatedNote = comparables.length > MAX_ROWS
     ? `<p class="compare-truncated-note">Showing the closest ${MAX_ROWS} of ${comparables.length} comparables within ${compareRadiusM}m.</p>`
     : '';
@@ -2662,8 +2860,8 @@ function renderCompareModal() {
           <tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
         </thead>
         <tbody>
-          ${compareRow(l, true)}
-          ${shown.map(s => compareRow(s, false)).join('')}
+          ${comparableTableRowHtml(l, true)}
+          ${shown.map(s => comparableTableRowHtml(s, false)).join('')}
         </tbody>
       </table>
     </div>
@@ -3217,6 +3415,7 @@ async function loadData() {
       ` (${Object.entries(PORTAL_COUNTS).map(([p, c]) => `${c} ${p}`).join(', ')}) · auto-updates every 6 hours`;
     populateAreaFilter();
     populateLeadGenNeighborhoods();
+    populateComparablesFilters();
     renderHome();
     renderDashboard();
     render();
@@ -3313,6 +3512,328 @@ function populateAreaFilter() {
     select.appendChild(opt);
   });
 }
+
+// --- Standalone Comparables nav section ----------------------------------
+// docs/property-filter-spec.md section 4 / docs/backlog.md item 11. A
+// city/quarter (кв.) + radius-in-km search, independent of any single
+// listing - the direct Bulgarian substitute for Property Filter's UK
+// postcode-radius search (no BG equivalent of a postcode's precise
+// sector/district hierarchy exists, per the spec's own classification).
+//
+// Bedrooms/property-type/price/size filters and the running averages are
+// standard listing attributes/aggregates, fully replicable from
+// imotenradar's own already-scraped data - nothing here needs a new data
+// source. "Last sold (Land reg)" style counts and an EPC filter are
+// deliberately NOT here - the spec flags both as UK-only/unconfirmed-BG-
+// substitute (see docs/backlog.md's "Open questions"), so building a
+// filter/pill for either would be dead UI with no real data behind it.
+
+// Same grouping as areaKeyGroups(), scoped to one city (or ungrouped/
+// nationwide when cityKey is falsy) - powers the quarter dropdown so it
+// only ever shows areas that actually exist within the selected city,
+// rather than mixing in a same-named area from a different city entirely.
+function areaKeyGroupsForCity(cityKey) {
+  const counts = new Map(); // key -> Map(rawLabel -> count)
+  MERGED_LISTINGS.forEach(l => {
+    if (!l.area) return;
+    if (cityKey && (l.city_key || listingCityKey(l)) !== cityKey) return;
+    const key = listingAreaKey(l);
+    if (!key) return;
+    if (!counts.has(key)) counts.set(key, new Map());
+    const labels = counts.get(key);
+    labels.set(l.area, (labels.get(l.area) || 0) + 1);
+  });
+  const groups = [];
+  counts.forEach((labels, key) => {
+    let repLabel = null, repCount = -1;
+    labels.forEach((count, label) => {
+      if (count > repCount || (count === repCount && label < repLabel)) {
+        repLabel = label;
+        repCount = count;
+      }
+    });
+    groups.push({ key, label: repLabel });
+  });
+  groups.sort((a, b) => a.label.localeCompare(b.label, 'bg'));
+  return groups;
+}
+
+// Deliberately requires a city before a specific quarter can be picked -
+// not just a UX nicety. The same real settlement/district name recurs
+// across different Bulgarian cities (e.g. "Център" exists in dozens of
+// towns), and picking an area key with no city to scope it would average
+// listings from every same-named area nationwide into one meaningless
+// anchor point (a "centroid" spanning Sofia-to-Varna is useless for a
+// radius search). This is the same collision risk backlog item 18 already
+// documented and guarded against for the main Area filter/Lead Generator
+// matching (see gen.area.city there) - guarded here by construction
+// instead, rather than computing a wrong answer and hoping it's rare.
+function populateComparablesAreaSelect(cityKey) {
+  const select = document.getElementById('cmpArea');
+  if (!cityKey) {
+    select.innerHTML = '<option value="">Any area (pick a city to narrow by quarter)</option>';
+    select.disabled = true;
+    return;
+  }
+  const previous = select.value;
+  select.disabled = false;
+  select.innerHTML = '<option value="">Any area</option>';
+  areaKeyGroupsForCity(cityKey).forEach(({ key, label }) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = label;
+    select.appendChild(opt);
+  });
+  // Keep the previous selection if it still exists in the narrowed list
+  // (e.g. switching city away and back), otherwise fall back to "Any area"
+  // rather than silently keeping a now-invalid value selected.
+  if ([...select.options].some(o => o.value === previous)) select.value = previous;
+}
+
+function populateComparablesFilters() {
+  const citySelect = document.getElementById('cmpCity');
+  BG_CITIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = c.label;
+    citySelect.appendChild(opt);
+  });
+  populateComparablesAreaSelect('');
+
+  const typeSelect = document.getElementById('cmpType');
+  TYPE_FILTER_BUCKETS.filter(b => b.key !== 'other' && b.key !== 'auction').forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.key;
+    opt.textContent = b.label;
+    typeSelect.appendChild(opt);
+  });
+
+  citySelect.addEventListener('change', () => populateComparablesAreaSelect(citySelect.value));
+}
+
+// The geographic anchor a radius search expands outward from: the average
+// lat/lng of every geocoded listing matching the chosen city/area (location
+// filters only - a listing missing lat/lng, or one filtered out by price/
+// type/etc, still counts toward finding *where* this place actually is).
+// Returns null when neither a city nor an area is picked (nothing to
+// anchor a radius to) or when nothing matching has a known location yet.
+function comparablesAnchorPoint(cityKey, areaKey) {
+  if (!cityKey && !areaKey) return null;
+  const pts = MERGED_LISTINGS.filter(l => {
+    if (l.lat == null || l.lng == null) return false;
+    if (cityKey && (l.city_key || listingCityKey(l)) !== cityKey) return false;
+    if (areaKey && listingAreaKey(l) !== areaKey) return false;
+    return true;
+  });
+  if (pts.length === 0) return null;
+  return {
+    lat: pts.reduce((s, l) => s + l.lat, 0) / pts.length,
+    lng: pts.reduce((s, l) => s + l.lng, 0) / pts.length,
+  };
+}
+
+function runComparablesSearch() {
+  const cityKey = document.getElementById('cmpCity').value;
+  const areaKey = document.getElementById('cmpArea').value;
+  const radiusKm = parseFloat(document.getElementById('cmpRadiusKm').value) || 0;
+  const typeKey = document.getElementById('cmpType').value;
+  const rooms = document.getElementById('cmpRooms').value;
+  const minPrice = parseFloat(document.getElementById('cmpMinPrice').value) || 0;
+  const maxPrice = parseFloat(document.getElementById('cmpMaxPrice').value) || Infinity;
+  const minSqm = parseFloat(document.getElementById('cmpMinSqm').value) || 0;
+  const maxSqm = parseFloat(document.getElementById('cmpMaxSqm').value) || Infinity;
+
+  const anchor = comparablesAnchorPoint(cityKey, areaKey);
+
+  const matches = MERGED_LISTINGS.filter(l => {
+    if (l.status === 'sold') return false;
+    if (typeKey && typeFilterBucket(l) !== typeKey) return false;
+    if (rooms && !(rooms === '5' ? (l.rooms ?? 0) >= 5 : l.rooms === parseInt(rooms, 10))) return false;
+    if (l.price_eur == null || l.price_eur < minPrice || l.price_eur > maxPrice) return false;
+    if (l.sqm != null && (l.sqm < minSqm || l.sqm > maxSqm)) return false;
+    if (minSqm > 0 && l.sqm == null) return false;
+
+    // areaKey alone is NOT sufficient to scope by city - the same area/
+    // quarter name recurs across different Bulgarian cities/towns (see
+    // populateComparablesAreaSelect()'s own comment), so a chosen area is
+    // always also checked against the chosen city when both are set,
+    // rather than matching that area name anywhere in the country.
+    let inExactArea;
+    if (areaKey) {
+      inExactArea = listingAreaKey(l) === areaKey && (!cityKey || (l.city_key || listingCityKey(l)) === cityKey);
+    } else if (cityKey) {
+      inExactArea = (l.city_key || listingCityKey(l)) === cityKey;
+    } else {
+      inExactArea = true;
+    }
+    if (inExactArea) return true;
+    // Beyond the exact city/area match, only ever included via the radius
+    // expansion - which needs both a real anchor point AND this listing's
+    // own known location to measure a distance against.
+    if (radiusKm > 0 && anchor && l.lat != null && l.lng != null) {
+      return haversineKm(anchor.lat, anchor.lng, l.lat, l.lng) <= radiusKm;
+    }
+    return false;
+  }).map(l => ({
+    ...l,
+    _distanceKm: (anchor && l.lat != null && l.lng != null) ? haversineKm(anchor.lat, anchor.lng, l.lat, l.lng) : null,
+  }));
+
+  matches.sort((a, b) => {
+    if (a._distanceKm != null && b._distanceKm != null) return a._distanceKm - b._distanceKm;
+    if (a._distanceKm != null) return -1;
+    if (b._distanceKm != null) return 1;
+    return a.price_eur - b.price_eur;
+  });
+
+  CMP_RESULTS = matches;
+  cmpSearched = true;
+  renderComparablesResults();
+}
+
+function comparablesSummary(results) {
+  const prices = results.filter(l => l.price_eur).map(l => l.price_eur);
+  const sqms = results.filter(l => l.sqm).map(l => l.sqm);
+  const perSqms = results.filter(l => l.price_per_sqm).map(l => l.price_per_sqm);
+  const avg = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null;
+  return { count: results.length, avgPrice: avg(prices), avgSqm: avg(sqms), avgPerSqm: avg(perSqms) };
+}
+
+function renderComparablesResults() {
+  const wrap = document.getElementById('cmpResultsWrap');
+  const emptyState = document.getElementById('cmpEmptyState');
+  if (!cmpSearched) {
+    wrap.style.display = 'none';
+    emptyState.style.display = 'block';
+    emptyState.textContent = 'Pick a city (and, optionally, a quarter), then run a search to see comparable listings.';
+    return;
+  }
+  if (CMP_RESULTS.length === 0) {
+    wrap.style.display = 'none';
+    emptyState.style.display = 'block';
+    emptyState.textContent = "No listings match this search yet - try widening the radius, clearing a filter, or picking a different area. imotenradar's own coverage still varies a lot by city (see Help).";
+    teardownCmpMap();
+    return;
+  }
+  wrap.style.display = 'block';
+  emptyState.style.display = 'none';
+
+  const s = comparablesSummary(CMP_RESULTS);
+  document.getElementById('cmpSummaryBar').innerHTML = `
+    <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? '€' + fmt(s.avgPrice) : '–'}</p></div>
+    <div><p class="label">Avg surface area</p><p class="value">${s.avgSqm ? s.avgSqm + ' m²' : '–'}</p></div>
+    <div><p class="label">Avg €/m²</p><p class="value">${s.avgPerSqm ? '€' + fmt(s.avgPerSqm) : '–'}</p></div>
+    <div><p class="label">Matches</p><p class="value">${fmt(s.count)}</p></div>
+  `;
+  const hasDistance = CMP_RESULTS.some(l => l._distanceKm != null);
+  document.getElementById('cmpCountLine').textContent =
+    `${fmt(CMP_RESULTS.length)} listing${CMP_RESULTS.length === 1 ? '' : 's'} found` +
+    (hasDistance ? ', sorted by distance' : ', sorted by price (no geocoded anchor point to measure distance from)');
+
+  document.querySelectorAll('#cmpViewToggle [data-cmp-view]').forEach(b => b.classList.toggle('active', b.dataset.cmpView === cmpViewMode));
+  document.getElementById('cmpCardView').style.display = cmpViewMode === 'card' ? 'grid' : 'none';
+  document.getElementById('cmpTableView').style.display = cmpViewMode === 'table' ? 'block' : 'none';
+  document.getElementById('cmpMapView').style.display = cmpViewMode === 'map' ? 'block' : 'none';
+
+  if (cmpViewMode === 'card') renderCmpCardView();
+  else if (cmpViewMode === 'table') renderCmpTableView();
+  else if (cmpViewMode === 'map') renderCmpMapView();
+  else teardownCmpMap();
+}
+
+// Capped the same way the per-listing Comparables tab caps its own card/
+// table rendering (see MAX_ROWS there) - a wide-radius nationwide-ish
+// search can return thousands of rows, and neither a card grid nor a table
+// stays usable at that length. Distance-sorted (or price-sorted, when no
+// anchor exists) order means the cap always drops the least relevant rows.
+const CMP_MAX_RENDERED = 60;
+
+function renderCmpCardView() {
+  const grid = document.getElementById('cmpCardView');
+  grid.innerHTML = '';
+  CMP_RESULTS.slice(0, CMP_MAX_RENDERED).forEach(l => grid.appendChild(createListingCard(l)));
+  if (CMP_RESULTS.length > CMP_MAX_RENDERED) {
+    const note = document.createElement('p');
+    note.className = 'cmp-note';
+    note.style.gridColumn = '1 / -1';
+    note.textContent = `Showing the closest ${CMP_MAX_RENDERED} of ${fmt(CMP_RESULTS.length)} matches - narrow the filters or use Export for the full list.`;
+    grid.appendChild(note);
+  }
+}
+
+function renderCmpTableView() {
+  const shown = CMP_RESULTS.slice(0, CMP_MAX_RENDERED);
+  document.getElementById('cmpTableView').innerHTML = `
+    <table class="pl-table">
+      <thead>
+        <tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
+      </thead>
+      <tbody>
+        ${shown.map(l => comparableTableRowHtml(l, false)).join('')}
+      </tbody>
+    </table>
+    ${CMP_RESULTS.length > CMP_MAX_RENDERED ? `<p class="cmp-note">Showing ${CMP_MAX_RENDERED} of ${fmt(CMP_RESULTS.length)} matches - narrow the filters or use Export for the full list.</p>` : ''}
+  `;
+  document.getElementById('cmpTableView').querySelectorAll('[data-compare-goto]').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); showListingDetail(a.dataset.compareGoto); });
+  });
+}
+
+function teardownCmpMap() {
+  if (cmpMap) { cmpMap.remove(); cmpMap = null; }
+}
+
+function renderCmpMapView() {
+  teardownCmpMap();
+  const container = document.getElementById('cmpMapView');
+  if (typeof L === 'undefined') {
+    container.textContent = "Map unavailable (couldn't load the map library).";
+    return;
+  }
+  const located = CMP_RESULTS.filter(l => l.lat != null && l.lng != null);
+  cmpMap = L.map(container).setView([42.6977, 23.3219], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(cmpMap);
+  if (located.length === 0) return;
+  const markers = located.slice(0, 300).map(l =>
+    L.circleMarker([l.lat, l.lng], { radius: 6, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.8, weight: 1 })
+      .bindPopup(`<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}${l.price_per_sqm ? ' · €' + fmt(l.price_per_sqm) + '/m²' : ''}`)
+      .addTo(cmpMap)
+  );
+  cmpMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
+}
+
+function exportCmpCsv() {
+  const header = ['Title', 'Portal', 'Area', 'Price EUR', 'Price per sqm', 'Sqm', 'Rooms', 'Days on market', 'Distance km', 'URL'];
+  const lines = [header.join(',')];
+  CMP_RESULTS.forEach(l => {
+    lines.push([
+      l.title, l.portal, l.area, l.price_eur, l.price_per_sqm ?? '', l.sqm ?? '', l.rooms ?? '',
+      l.days_on_market ?? '', l._distanceKm != null ? l._distanceKm.toFixed(2) : '', l.url || '',
+    ].map(csvEscape).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'imotenradar-comparables-export.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('cmpSearchBtn').addEventListener('click', runComparablesSearch);
+document.getElementById('cmpViewToggle').addEventListener('click', (e) => {
+  const exportBtn = e.target.closest('#cmpExportBtn');
+  if (exportBtn) { exportCmpCsv(); return; }
+  const btn = e.target.closest('[data-cmp-view]');
+  if (!btn) return;
+  cmpViewMode = btn.dataset.cmpView;
+  renderComparablesResults();
+});
 
 // --- Lead generators -----------------------------------------------------
 // Plain localStorage, no login (see the top-of-file note in this section's
@@ -5190,12 +5711,20 @@ function renderPriceHistoryChart(priceHistory, statusInfo) {
   });
 }
 
-function switchDetailTab(tab, chartPriceHistory, statusInfo) {
+function switchDetailTab(tab, chartPriceHistory, statusInfo, l) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
   if (tab === 'pricehistory') {
     renderPriceHistoryChart(chartPriceHistory, statusInfo);
+  } else if (tab === 'comparables' && l) {
+    // A Leaflet map can't size itself correctly while its container is
+    // display:none, so the Map sub-view (if selected) needs a fresh init
+    // exactly when this tab - and therefore its container - becomes
+    // visible, same reasoning as updateRadiusMap()'s own re-init pattern.
+    refreshDetailComparablesViews(l);
+  } else if (tab === 'areadata' && l) {
+    renderAreaDataTabCharts(l);
   }
 }
 
@@ -5333,6 +5862,524 @@ const PROPERTY_TYPE_LABELS = {
   flat: 'Flat / Apartment', house: 'House', land: 'Land plot',
   garage: 'Garage', shop: 'Shop', business: 'Commercial property',
 };
+
+// --- Listing detail page: Comparables tab (docs/property-filter-spec.md
+// section 5's "Tab: Comparables" - the same findComparables()/
+// detailRadiusM radius search the inline panel above the tabs already
+// uses, pre-scoped to this listing, but with the full Card/Table/Map/
+// Export treatment the spec calls for rather than just an averages
+// summary. Shares detailRadiusM with the panel above (one radius choice,
+// both surfaces agree) so picking 500m in either place updates both. -----
+function detailComparablesData(l) {
+  if (l.lat == null || l.lng == null || detailRadiusM == null) return null;
+  return findComparables(l, detailRadiusM)
+    .map(m => ({ ...m, _distanceKm: haversineKm(l.lat, l.lng, m.lat, m.lng) }))
+    .sort((a, b) => a._distanceKm - b._distanceKm);
+}
+
+function renderComparablesTabHtml(l) {
+  if (l.lat == null || l.lng == null) {
+    return `<p class="compare-empty">Location data isn't available for this listing yet, so nearby comparables can't be found.</p>`;
+  }
+  if (detailRadiusM === null) {
+    return `<p class="radius-hint">Pick a radius above (in the panel just above these tabs) to find comparable ${l.category || 'apartment'} listings nearby.</p>`;
+  }
+  const comparables = detailComparablesData(l) || [];
+  if (comparables.length === 0) {
+    return `<p class="radius-hint">No other ${l.category || 'apartment'} listings with a known location found within ${detailRadiusM}m.</p>`;
+  }
+  return `
+    <div class="pl-toolbar">
+      <p class="pl-sub" style="margin:0;">${fmt(comparables.length)} comparable${comparables.length === 1 ? '' : 's'} within ${detailRadiusM}m</p>
+      <div class="pl-view-toggle" id="detailCompViewToggle">
+        <button type="button" class="pl-view-btn${detailCompViewMode === 'card' ? ' active' : ''}" data-comp-view="card">Card</button>
+        <button type="button" class="pl-view-btn${detailCompViewMode === 'table' ? ' active' : ''}" data-comp-view="table">Table</button>
+        <button type="button" class="pl-view-btn${detailCompViewMode === 'map' ? ' active' : ''}" data-comp-view="map">Map</button>
+        <button type="button" class="pl-view-btn" id="detailCompExportBtn">⬇ Export</button>
+      </div>
+    </div>
+    <div id="detailCompCardView" class="pl-card-grid" style="display:${detailCompViewMode === 'card' ? 'grid' : 'none'};"></div>
+    <div id="detailCompTableView" class="pl-table-wrap" style="display:${detailCompViewMode === 'table' ? 'block' : 'none'};"></div>
+    <div id="detailCompMapView" class="pl-map" style="display:${detailCompViewMode === 'map' ? 'block' : 'none'};"></div>
+  `;
+}
+
+const DETAIL_COMP_MAX_ROWS = 30;
+
+function teardownDetailCompMap() {
+  if (detailCompMap) { detailCompMap.remove(); detailCompMap = null; }
+}
+
+function renderDetailCompMap(l, comparables) {
+  teardownDetailCompMap();
+  const container = document.getElementById('detailCompMapView');
+  if (!container) return;
+  if (typeof L === 'undefined') {
+    container.textContent = "Map unavailable (couldn't load the map library).";
+    return;
+  }
+  detailCompMap = L.map(container, { scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(detailCompMap);
+  const subjectMarker = L.marker([l.lat, l.lng]).addTo(detailCompMap).bindPopup('This listing');
+  const markers = [subjectMarker];
+  comparables.slice(0, 300).forEach(s => {
+    markers.push(
+      L.circleMarker([s.lat, s.lng], { radius: 6, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.75, weight: 1 })
+        .addTo(detailCompMap)
+        .bindPopup(`${escapeHtml(s.title || s.portal)}<br>€${fmt(s.price_eur)}${s.price_per_sqm ? ' · €' + fmt(s.price_per_sqm) + '/m²' : ''}`)
+    );
+  });
+  detailCompMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [16, 16] });
+}
+
+// Populates whichever of the Comparables tab's card/table/map sub-views is
+// currently selected. Called on every renderListingDetail() (so re-opening
+// this tab always shows current data) and again from switchDetailTab()
+// specifically for the map (a Leaflet map can't size itself correctly
+// while its container is display:none, so it needs a fresh init exactly
+// when the tab - and therefore the container - actually becomes visible).
+function refreshDetailComparablesViews(l) {
+  const cardEl = document.getElementById('detailCompCardView');
+  if (!cardEl) { teardownDetailCompMap(); return; }
+  const comparables = detailComparablesData(l) || [];
+  if (detailCompViewMode === 'card') {
+    cardEl.innerHTML = '';
+    comparables.slice(0, DETAIL_COMP_MAX_ROWS).forEach(m => cardEl.appendChild(createListingCard(m)));
+    if (comparables.length > DETAIL_COMP_MAX_ROWS) {
+      const note = document.createElement('p');
+      note.className = 'cmp-note';
+      note.style.gridColumn = '1 / -1';
+      note.textContent = `Showing the closest ${DETAIL_COMP_MAX_ROWS} of ${comparables.length} comparables within ${detailRadiusM}m.`;
+      cardEl.appendChild(note);
+    }
+  } else if (detailCompViewMode === 'table') {
+    const tableEl = document.getElementById('detailCompTableView');
+    const shown = comparables.slice(0, DETAIL_COMP_MAX_ROWS);
+    tableEl.innerHTML = `
+      <table class="pl-table">
+        <thead><tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr></thead>
+        <tbody>
+          ${comparableTableRowHtml(l, true)}
+          ${shown.map(s => comparableTableRowHtml(s, false)).join('')}
+        </tbody>
+      </table>
+      ${comparables.length > DETAIL_COMP_MAX_ROWS ? `<p class="cmp-note">Showing the closest ${DETAIL_COMP_MAX_ROWS} of ${comparables.length} comparables within ${detailRadiusM}m.</p>` : ''}
+    `;
+    tableEl.querySelectorAll('[data-compare-goto]').forEach(a => {
+      a.addEventListener('click', (e) => { e.preventDefault(); showListingDetail(a.dataset.compareGoto); });
+    });
+  }
+  // The map is the one sub-view that can't just be pre-rendered into a
+  // hidden container (Leaflet sizes itself off the container's actual
+  // rendered dimensions at init time) - only ever initialize it while the
+  // Comparables tab is the one actually visible, tear it down otherwise.
+  if (detailActiveTab === 'comparables' && detailCompViewMode === 'map') {
+    renderDetailCompMap(l, comparables);
+  } else {
+    teardownDetailCompMap();
+  }
+}
+
+function exportDetailComparablesCsv(l) {
+  const comparables = detailComparablesData(l) || [];
+  const header = ['Title', 'Portal', 'Area', 'Price EUR', 'Price per sqm', 'Sqm', 'Days on market', 'Distance km', 'URL'];
+  const lines = [header.join(',')];
+  comparables.forEach(s => {
+    lines.push([
+      s.title, s.portal, s.area, s.price_eur, s.price_per_sqm ?? '', s.sqm ?? '',
+      s.days_on_market ?? '', s._distanceKm.toFixed(2), s.url || '',
+    ].map(csvEscape).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `imotenradar-comparables-${l.id}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// --- Listing detail page: Area Data tab (docs/property-filter-spec.md
+// section 5's "Tab: Area Data"; docs/backlog.md item 11) -----------------
+// Built entirely from imotenradar's own already-scraped listing history for
+// this listing's own area+type, matching what's already server-computed
+// (area_avg_price_per_sqm/pct_vs_area_avg) plus client-side aggregates over
+// the same MERGED_LISTINGS set the Comparables tools already scan.
+//
+// Deliberately NOT built here, flagged rather than faked: Est. Postcode/
+// Property Yield gauge and the For Sale vs. To Rent comparison. Both need
+// a rental-listing dataset to compare against - imotenradar doesn't have
+// one. docs/backlog.md's "Parked" section already investigated rental
+// scraping directly and found under ~400 usable whole-property rental
+// listings nationwide (not enough for a reliable per-area yield/rent
+// figure), so this isn't a "not built yet" gap so much as a "no reliable
+// BG data exists for this yet" one - see the gap note rendered below.
+const AREA_DATA_MIN_SAMPLE = 5;
+
+function areaDataMatches(l) {
+  const areaKey = listingAreaKey(l);
+  if (!areaKey) return null;
+  const bucket = typeFilterBucket(l);
+  // AND on city, not just area - the same common area name (e.g. "Център")
+  // is real in dozens of unrelated Bulgarian towns/cities, so area alone
+  // would silently pool e.g. Sofia city-center prices with a small town's
+  // (confirmed with real data: "център" alone spans 27 distinct cities in
+  // the committed data). Mirrors runComparablesSearch()'s own city+area
+  // AND, which this function should have used from the start.
+  const cityKey = l.city_key || listingCityKey(l);
+  return MERGED_LISTINGS.filter(m => m.id !== l.id && m.status !== 'sold'
+    && listingAreaKey(m) === areaKey && typeFilterBucket(m) === bucket
+    && (m.city_key || listingCityKey(m)) === cityKey);
+}
+
+function buildHistogramBuckets(values, subjectValue, numBuckets) {
+  const vals = values.filter(v => v != null && isFinite(v));
+  if (vals.length < AREA_DATA_MIN_SAMPLE) return null;
+  const all = subjectValue != null ? [...vals, subjectValue] : vals;
+  const min = Math.min(...all);
+  const max = Math.max(...all);
+  if (min === max) return null; // every value identical - a histogram has nothing to show
+  const width = (max - min) / numBuckets;
+  const buckets = Array.from({ length: numBuckets }, (_, i) => ({ from: min + i * width, to: min + (i + 1) * width, count: 0 }));
+  vals.forEach(v => {
+    let idx = Math.floor((v - min) / width);
+    if (idx >= numBuckets) idx = numBuckets - 1;
+    if (idx < 0) idx = 0;
+    buckets[idx].count++;
+  });
+  let subjectIdx = null;
+  if (subjectValue != null) {
+    subjectIdx = Math.floor((subjectValue - min) / width);
+    if (subjectIdx >= numBuckets) subjectIdx = numBuckets - 1;
+    if (subjectIdx < 0) subjectIdx = 0;
+  }
+  return { buckets, subjectIdx };
+}
+
+let areaDataCharts = { price: null, persqm: null, sqm: null, trend: null };
+function teardownAreaDataCharts() {
+  Object.keys(areaDataCharts).forEach(k => {
+    if (areaDataCharts[k]) { areaDataCharts[k].destroy(); areaDataCharts[k] = null; }
+  });
+}
+
+function renderHistogramChart(canvasId, chartKey, values, subjectValue, valueFormatter) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return;
+  const hist = buildHistogramBuckets(values, subjectValue, 8);
+  if (areaDataCharts[chartKey]) { areaDataCharts[chartKey].destroy(); areaDataCharts[chartKey] = null; }
+  if (!hist) return;
+  areaDataCharts[chartKey] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: hist.buckets.map(b => valueFormatter(b.from) + '–' + valueFormatter(b.to)),
+      datasets: [{
+        data: hist.buckets.map(b => b.count),
+        backgroundColor: hist.buckets.map((b, i) => i === hist.subjectIdx ? '#a9812e' : '#ded6c8'),
+        borderRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} listing${ctx.parsed.y === 1 ? '' : 's'}` } },
+      },
+      scales: {
+        x: { ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+        y: { beginAtZero: true, ticks: { precision: 0 } },
+      },
+    },
+  });
+}
+
+// Historical €/m² trend needs real price_history entries, which aren't
+// bulk-loaded for every listing (backlog item 6 - the full-table load this
+// used to require was the actual site-speed problem). Rather than bulk-
+// loading it for every area (repeating that exact mistake) or faking a
+// trend from non-historical data, this does one small, explicitly scoped,
+// bounded query - id-list-based, capped, chunked - only for the specific
+// area+type already narrowed down by areaDataMatches(), and only once this
+// tab is actually opened. This is the same lazy/on-demand shape as the
+// existing listing_sources and description/photos/price_history fetches
+// in showListingDetail() - not a reintroduction of the old full-scan.
+const AREA_TREND_ID_CAP = 200;
+const AREA_TREND_CHUNK = 100;
+
+async function loadAreaTrendChart(l, sameAreaListings) {
+  const canvas = document.getElementById('areaTrendChart');
+  const caption = document.getElementById('areaTrendCaption');
+  if (!canvas) return;
+  const sqmById = new Map();
+  [l, ...sameAreaListings].forEach(m => { if (m.sqm) sqmById.set(m.id, m.sqm); });
+  const ids = [l.id, ...sameAreaListings.map(m => m.id)].slice(0, AREA_TREND_ID_CAP);
+
+  const monthly = new Map(); // 'YYYY-MM' -> { sum, count }
+  try {
+    for (let i = 0; i < ids.length; i += AREA_TREND_CHUNK) {
+      const chunk = ids.slice(i, i + AREA_TREND_CHUNK);
+      const { data, error } = await sb.from('merged_listings').select('id,price_history').in('id', chunk);
+      if (error || !data) continue;
+      data.forEach(row => {
+        const sqm = sqmById.get(row.id);
+        if (!sqm || !Array.isArray(row.price_history)) return;
+        row.price_history.forEach(p => {
+          if (!p || typeof p.price_eur !== 'number' || !p.date) return;
+          const d = new Date(p.date);
+          if (isNaN(d.getTime())) return;
+          const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          const perSqm = p.price_eur / sqm;
+          const entry = monthly.get(month) || { sum: 0, count: 0 };
+          entry.sum += perSqm;
+          entry.count += 1;
+          monthly.set(month, entry);
+        });
+      });
+    }
+  } catch (e) {
+    console.error('Failed to load area price-history trend', e);
+  }
+
+  // Still the tab the user is looking at? (they may have navigated to a
+  // different listing while this was in flight)
+  if (!document.getElementById('areaTrendChart')) return;
+
+  const months = [...monthly.keys()].sort();
+  if (areaDataCharts.trend) { areaDataCharts.trend.destroy(); areaDataCharts.trend = null; }
+  if (months.length < 2) {
+    canvas.style.display = 'none';
+    if (caption) caption.textContent = 'Not enough price-history depth yet for this area to chart a trend - check back as more scrapes accumulate.';
+    return;
+  }
+  canvas.style.display = 'block';
+  if (caption) caption.textContent = `Based on price history from ${Math.min(ids.length, sameAreaListings.length + 1)} listing${ids.length === 1 ? '' : 's'} tracked in this area.`;
+  areaDataCharts.trend = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Avg €/m²',
+        data: months.map(m => Math.round(monthly.get(m).sum / monthly.get(m).count)),
+        borderColor: '#a9812e', backgroundColor: 'rgba(169,129,46,0.12)', fill: true, tension: 0.25, pointRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '€' + fmt(ctx.parsed.y) + '/m²' } } },
+      scales: { y: { beginAtZero: false } },
+    },
+  });
+}
+
+function renderAreaDataTabHtml(l) {
+  const areaKey = listingAreaKey(l);
+  if (!areaKey) {
+    return `<p class="cmp-empty-state">This listing doesn't have a usable area/quarter value yet, so area-level stats can't be computed for it.</p>`;
+  }
+  const matches = areaDataMatches(l);
+  const gapNote = `
+    <div class="cmp-gap-note">
+      <strong>Not shown: Est. Yield gauge and a For Sale vs. To Rent comparison.</strong>
+      Both need a rental-listing dataset to compare against, and imotenradar doesn't have
+      one - rental scraping was investigated and parked (docs/backlog.md's "Parked" section):
+      under ~400 usable whole-property rental listings could be found nationwide, not enough
+      for a reliable per-area rent/yield figure. Shown below instead: aggregate stats and
+      distributions built entirely from imotenradar's own tracked <em>asking</em> prices for
+      this area and property type.
+    </div>
+  `;
+
+  if (matches.length < AREA_DATA_MIN_SAMPLE) {
+    return `
+      ${gapNote}
+      <p class="cmp-empty-state">Not enough tracked ${l.category || 'apartment'} listings in this area yet (${matches.length} found, ${AREA_DATA_MIN_SAMPLE} needed) to show reliable area stats. This fills in as imotenradar tracks more of this area.</p>
+    `;
+  }
+
+  const s = comparablesSummary(matches);
+  const daysArr = matches.filter(m => m.days_on_market != null).map(m => m.days_on_market);
+  const avgDays = daysArr.length ? Math.round(daysArr.reduce((a, b) => a + b, 0) / daysArr.length) : null;
+
+  return `
+    ${gapNote}
+    <div class="cmp-panel">
+      <p class="cmp-panel-title">Market Live Data</p>
+      <p class="cmp-panel-sub">${fmt(matches.length)} other ${l.category || 'apartment'} listing${matches.length === 1 ? '' : 's'} tracked in this area right now.</p>
+      <div class="cmp-summary-bar">
+        <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? '€' + fmt(s.avgPrice) : '–'}</p></div>
+        <div><p class="label">Avg €/m²</p><p class="value">${s.avgPerSqm ? '€' + fmt(s.avgPerSqm) : '–'}</p></div>
+        <div><p class="label">Avg days on market</p><p class="value">${avgDays ?? '–'}</p></div>
+        <div><p class="label">Sample size</p><p class="value">${fmt(matches.length)}</p></div>
+      </div>
+    </div>
+    <div class="cmp-panel">
+      <p class="cmp-panel-title">Price trend for this area</p>
+      <p class="cmp-panel-sub" id="areaTrendCaption">Loading price history for this area…</p>
+      <div class="cmp-trend-chart-wrap"><canvas id="areaTrendChart"></canvas></div>
+    </div>
+    <div class="cmp-panel">
+      <p class="cmp-panel-title">Last Sold Data (asking-price version)</p>
+      <p class="cmp-panel-sub">Distribution across this area's own asking prices - not Registry Agency transaction data (see the note above the summary bar). This listing's own bucket is highlighted in brass.</p>
+      <div class="cmp-hist-grid">
+        <div>
+          <div class="cmp-hist-chart-wrap"><canvas id="areaHistPrice"></canvas></div>
+          <p class="cmp-hist-caption">Price (€)</p>
+        </div>
+        <div>
+          <div class="cmp-hist-chart-wrap"><canvas id="areaHistPerSqm"></canvas></div>
+          <p class="cmp-hist-caption">€/m²</p>
+        </div>
+        <div>
+          <div class="cmp-hist-chart-wrap"><canvas id="areaHistSqm"></canvas></div>
+          <p class="cmp-hist-caption">Size (m²)</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAreaDataTabCharts(l) {
+  teardownAreaDataCharts();
+  const matches = areaDataMatches(l);
+  if (!matches || matches.length < AREA_DATA_MIN_SAMPLE) return;
+  renderHistogramChart('areaHistPrice', 'price', matches.map(m => m.price_eur), l.price_eur, v => '€' + fmt(Math.round(v)));
+  renderHistogramChart('areaHistPerSqm', 'persqm', matches.map(m => m.price_per_sqm), l.price_per_sqm, v => '€' + fmt(Math.round(v)));
+  renderHistogramChart('areaHistSqm', 'sqm', matches.map(m => m.sqm), l.sqm, v => fmt(Math.round(v)) + 'm²');
+  loadAreaTrendChart(l, matches); // async, fire-and-forget - fills in once it resolves
+}
+
+// --- Listing detail page: Buy-To-Let Stress Test tab (docs/property-
+// filter-spec.md section 5's "Tab: Area Data" -> "Buy To Let - Stress
+// Test" panel; docs/backlog.md item 11) ----------------------------------
+// Generic mortgage-affordability math (LTV, interest rate, interest-cover
+// ratio) is not UK-specific - only the default assumptions are, so this
+// ships with Bulgarian-market defaults in place of Property Filter's UK
+// ones. Monthly rent is a required user input, never defaulted or
+// estimated from scraped data - imotenradar has no Bulgarian rental
+// dataset to estimate it from (see the Area Data tab's own gap note and
+// docs/backlog.md's "Parked" rental-scraping investigation), so guessing a
+// number here would be exactly the kind of fabricated data this repo's
+// standing rules rule out. The calculator still works standalone: the user
+// supplies their own rent estimate and everything downstream is real math.
+const BTL_DEFAULTS = {
+  ltvPct: 70,       // Typical Bulgarian buy-to-let mortgage LTV ceiling is
+                     // materially lower than owner-occupier terms; 70% is a
+                     // reasonable illustrative default, not a quoted bank rate.
+  interestPct: 4.0, // Approximate recent Bulgarian EUR-denominated mortgage
+                     // rate order of magnitude - editable, not a live feed.
+  icrPct: 125,       // Interest Cover Ratio - the standard UK BTL lender
+                     // convention (rent must cover mortgage interest by this
+                     // multiple) carried over as-is since the underlying
+                     // affordability logic isn't UK-specific, only relabeled
+                     // as an editable assumption rather than a BG-specific fact.
+};
+
+function initBtlInputs(l) {
+  btlInputs = {
+    price: l.price_eur || 0,
+    ltvPct: BTL_DEFAULTS.ltvPct,
+    interestPct: BTL_DEFAULTS.interestPct,
+    icrPct: BTL_DEFAULTS.icrPct,
+    monthlyRent: null,
+  };
+}
+
+function computeBtlStressTest(inputs) {
+  const loanAmount = inputs.price * (inputs.ltvPct / 100);
+  const monthlyRate = (inputs.interestPct / 100) / 12;
+  // Interest-only monthly payment - the standard basis BTL stress tests are
+  // assessed on (a repayment mortgage's own capital portion isn't what a
+  // lender's rent-cover test is checking).
+  const monthlyInterestOnly = loanAmount * monthlyRate;
+  const minRentToPass = monthlyInterestOnly * (inputs.icrPct / 100);
+  // Solve the same formula for price given the user's own rent figure:
+  // minRentToPass = price * (ltv/100) * monthlyRate * (icr/100)
+  const denominator = (inputs.ltvPct / 100) * monthlyRate * (inputs.icrPct / 100);
+  const maxPriceToPass = (inputs.monthlyRent != null && denominator > 0) ? inputs.monthlyRent / denominator : null;
+  const passes = inputs.monthlyRent != null ? inputs.monthlyRent >= minRentToPass : null;
+  return { loanAmount, monthlyInterestOnly, minRentToPass, maxPriceToPass, passes };
+}
+
+function renderBtlTabHtml(l) {
+  if (!btlInputs) initBtlInputs(l);
+  const inp = btlInputs;
+  const result = computeBtlStressTest(inp);
+  return `
+    <div class="btl-grid">
+      <div>
+        <div class="btl-input-row">
+          <label>Purchase price (€)</label>
+          <input type="number" id="btlPrice" value="${inp.price}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Loan-to-value (%)</label>
+          <input type="number" id="btlLtv" value="${inp.ltvPct}" min="0" max="100" />
+          <p class="btl-input-hint">Illustrative Bulgarian buy-to-let default (${BTL_DEFAULTS.ltvPct}%) - actual terms vary by bank and applicant.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Interest rate (% / year)</label>
+          <input type="number" id="btlInterest" value="${inp.interestPct}" min="0" step="0.1" />
+          <p class="btl-input-hint">Approximate recent Bulgarian mortgage-rate order of magnitude, not a live rate feed - confirm with a lender.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Interest Cover Ratio required (%)</label>
+          <input type="number" id="btlIcr" value="${inp.icrPct}" min="0" step="5" />
+          <p class="btl-input-hint">How many times over rent must cover the interest-only payment - a standard lender stress-test convention, editable per lender.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Your estimated monthly rent (€)</label>
+          <input type="number" id="btlRent" value="${inp.monthlyRent ?? ''}" min="0" placeholder="You provide this" />
+          <p class="btl-input-hint">Required - imotenradar has no Bulgarian rental-listing dataset to estimate this from yet (rental scraping was investigated and parked - see Help). Enter your own comparable-rent research.</p>
+        </div>
+      </div>
+      <div class="btl-outputs">
+        <div class="btl-output-row">
+          <p class="btl-output-label">Minimum rental income per month to pass</p>
+          <p class="btl-output-value">€${fmt(Math.round(result.minRentToPass))}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Maximum price offer to pass, at your rent estimate</p>
+          <p class="btl-output-value">${result.maxPriceToPass != null ? '€' + fmt(Math.round(result.maxPriceToPass)) : '– (enter a rent estimate)'}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Loan amount / interest-only payment</p>
+          <p class="btl-output-value" style="font-size:16px;">€${fmt(Math.round(result.loanAmount))} / €${fmt(Math.round(result.monthlyInterestOnly))} per month</p>
+        </div>
+        ${result.passes != null ? `
+          <p class="btl-pass-line ${result.passes ? 'pass' : 'fail'}">${result.passes ? '✓ Passes at your entered rent estimate.' : '✗ Does not pass at your entered rent estimate.'}</p>
+        ` : ''}
+        <p class="btl-disclaimer">Generic mortgage-affordability calculation (LTV × interest rate × interest-cover ratio) with illustrative Bulgarian-market defaults - not financial advice. Confirm actual rates, LTV terms, and lender requirements with a bank or mortgage broker before relying on this.</p>
+      </div>
+    </div>
+  `;
+}
+
+function wireBtlTabInputs(l) {
+  const ids = { btlPrice: 'price', btlLtv: 'ltvPct', btlInterest: 'interestPct', btlIcr: 'icrPct', btlRent: 'monthlyRent' };
+  Object.entries(ids).forEach(([elId, key]) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseFloat(el.value);
+      btlInputs[key] = isNaN(v) ? (key === 'monthlyRent' ? null : 0) : v;
+      const tabContent = document.querySelector('[data-tab-content="btl"]');
+      if (tabContent) tabContent.innerHTML = renderBtlTabHtml(l);
+      wireBtlTabInputs(l);
+      // Restore focus to whichever field the user was typing in - a full
+      // innerHTML replace on every keystroke would otherwise steal focus
+      // after the first character. Cursor-position restoration is
+      // deliberately skipped: these are all type="number" inputs, and
+      // HTMLInputElement's selection APIs throw on that input type.
+      const refocus = document.getElementById(elId);
+      if (refocus) refocus.focus();
+    });
+  });
+}
 
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
@@ -5494,6 +6541,9 @@ function renderListingDetail(merged) {
         <div class="detail-tabs">
           <button class="detail-tab-btn${detailActiveTab === 'details' ? ' active' : ''}" data-tab="details">Details</button>
           <button class="detail-tab-btn${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab="pricehistory">Price History${priceDropCount > 0 ? ` (${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'})` : ''}</button>
+          <button class="detail-tab-btn${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab="comparables">Comparables</button>
+          <button class="detail-tab-btn${detailActiveTab === 'areadata' ? ' active' : ''}" data-tab="areadata">Area Data</button>
+          <button class="detail-tab-btn${detailActiveTab === 'btl' ? ' active' : ''}" data-tab="btl">BTL Stress Test</button>
         </div>
         <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
           ${l.description
@@ -5524,6 +6574,15 @@ function renderListingDetail(merged) {
             : ''}
           ${relistEventsHtml}
         </div>
+        <div class="detail-tab-content${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab-content="comparables">
+          ${renderComparablesTabHtml(l)}
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'areadata' ? ' active' : ''}" data-tab-content="areadata">
+          ${renderAreaDataTabHtml(l)}
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'btl' ? ' active' : ''}" data-tab-content="btl">
+          ${renderBtlTabHtml(l)}
+        </div>
       </div>
     </div>
   `;
@@ -5548,8 +6607,20 @@ function renderListingDetail(merged) {
   const statusInfo = { removedAt: l.removed_at, isRemoved: l.source_status === 'removed' };
 
   document.getElementById('listingDetailBody').querySelectorAll('.detail-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory, statusInfo));
+    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory, statusInfo, l));
   });
+
+  const detailCompViewToggle = document.getElementById('detailCompViewToggle');
+  if (detailCompViewToggle) {
+    detailCompViewToggle.querySelectorAll('[data-comp-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        detailCompViewMode = btn.dataset.compView;
+        renderListingDetail(merged);
+      });
+    });
+  }
+  const detailCompExportBtn = document.getElementById('detailCompExportBtn');
+  if (detailCompExportBtn) detailCompExportBtn.addEventListener('click', () => exportDetailComparablesCsv(l));
 
   document.getElementById('listingDetailBody').querySelectorAll('.radius-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -5600,6 +6671,24 @@ function renderListingDetail(merged) {
     detailChart.destroy();
     detailChart = null;
   }
+
+  // Card/table views (and the map, only if that tab+sub-view is actually
+  // active/visible - see refreshDetailComparablesViews()'s own comment)
+  // are populated on every render, not gated to detailActiveTab==='comparables',
+  // so the tab's content is already correct the moment a user clicks into
+  // it without needing a second render pass.
+  refreshDetailComparablesViews(l);
+  if (detailActiveTab === 'areadata') {
+    renderAreaDataTabCharts(l);
+  } else {
+    teardownAreaDataCharts();
+  }
+  // Wired unconditionally (cheap - just event listeners on inputs already
+  // in the DOM) rather than gated to detailActiveTab==='btl', since
+  // switching into this tab (switchDetailTab()) doesn't trigger a full
+  // renderListingDetail() re-render the way the radius/view-toggle buttons
+  // do - the listeners need to already be live by the time that happens.
+  wireBtlTabInputs(l);
 
   updateRadiusMap(l);
 }
@@ -5652,6 +6741,8 @@ function showListingDetail(id) {
   detailSourceIndex = 0;
   detailActiveTab = 'details';
   detailRadiusM = null;
+  detailCompViewMode = 'card';
+  btlInputs = null;
   merged._resultPos = currentResultPosition(id);
   if (!merged.sources) merged.sources = [synthesizeSingleSource(merged)];
 
@@ -5730,6 +6821,8 @@ function showSection(name) {
     renderDashboard();
   } else if (name === 'pipeline') {
     renderPipeline();
+  } else if (name === 'comparables' && cmpSearched) {
+    renderComparablesResults();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
