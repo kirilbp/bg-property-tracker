@@ -266,7 +266,7 @@ and 4 implemented..."); summary per task:**
    access to homes.bg (to check whether the detail page has more) - this
    sandbox's egress proxy blocks it, same block Missy hit. Left open.
 
-## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - fixed and verified, awaiting Missy's review before merge - URGENT
+## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - DONE (2026-09-22)
 
 From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
 filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
@@ -293,9 +293,14 @@ portal's own apartment-only search URL makes the "apartment" default
 correct there); imoti.net has no such workaround.
 
 **Status (2026-09-22): root-caused, fixed, verified against real data,
-already-committed data remediated - not yet merged, needs Missy's real
-review (this session had no `Agent` tool access, see the hand-back/dispatch
-note below).** Full investigation, the real regression caught and fixed
+already-committed data remediated, reviewed by Missy (verdict: safe to
+merge - independently re-ran the backfill from the pre-fix data and
+reproduced the committed result byte-for-byte, independently re-
+classified all 26,881 records with zero mismatches against the stored
+fields, and checked the new keywords against the full alo.bg/imoti.bg
+datasets rather than just the PR's own sample), and merged in
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199).**
+Full investigation, the real regression caught and fixed
 before shipping (a keyword collision with a common Bulgarian district
 name), the regression check against the portals already on this
 classifier, and a second related bug found and fixed in the same change
@@ -345,16 +350,18 @@ caused and fixed"). Summary:
   Fixed to normalize through `typeFilterBucket()` like `findComparables()`
   already does.
 
-**Not yet done - dispatch needed:** this session had no `Agent` tool
-available to spawn Missy for real review. Implemented and verified
-directly against real data instead of skipped, but that isn't a
-substitute for her review, per the standing "nothing ships without Missy"
-rule. Opened as
-[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
-(`claude/bg-property-tracker-setup-30c2rp` -> `main`) rather than merged -
-needs: (1) Missy's real review against her rubric, (2) merge to `main`
-once she signs off. Revy's review is not required (no auth/security/
-credentials/personal-data surface touched).
+**Two small follow-ups filed from Missy's review, neither blocking, both
+still open:**
+- Add the missing "chetiristaen" (4-room) and "mnogostaen" (multi-room)
+  Latin-transliteration keywords to `category_classifier.py`'s `flat`
+  list - closes the `single_signal_only` confidence gap above. Small,
+  low-risk, mechanical.
+- `scraper_imot.py` and `scraper_olx.py` still call
+  `geo_utils.classify_category()` - the same Bulgarian-only-keyword
+  function that caused this exact bug on imoti.net. Missy did not check
+  whether either portal is crawled via an English-language URL the way
+  imoti.net was; if either is, the same bug class could exist there.
+  Needs its own investigation pass before assuming it's fine.
 
 ## 6. Site is very slow to load/refresh - root-caused, not yet fixed - URGENT
 
