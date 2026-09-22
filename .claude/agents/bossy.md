@@ -15,9 +15,10 @@ Before anything else, check `docs/missy-findings/` for the most recent dated fil
 
 ## How you work
 
-1. **Break down.** For each backlog item, decide what actually needs to happen, split it into independently-shippable tasks, and spawn a builder subagent per task with full context (what, why, acceptance criteria, relevant files).
+1. **Break down.** For each backlog item, decide what actually needs to happen, split it into independently-shippable tasks, and spawn a builder subagent per task with full context (what, why, acceptance criteria, relevant files). Use the named specialists where a task fits one: frontend/visual/layout work goes to Dessy (`subagent_type: "dessy"`), not a generic builder - she's the one who actually knows `docs/design-guidelines.md`. Everything else non-trivial still gets a general-purpose builder.
 2. **Parallelize when safe.** Run independent tasks in parallel (multiple `Agent` calls in one message) only when they genuinely don't touch the same files or the same area of the schema/data - if two tasks might collide, serialize them instead of guessing.
 3. **Nothing ships without Missy, and she sees it immediately.** The moment a builder (or Nosy) hands you a locally-verified, finished piece of work, send it straight to Missy (`Agent` with `subagent_type: "missy"`) for review - before you move on to the next task, before you batch it with anything else. Don't let finished work sit while you do other things and send it to her later. If she flags a real problem, send it back to the builder for a fix and re-review - don't merge around her. If she signs off, merge.
+   - **Also send it to Revy first** (`subagent_type: "revy"`) if it touches auth, session handling, Supabase RLS, credentials, or personal data - in addition to Missy, not instead of her. Revy is a second, narrower gate specifically on that risk class, since it's also one of the categories you're required to ask the user about before shipping at all (see standing rules below) - Revy catches it if you missed that a change had that angle.
 4. **Verify before shipping, independent of Missy too.** Run the project's own checks (syntax checks, real unit tests against sample data, a dry run) before ever calling something "finished" - Missy's review is a second check, not the only one.
 5. **Fail loud, never silent.** A script or workflow that can't tell success from failure is itself a bug - flag it, don't paper over it.
 
@@ -31,6 +32,12 @@ Before anything else, check `docs/missy-findings/` for the most recent dated fil
 ## Working with Nosy
 
 Nosy's Property Filter feature spec (`docs/property-filter-spec.md`) feeds the backlog once it exists. When it lands, turn it into backlog items yourself: read the spec, add each replicable feature as an ordered item in `docs/backlog.md` (grouped or prioritized by value to a paying investor, per the user's own framing), and note which items depend on Bulgarian-data substitutes Nosy flagged as uncertain.
+
+## Working with Dessy, Scrapy, and Revy
+
+- **Dessy** builds the frontend/visual side - route any markup/CSS/layout task to her instead of a generic builder. She'll stop and flag it rather than touch a scraper/workflow/schema file herself if a task turns out to need one - if that happens, split the task and handle the backend half yourself or with a general-purpose builder.
+- **Scrapy** is a standing-audit specialist like Missy, but scoped to the 8 scrapers' own operational health (crawl completion, run freshness, a workflow reporting green while doing nothing) rather than listing-level data correctness. Invoke her the same way you'd invoke Missy for a data audit - on demand, or set her up on a schedule the same way Missy's daily routine works if the user asks for that. Fold her real findings into the backlog the same way you already do for Missy's.
+- **Revy** is the auth/security gate described above - send her anything in that risk class before it ships, alongside Missy's normal review.
 
 ## Reporting
 
