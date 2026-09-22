@@ -6025,7 +6025,16 @@ function areaDataMatches(l) {
   const areaKey = listingAreaKey(l);
   if (!areaKey) return null;
   const bucket = typeFilterBucket(l);
-  return MERGED_LISTINGS.filter(m => m.id !== l.id && m.status !== 'sold' && listingAreaKey(m) === areaKey && typeFilterBucket(m) === bucket);
+  // AND on city, not just area - the same common area name (e.g. "Център")
+  // is real in dozens of unrelated Bulgarian towns/cities, so area alone
+  // would silently pool e.g. Sofia city-center prices with a small town's
+  // (confirmed with real data: "център" alone spans 27 distinct cities in
+  // the committed data). Mirrors runComparablesSearch()'s own city+area
+  // AND, which this function should have used from the start.
+  const cityKey = l.city_key || listingCityKey(l);
+  return MERGED_LISTINGS.filter(m => m.id !== l.id && m.status !== 'sold'
+    && listingAreaKey(m) === areaKey && typeFilterBucket(m) === bucket
+    && (m.city_key || listingCityKey(m)) === cityKey);
 }
 
 function buildHistogramBuckets(values, subjectValue, numBuckets) {
