@@ -14,7 +14,33 @@ shipped in PR #168. Both verified with real unit tests before merge and
 confirmed live on `main`. Nothing further needed unless a regression
 turns up.
 
-## 2. Login broken - IN PROGRESS, blocked on the user
+## 2. Login removed entirely - DONE (2026-09-22)
+
+Not fixed - removed, per the user's explicit direct decision ("I want
+login removed completely"), which does not need further confirmation.
+This supersedes all the login-repair investigation below (kept for
+history, not as an open problem anymore).
+
+Shipped: the entire Supabase-Auth-gated login system added by the old
+backlog #62 (login modal, `CURRENT_USER`/`applyAuthState`/
+`onAuthStateChange`, the two "log in to use this" gate cards on Lead
+Generators and Dashboard, and the sidebar account/logout UI) is gone
+from `index.html`. Saved listings, Lead Generators, and Reminders are
+back to a plain, no-login, this-browser-only `localStorage`
+implementation - functionally equivalent to how they worked before
+backlog #62, not byte-identical to the old code. No Supabase backend
+schema/RLS/data was touched or dropped - see `docs/decisions.md`'s
+2026-09-22 entry for the full reasoning, what's left dormant on the
+backend as a flagged future cleanup candidate (in particular
+`check_reminders.py`'s daily "open a GitHub issue for an overdue
+reminder" job, which now has nothing new to read since reminders no
+longer write to Supabase), and how it was reviewed - this session had
+no subagent-spawning tool available, so it was self-reviewed directly
+against Missy's own rubric rather than skipped; flagged there as a real
+gap, not a shortcut taken lightly.
+
+<details>
+<summary>Prior investigation (kept for history only - not an open problem)</summary>
 
 Valid credentials rejected on imotenradar.com. Confirmed so far (see
 session history / `docs/decisions.md`): `index.html` and the GitHub
@@ -46,14 +72,13 @@ re-analyzed since rows were deleted), not real hidden users - i.e. the
 table is most likely genuinely empty now, matching the Auth API's "0
 registered accounts" result, not contradicting it.
 
-Reframed problem: this is not a wrong-project routing issue. It's that
-no real user account currently exists in imotenradar.com's own Supabase
-project. Open questions for the user, not yet answered: did they ever
-complete a real sign-up on the live site (possible the sign-up flow
-silently failed without creating the Auth user - worth checking if so),
-or do they just want to sign up fresh now that nothing is blocking it.
-Do not change any auth wiring until the user answers - this is an auth
-change, which the standing rules require asking about anyway.
+Reframed problem (now moot): this was not a wrong-project routing
+issue, it was that no real user account existed in imotenradar.com's
+own Supabase project. The user has since decided the answer isn't to
+debug or recreate that account - it's to remove the login requirement
+entirely, which is what shipped above.
+
+</details>
 
 ## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - URGENT
 

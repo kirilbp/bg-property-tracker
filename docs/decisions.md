@@ -190,3 +190,100 @@ session check, but the emailed notification no longer depends on it.
 Verified end to end for real on the first live run: issue #183 (a genuine
 finding - alo.bg's grid crawl silently dead since 2026-09-16) plus PR #184
 carrying the committed record, both landed from a single firing.
+
+### 2026-09-22 - Login removed entirely, per the user's explicit direct decision
+
+The user gave direct, explicit authorization for this exact change ("I
+want login removed completely") - not a design fork Bossy resolved on
+its own, so this entry is a record of what shipped and why, not a
+default-option justification.
+
+**What was removed from `index.html`:** the entire Supabase-Auth-gated
+login system backlog #62 added - the login modal (HTML/CSS/JS),
+`CURRENT_USER`, `openLoginModal`/`closeLoginModal`/`submitLogin`/
+`logout`, `applyAuthState`, the `sb.auth.getSession()`/
+`onAuthStateChange()` wiring, the one-time `migrateLocalDataIfNeeded()`
+migration block, the two "log in to use this" gate cards on Lead
+Generators and the Dashboard, and the sidebar account/logout UI. Every
+`if (!CURRENT_USER) { openLoginModal(); return; }` gate on
+`toggleSavedListing()`/`openReminderModal()` is gone too.
+
+**What replaced it:** Saved listings, Lead Generators, and Reminders are
+back to a plain, synchronous, this-browser-only `localStorage`
+implementation (`savedListingIds`/`leadGenerators`/`reminders` keys) -
+no accounts, no server round-trip, no shared/public data exposure. This
+is deliberately the same architecture the app used before backlog #62,
+reconstructed functionally rather than restored byte-for-byte (backlog
+#62's own code comments described the old localStorage keys/shapes
+clearly enough to rebuild them faithfully - confirmed against the
+`migrateLocalDataIfNeeded()` block's own reads of the OLD keys before it
+was deleted). Caught and fixed one real bug introduced while doing this:
+the listing detail page's reminders block originally ran its
+(now-synchronous) load *after* the page's first render, so a reminder
+set on a listing wouldn't show up until some unrelated re-render
+happened - moved the load before the first `renderListingDetail()` call
+in `showListingDetail()` so the first render already has it, verified
+with a Playwright test asserting the reminder note appears in the
+rendered detail-page HTML.
+
+**Backend left untouched, on purpose:** per the user's own instruction
+and the standing rule against unnecessary destructive changes,
+`supabase/schema.sql`'s `auth.users`-based tables/RLS policies
+(`saved_listings`, `lead_generators`, `reminders`'s per-user policies)
+were NOT dropped or reverted - they're simply unused by the frontend
+now. Flagged here as a candidate for later cleanup, not urgent: nothing
+references them anymore, they cost nothing beyond a little schema
+clutter, and dropping RLS/columns is real, one-way risk for a change
+that was scoped as frontend-only.
+
+**One real behavior loss, called out rather than papered over:**
+`check_reminders.py` (the daily job that opens a GitHub issue as a
+backup nudge for an overdue reminder, `.github/workflows/
+check-reminders.yml`) reads the Supabase `reminders` table with a
+service-role key. Since reminders now live only in each browser's
+`localStorage`, no new reminder ever reaches that table again - the job
+is not broken (it will keep running, keep exiting 0, and correctly find
+nothing new) but it is now permanently a no-op for anything created
+after this change. Chose not to try to keep it alive (e.g. by also
+writing reminders to Supabase via the anon key) rather than silently
+reintroduce a server dependency the user just asked to remove - updated
+the Dashboard's Reminders card copy to stop promising the GitHub-issue
+nudge, so the UI doesn't claim a capability that no longer exists (same
+"fail loud, not silent" reasoning applied to misleading copy, not just
+code). If cross-device/backup reminder notifications matter enough to
+rebuild, that's a fresh, explicitly-scoped feature request, not
+something to half-preserve here.
+
+Verified locally: JS syntax-checked (`new Function()` on the extracted
+`<script>` body), then driven end to end in a real headless Chromium via
+Playwright (CDN/Supabase network calls stubbed, since this sandbox's
+egress proxy blocks `unpkg.com`/`cdn.jsdelivr.net`/`cdnjs.cloudflare.com`/
+`*.supabase.co` outright, consistent with Missy's own 2026-09-21 finding
+about the same proxy policy) - confirmed no login DOM elements or
+globals remain, save/unsave a listing persists and reverses correctly
+in `localStorage`, lead generator add/duplicate/delete all persist,
+reminder create/dismiss both persist with the right `dismissed` flag,
+`openReminderModal()` opens with no login check, and the Lead
+Generators/Dashboard pages render their real content directly (no gate,
+no empty state waiting on a session). Zero uncaught page errors in any
+of these runs. Also grepped the whole repo for every removed identifier
+(`CURRENT_USER`, `openLoginModal`, `applyAuthState`, the login-gate
+element ids, etc.) - the only hits left are this file, the backlog, and
+index.html's own explanatory comments, confirmed none of them are live
+code paths.
+
+**Review note:** this session had no `Agent`/Task tool available to
+spawn the `missy` subagent the "nothing ships without Missy" standing
+rule normally means (same gap the 2026-09-21 routine-firing entry above
+hit once already) - flagging this plainly rather than silently skipping
+the review or silently claiming a subagent sign-off that didn't happen.
+Followed the same fallback used then: reviewed this change directly
+against `.claude/agents/missy.md`'s own rubric for "reviewing a finished
+piece of work" (scope to the diff, verify locally, give a clear sign-off
+or a list of blocking problems) rather than her data-accuracy sampling
+process, which doesn't apply to a pure frontend-logic change with no
+listing data involved. No blocking problems found under that rubric.
+This is a real, load-bearing gap in this session specifically (not a
+one-off) - worth the user's attention if they want every future Bossy
+session to reliably have subagent-spawning access for exactly this
+reason.
