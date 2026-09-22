@@ -854,6 +854,120 @@ alternating scrapes" than a real site behavior), but not confirmed.
 
 ---
 
+## 20. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet
+
+Found by Placy while checking whether the Cherven Bryag/"град Ловеч"
+oddity Missy flagged (item 18's investigation) is a systemic pattern.
+Full detail, evidence and methodology: `docs/decisions.md`'s 2026-09-22
+entry.
+
+**Confirmed, narrow, currently self-healing but order-dependent:**
+`scraper_imot.py` tags every listing's `city` field from which of its 25
+`CITY_SLUGS` query pages produced it, not from the card's own text -  but
+imot.bg's own `grad-lovech` page itself returns listings physically in
+Червен бряг (Pleven oblast, ~55km from Lovech; pre-1999 okrug legacy,
+one listing's own URL literally encodes `obshtina-lovech`, imot.bg's own
+site data, not a scraper misread). `listing_oblast_key()` checks
+`lat`/`lng` first, then `city_key` (always resolves for imot.bg since
+`city` is always one of the 25 known-good names) - the listing's own
+`area` text is never reached as a fallback. A simulated *ungeocoded*
+Cherven Bryag/Ловеч listing run through the real, unmodified
+`listing_oblast_key()` resolves to `lovech` (wrong) instead of `pleven`.
+All 13 currently-committed Cherven Bryag/Ловеч listings already have real
+lat/lng (from `backfill_geocode_imot.py` having run), so they currently
+show correctly - but a freshly-scraped one would show wrong until the
+geocode backfill catches up.
+
+**Scope beyond Cherven Bryag: checked, mostly not the same bug.**
+Cross-referencing every (queried city, area text) pair across
+`data/leads_imot.json` against `oblast_key_from_municipality()` found 54
+pairs / 1,641 listings where the area text resolves to a different
+oblast than the queried city - but sampling showed most are false
+positives from ordinary Bulgarian neighborhood-name collisions (e.g.
+"Гоце Делчев" under Sofia-queried listings is a real Sofia жк
+coincidentally sharing a name with the actual town in Blagoevgrad oblast,
+confirmed by its own real coordinates landing 2.1km from central Sofia,
+not 130km away). Only Cherven Bryag/Ловеч had both real-coordinate
+confirmation and imot.bg's own URL-text claim agreeing as genuine
+misfiling.
+
+**Recommended fix, not yet implemented (needs `sync_to_supabase.py`, left
+for whoever picks it up after item 18 settles to avoid the same-file
+collision):** don't let `city_key` win over `area`-derived resolution
+unconditionally for imot.bg specifically when the two disagree and
+`area` resolves via the hand-verified `BG_MUNICIPALITY_TO_OBLAST` (not
+the larger generated table, to limit false-positive risk) - or, cheaper
+and lower-risk, just prioritize closing the geocoding backfill gap so
+`lat`/`lng` (which is already correct and already wins) covers these
+listings sooner. A blind area-text override is **not** safe without
+per-listing geocoding to rule out same-city name collisions like Гоце
+Делчев above - demonstrated concretely, not just a theoretical risk.
+
+## 21. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` (not fixed, avoiding the file this pass)
+
+Found by Placy while auditing `sales.bcpea.org`'s unresolved listings
+(see item below and `docs/decisions.md`'s 2026-09-22 entry for the full
+per-portal audit these came out of).
+
+1. **`Гълъбово` missing from both settlement tables.** A real, notable
+   municipality-seat town (Stara Zagora oblast, the Maritsa Iztok power
+   complex) resolves to `None` from both `BG_MUNICIPALITY_TO_OBLAST` and
+   the generated `BG_SETTLEMENT_TO_OBLAST`/
+   `data/bg_settlements_to_oblast.json` - a genuine gap, not a documented
+   ambiguous-name exclusion (`oblast_key_from_municipality("Гълъбово")`
+   returns `None` outright). At least one real `sales.bcpea.org` listing
+   ("Парцел, Гълъбово") is left unresolved because of this.
+2. **`bcpea_settlement_from_title()` doesn't handle the "Други" category
+   label.** `bcpea_settlement_from_title("Други, Брезово")` returns
+   `None`, even though "Брезово" itself resolves fine
+   (`oblast_key_from_municipality("Брезово")` -> `plovdiv`) once
+   extracted - the function's category-prefix handling just doesn't cover
+   that one label.
+
+Both small, mechanical fixes once `sync_to_supabase.py` is next open for
+item 18-adjacent work - bundling them in rather than a separate pass
+through the same file.
+
+## 22. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - needs a data cleanup someone/something with write access to `data/*.json` can apply
+
+Found by Placy during the platform-wide allocation-gap census (see
+`docs/decisions.md`'s 2026-09-22 entry for full methodology).
+
+`scraper_alo.py` used to write `area, city = "Bulgaria", None` when its
+`LOCATION_RE` missed a card - already fixed in the scraper's own code
+(now writes `None`/`None`, per the function's own inline comment; not
+this item). What's left is **stale data from before that fix**: 12,501
+rows in the currently-committed `data/leads_alo.json` (and the matching
+`"latest"` records in `data/history_alo.json`) still carry the literal
+string `"Bulgaria"` as `area`, all with `city` exactly `None` - the old
+code's exact signature, confirmed not a new instance of the bug. Checked
+for a look-alike first: 15 separate rows have `area == "България"`
+(Cyrillic) with a real `city` set - sampling confirmed these are a
+genuine street name (`бул. България`, Bulgaria Boulevard, Veliko
+Tarnovo) correctly parsed, not the bug; excluded from scope.
+
+Of the 12,501: 5,009 already have real lat/lng from a coordinate backfill
+and resolve to the correct oblast today despite the stale text (only the
+user-visible `area` label/filter value is wrong - this is exactly the
+kind of junk value that would show up as a bogus entry in item 18's new
+`area_key`-grouped dropdown); 4,327 still have no lat/lng and are
+counted in item 20-adjacent audit's "alo.bg 4,394 unresolved" figure.
+
+**Fix is a narrow, exact-match, already-written and dry-run-verified data
+cleanup**: for any record where `area == "Bulgaria"` (Latin spelling,
+exact) AND `city is None`, set `area` to `None` (nothing else touched -
+does not change oblast/city resolution logic, just removes a
+known-false raw string). **Could not apply it**: writing directly to
+`data/leads_alo.json`/`data/history_alo.json` was blocked by this
+sandbox's own permission system ("Modify Shared Resources" denial on the
+write). The exact scope/logic is documented above and in
+`docs/decisions.md`'s matching entry for whoever has write clearance for
+the committed data files - or this resolves itself naturally the next
+time these specific listings are re-visited by a live `scraper_alo.py`
+run, since the scraper-side fix is already in place.
+
+---
+
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
 
 Flagged by Nosy as genuinely open, not confirmed either way. Each blocks

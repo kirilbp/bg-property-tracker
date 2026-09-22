@@ -940,3 +940,169 @@ credentials/personal-data, so Revy's narrower gate doesn't apply by this
 session's own read of the standing rule (same read as backlog item 5's
 entry above). Opened as a PR (`claude/bg-property-tracker-setup-30c2rp`
 -> `main`) for review before merge.
+
+### 2026-09-22 - Placy's first audit: imot.bg legacy-grouping check, homes.bg re-attempt, platform-wide allocation-gap census (backlog items 20-22)
+
+First pass as the new location-allocation specialist. Checked for
+in-flight conflicts first (`git status`/`git log`, backlog item 18's
+status section) - item 18 had just landed (commit `8d7ef51`, `area_key`
+now in both `sync_to_supabase.py` and `supabase/schema.sql`, working tree
+clean) while this session was running, confirming the coordination
+concern was real, not hypothetical. Did not touch `sync_to_supabase.py`,
+`supabase/schema.sql`, or `index.html` this pass, per standing instruction
+and to leave Missy's pending review of item 18 undisturbed.
+
+**1. imot.bg's "Cherven Bryag filed under Ловеч" oddity - confirmed real,
+narrow, and self-healing once geocoded, not the systemic pattern first
+suspected.** `scraper_imot.py` tags every listing's `city` field directly
+from which of its 25 `CITY_SLUGS` query pages produced it (by design, not
+re-parsed from card text) - but imot.bg's own `grad-lovech` query page
+itself returns 13 listings physically in Червен бряг (Pleven oblast,
+~55km away), one of them with a URL literally encoding
+`grad-lovech-cherven-bryag-obshtina-lovech` ("Lovech municipality") -
+that claim is imot.bg's own site data, not a scraper misread, and it's
+factually wrong (Cherven Bryag is its own separate municipality, seat of
+its own name, in Pleven oblast - confirmed already correct in
+`BG_MUNICIPALITY_TO_OBLAST`). Consistent with the pre-1999 Lovech okrug
+having included Cherven Bryag before the 1999 reform moved it to the new
+Pleven oblast.
+
+Checked whether this is systemic across the other 24 `CITY_SLUGS` cities:
+cross-referenced every (queried city, area-text) pair in the committed
+`data/leads_imot.json` against `oblast_key_from_municipality()`, looking
+for area values that resolve to a different oblast than the queried
+city. Found 54 distinct pairs / 1,641 listings - but sampling showed most
+are **false positives from ordinary Bulgarian neighborhood-name
+collisions**, not real misfiling: e.g. "Гоце Делчев" appears under
+`Пловдив`/`Sofia`-queried listings 29 times, but the one sample with real
+coordinates resolves 2.1km from central Sofia - a real жк within Sofia
+coincidentally sharing a name with the actual town in Blagoevgrad oblast,
+not a misfiled listing. "Тракия", "Дружба", "Ново село", "Борово",
+"Плиска", "Боровец" etc. are common quarter names duplicated nationwide
+and independently registered as real (usually tiny) settlements
+elsewhere - the same "ambiguous name" class already handled for
+"Бяла"/"Средец", just not yet exhaustive. Only Cherven Bryag/Ловеч had
+both real-coordinate confirmation *and* imot.bg's own URL-text claim
+lining up as genuine misfiling; no other pair in the 54 had comparable
+evidence on a quick sample.
+
+**A real, currently-live, narrower bug found underneath this, though:**
+`listing_oblast_key()` (`sync_to_supabase.py`) checks `lat`/`lng` first,
+then `city_key` (derived from imot.bg's own trusted `city` field, which
+always resolves since it's always one of the 25 known-good `CITY_SLUGS`
+names) - `area` text is never even reached as a fallback for imot.bg
+listings, since step 2 always succeeds. Simulated an *ungeocoded*
+Cherven Bryag/Ловеч listing directly against the real, unmodified
+`listing_oblast_key()`: it resolves to `lovech` (wrong) instead of
+`pleven`. All 13 currently-committed Cherven Bryag/Ловеч listings happen
+to already have real, correct lat/lng (from `backfill_geocode_imot.py`
+having already run against them), so `oblast_key_from_latlng()` overrides
+the wrong `city_key` today and they show correctly as Pleven - but this
+is order-dependent on the geocode backfill's cadence, not a structural
+fix, and any freshly-scraped Cherven Bryag/Ловеч listing gets the wrong
+oblast until that backfill catches up. Filed as backlog item 20; no code
+changed (`sync_to_supabase.py`/`scraper_imot.py` both need a decision on
+where to fix this, and the false-positive risk just demonstrated means a
+blind "override city from an area-text municipality match" fix is not
+safe without per-listing geocoding to confirm each case, which this
+sandbox mostly can't do live - see below).
+
+**2. homes.bg's empty-address gap - re-attempted with live network tools
+this pass, still fully blocked, re-confirmed the same numbers on today's
+committed data.** Both a direct `curl` (`CONNECT tunnel failed, response
+403`) and `WebFetch` (`EGRESS_BLOCKED`, domain `www.homes.bg`) were tried
+against several of the actual affected listing URLs
+(e.g. `https://www.homes.bg/offer/kyshta-za-prodazhba/kyshta-64m2--/hs296683`)
+- both blocked, same as the prior investigation. `WebSearch` for the
+listing ID found nothing indexed, though it did surface a real homes.bg
+listing title from a *different* listing ("HOMES.bg - Къща, 300m2, жк.
+Медковец, Враца") confirming homes.bg listings that DO have location data
+show it in a form our scraper already parses correctly - reinforcing that
+this is a genuine per-listing data gap on homes.bg's side, not a parsing
+miss. Tried one more thing not attempted before: cross-referencing the
+affected listings' price+sqm against the other 7 portals' committed data
+in case the same physical listing is mirrored elsewhere with real
+location text - found 2 coincidental price/sqm matches, but with nothing
+more precise (no photo hash, no address) to confirm they're actually the
+same physical listing, this is not reliable evidence and wasn't used for
+anything. On current data the gap is **92 of 73,974 homes.bg listings
+(0.12%)** with `area` literally `","` (both sides of the raw
+`location` string empty) - same order of magnitude as the original
+finding, still genuinely unresolvable without a working network path to
+homes.bg. Left open, same as before; this sandbox's block is confirmed
+current, not stale information.
+
+**3. Platform-wide allocation-gap census, using the real resolution
+function, not raw missing-field counts.** Raw "no `area`"/"no `city`"
+field counts are a misleading proxy - e.g. `sales.bcpea.org` shows 0% of
+listings with a `city` field by design (it title-parses a settlement
+name instead, feeding `listing_oblast_key()`'s own bcpea-specific
+branch), so a raw-field census would have wrongly flagged 100% of its
+listings as broken. Instead ran every one of the 305,065 listings across
+all 8 committed `data/leads_*.json` files through the real, unmodified
+`listing_city_key()`/`listing_oblast_key()`:
+
+| portal | total | unresolved | % |
+|---|---|---|---|
+| imoti.net | 26,881 | 0 | 0.0% |
+| alo.bg | 87,979 | 4,394 | 5.0% |
+| homes.bg | 73,974 | 221 | 0.3% |
+| imot.bg | 26,163 | 2 | 0.0% |
+| olx.bg | 36,462 | 721 | 2.0% |
+| bazar.bg | 50,480 | 5 | 0.0% |
+| imoti.bg | 908 | 4 | 0.4% |
+| sales.bcpea.org | 2,218 | 281 | 12.7% |
+| **TOTAL** | **305,065** | **5,628** | **1.8%** |
+
+This matches backlog item 4's already-measured 1.8% "Others" bucket
+figure almost exactly (5,628 vs. 5,633 on a slightly older listing
+count) - a useful independent cross-check that the gazetteer expansion
+is holding steady, not regressing, plus the first per-portal breakdown.
+Two real, separate findings underneath the aggregate:
+
+- **alo.bg's 4,394 (of 87,979) is almost entirely the same known
+  "Bulgaria" placeholder from backlog item 4 task 1** - 4,327 of them
+  have `area == "Bulgaria"` (the literal old fallback string).
+  `scraper_alo.py`'s own code was already fixed (per its inline comment)
+  to write `None`/`None` instead going forward, but **12,501 already-
+  committed rows in `data/leads_alo.json` and `data/history_alo.json`
+  still carry the stale literal `"Bulgaria"` string** (confirmed:
+  `city` is `None` for all 12,501 - the exact old-code signature, not a
+  new instance of the bug). Of those, 5,009 already have real lat/lng
+  from a coordinate backfill and resolve correctly at the oblast level
+  today despite the stale text (only the `area` display/filter value is
+  wrong, not the oblast); 4,327 still have no lat/lng at all and remain
+  genuinely unresolved. Checked for a look-alike false positive first:
+  15 separate rows have `area == "България"` (Cyrillic) with a real city
+  set (`Велико Търново`) - sampling confirmed these are a real street
+  name (`бул. България`, Bulgaria Boulevard) correctly parsed, not the
+  bug, and were excluded from the fix scope. Wrote and dry-run-verified a
+  narrow, exact-match cleanup script (`area == "Bulgaria"` AND
+  `city is None`, nothing else) to null out the 12,501 stale values in
+  both files - **could not actually apply it**: this sandbox's own
+  permission system blocked the write with a "Modify Shared Resources"
+  denial when attempting to save `data/leads_alo.json`/
+  `data/history_alo.json` directly. Filed as backlog item 22 with the
+  exact fix scope and script documented, for whoever has write clearance
+  for the committed data files (or the next scheduled scraper/sync run,
+  which would naturally overwrite these rows anyway once re-visited).
+- **Two small, separate `sync_to_supabase.py`-adjacent gaps found
+  incidentally while checking `sales.bcpea.org`'s 281 unresolved
+  listings** (not fixed - avoiding that file this pass per the item-18
+  coordination note): (a) `Гълъбово` - a real, notable municipality-seat
+  town (Stara Zagora oblast, home to the Maritsa Iztok power complex) -
+  is missing from *both* `BG_MUNICIPALITY_TO_OBLAST` and the generated
+  `BG_SETTLEMENT_TO_OBLAST`/`data/bg_settlements_to_oblast.json`, a
+  genuine gazetteer gap, not a documented ambiguous-name exclusion; (b)
+  `bcpea_settlement_from_title()` returns `None` for a title starting
+  with the category label "Други" (e.g. `"Други, Брезово"`) even though
+  "Брезово" itself resolves fine once extracted - the category-prefix
+  handling doesn't cover that one label. Both flagged for whoever next
+  touches `sync_to_supabase.py`, ideally bundled with item 18's work
+  rather than as a separate pass through the same file.
+
+**No `Agent` tool available this session** (same limitation prior
+entries have flagged) - could not dispatch to Missy directly. All of the
+above is filed in `docs/backlog.md` (items 20-22) for her/Bossy's
+attention rather than self-certified; nothing here has been merged or
+treated as reviewed.
