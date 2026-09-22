@@ -48,12 +48,17 @@ DATA_DIR = Path(__file__).parent / "data"
 # as a symptom.
 MAX_FRESHEST_SNAPSHOT_AGE_HOURS = 30
 
-# Every portal this repo tracks currently runs 72-91% active in healthy
-# conditions (see docs/missy-findings/2026-09-21.md's per-portal
-# breakdown: removed shares of 8-27%). 40% is comfortably under all of
-# them - a normal day, even an unusually heavy real removal/sale day,
-# should never trip this - but alo.bg's real incident (100% removed) trips
-# it immediately.
+# Corrected 2026-09-22 (Missy's PR #197 review): this threshold is only
+# actually safe for the portals currently wired up below (alo.bg, imoti.net)
+# - it is NOT comfortably under every portal's real active ratio. Measured
+# directly against the real committed data: imoti.net 63.8%, imot.bg 68.8%,
+# alo.bg 0.0% (the real incident this check exists to catch), olx.bg 43.3%,
+# homes.bg 91.2%, bazar.bg 45.2%, imoti.bg 90.3%, bcpea 60.1%. olx.bg and
+# bazar.bg sit only 3-5 points above this 40% floor - a normal day's
+# fluctuation could trip a false portal-wide-failure alarm for either of
+# them. Do NOT extend this check to olx.bg or bazar.bg with this same
+# threshold without first re-deriving a real per-portal margin from their
+# own healthy-day data, the way this was done for alo.bg/imoti.net.
 MIN_ACTIVE_RATIO = 0.40
 MIN_LISTINGS_FOR_RATIO_CHECK = 50
 
