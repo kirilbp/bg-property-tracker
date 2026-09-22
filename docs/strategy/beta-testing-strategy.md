@@ -17,7 +17,7 @@ search/filtering, city/oblast browse, saved listings, Lead Generators,
 reminders (all `localStorage`-based per `docs/decisions.md`'s 2026-09-22
 login-removal entry). This is **not** a beta of an unlaunched product —
 it's a structured beta specifically for the redesign work in
-`docs/backlog.md` items 8-16 (listing detail redesign, comparables/area
+`docs/backlog.md` items 9-17 (listing detail redesign, comparables/area
 data, the premium visual refresh) plus, once built, the subscription
 tiers themselves.
 
@@ -25,7 +25,7 @@ tiers themselves.
 sequential phases rather than one, since they're testing different
 things and mixing them muddies the signal:
 
-- **Phase 1 — Free product beta** (once `docs/backlog.md` items 8-9 at
+- **Phase 1 — Free product beta** (once `docs/backlog.md` items 9-10 at
   minimum have shipped: the listing detail redesign and Lead
   Generators/pipeline). Tests: does the redesigned product work, is the
   new visual direction actually landing as "classy/luxurious" with real
@@ -100,15 +100,30 @@ Kiril your feedback."
 This should reuse the pipeline the team already runs and trusts, not
 invent a parallel one:
 
-- Every structured submission is posted, via a small script/GitHub
-  Action, directly as a **GitHub issue** labeled `beta-feedback` (or
-  `beta-bug` for the bug-report path) — the same mechanism
-  `.github/workflows/missy-findings-issue.yml` already uses to turn a
-  committed finding into a notification (`docs/decisions.md`'s
-  2026-09-21 entry documents this exact pattern working end-to-end).
-  Reusing it means no new notification infrastructure, and Kiril's
-  existing GitHub-issue email notifications are already his real
-  awareness channel — nothing new to check.
+- Every structured submission needs a path from an anonymous public
+  visitor's browser to a **GitHub issue** labeled `beta-feedback` (or
+  `beta-bug` for the bug-report path) without ever putting a
+  GitHub-write credential in that visitor's page — **this needs a small
+  serverless function** as the write target for the feedback form, not
+  a client-side script, the same problem
+  `docs/strategy/subscription-strategy.md` §4 already flags for its own
+  Stripe webhook and the same shape of fix (a lightweight Cloudflare
+  Worker/Vercel/Netlify function holding the credential server-side).
+  Recommend that function file the issue directly via the GitHub API
+  (`mcp__github__issue_write`-equivalent from server-side code, or a
+  plain REST call using a stored token) rather than going through a
+  committed-file-plus-push-triggered-workflow indirection — per
+  `docs/decisions.md`'s 2026-09-21 entry, that committed-file shape
+  (`.github/workflows/missy-findings-issue.yml`) is now documented as a
+  **secondary, best-effort fallback** for Missy's own findings pipeline,
+  not its primary path; the primary path there is a persistent session
+  with real GitHub access calling `mcp__github__issue_write` directly.
+  Filing the beta-feedback issue the same direct way (via the new
+  serverless function, since there's no persistent session sitting
+  behind the public feedback form) avoids relying on the superseded
+  mechanism as "the" current pattern. Either way, this reuses Kiril's
+  existing GitHub-issue email notifications as the real awareness
+  channel — nothing new for him to check.
 - **Automated triage, not manual sorting:** category from the structured
   form (above) maps directly to a GitHub label; a lightweight duplicate
   check (e.g. fuzzy-match new submissions against open `beta-feedback`

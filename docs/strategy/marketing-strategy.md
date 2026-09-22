@@ -26,12 +26,17 @@ data/analysis-driven content, not lifestyle imagery alone.
 **Positioning statement (Recommendation — needs Kiril's sign-off):**
 *"The only place that shows you every Bulgarian property listing across
 all major portals in one place, with the investor signals (motivation
-score, price history, comparables) the portals themselves don't show
-you."* This leads with the two genuinely differentiating, already-built
-capabilities (`docs/backlog.md` item 7's motivation score, and the
-multi-portal aggregation Nosy's spec calls "arguably the single
-highest-value feature to prioritize") rather than generic "browse
-listings" language every competing portal already uses.
+score, price history) the portals themselves don't show you."* This
+leads with the two genuinely differentiating, already-built capabilities
+(`docs/backlog.md` item 8's motivation score, and the multi-portal
+aggregation Nosy's spec calls "arguably the single highest-value feature
+to prioritize") rather than generic "browse listings" language every
+competing portal already uses. (An earlier draft of this tagline also
+listed "comparables" alongside motivation score and price history —
+dropped here since Comparables is `docs/backlog.md` item 11, unshipped,
+and this paragraph's own framing is explicitly "already-built
+capabilities," not a forward-looking one. Add it back once item 11
+ships, not before.)
 
 ---
 
@@ -43,15 +48,34 @@ reason worth stating plainly: **imotenradar already has the raw data to
 generate genuinely useful, unique content at scale, automatically,
 because the scrapers already collect it.**
 
-- **What to generate:** area/city investment-guide pages, one per
-  city/oblast (and eventually per property type within an area), built
-  from data the product already aggregates — e.g. "Property investment
-  guide: [Area] — average price/m², days-on-market trends, X active
-  listings across 8 portals, historical price trend" — this is exactly
-  the Market Data hub aggregation work already planned in
-  `docs/backlog.md` item 11 (Postcode/city Performance, Adverts
-  Evolution, average price trends), repurposed as public-facing,
-  indexable pages rather than only in-app tools.
+- **What to generate — launch scope, built on what's shipped now, not a
+  future item:** area/city investment-guide pages, one per city/oblast,
+  built entirely from aggregates that already exist today, independent
+  of any unshipped backlog item: the per-`(city, area)` average price/m²
+  (`area_avg_price_per_sqm`) every scraper already computes for every
+  listing and `sync_to_supabase.py` already writes through to
+  `merged_listings` (see its `SOURCE_FIELDS`/`MERGED_FIELDS`), plus the
+  motivation-score work (`docs/backlog.md` item 8, DONE) that already
+  flags how many active listings in an area sit meaningfully below that
+  average ("Hot"/"Warm"). A first-launch page needs nothing more than:
+  "Property investment guide: [Area] — average price/m², X active
+  listings across 8 portals, Y currently priced below the area average."
+  This is deliberately **not** the same thing as the fuller Market Data
+  hub / Comparables aggregation work in `docs/backlog.md` item 12
+  (Postcode/city Performance, Adverts Evolution, a real historical
+  price-trend chart, days-on-market trends) — item 12 is sequenced near
+  the bottom of the backlog, after items 9/10/11, well after
+  `docs/strategy/launch-strategy.md`'s own Stage 0→1 gate (items 5/9/10)
+  and well before it would realistically ship, while this SEO channel is
+  meant to go live *during* Stage 1 (`docs/strategy/launch-strategy.md`
+  §2). Scoping the launch pages to what item 8 and the existing
+  per-area averages already compute means the SEO engine doesn't wait on
+  item 12 at all.
+- **Later enhancement, not a blocking dependency:** once `docs/backlog.md`
+  item 12 ships, the same already-live, already-indexed pages gain
+  days-on-market trends, a real historical price-trend chart, and
+  Adverts Evolution stock-change data — an enrichment of pages that
+  already exist, not a precondition for launching them.
 - **Why this works especially well here:** most Bulgarian property
   portals (per `docs/design-guidelines.md`'s characterization of the
   genre) do not publish this kind of aggregate market-analysis content —
@@ -102,13 +126,26 @@ recommendation.
     → automated reminder + value-recap email (driven by Stripe webhook
     data, same infrastructure `docs/strategy/subscription-strategy.md`
     §4 already specs).
-  - Weekly/bi-weekly **automated digest** of new high-motivation-score
-    listings matching a user's saved Lead Generators — this is a genuine
-    product feature as much as a marketing one (re-engagement via real
-    value, not a promotional blast), and it's exactly the "new since
-    last check" mechanic `docs/property-filter-spec.md` section 1
-    documents Property Filter already using, generated automatically
-    from data the product already computes.
+  - **Recommendation — needs Kiril's sign-off, not yet scoped:**
+    weekly/bi-weekly automated digest of new high-motivation-score
+    listings matching a user's saved Lead Generators — the same "new
+    since last check" mechanic `docs/property-filter-spec.md` section 1
+    documents Property Filter using, adapted to email. This is a
+    genuine product feature as much as a marketing one (re-engagement
+    via real value, not a promotional blast), and its *content* would be
+    generated from data the product already computes — the motivation
+    score (`docs/backlog.md` item 8, DONE) and the same matching logic
+    behind the in-app "new since last check" badge (item 10). But
+    **delivering it as email is new, unscoped build work**, not
+    something item 10 already covers: item 10 only builds the in-app badge
+    (an in-app notification, no outbound email), and `docs/backlog.md`'s
+    "Gaps in Nosy's spec" section explicitly lists "alert-email behavior
+    (vs. in-app notifications)" as an open, unspecified gap needing its
+    own follow-up capture, not confirmed scope. See
+    `docs/strategy/subscription-strategy.md` §2, which flags this exact
+    same gap for the same feature (a paid-tier digest) — both documents
+    describe one shared, not-yet-scoped build item, not two independently
+    scoped ones.
 - **What still needs a human:** the initial drip sequence copy (written
   once, per sequence, not per-send) and periodic (quarterly, not
   per-email) review that automated copy still matches the brand voice —

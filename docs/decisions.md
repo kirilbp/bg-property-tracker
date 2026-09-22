@@ -752,3 +752,357 @@ sequencing question, (2) a general-purpose builder implements (Supabase
 query/architecture work, not visual/layout, despite touching
 `index.html`), (3) real before/after measurement, (4) Missy's review, (5)
 PR to `main`. See the hand-back message for the exact dispatch list.
+
+## Area/neighborhood filter and Lead Generators: exact raw-string matching bug (backlog item 18)
+
+The user reported directly, with a screenshot, that the Cherven Bryag
+Lead Generator on the live site shows only 7 listings - implausibly low
+for a real Bulgarian town. Dispatched Missy to investigate before
+assuming it was just this one town, the same rigor as backlog item 4's
+"Others" province bucket audit.
+
+**Confirmed real and scoped, not a one-town edge case.** Root cause:
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` (`index.html`
+~2685, ~2794) build their dropdown/checkbox options straight from raw,
+unnormalized `l.area` strings scraped per-portal; the actual filters
+(`render()` line 3599, `matchesLeadGenerator()` line 2783) do exact
+string comparison. The same real settlement/neighborhood is formatted
+differently across portals (кв./жк. prefixes, Cyrillic vs. transliterated
+Latin, capitalization), so it silently splits across multiple dropdown
+entries and selecting one excludes real listings genuinely in that area.
+
+Cherven Bryag itself: 28 raw listings across 5 portals genuinely in the
+town (verified against the town's real coordinates, 43.280635°N,
+24.083301°E), split 26/2 between "Червен бряг" and "Cherven Bryag" -
+selecting either dropdown entry misses the other. Missy could not
+reproduce the exact "7" figure without live `merged_listings` access
+(cross-portal dedup and the user's exact checkbox selections both matter,
+and Supabase is blocked from this sandbox's egress proxy), but the
+mechanism is real and consistent with an undercount landing that low.
+
+**Platform-wide scope, computed against all 8 committed `data/leads_*.
+json` files (305,065 listings with a non-empty `area`)**: 481 of 8,507
+distinct normalized area keys have more than one raw-string variant,
+affecting 179,061 listings (58.7%). Several high-traffic real
+neighborhoods (Малинова Долина, Тракия, Кършияка, Христо Смирненски,
+Остромила, Виница, Изгрев, Широк център, Кайсиева градина, Бриз,
+Възраждане, Овча Купел, Сарафово, Беломорски) split their listings
+roughly evenly across 3-5 variants - picking any one dropdown entry shows
+only ~20-30% of the area's true count.
+
+Checked whether a normalized key already exists server-side (the
+hypothesis I gave Missy going in): partially, and not the piece that
+would help here. `listing_city_key()`/`city_key` exists but only
+resolves against `BG_CITIES`' 29 major cities - Cherven Bryag isn't on
+that list, wrong granularity regardless. `normalize_area()`/
+`areas_match()` do already exist in `sync_to_supabase.py` (lines 64-90)
+and are trustworthy (already load-bearing for merge-group matching), but
+are never stored as a column or exposed to the frontend - the JS
+equivalent that used to exist client-side (per `sync_to_supabase.py`'s
+own "ported 1:1 from index.html" header comment) was deleted from
+`index.html` entirely when the merge step moved server-side. Real,
+buildable, smaller-than-from-scratch fix, not a trivial wire-up.
+
+Related bug in the same code path, found while tracing this: `matchesLead
+Generator()`'s neighborhood mode never checks `gen.area.city` against a
+listing at all - the Lead Generator modal's City field is free text that
+does nothing in the actual match logic, and the neighborhood checkbox
+list is built from every `l.area` nationwide, not scoped to the typed
+city. The modal's stale hint text ("Only Sofia has live listing data
+right now") actively misleads users about a still-broken mechanism on a
+now-nationwide platform.
+
+Filed as backlog item 18, deliberately numbered last (added at the end
+of the list to avoid re-triggering the item-number-renumbering churn that
+just required a pass across all six `docs/strategy/*.md` files) but
+flagged URGENT with an explicit note to work it immediately after items
+6/7, not by its position in the list. Missy (report-only, no Write/Edit
+tools by design) could not file this herself - she returned the
+suggested entry as response text and I added it. Recommended fix: add an
+`area_key` column to `listing_sources`/`merged_listings` (schema + sync
+script, reusing `normalize_area()` verbatim), backfill, switch the area
+dropdown/Lead Generator neighborhood picker and both match sites to
+compare `area_key` instead of raw `l.area`. Dispatched to Bossy.
+
+### 2026-09-22 - Backlog item 18 implemented and self-verified against real data; Missy's actual review still needed (no `Agent` tool this session)
+
+**No `Agent` tool available this session** (confirmed by trying it, per
+the standing platform-constraint note in `.claude/agents/bossy.md`) - so
+this was implemented directly rather than dispatched to a builder, and
+self-verified rigorously (real data, a real functional test against the
+actual file, not just "it runs") rather than skipped, following the same
+precedent already set for backlog item 5's imoti.net fix in an earlier
+no-`Agent` session. **This is explicitly not a substitute for Missy's own
+review** - see the hand-back message for the exact dispatch (Missy only;
+not auth/security/PII, so Revy's narrower gate doesn't apply).
+
+**Sequencing with Dessy, resolved before touching `index.html`:** at
+dispatch time `index.html` had a 554-line uncommitted diff from Dessy's
+backlog item 9 listing-detail redesign. Checked git state before editing
+rather than assuming either way - by the time backend work was done and
+frontend work was about to start, that diff had been committed (locally,
+not yet pushed) as `a2685e4`, and `git status` showed a clean working
+tree. Built this fix directly on top of her commit rather than layering
+in parallel, so no collision risk from working the same file concurrently.
+
+**Backend (`supabase/schema.sql`, `sync_to_supabase.py`):** added an
+`area_key` column to both `listing_sources` and `merged_listings`,
+computed via `normalize_area()` (reused verbatim, unchanged) in
+`build_rows()`, same pattern as `city_key`/`oblast_key`. No separate
+backfill script needed - unlike backlog item 5's category fix (which
+needed one because that data wasn't due for a fresh scrape/sync anytime
+soon), both `scrape.yml` and `scrape-large.yml` already call
+`sync_to_supabase.py` at the end of every run and its `upsert()` always
+sends the full row payload with `resolution=merge-duplicates`, so the
+very next real sync after this ships (scheduled, or a manual
+`sync-supabase.yml` dispatch) backfills `area_key` on every row
+automatically. Real caveat, same as `city_key`/`oblast_key` before it:
+the `alter table` in `schema.sql` needs to actually be run in the
+Supabase SQL editor first (this sandbox has no network route to run DDL
+itself, per that file's own header) - flagging this plainly rather than
+assuming it happens on its own.
+
+Verified against the real committed data, not assumed: reproduced
+Missy's exact platform-wide figures independently (8,507 distinct
+normalized area keys, 481 with >1 raw variant, 179,061 affected listings,
+58.7%) by running the real `normalize_area()` against all 9,246 distinct
+raw `area` strings across all 8 `data/leads_*.json` files. Ran the real
+`build_rows()` end-to-end against the full real dataset (305,065 raw
+listings -> 214,889 merged) and confirmed: every row with a non-empty
+`area` gets a non-null `area_key`; Cherven Bryag's 28 real raw listings
+(6 portals, not quite Missy's estimated 5, but the same real town) all
+resolve to the one shared key `"cherven bryag"` and collapse to 19
+correctly-deduped merged listings - previously split 26/2 across two
+dropdown entries, undercounting whichever one was picked.
+
+**Frontend (`index.html`):** rather than only wiring the server column
+in (which wouldn't take effect until the manual SQL migration + a fresh
+sync run both happen, timing this session can't control or verify), also
+ported `normalize_area()` to JS as `normalizeArea()` - verified
+byte-for-byte identical output against all 9,246 real distinct raw area
+strings (zero mismatches) before relying on it. `listingAreaKey(l)`
+follows the same "prefer the precomputed server column, fall back to
+computing it client-side" pattern `listingCityKey()` already established
+for `city_key` - so the fix is effective immediately on page load,
+independent of whether the backend migration has landed yet, and
+automatically starts using the authoritative server value once it has.
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` now group by
+`normalizeArea(l.area)` and show one representative raw label per group -
+the most frequent raw string in that group, the same frequency-based
+"representative value" precedent `build_rows()`'s own `best.get()`
+already follows, just applied to picking a label instead of a row.
+`render()`'s area filter and `matchesLeadGenerator()`'s neighborhood
+match both compare normalized keys now, not raw strings; the match
+additionally normalizes *both* sides so an older saved Lead Generator
+whose `neighborhoods` array still holds a pre-fix raw label keeps
+matching correctly with no data migration needed. Found and fixed the
+same raw-string bug in a third place while tracing this, not called out
+by name in the backlog item: the Lead Generator gallery's own mini-map
+preview (`renderLeadgenMiniMap()`) had the identical exact-match bug,
+which would otherwise have kept showing the old, wrong preview even after
+the real filter was fixed.
+
+**Second bug (`gen.area.city` decorative, stale hint text) - wired in,
+not just relabeled**, since a real, low-risk fix was reachable: typed
+city text now resolves to a `city_key` via the existing Cyrillic
+resolvers (`cityKeyFromName`/`cityKeyFromNamePrefix`) plus
+`latinCityKeyFromText` (needed because the field's own default value,
+"Sofia", is Latin script and the Cyrillic-only resolvers alone return
+null for it - caught this with a real test, not assumed). When it
+resolves to one of `BG_CITIES`' ~29 major cities, `matchesLeadGenerator()`
+now requires that city match too, on top of the area-key match -
+verified this prevents a real cross-city false positive (a Sofia-scoped
+"Център" search no longer also matches a same-named "Център" area in
+Dobrich, which the pre-fix code would have silently included). When it
+doesn't resolve (any town outside those ~29, e.g. Cherven Bryag itself),
+`cityKey` is left `null` and no city constraint is applied, deliberately -
+verified requiring a city match unconditionally would have broken the
+exact Cherven Bryag case that motivated this whole fix a second way.
+Replaced the stale "Only Sofia has live listing data right now" hint text
+with accurate wording.
+
+**Verification method, not just "it runs":** wrote a Node `vm`-based
+harness that loads the real `index.html`'s actual script content
+(extracted, not hand-copied) into a sandboxed context with minimal
+DOM/Supabase/Leaflet stubs, confirmed the whole file still parses and
+loads without throwing, then exercised the real functions
+(`normalizeArea`, `listingAreaKey`, `areaKeyGroups`, `matchesLeadGenerator`,
+`cityKeyFromName`/`latinCityKeyFromText`) with realistic fake listing
+data mirroring the actual Cherven Bryag/Sofia-Dobrich-Center scenarios,
+and separately against the full real 214,889-row merged dataset (8,507
+distinct area keys reproduced exactly, matching the pre-merge raw-level
+count). All results matched hand-verified expectations.
+
+**Dispatch, since this session has no `Agent` tool:** Missy's real review
+is still needed before this merges - not done here, not claimed as done.
+See the hand-back message for the exact ask. Not auth/security/
+credentials/personal-data, so Revy's narrower gate doesn't apply by this
+session's own read of the standing rule (same read as backlog item 5's
+entry above). Opened as a PR (`claude/bg-property-tracker-setup-30c2rp`
+-> `main`) for review before merge.
+
+### 2026-09-22 - Placy's first audit: imot.bg legacy-grouping check, homes.bg re-attempt, platform-wide allocation-gap census (backlog items 20-22)
+
+First pass as the new location-allocation specialist. Checked for
+in-flight conflicts first (`git status`/`git log`, backlog item 18's
+status section) - item 18 had just landed (commit `8d7ef51`, `area_key`
+now in both `sync_to_supabase.py` and `supabase/schema.sql`, working tree
+clean) while this session was running, confirming the coordination
+concern was real, not hypothetical. Did not touch `sync_to_supabase.py`,
+`supabase/schema.sql`, or `index.html` this pass, per standing instruction
+and to leave Missy's pending review of item 18 undisturbed.
+
+**1. imot.bg's "Cherven Bryag filed under Ловеч" oddity - confirmed real,
+narrow, and self-healing once geocoded, not the systemic pattern first
+suspected.** `scraper_imot.py` tags every listing's `city` field directly
+from which of its 25 `CITY_SLUGS` query pages produced it (by design, not
+re-parsed from card text) - but imot.bg's own `grad-lovech` query page
+itself returns 13 listings physically in Червен бряг (Pleven oblast,
+~55km away), one of them with a URL literally encoding
+`grad-lovech-cherven-bryag-obshtina-lovech` ("Lovech municipality") -
+that claim is imot.bg's own site data, not a scraper misread, and it's
+factually wrong (Cherven Bryag is its own separate municipality, seat of
+its own name, in Pleven oblast - confirmed already correct in
+`BG_MUNICIPALITY_TO_OBLAST`). Consistent with the pre-1999 Lovech okrug
+having included Cherven Bryag before the 1999 reform moved it to the new
+Pleven oblast.
+
+Checked whether this is systemic across the other 24 `CITY_SLUGS` cities:
+cross-referenced every (queried city, area-text) pair in the committed
+`data/leads_imot.json` against `oblast_key_from_municipality()`, looking
+for area values that resolve to a different oblast than the queried
+city. Found 54 distinct pairs / 1,641 listings - but sampling showed most
+are **false positives from ordinary Bulgarian neighborhood-name
+collisions**, not real misfiling: e.g. "Гоце Делчев" appears under
+`Пловдив`/`Sofia`-queried listings 29 times, but the one sample with real
+coordinates resolves 2.1km from central Sofia - a real жк within Sofia
+coincidentally sharing a name with the actual town in Blagoevgrad oblast,
+not a misfiled listing. "Тракия", "Дружба", "Ново село", "Борово",
+"Плиска", "Боровец" etc. are common quarter names duplicated nationwide
+and independently registered as real (usually tiny) settlements
+elsewhere - the same "ambiguous name" class already handled for
+"Бяла"/"Средец", just not yet exhaustive. Only Cherven Bryag/Ловеч had
+both real-coordinate confirmation *and* imot.bg's own URL-text claim
+lining up as genuine misfiling; no other pair in the 54 had comparable
+evidence on a quick sample.
+
+**A real, currently-live, narrower bug found underneath this, though:**
+`listing_oblast_key()` (`sync_to_supabase.py`) checks `lat`/`lng` first,
+then `city_key` (derived from imot.bg's own trusted `city` field, which
+always resolves since it's always one of the 25 known-good `CITY_SLUGS`
+names) - `area` text is never even reached as a fallback for imot.bg
+listings, since step 2 always succeeds. Simulated an *ungeocoded*
+Cherven Bryag/Ловеч listing directly against the real, unmodified
+`listing_oblast_key()`: it resolves to `lovech` (wrong) instead of
+`pleven`. All 13 currently-committed Cherven Bryag/Ловеч listings happen
+to already have real, correct lat/lng (from `backfill_geocode_imot.py`
+having already run against them), so `oblast_key_from_latlng()` overrides
+the wrong `city_key` today and they show correctly as Pleven - but this
+is order-dependent on the geocode backfill's cadence, not a structural
+fix, and any freshly-scraped Cherven Bryag/Ловеч listing gets the wrong
+oblast until that backfill catches up. Filed as backlog item 20; no code
+changed (`sync_to_supabase.py`/`scraper_imot.py` both need a decision on
+where to fix this, and the false-positive risk just demonstrated means a
+blind "override city from an area-text municipality match" fix is not
+safe without per-listing geocoding to confirm each case, which this
+sandbox mostly can't do live - see below).
+
+**2. homes.bg's empty-address gap - re-attempted with live network tools
+this pass, still fully blocked, re-confirmed the same numbers on today's
+committed data.** Both a direct `curl` (`CONNECT tunnel failed, response
+403`) and `WebFetch` (`EGRESS_BLOCKED`, domain `www.homes.bg`) were tried
+against several of the actual affected listing URLs
+(e.g. `https://www.homes.bg/offer/kyshta-za-prodazhba/kyshta-64m2--/hs296683`)
+- both blocked, same as the prior investigation. `WebSearch` for the
+listing ID found nothing indexed, though it did surface a real homes.bg
+listing title from a *different* listing ("HOMES.bg - Къща, 300m2, жк.
+Медковец, Враца") confirming homes.bg listings that DO have location data
+show it in a form our scraper already parses correctly - reinforcing that
+this is a genuine per-listing data gap on homes.bg's side, not a parsing
+miss. Tried one more thing not attempted before: cross-referencing the
+affected listings' price+sqm against the other 7 portals' committed data
+in case the same physical listing is mirrored elsewhere with real
+location text - found 2 coincidental price/sqm matches, but with nothing
+more precise (no photo hash, no address) to confirm they're actually the
+same physical listing, this is not reliable evidence and wasn't used for
+anything. On current data the gap is **92 of 73,974 homes.bg listings
+(0.12%)** with `area` literally `","` (both sides of the raw
+`location` string empty) - same order of magnitude as the original
+finding, still genuinely unresolvable without a working network path to
+homes.bg. Left open, same as before; this sandbox's block is confirmed
+current, not stale information.
+
+**3. Platform-wide allocation-gap census, using the real resolution
+function, not raw missing-field counts.** Raw "no `area`"/"no `city`"
+field counts are a misleading proxy - e.g. `sales.bcpea.org` shows 0% of
+listings with a `city` field by design (it title-parses a settlement
+name instead, feeding `listing_oblast_key()`'s own bcpea-specific
+branch), so a raw-field census would have wrongly flagged 100% of its
+listings as broken. Instead ran every one of the 305,065 listings across
+all 8 committed `data/leads_*.json` files through the real, unmodified
+`listing_city_key()`/`listing_oblast_key()`:
+
+| portal | total | unresolved | % |
+|---|---|---|---|
+| imoti.net | 26,881 | 0 | 0.0% |
+| alo.bg | 87,979 | 4,394 | 5.0% |
+| homes.bg | 73,974 | 221 | 0.3% |
+| imot.bg | 26,163 | 2 | 0.0% |
+| olx.bg | 36,462 | 721 | 2.0% |
+| bazar.bg | 50,480 | 5 | 0.0% |
+| imoti.bg | 908 | 4 | 0.4% |
+| sales.bcpea.org | 2,218 | 281 | 12.7% |
+| **TOTAL** | **305,065** | **5,628** | **1.8%** |
+
+This matches backlog item 4's already-measured 1.8% "Others" bucket
+figure almost exactly (5,628 vs. 5,633 on a slightly older listing
+count) - a useful independent cross-check that the gazetteer expansion
+is holding steady, not regressing, plus the first per-portal breakdown.
+Two real, separate findings underneath the aggregate:
+
+- **alo.bg's 4,394 (of 87,979) is almost entirely the same known
+  "Bulgaria" placeholder from backlog item 4 task 1** - 4,327 of them
+  have `area == "Bulgaria"` (the literal old fallback string).
+  `scraper_alo.py`'s own code was already fixed (per its inline comment)
+  to write `None`/`None` instead going forward, but **12,501 already-
+  committed rows in `data/leads_alo.json` and `data/history_alo.json`
+  still carry the stale literal `"Bulgaria"` string** (confirmed:
+  `city` is `None` for all 12,501 - the exact old-code signature, not a
+  new instance of the bug). Of those, 5,009 already have real lat/lng
+  from a coordinate backfill and resolve correctly at the oblast level
+  today despite the stale text (only the `area` display/filter value is
+  wrong, not the oblast); 4,327 still have no lat/lng at all and remain
+  genuinely unresolved. Checked for a look-alike false positive first:
+  15 separate rows have `area == "България"` (Cyrillic) with a real city
+  set (`Велико Търново`) - sampling confirmed these are a real street
+  name (`бул. България`, Bulgaria Boulevard) correctly parsed, not the
+  bug, and were excluded from the fix scope. Wrote and dry-run-verified a
+  narrow, exact-match cleanup script (`area == "Bulgaria"` AND
+  `city is None`, nothing else) to null out the 12,501 stale values in
+  both files - **could not actually apply it**: this sandbox's own
+  permission system blocked the write with a "Modify Shared Resources"
+  denial when attempting to save `data/leads_alo.json`/
+  `data/history_alo.json` directly. Filed as backlog item 22 with the
+  exact fix scope and script documented, for whoever has write clearance
+  for the committed data files (or the next scheduled scraper/sync run,
+  which would naturally overwrite these rows anyway once re-visited).
+- **Two small, separate `sync_to_supabase.py`-adjacent gaps found
+  incidentally while checking `sales.bcpea.org`'s 281 unresolved
+  listings** (not fixed - avoiding that file this pass per the item-18
+  coordination note): (a) `Гълъбово` - a real, notable municipality-seat
+  town (Stara Zagora oblast, home to the Maritsa Iztok power complex) -
+  is missing from *both* `BG_MUNICIPALITY_TO_OBLAST` and the generated
+  `BG_SETTLEMENT_TO_OBLAST`/`data/bg_settlements_to_oblast.json`, a
+  genuine gazetteer gap, not a documented ambiguous-name exclusion; (b)
+  `bcpea_settlement_from_title()` returns `None` for a title starting
+  with the category label "Други" (e.g. `"Други, Брезово"`) even though
+  "Брезово" itself resolves fine once extracted - the category-prefix
+  handling doesn't cover that one label. Both flagged for whoever next
+  touches `sync_to_supabase.py`, ideally bundled with item 18's work
+  rather than as a separate pass through the same file.
+
+**No `Agent` tool available this session** (same limitation prior
+entries have flagged) - could not dispatch to Missy directly. All of the
+above is filed in `docs/backlog.md` (items 20-22) for her/Bossy's
+attention rather than self-certified; nothing here has been merged or
+treated as reviewed.

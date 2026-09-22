@@ -266,7 +266,7 @@ and 4 implemented..."); summary per task:**
    access to homes.bg (to check whether the detail page has more) - this
    sandbox's egress proxy blocks it, same block Missy hit. Left open.
 
-## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - fixed and verified, awaiting Missy's review before merge - URGENT
+## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - DONE (2026-09-22)
 
 From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
 filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
@@ -293,9 +293,14 @@ portal's own apartment-only search URL makes the "apartment" default
 correct there); imoti.net has no such workaround.
 
 **Status (2026-09-22): root-caused, fixed, verified against real data,
-already-committed data remediated - not yet merged, needs Missy's real
-review (this session had no `Agent` tool access, see the hand-back/dispatch
-note below).** Full investigation, the real regression caught and fixed
+already-committed data remediated, reviewed by Missy (verdict: safe to
+merge - independently re-ran the backfill from the pre-fix data and
+reproduced the committed result byte-for-byte, independently re-
+classified all 26,881 records with zero mismatches against the stored
+fields, and checked the new keywords against the full alo.bg/imoti.bg
+datasets rather than just the PR's own sample), and merged in
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199).**
+Full investigation, the real regression caught and fixed
 before shipping (a keyword collision with a common Bulgarian district
 name), the regression check against the portals already on this
 classifier, and a second related bug found and fixed in the same change
@@ -345,16 +350,18 @@ caused and fixed"). Summary:
   Fixed to normalize through `typeFilterBucket()` like `findComparables()`
   already does.
 
-**Not yet done - dispatch needed:** this session had no `Agent` tool
-available to spawn Missy for real review. Implemented and verified
-directly against real data instead of skipped, but that isn't a
-substitute for her review, per the standing "nothing ships without Missy"
-rule. Opened as
-[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
-(`claude/bg-property-tracker-setup-30c2rp` -> `main`) rather than merged -
-needs: (1) Missy's real review against her rubric, (2) merge to `main`
-once she signs off. Revy's review is not required (no auth/security/
-credentials/personal-data surface touched).
+**Two small follow-ups filed from Missy's review, neither blocking, both
+still open:**
+- Add the missing "chetiristaen" (4-room) and "mnogostaen" (multi-room)
+  Latin-transliteration keywords to `category_classifier.py`'s `flat`
+  list - closes the `single_signal_only` confidence gap above. Small,
+  low-risk, mechanical.
+- `scraper_imot.py` and `scraper_olx.py` still call
+  `geo_utils.classify_category()` - the same Bulgarian-only-keyword
+  function that caused this exact bug on imoti.net. Missy did not check
+  whether either portal is crawled via an English-language URL the way
+  imoti.net was; if either is, the same bug class could exist there.
+  Needs its own investigation pass before assuming it's fine.
 
 ## 6. Site is very slow to load/refresh - root-caused, not yet fixed - URGENT
 
@@ -473,7 +480,7 @@ size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
+## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE (2026-09-22, Dessy)
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -484,29 +491,72 @@ background work into a visible, differentiating feature rather than new
 data acquisition. All items below are marked **fully Bulgarian-replicable**
 in the spec (section 5, "Advert Details" tab) unless noted.
 
-- **Multi-portal badge row**: surface the up to ~6 portals/agents a
-  single physical property is cross-posted under, with each source's own
-  "Listed on: [date]" and the currently-viewed source highlighted. This
-  is imotenradar's existing cross-portal dedup, made visible.
-- **Price & Status History step-chart**: price-over-time line,
-  background color-coded by status band (Available/STC-equivalent/
-  Removed). Visualizes data the scrapers already collect (relisting,
-  price-drop history).
-- **Property Details & Keywords panel**: auto-extracted keyword tags from
-  the free-text listing description (sale features, property features,
-  "close by" amenities) - pure NLP/keyword-extraction on data already
-  present, no new data source.
-- Supporting rail/header pieces, all workflow patterns with no data
-  dependency: Prev/Next paging through the current result set, "Copy
-  Data for AI" export, "Create Share Link", Agent panel (logo/name/
-  phone/"see agent's other properties"), Description panel with
-  see-more, small embedded map, "Report a bug for this advert".
-- Photo carousel + "Download pictures": replicable. Floorplan panel:
-  include only when the source portal provides one (rare in scraped BG
-  data per spec) - conditional field, not guaranteed.
+- **Multi-portal badge row - DONE.** The existing source-switcher
+  (`merged.sources`, from `listing_sources`/`sync_to_supabase.py`'s
+  `group_listings()` cross-portal dedup) rebuilt as a proper badge row:
+  portal name, price, and a "Listed [site_posted_at]" line when the portal
+  exposes a posting date, falling back to "Tracked since [first
+  price_history date]" when it doesn't (worded to not overclaim - most
+  committed listings lack `site_posted_at`) - plus "Removed [date]" for a
+  no-longer-live source. Currently-viewed source highlighted with the
+  brass accent; clicking a badge switches sources exactly like the old
+  switcher did.
+- **Price & Status History step-chart - DONE.** Existing Chart.js step
+  chart kept, recolored to the restrained brass/sage/ink palette (was
+  blue/red/purple), plus a new background-shaded band (custom Chart.js
+  `beforeDraw` plugin, no extra CDN dependency) over the period the
+  *currently-viewed source* was off-market (`removed_at` to today) - a
+  deliberately understated single ink tint, not a green/yellow/pink
+  traffic light (that's Property Filter's own named anti-pattern per
+  `docs/design-guidelines.md`). Caveat for follow-up: `removed_at` is only
+  synced to `listing_sources`, not `merged_listings` (see
+  `sync_to_supabase.py`'s `MERGED_FIELDS`), so the band only renders once
+  a listing's real per-source rows have loaded (member_count > 1 case) -
+  a single-portal "sold" listing has no per-source removal date to shade
+  with under the current schema.
+- **Property Details & Keywords panel - DONE.** New `extractKeywordTags()`
+  does substring/pattern matching across every cross-posted source's
+  description + title (BG keyword table for Sale features / Property
+  features / Close by, plus a Property Type pill from the existing
+  `typeFilterBucket()`) - pure client-side JS, no new data. Tenure
+  (UK leasehold concept) deliberately excluded per the "Confirmed drops"
+  list below. Two false-positive keyword collisions found and fixed
+  during testing (`търг` "auction" was matching inside `търговия` "trade";
+  `парк` "park" was matching inside `паркинг` "parking") - both now use a
+  Unicode-aware whole-word boundary check instead of a bare substring.
+- **Supporting pieces - DONE except Agent panel (see below):**
+  - Prev/Next paging through the current filtered+sorted result set -
+    DONE (new `CURRENT_RESULT_IDS`, refreshed on every `render()`).
+  - Description panel with "See more" - DONE (truncates past ~420 chars
+    at a word boundary).
+  - Small embedded map - already existed (the radius-comparables panel's
+    Leaflet map), left as-is.
+  - Photo carousel - already existed (hero + thumbnail strip, prev/next,
+    keyboard arrows), left as-is.
+  - **Agent panel - NOT built, blocked on missing data.** Checked the
+    full field union across all 8 `data/leads_*.json` files: there is no
+    agent/agency name, phone, or contact field scraped anywhere. This
+    needs new scraper work (a detail-page field none of the 8 scrapers
+    currently extract) before an Agent panel can show anything real -
+    flagging per this repo's standing rule rather than building a
+    fake/empty panel. Floorplan: skipped too, per the spec's own note
+    that it's rare in scraped BG data and no scraper stores one - both
+    correctly out of a frontend-only builder's scope.
+  - "Copy Data for AI", "Create Share Link", "Report a bug for this
+    advert" - not built; these weren't in the explicit dispatch for this
+    pass (see PR description) and remain open, low-effort follow-ups.
 - Nearby amenities list (distance to town centre/station/supermarket/
-  hospital/school): replicable via any mapping API against Bulgarian
-  addresses.
+  hospital/school): still open - needs a mapping/POI API integration,
+  not attempted here.
+
+**Design-scope note:** implemented as a scoped redesign of the listing
+detail view only (`#section-listing` and its own elements) - typography
+(Playfair Display + Inter), warm ivory/brass/ink palette, and generous
+spacing per `docs/design-guidelines.md` are applied there, plus defined
+as global CSS variables for later reuse, but the rest of the site
+(sidebar nav, listing cards, modals) intentionally keeps its current
+look. A full site-wide reskin against the same palette is item 17's
+scope, not redone piecemeal here.
 
 **Not included here (see "Confirmed drops" below):** CT Band, Owner
 (Land Registry), Registered Lease/Restrictive covenant/Title number,
@@ -664,6 +714,257 @@ restrained palette (deep neutral tones + one considered accent) in place
 of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
+
+## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22)
+
+**Numbered last but work this immediately after item 6/7 - do not let its
+position at the end of this list imply low priority.** From the user
+directly reporting the live site (Cherven Bryag Lead Generator showing
+only 7 listings, implausibly low), confirmed and scoped by Missy sampling
+the committed data.
+
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` (`index.html`
+~2685, ~2794) build their dropdown/checkbox options straight from raw
+`l.area` strings with no normalization; the actual filters (`render()`
+line 3599, `matchesLeadGenerator()` line 2783) do exact string
+comparison. Since the same real settlement/neighborhood is formatted
+differently per portal (кв./жк. prefixes, Cyrillic vs. transliterated
+Latin, capitalization), it silently splits across multiple dropdown
+entries and selecting one excludes real listings genuinely in that area.
+
+**Confirmed facts:**
+- Cherven Bryag itself: 28 raw listings across 5 portals genuinely in the
+  town (verified by real-world coordinates), split 26/2 between
+  "Червен бряг" and "Cherven Bryag" - selecting either dropdown entry
+  misses the other. (Missy couldn't reproduce the exact "7" figure
+  without live `merged_listings` access, but the mechanism is real and
+  consistent with an undercount landing this low after cross-portal
+  dedup.)
+- **Platform-wide, this is large, not a one-town edge case**: of 305,065
+  listings with a non-empty `area` across the 8 committed leads files,
+  481 of 8,507 distinct normalized area keys have more than one
+  raw-string variant, affecting **179,061 listings (58.7%)**. Several
+  high-traffic real neighborhoods (Малинова Долина, Тракия, Кършияка,
+  Христо Смирненски, Остромила, Виница, Изгрев, Широк център, Кайсиева
+  градина, Бриз, Възраждане, Овча Купел, Сарафово, Беломорски) split
+  their listings roughly evenly across 3-5 variants, so picking any one
+  dropdown entry shows ~20-30% of the area's true count.
+- `listing_city_key()`/`city_key` already exists server-side but only
+  resolves against `BG_CITIES`' 29 major cities - Cherven Bryag isn't on
+  that list, wrong granularity for this bug regardless.
+- `normalize_area()`/`areas_match()` already exist in
+  `sync_to_supabase.py` (lines 64-90) but are only used internally to
+  decide merge-group membership - never stored as a column, never
+  exposed to the frontend. The JS equivalent (`normalizeArea`/
+  `areasMatch`/`groupListings`) that used to exist client-side per
+  `sync_to_supabase.py`'s own "ported 1:1 from index.html" header comment
+  has since been deleted from `index.html` entirely (confirmed, zero
+  matches) - this needs a real (if smaller-than-from-scratch) fix,
+  reusing the trusted Python function, not a bigger design.
+- **Related, same code path**: `matchesLeadGenerator()`'s neighborhood
+  mode never checks `gen.area.city` against a listing at all - the Lead
+  Generator modal's City field is free text that does nothing in the
+  actual match, and the neighborhood checkbox list is built from every
+  `l.area` nationwide, not scoped to the typed city. The modal's own hint
+  text ("Only Sofia has live listing data right now") is stale - the
+  platform is nationwide now (8 portals, 305k+ listings, most outside
+  Sofia).
+
+**Recommended fix**: add an `area_key` column (schema + sync script,
+reusing `normalize_area()` verbatim) to `listing_sources`/
+`merged_listings`, backfill, switch the area dropdown/Lead Generator
+neighborhood picker and both match sites to compare `area_key` instead of
+raw `l.area`, displaying one representative raw label per group (same
+"pick by score/frequency" precedent `best.get()` already uses elsewhere).
+Separately, wire `gen.area.city` into the actual match logic (or remove
+it and its stale hint honestly) rather than leaving it decorative.
+
+Full investigation detail (exact sample data, file/line references):
+`docs/decisions.md`'s 2026-09-22 entry.
+
+**Status (2026-09-22): implemented and self-verified against real data,
+not yet reviewed by Missy (no `Agent` tool this session - see
+`docs/decisions.md`'s matching entry for the full detail and the exact
+dispatch needed).** Summary:
+- `area_key` column added to `listing_sources`/`merged_listings`
+  (`supabase/schema.sql`), computed via the existing `normalize_area()`
+  in `sync_to_supabase.py`'s `build_rows()`. No separate backfill script
+  needed - the next real `sync_to_supabase.py` run (both scrape workflows
+  already call it) backfills every row automatically once the schema
+  migration is applied in the Supabase SQL editor.
+- `index.html`: also ported `normalize_area()` to JS (`normalizeArea()`,
+  verified byte-for-byte identical against all 9,246 real distinct raw
+  area strings) so the fix is effective immediately, independent of the
+  backend migration's timing - `listingAreaKey(l)` prefers the server
+  `area_key` column when present, falls back to computing it client-side
+  otherwise. `populateAreaFilter()`/`populateLeadGenNeighborhoods()` now
+  group by normalized key and show one representative (most frequent raw
+  string) label per group; `render()` and `matchesLeadGenerator()` compare
+  normalized keys, with the match normalizing both sides so an older saved
+  Lead Generator's raw-string `neighborhoods` array still matches
+  correctly with no data migration needed. Found and fixed the same bug
+  in a third spot while tracing this: the Lead Generator gallery's own
+  mini-map preview had the identical exact-match issue.
+- `gen.area.city` wired into the real match logic (not just relabeled):
+  resolves to a `city_key` when it's one of `BG_CITIES`' ~29 major cities
+  (verified this correctly prevents a same-named-area cross-city false
+  positive, e.g. Sofia's "Център" vs. Dobrich's), left unconstrained
+  otherwise so a smaller town like Cherven Bryag still matches correctly
+  by area key alone. Stale "Only Sofia..." hint text replaced.
+- Verified against real data throughout: reproduced Missy's exact
+  platform-wide figures independently (8,507 keys, 481 multi-variant,
+  179,061/58.7% affected), ran the real `build_rows()` against the full
+  305,065-listing dataset, and functionally tested the real `index.html`
+  JS (not a rewritten copy) via a Node `vm` harness against realistic
+  fake data and the full real 214,889-row merged dataset.
+- **Not done**: Missy's actual review, and confirming the Supabase SQL
+  migration has actually been applied live (this sandbox has no network
+  route to Supabase to check).
+
+## 19. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
+
+Found by Dessy while testing backlog item 9's price/status history chart,
+confirmed and reproduced independently by Missy during PR #200's review -
+not a one-off glitch.
+
+**Confirmed facts:** `homes_208381` ("Къща, 480m², с.Богдан, Пловдив",
+https://www.homes.bg/offer/kyshta-za-prodazhba/kyshta-480m2-plovdiv-s.bogdan/hs208381)
+has 23 `price_history` entries (2026-08-25 through 2026-09-21+) that
+alternate almost every single scrape between exactly **€233,000** and
+**€1,227,520** - 22 of 22 transitions are flips between those two exact
+values, not a gradual drift or a single bad read. The current
+`price_eur`/`price_per_sqm` (233000 / 485) are internally consistent with
+the listing's own 480m², so €233,000 looks like the real figure;
+€1,227,520 doesn't correspond to any clean unit-conversion or
+decimal-shift of €233,000 (ratio ≈5.27 - not a BGN/EUR mixup or a stray
+decimal).
+
+**Not yet investigated further** - needs live network access to
+homes.bg's actual listing page (blocked from this sandbox's egress
+proxy, same documented limitation as Missy's daily audit routine) to
+determine whether: (a) this is a scraper-side bug (e.g. occasionally
+grabbing a neighboring card's price off the search-results grid instead
+of this listing's own), or (b) homes.bg's own page genuinely alternates
+between two displayed prices (e.g. cash vs. financed, with/without VAT)
+and the scraper is faithfully capturing both. Whoever picks this up
+should check the real live page first before assuming either explanation.
+Likely a `scraper_homes.py` bug given the pattern (a clean, repeated
+2-value flip looks more like "reading the wrong DOM element on
+alternating scrapes" than a real site behavior), but not confirmed.
+
+---
+
+## 20. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet
+
+Found by Placy while checking whether the Cherven Bryag/"град Ловеч"
+oddity Missy flagged (item 18's investigation) is a systemic pattern.
+Full detail, evidence and methodology: `docs/decisions.md`'s 2026-09-22
+entry.
+
+**Confirmed, narrow, currently self-healing but order-dependent:**
+`scraper_imot.py` tags every listing's `city` field from which of its 25
+`CITY_SLUGS` query pages produced it, not from the card's own text -  but
+imot.bg's own `grad-lovech` page itself returns listings physically in
+Червен бряг (Pleven oblast, ~55km from Lovech; pre-1999 okrug legacy,
+one listing's own URL literally encodes `obshtina-lovech`, imot.bg's own
+site data, not a scraper misread). `listing_oblast_key()` checks
+`lat`/`lng` first, then `city_key` (always resolves for imot.bg since
+`city` is always one of the 25 known-good names) - the listing's own
+`area` text is never reached as a fallback. A simulated *ungeocoded*
+Cherven Bryag/Ловеч listing run through the real, unmodified
+`listing_oblast_key()` resolves to `lovech` (wrong) instead of `pleven`.
+All 13 currently-committed Cherven Bryag/Ловеч listings already have real
+lat/lng (from `backfill_geocode_imot.py` having run), so they currently
+show correctly - but a freshly-scraped one would show wrong until the
+geocode backfill catches up.
+
+**Scope beyond Cherven Bryag: checked, mostly not the same bug.**
+Cross-referencing every (queried city, area text) pair across
+`data/leads_imot.json` against `oblast_key_from_municipality()` found 54
+pairs / 1,641 listings where the area text resolves to a different
+oblast than the queried city - but sampling showed most are false
+positives from ordinary Bulgarian neighborhood-name collisions (e.g.
+"Гоце Делчев" under Sofia-queried listings is a real Sofia жк
+coincidentally sharing a name with the actual town in Blagoevgrad oblast,
+confirmed by its own real coordinates landing 2.1km from central Sofia,
+not 130km away). Only Cherven Bryag/Ловеч had both real-coordinate
+confirmation and imot.bg's own URL-text claim agreeing as genuine
+misfiling.
+
+**Recommended fix, not yet implemented (needs `sync_to_supabase.py`, left
+for whoever picks it up after item 18 settles to avoid the same-file
+collision):** don't let `city_key` win over `area`-derived resolution
+unconditionally for imot.bg specifically when the two disagree and
+`area` resolves via the hand-verified `BG_MUNICIPALITY_TO_OBLAST` (not
+the larger generated table, to limit false-positive risk) - or, cheaper
+and lower-risk, just prioritize closing the geocoding backfill gap so
+`lat`/`lng` (which is already correct and already wins) covers these
+listings sooner. A blind area-text override is **not** safe without
+per-listing geocoding to rule out same-city name collisions like Гоце
+Делчев above - demonstrated concretely, not just a theoretical risk.
+
+## 21. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` (not fixed, avoiding the file this pass)
+
+Found by Placy while auditing `sales.bcpea.org`'s unresolved listings
+(see item below and `docs/decisions.md`'s 2026-09-22 entry for the full
+per-portal audit these came out of).
+
+1. **`Гълъбово` missing from both settlement tables.** A real, notable
+   municipality-seat town (Stara Zagora oblast, the Maritsa Iztok power
+   complex) resolves to `None` from both `BG_MUNICIPALITY_TO_OBLAST` and
+   the generated `BG_SETTLEMENT_TO_OBLAST`/
+   `data/bg_settlements_to_oblast.json` - a genuine gap, not a documented
+   ambiguous-name exclusion (`oblast_key_from_municipality("Гълъбово")`
+   returns `None` outright). At least one real `sales.bcpea.org` listing
+   ("Парцел, Гълъбово") is left unresolved because of this.
+2. **`bcpea_settlement_from_title()` doesn't handle the "Други" category
+   label.** `bcpea_settlement_from_title("Други, Брезово")` returns
+   `None`, even though "Брезово" itself resolves fine
+   (`oblast_key_from_municipality("Брезово")` -> `plovdiv`) once
+   extracted - the function's category-prefix handling just doesn't cover
+   that one label.
+
+Both small, mechanical fixes once `sync_to_supabase.py` is next open for
+item 18-adjacent work - bundling them in rather than a separate pass
+through the same file.
+
+## 22. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - needs a data cleanup someone/something with write access to `data/*.json` can apply
+
+Found by Placy during the platform-wide allocation-gap census (see
+`docs/decisions.md`'s 2026-09-22 entry for full methodology).
+
+`scraper_alo.py` used to write `area, city = "Bulgaria", None` when its
+`LOCATION_RE` missed a card - already fixed in the scraper's own code
+(now writes `None`/`None`, per the function's own inline comment; not
+this item). What's left is **stale data from before that fix**: 12,501
+rows in the currently-committed `data/leads_alo.json` (and the matching
+`"latest"` records in `data/history_alo.json`) still carry the literal
+string `"Bulgaria"` as `area`, all with `city` exactly `None` - the old
+code's exact signature, confirmed not a new instance of the bug. Checked
+for a look-alike first: 15 separate rows have `area == "България"`
+(Cyrillic) with a real `city` set - sampling confirmed these are a
+genuine street name (`бул. България`, Bulgaria Boulevard, Veliko
+Tarnovo) correctly parsed, not the bug; excluded from scope.
+
+Of the 12,501: 5,009 already have real lat/lng from a coordinate backfill
+and resolve to the correct oblast today despite the stale text (only the
+user-visible `area` label/filter value is wrong - this is exactly the
+kind of junk value that would show up as a bogus entry in item 18's new
+`area_key`-grouped dropdown); 4,327 still have no lat/lng and are
+counted in item 20-adjacent audit's "alo.bg 4,394 unresolved" figure.
+
+**Fix is a narrow, exact-match, already-written and dry-run-verified data
+cleanup**: for any record where `area == "Bulgaria"` (Latin spelling,
+exact) AND `city is None`, set `area` to `None` (nothing else touched -
+does not change oblast/city resolution logic, just removes a
+known-false raw string). **Could not apply it**: writing directly to
+`data/leads_alo.json`/`data/history_alo.json` was blocked by this
+sandbox's own permission system ("Modify Shared Resources" denial on the
+write). The exact scope/logic is documented above and in
+`docs/decisions.md`'s matching entry for whoever has write clearance for
+the committed data files - or this resolves itself naturally the next
+time these specific listings are re-visited by a live `scraper_alo.py`
+run, since the scraper-side fix is already in place.
 
 ---
 
