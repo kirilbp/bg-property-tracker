@@ -7299,16 +7299,33 @@ async function renderMarketEvolutionTab(cityKey, typeKey) {
     <div class="market-evo-chart-wrap"><canvas id="marketEvoChart"></canvas></div>
   `;
 
-  const sample = listings.slice(0, MARKET_TREND_ID_CAP);
-  const ids = sample.map(l => l.id);
+  // "Marked sold" needs no extra fetch at all - removed_at is already on
+  // every loaded row - so it's computed from the FULL scope, not capped.
+  // Fixed 2026-09-22 (Missy's PR #211 review): this used to run over the
+  // same 200-row sample as the price_history fetch below, for no reason -
+  // a free, unforced restriction that made this series wrong.
   const removedByMonth = new Map();
-  sample.forEach(l => {
+  listings.forEach(l => {
     if (!l.removed_at) return;
     const d = new Date(l.removed_at);
     if (isNaN(d.getTime())) return;
     const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     removedByMonth.set(month, (removedByMonth.get(month) || 0) + 1);
   });
+
+  // "Newly tracked" DOES need a network fetch (price_history isn't in the
+  // bulk column list, per item 6), so it's capped - but take the most
+  // RECENT MARKET_TREND_ID_CAP by id (ascending id ~ recency, per
+  // fetchAllRows()'s own .order('id') and the fact nothing ever re-sorts
+  // MERGED_LISTINGS), not the first/oldest. Fixed 2026-09-22 (Missy's PR
+  // #211 review): `.slice(0, N)` always took the OLDEST N merged-listing
+  // groups in scope - for any portfolio-wide scope (routinely far more
+  // than 200 real listings, see data/leads_alo.json's own 87,979 rows),
+  // that meant the chart was built almost entirely from ancient months
+  // and typically showed nothing for recent ones - the opposite of what
+  // an "evolution over time" chart should show.
+  const sample = listings.slice(-MARKET_TREND_ID_CAP);
+  const ids = sample.map(l => l.id);
 
   const addedByMonth = new Map();
   try {
@@ -7340,7 +7357,9 @@ async function renderMarketEvolutionTab(cityKey, typeKey) {
     if (caption) caption.textContent = 'Not enough price-history depth yet in this scope to chart stock changes - check back as more scrapes accumulate.';
     return;
   }
-  if (caption) caption.textContent = `Based on a sample of up to ${fmt(ids.length)} of ${fmt(listings.length)} tracked listing${listings.length === 1 ? '' : 's'} in this scope.`;
+  if (caption) caption.textContent = ids.length < listings.length
+    ? `"Marked sold" covers all ${fmt(listings.length)} tracked listings in this scope. "Newly tracked" is sampled from the most recent ${fmt(ids.length)} of them.`
+    : `Based on all ${fmt(listings.length)} tracked listing${listings.length === 1 ? '' : 's'} in this scope.`;
 
   if (marketEvoChart) { marketEvoChart.destroy(); marketEvoChart = null; }
   marketEvoChart = new Chart(document.getElementById('marketEvoChart'), {

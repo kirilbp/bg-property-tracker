@@ -1068,12 +1068,25 @@ mobile viewport with no layout breakage.
 work, worth flagging again since it's now visible in a new place**: backlog
 item 22's stale alo.bg `area == "Bulgaria"` placeholder rows (still
 uncleaned in committed data as of this writing) show up as a bogus
-"Bulgaria" row in the Sofia-scoped Area Performance table when one of those
-rows has a backfilled lat/lng that happens to resolve `city_key` to
-`sofia` - not a bug in this item's own aggregation logic, and expected to
-self-resolve once item 22's already-written cleanup is applied (a listing
-with `area: null` is excluded from area grouping entirely by the existing
-`listingAreaKey()` guard).
+"Bulgaria" row in the Sofia-scoped Area Performance table.
+
+**Correction (Missy's PR #211 review):** the mechanism above was
+described wrong in an earlier version of this entry, which claimed a
+"backfilled lat/lng" resolves these rows to `sofia`. Checked directly:
+this codebase has no lat/lng-based city or oblast resolution anywhere
+(`geo_utils.py` does no reverse-geocoding or point-in-polygon lookup) -
+these rows actually resolve to `city_key: "sofia"` via the ordinary
+title-text-matching fallback both `listing_city_key()` (server) and
+`listingCityKey()` (client) already use whenever a listing's `city`
+field is null, because their titles happen to literally contain "София"
+(e.g. "...в зона Б-19 Зона Б19, София..."). The "excluded by the
+existing `listingAreaKey()` guard" line was also wrong - that guard is
+`if (!l.area) return`, and `"Bulgaria"` is a truthy non-empty string, so
+it does nothing for this specific placeholder value. The bottom-line
+conclusion is still accurate (real, pre-existing, not caused by this
+item, self-resolves once item 22's cleanup lands) - only the stated
+mechanism was invented rather than checked; corrected here rather than
+left standing.
 
 **One design-scope judgment call**: the hub's own tabs reuse the `.pl-*`/
 `.cmp-*` design tokens/components item 11 already established (cards,
