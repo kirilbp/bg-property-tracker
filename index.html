@@ -155,7 +155,6 @@
   }
   .registry-link:hover { color: #0ea5e9; }
   .empty { text-align: center; color: #94a3b8; padding: 60px 20px; }
-  #chart-wrap { height: 320px; }
   #homeChartWrap { height: 130px; margin: 4px 0 10px; }
 
   /* Home page */
@@ -746,6 +745,47 @@
   .btl-pass-line.pass { color: var(--sage); }
   .btl-pass-line.fail { color: var(--ink-soft); }
   .btl-disclaimer { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); line-height: 1.5; margin-top: 20px; }
+
+  /* --- Market Data hub (docs/property-filter-spec.md section 7; backlog
+     item 12) -------------------------------------------------------------
+     Reuses the .cmp-*/.pl-* tokens and component classes item 11 already
+     established rather than a fourth visual language. Uses its own
+     .market-tab-btn/.market-tab-content pair (a near-identical copy of
+     .detail-tab-btn/.detail-tab-content) rather than reusing those classes
+     directly - switchDetailTab() toggles ALL .detail-tab-btn/-content
+     elements in the document by data-tab value with no scoping, so sharing
+     the class here risked an accidental cross-page toggle. */
+  .market-tabs { display: flex; gap: 4px; margin: 24px 0 0; border-bottom: 1px solid var(--taupe-light); flex-wrap: wrap; }
+  .market-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 4px; margin-right: 20px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--taupe); cursor: pointer;
+  }
+  .market-tab-btn:hover { color: var(--ink-soft); }
+  .market-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
+  .market-tab-content { display: none; padding-top: 20px; }
+  .market-tab-content.active { display: block; }
+
+  /* Single-hue "heat" intensity - design-guidelines.md section 4/9 forbids
+     saturated multi-color status treatments (no red/yellow/green traffic
+     lights), so heat is expressed as varying opacity of the one brass
+     accent, never a hue change. */
+  .heat-row {
+    display: grid; grid-template-columns: 200px 1fr 90px; gap: 14px; align-items: center;
+    padding: 10px 4px; border-bottom: 1px solid var(--taupe-light);
+  }
+  .heat-row:last-child { border-bottom: none; }
+  .heat-row-label-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .heat-row-label { font-family: var(--font-sans); font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .heat-row-count { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); }
+  .heat-bar-track { height: 14px; border-radius: 3px; background: var(--ivory-deep); overflow: hidden; }
+  .heat-bar-fill { height: 100%; background: var(--brass-deep); border-radius: 3px; }
+  .heat-row-value { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); text-align: right; }
+
+  .market-gap-note {
+    font-family: var(--font-sans); font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px;
+  }
+  .market-evo-chart-wrap { height: 280px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -1128,10 +1168,40 @@
             <a href="https://www.nsi.bg/en/statistical-data/98" target="_blank" rel="noreferrer">nsi.bg</a>.
           </p>
         </div>
-        <div class="card">
-          <h2>Avg. €/m² by area</h2>
-          <p class="card-sub">Computed live from all currently tracked listings.</p>
-          <div id="chart-wrap"><canvas id="areaChart"></canvas></div>
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Market Data</h2>
+              <p class="pl-sub">Portfolio-level aggregates across every area imotenradar tracks - the same per-area aggregation the listing detail page's Area Data tab already computes, applied here across every area at once rather than one listing's own area. Built entirely from imotenradar's own scraped listing history (price, status, days on market) - no new data source.</p>
+            </div>
+          </div>
+
+          <div class="cmp-filters" style="margin-bottom:0;">
+            <div class="cmp-field">
+              <label>City</label>
+              <select id="marketCity"><option value="">All cities (nationwide, by city)</option></select>
+            </div>
+            <div class="cmp-field">
+              <label>Property type</label>
+              <select id="marketType"><option value="">Any type</option></select>
+            </div>
+          </div>
+
+          <div class="market-tabs" id="marketTabs">
+            <button type="button" class="market-tab-btn active" data-market-tab="performance">Area Performance</button>
+            <button type="button" class="market-tab-btn" data-market-tab="heatmap">Strategy Heat Map</button>
+            <button type="button" class="market-tab-btn" data-market-tab="livemap">Market Live Map</button>
+            <button type="button" class="market-tab-btn" data-market-tab="evolution">Adverts Evolution</button>
+          </div>
+
+          <div class="market-tab-content active" data-market-tab-content="performance" id="marketPerformanceTab"></div>
+          <div class="market-tab-content" data-market-tab-content="heatmap" id="marketHeatmapTab"></div>
+          <div class="market-tab-content" data-market-tab-content="livemap" id="marketLivemapTab"></div>
+          <div class="market-tab-content" data-market-tab-content="evolution" id="marketEvolutionTab"></div>
+        </div>
+
+        <div class="market-gap-note">
+          <strong>Not built here: Agent Properties tile.</strong> This would list every property tracked from a given real-estate agent/agency, but no agent/agency name, phone, or contact field is scraped anywhere in imotenradar's data today (checked the full field union across all 8 <code>data/leads_*.json</code> files - confirmed absent, same gap backlog item 9's listing-detail Agent panel already flagged and left unbuilt). Needs new scraper work before this tile can show anything real.
         </div>
       </section>
 
@@ -1392,8 +1462,6 @@ const PAGE_SIZE = 100;
 
 let MERGED_LISTINGS = [];
 let PORTAL_COUNTS = {};
-let chart = null;
-let chartInitialized = false;
 let homeChart = null;
 
 // --- Saved listings (Dashboard bookmarks) -------------------------------------
@@ -5137,39 +5205,6 @@ function renderDashboard() {
   saved.forEach(l => savedGrid.appendChild(createListingCard(l)));
 }
 
-function renderChart() {
-  const byArea = {};
-  MERGED_LISTINGS.forEach(l => {
-    if (!l.price_per_sqm) return;
-    if (!byArea[l.area]) byArea[l.area] = [];
-    byArea[l.area].push(l.price_per_sqm);
-  });
-  const rows = Object.entries(byArea)
-    .map(([area, vals]) => ({ area, avg: vals.reduce((a,b)=>a+b,0) / vals.length }))
-    .sort((a, b) => b.avg - a.avg);
-
-  const ctx = document.getElementById('areaChart');
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: rows.map(r => r.area),
-      datasets: [{
-        label: 'Avg €/m²',
-        data: rows.map(r => Math.round(r.avg)),
-        backgroundColor: '#0ea5e9',
-        borderRadius: 4,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-}
-
 function buildBadgesHtml(l) {
   let badges = `<span class="badge badge-portal">${l.portal}</span>`;
   // status is the MERGED verdict (sold only once every cross-posted source
@@ -6813,8 +6848,8 @@ function showSection(name) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
   if (location.hash) history.pushState('', document.title, window.location.pathname + window.location.search);
   if (name === 'market') {
-    if (!chartInitialized) { renderChart(); chartInitialized = true; }
-    else if (chart) chart.resize();
+    if (!marketHubInitialized) { initMarketDataHub(); marketHubInitialized = true; }
+    else { renderActiveMarketTab(); }
   } else if (name === 'leadgen') {
     renderLeadgenMiniMaps();
   } else if (name === 'dashboard') {
@@ -6965,6 +7000,365 @@ document.getElementById('leadgenSortBy').addEventListener('change', (e) => {
 });
 
 window.addEventListener('hashchange', maybeImportSharedLeadGenerator);
+
+// --- Market Data hub (docs/property-filter-spec.md section 7; backlog
+// item 12) -----------------------------------------------------------------
+// Reuses item 11's own per-area aggregation primitives (listingAreaKey()/
+// listingCityKey(), areaKeyGroupsForCity(), typeFilterBucket(), BG_CITIES)
+// at a portfolio-wide, cross-listing scope instead of one listing's own
+// area - "the same aggregation, wider lens" backlog item 12 calls for.
+//
+// Scope, per backlog item 12's own explicit tile list (only 5 of Property
+// Filter's 6 "Postcodes Live Data" tiles are even claimed replicable
+// there): Area Performance (Postcode Performance's city/quarter
+// substitute), Strategy Heat Map, Market Live Map, and Adverts Evolution
+// are built below. Agent Properties is NOT built - no agent/agency name/
+// phone/contact field exists anywhere in imotenradar's scraped data
+// (checked the full field union across every data/leads_*.json file),
+// the same gap backlog item 9's listing-detail Agent panel already hit and
+// left unbuilt - flagged in the UI (the .market-gap-note under the tabs)
+// rather than a fake/empty tile. Postcode Prices Trend isn't built either -
+// not in backlog item 12's own explicit tile list, and marked "Soon" even
+// in Property Filter itself. "Yield" is never offered as a metric anywhere
+// below either, for the same missing-Bulgarian-rental-dataset reason the
+// Area Data tab's own Est. Yield gap note already documents.
+const MARKET_MIN_SAMPLE = 5; // same floor as AREA_DATA_MIN_SAMPLE - below this an area's own average is noise, not signal
+const MARKET_TREND_ID_CAP = 200; // same bounded on-demand fetch shape as loadAreaTrendChart() - never a bulk price_history load (backlog item 6's lesson)
+const MARKET_TREND_CHUNK = 100;
+
+let marketHubInitialized = false;
+let marketActiveTab = 'performance';
+let marketHeatMetric = 'dropshare';
+let marketLiveMetric = 'persqm';
+let marketLiveMapObj = null;
+let marketEvoChart = null;
+
+// One aggregation core shared by the Area Performance table, Strategy Heat
+// Map, and Market Live Map tabs - generalizes areaDataMatches() (built for
+// a single listing's own area) to every area/city group at once.
+//
+// When cityKey is falsy, groups by CITY (BG_CITIES' ~29 known-safe keys via
+// listingCityKey()) rather than by raw area name - grouping nationwide by
+// area name alone would silently pool same-named areas across unrelated
+// cities into one row (the exact collision backlog item 18 documented and
+// runComparablesSearch()/areaDataMatches() already guard against). Only
+// once a specific city is chosen does this drill down to that city's own
+// quarters via areaKeyGroupsForCity(), which is safe because it's already
+// scoped to one city.
+function marketAggregateRows(cityKey, typeKey) {
+  const avg = arr => arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null;
+  function summarize(key, label, listings) {
+    if (listings.length < MARKET_MIN_SAMPLE) return null;
+    const active = listings.filter(l => l.status !== 'sold');
+    const prices = active.filter(l => l.price_eur).map(l => l.price_eur);
+    const perSqms = active.filter(l => l.price_per_sqm).map(l => l.price_per_sqm);
+    const days = active.filter(l => l.days_on_market != null).map(l => l.days_on_market);
+    const withDrop = listings.filter(l => l.drop_pct > 0).length;
+    const pts = listings.filter(l => l.lat != null && l.lng != null);
+    return {
+      key, label,
+      count: listings.length, activeCount: active.length, soldCount: listings.length - active.length,
+      avgPrice: avg(prices), avgPerSqm: avg(perSqms), avgDays: avg(days),
+      dropSharePct: listings.length ? Math.round((withDrop / listings.length) * 100) : 0,
+      lat: pts.length ? pts.reduce((s, l) => s + l.lat, 0) / pts.length : null,
+      lng: pts.length ? pts.reduce((s, l) => s + l.lng, 0) / pts.length : null,
+      listings,
+    };
+  }
+
+  if (cityKey) {
+    return areaKeyGroupsForCity(cityKey).map(({ key, label }) => {
+      const listings = MERGED_LISTINGS.filter(l =>
+        listingAreaKey(l) === key && (l.city_key || listingCityKey(l)) === cityKey &&
+        (!typeKey || typeFilterBucket(l) === typeKey));
+      return summarize(key, label, listings);
+    }).filter(Boolean);
+  }
+  return BG_CITIES.map(c => {
+    const listings = MERGED_LISTINGS.filter(l =>
+      (l.city_key || listingCityKey(l)) === c.key && (!typeKey || typeFilterBucket(l) === typeKey));
+    return summarize(c.key, c.label, listings);
+  }).filter(Boolean);
+}
+
+function populateMarketFilters() {
+  const citySelect = document.getElementById('marketCity');
+  BG_CITIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.key;
+    opt.textContent = c.label;
+    citySelect.appendChild(opt);
+  });
+  const typeSelect = document.getElementById('marketType');
+  TYPE_FILTER_BUCKETS.filter(b => b.key !== 'other' && b.key !== 'auction').forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.key;
+    opt.textContent = b.label;
+    typeSelect.appendChild(opt);
+  });
+  citySelect.addEventListener('change', renderActiveMarketTab);
+  typeSelect.addEventListener('change', renderActiveMarketTab);
+}
+
+function currentMarketScope() {
+  return {
+    cityKey: document.getElementById('marketCity').value,
+    typeKey: document.getElementById('marketType').value,
+  };
+}
+
+function initMarketDataHub() {
+  populateMarketFilters();
+  document.getElementById('marketTabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('.market-tab-btn');
+    if (!btn) return;
+    switchMarketTab(btn.dataset.marketTab);
+  });
+  renderActiveMarketTab();
+}
+
+function switchMarketTab(tab) {
+  marketActiveTab = tab;
+  document.querySelectorAll('.market-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.marketTab === tab));
+  document.querySelectorAll('.market-tab-content').forEach(c => c.classList.toggle('active', c.dataset.marketTabContent === tab));
+  renderActiveMarketTab();
+}
+
+function renderActiveMarketTab() {
+  if (!document.getElementById('marketTabs')) return; // hub not initialized yet
+  const { cityKey, typeKey } = currentMarketScope();
+  if (marketActiveTab === 'performance') renderMarketPerformanceTab(cityKey, typeKey);
+  else if (marketActiveTab === 'heatmap') renderMarketHeatMapTab(cityKey, typeKey);
+  else if (marketActiveTab === 'livemap') renderMarketLiveMapTab(cityKey, typeKey);
+  else if (marketActiveTab === 'evolution') renderMarketEvolutionTab(cityKey, typeKey);
+}
+
+// --- Tab 1: Area Performance (Postcode Performance's city/quarter substitute) --
+function renderMarketPerformanceTab(cityKey, typeKey) {
+  const wrap = document.getElementById('marketPerformanceTab');
+  const rows = marketAggregateRows(cityKey, typeKey).sort((a, b) => b.count - a.count);
+  if (rows.length === 0) {
+    wrap.innerHTML = `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to show area performance (each row needs at least ${MARKET_MIN_SAMPLE} listings).</p>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <p class="pl-sub" style="margin:0 0 10px;">${cityKey ? 'By quarter (кв.) within this city' : 'By city, nationwide'} - ${fmt(rows.length)} area${rows.length === 1 ? '' : 's'} with at least ${MARKET_MIN_SAMPLE} tracked listings.</p>
+    <div class="pl-table-wrap">
+      <table class="pl-table">
+        <thead><tr>
+          <th>${cityKey ? 'Quarter' : 'City'}</th><th>Listings</th><th>Active</th><th>Sold</th>
+          <th>Avg price</th><th>Avg €/m²</th><th>Avg days on market</th><th>% with a price drop</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${escapeHtml(r.label)}</td>
+              <td>${fmt(r.count)}</td>
+              <td>${fmt(r.activeCount)}</td>
+              <td>${fmt(r.soldCount)}</td>
+              <td>${r.avgPrice ? '€' + fmt(r.avgPrice) : '–'}</td>
+              <td>${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</td>
+              <td>${r.avgDays ?? '–'}</td>
+              <td>${r.dropSharePct}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// --- Tab 2: Strategy Heat Map ---------------------------------------------
+// No "yield" metric option, deliberately - see the block comment above this
+// section. Heat is a single accent color's opacity, never a hue change
+// (design-guidelines.md section 4/9's ban on red/yellow/green status
+// treatments) - same convention renderHistogramChart() already uses to
+// highlight a subject's own bucket.
+const MARKET_HEAT_METRICS = [
+  { key: 'dropshare', label: 'Motivated-seller share (% with a price drop)', get: r => r.dropSharePct, format: v => v + '%' },
+  { key: 'days', label: 'Avg days on market (liquidity)', get: r => r.avgDays, format: v => fmt(v) + 'd' },
+  { key: 'persqm', label: 'Avg €/m² (pricing)', get: r => r.avgPerSqm, format: v => '€' + fmt(v) },
+];
+
+function renderMarketHeatMapTab(cityKey, typeKey) {
+  const wrap = document.getElementById('marketHeatmapTab');
+  const rows = marketAggregateRows(cityKey, typeKey);
+  const metric = MARKET_HEAT_METRICS.find(m => m.key === marketHeatMetric) || MARKET_HEAT_METRICS[0];
+  const scored = rows.map(r => ({ r, v: metric.get(r) })).filter(x => x.v != null).sort((a, b) => b.v - a.v);
+  const controls = `
+    <div class="cmp-field" style="max-width:360px; margin-bottom:8px;">
+      <label>Heat metric</label>
+      <select id="marketHeatMetricSelect">
+        ${MARKET_HEAT_METRICS.map(m => `<option value="${m.key}"${m.key === marketHeatMetric ? ' selected' : ''}>${m.label}</option>`).join('')}
+      </select>
+    </div>
+    <p class="cmp-note" style="margin-bottom:16px;">Shown as intensity of a single accent color, not a red/yellow/green scale. "Yield"-based heat isn't offered: imotenradar has no Bulgarian rental dataset to compute it from (same gap the Area Data tab's Est. Yield note documents).</p>
+  `;
+  if (scored.length === 0) {
+    wrap.innerHTML = controls + `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to build a heat map.</p>`;
+    wireMarketHeatControls();
+    return;
+  }
+  const max = scored[0].v || 1;
+  wrap.innerHTML = controls + scored.map(({ r, v }) => `
+    <div class="heat-row">
+      <div class="heat-row-label-wrap">
+        <p class="heat-row-label" title="${escapeHtml(r.label)}">${escapeHtml(r.label)}</p>
+        <p class="heat-row-count">${fmt(r.count)} listing${r.count === 1 ? '' : 's'}</p>
+      </div>
+      <div class="heat-bar-track"><div class="heat-bar-fill" style="width:${Math.max(4, Math.round((v / max) * 100))}%; opacity:${(0.3 + 0.7 * (v / max)).toFixed(2)};"></div></div>
+      <p class="heat-row-value">${metric.format(v)}</p>
+    </div>
+  `).join('');
+  wireMarketHeatControls();
+}
+
+function wireMarketHeatControls() {
+  const sel = document.getElementById('marketHeatMetricSelect');
+  if (sel) sel.addEventListener('change', () => { marketHeatMetric = sel.value; renderActiveMarketTab(); });
+}
+
+// --- Tab 3: Market Live Map -------------------------------------------
+const MARKET_LIVE_METRICS = [
+  { key: 'persqm', label: 'Asking price (€/m²)', get: r => r.avgPerSqm, format: v => '€' + fmt(v) + '/m²' },
+  { key: 'days', label: 'Time on market (avg days)', get: r => r.avgDays, format: v => fmt(v) + ' days' },
+  { key: 'demand', label: 'Demand (tracked listings)', get: r => r.count, format: v => fmt(v) + ' listings' },
+];
+
+function teardownMarketLiveMap() {
+  if (marketLiveMapObj) { marketLiveMapObj.remove(); marketLiveMapObj = null; }
+}
+
+function renderMarketLiveMapTab(cityKey, typeKey) {
+  const wrap = document.getElementById('marketLivemapTab');
+  wrap.innerHTML = `
+    <div class="cmp-field" style="max-width:360px; margin-bottom:8px;">
+      <label>Map metric</label>
+      <select id="marketLiveMetricSelect">
+        ${MARKET_LIVE_METRICS.map(m => `<option value="${m.key}"${m.key === marketLiveMetric ? ' selected' : ''}>${m.label}</option>`).join('')}
+      </select>
+    </div>
+    <p class="cmp-note" style="margin-bottom:8px;">"Yield" isn't offered as a map metric - imotenradar has no Bulgarian rental dataset to compute it from (same gap noted above). Marker size and shade both scale with the chosen metric - a single accent color, not a multi-color scale.</p>
+    <div id="marketLiveMapEl" class="pl-map"></div>
+  `;
+  document.getElementById('marketLiveMetricSelect').addEventListener('change', (e) => {
+    marketLiveMetric = e.target.value;
+    renderMarketLiveMapTab(cityKey, typeKey);
+  });
+
+  teardownMarketLiveMap();
+  const container = document.getElementById('marketLiveMapEl');
+  if (typeof L === 'undefined') { container.textContent = "Map unavailable (couldn't load the map library)."; return; }
+  marketLiveMapObj = L.map(container).setView([42.6977, 23.3219], cityKey ? 12 : 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(marketLiveMapObj);
+  const rows = marketAggregateRows(cityKey, typeKey).filter(r => r.lat != null && r.lng != null);
+  if (rows.length === 0) return;
+  const metric = MARKET_LIVE_METRICS.find(m => m.key === marketLiveMetric) || MARKET_LIVE_METRICS[0];
+  const values = rows.map(r => metric.get(r)).filter(v => v != null);
+  const max = values.length ? Math.max(...values) : 0;
+  const markers = rows.map(r => {
+    const v = metric.get(r);
+    const intensity = (v != null && max) ? v / max : 0.3;
+    return L.circleMarker([r.lat, r.lng], {
+      radius: 8 + intensity * 14,
+      color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.25 + intensity * 0.55, weight: 1,
+    }).bindPopup(`<strong>${escapeHtml(r.label)}</strong><br>${metric.label}: ${v != null ? metric.format(v) : '–'}<br>${fmt(r.count)} tracked listing${r.count === 1 ? '' : 's'}`).addTo(marketLiveMapObj);
+  });
+  marketLiveMapObj.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
+}
+
+// --- Tab 4: Adverts Evolution ------------------------------------------
+// "STC-equivalent" from backlog item 12's own tile description is not shown
+// - see the in-UI gap note below. merged_listings only ever carries a
+// binary Active/Sold status (sold once every cross-posted source's own
+// removed_at agrees it's gone - see pipelineStatusLabel()'s own comment),
+// there is no tracked interim "under offer/reserved" state to chart a third
+// series for. "Newly tracked" is derived from each listing's own earliest
+// price_history entry, fetched via the same bounded, on-demand, ID-capped
+// pattern loadAreaTrendChart() already uses (never a bulk load - backlog
+// item 6's lesson) - "Marked sold" is derived from removed_at, which is
+// already present on every currently-loaded row (no extra fetch needed).
+async function renderMarketEvolutionTab(cityKey, typeKey) {
+  const wrap = document.getElementById('marketEvolutionTab');
+  const listings = MERGED_LISTINGS.filter(l =>
+    (!cityKey || (l.city_key || listingCityKey(l)) === cityKey) &&
+    (!typeKey || typeFilterBucket(l) === typeKey));
+  if (listings.length < MARKET_MIN_SAMPLE) {
+    wrap.innerHTML = `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to chart stock changes over time.</p>`;
+    return;
+  }
+  const requestToken = (renderMarketEvolutionTab._token = (renderMarketEvolutionTab._token || 0) + 1);
+  wrap.innerHTML = `
+    <div class="market-gap-note">
+      <strong>Available vs. Sold only - no STC-equivalent.</strong> imotenradar's own merged listing status is binary (Active or Sold, computed once every cross-posted source is gone) - there's no tracked "under offer/reserved" interim state to show a third series for, unlike Property Filter's UK-market Available/STC/Removed. Shown below: how many tracked listings newly appeared vs. were marked sold, by month.
+    </div>
+    <p class="pl-sub" id="marketEvoCaption">Loading listing history…</p>
+    <div class="market-evo-chart-wrap"><canvas id="marketEvoChart"></canvas></div>
+  `;
+
+  const sample = listings.slice(0, MARKET_TREND_ID_CAP);
+  const ids = sample.map(l => l.id);
+  const removedByMonth = new Map();
+  sample.forEach(l => {
+    if (!l.removed_at) return;
+    const d = new Date(l.removed_at);
+    if (isNaN(d.getTime())) return;
+    const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    removedByMonth.set(month, (removedByMonth.get(month) || 0) + 1);
+  });
+
+  const addedByMonth = new Map();
+  try {
+    for (let i = 0; i < ids.length; i += MARKET_TREND_CHUNK) {
+      const chunk = ids.slice(i, i + MARKET_TREND_CHUNK);
+      const { data, error } = await sb.from('merged_listings').select('id,price_history').in('id', chunk);
+      if (error || !data) continue;
+      data.forEach(row => {
+        if (!Array.isArray(row.price_history) || row.price_history.length === 0) return;
+        const dates = row.price_history.map(p => p && p.date ? new Date(p.date) : null).filter(d => d && !isNaN(d.getTime()));
+        if (dates.length === 0) return;
+        const first = new Date(Math.min(...dates.map(d => d.getTime())));
+        const month = `${first.getFullYear()}-${String(first.getMonth() + 1).padStart(2, '0')}`;
+        addedByMonth.set(month, (addedByMonth.get(month) || 0) + 1);
+      });
+    }
+  } catch (e) {
+    console.error('Failed to load listing history for Adverts Evolution', e);
+  }
+
+  // Still on this tab, and not superseded by a newer filter change while
+  // this was in flight? Same guard loadAreaTrendChart() already uses.
+  if (requestToken !== renderMarketEvolutionTab._token || !document.getElementById('marketEvoChart')) return;
+
+  const months = [...new Set([...addedByMonth.keys(), ...removedByMonth.keys()])].sort();
+  const caption = document.getElementById('marketEvoCaption');
+  if (months.length < 2) {
+    document.getElementById('marketEvoChart').style.display = 'none';
+    if (caption) caption.textContent = 'Not enough price-history depth yet in this scope to chart stock changes - check back as more scrapes accumulate.';
+    return;
+  }
+  if (caption) caption.textContent = `Based on a sample of up to ${fmt(ids.length)} of ${fmt(listings.length)} tracked listing${listings.length === 1 ? '' : 's'} in this scope.`;
+
+  if (marketEvoChart) { marketEvoChart.destroy(); marketEvoChart = null; }
+  marketEvoChart = new Chart(document.getElementById('marketEvoChart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Newly tracked', data: months.map(m => addedByMonth.get(m) || 0), backgroundColor: '#a9812e', borderRadius: 3 },
+        { label: 'Marked sold', data: months.map(m => removedByMonth.get(m) || 0), backgroundColor: '#ded6c8', borderRadius: 3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+    },
+  });
+}
 
 // --- Deal Pipeline wiring ------------------------------------------------
 document.getElementById('plConfigBtn').addEventListener('click', openPipelineConfigModal);

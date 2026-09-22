@@ -976,7 +976,7 @@ reviewed by her.** Summary:
   Supabase project (blocked from this sandbox, same as every other recent
   item).
 
-## 12. Market Data hub (portfolio-level aggregate tiles)
+## 12. Market Data hub (portfolio-level aggregate tiles) - IMPLEMENTED, AWAITING MISSY'S REVIEW (2026-09-22, Dessy)
 
 Reuses item 11's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
@@ -986,6 +986,111 @@ Market Live Map (Yield/Asking Prices/Time On Market/Demand), Adverts
 Evolution (stock changes: Available/STC-equivalent/Removed over time),
 Agent Properties (all listings by a given agent). Sequence after item 11
 since it's the same underlying aggregation, wider lens.
+
+**Status (2026-09-22): 4 of the backlog's own 5 named tiles built and
+self-verified against real committed data; the 5th (Agent Properties)
+confirmed not buildable and flagged rather than faked. PR open, not yet
+merged - Missy's review still needed (see gap note below).**
+
+Built in `index.html`'s existing "Market Data" nav section (the old static
+HPI card kept as-is; its legacy raw-`l.area`-string "Avg €/m² by area" bar
+chart - the exact pre-item-18 collision bug, e.g. pooling every city's
+"Център" together - was removed and replaced by the new hub below, not left
+alongside it):
+
+- **Area Performance** (Postcode Performance's city/quarter substitute):
+  a sortable table, nationwide by city (BG_CITIES' ~29 known-safe keys) or
+  drilled into one city's own quarters (`areaKeyGroupsForCity()`) once a
+  city is picked - listings/active/sold counts, avg price, avg €/m², avg
+  days on market, % with a price drop, each row requiring a same 5-listing
+  floor `AREA_DATA_MIN_SAMPLE` already used for.
+- **Strategy Heat Map**: same rows, ranked by a selectable own-data metric
+  (motivated-seller share = % with a price drop, avg days on market, avg
+  €/m²) - "yield" is not offered as a metric, no Bulgarian rental dataset
+  exists to compute it from (same gap item 11's Area Data tab already
+  documents). Heat is shown as varying opacity of the single brass accent
+  color, never a hue change - design-guidelines.md's ban on red/yellow/
+  green status treatments applies here as much as anywhere else.
+- **Market Live Map**: a Leaflet map (reusing the Comparables tool's own
+  map-init pattern) plotting one marker per area/city at its listings'
+  average lat/lng, sized and shaded (not hued) by a selectable metric
+  (asking €/m², avg days on market, demand = tracked listing count).
+  "Yield" excluded from the metric list for the same reason as the heat map.
+- **Adverts Evolution**: a monthly bar chart of "newly tracked" (derived
+  from each listing's own earliest `price_history` entry, fetched via the
+  same bounded/on-demand/ID-capped pattern - max 200 ids, 100/chunk - the
+  Area Data tab's own trend chart already uses, never a bulk load, per
+  backlog item 6's lesson) vs. "marked sold" (derived from `removed_at`,
+  already present on loaded rows, no extra fetch). **Explicitly flagged in
+  the UI**: no STC-equivalent shown - `merged_listings.status` is binary
+  (Active/Sold only, sold once every cross-posted source's own
+  `removed_at` agrees it's gone), there's no tracked interim "under offer/
+  reserved" state the way Property Filter's UK-market Available/STC/
+  Removed has one.
+- **Agent Properties - NOT built, confirmed not possible with current
+  data.** Re-checked the full field union across every `data/leads_*.json`
+  file directly (not just trusted item 9's earlier finding): no agent/
+  agency name, phone, or contact field exists anywhere in imotenradar's
+  scraped data. Flagged plainly in the UI (a `.market-gap-note` under the
+  hub) rather than a fake/empty tile. Needs new scraper work (a detail-page
+  field none of the 8 scrapers currently extract) before this tile can show
+  anything real - a backend/scraper change, out of this frontend-only
+  builder's scope to add.
+- **Not built, correctly out of this item's own explicit scope**: Postcode
+  Prices Trend (not in this backlog item's own named tile list, and marked
+  "Soon" even in Property Filter itself), Last Sold Map / Price vs Income /
+  Title Boundaries / Planning Applications / Census Data / Planning
+  Constraint Map (spec section 7's other two "Sold Prices Data"/"Due
+  Diligence" groups - all separately flagged UK-only-or-uncertain in the
+  spec itself and not part of this backlog item's own tile list).
+
+Verified locally end-to-end: JS syntax-checked (`new Function()` on the
+extracted `<script>` body), then driven in a real headless Chromium via
+Playwright against a 6,000-listing fixture sampled from real committed
+`data/leads_imot.json`/`leads_alo.json`/`leads_homes.json`/`leads_olx.json`
+(CDN/Supabase network calls stubbed with local npm-installed pinned
+Chart.js/Leaflet/supabase-js copies and a route-intercepted REST fixture
+server, since this sandbox's egress proxy blocks the live Supabase project
+and every CDN this app loads from - same approach item 11 used). Confirmed:
+all 4 tabs render with zero page errors nationwide and drilled into Sofia;
+city/type filter state persists correctly across tab switches; the heat
+map/live map re-render correctly when their own metric dropdown changes;
+the Adverts Evolution chart correctly fetches and buckets by month; the
+existing listing-detail page's own tabs (Details/Price History/
+Comparables/Area Data/BTL Stress Test) still default and switch correctly
+with no cross-talk from the new hub's own tab state (a real risk flagged
+and designed around up front - see the `.market-tab-btn`/`.market-tab-
+content` code comment on why they're distinct classes from `.detail-tab-
+btn`/`.detail-tab-content` rather than reused); checked reflow at a 768px
+mobile viewport with no layout breakage.
+
+**One real, already-known data-quality issue surfaced (not caused) by this
+work, worth flagging again since it's now visible in a new place**: backlog
+item 22's stale alo.bg `area == "Bulgaria"` placeholder rows (still
+uncleaned in committed data as of this writing) show up as a bogus
+"Bulgaria" row in the Sofia-scoped Area Performance table when one of those
+rows has a backfilled lat/lng that happens to resolve `city_key` to
+`sofia` - not a bug in this item's own aggregation logic, and expected to
+self-resolve once item 22's already-written cleanup is applied (a listing
+with `area: null` is excluded from area grouping entirely by the existing
+`listingAreaKey()` guard).
+
+**One design-scope judgment call**: the hub's own tabs reuse the `.pl-*`/
+`.cmp-*` design tokens/components item 11 already established (cards,
+tables, view toggle, brass accent) rather than a new visual language, but
+are NOT wired through the listing-detail page's `.detail-tab-btn`/
+`.detail-tab-content` classes despite being visually identical - see the
+code comment above `.market-tab-btn` for why (switchDetailTab() toggles
+*every* `.detail-tab-btn`/`-content` element in the document by `data-tab`
+value with no scoping, which risked an accidental cross-page tab-state
+collision once both existed in the same DOM).
+
+**Not done - real gap, not a shortcut taken lightly**: no `Agent`/Task tool
+available this session to dispatch to Missy directly for real review (the
+same recurring limitation prior entries in this file and `docs/
+decisions.md` have already flagged). This PR is open on `main`, **not
+self-merged**, specifically so Missy's real review happens before it ships,
+per this repo's standing rule.
 
 ## 13. Send Letters / motivated-seller outreach campaigns
 
