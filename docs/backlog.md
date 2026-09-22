@@ -80,14 +80,20 @@ entirely, which is what shipped above.
 
 </details>
 
-## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - IMPLEMENTED, NOT YET MERGED/REVIEWED (2026-09-22)
+## 3. alo.bg grid crawl silently dead since 2026-09-16 - mismarking ~88k listings "removed", some already showing as "Sold" live - DONE (2026-09-22)
 
-**Status: all 4 tasks implemented and locally verified; PR open, not
-merged. No `Agent` tool access this session (confirmed by checking, per
-the standing note in `.claude/agents/bossy.md`), so Missy has not
-reviewed this yet - see the hand-back message / PR description for the
-exact dispatch list.** Full investigation and what was actually done is
-in `docs/decisions.md`'s 2026-09-22 entry ("Backlog items 3 and 4
+**Status: all 4 tasks implemented, reviewed by Missy (she independently
+reconstructed the git-rebase-conflict semantics in a scratch repo and
+verified them herself rather than trusting the PR's claim, and re-ran
+`merge_history_conflict.py` against a real reconstructed conflict - no
+blocking problems found), and merged in
+[PR #197](https://github.com/kirilbp/bg-property-tracker/pull/197).**
+A real `scrape-large.yml` run was dispatched immediately after merge to
+confirm the fix works live and alo.bg's listing counts actually recover
+- see the top of this file / ask for current status, this needs
+confirming against the real completed run, not assumed from the code
+fix alone. Full investigation and what was actually done is in
+`docs/decisions.md`'s 2026-09-22 entry ("Backlog items 3 and 4
 implemented..."); summary:
 
 - **Task 1 (why the crawl "died") - root cause found, and it was NOT
@@ -113,63 +119,15 @@ implemented..."); summary:
 - **Task 3 (remediate corrupted status data)**: deliberately not a
   revert script - `source_status`/`"sold"` both recompute fresh from
   `history_alo.json`'s own snapshot recency every run, so a real
-  successful crawl self-heals it. **Still needs an actual post-merge run**
-  (next scheduled 03:00 UTC, or a manual dispatch) - flagged for whoever
-  picks up the dispatch list, not run from here.
+  successful crawl self-heals it. A `scrape-large.yml` run was manually
+  dispatched right after merge to confirm this live - check its result
+  (run started ~2026-09-22T14:59 UTC) before considering this task
+  fully closed.
 - **Task 4 (git-log-hygiene)**: turned out to be entangled with task 1
   after all (not just possibly, per the original task wording) - same
   `checkout --ours` bug, same fix.
 
-## 4. "Browse by Council" province matching: ~90%+ of the 9,247 "Others" bucket is a real bug, not genuinely non-Bulgarian data - MOSTLY IMPLEMENTED, NOT YET MERGED/REVIEWED (2026-09-22)
-
-From Missy's 2026-09-21 daily audit (`docs/missy-findings/2026-09-21.md`),
-filed as [issue #183](https://github.com/kirilbp/bg-property-tracker/issues/183),
-still open, no PR against it yet. Placed above everything below that isn't
-already in flight per the standing rule that a real Missy finding gets
-folded into the backlog proactively - and because the impact is live,
-investor-visible data corruption (incorrect "Sold" badges on the actual
-site), not a latent risk.
-
-**Confirmed facts:**
-- `scraper_alo.py`'s grid crawl (`fetch_listings()`, run daily via
-  `scrape-large.yml`'s `0 3 * * *` cron) has not completed successfully
-  since 2026-09-16T07:57:07Z - 5.6+ days as of the finding.
-- `GONE_AFTER = timedelta(hours=48)` (line 481) has since flipped 100% of
-  alo.bg's 87,979 tracked listings to `source_status: "removed"` (0%
-  `"active"`), vs. every other portal's healthy 8-27% removed-share.
-- `sync_to_supabase.py:773` marks a merged listing `"sold"` once *all* its
-  sources read `"removed"` - so any listing whose only tracked source is
-  alo.bg is now showing **"Sold"** on imotenradar.com and dropping out of
-  "available" filters/sort, with no real evidence it actually sold.
-- Silent because `scrape-large.yml`'s `scraper_alo.py` step has
-  `continue-on-error: true` and the commit step runs `if: always()` - a
-  dead crawl still yields a green workflow run.
-
-**Tasks (split into independently-shippable pieces for builders):**
-1. Diagnose and fix why `fetch_listings()` has been failing/producing
-   nothing since 2026-09-16 (start at `scraper_alo.py` lines 467-531 and
-   the `scrape-large.yml` logs for that step across the dead window).
-2. Make the failure loud going forward: the workflow must not report
-   green when a portal's crawl produces zero new snapshots or flips an
-   entire portal to `"removed"` in one pass - this is the same class of
-   gap "fail loud, never silent" already exists to catch, and pairs with
-   the existing near-zero-results sanity guard from item 1's Finding 1
-   (same file, same spirit, different failure shape: total staleness
-   instead of a parser returning nothing).
-3. Remediate the already-corrupted data once the crawl is restored: do
-   not blindly revert alo.bg's `"removed"` flags (5.6 days of *real*
-   removals are genuinely mixed into that window) - re-run a real fresh
-   crawl pass and let it re-establish ground truth per-listing, then
-   re-run `sync_to_supabase.py`'s status computation for any listing that
-   was wrongly flipped to "Sold" off a single stale alo.bg source.
-4. Lower priority, same item: the git-log-hygiene wrinkle Missy flagged
-   (the workflow's rebase-conflict fallback does `git checkout --ours`
-   during an active rebase, keeping upstream instead of the local run's
-   changes, burying real alo.bg updates under unrelated commit messages)
-   - fix if it turns out to be entangled with task 1's diagnosis, file
-   separately otherwise.
-
-## 4. "Browse by Council" province matching: ~90%+ of the 9,247 "Others" bucket is a real bug, not genuinely non-Bulgarian data - URGENT
+## 4. "Browse by Council" province matching: ~90%+ of the 9,247 "Others" bucket is a real bug, not genuinely non-Bulgarian data - DONE (2026-09-22)
 
 From the user directly reporting the live site, then confirmed by Missy
 sampling ~8,787 raw listings that fail the same matching logic (see
@@ -252,12 +210,18 @@ well-isolated root causes account for essentially all of it, only
    this bug's matching logic) if it turns out to be cheap alongside
    task 1-2's work; file separately otherwise.
 
-**Status (2026-09-22): tasks 1, 3, 4 implemented and locally verified;
-task 2 implemented and locally verified with a measured real impact; task
-5 investigated, not fixed. PR open, not merged - no Missy review yet (no
-`Agent` tool access this session). Full detail in `docs/decisions.md`'s
-2026-09-22 entry ("Backlog items 3 and 4 implemented..."); summary per
-task:**
+**Status (2026-09-22): tasks 1, 3, 4 implemented and verified; task 2
+implemented and verified with a measured real impact; task 5
+investigated, not fixed. Reviewed by Missy - she independently
+re-derived the entire settlement table from the original source data
+and reproduced every claimed number exactly (4,513 resolvable names,
+521 ambiguous exclusions, the 2.9%->1.8% Others-bucket drop) rather than
+trusting the PR's arithmetic, and found one non-blocking issue (a
+misleading comment in `check_scrape_freshness.py` about other portals'
+healthy activity range) that was corrected before merge. Merged in
+[PR #197](https://github.com/kirilbp/bg-property-tracker/pull/197).
+Full detail in `docs/decisions.md`'s 2026-09-22 entry ("Backlog items 3
+and 4 implemented..."); summary per task:**
 1. **Done.** `LOCATION_RE`'s own miss rate wasn't touched (that needs live
    alo.bg samples this sandbox's egress proxy blocks - same block Missy
    hit), but both compounding bugs are fixed: the `"Bulgaria"` placeholder
@@ -302,15 +266,15 @@ task:**
    access to homes.bg (to check whether the detail page has more) - this
    sandbox's egress proxy blocks it, same block Missy hit. Left open.
 
-## 4.5. imoti.net: 100% of listings mislabeled `category: "apartment"` - real, scale-confirmed bug, not yet worked - URGENT
+## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - real, scale-confirmed bug, not yet worked - URGENT
 
 From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
 filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
-Folded in per the standing rule (a real Missy finding gets added
-proactively, not only when the user points at it) - placed below items
-3/4 since those were the ones explicitly requested this session and are
-already in flight, above everything else since it's a real, live-site
-correctness bug at meaningful scale, not speculative.
+Originally folded in below items 3/4 while those were still in flight;
+**moved to the top of the active backlog per the user's explicit
+instruction (2026-09-22), once items 3/4 shipped** - it corrupts
+category filters, Comparables, and area averages for ~26,804 listings,
+a bigger blast radius than either of the two items it now follows.
 
 **Confirmed facts:** `scraper.py` crawls imoti.net's `/en/` (English)
 search URL and calls `classify_category(title)` on the scraped *English*
@@ -336,20 +300,20 @@ adding an English-keyword table to `classify_category()` alongside the
 Bulgarian one. Needs its own diagnosis pass before a builder can start,
 same as items 3/4 got before implementation.
 
-## 5. Supabase Pro plan follow-ups - PENDING
+## 6. Supabase Pro plan follow-ups - PENDING
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
 
-## 6. Motivation score rework - DONE
+## 7. Motivation score rework - DONE
 
 Shipped in PR #162: 5-component formula (relisted, distinct reductions,
 size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 7. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
+## 8. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -390,7 +354,7 @@ in the spec (section 5, "Advert Details" tab) unless noted.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 8. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
+## 9. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
 
 The core recurring-workflow loop: a paying investor's day-to-day use of
 the tool. Fully Bulgarian-replicable per spec sections 1-3 - workflow
@@ -415,7 +379,7 @@ patterns, not data-dependent.
 - Excludes the EPC icon and "yield-like %" stat on pipeline cards until
   their respective data/formula questions below are resolved.
 
-## 9. Comparables & Area Data analytics (own-data market stats + BTL stress test)
+## 10. Comparables & Area Data analytics (own-data market stats + BTL stress test)
 
 Aggregate analytics built entirely from imotenradar's own already-scraped
 listing history - no new data source required. Spec sections 4 and 5
@@ -441,24 +405,24 @@ listing history - no new data source required. Spec sections 4 and 5
   with Bulgarian-market default assumptions (BG mortgage rates, typical
   LTV terms) in place of Property Filter's UK defaults.
 
-## 10. Market Data hub (portfolio-level aggregate tiles)
+## 11. Market Data hub (portfolio-level aggregate tiles)
 
-Reuses item 9's aggregation work at a broader, cross-listing scope. Spec
+Reuses item 10's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
 listing history (price, status, time-on-market, agent) aggregated by
 area: Strategy Heat Map, Postcode Performance -> city/quarter Performance,
 Market Live Map (Yield/Asking Prices/Time On Market/Demand), Adverts
 Evolution (stock changes: Available/STC-equivalent/Removed over time),
-Agent Properties (all listings by a given agent). Sequence after item 9
+Agent Properties (all listings by a given agent). Sequence after item 10
 since it's the same underlying aggregation, wider lens.
 
-## 11. Send Letters / motivated-seller outreach campaigns
+## 12. Send Letters / motivated-seller outreach campaigns
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
 Bulgarian-replicable, high-value workflow" and a genuinely portable
 feature if imotenradar wants to pursue a deal-sourcing angle, not just an
-aggregator - but it's a materially bigger scope than items 7-10 (mail-merge
+aggregator - but it's a materially bigger scope than items 8-11 (mail-merge
 templating, a reverse address lookup, and an actual physical-mail send
 integration/partner, none of which imotenradar has any of today), so it
 sits after the smaller, faster-to-ship analytics items despite the high
@@ -479,7 +443,7 @@ value rating.
   the "Active campaigns" half is buildable - flag this as a dependency
   to resolve (likely a design-fork decision) when this item is picked up.
 
-## 12. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 13. Deal Calculator (investment strategy modeling) - needs formula work before building
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
@@ -500,7 +464,7 @@ sequenced after the items above rather than blocking on them.
 - Open question, needs Bulgarian legal confirmation before deciding:
   PLO (Purchase Lease Option) - see "Open questions" below.
 
-## 13. Preferences / settings to support items 7-12
+## 14. Preferences / settings to support items 8-13
 
 Spec section 9. Mostly small, fully-replicable settings screens that
 exist to back the features above rather than stand alone - sequence each
@@ -510,19 +474,19 @@ Preferences as one block:
   natively, so the UK mile/km toggle complexity isn't even needed),
   Search Results (motivation-indicator thresholds - already a close
   match to imotenradar's own motivation-score fields), Lead Generator
-  defaults, Pipeline (stage + tag configuration - ship with item 8),
+  defaults, Pipeline (stage + tag configuration - ship with item 9),
   Notifications (new-lead-generator-count / status-change mechanics -
-  ship with item 8), Deal Stacker defaults (BG mortgage-rate defaults -
-  ship with item 9's Stress Test), Calendar integration, Letters defaults
-  (ship with item 11), Deal Calculator Templates defaults (replace UK
+  ship with item 9), Deal Stacker defaults (BG mortgage-rate defaults -
+  ship with item 10's Stress Test), Calendar integration, Letters defaults
+  (ship with item 12), Deal Calculator Templates defaults (replace UK
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
-  item 12).
+  item 13).
 
-## 14. Map tab additions
+## 15. Map tab additions
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
-ship alongside item 7. The one genuinely good UK-concept-with-a-real-BG-
+ship alongside item 8. The one genuinely good UK-concept-with-a-real-BG-
 substitute is worth calling out on its own: **cadastral map integration**
 ("Title Plans"/"Title Boundaries" substitute) - Bulgaria's Кадастрална
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
@@ -530,10 +494,10 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 15. Visual/premium design refresh
+## 16. Visual/premium design refresh
 
 Spec's closing "Design direction" section, not a feature but a directive
-that should land as part of items 7-10's builds rather than a standalone
+that should land as part of items 8-11's builds rather than a standalone
 pass: richer typography (serif/high-contrast display face for headings),
 more generous whitespace between listing-card elements, a refined
 restrained palette (deep neutral tones + one considered accent) in place
@@ -552,18 +516,18 @@ only the specific sub-feature named, not the whole item it belongs to:
   would come from Имотен регистър (Registry Agency) / Кадастър, but
   unlike UK Land Registry it's not known whether transaction-price data
   is openly scrapable in Bulgaria. Blocks: the *true* "Last Sold Data"
-  histogram in item 9 (asking-price version ships regardless), the
-  "Last sold(Land reg)" count pill in item 9's Comparables view, and the
-  Market Data hub's "Last Sold Map" tile in item 10.
-- **Price vs Income tile** (item 10) - Bulgaria's NSI does publish
+  histogram in item 10 (asking-price version ships regardless), the
+  "Last sold(Land reg)" count pill in item 10's Comparables view, and the
+  Market Data hub's "Last Sold Map" tile in item 11.
+- **Price vs Income tile** (item 11) - Bulgaria's NSI does publish
   regional income data publicly, but granularity match to this tile's
   needs is unverified.
-- **Census Data overlay** (item 14) - NSI publishes census data; unknown
+- **Census Data overlay** (item 15) - NSI publishes census data; unknown
   whether it's available at fine enough geocoded granularity/overlay
   form.
-- **Crime data map** (item 14) - no known equivalent to UK police.uk's
+- **Crime data map** (item 15) - no known equivalent to UK police.uk's
   public, fine-grained geocoded crime dataset for Bulgaria.
-- **Planning Applications** (items 9/10) - no known equivalent to the UK's
+- **Planning Applications** (items 10/11) - no known equivalent to the UK's
   standardized, often API-accessible per-council planning-application
   data in Bulgaria.
 - **Bulgarian energy-efficiency certificate as an EPC substitute** (items
@@ -571,7 +535,7 @@ only the specific sub-feature named, not the whole item it belongs to:
   scheme (A-G-ish bands), but whether imotenradar's scraped source
   portals actually expose it is unknown. Omit the field entirely until
   confirmed rather than faking it.
-- **PLO (Purchase Lease Option) strategy** (item 12) - relies on a UK
+- **PLO (Purchase Lease Option) strategy** (item 13) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
   call.
@@ -588,7 +552,7 @@ benefits/rent-cap scheme), Title Split - Hold/Sell strategy,
 Freehold/Leasehold tenure toggle (Bulgarian tenure is effectively always
 freehold-equivalent), "Low EPC"/"Short Lease" letter-campaign situation
 types, Stamp Duty as a field (replaced by a Bulgarian transfer-tax %
-default instead, see item 13), and the UK-broker-specific "Get Finance"
+default instead, see item 14), and the UK-broker-specific "Get Finance"
 partner tab (lowest priority of all 7 listing-detail tabs per spec;
 revisit only as a monetization feature if a Bulgarian mortgage-broker
 partnership is ever pursued - not part of the current build).
@@ -601,7 +565,7 @@ source screenshots were desktop), alert-email behavior (vs. in-app
 notifications), exact export file contents (CSV/PDF/etc.), validation/
 error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
-these block starting items 7-15; revisit if/when they turn out to matter
+these block starting items 8-16; revisit if/when they turn out to matter
 for a specific item.
 
 ## Parked - do not start
