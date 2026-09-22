@@ -2610,13 +2610,40 @@ function pointInPolygon(lat, lng, polygon) {
   return inside;
 }
 
+// Maps the Lead Generator modal's 4 legacy property-type checkboxes
+// (still the old classify_category() 4-value vocabulary - see the
+// checkbox markup's own values: apartment/house/land/commercial) onto
+// typeFilterBucket()'s finer 6-bucket scheme, the same normalization
+// findComparables() already applies against raw category (see its own
+// comment above) for the same underlying reason. Real bug fixed
+// alongside docs/backlog.md item 5: matchesLeadGenerator() used to
+// compare a listing's raw l.category directly against these old-
+// vocabulary strings, so any listing already migrated to the new
+// category_classifier.py vocabulary (alo.bg's own "flat"/"garage"/
+// "shop"/"business", and now imoti.net's too, ~26,881 listings) could
+// never match a saved Lead Generator search filtered by the "Apartment"/
+// "Commercial" checkboxes ("flat" !== "apartment") - silently dropping
+// those listings from every matching saved search with no visible trace.
+// "Commercial" is a coarser bucket than the type filter's own 3
+// (garage/shop/business) - the checkbox never distinguished them, so all
+// 3 map back to it.
+const LEGACY_PROPERTY_TYPE_TO_BUCKETS = {
+  apartment: ['flat'],
+  house: ['house'],
+  land: ['land'],
+  commercial: ['garage', 'shop', 'business'],
+};
+
 function matchesLeadGenerator(l, gen) {
   if (!gen) return true;
   const f = gen.filters || {};
   if (f.minPrice != null && l.price_eur < f.minPrice) return false;
   if (f.maxPrice != null && l.price_eur > f.maxPrice) return false;
   if (f.minSqm != null && (l.sqm || 0) < f.minSqm) return false;
-  if (f.propertyTypes && f.propertyTypes.length && !f.propertyTypes.includes(l.category || 'apartment')) return false;
+  if (f.propertyTypes && f.propertyTypes.length) {
+    const allowedBuckets = f.propertyTypes.flatMap(t => LEGACY_PROPERTY_TYPE_TO_BUCKETS[t] || [t]);
+    if (!allowedBuckets.includes(typeFilterBucket(l))) return false;
+  }
 
   const area = gen.area || {};
   if (area.mode === 'neighborhood') {

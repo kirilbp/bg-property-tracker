@@ -38,17 +38,49 @@ CATEGORY_KEYWORDS = {
     "shop": [
         "магазин", "заведение", "ресторант", "кафене", "витрина за", "търговски обект",
         "магазини", "magazin", "zavedenie", "shop", "store",
+        # "restaurant"/"tyrgovski obekt": imoti.net's own English listing
+        # text for these (e.g. title "Restaurant", URL slug
+        # "tyrgovski-obekt") - confirmed live against real committed data
+        # (docs/backlog.md item 5) that neither matched anything here
+        # before, since every other shop keyword is Bulgarian/Cyrillic or a
+        # different Latin transliteration. "tyrgovski" (not the full
+        # phrase) also catches the URL's hyphenated "tyrgovski-obekt" form.
+        "restaurant", "tyrgovski",
     ],
     "business": [
         "офис", "склад", "хале", "производствен", "производство", "фабрика",
         "хотел", "бензиностанция", "газстанция", "автомивка", "индустриален имот",
         "бизнес имот", "търговски имот", "инвестиционен имот", "сграда за офиси",
         "ofis", "sklad", "hotel", "office", "warehouse",
+        # "industrial property"/"commercial property": imoti.net's own
+        # English titles for these - confirmed live these didn't match any
+        # existing keyword (all Cyrillic-only for this nuance, or
+        # "промишлен"/"promishlen" wasn't listed either). Deliberately the
+        # full phrase, not a bare "industrial"/"commercial" - a real,
+        # confirmed-live false positive: "Industrial Zone"/"Промишлена
+        # зона" ("Industrialna Zona"/"Promishlena Zona") is a genuinely
+        # common Bulgarian district name (Burgas, Haskovo, Yambol, Vratsa,
+        # Plovdiv all have one), so a bare "industrial"/"promishlen"
+        # keyword wrongly matched ordinary flats/houses/studios located IN
+        # that district as if "industrial" described the property itself
+        # (e.g. "House, 21 м2 ... Industrial zone - South" is a real
+        # house, not a business property) - see docs/backlog.md item 5.
+        # "promishlen-imot" (the real URL slug, hyphenated) is similarly
+        # exact rather than bare "promishlen", which is a substring of
+        # "promishlena" (the district-name spelling) and would have the
+        # same collision via the URL signal.
+        "industrial property", "commercial property", "promishlen-imot",
     ],
     "land": [
         "парцел", "земеделска земя", "земеделски имот", "урегулиран поземлен имот",
         " упи ", "упи,", "имот за строеж", "терен", "нива", "дворно място",
         "парцел с къща", "parcel", "teren", "niva", "plot",
+        # "agricultural land"/"development land": imoti.net's own English
+        # titles for these; "zemedelski" catches its URL slug
+        # ("zemedelski-imot") the same way "parcel" already catches
+        # imoti.net's "parcel" URL slug - confirmed live neither matched
+        # before (docs/backlog.md item 5).
+        "agricultural land", "development land", "zemedelski",
     ],
     "house": [
         "къща", "вила", "етаж от къща", "таунхаус", "еднофамилна къща",

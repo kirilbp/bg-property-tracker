@@ -80,7 +80,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, extract_coords_imoti_net, extract_photos_imoti_net, compute_motivation_score, listing_city_key, prune_snapshots
+from category_classifier import classify_listing
+from geo_utils import extract_coords_imoti_net, extract_photos_imoti_net, compute_motivation_score, listing_city_key, prune_snapshots
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.imoti.net/en/obiavi/r/prodava"
@@ -230,6 +231,26 @@ def fetch_listings_page(url, seen, city_name):
         if not title:
             continue
 
+        # Real bug, confirmed against live committed data (docs/backlog.md
+        # item 5): this used to call geo_utils.classify_category(title),
+        # whose keyword table is Bulgarian-only. Every imoti.net title is
+        # scraped from the site's /en/ (English) path (see module
+        # docstring), so it could never match a single keyword there and
+        # 100% of imoti.net's 26,804+ listings silently fell through to
+        # that function's own documented "apartment" default - even though
+        # imoti.net's own search isn't apartment-scoped (its scraped
+        # listing URLs carry 20+ distinct Bulgarian property-type slugs:
+        # kashta, parcel, garaj, magazin, ofis, etc. - real houses/land/
+        # garages/shops/offices all bucketed "apartment" on the live site).
+        # category_classifier.classify_listing() is the shared
+        # nationwide-expansion classifier already used by scraper_alo.py/
+        # scraper_imoti_bg.py for this exact reason - it scores both the
+        # title AND url (imoti.net's own listing URL embeds that same
+        # Bulgarian type slug, e.g. ".../kashta/1234/") as independent
+        # signals, so a listing still classifies correctly even when only
+        # one of the two carries a recognizable word for it.
+        category, category_confidence, _ = classify_listing(title=title, url=full_url)
+
         seen[listing_id] = {
             "id": listing_id,
             "url": full_url,
@@ -240,7 +261,8 @@ def fetch_listings_page(url, seen, city_name):
             "city": city_name,
             "title": title,
             "portal": "imoti.net",
-            "category": classify_category(title),
+            "category": category,
+            "category_confidence": category_confidence,
         }
     return len(matching_links)
 

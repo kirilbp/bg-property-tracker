@@ -541,3 +541,214 @@ titles) - added as backlog item 4.5, below items 3/4 since those were the
 ones explicitly requested this session, above the rest since it's a real,
 scale-confirmed (at minimum 4,916/26,804 listings, 18.3%) live-site
 correctness bug, not speculative.
+
+### 2026-09-22 - imoti.net 100%-"apartment" miscategorization (backlog item 5): root-caused and fixed
+
+**Root cause, confirmed against real committed data, not guessed:**
+`scraper.py` (imoti.net's own scraper) crawls the site's `/en/` (English)
+path and still called `geo_utils.classify_category(title)`, whose keyword
+table is Bulgarian-only - so the scraped English title could never match
+anything and every listing fell through to that function's own documented
+`"apartment"` default. Confirmed live in `data/history.json`: all 26,881
+imoti.net records had `category: "apartment"` before this fix, with zero
+exceptions (matches Missy's 2026-09-22 finding almost exactly - the small
+gap between her cited 26,804 and this session's 26,881 turned out to be
+pre-existing staleness in the committed `data/leads.json`, unrelated to
+category, self-corrected as a side effect of this fix - see below).
+
+Also confirmed, not assumed: `category_classifier.py`'s
+`classify_listing()` - the shared nationwide-expansion classifier already
+adopted by `scraper_alo.py` and `scraper_imoti_bg.py` for this exact class
+of bug - scores three independent signals (title/description/url) and
+already includes several English keywords, so migrating `scraper.py` onto
+it (instead of hand-rolling an imoti.net-specific classifier, or switching
+the whole scraper to crawl imoti.net's Bulgarian-language URL/title, the
+two options the backlog entry left open) was both the smaller change and
+the one consistent with how the other two already-migrated portals handle
+it. imoti.net's own listing URL turned out to already embed a fully
+reliable Bulgarian-language type slug right before the numeric ID (e.g.
+`.../kashta/1234567/`, `.../garaj/.../`, `.../parcel/.../`) - a closed,
+site-controlled vocabulary, so passing both `title=` and `url=` into
+`classify_listing()` gives two independent, largely-agreeing signals with
+no network call needed (both were already scraped). Re-verified live that
+imoti.net's price/sqm/date extraction (`BGN_RE`/`SQM_RE`/`DATE_POSTED_RE`)
+doesn't depend on title language at all, so switching the crawl to
+Bulgarian URLs would have been the strictly bigger, riskier change for no
+extra benefit here.
+
+**A real regression caught and fixed before shipping, not just assumed
+safe:** the first version of this fix added bare `"industrial"` and
+`"promishlen"` keywords to `category_classifier.py`'s `business` category
+(imoti.net's own English titles literally say "Industrial property"/
+"Commercial property" for these). Running the new classifier against the
+*entire* real `data/history.json` (not just a sample) surfaced 308 tied-
+category results, and inspecting them found a real false positive: "Индус-
+триална зона"/"Промишлена зона" ("Industrial Zone"/"Industrialna Zona"/
+"Promishlena Zona") is a genuinely common Bulgarian district name (Burgas,
+Haskovo, Yambol, Vratsa, Plovdiv, Gabrovo, Lovech all have one) - so the
+bare keyword wrongly flagged ordinary flats/houses/studios *located in*
+that district as "business", e.g. `"House, 21 м2 ... Industrial zone -
+South"` (a real house) tying/losing against its own location text. Fixed
+by using the full phrases actually present in imoti.net's titles
+("industrial property"/"commercial property") and the exact hyphenated URL
+slug ("promishlen-imot") instead of the bare words, which don't collide
+with the district-name spelling ("promishlena"/"industrialna"). Re-ran
+against the full dataset after the fix: ties dropped from 308 to 1 (a
+single genuine, unavoidable edge case - a Pleven district literally named
+"Hotel Balkan" colliding with the pre-existing "hotel" keyword, not
+introduced by this change, one listing out of 26,881).
+
+**Regression-checked against the portals already on this classifier**,
+not just assumed safe because the new keywords are English/Latin: re-ran
+`classify_listing()` before/after this change against a 5,000-listing
+random sample of `data/history_alo.json` (alo.bg) and the full 908-record
+`data/history_imoti_bg.json` (imoti.bg) - zero category changes in either,
+confirming the new keywords are specific enough not to catch anything in
+those portals' Bulgarian-language text.
+
+**Verified against real data, the way Missy's own audits do, not just
+"the script ran without crashing":** sampled real records and checked the
+classified category against the listing's own stored title/URL by hand
+(e.g. `kashta` URL slug + `"House, ..."` title -> `house`; `garaj` +
+`"Garage, ..."` -> `garage`; `magazin` + `"Shop, ..."` -> `shop`) across
+dozens of listings, all correct. Full-dataset result after the fix:
+21,399 flat, 2,360 land, 1,436 house, 750 business, 603 shop, 333 garage
+(was 26,881/26,881 "apartment", 100%, before).
+
+**Correction (Missy's PR #199 review, 2026-09-22):** this entry originally
+claimed "92.6% high confidence, 0.26% low-confidence residual," implying
+those two numbers accounted for the whole dataset. They don't - the real
+breakdown, recomputed independently from the committed data, is 91.73%
+high confidence (24,659) / 8.27% low confidence (2,222). The 0.26% figure
+(71/26,881) is accurate but only covers the `no_keyword_match` subset
+(things like "Building"/"Hall"/"Forest"/"Farm" with no recognizable
+keyword in either signal - the same small, accepted-residual pattern
+already established for backlog item 4's task 5). It silently omitted the
+other 2,150 records (8.0%) that are low-confidence for a different,
+previously-undocumented reason: `single_signal_only`. Missy hand-checked
+15 of those and found all correctly categorized (e.g. "3 bedroom
+apartment"/`chetiristaen` URL -> flat), so this isn't a misclassification
+risk - it's a real but pre-existing gap in `category_classifier.py`'s
+`flat` keyword list, which has "ednostaen"/"dvustaen"/"tristaen" but is
+missing "chetiristaen" (4-room) and "mnogostaen" (multi-room), so the
+URL-slug signal silently fails to match on those even though the title
+signal still does. Not introduced by this PR (the diff never touched the
+`flat` keyword list) - filed as its own small follow-up rather than
+re-opening this fix. `category_confidence` is stored on every listing
+precisely so a gap like this gets flagged accurately, not undersold.
+
+**Remediated already-committed data, not just fixed forward:** wrote
+`backfill_category_imoti_net.py`, a one-off, purely-local script (title
+and url are already stored per listing - no network call needed) that
+reclassifies every existing `data/history.json` record and regenerates
+`data/leads.json` via `scraper.py`'s own `compute_leads()`. Chose this
+over waiting for the next scheduled crawl to self-heal because a listing
+that's since gone "removed" would never be re-visited by `fetch_listings()`
+again and would stay permanently mislabeled otherwise. Diffed the full
+before/after `leads.json` by id: same 26,881 ids, only
+`category`/`category_confidence`/`score`/`area_avg_price_per_sqm`/
+`pct_vs_area_avg` changed for any record (the last three are expected
+downstream effects of category changing which area-average bucket a
+listing falls into, not a bug) - no price/sqm/url/title/other field
+touched.
+
+**A second real, related bug found and fixed in the same change, not
+deferred:** `index.html`'s `matchesLeadGenerator()` (the Lead Generators
+feature already live on the site, predating the bigger Property Filter-
+spec rebuild in backlog item 9) compared a listing's raw `category`
+directly against the Lead Generator modal's 4 checkbox values (still the
+*old* `classify_category()` vocabulary: apartment/house/land/commercial).
+`findComparables()` elsewhere in `index.html` already documents exactly
+this old-vs-new-vocabulary mismatch and normalizes through
+`typeFilterBucket()` first - `matchesLeadGenerator()` never got the same
+treatment. Left as-is, this fix would have made the live bug meaningfully
+worse: every one of imoti.net's 26,881 listings, now correctly reporting
+`"flat"/"house"/"land"/"garage"/"shop"/"business"` instead of always
+`"apartment"`, would have silently stopped matching any saved Lead
+Generator search filtered to "Apartment" or "Commercial" (`"flat" !==
+"apartment"`), on top of alo.bg/imoti.bg listings already silently broken
+this way today. Fixed by adding the same bucket-normalization
+(`LEGACY_PROPERTY_TYPE_TO_BUCKETS`, mapping the 4 checkbox values onto
+`typeFilterBucket()`'s 6 buckets, "Commercial" covering all of garage/
+shop/business) `matchesLeadGenerator()` was missing. Verified with a
+standalone Node harness against the extracted functions: both old-vocab
+("apartment") and new-vocab ("flat") listings now correctly match the
+"Apartment" filter, and garage/shop/business listings all correctly match
+"Commercial".
+
+**Not done, explicitly deferred to the dispatch list (this session had no
+`Agent` tool access):** Missy's real review. Implemented, self-verified
+against real data (not a self-review of the *design*, a real diff/sample/
+regression check against the actual committed data and a Node-run
+functional test of the JS change), but that is not a substitute for her
+actually looking at it, per the standing "nothing ships without Missy"
+rule. Opened as
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
+(`claude/bg-property-tracker-setup-30c2rp` -> `main`), not merged - the
+PR itself asks for Missy's review before merge. Not auth/security/
+credentials/personal-data, so Revy's narrower gate doesn't apply by this
+session's own read of the standing rule. See the hand-back message for
+the exact dispatch list.
+
+### 2026-09-22 - Site performance (backlog item 6): root-caused, deliberately not implemented this session
+
+The user raised this directly and unprompted, mid-session, while the
+imoti.net category fix above was in flight: the live site is very slow to
+load/refresh. Confirmed the coordinator's own quick diagnosis by reading
+the real code rather than taking it on faith - `index.html`'s
+`loadData()` -> `fetchAllRows('merged_listings')` does
+`sb.from('merged_listings').select('*').order('id').limit(1000)` in a
+sequential keyset-pagination loop, pulling the *entire* `merged_listings`
+table into the browser on every single page load, for every visitor,
+regardless of what they're viewing - hundreds of thousands of rows, each
+one heavy (`description`, a `photos` jsonb array, and a `price_history`
+jsonb array per row, per `supabase/schema.sql`, all pulled via
+unrestricted `select('*')`). Confirmed no caching layer exists at all
+(grepped for `localStorage`/`IndexedDB` usage against `MERGED_LISTINGS` -
+none), so this repeats in full on every refresh, not just first visit.
+Confirmed the schema already has 10 real indexes on `merged_listings`
+(price/sqm/area/city_key/type_bucket/score/days_on_market/drop_pct/
+status/oblast_key) - so this isn't a missing-index problem, it's purely
+architectural (fetch-everything-then-filter-client-side). One real open
+design question found and flagged, not resolved: `area_avg_price_per_sqm`/
+`pct_vs_area_avg` are already precomputed server-side per row, so most of
+the app doesn't actually need the full dataset in memory - but
+`findComparables()`'s radius search does an in-memory scan by lat/lng
+that would need a real geo index (none exists yet) to move server-side
+properly.
+
+**Deliberately not implemented this session, for two real reasons, not
+laziness:**
+
+1. **No `Agent` tool access**, and the coordinator's own message flagged
+   that `index.html` may be under active concurrent edit by Dessy (backlog
+   item 9's listing-detail redesign) - confirmed the underlying risk is
+   real, not hypothetical: another agent (Selly) pushed a commit to this
+   exact shared branch (`claude/bg-property-tracker-setup-30c2rp`) while
+   this session was mid-task. Editing the same large file in parallel with
+   an agent this session has no way to message or check the live state of
+   risks a real collision. Rather than guess at sequencing blindly, this
+   is left for the coordinator to resolve directly with Dessy (or by
+   sequencing after her current PR ships) before any builder touches
+   `index.html` for this.
+2. **This sandbox's egress proxy blocks direct network access to
+   Supabase** (confirmed live: a `curl` to `eoufgmmgwczixfajebhc.
+   supabase.co` from this session returned a 403 from the proxy) - so a
+   real "before" measurement (payload size/row count/load time), which
+   the user explicitly asked to be verified against real measurements
+   rather than assumed, needs a live browser/network-capable environment
+   or a GitHub Actions dispatch to get real numbers. Estimated the order
+   of magnitude from what's actually committed (the ~304,988-raw-listing
+   figure already measured for backlog item 4) rather than fabricating a
+   precise number, and said so plainly in the backlog entry.
+
+Added as backlog item 6 (urgent, second in the active queue after item 5,
+which is already fixed and awaiting only Missy's review/merge) with a
+recommended fix direction (server-side filtered/paginated queries scoped
+to what's actually being viewed, narrower `select()` columns, a real
+cache layer, the `findComparables()` open question flagged for the
+implementer) and an explicit dispatch order: (1) resolve the Dessy
+sequencing question, (2) a general-purpose builder implements (Supabase
+query/architecture work, not visual/layout, despite touching
+`index.html`), (3) real before/after measurement, (4) Missy's review, (5)
+PR to `main`. See the hand-back message for the exact dispatch list.

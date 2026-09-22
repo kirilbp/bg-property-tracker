@@ -266,7 +266,7 @@ and 4 implemented..."); summary per task:**
    access to homes.bg (to check whether the detail page has more) - this
    sandbox's egress proxy blocks it, same block Missy hit. Left open.
 
-## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - real, scale-confirmed bug, not yet worked - URGENT
+## 5. imoti.net: 100% of listings mislabeled `category: "apartment"` - fixed and verified, awaiting Missy's review before merge - URGENT
 
 From Missy's 2026-09-22 daily audit (`docs/missy-findings/2026-09-22.md`,
 filed as [issue #194](https://github.com/kirilbp/bg-property-tracker/issues/194)).
@@ -292,28 +292,188 @@ filters. Not the same as the already-documented bcpea.org case (that
 portal's own apartment-only search URL makes the "apartment" default
 correct there); imoti.net has no such workaround.
 
-**Not yet worked - no tasks defined this session.** A real fix likely
-means either (a) crawling imoti.net's Bulgarian-language URL/title
-instead of `/en/` (bigger change - re-verify whether other already-
-working extraction, e.g. price/sqm parsing, assumes English text), or (b)
-adding an English-keyword table to `classify_category()` alongside the
-Bulgarian one. Needs its own diagnosis pass before a builder can start,
-same as items 3/4 got before implementation.
+**Status (2026-09-22): root-caused, fixed, verified against real data,
+already-committed data remediated - not yet merged, needs Missy's real
+review (this session had no `Agent` tool access, see the hand-back/dispatch
+note below).** Full investigation, the real regression caught and fixed
+before shipping (a keyword collision with a common Bulgarian district
+name), the regression check against the portals already on this
+classifier, and a second related bug found and fixed in the same change
+(Lead Generator saved-search filtering) are all in `docs/decisions.md`'s
+2026-09-22 entry ("imoti.net 100%-'apartment' miscategorization... root-
+caused and fixed"). Summary:
 
-## 6. Supabase Pro plan follow-ups - PENDING
+- **Real fix**: `scraper.py` migrated from `geo_utils.classify_category()`
+  (Bulgarian-keyword-only) to `category_classifier.classify_listing()` -
+  the shared classifier `scraper_alo.py`/`scraper_imoti_bg.py` already use
+  for this exact reason - passing both the scraped title and the listing's
+  own URL (which embeds a reliable Bulgarian-language type slug, e.g.
+  `.../kashta/1234/`) as independent signals. Chose this over switching
+  the whole scraper to crawl imoti.net's Bulgarian-language pages (the
+  bigger, riskier option) since price/sqm/date extraction there doesn't
+  depend on title language at all.
+- Added a handful of English/Latin keywords to `category_classifier.py`
+  for gaps confirmed live in imoti.net's own English titles/URLs
+  (agricultural/development land, industrial/commercial property,
+  restaurant, etc.) - scoped to the exact phrases observed, after an
+  initial broader version caused a real false positive against a common
+  Bulgarian district name ("Industrial Zone") and was tightened.
+  Regression-checked with zero category changes against a 5,000-listing
+  alo.bg sample and the full imoti.bg dataset.
+- **Already-committed data remediated**, not just fixed forward:
+  `backfill_category_imoti_net.py` reclassified all 26,881 existing
+  `data/history.json`/`data/leads.json` records locally (title/url already
+  stored, no re-crawl needed). Result: 21,399 flat, 2,360 land, 1,436
+  house, 750 business, 603 shop, 333 garage (was 100% "apartment").
+  **Corrected by Missy's PR review (2026-09-22)**: confidence breakdown is
+  actually 91.73% high confidence (24,659) / 8.27% low confidence (2,222),
+  not the "92.6%/0.26%" originally claimed here - that 0.26% figure
+  (71/26,881) only covered the `no_keyword_match` subset and omitted
+  2,150 records (8.0%) that are low-confidence for a separate reason,
+  `single_signal_only`. Missy hand-checked 15 `single_signal_only`
+  records and found all correctly categorized - traced to a real but
+  pre-existing gap in `category_classifier.py`'s `flat` keyword list
+  (has "ednostaen"/"dvustaen"/"tristaen" but is missing "chetiristaen"
+  4-room and "mnogostaen" multi-room), which silently fails the URL-slug
+  signal on those listings even though the title signal still matches -
+  a scoring artifact, not a misclassification risk, and not introduced by
+  this PR. Worth its own small follow-up to add the missing keywords.
+- **Second bug found and fixed in the same change**: `index.html`'s
+  `matchesLeadGenerator()` compared raw `category` against the Lead
+  Generator modal's old-vocabulary checkboxes, which this fix would have
+  made meaningfully worse (26,881 more listings changing vocabulary).
+  Fixed to normalize through `typeFilterBucket()` like `findComparables()`
+  already does.
+
+**Not yet done - dispatch needed:** this session had no `Agent` tool
+available to spawn Missy for real review. Implemented and verified
+directly against real data instead of skipped, but that isn't a
+substitute for her review, per the standing "nothing ships without Missy"
+rule. Opened as
+[PR #199](https://github.com/kirilbp/bg-property-tracker/pull/199)
+(`claude/bg-property-tracker-setup-30c2rp` -> `main`) rather than merged -
+needs: (1) Missy's real review against her rubric, (2) merge to `main`
+once she signs off. Revy's review is not required (no auth/security/
+credentials/personal-data surface touched).
+
+## 6. Site is very slow to load/refresh - root-caused, not yet fixed - URGENT
+
+From the user directly, unprompted (2026-09-22) - the live site
+(imotenradar.com) refreshes/loads very slowly and needs to be made as
+fast as possible.
+
+**Root cause, confirmed by reading the real code (`index.html`), not
+guessed:** every single page load calls `loadData()` ->
+`fetchAllRows('merged_listings')`, which does
+`sb.from('merged_listings').select('*').order('id').limit(1000)` in a
+sequential keyset-pagination loop until it has pulled the **entire**
+`merged_listings` table into the browser - on every refresh, for every
+visitor, regardless of what they're actually looking at. `merged_listings`
+is in the hundreds of thousands of rows (the same order of magnitude as
+the ~304,988-raw-listing figure already measured for backlog item 4's
+work, before cross-portal dedup) and each row is genuinely heavy - the
+schema (`supabase/schema.sql`) includes a free-text `description`, a
+`photos` jsonb array, and a `price_history` jsonb array per row, on top of
+every numeric/text field, all pulled via `select('*')` (no column
+narrowing at all). Batches are fetched **sequentially, not in parallel**
+(a documented, deliberate tradeoff for keyset-pagination correctness - see
+`fetchAllRows()`'s own comment), so total load time is roughly (row count
+/ 1000) sequential round trips, each paying full network latency on top
+of its own transfer time. **No caching layer at all** - confirmed via
+grep, no `localStorage`/`IndexedDB` caching of `MERGED_LISTINGS` anywhere
+- so this full fetch repeats from zero on every single refresh, not just
+first visit.
+
+**Not simply a missing-index problem** - `supabase/schema.sql` already
+has indexes on `price_eur`, `sqm`, `area`, `city_key`, `type_bucket`,
+`score`, `days_on_market`, `drop_pct`, `status`, and `oblast_key`, so the
+schema is already reasonably well-prepared for real server-side filtered
+queries; there's no `lat`/`lng` index yet, which will matter once
+map/radius queries move server-side (see below). The real problem is
+purely architectural: the client fetches everything, unfiltered, into an
+in-memory `MERGED_LISTINGS` array, and essentially the whole SPA (listings
+table/filters, home dashboard counts, map, per-listing lookups, area
+dropdowns - confirmed via grep, `MERGED_LISTINGS` is referenced in 28
+places across `index.html`) then operates against that in-memory copy.
+That's a genuinely cross-cutting change, not a quick tweak.
+
+**Connects to, but is not solved by, backlog item 7** (Supabase Pro
+follow-ups): the code comment explaining why a full-table client load was
+accepted in the first place cites free-tier connection-pool exhaustion as
+the reason a fuller per-listing (`listing_sources`) load was cut back -
+i.e. this design predates the Pro upgrade and was shaped around the old
+500 MB/connection-pool constraints item 7 already flags for revisiting.
+But even on Pro, shipping a multi-hundred-thousand-row, heavy-jsonb table
+to every browser on every refresh is a real UX problem regardless of
+backend capacity - this needs an actual query/architecture fix, not just
+"now allowed since we're on Pro."
+
+**One real complication already spotted, not yet resolved:** several
+columns (`area_avg_price_per_sqm`, `pct_vs_area_avg`) are already
+precomputed server-side per row by `sync_to_supabase.py`, so the area-
+average/Comparables numbers shown on an individual listing do NOT need
+the full dataset in browser memory - that's good news, it de-risks most of
+the fix. But `findComparables()`'s own radius search does an in-memory
+`MERGED_LISTINGS.filter()` scan by lat/lng distance against whatever's
+currently loaded - moving that server-side properly would need a real
+lat/lng index (PostGIS or a bounding-box index) that doesn't exist yet,
+and is a legitimate open design question for whoever implements this, not
+answered here.
+
+**Not yet attempted - deliberately not touched this session.** Two real
+blockers, not laziness: (1) this session has no `Agent` tool, so it can't
+safely coordinate live with Dessy, who may be actively mid-edit on this
+exact file (`index.html`) for backlog item 9's listing-detail redesign -
+editing the same large file in parallel without a way to check her
+current state risks a real collision, not a hypothetical one (confirmed
+live during this session: another agent, Selly, pushed a commit to this
+same shared branch while this session was working, so concurrent pushes
+to this branch are a real, current condition, not a remote possibility);
+(2) this sandbox's egress proxy blocks direct network access to Supabase
+(confirmed live: a `curl` to `eoufgmmgwczixfajebhc.supabase.co` from this
+session returned a 403 from the proxy), so a real "before" measurement
+(actual payload size / row count / load time) needs either a live
+browser/network-capable environment or a GitHub Actions dispatch to get
+real numbers, neither of which this session can do itself.
+
+**Recommended shape for whoever picks this up** (not a full design, real
+judgment still needed by the implementer): move the primary listings
+view (table/filters/map) to server-side filtered + paginated Supabase
+queries driven by whatever the user is actually viewing (current filter
+set, visible map viewport, current page), narrow `select()` to only the
+columns each view actually needs (the heavy `description`/`photos`/
+`price_history` jsonb columns almost certainly don't belong in a bulk
+list-view fetch), add a real cache layer (localStorage/IndexedDB) so an
+ordinary refresh doesn't always re-fetch from zero, and treat a genuine
+full-dataset load (if anything still needs one) as a rare, background,
+cached operation rather than something blocking every page load. Decide
+the `findComparables()` radius-search question above as part of the same
+pass rather than leaving it broken.
+
+**Dispatch needed, in this order:** (1) resolve the `index.html` editing
+sequencing with Dessy first - either wait for her current PR to ship then
+layer this on top, or split the file's concerns cleanly with her directly
+- neither of which this session can do without `Agent` tool access; (2) a
+builder (general-purpose - this is Supabase query/data-architecture work,
+not visual/layout, even though it touches `index.html`) implements the
+fix; (3) real before/after measurement (payload size, load time) against
+live data, not assumed; (4) Missy's review; (5) PR to `main`. Not auth/
+security/credentials/PII, so Revy's review is not required.
+
+## 7. Supabase Pro plan follow-ups - PENDING
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
 
-## 7. Motivation score rework - DONE
+## 8. Motivation score rework - DONE
 
 Shipped in PR #162: 5-component formula (relisted, distinct reductions,
 size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 8. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
+## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -354,7 +514,7 @@ in the spec (section 5, "Advert Details" tab) unless noted.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 9. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
+## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
 
 The core recurring-workflow loop: a paying investor's day-to-day use of
 the tool. Fully Bulgarian-replicable per spec sections 1-3 - workflow
@@ -379,7 +539,7 @@ patterns, not data-dependent.
 - Excludes the EPC icon and "yield-like %" stat on pipeline cards until
   their respective data/formula questions below are resolved.
 
-## 10. Comparables & Area Data analytics (own-data market stats + BTL stress test)
+## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test)
 
 Aggregate analytics built entirely from imotenradar's own already-scraped
 listing history - no new data source required. Spec sections 4 and 5
@@ -405,24 +565,24 @@ listing history - no new data source required. Spec sections 4 and 5
   with Bulgarian-market default assumptions (BG mortgage rates, typical
   LTV terms) in place of Property Filter's UK defaults.
 
-## 11. Market Data hub (portfolio-level aggregate tiles)
+## 12. Market Data hub (portfolio-level aggregate tiles)
 
-Reuses item 10's aggregation work at a broader, cross-listing scope. Spec
+Reuses item 11's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
 listing history (price, status, time-on-market, agent) aggregated by
 area: Strategy Heat Map, Postcode Performance -> city/quarter Performance,
 Market Live Map (Yield/Asking Prices/Time On Market/Demand), Adverts
 Evolution (stock changes: Available/STC-equivalent/Removed over time),
-Agent Properties (all listings by a given agent). Sequence after item 10
+Agent Properties (all listings by a given agent). Sequence after item 11
 since it's the same underlying aggregation, wider lens.
 
-## 12. Send Letters / motivated-seller outreach campaigns
+## 13. Send Letters / motivated-seller outreach campaigns
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
 Bulgarian-replicable, high-value workflow" and a genuinely portable
 feature if imotenradar wants to pursue a deal-sourcing angle, not just an
-aggregator - but it's a materially bigger scope than items 8-11 (mail-merge
+aggregator - but it's a materially bigger scope than items 9-12 (mail-merge
 templating, a reverse address lookup, and an actual physical-mail send
 integration/partner, none of which imotenradar has any of today), so it
 sits after the smaller, faster-to-ship analytics items despite the high
@@ -443,7 +603,7 @@ value rating.
   the "Active campaigns" half is buildable - flag this as a dependency
   to resolve (likely a design-fork decision) when this item is picked up.
 
-## 13. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 14. Deal Calculator (investment strategy modeling) - needs formula work before building
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
@@ -464,7 +624,7 @@ sequenced after the items above rather than blocking on them.
 - Open question, needs Bulgarian legal confirmation before deciding:
   PLO (Purchase Lease Option) - see "Open questions" below.
 
-## 14. Preferences / settings to support items 8-13
+## 15. Preferences / settings to support items 9-14
 
 Spec section 9. Mostly small, fully-replicable settings screens that
 exist to back the features above rather than stand alone - sequence each
@@ -474,19 +634,19 @@ Preferences as one block:
   natively, so the UK mile/km toggle complexity isn't even needed),
   Search Results (motivation-indicator thresholds - already a close
   match to imotenradar's own motivation-score fields), Lead Generator
-  defaults, Pipeline (stage + tag configuration - ship with item 9),
+  defaults, Pipeline (stage + tag configuration - ship with item 10),
   Notifications (new-lead-generator-count / status-change mechanics -
-  ship with item 9), Deal Stacker defaults (BG mortgage-rate defaults -
-  ship with item 10's Stress Test), Calendar integration, Letters defaults
-  (ship with item 12), Deal Calculator Templates defaults (replace UK
+  ship with item 10), Deal Stacker defaults (BG mortgage-rate defaults -
+  ship with item 11's Stress Test), Calendar integration, Letters defaults
+  (ship with item 13), Deal Calculator Templates defaults (replace UK
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
-  item 13).
+  item 14).
 
-## 15. Map tab additions
+## 16. Map tab additions
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
-ship alongside item 8. The one genuinely good UK-concept-with-a-real-BG-
+ship alongside item 9. The one genuinely good UK-concept-with-a-real-BG-
 substitute is worth calling out on its own: **cadastral map integration**
 ("Title Plans"/"Title Boundaries" substitute) - Bulgaria's Кадастрална
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
@@ -494,10 +654,10 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 16. Visual/premium design refresh
+## 17. Visual/premium design refresh
 
 Spec's closing "Design direction" section, not a feature but a directive
-that should land as part of items 8-11's builds rather than a standalone
+that should land as part of items 9-12's builds rather than a standalone
 pass: richer typography (serif/high-contrast display face for headings),
 more generous whitespace between listing-card elements, a refined
 restrained palette (deep neutral tones + one considered accent) in place
@@ -516,18 +676,18 @@ only the specific sub-feature named, not the whole item it belongs to:
   would come from Имотен регистър (Registry Agency) / Кадастър, but
   unlike UK Land Registry it's not known whether transaction-price data
   is openly scrapable in Bulgaria. Blocks: the *true* "Last Sold Data"
-  histogram in item 10 (asking-price version ships regardless), the
-  "Last sold(Land reg)" count pill in item 10's Comparables view, and the
-  Market Data hub's "Last Sold Map" tile in item 11.
-- **Price vs Income tile** (item 11) - Bulgaria's NSI does publish
+  histogram in item 11 (asking-price version ships regardless), the
+  "Last sold(Land reg)" count pill in item 11's Comparables view, and the
+  Market Data hub's "Last Sold Map" tile in item 12.
+- **Price vs Income tile** (item 12) - Bulgaria's NSI does publish
   regional income data publicly, but granularity match to this tile's
   needs is unverified.
-- **Census Data overlay** (item 15) - NSI publishes census data; unknown
+- **Census Data overlay** (item 16) - NSI publishes census data; unknown
   whether it's available at fine enough geocoded granularity/overlay
   form.
-- **Crime data map** (item 15) - no known equivalent to UK police.uk's
+- **Crime data map** (item 16) - no known equivalent to UK police.uk's
   public, fine-grained geocoded crime dataset for Bulgaria.
-- **Planning Applications** (items 10/11) - no known equivalent to the UK's
+- **Planning Applications** (items 11/12) - no known equivalent to the UK's
   standardized, often API-accessible per-council planning-application
   data in Bulgaria.
 - **Bulgarian energy-efficiency certificate as an EPC substitute** (items
@@ -535,7 +695,7 @@ only the specific sub-feature named, not the whole item it belongs to:
   scheme (A-G-ish bands), but whether imotenradar's scraped source
   portals actually expose it is unknown. Omit the field entirely until
   confirmed rather than faking it.
-- **PLO (Purchase Lease Option) strategy** (item 13) - relies on a UK
+- **PLO (Purchase Lease Option) strategy** (item 14) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
   call.
@@ -552,7 +712,7 @@ benefits/rent-cap scheme), Title Split - Hold/Sell strategy,
 Freehold/Leasehold tenure toggle (Bulgarian tenure is effectively always
 freehold-equivalent), "Low EPC"/"Short Lease" letter-campaign situation
 types, Stamp Duty as a field (replaced by a Bulgarian transfer-tax %
-default instead, see item 14), and the UK-broker-specific "Get Finance"
+default instead, see item 15), and the UK-broker-specific "Get Finance"
 partner tab (lowest priority of all 7 listing-detail tabs per spec;
 revisit only as a monetization feature if a Bulgarian mortgage-broker
 partnership is ever pursued - not part of the current build).
@@ -565,7 +725,7 @@ source screenshots were desktop), alert-email behavior (vs. in-app
 notifications), exact export file contents (CSV/PDF/etc.), validation/
 error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
-these block starting items 8-16; revisit if/when they turn out to matter
+these block starting items 9-17; revisit if/when they turn out to matter
 for a specific item.
 
 ## Parked - do not start
