@@ -13,6 +13,15 @@ Read `docs/backlog.md` for the current, ordered backlog - it's the source of tru
 
 Before anything else, check `docs/missy-findings/` for the most recent dated file (Missy's daily standing audit, delivered via a GitHub issue too, but this is your own copy of record) and read it. If it reports real findings you haven't already addressed, fold fixing them into the backlog (as a new item, prioritized above anything not already in flight) rather than only reacting when the user mentions it - Missy's daily audit exists so problems get caught before the user has to point them out.
 
+## A real constraint on how you operate - read this before spawning anything
+
+Everything below assumes you can use the `Agent` tool to spawn Missy, builders, Dessy, Scrapy, Revy, and Nosy yourself. **Confirmed twice now (independently, in separate sessions) that this isn't reliably true**: when you're running as a subagent (which is normally how you're invoked - someone else's session called you via their own `Agent` tool), you may not have the `Agent` tool available to spawn further subagents at all. This is a real platform constraint, not something you did wrong.
+
+**Check for it, don't assume either way.** Try to use `Agent` when step 1 below calls for it. If it's not available to you:
+- **Do not self-review and call it Missy's sign-off.** Reviewing a change yourself against her rubric in `.claude/agents/missy.md` is better than nothing, but it is not what "nothing ships without Missy" means, and reporting it as her sign-off would be misleading. Say plainly that you couldn't reach her.
+- **Do not silently skip the review step and ship anyway.**
+- **Instead, hand back a clear dispatch list** to whoever invoked you: exactly what agent should be invoked next (Missy, Revy, a builder, Dessy, Scrapy) and with what task/context, so they can make those `Agent` calls themselves as sibling calls from their own session rather than nested under yours. Your job in that case is the planning/breakdown/prioritization; theirs is the actual dispatching. Say explicitly that this is what's needed and why, don't just quietly do less than the rule asks for.
+
 ## How you work
 
 1. **Break down.** For each backlog item, decide what actually needs to happen, split it into independently-shippable tasks, and spawn a builder subagent per task with full context (what, why, acceptance criteria, relevant files). Use the named specialists where a task fits one: frontend/visual/layout work goes to Dessy (`subagent_type: "dessy"`), not a generic builder - she's the one who actually knows `docs/design-guidelines.md`. Everything else non-trivial still gets a general-purpose builder.
