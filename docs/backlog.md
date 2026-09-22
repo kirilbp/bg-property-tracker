@@ -129,20 +129,103 @@ site), not a latent risk.
    - fix if it turns out to be entangled with task 1's diagnosis, file
    separately otherwise.
 
-## 4. Supabase Pro plan follow-ups - PENDING
+## 4. "Browse by Council" province matching: ~90%+ of the 9,247 "Others" bucket is a real bug, not genuinely non-Bulgarian data - URGENT
+
+From the user directly reporting the live site, then confirmed by Missy
+sampling ~8,787 raw listings that fail the same matching logic (see
+`docs/decisions.md` 2026-09-22 entry for her full report). The user's
+own framing: Bulgaria's 28 oblasts cover 100% of its territory, so a
+large "Others" bucket in the province browse section is inherently
+suspicious, not expected. Confirmed: it's real - two distinct,
+well-isolated root causes account for essentially all of it, only
+~5-6% is legitimately foreign/unparseable data.
+
+**Confirmed facts:**
+- ~49% of the sampled bucket: an **alo.bg scraper bug**, not a lookup-
+  table gap. `scraper_alo.py` line 281 writes a literal
+  `area, city = "Bulgaria", None` placeholder whenever its `LOCATION_RE`
+  regex (lines 147-150) fails to match a listing card's text (happens on
+  14% of alo.bg's 87,979 raw listings). Compounding it: line 314's title
+  fallback (`title = a.get_text(...) or text[:100]`) stores the raw,
+  100-char-truncated container text (agency name + "преди N дни" +
+  garbled text) instead of the real listing title, cutting the text off
+  *before* the location words that would otherwise let the existing
+  oblast-matching fallback recover it. Real example: `alo_11149326`
+  (https://www.alo.bg/dvustaen-apartament-v-centara-na-slanchev-bryag-11149326)
+  stores `city=None, area="Bulgaria"` with its title truncated mid-word
+  right before "Слънчев бряг ... Бургас" would have appeared. Manual
+  review of a random sample of the non-explicitly-foreign listings in
+  this bucket found them essentially all genuinely Bulgarian (Sunny
+  Beach, Golden Sands, Sofia/Plovdiv/Stara Zagora neighborhoods).
+- ~51% of the sampled bucket: a genuine **`BG_MUNICIPALITY_TO_OBLAST`
+  coverage gap** in `sync_to_supabase.py` (lines 522-645) - but
+  structural, not "a few cities missing." The table covers Bulgaria's
+  265 official municipality *seat* names, not its ~5,300 actual
+  settlements; a village whose municipality has a different name (the
+  common case) is invisible to it. 1,545 distinct real Bulgarian
+  settlement names were found unmatched (722 appearing only once) -
+  e.g. Типченица, Изворово, Илинденци, Цалапица. A real fix needs a
+  full settlement -> municipality -> oblast table (thousands of
+  entries, an authoritative gazetteer), with the same per-name ambiguity
+  discipline already shown for "Бяла" (correctly excluded - a real,
+  different municipality in both Varna and Ruse oblasts) - Missy found
+  at least one more name needing that same care ("Средец": both a real
+  Burgas-oblast town and a central Sofia-grad district).
+- One small, safe, purely mechanical fix already identified: "Вълчи Дол"
+  (Valchi Dol, a real unambiguous Varna-oblast municipality) is missing
+  from the Varna section of `BG_MUNICIPALITY_TO_OBLAST` even though its
+  sibling municipalities are all listed.
+- One more small, separate issue worth a look: a cluster of olx.bg
+  listings near Близнаци (Varna coast, real in-Bulgaria coordinates)
+  falls inside Varna oblast's bounding box but `oblast_key_from_latlng()`
+  (`sync_to_supabase.py` lines 471-499)'s point-in-ring test still
+  returns `None` for them - the polygon check itself is failing on
+  legitimate in-Bulgaria points, not just missing a name mapping.
+- Legitimately NOT a bug, confirmed correct: "Бяла" (~1% of the sample,
+  already deliberately excluded, see above) and ~92 homes.bg listings
+  (~1%) with genuinely empty address data captured by the scraper (no
+  location text anywhere to match against - a separate scraper gap, not
+  a matching-logic bug).
+
+**Tasks (independently-shippable, different fix shapes - do not conflate):**
+1. Fix `scraper_alo.py`: diagnose why `LOCATION_RE` fails on ~14% of
+   cards, stop writing the `"Bulgaria"` placeholder (leave the field
+   empty/null instead so downstream matching can still try), and fix the
+   title extraction to capture the real listing title instead of
+   truncated raw container text. This is the ~49% piece - no amount of
+   lookup-table expansion fixes it, the source fields are corrupted
+   before matching ever runs.
+2. Build a real Bulgaria-wide settlement -> municipality -> oblast
+   table to replace/extend `BG_MUNICIPALITY_TO_OBLAST`'s municipality-
+   seat-only coverage - the ~51% piece. Needs an authoritative source
+   (NSI or similar gazetteer), and explicit handling for every
+   settlement name that collides with a different oblast's name or
+   district (flag and exclude, per the existing "Бяла" precedent, don't
+   guess).
+3. Small mechanical fix: add "Вълчи Дол" to the Varna section of
+   `BG_MUNICIPALITY_TO_OBLAST`.
+4. Investigate the `oblast_key_from_latlng()` point-in-ring failure on
+   real in-Bulgaria coordinates (Близнаци/Varna coast cluster) - lower
+   volume than tasks 1-2 but worth understanding since it's supposed to
+   be the authoritative signal when present.
+5. Fix homes.bg's empty-address capture gap (scraper-side, separate from
+   this bug's matching logic) if it turns out to be cheap alongside
+   task 1-2's work; file separately otherwise.
+
+## 5. Supabase Pro plan follow-ups - PENDING
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
 
-## 5. Motivation score rework - DONE
+## 6. Motivation score rework - DONE
 
 Shipped in PR #162: 5-component formula (relisted, distinct reductions,
 size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 6. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
+## 7. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -183,7 +266,7 @@ in the spec (section 5, "Advert Details" tab) unless noted.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 7. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
+## 8. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban)
 
 The core recurring-workflow loop: a paying investor's day-to-day use of
 the tool. Fully Bulgarian-replicable per spec sections 1-3 - workflow
@@ -208,7 +291,7 @@ patterns, not data-dependent.
 - Excludes the EPC icon and "yield-like %" stat on pipeline cards until
   their respective data/formula questions below are resolved.
 
-## 8. Comparables & Area Data analytics (own-data market stats + BTL stress test)
+## 9. Comparables & Area Data analytics (own-data market stats + BTL stress test)
 
 Aggregate analytics built entirely from imotenradar's own already-scraped
 listing history - no new data source required. Spec sections 4 and 5
@@ -234,24 +317,24 @@ listing history - no new data source required. Spec sections 4 and 5
   with Bulgarian-market default assumptions (BG mortgage rates, typical
   LTV terms) in place of Property Filter's UK defaults.
 
-## 9. Market Data hub (portfolio-level aggregate tiles)
+## 10. Market Data hub (portfolio-level aggregate tiles)
 
-Reuses item 8's aggregation work at a broader, cross-listing scope. Spec
+Reuses item 9's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
 listing history (price, status, time-on-market, agent) aggregated by
 area: Strategy Heat Map, Postcode Performance -> city/quarter Performance,
 Market Live Map (Yield/Asking Prices/Time On Market/Demand), Adverts
 Evolution (stock changes: Available/STC-equivalent/Removed over time),
-Agent Properties (all listings by a given agent). Sequence after item 8
+Agent Properties (all listings by a given agent). Sequence after item 9
 since it's the same underlying aggregation, wider lens.
 
-## 10. Send Letters / motivated-seller outreach campaigns
+## 11. Send Letters / motivated-seller outreach campaigns
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
 Bulgarian-replicable, high-value workflow" and a genuinely portable
 feature if imotenradar wants to pursue a deal-sourcing angle, not just an
-aggregator - but it's a materially bigger scope than items 6-9 (mail-merge
+aggregator - but it's a materially bigger scope than items 7-10 (mail-merge
 templating, a reverse address lookup, and an actual physical-mail send
 integration/partner, none of which imotenradar has any of today), so it
 sits after the smaller, faster-to-ship analytics items despite the high
@@ -272,7 +355,7 @@ value rating.
   the "Active campaigns" half is buildable - flag this as a dependency
   to resolve (likely a design-fork decision) when this item is picked up.
 
-## 11. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 12. Deal Calculator (investment strategy modeling) - needs formula work before building
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
@@ -293,7 +376,7 @@ sequenced after the items above rather than blocking on them.
 - Open question, needs Bulgarian legal confirmation before deciding:
   PLO (Purchase Lease Option) - see "Open questions" below.
 
-## 12. Preferences / settings to support items 6-11
+## 13. Preferences / settings to support items 7-12
 
 Spec section 9. Mostly small, fully-replicable settings screens that
 exist to back the features above rather than stand alone - sequence each
@@ -303,19 +386,19 @@ Preferences as one block:
   natively, so the UK mile/km toggle complexity isn't even needed),
   Search Results (motivation-indicator thresholds - already a close
   match to imotenradar's own motivation-score fields), Lead Generator
-  defaults, Pipeline (stage + tag configuration - ship with item 7),
+  defaults, Pipeline (stage + tag configuration - ship with item 8),
   Notifications (new-lead-generator-count / status-change mechanics -
-  ship with item 7), Deal Stacker defaults (BG mortgage-rate defaults -
-  ship with item 8's Stress Test), Calendar integration, Letters defaults
-  (ship with item 10), Deal Calculator Templates defaults (replace UK
+  ship with item 8), Deal Stacker defaults (BG mortgage-rate defaults -
+  ship with item 9's Stress Test), Calendar integration, Letters defaults
+  (ship with item 11), Deal Calculator Templates defaults (replace UK
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
-  item 11).
+  item 12).
 
-## 13. Map tab additions
+## 14. Map tab additions
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
-ship alongside item 6. The one genuinely good UK-concept-with-a-real-BG-
+ship alongside item 7. The one genuinely good UK-concept-with-a-real-BG-
 substitute is worth calling out on its own: **cadastral map integration**
 ("Title Plans"/"Title Boundaries" substitute) - Bulgaria's Кадастрална
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
@@ -323,10 +406,10 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 14. Visual/premium design refresh
+## 15. Visual/premium design refresh
 
 Spec's closing "Design direction" section, not a feature but a directive
-that should land as part of items 6-9's builds rather than a standalone
+that should land as part of items 7-10's builds rather than a standalone
 pass: richer typography (serif/high-contrast display face for headings),
 more generous whitespace between listing-card elements, a refined
 restrained palette (deep neutral tones + one considered accent) in place
@@ -345,18 +428,18 @@ only the specific sub-feature named, not the whole item it belongs to:
   would come from Имотен регистър (Registry Agency) / Кадастър, but
   unlike UK Land Registry it's not known whether transaction-price data
   is openly scrapable in Bulgaria. Blocks: the *true* "Last Sold Data"
-  histogram in item 8 (asking-price version ships regardless), the
-  "Last sold(Land reg)" count pill in item 8's Comparables view, and the
-  Market Data hub's "Last Sold Map" tile in item 9.
-- **Price vs Income tile** (item 9) - Bulgaria's NSI does publish
+  histogram in item 9 (asking-price version ships regardless), the
+  "Last sold(Land reg)" count pill in item 9's Comparables view, and the
+  Market Data hub's "Last Sold Map" tile in item 10.
+- **Price vs Income tile** (item 10) - Bulgaria's NSI does publish
   regional income data publicly, but granularity match to this tile's
   needs is unverified.
-- **Census Data overlay** (item 13) - NSI publishes census data; unknown
+- **Census Data overlay** (item 14) - NSI publishes census data; unknown
   whether it's available at fine enough geocoded granularity/overlay
   form.
-- **Crime data map** (item 13) - no known equivalent to UK police.uk's
+- **Crime data map** (item 14) - no known equivalent to UK police.uk's
   public, fine-grained geocoded crime dataset for Bulgaria.
-- **Planning Applications** (items 8/9) - no known equivalent to the UK's
+- **Planning Applications** (items 9/10) - no known equivalent to the UK's
   standardized, often API-accessible per-council planning-application
   data in Bulgaria.
 - **Bulgarian energy-efficiency certificate as an EPC substitute** (items
@@ -364,7 +447,7 @@ only the specific sub-feature named, not the whole item it belongs to:
   scheme (A-G-ish bands), but whether imotenradar's scraped source
   portals actually expose it is unknown. Omit the field entirely until
   confirmed rather than faking it.
-- **PLO (Purchase Lease Option) strategy** (item 11) - relies on a UK
+- **PLO (Purchase Lease Option) strategy** (item 12) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
   call.
@@ -381,7 +464,7 @@ benefits/rent-cap scheme), Title Split - Hold/Sell strategy,
 Freehold/Leasehold tenure toggle (Bulgarian tenure is effectively always
 freehold-equivalent), "Low EPC"/"Short Lease" letter-campaign situation
 types, Stamp Duty as a field (replaced by a Bulgarian transfer-tax %
-default instead, see item 12), and the UK-broker-specific "Get Finance"
+default instead, see item 13), and the UK-broker-specific "Get Finance"
 partner tab (lowest priority of all 7 listing-detail tabs per spec;
 revisit only as a monetization feature if a Bulgarian mortgage-broker
 partnership is ever pursued - not part of the current build).
@@ -394,7 +477,7 @@ source screenshots were desktop), alert-email behavior (vs. in-app
 notifications), exact export file contents (CSV/PDF/etc.), validation/
 error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
-these block starting items 6-14; revisit if/when they turn out to matter
+these block starting items 7-15; revisit if/when they turn out to matter
 for a specific item.
 
 ## Parked - do not start
