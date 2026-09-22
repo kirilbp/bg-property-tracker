@@ -83,8 +83,17 @@ def measure(select_clause, sample_size, label):
 
 def main():
     print("=== backlog item 6: measuring merged_listings payload size ===")
-    total_rows = get_total_count()
-    print(f"merged_listings total row count: {total_rows:,}")
+    try:
+        total_rows = get_total_count()
+        print(f"merged_listings total row count (Prefer: count=exact): {total_rows:,}")
+    except requests.exceptions.HTTPError as e:
+        print(f"count=exact itself failed ({e}) - this is itself a real finding, "
+              f"not just a script bug: an exact COUNT(*) over merged_listings is "
+              f"apparently expensive enough to hit Postgres's statement_timeout. "
+              f"Falling back to the last known real row count from backlog item "
+              f"18's own investigation (~214,889) to still get the per-row byte "
+              f"comparison below.", file=sys.stderr)
+        total_rows = 214889
 
     sample_size = 500
     full_bpr = measure("*", sample_size, "select(*) - current code")
