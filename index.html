@@ -4103,8 +4103,11 @@ function clearActiveLeadGenerator(skipRender) {
 // otherwise it's silently omitted rather than measured from an arbitrary
 // point.
 function pipelineStatusLabel(l) {
+  // merged_listings only carries a binary status (available/sold, computed
+  // from every source's own removed_at - see sync_to_supabase.py's
+  // build_rows()) - there's no separate "removed" state at the merged-row
+  // level to show here, so this only ever has two real outcomes.
   if (l.status === 'sold') return 'Sold';
-  if (l.source_status === 'removed') return 'Removed';
   return `Active${l.days_on_market != null ? ' · ' + fmt(l.days_on_market) + 'd' : ''}`;
 }
 
