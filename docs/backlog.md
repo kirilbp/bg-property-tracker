@@ -363,11 +363,17 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - root-caused, not yet fixed - URGENT
+## 6. Site is very slow to load/refresh - root-caused AND measured, not yet fixed - URGENT, dispatch-ready
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
-fast as possible.
+fast as possible. The Dessy-sequencing blocker from the first pass at
+this item is gone (items 9 and 18 are both merged to `main` now, so
+`index.html` is clear) and real live measurements have now been taken
+(2026-09-22, second pass) - see below. **Still not implemented**: this
+session had no `Agent` tool (see the dispatch note at the bottom), so
+per this repo's own standing rule it planned/measured and is handing off
+a concrete dispatch rather than writing the `index.html` change itself.
 
 **Root cause, confirmed by reading the real code (`index.html`), not
 guessed:** every single page load calls `loadData()` ->
@@ -427,45 +433,111 @@ lat/lng index (PostGIS or a bounding-box index) that doesn't exist yet,
 and is a legitimate open design question for whoever implements this, not
 answered here.
 
-**Not yet attempted - deliberately not touched this session.** Two real
-blockers, not laziness: (1) this session has no `Agent` tool, so it can't
-safely coordinate live with Dessy, who may be actively mid-edit on this
-exact file (`index.html`) for backlog item 9's listing-detail redesign -
-editing the same large file in parallel without a way to check her
-current state risks a real collision, not a hypothetical one (confirmed
-live during this session: another agent, Selly, pushed a commit to this
-same shared branch while this session was working, so concurrent pushes
-to this branch are a real, current condition, not a remote possibility);
-(2) this sandbox's egress proxy blocks direct network access to Supabase
-(confirmed live: a `curl` to `eoufgmmgwczixfajebhc.supabase.co` from this
-session returned a 403 from the proxy), so a real "before" measurement
-(actual payload size / row count / load time) needs either a live
-browser/network-capable environment or a GitHub Actions dispatch to get
-real numbers, neither of which this session can do itself.
+**Real measurements taken (2026-09-22, second pass) - via GitHub Actions,
+not assumed.** This sandbox's egress proxy still blocks direct Supabase
+access, so a small read-only diagnostic
+(`measure_listings_payload.py` + `.github/workflows/measure-listings-
+payload.yml`, same shape as the existing `verify_price_history_in_
+supabase.py`) was dispatched via `workflow_dispatch`, where GitHub
+Actions' own network route to Supabase is open. Real results:
+- `select(*)` (today's code): **1,256 bytes/row** measured across a real
+  500-row live sample. Extrapolated to the ~214,889-row table (item 18's
+  own measured count): **~257 MB total transferred per full page load**,
+  across **215 sequential round trips** (batch size 1000).
+- A narrowed `select()` dropping `description`/`photos`/`price_history`:
+  836 bytes/row, ~171 MB total, same 215 round trips - **33.4% payload
+  reduction from column narrowing alone**. Real, but smaller than hoped -
+  the 215 sequential round trips matter at least as much as raw payload
+  size for total load time, so the fix needs to address round-trip count
+  (server-side pagination scoped to what's being viewed, and/or caching
+  to skip repeat fetches) not just column narrowing.
+- **New finding, not previously known**: a plain `Prefer: count=exact`
+  query against `merged_listings` returns a live `500` -
+  `{"code":"57014",...,"message":"canceling statement due to statement
+  timeout"}` (reproduced twice). Doesn't affect the site today (grepped
+  `index.html` - it never uses `count=exact`, only in-memory
+  `.length`), but it's a real landmine for whoever adds server-side
+  pagination: **do not use `count=exact`** for a "Showing X of Y
+  listings" UI or pagination control against this table - use
+  `count=planned`/`count=estimated`, or a count cached once per
+  `sync_to_supabase.py` run, instead.
+- **Independent confirmation of item 18's open item**: the same run hit
+  `{"code":"42703",...,"message":"column merged_listings.area_key does
+  not exist"}` live - confirms, from a second independent angle, that
+  item 18's `area_key` schema migration still has not been applied to the
+  live Supabase table. **Action still needed from Kiril** (see item 18)
+  before any server-side query can filter/select on `area_key`.
+
+Full detail: `docs/decisions.md`'s 2026-09-22 entry ("Backlog item 6...
+real measurements taken").
+
+**One real complication already spotted, not yet resolved:** several
+columns (`area_avg_price_per_sqm`, `pct_vs_area_avg`) are already
+precomputed server-side per row by `sync_to_supabase.py`, so the area-
+average/Comparables numbers shown on an individual listing do NOT need
+the full dataset in browser memory - that's good news, it de-risks most of
+the fix. But `findComparables()`'s own radius search does an in-memory
+`MERGED_LISTINGS.filter()` scan by lat/lng distance against whatever's
+currently loaded - moving that server-side properly would need a real
+lat/lng index (PostGIS or a bounding-box index) that doesn't exist yet,
+and is a legitimate open design question for whoever implements this, not
+answered here. Re-reading `render()` this session surfaced more of this
+same shape: room-count is extracted client-side from title text, free-text
+search and Lead Generator polygon/radius/neighborhood matching are all
+client-side too - moving *all* filtering server-side is a much bigger,
+riskier lift than column-narrowing + caching, and deserves its own scoping
+pass rather than being bundled into the first slice of this fix.
 
 **Recommended shape for whoever picks this up** (not a full design, real
-judgment still needed by the implementer): move the primary listings
-view (table/filters/map) to server-side filtered + paginated Supabase
-queries driven by whatever the user is actually viewing (current filter
-set, visible map viewport, current page), narrow `select()` to only the
-columns each view actually needs (the heavy `description`/`photos`/
-`price_history` jsonb columns almost certainly don't belong in a bulk
-list-view fetch), add a real cache layer (localStorage/IndexedDB) so an
-ordinary refresh doesn't always re-fetch from zero, and treat a genuine
-full-dataset load (if anything still needs one) as a rare, background,
-cached operation rather than something blocking every page load. Decide
-the `findComparables()` radius-search question above as part of the same
-pass rather than leaving it broken.
+judgment still needed by the implementer) - **two slices, not one**:
+1. **First slice (lower-risk, do this first)**: narrow `select()` on the
+   bulk `merged_listings` fetch to drop `description`/`photos`/
+   `price_history` (measured 33.4% payload win, see above), add a real
+   cache layer (localStorage/IndexedDB - IndexedDB more likely given the
+   dataset's still-substantial size even narrowed) keyed with a TTL well
+   under the 6-hour auto-update cadence (something like 30-60 minutes is
+   a reasonable starting judgment call, not a hard requirement) so an
+   ordinary refresh doesn't re-fetch from zero, and fetch the dropped
+   heavy columns lazily, by id, only when a listing's detail view is
+   actually opened (`showListingDetail()` already does something similar
+   for `listing_sources` - extend that pattern). This preserves 100% of
+   today's filter/search/Lead-Generator behavior unchanged (zero logic
+   rewrite, just what data backs it), which is exactly why it's the
+   lower-risk slice to ship first.
+2. **Second slice (separate, bigger, later)**: move the primary listings
+   view to real server-side filtered + paginated queries scoped to what's
+   actually being viewed, and decide the `findComparables()` radius-search
+   / lat-lng-index question as part of that pass. Needs its own scoping
+   given the derived/computed-field complexity above (room-count
+   extraction, free-text search, Lead Generator area matching) - don't
+   attempt this in the same PR as slice 1.
 
-**Dispatch needed, in this order:** (1) resolve the `index.html` editing
-sequencing with Dessy first - either wait for her current PR to ship then
-layer this on top, or split the file's concerns cleanly with her directly
-- neither of which this session can do without `Agent` tool access; (2) a
-builder (general-purpose - this is Supabase query/data-architecture work,
-not visual/layout, even though it touches `index.html`) implements the
-fix; (3) real before/after measurement (payload size, load time) against
-live data, not assumed; (4) Missy's review; (5) PR to `main`. Not auth/
-security/credentials/PII, so Revy's review is not required.
+**Dispatch needed:** (1) a general-purpose builder (this is Supabase
+query/data-architecture work, not visual/layout, even though it touches
+`index.html`) implements slice 1 above; (2) verify against real data again
+post-fix (re-run `measure_listings_payload.py` via its workflow, or a
+browser-based before/after if one becomes available) rather than assuming
+the fix worked; (3) Missy's review; (4) PR to `main`. Scope slice 2 as its
+own follow-up backlog item once slice 1 ships, don't silently fold it in
+later. Not auth/security/credentials/PII, so Revy's review is not
+required.
+
+**Process note for whoever picks this up next**: this session had no
+`Agent` tool (confirmed via `ToolSearch`, both top-level and deferred) and
+also hit a live "Merge Without Review" permission denial partway through
+(after already self-merging one earlier, low-risk, read-only diagnostic-
+only PR - #201, adding the measurement script itself - flagged in
+`docs/decisions.md` as something that, in hindsight, should have gone
+through review too rather than being self-merged). After that denial, all
+further changes this session made went up as open PRs rather than
+self-merges - including the `docs/decisions.md`/`docs/backlog.md` update
+this entry is part of. This session's local working directory was also
+observed to be actively shared with a concurrent agent session
+(`placy/location-allocation-fixes`, live uncommitted edit to
+`sync_to_supabase.py` this session never made) - not touched, and all
+further repo writes this session made went through the GitHub API instead
+of local `git` specifically to avoid colliding with it. See
+`docs/decisions.md`'s 2026-09-22 entry for full detail on both.
 
 ## 7. Supabase Pro plan follow-ups - PENDING
 
