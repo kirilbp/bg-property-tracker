@@ -752,3 +752,74 @@ sequencing question, (2) a general-purpose builder implements (Supabase
 query/architecture work, not visual/layout, despite touching
 `index.html`), (3) real before/after measurement, (4) Missy's review, (5)
 PR to `main`. See the hand-back message for the exact dispatch list.
+
+## Area/neighborhood filter and Lead Generators: exact raw-string matching bug (backlog item 18)
+
+The user reported directly, with a screenshot, that the Cherven Bryag
+Lead Generator on the live site shows only 7 listings - implausibly low
+for a real Bulgarian town. Dispatched Missy to investigate before
+assuming it was just this one town, the same rigor as backlog item 4's
+"Others" province bucket audit.
+
+**Confirmed real and scoped, not a one-town edge case.** Root cause:
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` (`index.html`
+~2685, ~2794) build their dropdown/checkbox options straight from raw,
+unnormalized `l.area` strings scraped per-portal; the actual filters
+(`render()` line 3599, `matchesLeadGenerator()` line 2783) do exact
+string comparison. The same real settlement/neighborhood is formatted
+differently across portals (кв./жк. prefixes, Cyrillic vs. transliterated
+Latin, capitalization), so it silently splits across multiple dropdown
+entries and selecting one excludes real listings genuinely in that area.
+
+Cherven Bryag itself: 28 raw listings across 5 portals genuinely in the
+town (verified against the town's real coordinates, 43.280635°N,
+24.083301°E), split 26/2 between "Червен бряг" and "Cherven Bryag" -
+selecting either dropdown entry misses the other. Missy could not
+reproduce the exact "7" figure without live `merged_listings` access
+(cross-portal dedup and the user's exact checkbox selections both matter,
+and Supabase is blocked from this sandbox's egress proxy), but the
+mechanism is real and consistent with an undercount landing that low.
+
+**Platform-wide scope, computed against all 8 committed `data/leads_*.
+json` files (305,065 listings with a non-empty `area`)**: 481 of 8,507
+distinct normalized area keys have more than one raw-string variant,
+affecting 179,061 listings (58.7%). Several high-traffic real
+neighborhoods (Малинова Долина, Тракия, Кършияка, Христо Смирненски,
+Остромила, Виница, Изгрев, Широк център, Кайсиева градина, Бриз,
+Възраждане, Овча Купел, Сарафово, Беломорски) split their listings
+roughly evenly across 3-5 variants - picking any one dropdown entry shows
+only ~20-30% of the area's true count.
+
+Checked whether a normalized key already exists server-side (the
+hypothesis I gave Missy going in): partially, and not the piece that
+would help here. `listing_city_key()`/`city_key` exists but only
+resolves against `BG_CITIES`' 29 major cities - Cherven Bryag isn't on
+that list, wrong granularity regardless. `normalize_area()`/
+`areas_match()` do already exist in `sync_to_supabase.py` (lines 64-90)
+and are trustworthy (already load-bearing for merge-group matching), but
+are never stored as a column or exposed to the frontend - the JS
+equivalent that used to exist client-side (per `sync_to_supabase.py`'s
+own "ported 1:1 from index.html" header comment) was deleted from
+`index.html` entirely when the merge step moved server-side. Real,
+buildable, smaller-than-from-scratch fix, not a trivial wire-up.
+
+Related bug in the same code path, found while tracing this: `matchesLead
+Generator()`'s neighborhood mode never checks `gen.area.city` against a
+listing at all - the Lead Generator modal's City field is free text that
+does nothing in the actual match logic, and the neighborhood checkbox
+list is built from every `l.area` nationwide, not scoped to the typed
+city. The modal's stale hint text ("Only Sofia has live listing data
+right now") actively misleads users about a still-broken mechanism on a
+now-nationwide platform.
+
+Filed as backlog item 18, deliberately numbered last (added at the end
+of the list to avoid re-triggering the item-number-renumbering churn that
+just required a pass across all six `docs/strategy/*.md` files) but
+flagged URGENT with an explicit note to work it immediately after items
+6/7, not by its position in the list. Missy (report-only, no Write/Edit
+tools by design) could not file this herself - she returned the
+suggested entry as response text and I added it. Recommended fix: add an
+`area_key` column to `listing_sources`/`merged_listings` (schema + sync
+script, reusing `normalize_area()` verbatim), backfill, switch the area
+dropdown/Lead Generator neighborhood picker and both match sites to
+compare `area_key` instead of raw `l.area`. Dispatched to Bossy.

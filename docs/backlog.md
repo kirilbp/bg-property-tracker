@@ -480,7 +480,7 @@ size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value
+## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE (2026-09-22, Dessy)
 
 Supersedes the old "Stats panel redesign - BLOCKED" item now that
 `docs/property-filter-spec.md` exists. Prioritized first among the
@@ -491,29 +491,72 @@ background work into a visible, differentiating feature rather than new
 data acquisition. All items below are marked **fully Bulgarian-replicable**
 in the spec (section 5, "Advert Details" tab) unless noted.
 
-- **Multi-portal badge row**: surface the up to ~6 portals/agents a
-  single physical property is cross-posted under, with each source's own
-  "Listed on: [date]" and the currently-viewed source highlighted. This
-  is imotenradar's existing cross-portal dedup, made visible.
-- **Price & Status History step-chart**: price-over-time line,
-  background color-coded by status band (Available/STC-equivalent/
-  Removed). Visualizes data the scrapers already collect (relisting,
-  price-drop history).
-- **Property Details & Keywords panel**: auto-extracted keyword tags from
-  the free-text listing description (sale features, property features,
-  "close by" amenities) - pure NLP/keyword-extraction on data already
-  present, no new data source.
-- Supporting rail/header pieces, all workflow patterns with no data
-  dependency: Prev/Next paging through the current result set, "Copy
-  Data for AI" export, "Create Share Link", Agent panel (logo/name/
-  phone/"see agent's other properties"), Description panel with
-  see-more, small embedded map, "Report a bug for this advert".
-- Photo carousel + "Download pictures": replicable. Floorplan panel:
-  include only when the source portal provides one (rare in scraped BG
-  data per spec) - conditional field, not guaranteed.
+- **Multi-portal badge row - DONE.** The existing source-switcher
+  (`merged.sources`, from `listing_sources`/`sync_to_supabase.py`'s
+  `group_listings()` cross-portal dedup) rebuilt as a proper badge row:
+  portal name, price, and a "Listed [site_posted_at]" line when the portal
+  exposes a posting date, falling back to "Tracked since [first
+  price_history date]" when it doesn't (worded to not overclaim - most
+  committed listings lack `site_posted_at`) - plus "Removed [date]" for a
+  no-longer-live source. Currently-viewed source highlighted with the
+  brass accent; clicking a badge switches sources exactly like the old
+  switcher did.
+- **Price & Status History step-chart - DONE.** Existing Chart.js step
+  chart kept, recolored to the restrained brass/sage/ink palette (was
+  blue/red/purple), plus a new background-shaded band (custom Chart.js
+  `beforeDraw` plugin, no extra CDN dependency) over the period the
+  *currently-viewed source* was off-market (`removed_at` to today) - a
+  deliberately understated single ink tint, not a green/yellow/pink
+  traffic light (that's Property Filter's own named anti-pattern per
+  `docs/design-guidelines.md`). Caveat for follow-up: `removed_at` is only
+  synced to `listing_sources`, not `merged_listings` (see
+  `sync_to_supabase.py`'s `MERGED_FIELDS`), so the band only renders once
+  a listing's real per-source rows have loaded (member_count > 1 case) -
+  a single-portal "sold" listing has no per-source removal date to shade
+  with under the current schema.
+- **Property Details & Keywords panel - DONE.** New `extractKeywordTags()`
+  does substring/pattern matching across every cross-posted source's
+  description + title (BG keyword table for Sale features / Property
+  features / Close by, plus a Property Type pill from the existing
+  `typeFilterBucket()`) - pure client-side JS, no new data. Tenure
+  (UK leasehold concept) deliberately excluded per the "Confirmed drops"
+  list below. Two false-positive keyword collisions found and fixed
+  during testing (`търг` "auction" was matching inside `търговия` "trade";
+  `парк` "park" was matching inside `паркинг` "parking") - both now use a
+  Unicode-aware whole-word boundary check instead of a bare substring.
+- **Supporting pieces - DONE except Agent panel (see below):**
+  - Prev/Next paging through the current filtered+sorted result set -
+    DONE (new `CURRENT_RESULT_IDS`, refreshed on every `render()`).
+  - Description panel with "See more" - DONE (truncates past ~420 chars
+    at a word boundary).
+  - Small embedded map - already existed (the radius-comparables panel's
+    Leaflet map), left as-is.
+  - Photo carousel - already existed (hero + thumbnail strip, prev/next,
+    keyboard arrows), left as-is.
+  - **Agent panel - NOT built, blocked on missing data.** Checked the
+    full field union across all 8 `data/leads_*.json` files: there is no
+    agent/agency name, phone, or contact field scraped anywhere. This
+    needs new scraper work (a detail-page field none of the 8 scrapers
+    currently extract) before an Agent panel can show anything real -
+    flagging per this repo's standing rule rather than building a
+    fake/empty panel. Floorplan: skipped too, per the spec's own note
+    that it's rare in scraped BG data and no scraper stores one - both
+    correctly out of a frontend-only builder's scope.
+  - "Copy Data for AI", "Create Share Link", "Report a bug for this
+    advert" - not built; these weren't in the explicit dispatch for this
+    pass (see PR description) and remain open, low-effort follow-ups.
 - Nearby amenities list (distance to town centre/station/supermarket/
-  hospital/school): replicable via any mapping API against Bulgarian
-  addresses.
+  hospital/school): still open - needs a mapping/POI API integration,
+  not attempted here.
+
+**Design-scope note:** implemented as a scoped redesign of the listing
+detail view only (`#section-listing` and its own elements) - typography
+(Playfair Display + Inter), warm ivory/brass/ink palette, and generous
+spacing per `docs/design-guidelines.md` are applied there, plus defined
+as global CSS variables for later reuse, but the rest of the site
+(sidebar nav, listing cards, modals) intentionally keeps its current
+look. A full site-wide reskin against the same palette is item 17's
+scope, not redone piecemeal here.
 
 **Not included here (see "Confirmed drops" below):** CT Band, Owner
 (Land Registry), Registered Lease/Restrictive covenant/Title number,
@@ -671,6 +714,73 @@ restrained palette (deep neutral tones + one considered accent) in place
 of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
+
+## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - URGENT
+
+**Numbered last but work this immediately after item 6/7 - do not let its
+position at the end of this list imply low priority.** From the user
+directly reporting the live site (Cherven Bryag Lead Generator showing
+only 7 listings, implausibly low), confirmed and scoped by Missy sampling
+the committed data.
+
+`populateAreaFilter()`/`populateLeadGenNeighborhoods()` (`index.html`
+~2685, ~2794) build their dropdown/checkbox options straight from raw
+`l.area` strings with no normalization; the actual filters (`render()`
+line 3599, `matchesLeadGenerator()` line 2783) do exact string
+comparison. Since the same real settlement/neighborhood is formatted
+differently per portal (кв./жк. prefixes, Cyrillic vs. transliterated
+Latin, capitalization), it silently splits across multiple dropdown
+entries and selecting one excludes real listings genuinely in that area.
+
+**Confirmed facts:**
+- Cherven Bryag itself: 28 raw listings across 5 portals genuinely in the
+  town (verified by real-world coordinates), split 26/2 between
+  "Червен бряг" and "Cherven Bryag" - selecting either dropdown entry
+  misses the other. (Missy couldn't reproduce the exact "7" figure
+  without live `merged_listings` access, but the mechanism is real and
+  consistent with an undercount landing this low after cross-portal
+  dedup.)
+- **Platform-wide, this is large, not a one-town edge case**: of 305,065
+  listings with a non-empty `area` across the 8 committed leads files,
+  481 of 8,507 distinct normalized area keys have more than one
+  raw-string variant, affecting **179,061 listings (58.7%)**. Several
+  high-traffic real neighborhoods (Малинова Долина, Тракия, Кършияка,
+  Христо Смирненски, Остромила, Виница, Изгрев, Широк център, Кайсиева
+  градина, Бриз, Възраждане, Овча Купел, Сарафово, Беломорски) split
+  their listings roughly evenly across 3-5 variants, so picking any one
+  dropdown entry shows ~20-30% of the area's true count.
+- `listing_city_key()`/`city_key` already exists server-side but only
+  resolves against `BG_CITIES`' 29 major cities - Cherven Bryag isn't on
+  that list, wrong granularity for this bug regardless.
+- `normalize_area()`/`areas_match()` already exist in
+  `sync_to_supabase.py` (lines 64-90) but are only used internally to
+  decide merge-group membership - never stored as a column, never
+  exposed to the frontend. The JS equivalent (`normalizeArea`/
+  `areasMatch`/`groupListings`) that used to exist client-side per
+  `sync_to_supabase.py`'s own "ported 1:1 from index.html" header comment
+  has since been deleted from `index.html` entirely (confirmed, zero
+  matches) - this needs a real (if smaller-than-from-scratch) fix,
+  reusing the trusted Python function, not a bigger design.
+- **Related, same code path**: `matchesLeadGenerator()`'s neighborhood
+  mode never checks `gen.area.city` against a listing at all - the Lead
+  Generator modal's City field is free text that does nothing in the
+  actual match, and the neighborhood checkbox list is built from every
+  `l.area` nationwide, not scoped to the typed city. The modal's own hint
+  text ("Only Sofia has live listing data right now") is stale - the
+  platform is nationwide now (8 portals, 305k+ listings, most outside
+  Sofia).
+
+**Recommended fix**: add an `area_key` column (schema + sync script,
+reusing `normalize_area()` verbatim) to `listing_sources`/
+`merged_listings`, backfill, switch the area dropdown/Lead Generator
+neighborhood picker and both match sites to compare `area_key` instead of
+raw `l.area`, displaying one representative raw label per group (same
+"pick by score/frequency" precedent `best.get()` already uses elsewhere).
+Separately, wire `gen.area.city` into the actual match logic (or remove
+it and its stale hint honestly) rather than leaving it decorative.
+
+Full investigation detail (exact sample data, file/line references):
+`docs/decisions.md`'s 2026-09-22 entry.
 
 ---
 
