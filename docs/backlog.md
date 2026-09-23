@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - slice 2 open - URGENT
+## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - slice 2 DESIGNED, DISPATCH NEEDED - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -587,14 +587,86 @@ Generators, the `synthesizeSingleSource()` race-condition fix is real
 and correctly scoped, and the live measurement run) and merged in
 [PR #203](https://github.com/kirilbp/bg-property-tracker/pull/203).
 
-**Slice 2 remains open**: real server-side filtered/paginated Supabase
-queries and `findComparables()`'s in-memory radius-search redesign - not
-attempted, deliberately scoped out of slice 1. Whoever picks it up should
-note `Prefer: count=exact` against `merged_listings` hits Postgres's
-statement_timeout live (confirmed, error 57014) - any pagination UI
-needing a total result count will need a different approach (approximate
-count, a capped query, or skipping total-count display), not
-`count=exact`.
+**Slice 2 status (2026-09-23): design/scoping done, nothing implemented
+- this session had no `Agent`/Task tool at all (confirmed by checking,
+not assumed), so per this role's own operating rule for that case, the
+non-trivial architecture change below was designed and handed back as a
+dispatch list rather than self-implemented and self-approved. Full
+design, the real-data investigation behind it, and a previously-
+undocumented regression found along the way are in `docs/decisions.md`'s
+2026-09-23 "Backlog item 6 slice 2" entry; summary:**
+
+- **A real, previously-undocumented finding**: slice 1 already silently
+  broke Lead Generator "new since last check" counts -
+  `computeLeadGenCounts()` -> `listingFirstSeenDate()` reads
+  `l.price_history[0].date`, one of the three heavy columns slice 1
+  deliberately dropped from the bulk fetch. Nothing crashes, but every
+  Lead Generator's orange "new" badge silently reads stale/zero until a
+  listing's detail page has been opened this session. Not caught by
+  slice 1's own writeup, which flagged the "Relisted" badge/"Most
+  recently reduced" sort/description search but missed this fourth
+  consumer. Needs its own small fix (see dispatch below) - ship this
+  first, independent of the bigger piece.
+- **Design decision (a real fork, taken directly per this role's standing
+  rule)**: scope this pass to the primary listings grid/table only, not
+  every `MERGED_LISTINGS` consumer. `findComparables()` (Comparables,
+  item 11) and `marketAggregateRows()` (Market Data hub, item 12) both do
+  genuine full-array aggregate/radius scans that a single paginated page
+  can't answer - moving those server-side needs its own schema/RPC work
+  (a `lat`/`lng` index at minimum) that can't be designed blind without
+  live Supabase access (confirmed blocked again this session, same as
+  every prior one). Filed as two separate, explicit follow-ups rather
+  than attempted here.
+- **The actual fix for "slow to load"**: decouple the grid's first paint
+  from `loadData()`'s full bulk fetch rather than replacing it - fire a
+  small server-side query for just the current page (predicates
+  translated 1:1 from `render()`'s existing `.filter()` logic) and paint
+  immediately, while the existing IndexedDB-cached bulk load keeps
+  running in the background for every feature that still needs the full
+  array (Comparables, Market Data hub, Lead Gen counts/dropdowns,
+  dashboard, area filter) exactly as today.
+- **Pagination**: a composite keyset cursor `(sortColumnValue, id)`,
+  generalizing `fetchAllRows()`'s own existing `.gt('id', cursor)`
+  pattern to arbitrary sort columns - not `OFFSET`/`.range()`, which
+  degrades on deep pages regardless of the count problem (a second,
+  separate risk this item hadn't flagged yet).
+- **Total count**: never `count=exact` on a filtered query (confirmed
+  live, error 57014, the already-documented landmine). Show an
+  immediate optimistic figure, silently upgraded to an exact number once
+  the background bulk load resolves and can compute it client-side the
+  same way `render()` does today - never a blocking `count=exact` round
+  trip. A one-time unfiltered `{ count: 'estimated' }` HEAD request can
+  back a headline "~N listings tracked" stat, but is flagged as
+  unverified against this project's actual PostgREST config - test it
+  live before depending on it, not assumed.
+
+**Dispatch needed, in this order (none executed this session):**
+1. Small, independent, ship first: add a precomputed `first_seen_at`
+   column (schema + `sync_to_supabase.py`, derived from
+   `price_history[0].date`) to fix the Lead Generator regression above.
+   General-purpose builder.
+2. Small, independent: Deal Pipeline's `resolvedPipelineDeals()` maps
+   the *entire* `MERGED_LISTINGS` array just to look up the handful of
+   ids a user actually pipelined - replace with a targeted
+   `select(...).in('id', dealIds)` query. General-purpose builder.
+3. The core piece: server-side filtered/paginated query for the primary
+   grid per the design above - build in an isolated worktree off a
+   **fresh** `origin/main` (re-check `git log`/active branches
+   immediately before starting - four other worktrees were actively
+   touching `index.html`-adjacent work as of this design pass, see the
+   decisions.md entry), verify against real live data, Missy's review
+   (not Revy - no auth/PII surface), ship via a real PR. Sequence after
+   tasks 1-2, not in parallel with them (shared `index.html` data-layer
+   file).
+4. Documented follow-up, do not dispatch blind: `findComparables()`'s
+   server-side radius-search redesign - needs a live Supabase SQL-editor
+   migration and a live-data test this sandbox can't perform. File as
+   its own item once task 3 ships.
+5. Documented follow-up: Market Data hub (item 12) server-side
+   aggregation - confirmed NOT broken by the design above (keeps reading
+   the background-loaded full array, unaffected), just not improved;
+   worth a real fix only if that tab's own load time becomes its own
+   complaint.
 
 ## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - user feedback 2026-09-23
 
