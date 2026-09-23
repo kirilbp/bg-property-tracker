@@ -30,20 +30,72 @@ That means the old "stop on empty page" logic never actually fires past
 the real depth - it would silently loop through every remaining page
 re-fetching the same content. Real content on a single query stops
 changing around page 26, so CITY_SLUGS (each a live-verified
-/obiavi/prodazhba-apartamenti/<slug> URL, 29 of Bulgaria's 30 largest
-cities - Yambol's guessed slug didn't resolve and is skipped) slices by
-city instead, and pagination now stops as soon as a page's listing ID set
-exactly matches the previous page's (the real plateau signal), not just
-on an empty page - confirmed live that a different city query still gets
-fresh content in the same session after a previous city has already
-plateaued.
+/obiavi/prodazhba-apartamenti/<slug> URL) slices by city instead, and
+pagination now stops as soon as a page's listing ID set exactly matches
+the previous page's (the real plateau signal), not just on an empty page
+- confirmed live that a different city query still gets fresh content in
+the same session after a previous city has already plateaued.
 
-Each listing's city is tagged directly from which CITY_SLUGS entry
-produced it (known from the URL, not re-parsed from text) - matches the
-pattern already used for imot.bg's nationwide conversion. AREA_LINE_RE
-generalizes away from the old hardcoded "гр. София," match to any
-"гр. <City>," prefix, live-verified against real Plovdiv/Varna/Burgas
-card text.
+docs/backlog.md item 31 - oblast-level slicing investigated, NOT usable
+for this portal the way it is for scraper_olx.py's OBLAST_SLUGS: this
+sandbox has no live network access to bazar.bg at all (a direct HTTPS
+fetch and a WebFetch call both came back blocked by this session's
+egress policy - the same class of restriction earlier sessions already
+hit against cdnjs/jsdelivr/Supabase, see docs/decisions.md), so the
+"live network access, not guessed" bar this item calls for was met
+through Google's live index of real bazar.bg pages instead (real URLs,
+real titles, real listing counts - an external signal, not a guess, just
+not a direct fetch). That research found bazar.bg DOES have real
+oblast-level pages - but only as sitewide, all-category "browse" pages
+under /obiavi/oblast-<slug> (e.g. oblast-plovdiv, oblast-varna) or
+/obiavi/<slug>-oblast for a couple of oblasts (sofia-oblast, smolian-
+oblast) - never nested under /obiavi/prodazhba-apartamenti/, and no
+evidence either combination (e.g. prodazhba-apartamenti/sofia-oblast)
+resolves. Routing this scraper through that sitewide page instead would
+mean cars/jobs/electronics/furniture - also commonly priced in "<N> €" -
+start passing this file's own "smallest ancestor with exactly one price
+mention" card filter, and geo_utils.classify_category() is explicitly
+documented (see its own docstring, and the real sales.bcpea.org bug it
+describes) as unreliable off an apartments-only scope: it defaults any
+unmatched title to "apartment", so a car or job listing from a sitewide
+feed would silently get mislabeled and counted as a real apartment lead
+instead of being dropped. That's a correctness regression, not a
+coverage win, so it was rejected.
+
+What the same research DID confirm live (via distinct, separately-
+indexed bazar.bg pages, each with its own real listing count) is that
+/obiavi/prodazhba-apartamenti/<slug> is granular well below city level -
+small towns and even resort villages already have their own real page.
+CITY_SLUGS below adds 8 such settlements a plain 29-big-city list
+structurally can never include: 2 oblast capitals missing from both this
+list and scraper_olx.py's own OBLAST_SLUGS (Разград, Смолян), 2 of the
+exact small/mid towns docs/backlog.md item 31's own spot-check named as
+missing (Петрич, Троян), and 4 more real, populated settlements (Банско,
+Свети Влас, Обзор, Велинград). This is the "another defined, principled
+method... e.g. oblast capitals plus the existing city list" fallback
+item 31's own text pre-authorizes when true oblast-level querying isn't
+available for a given portal - a real, evidence-based widening, not a
+full nationwide fix. Bulgaria's remaining ~5,000 villages and the rest of
+its ~230 smaller towns are still not covered; closing that gap for real
+would need either a live-confirmed oblast+apartments-category combo URL
+(unconfirmed either way here) or a much larger settlement list, verified
+live by a session that actually has network access to bazar.bg - flagged
+here rather than guessed at.
+
+Each listing's city/area used to be tagged directly from which CITY_SLUGS
+entry produced it (known from the URL, not parsed from text). Now parsed
+from the card's own "гр. <City>, <area>" line instead (CITY_AREA_LINE_RE)
+- the same "trust the listing's own text, not the query" reasoning
+scraper_olx.py already uses for its oblast queries, applied here too so a
+future settlement addition that leaks a neighboring town's listings (the
+same "incidental leakage" the old docstring already flagged for Cherven
+Bryag) gets tagged correctly instead of inheriting the query slug's
+display name. VILLAGE_LINE_RE mirrors scraper_olx.py's own "с. <Village>"
+fallback for a village-formatted card; unlike CITY_AREA_LINE_RE's "гр."
+form (live-verified against real Plovdiv/Varna/Burgas card text), this
+form was never directly observed on bazar.bg in this session - harmless
+if it never matches, since a card matching neither line format still
+falls back to the query's own display name exactly as before.
 
 Search results are paginated with ?page=N. A page fetch retries a few
 times with backoff before being treated as the end of pagination (same
@@ -52,6 +104,26 @@ mistaken for having reached the last page - and, since scrape.yml runs
 several scrapers sequentially with a single git commit step at the end,
 an uncaught exception here would otherwise silently discard every other
 scraper's output for that run too.
+
+fetch_listings() now takes deadline/on_checkpoint and persists which
+CITY_SLUGS index to resume from next run in GRID_STATE_FILE - the exact
+checkpointed/rotating mechanism docs/backlog.md item 30 shipped for
+scraper_olx.py's own oblast loop (see that file's fetch_listings()/
+main()/load_grid_state()/save_grid_state() - ported here near verbatim,
+adjusted only for this file having no browser/geocoder to manage), built
+in from the start rather than bolted on after growing CITY_SLUGS from 29
+to 37 entries made a monolithic, unbounded loop genuinely more likely to
+run long. main()'s record_new()/checkpoint closure dedups by listing id
+(recorded_ids) the same way, so a run that checkpoints after several
+completed settlements - each checkpoint carrying the FULL accumulated
+listings so far, not just that settlement's own delta - doesn't
+double-append a history snapshot for a listing that shows up in more
+than one checkpoint within the same run. Unlike scraper_olx.py, no
+separate oblast-level query runs alongside CITY_SLUGS here (rejected
+above), so there is no cross-query overlap (e.g. Sofia via both an
+oblast query and its own city query) to dedup against - all_listings
+being keyed by listing id is still kept as the general-purpose safety
+net it already was.
 
 Real coordinates live only on each listing's own detail page, as
 data-lat/data-long attributes on its #see_on_map element (confirmed live
@@ -117,12 +189,41 @@ CITY_SLUGS = [
     ("Силистра", "silistra"),
     ("Дупница", "dupnitsa"),
     ("Свищов", "svishtov"),
+    # docs/backlog.md item 31 additions - confirmed live via Google's index
+    # of real bazar.bg pages (real URL, real page title, real listing
+    # count each), not a direct HTTP fetch (this sandbox has no live
+    # network access to bazar.bg at all - see the module docstring), but a
+    # genuine external signal rather than a guess. Разград/Смолян close 2
+    # of the 2 oblast capitals missing from both this list and
+    # scraper_olx.py's own OBLAST_SLUGS; Петрич/Троян are 2 of the exact
+    # towns docs/backlog.md item 31's own spot-check named as missing.
+    ("Разград", "razgrad"),
+    ("Смолян", "smolian"),  # bazar.bg's own transliteration, not "smolyan"
+    ("Петрич", "petrich"),
+    # "troian" (bazar.bg's own transliteration, not "troyan") was only
+    # directly confirmed under the mixed-category /obiavi/apartamenti/
+    # path, not this file's sale-only /obiavi/prodazhba-apartamenti/ path
+    # - included on the strength of Petrich/Smolyan both resolving to the
+    # identical slug under both category paths in the same research pass
+    # (a settlement slug, reused across bazar.bg's category namespaces,
+    # not scoped per-category), not a direct hit for this exact URL.
+    ("Троян", "troian"),
+    ("Банско", "bansko"),
+    ("Свети Влас", "sveti-vlas"),
+    ("Обзор", "obzor"),
+    ("Велинград", "velingrad"),
 ]
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history_bazar.json"
 LEADS_FILE = OUT_DIR / "leads_bazar.json"
+# Persists only which CITY_SLUGS index the grid crawl should start from
+# next run - the same tiny-file rotation-state pattern scraper_olx.py's
+# GRID_STATE_FILE (data/olx_grid_state.json) already established for
+# docs/backlog.md item 30, reused here per item 31's own note that this
+# file should build on that mechanism rather than invent a second one.
+GRID_STATE_FILE = OUT_DIR / "bazar_grid_state.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
@@ -135,9 +236,28 @@ MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 MAX_CONSECUTIVE_PAGE_FAILURES = 5
 
+# .github/workflows/scrape.yml's bazar.bg step has timeout-minutes: 90 (not
+# touched by this change - docs/backlog.md item 31 is scoped to this file
+# only). 75 minutes leaves a 15-minute buffer under that cap - comfortably
+# more than the worst-case overshoot of one single page fetch already in
+# flight when the deadline is checked (fetch_html()'s own MAX_RETRIES=3 *
+# this file's 20s request timeout, plus <=15s of RETRY_BACKOFF_SECONDS
+# backoff, well under 2 minutes total) plus the final checkpoint (a fast,
+# local JSON write) - the same proportional buffer scraper_olx.py's own
+# TIME_BUDGET_SECONDS comment uses (~17% of its 60-minute cap; 15/90 here
+# is ~17% too).
+TIME_BUDGET_SECONDS = 75 * 60
+
 LISTING_LINK_RE = re.compile(r"obiava-(\d+)")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
-AREA_LINE_RE = re.compile(r"^гр\.\s*\S.*?,\s*(.+)$")
+# Captures both city and area, unlike the old AREA_LINE_RE (which only
+# captured the area and trusted the query slug for city) - see the module
+# docstring's "Each listing's city/area used to be tagged..." paragraph.
+CITY_AREA_LINE_RE = re.compile(r"^гр\.\s*(.+?),\s*(.+)$")
+# Mirrors scraper_olx.py's own VILLAGE_LINE_RE fallback - never directly
+# observed on a live bazar.bg card in this session (see module docstring),
+# harmless if it never matches.
+VILLAGE_LINE_RE = re.compile(r"^с\.\s*(.+)$")
 
 
 class PermanentlyGone(Exception):
@@ -237,11 +357,21 @@ def fetch_listings_page(url, city_display):
         if price_eur is None or price_eur < 1000 or price_eur > 10_000_000:
             continue
 
+        # Parsed from the card's own text, not trusted from the query slug
+        # - see the module docstring's "Each listing's city/area used to be
+        # tagged..." paragraph. city_display (the CITY_SLUGS entry that
+        # produced this query) is kept only as the fallback for a card
+        # whose text matches neither line format.
+        city = city_display
         area = city_display
         for l in lines:
-            m = AREA_LINE_RE.match(l)
+            m = CITY_AREA_LINE_RE.match(l)
             if m:
-                area = m.group(1).strip()
+                city, area = m.group(1).strip(), m.group(2).strip()
+                break
+            m2 = VILLAGE_LINE_RE.match(l)
+            if m2:
+                city = area = m2.group(1).strip()
                 break
 
         img_url = None
@@ -266,7 +396,7 @@ def fetch_listings_page(url, city_display):
             "price_eur": price_eur,
             "sqm": None,
             "area": area,
-            "city": city_display,
+            "city": city,
             "title": title[:150],
             "portal": "bazar.bg",
             "lat": None,
@@ -276,14 +406,61 @@ def fetch_listings_page(url, city_display):
     return listings
 
 
-def fetch_listings():
+def load_grid_state():
+    if GRID_STATE_FILE.exists():
+        try:
+            return json.loads(GRID_STATE_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return {}
+
+
+def save_grid_state(state):
+    GRID_STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def fetch_listings(deadline=None, on_checkpoint=None):
+    # deadline/on_checkpoint, the CITY_SLUGS-index rotation persisted in
+    # GRID_STATE_FILE, and the checkpoint-per-completed-entry shape below
+    # are ported from scraper_olx.py's own fetch_listings() (docs/
+    # backlog.md item 30) - see that file's own comment on this same
+    # shape for the full reasoning; kept in sync here rather than
+    # re-derived, per item 31's own instruction to reuse this exact
+    # mechanism instead of inventing a second one.
+    #
+    # CITY_SLUGS is a fixed list order, so a bounded run that always
+    # started at index 0 would keep running out of budget on the same
+    # tail entries - GRID_STATE_FILE's next_start_index instead rotates
+    # which entry THIS run starts from to wherever the PREVIOUS run left
+    # off, so a bounded run's leftover entries shift each time and every
+    # entry gets roughly even coverage across runs instead of the tail
+    # being starved forever.
     all_listings = {}
-    for city_display, slug in CITY_SLUGS:
+    state = load_grid_state()
+    start_index = state.get("next_start_index", 0) % len(CITY_SLUGS)
+    order = CITY_SLUGS[start_index:] + CITY_SLUGS[:start_index]
+    if start_index:
+        print(f"DEBUG: grid crawl resuming at CITY_SLUGS index {start_index} "
+              f"({order[0][0]}) per {GRID_STATE_FILE.name}'s rotation state")
+
+    entries_completed = 0
+    for city_display, slug in order:
+        if deadline is not None and time.monotonic() >= deadline:
+            print(f"DEBUG: stopping grid crawl before {city_display} - approaching this run's time "
+                  f"budget, {len(order) - entries_completed} of {len(order)} entries left for a future run")
+            break
+
         search_url = f"{SEARCH_BASE}/{slug}"
         city_before = len(all_listings)
         prev_ids = None
         consecutive_failures = 0
+        entry_interrupted = False
         for page_num in range(1, MAX_PAGES + 1):
+            if deadline is not None and time.monotonic() >= deadline:
+                print(f"DEBUG: stopping mid-{city_display} at page {page_num} - "
+                      f"approaching this run's time budget")
+                entry_interrupted = True
+                break
             url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
             page_listings = fetch_listings_page(url, city_display)
             if page_listings is None:
@@ -310,7 +487,28 @@ def fetch_listings():
                 break
             all_listings.update(page_listings)
             prev_ids = page_ids
-        print(f"DEBUG: {city_display} done, {len(all_listings) - city_before} new listings")
+
+        suffix = " (interrupted mid-page, will resume here next run)" if entry_interrupted else ""
+        print(f"DEBUG: {city_display} done, {len(all_listings) - city_before} new listings{suffix}")
+
+        if entry_interrupted:
+            # Doesn't count as completed - next_start_index below stays
+            # pointed at this same entry so the next run resumes on it
+            # instead of skipping straight past it.
+            break
+
+        entries_completed += 1
+        if on_checkpoint:
+            on_checkpoint(list(all_listings.values()))
+
+    # If every entry in `order` completed, (start_index + len(order)) wraps
+    # back to start_index exactly - correct, since a fully-completed lap
+    # makes the next run's starting point unimportant either way.
+    next_start_index = (start_index + entries_completed) % len(CITY_SLUGS)
+    save_grid_state({"next_start_index": next_start_index})
+    if entries_completed < len(order):
+        print(f"DEBUG: grid crawl covered {entries_completed}/{len(order)} entries this run - next run "
+              f"resumes at CITY_SLUGS index {next_start_index} ({CITY_SLUGS[next_start_index][0]})")
 
     return list(all_listings.values())
 
@@ -461,12 +659,38 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings()
+    # record_new()/checkpoint closure ported from scraper_olx.py's own
+    # main() (docs/backlog.md item 30) - see that file's comment for the
+    # full reasoning. Keyed by listing id (recorded_ids), not just called
+    # once at the end, so a run that checkpoints several times mid-crawl
+    # (see fetch_listings()) only ever appends the delta since the last
+    # checkpoint into history's snapshots - calling update_history() again
+    # on the same listing within one run would otherwise double-append a
+    # near-duplicate snapshot for it.
     history = load_history()
-    history = update_history(history, listings)
-    save_history(history)
+    recorded_ids = set()
+
+    def record_new(listings_so_far):
+        nonlocal history
+        new_listings = [l for l in listings_so_far if l["id"] not in recorded_ids]
+        if not new_listings:
+            return
+        history = update_history(history, new_listings)
+        recorded_ids.update(l["id"] for l in new_listings)
+        save_history(history)
+        leads = compute_leads(history)
+        LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
+    listings = fetch_listings(deadline=deadline, on_checkpoint=record_new)
+    # Final catch-up: fetch_listings() only checkpoints after each *fully
+    # completed* CITY_SLUGS entry, so a run interrupted mid-entry (deadline
+    # hit partway through that entry's own page loop) can still be holding
+    # a few pages' worth of listings that were never checkpointed.
+    # record_new()'s id-delta tracking makes this a cheap no-op on a normal
+    # run where nothing was interrupted.
+    record_new(listings)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
 
 
