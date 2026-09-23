@@ -3159,7 +3159,7 @@ touched by this bug or this fix at all):
   (all genuinely garage - the templated single-signal title pattern).
 - imoti.bg: 6 checked, 0 reclassified (same).
 - alo.bg: 2,175 checked, **2,058 reclassified** - 2,035 to `flat`, 17 to
-  `house`, 4 to `land`, 2 to `business`. 427 correctly remain `garage`.
+  `house`, 4 to `land`, 2 to `business`. 117 correctly remain `garage`.
 - **Total: 2,058 of 2,516 (81.8%) of the originally garage-tagged
   low-confidence pool reclassified**, all of them out of `garage` and
   never into it (confirmed by diffing the fix's output against every one
