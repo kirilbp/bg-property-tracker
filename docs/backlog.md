@@ -2094,8 +2094,12 @@ scope than "low effort, ship alongside item 13" calls for):
   CORS-open live-query service, no account needed (unlike Google
   Places) - for schools, hospitals, pharmacies, kindergartens, banks,
   supermarkets, restaurants/cafes, bus stops, and train stations within
-  800m of the listing, and plots them as small sage-colored dots
-  (distinct from the existing brass comparable-listing dots). Results
+  800m of the listing, and plots them as small hollow (unfilled) brass
+  rings - distinct from the existing solid brass comparable-listing dots
+  by shape, not a second fill color (see docs/decisions.md's 2026-09-23
+  PR #238 review-fix entry: the original sage-filled version violated
+  design-guidelines.md's "sage is text-only, never a filled marker/badge"
+  rule). Results
   are cached per-listing so re-rendering the map (radius/layer clicks)
   doesn't re-query. Fails gracefully: a blocked/slow/erroring request or
   a listing with none nearby shows a small inline note instead of

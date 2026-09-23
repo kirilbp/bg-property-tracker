@@ -2242,3 +2242,55 @@ Full audit of `docs/backlog.md` item 11 ("revisit anything designed around the o
 **Live Supabase dashboard setting flagged for Kiril, not applied (no live Supabase access from this sandbox)**: `measure_listings_payload.py`'s `count=exact` fallback, `audit_cross_city_merges.py`'s deep-OFFSET investigation, and `sync_to_supabase.py`'s `delete_stale_merged_listings()` comment all independently document hitting real Postgres error 57014 (`statement_timeout`) against `merged_listings` - already-known, already-worked-around (keyset pagination; a documented row-count fallback), nothing currently broken. But the underlying `statement_timeout` for the PostgREST API roles (`anon`/`authenticated`) is itself a project-level Supabase setting that free-tier projects cannot raise at all, and paid-tier projects (Pro and above) can, via the dashboard (Project Settings -> Database) or a SQL-editor `alter role ... set statement_timeout = '...'`. Since the project is now on Pro, this is a real, currently-unused option: raising it would give more headroom for a future genuinely expensive query (e.g. backlog item 6 slice 2 flags wanting a real `count=exact` for pagination totals as an open design question). Flagging this explicitly rather than silently deciding either way, since it's a dashboard action only Kiril can take, and current code doesn't strictly need it - it's optional headroom, not a fix for something broken today.
 
 **Verification**: `python3 -m pytest tests/` - 11 passed, no regressions (expected: the only code change is a comment in `index.html`, and none of the existing tests touch that file). `node --check` against the extracted `<script>` block confirms the comment edit didn't break JS syntax. No functional/behavioral change shipped - this is an audit-plus-one-comment-clarification PR, not a feature or bugfix.
+
+### 2026-09-23 - PR #238 review fix: amenity map markers switched from sage-filled dots to hollow brass rings (Dessy)
+
+Missy's review of PR #238 (backlog item 20's Map tab additions) correctly
+flagged `renderAmenitiesOnMap()`'s POI markers as a real blocking issue:
+`L.circleMarker(..., { color: '#5c6b52', fillColor: '#7a8b6f', fillOpacity:
+0.85 })` is a solid sage-filled circle, which directly contradicts
+design-guidelines.md sections 4 and 9 - sage is reserved strictly for
+small-caps text labels ("New"/"Price reduced"), explicitly never a
+saturated badge fill or colored banner. It also undid the same map's own
+prior fix a few lines above (the comparable-listing dots were switched
+from a saturated red to brass specifically to stop using a second marker
+color/saturated hue on this map) - this PR reintroduced exactly the
+problem that fix eliminated, just with sage instead of red.
+
+**Fix**: kept the amenity markers visually distinct from the solid brass
+comparable-listing dots by shape, not a second color - `L.circleMarker`
+with `color: '#8a6a24'` (the same `--brass-deep` already used for the
+comparable dots' own stroke), `weight: 2`, `fill: false`. Hollow (unfilled)
+brass rings read clearly as a different marker type from the solid brass
+dots at a glance, without introducing any new hue as a marker fill - the
+"outline-only" option Missy's finding suggested, chosen over an icon-based
+marker or a size/shape-only variant because it requires the smallest code
+change, reuses a color already established for this exact map (no new CSS
+class or divIcon needed), and reads unambiguously against both the street
+and satellite base layers. Also updated `docs/backlog.md` item 20's own
+description (previously said "sage-colored dots") and the inline code
+comment to match.
+
+**Verified**: worked in a fresh worktree off the PR branch
+(`dessy/fix-amenity-marker-color-2026-09-23`, based on
+`dessy/map-tab-layers-2026-09-23`), merged current `origin/main` in (a
+real conflict in this file only, resolved by keeping both same-day
+entries). `node --check` against the extracted `<script>` block passes.
+Reused the PR's own Playwright harness (`view_maplayers.js` in scratchpad,
+pointed at the new worktree) - Street/Satellite toggle, Amenities
+fetch/cache/failure-note paths, and the mobile-wrap check all still behave
+identically to the prior verified run, including the one known
+pre-existing `[pageerror] ... _leaflet_pos` harness artifact (confirmed
+in the original PR session as predating this change, not a regression).
+Additionally built a focused visual-comparison script
+(`view_amenity_markers.js`) that renders real amenity markers from the
+fixed code next to a reference solid brass comparable dot on the same
+map and screenshots the result: three hollow brass rings around the
+brass teardrop subject pin, clearly distinguishable from the one solid
+brass dot, confirming the fix is visually distinct without a second hue.
+Confirmed via `circleMarker.options` inspection that the live markers on
+the map genuinely have `fill: false`/`color: '#8a6a24'`, not just that
+the source line reads that way.
+
+Pushed to `dessy/fix-amenity-marker-color-2026-09-23` for Missy's
+re-review; not merged by this session.

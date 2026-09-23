@@ -3143,8 +3143,14 @@ function renderAmenitiesOnMap(map, l) {
       if (lat == null || lon == null) return;
       const tags = el.tags || {};
       const label = tags.name || tags.amenity || tags.shop || tags.railway || tags.highway || 'Point of interest';
+      // Brass, not a second accent hue (design-guidelines.md section 4/9
+      // reserve sage strictly for small-caps text labels, never a filled
+      // marker/badge - the same rule the comparable-dot fix a few lines
+      // above this function already applies). Distinguished from the solid
+      // brass comparable-listing dots by shape, not color: hollow
+      // (unfilled) brass rings rather than a second solid fill.
       L.circleMarker([lat, lon], {
-        radius: 5, color: '#5c6b52', fillColor: '#7a8b6f', fillOpacity: 0.85, weight: 1,
+        radius: 5, color: '#8a6a24', weight: 2, fill: false,
       }).addTo(map).bindPopup(escapeHtml(label));
     });
   };
