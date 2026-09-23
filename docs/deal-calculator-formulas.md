@@ -73,9 +73,9 @@ Sources: [Innovires - Local Taxes and Fees in Bulgaria 2026](https://www.innovir
 | Parameter | Typical BG value (2026) | Notes |
 |---|---|---|
 | LTV, owner-occupier | up to 85% | Banks typically cover 70-85% of appraised value |
-| LTV, buy-to-let / investment | ~70% (illustrative default already used by the shipped BTL Stress Test - see 2.1) | Lower than owner-occupier terms is standard industry practice; not a quoted bank rate |
+| LTV, buy-to-let / investment | ~70% (illustrative default already used by the shipped BTL Stress Test - see section 2) | Lower than owner-occupier terms is standard industry practice; not a quoted bank rate |
 | Interest rate (EUR-denominated) | ~2.5% - 4.5% / year | Rates below 60% LTV price ~0.2-0.5pp lower; above 80% LTV price higher + mandatory insurance |
-| Rent-cover rule of thumb | rental income should cover >= ~80% of the mortgage installment (soft underwriting guideline, not a hard ICR figure) | Distinct from the UK-style ICR stress-test convention already implemented (2.1) - both are legitimate framings; the calculator should keep the existing ICR-based test as the default since it's already shipped and working |
+| Rent-cover rule of thumb | rental income should cover >= ~80% of the mortgage installment (soft underwriting guideline, not a hard ICR figure) | Distinct from the UK-style ICR stress-test convention already implemented (section 2) - both are legitimate framings; the calculator should keep the existing ICR-based test as the default since it's already shipped and working |
 
 Sources: [Pirotska/Unistroy - Mortgage rates in Bulgaria 2026](https://pirotska.bg/en/article/mortgage-rates-bulgaria-2026-fixed-variable-how-to-choose), [Votchina - Mortgage programs in Bulgarian banks 2026](https://votchina.eu/en/mortgage-programs-in-bulgarian-banks-598-3.html)
 
@@ -238,7 +238,8 @@ Annual Gross STR Revenue = nightlyRate * 365 * (occupancyPct / 100)
 Annual STR Operating Costs = (Annual Gross STR Revenue * platformCommissionPct/100)
                               + (turnovers/year * cleaningCostPerTurnover)
                               + utilities (higher than long-term let - guest-paid)
-                              + STR registration/categorization fee (1.4 below)
+                              + STR registration/categorization fee (see this
+                                section's legal/licensing note below)
                               + standard BTL operating costs (management, HOA, insurance)
 
 NOI = Annual Gross STR Revenue - Annual STR Operating Costs
