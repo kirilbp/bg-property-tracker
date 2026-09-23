@@ -155,21 +155,62 @@ SPLITS = {
 }
 
 
-def split_price_history(full_history, price_value):
-    return [e for e in full_history if e.get("price_eur") == price_value]
+def split_snapshots(full_snapshots, price_value):
+    return [s for s in full_snapshots if s.get("price_eur") == price_value]
 
 
-def build_split_lead(new_id, price_value, fields, full_price_history):
-    ph = split_price_history(full_price_history, price_value)
-    if not ph:
-        raise ValueError(f"{new_id}: no price_history entries match price {price_value}")
-    first_seen = datetime.fromisoformat(ph[0]["date"])
-    last_seen = datetime.fromisoformat(ph[-1]["date"])
+# Mirrors scraper_homes.py's compute_leads() price_history derivation
+# exactly (see that function for the full rationale) - price_history only
+# ever gets an entry when the price actually changes from the previous
+# snapshot, every other raw snapshot is a same-price re-observation and is
+# collapsed away. history_homes.json's `snapshots`, by contrast, keeps
+# every observation (post prune_snapshots(): first, every real change, and
+# the single most recent one, unconditionally) - the two lists are NOT
+# interchangeable, which is exactly the bug this rework fixes. A snapshot
+# tagged source="relisted_from" is never emitted for these split ids (that
+# tag only exists on live-tracked ids that detect_relistings.py/
+# detect_relistings_by_photo.py have matched, not on this one-time split's
+# frozen historical data) but the handling is kept anyway for parity with
+# the real derivation logic rather than shipping a partial copy of it.
+def dedup_price_history(snapshots):
+    price_history = []
+    last_price = None
+    for s in snapshots:
+        p = s.get("price_eur")
+        is_relisting = s.get("source") == "relisted_from"
+        if not p or (p == last_price and not is_relisting):
+            continue
+        entry = {"date": s["seen_at"], "price_eur": p}
+        if is_relisting:
+            entry["source"] = "relisted_from"
+            entry["relisted_from"] = s["relisted_from"]
+            if s.get("came_back_at"):
+                entry["came_back_at"] = s["came_back_at"]
+            if s.get("came_back_price") is not None:
+                entry["came_back_price"] = s["came_back_price"]
+        price_history.append(entry)
+        last_price = p
+    return price_history
+
+
+def build_split_lead(new_id, price_value, fields, full_snapshots):
+    snaps = split_snapshots(full_snapshots, price_value)
+    if not snaps:
+        raise ValueError(f"{new_id}: no snapshots match price {price_value}")
+    first_seen = datetime.fromisoformat(snaps[0]["seen_at"])
+    last_seen = datetime.fromisoformat(snaps[-1]["seen_at"])
     source_status = "active" if (NOW - last_seen) <= GONE_AFTER else "removed"
     effective_now = last_seen if source_status == "removed" else NOW
     days_on_market = (effective_now - first_seen).days
-    first_price, last_price = ph[0]["price_eur"], ph[-1]["price_eur"]
+    # Same-price-per-split-group by construction (split_snapshots() filters
+    # to one exact price value), so first/last price here are always equal
+    # and drop_pct/price_drop_count are always 0 - real finding (see
+    # docs/decisions.md), not a bug: neither underlying listing's price
+    # ever actually changed, the "price oscillates wildly" symptom that
+    # opened backlog item 23 was 100% the id-collision artifact.
+    first_price, last_price = snaps[0]["price_eur"], snaps[-1]["price_eur"]
     drop_pct = round((first_price - last_price) / first_price * 100, 1) if first_price else 0
+    ph = dedup_price_history(snaps)
     price_drop_count = sum(
         1 for i in range(1, len(ph)) if ph[i]["price_eur"] < ph[i - 1]["price_eur"]
     )
@@ -206,9 +247,7 @@ def build_split_lead(new_id, price_value, fields, full_price_history):
     lead["score"] = compute_motivation_score(
         drop_pct, price_drop_count, days_on_market, pct_vs_area_avg, ph
     )
-    return lead, {"first_seen": first_seen.isoformat(), "snapshots": [
-        {"seen_at": e["date"], "price_eur": e["price_eur"]} for e in ph
-    ], "latest": {
+    return lead, {"first_seen": first_seen.isoformat(), "snapshots": snaps, "latest": {
         "id": new_id,
         "url": fields["url"],
         "photo": fields["photo"],
@@ -236,22 +275,35 @@ def main():
     for old_id, splits in SPLITS.items():
         if old_id not in leads_by_id:
             raise SystemExit(f"{old_id} not found in {LEADS_FILE} - nothing to split, aborting")
-        old_lead = leads[leads_by_id[old_id]]
-        full_ph = old_lead["price_history"]
+        if old_id not in history:
+            raise SystemExit(f"{old_id} not found in {HISTORY_FILE} - nothing to split, aborting")
+        # Source of truth for the split is history_homes.json's OWN
+        # pre-split `snapshots` list, not leads_homes.json's `price_history`.
+        # The two diverge whenever a listing was re-scraped at an unchanged
+        # price: `price_history` only appends on a real price change, while
+        # `snapshots` logs every scrape observation. Splitting off the
+        # shorter, already-deduped `price_history` here would silently drop
+        # real snapshots (confirmed for homes_208381: 24 real snapshots vs.
+        # only 23 price_history entries - the missing one was homes_208381's
+        # most recent observation, which flipped its correct source_status
+        # from "active" to a wrongly stale "removed"). See docs/decisions.md
+        # for the full re-verification.
+        full_snapshots = history[old_id]["snapshots"]
 
         new_leads = []
         new_history_entries = {}
         covered = 0
         for new_id, price_value, fields in splits:
-            lead, hist_entry = build_split_lead(new_id, price_value, fields, full_ph)
-            covered += len(lead["price_history"])
+            lead, hist_entry = build_split_lead(new_id, price_value, fields, full_snapshots)
+            covered += len(hist_entry["snapshots"])
             new_leads.append(lead)
             new_history_entries[new_id] = hist_entry
 
-        if covered != len(full_ph):
+        if covered != len(full_snapshots):
             raise SystemExit(
-                f"{old_id}: split price_history entries ({covered}) don't add up to the "
-                f"original ({len(full_ph)}) - refusing to write a lossy split"
+                f"{old_id}: split snapshots ({covered}) don't add up to the "
+                f"original history_homes.json snapshot count ({len(full_snapshots)}) - "
+                f"refusing to write a lossy split"
             )
 
         # Remove the old collided lead, insert the split ones.
@@ -264,8 +316,9 @@ def main():
         history.update(new_history_entries)
 
         print(f"Split {old_id} -> {[l['id'] for l in new_leads]} "
-              f"({[len(l['price_history']) for l in new_leads]} price points each, "
-              f"{covered}/{len(full_ph)} accounted for)")
+              f"(snapshots: {[len(h['snapshots']) for h in new_history_entries.values()]}, "
+              f"deduped price_history: {[len(l['price_history']) for l in new_leads]}, "
+              f"{covered}/{len(full_snapshots)} snapshots accounted for)")
 
     LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
