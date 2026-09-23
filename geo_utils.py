@@ -691,20 +691,39 @@ def cyr_city_key_from_text(text):
     return BG_CITY_BY_NAME.get(match.group(1))
 
 
+def _title_derived_city_key_strict(title):
+    # The structured half of _title_derived_city_key() below: a title
+    # formatted "<description>, <City>" (the shape every portal that
+    # ever motivated the "title wins" override in listing_city_key() below
+    # actually has) reliably names the real city in its own last comma
+    # segment. Kept separate because this is the ONLY half of title-derived
+    # resolution trustworthy enough to override an already-present, valid
+    # "city" field - see listing_city_key()'s own comment for the evidence
+    # this split is based on.
+    if not title or "," not in title:
+        return None
+    last_segment = title.rsplit(",", 1)[1].strip()
+    key = city_key_from_name(last_segment)
+    if key:
+        return key
+    return city_key_from_name_prefix(last_segment)
+
+
 def _title_derived_city_key(title):
     # The title-only half of listing_city_key()'s resolution, kept separate
     # so listing_city_key() can compute it independently of the "city"
     # field and compare the two - see that function's own comment for why.
+    # Used only to RECOVER a city when the field itself is missing/
+    # unresolvable - the loose latin_city_key_from_text()/
+    # cyr_city_key_from_text() "anywhere in the title" fallbacks below are
+    # deliberately NOT trusted enough to override an already-present field
+    # value (see _title_derived_city_key_strict() above and
+    # listing_city_key()'s own comment) - only to fill in a real gap.
     if not title:
         return None
-    if "," in title:
-        last_segment = title.rsplit(",", 1)[1].strip()
-        key = city_key_from_name(last_segment)
-        if key:
-            return key
-        key = city_key_from_name_prefix(last_segment)
-        if key:
-            return key
+    key = _title_derived_city_key_strict(title)
+    if key:
+        return key
     key = latin_city_key_from_text(title)
     if key:
         return key
@@ -721,7 +740,6 @@ def listing_city_key(l):
         return city_key_from_name(settlement) if settlement else None
 
     title = l.get("title")
-    title_key = _title_derived_city_key(title)
 
     city = l.get("city")
     field_key = None
@@ -731,15 +749,47 @@ def listing_city_key(l):
             field_key = city_key_from_name_prefix(city)
 
     # A live report found a listing whose "city" field disagreed with its
-    # own title (a stale/wrong scrape-time field vs. a title that plainly,
-    # unambiguously names a different real city) - trusting the field
+    # own title (a stale/wrong scrape-time field vs. a title formatted
+    # "<description>, <City>" that plainly, unambiguously names a different
+    # real city in its own last comma segment) - trusting the field
     # unconditionally let two listings that don't actually share a city
     # slip through a downstream cross-portal match on area+price alone
     # (see group_listings()'s own comment). The title is the thing a human
     # reader would trust in that situation, so when both resolve and
-    # disagree, the title wins.
-    if field_key and title_key and field_key != title_key:
-        return title_key
+    # disagree via this STRUCTURED signal, the title wins.
+    #
+    # 2026-09-23 (Placy, full-population allocation audit): narrowed this
+    # override from "any title-derived key" to only the structured
+    # comma-segment signal above, after live-sampling every real
+    # field-vs-title cross-OBLAST disagreement nationwide (32 active
+    # listings) and finding 31 of 32 were the loose latin_city_key_from_text()/
+    # cyr_city_key_from_text() "anywhere in the title" fallbacks matching a
+    # city name that ISN'T the listing's own real location at all - e.g.
+    # alo.bg's own titles are scraped as "<Agency Name> преди N дни <real ad
+    # title>" (confirmed: 56,882/77,769 active alo.bg titles have this exact
+    # shape), and an agency literally named "Varna North Properties" made
+    # every listing it manages elsewhere in Bulgaria (15 confirmed active:
+    # real Dobrich-oblast coastal towns - Балчик/Каварна/Топола) wrongly
+    # override a correct city="Добрич" field with "varna" (the agency's own
+    # name, not the property's location) - 7 of those currently have no
+    # lat/lng to be rescued by geo (which always wins over city_key when
+    # present), so were live-resolving to the WRONG oblast in production
+    # today. Same shape independently confirmed on olx.bg (12 cases - e.g.
+    # a real Sofia listing, city="София", genuine Sofia district "Хладилника",
+    # whose own title text contains an unrelated "гр. Пловдив" fragment,
+    # likely a multi-branch agency's mistemplated ad) and bazar.bg (3 of its
+    # 4 cross-oblast cases). Only 1 of the 32 came from the structured
+    # comma-segment method (a bazar.bg title "2-стаен апартамент кк.Камчия,
+    # Варна" with a wrong city="Габрово" field - independently confirmed via
+    # k.k. Kamchia being a real Varna-oblast coastal resort, unrelated to
+    # inland Габрово - exactly the shape the original override was designed
+    # for), so the structured method is kept as override-authoritative and
+    # the loose methods are demoted to fill-a-gap-only (see
+    # _title_derived_city_key() above), not discarded entirely.
+    title_key_strict = _title_derived_city_key_strict(title)
+    if field_key and title_key_strict and field_key != title_key_strict:
+        return title_key_strict
+    title_key = _title_derived_city_key(title)
     return field_key or title_key
 
 
