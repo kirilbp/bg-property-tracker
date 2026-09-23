@@ -1924,3 +1924,129 @@ Dispatched to do this work fresh in a new worktree off `origin/main`. Before wri
 **Action taken**: no code changes needed (there was nothing left to build). Updated `docs/backlog.md` items 7 and 8 to DONE, pointing at the real PRs/commits above and this entry, so the backlog reflects what `main` actually contains. Did not touch item 9 (descriptions) or item 10 (sitewide design), which are separate, still-open items outside this dispatch's scope - confirmed item 10's referenced sitewide-palette PR (#224) is also already merged, but leaving that status update to whoever owns item 10 rather than reaching outside my actual dispatch (7/8) opportunistically.
 
 **Missy re-review not sought for this pass**: no `Agent`/Task-spawning tool available in this session (same recurring constraint as every prior entry in this file), and there is no new *code* here for her to review - the code she'd be reviewing is the exact already-merged, already-reviewed `e2c4b04`/`df135d5`/`1b36b64` commits (her review of `e2c4b04`'s 1366px gap is what produced `df135d5`, confirmed directly from that commit's own message). The only change in this pass is a `docs/backlog.md` status correction plus this entry - flagging that explicitly rather than presenting it as a fresh Missy sign-off, consistent with this file's own established discipline for sessions without Agent-tool access.
+
+### 2026-09-23 - Backlog item 6: two small slice-2-adjacent fixes shipped (Lead Generator "new since last check" regression, Deal Pipeline full-array scan)
+
+Picked up Bossy's dispatch (`docs/backlog.md` item 6, PR #228, design-only,
+open/unmerged as of this session) items 1 and 2 - the two fixes explicitly
+called out as small and independent of the core slice-2 pagination piece
+(item 3) and safe to ship ahead of it. Read the real current `index.html`
+and `sync_to_supabase.py` on a fresh `origin/main` before touching
+anything, per this repo's own "confirm, don't take the claim on faith"
+discipline - both findings below were verified directly, not assumed from
+PR #228's writeup.
+
+**Confirmed real, currently live**: `computeLeadGenCounts()` ->
+`listingFirstSeenDate(l)` reads `l.price_history[0].date`, but
+`price_history` is one of the three heavy columns slice 1 (PR #203)
+deliberately dropped from `MERGED_LISTINGS_BULK_COLUMNS`. Every Lead
+Generator's orange "new since last check" badge has silently read
+stale/zero for every listing since slice 1 shipped - confirmed by reading
+both the bulk-fetch column list and `listingFirstSeenDate()`'s own logic
+directly, not taking PR #228's claim on faith. Also confirmed the same
+break independently affects the Deal Pipeline's "Listed" label
+(`createPipelineCard`/`renderPipelineTableView`) and its CSV export
+(`exportPipelineCsv`) - all three call the same function against the same
+bulk-fetched rows, a consumer PR #228's own writeup didn't separately
+name.
+
+**Fix**: added a precomputed `first_seen_at timestamptz` column to both
+`listing_sources` and `merged_listings` (`supabase/schema.sql`), following
+the exact `alter table ... add column if not exists` pattern already
+established there for `category_confidence`/`oblast_key`/`area_key`.
+`sync_to_supabase.py`'s `build_rows()` now populates it via a new
+`first_seen_at_for()` helper - deliberately just
+`price_history[0].date` read server-side, not reimplemented or
+"improved" (e.g. no min-across-history-entries logic), so it produces the
+identical value the frontend was already computing, just earlier and
+without needing the jsonb payload in the browser at all.
+`MERGED_LISTINGS_BULK_COLUMNS` now includes `first_seen_at` (cheap - a
+scalar timestamp, not jsonb), and `listingFirstSeenDate()` prefers it,
+falling back to the original `l.price_history[0].date` derivation for any
+row that still carries `price_history` in full (a single listing's own
+detail-page fetch, via `showListingDetail()`'s existing lazy fetch) - one
+function, one fallback, rather than duplicating the derivation logic in
+two places. This single fix covers all three broken consumers (Lead
+Generator badge, Pipeline "Listed" label, Pipeline CSV export) since they
+all route through the same function.
+
+**Migration required, not assumed live**: `upsert()` already has a
+`PGRST204`-detection-and-strip-and-retry pattern (`_MISSING_COLUMN_RE`,
+added for the `area_key` migration/item 18 - checked before writing any
+new logic rather than assuming it existed) that generically strips
+whatever column PostgREST reports missing and retries - `first_seen_at`
+needs no new handling there, it's covered by the existing generic path.
+Until Kiril runs the migration below in the Supabase SQL editor, syncs
+keep working exactly as today (the column is silently stripped and
+retried) and `first_seen_at` is simply absent from every row - same
+degrade-gracefully behavior `area_key` already relies on, not a new
+failure mode:
+
+```sql
+alter table listing_sources add column if not exists first_seen_at timestamptz;
+alter table merged_listings add column if not exists first_seen_at timestamptz;
+```
+
+**Deal Pipeline inefficiency, fixed.** `resolvedPipelineDeals()` built a
+`Map` from every row in `MERGED_LISTINGS` (hundreds of thousands of rows)
+on every Pipeline/Dashboard render, just to resolve the handful of ids in
+`PIPELINE_DEALS` a user has actually pipelined. Replaced with
+`PIPELINE_LISTINGS_CACHE`, an id-keyed cache backed by a targeted
+`sb.from('merged_listings').select(PIPELINE_LISTING_COLUMNS).in('id',
+dealIds)` query (`refreshPipelineListingsCache()`) - `PIPELINE_LISTING_
+COLUMNS` is its own narrow column list (same rationale as
+`MERGED_LISTINGS_BULK_COLUMNS`, just for a handful of rows), covering
+every field the Pipeline's card/table/map/CSV views actually read
+(verified by grepping every `l.<field>` access across
+`createPipelineCard`/`renderPipelineTableView`/`exportPipelineCsv`/
+`pipelineDistanceLabel`/`pipelineStatusLabel`/`pipelinePriceChangeLabel`,
+not guessed). `rooms` (derived client-side from title, same as
+`MERGED_LISTINGS`) is computed the same way (`extractRoomCount`) when the
+cache is populated, so the shape matches what the Pipeline UI already
+expects.
+
+Sequencing: the targeted query is kicked off in parallel with `loadData()`
+'s much larger bulk fetch at page load (both fire right after
+`loadPipelineDeals()`), and `loadData()` awaits that same promise
+immediately before its first `renderDashboard()`/`render()` call - not
+before the bulk fetch itself, so it never delays the page's own dominant
+network cost. The cache is refreshed (and whichever of the Dashboard's
+pipeline widget or the Pipeline page itself is on screen re-rendered)
+whenever `PIPELINE_DEALS`'s membership changes
+(`addToPipeline()`/`removeFromPipeline()`, centralized in those two
+functions rather than scattered across every call site that invokes
+them), and opportunistically in the background whenever the Pipeline
+section is opened (covers price/status drift on already-pipelined
+listings between visits, a distinct concern from membership changing).
+Net effect: Deal Pipeline resolution no longer touches
+`MERGED_LISTINGS`/the full bulk array at all.
+
+**Verified**: `node --check` against the extracted script block (no
+syntax errors); `python3 -m py_compile sync_to_supabase.py` clean; grepped
+every Pipeline-view field access against `PIPELINE_LISTING_COLUMNS`
+by hand to confirm nothing was missed (`sqm` was almost missed on a first
+pass - caught by re-checking the CSV export/table view specifically).
+**Not verified live** (this sandbox's egress proxy blocks Supabase, same
+constraint as every prior item-6 entry) - no real before/after network
+measurement was possible; this is a code-review-level verification, not a
+live one, same caveat Bossy's own PR #228 already flagged for anything
+needing live Supabase access.
+
+**Scope discipline**: deliberately did not touch the core slice-2 piece
+(server-side filtered/paginated queries for the primary grid,
+`findComparables()`'s radius search, or the Market Data hub) - both fixes
+here are exactly the two Bossy's design pass called out as small,
+independent, and safe to ship ahead of that larger, riskier change. Built
+in an isolated worktree off a fresh `origin/main` (`git worktree add`),
+not the shared checkout - `git worktree list` confirmed
+`dessy/detail-page-consolidation`, `dessy/send-letters-campaigns`,
+`dessy/sitewide-design-verify-2026-09-23`, and
+`scrapy/item9-description-fixes` were all still active against
+`index.html`-adjacent work at the time this branch was cut, consistent
+with every prior item-6 entry's collision warning - not merged into this
+work, left for whoever resolves them at merge time.
+
+**Not merged, Missy's review required** (per this repo's explicit "nothing
+ships without her sign-off" rule for anything beyond a docs-only change) -
+pushed to its own branch, PR opened against `main`, not merged by this
+session.

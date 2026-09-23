@@ -1701,6 +1701,45 @@ let pipelineSearchQuery = '';
 let pipelineViewMode = 'card'; // card | table | map
 let pipelineMap = null;
 
+// Backs resolvedPipelineDeals() - keyed by listing id, populated by
+// refreshPipelineListingsCache() below via a targeted `.in('id', ...)`
+// query against the handful of ids the user has actually pipelined
+// (PIPELINE_DEALS), NOT by scanning the full MERGED_LISTINGS array
+// (backlog item 6: resolvedPipelineDeals() used to build a Map from every
+// row in MERGED_LISTINGS - hundreds of thousands of rows - just to resolve
+// a handful of pipelined ids, on every Pipeline/Dashboard render).
+let PIPELINE_LISTINGS_CACHE = {};
+
+// Every field the Pipeline's card/table/map/CSV views actually read off a
+// listing (createPipelineCard, renderPipelineTableView, exportPipelineCsv,
+// pipelineDistanceLabel/pipelineStatusLabel/pipelinePriceChangeLabel) -
+// deliberately not select('*'), same narrowing rationale as
+// MERGED_LISTINGS_BULK_COLUMNS above, just for a handful of rows instead
+// of the whole table. first_seen_at (backlog item 6 slice-1 fix) powers
+// the "Listed" label/CSV column the same way it now does in the main grid.
+const PIPELINE_LISTING_COLUMNS =
+  'id,portal,url,photo,price_eur,sqm,area,title,price_per_sqm,' +
+  'price_drop_count,drop_pct,days_on_market,status,lat,lng,first_seen_at';
+
+// Fetches exactly the listings the user has pipelined, by id - replaces
+// resolvedPipelineDeals()'s old full-array scan. Fire-and-forget-friendly:
+// on any failure (network blip, or a live project where this project's
+// migration hasn't landed yet) this leaves the existing cache in place
+// rather than blanking out an already-working Pipeline view.
+async function refreshPipelineListingsCache() {
+  const dealIds = Object.keys(PIPELINE_DEALS);
+  if (dealIds.length === 0) { PIPELINE_LISTINGS_CACHE = {}; return; }
+  try {
+    const { data, error } = await sb.from('merged_listings').select(PIPELINE_LISTING_COLUMNS).in('id', dealIds);
+    if (error) throw error;
+    const next = {};
+    (data || []).forEach(row => { next[row.id] = { ...row, rooms: extractRoomCount(row.title) }; });
+    PIPELINE_LISTINGS_CACHE = next;
+  } catch (e) {
+    console.error('Failed to refresh Deal Pipeline listings', e);
+  }
+}
+
 function loadPipelineStages() {
   try {
     const saved = JSON.parse(localStorage.getItem(PIPELINE_STAGES_KEY) || 'null');
@@ -1758,6 +1797,19 @@ function isInPipeline(listingId) {
   return Object.prototype.hasOwnProperty.call(PIPELINE_DEALS, listingId);
 }
 
+// Keeps PIPELINE_LISTINGS_CACHE (and, transitively, whichever of the
+// Dashboard's pipeline widget or the Pipeline page itself is currently on
+// screen) in sync after a change to PIPELINE_DEALS's *membership* - a new
+// id added or one removed. Not needed for setDealStage()/toggleDealTag(),
+// which only change a deal's own metadata, not which ids exist, so those
+// keep re-rendering directly from the existing cache.
+function refreshPipelineListingsCacheAndRerender() {
+  refreshPipelineListingsCache().then(() => {
+    if (document.getElementById('section-pipeline').classList.contains('active')) renderPipeline();
+    if (document.getElementById('section-dashboard').classList.contains('active')) renderDashPipelineActions();
+  });
+}
+
 // stageId defaults to the first configured stage - if every stage has been
 // deleted (edge case, the config UI always leaves at least one), falls back
 // to a bare 'unstaged' id so the deal is still tracked rather than dropped.
@@ -1771,11 +1823,13 @@ function addToPipeline(listingId, stageId, leadGenId) {
   if (stageId) deal.stageId = stageId;
   PIPELINE_DEALS[listingId] = deal;
   savePipelineDeals();
+  refreshPipelineListingsCacheAndRerender();
 }
 
 function removeFromPipeline(listingId) {
   delete PIPELINE_DEALS[listingId];
   savePipelineDeals();
+  refreshPipelineListingsCacheAndRerender();
 }
 
 function setDealStage(listingId, stageId) {
@@ -1792,16 +1846,17 @@ function toggleDealTag(listingId, tagId) {
   savePipelineDeals();
 }
 
-// Resolves every stored deal against MERGED_LISTINGS by id, same
+// Resolves every stored deal against PIPELINE_LISTINGS_CACHE by id (kept
+// fresh by refreshPipelineListingsCache()'s targeted query, not a scan of
+// the full MERGED_LISTINGS array - see that function's comment), same
 // "drop silently if no longer tracked" pattern reminderRowHtml()/
 // renderDashboardReminders() already use - a merged_listings row can be
 // deleted outright when a group's membership changes (sync_to_supabase.py's
 // delete_stale_merged_listings()), and a deal outlives the listing it was
 // added for.
 function resolvedPipelineDeals() {
-  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
   return Object.entries(PIPELINE_DEALS)
-    .map(([listingId, deal]) => ({ listing: byId.get(listingId), deal, listingId }))
+    .map(([listingId, deal]) => ({ listing: PIPELINE_LISTINGS_CACHE[listingId], deal, listingId }))
     .filter(row => row.listing);
 }
 
@@ -3356,12 +3411,28 @@ function extractRoomCount(title) {
 // per this repo's own documentation standard, not silently accepted -
 // see docs/decisions.md's 2026-09-22 backlog-item-6 entry for the full
 // reasoning on why this was chosen over the alternatives.
+//
+// A fourth consumer of price_history - listingFirstSeenDate(), which
+// powers Lead Generator "new since last check" badges and the Deal
+// Pipeline's "Listed" label - was NOT among those accepted trade-offs: it
+// silently broke outright (always null/stale) once price_history left
+// this bulk fetch, since nothing else in this file falls back to a
+// detail-page-only fetch for it the way the three above do. Fixed by
+// precomputing first_seen_at server-side instead (see below) rather than
+// adding it to this same lazy-detail-page-only trade-off list.
+// first_seen_at (backlog item 6 slice-1 regression fix): a precomputed
+// timestamp, populated server-side by sync_to_supabase.py from the exact
+// same price_history[0].date this bulk fetch used to derive that value
+// from before price_history was dropped from it below - see
+// listingFirstSeenDate()'s own comment for the full story. Cheap (a
+// timestamptz, not a jsonb payload), so it belongs in the narrow list here
+// unlike price_history itself.
 const MERGED_LISTINGS_BULK_COLUMNS =
   'id,portal,url,photo,price_eur,sqm,area,title,category,' +
   'category_confidence,type_bucket,city_key,oblast_key,lat,lng,' +
   'price_per_sqm,price_drop_count,drop_pct,days_on_market,score,status,' +
   'member_count,member_portals,area_avg_price_per_sqm,pct_vs_area_avg,' +
-  'site_updated_at,site_posted_at,updated_at';
+  'site_updated_at,site_posted_at,updated_at,first_seen_at';
 
 // --- Bulk listings cache (backlog item 6) --------------------------------
 // IndexedDB, not localStorage: even narrowed, the full merged_listings
@@ -3495,6 +3566,11 @@ async function loadData() {
     populateLeadGenNeighborhoods();
     populateComparablesFilters();
     renderHome();
+    // Deal Pipeline's own small targeted query (kicked off in parallel,
+    // way below this function) - awaited here, not before, so it never
+    // delays this function's own much bigger fetch above; in practice
+    // already resolved by the time a 200k+-row bulk load finishes.
+    await pipelineListingsReady;
     renderDashboard();
     render();
 
@@ -4066,7 +4142,21 @@ function describeLeadGenerator(gen) {
 // sourceListedMetaHtml() already uses for the multi-portal badge row's
 // "Tracked since" fallback (backlog item 9). Used here to work out whether
 // a Lead Generator match is "new since last check".
+//
+// Prefers the precomputed first_seen_at column (backlog item 6 slice-1
+// regression fix) - populated server-side by sync_to_supabase.py from
+// this exact same price_history[0].date logic, just moved server-side so
+// it survives the bulk merged_listings fetch narrowing price_history out
+// (see MERGED_LISTINGS_BULK_COLUMNS above). Falls back to deriving it from
+// l.price_history directly for any row that still carries it (a single
+// listing's own detail-page fetch, which still pulls price_history in
+// full - see showListingDetail()) - covers a listing synced before this
+// column existed, or a live project where the schema.sql migration adding
+// it hasn't been applied yet (in which case first_seen_at is simply absent
+// from every row, same as any other not-yet-migrated column - see
+// upsert()'s own PGRST204 handling in sync_to_supabase.py).
 function listingFirstSeenDate(l) {
+  if (l.first_seen_at) return l.first_seen_at;
   return Array.isArray(l.price_history) && l.price_history.length > 0 && l.price_history[0].date
     ? l.price_history[0].date
     : null;
@@ -6898,6 +6988,10 @@ function showSection(name) {
     renderDashboard();
   } else if (name === 'pipeline') {
     renderPipeline();
+    // Refresh in the background (prices/status can have changed since the
+    // cache was last populated) and re-render once it resolves - never
+    // blocks the section switch itself.
+    refreshPipelineListingsCache().then(renderPipeline);
   } else if (name === 'comparables' && cmpSearched) {
     renderComparablesResults();
   }
@@ -7463,7 +7557,9 @@ document.addEventListener('click', (e) => {
     addToPipeline(id, null, activeLeadGenerator ? activeLeadGenerator.id : null);
   }
   updatePipelineButtonsFor(id);
-  if (document.getElementById('section-pipeline').classList.contains('active')) renderPipeline();
+  // addToPipeline()/removeFromPipeline() above already refresh
+  // PIPELINE_LISTINGS_CACHE and re-render the Pipeline page/Dashboard
+  // widget if either is on screen - nothing further needed here.
 });
 
 function updatePipelineButtonsFor(id) {
@@ -7485,6 +7581,15 @@ loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
 maybeImportSharedLeadGenerator();
+
+// Kicked off in parallel with loadData()'s much larger bulk fetch below,
+// not sequenced after it - Deal Pipeline resolution no longer needs
+// MERGED_LISTINGS at all (see refreshPipelineListingsCache()), just this
+// one small targeted query. loadData() awaits this same promise right
+// before its own first renderDashboard()/render() call, so the Pipeline's
+// counts/cards are correct on first paint without ever touching the full
+// bulk array.
+const pipelineListingsReady = refreshPipelineListingsCache();
 
 setGreeting();
 loadData();

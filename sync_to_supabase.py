@@ -938,6 +938,21 @@ SOURCE_FIELDS = [
     "area_avg_price_per_sqm", "pct_vs_area_avg", "site_updated_at", "site_posted_at",
 ]
 
+# "First seen" date for a listing/group, precomputed server-side (backlog
+# item 6 slice-1 regression fix) so the frontend doesn't need price_history
+# in the bulk merged_listings list-view fetch just to show it. Mirrors
+# index.html's own listingFirstSeenDate() EXACTLY (same price_history[0]
+# .date read, same null-if-missing behavior) - just moved here so it can
+# be stored as a real first_seen_at column instead. Do not "improve" this
+# to e.g. min() across every price_history entry - the point is that this
+# produces the identical value the frontend already computed, just earlier.
+def first_seen_at_for(row):
+    ph = row.get("price_history")
+    if isinstance(ph, list) and len(ph) > 0 and isinstance(ph[0], dict) and ph[0].get("date"):
+        return ph[0]["date"]
+    return None
+
+
 # merged_listings has no source_status/removed_at columns - a merged group's
 # equivalent is the "status" field computed separately (available/sold,
 # only true once every member source agrees it's gone), not any one
@@ -967,6 +982,7 @@ def build_rows(all_listings):
             row["city_key"] = city_key
             row["oblast_key"] = listing_oblast_key(s, city_key)
             row["area_key"] = normalize_area(s.get("area")) or None
+            row["first_seen_at"] = first_seen_at_for(row)
             listing_source_rows.append(row)
 
         best = sorted_sources[0]
@@ -984,6 +1000,7 @@ def build_rows(all_listings):
         merged["city_key"] = city_key
         merged["oblast_key"] = listing_oblast_key(best, city_key)
         merged["area_key"] = normalize_area(best.get("area")) or None
+        merged["first_seen_at"] = first_seen_at_for(merged)
         merged_rows.append(merged)
 
     return dedupe_rows(listing_source_rows, ("portal", "source_id")), dedupe_rows(merged_rows, ("id",))
