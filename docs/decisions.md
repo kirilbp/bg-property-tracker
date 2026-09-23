@@ -3229,3 +3229,99 @@ your changes need the same sign-off gate, not a self-certified pass"):
 built in an isolated worktree
 (`ready/fix-garage-tiebreak-2026-09-23`), locally verified as above, and
 handed back for routing to Missy rather than merged directly.
+
+## 2026-09-23 (later) - Backlog item 32 merged; three undocumented overnight merges backfilled
+
+Backlog item 32 (garage/parking-amenity tiebreak fix, above) was reviewed
+by Missy - APPROVED, with one arithmetic slip caught in this doc's own
+per-portal breakdown (this entry originally read "427 correctly remain
+garage"; corrected to the right figure, 117, which is what
+`2,175 - 2,058` actually equals - the aggregate figures elsewhere in the
+entry and in PR #255's description were already correct, this was an
+isolated slip in one bullet). Merged as PR #255.
+
+Three further overnight changes landed on `main` without a matching
+decisions.md write-up at merge time - closing that gap here rather than
+leaving it silently undocumented, since a report compiled mid-session
+(Selly's 2026-09-23 overnight summary) correctly flagged the absence:
+
+- **PR #257 - "Browse by city" redesign.** Replaced the plain text-pill
+  city row with a compact real-photo tile grid (Wikimedia Commons photo
+  per city, dark gradient scrim, name + live listing count), per a
+  two-round Claude Artifact mockup the user reviewed and approved before
+  anything was built. Missy-reviewed and approved: confirmed counts stay
+  live (not hardcoded from the mockup), click-to-filter behavior fully
+  preserved, and caught+fixed a real bug in the port of the mockup's own
+  `onerror` fallback (`this.parentElement` was being read after
+  `this.remove()`, which nulls it - fixed by capturing the parent
+  reference first). Known honest limitation: this sandbox can't reach
+  `commons.wikimedia.org`, so none of the 30 photo filenames were
+  live-verified before shipping; 5 smaller towns (Asenovgrad, Dupnitsa,
+  Svishtov, Montana, Dimitrovgrad) are flagged lower-confidence in a code
+  comment. The `onerror` fallback means a wrong filename just shows the
+  old gradient tile, never a broken image - worth a live glance to
+  confirm those 5 render as real photos.
+- **PR #259 - Account/Subscription page preview.** New, deliberately
+  inert "Account" section (login/signup form + a single-tier pricing and
+  payment-details UI), built per the user's explicit instruction: "Build
+  the payment page with a login details but do not activate the login
+  yet. I don't want the website to ask me every time to login." Missy's
+  review was unusually thorough given the stakes (accidentally reviving
+  the login system the user had explicitly ordered fully removed, or
+  accidentally shipping something that looks like a real payment flow):
+  confirmed zero live wiring (`sb.auth.*`/`CURRENT_USER`/
+  `onAuthStateChange` all absent from live code, both forms only
+  `preventDefault()` + show an inert "preview only, nothing was
+  submitted/charged" message), confirmed no existing page gained a new
+  login gate, and confirmed the copy/visual treatment couldn't plausibly
+  mislead a user into thinking they'd completed a real signup or
+  payment. The €19/month single-tier pricing shown is a placeholder, not
+  a real pricing decision - flagged as needing the user's actual
+  tier/price sign-off before this is wired to anything real.
+- **PR #258 - Lead Generator creation modal redesign.** Regrouped the
+  Add/Edit Lead Generator modal into three labeled sections (Listing
+  type / Property details / Location), inspired by a competitor
+  product's (Property Filter) reference screenshots the user shared, but
+  adapted to imotenradar's real taxonomy and the Bulgarian market rather
+  than copied literally (no Tenure/Purpose/Build-type fields, since none
+  of those are populated anywhere in the data model; no permanent
+  Templates sidebar, since the existing per-generator Duplicate action
+  already covers "start from a known config"). Added Rooms, max size,
+  and an Auctions (Any/Exclude/Only) filter to the modal, all wired
+  through to real matching logic with the same semantics as their
+  existing counterparts elsewhere on the site. Missy's review's single
+  highest-priority check, given this session's location-allocation
+  history, was confirming the area-mode tabs / map-radius / polygon-draw
+  code was genuinely untouched by this diff - confirmed true (zero
+  overlapping lines). Also caught that the PR's own description
+  over-cited `docs/property-filter-spec.md` and
+  `docs/design-guidelines.md` to justify dropping some reference fields
+  (claiming the spec says Purpose/Build-type "don't apply to Bulgaria"
+  when it actually says close to the opposite for Build-type, and citing
+  a design-guidelines anti-pattern list that doesn't mention templates at
+  all) - corrected in the merged PR's description before merge; the
+  underlying decision to drop those fields was still judged reasonable,
+  just needed honest reasoning ("out of scope, no data plumbing exists
+  yet" rather than "the docs say so").
+- **PR #260 - Design-inspiration research doc.** Nosy researched real,
+  currently-live examples of luxurious/stylish website design (both
+  direct real-estate references and adjacent luxury categories -
+  hospitality, luxury e-commerce) via WebSearch, and wrote up
+  `docs/design-inspiration-2026-09-23.md` for Dessy to build from -
+  additive to, not a rewrite of, `docs/design-guidelines.md`. Missy
+  independently re-verified (via her own live WebSearch access, not just
+  reading the doc) several of its specific named claims - Compass's
+  "Flame" design-system case study, Rosewood's "Discovery Green"
+  rebrand, The Modern House's positioning, Mytheresa's brand language,
+  JamesEdition's data-quality complaints - and found the doc's own
+  confirmed/weakly-sourced/inferred labeling accurately tracked what her
+  independent checks could and couldn't corroborate, including one claim
+  (Foster + Partners' specific navigation mechanism) she couldn't
+  independently confirm but that the doc wasn't over-relying on either.
+  Not yet implemented - next step is routing the doc's top recommendations
+  to Dessy for actual implementation.
+
+All four were logged here after the fact rather than at merge time
+because of the pace of tonight's parallel work - flagging that gap
+itself so it doesn't recur: going forward, whoever merges a PR should
+add its decisions.md entry in the same turn, not defer it.

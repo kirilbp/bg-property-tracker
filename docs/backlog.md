@@ -3356,7 +3356,7 @@ mechanism rather than inventing a second one.
 
 ---
 
-## 32. Apartments (and some houses) mis-filed under the Garages section because their listing mentions a parking space - root-caused, fixed, backfilled - PENDING MISSY REVIEW (2026-09-23, Ready)
+## 32. Apartments (and some houses) mis-filed under the Garages section because their listing mentions a parking space - root-caused, fixed, backfilled - DONE, MERGED (2026-09-23, Ready, PR #255)
 
 User-reported ("there are apartments listed under the garage section just
 because the description mention that there is a parking space allocated")
