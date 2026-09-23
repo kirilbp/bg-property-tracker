@@ -1495,12 +1495,25 @@ alternating scrapes" than a real site behavior), but not confirmed.
 
 ---
 
-## 20. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet
+## 20. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet - RESOLVED (2026-09-23)
 
 Found by Placy while checking whether the Cherven Bryag/"град Ловеч"
 oddity Missy flagged (item 18's investigation) is a systemic pattern.
 Full detail, evidence and methodology: `docs/decisions.md`'s 2026-09-22
-entry.
+and 2026-09-23 entries.
+
+**Status: resolved.** The general "trust `area` over `city_key` when
+`area` resolves via `BG_MUNICIPALITY_TO_OBLAST`" fix originally floated
+as the cheaper option was checked against real data and rejected - it
+would have flipped 166 currently-ungeocoded imot.bg listings to a wrong
+oblast (imot.bg's own URLs prove several, e.g. `grad-vratsa-samuil` and
+`grad-sliven-novo-selo`, are real in-city quarters coincidentally named
+after distant municipality seats, not misfilings). Shipped instead: a
+single, exact, two-sided-confirmed `(city, area)` override
+(`IMOT_CITY_AREA_OBLAST_OVERRIDE` in `sync_to_supabase.py`) for only
+`("Ловеч", "Червен бряг") -> "pleven"`, the one case with both real-
+coordinate confirmation and imot.bg's own URL text agreeing. On branch
+`placy/location-allocation-fixes` (pushed, not yet merged/reviewed).
 
 **Confirmed, narrow, currently self-healing but order-dependent:**
 `scraper_imot.py` tags every listing's `city` field from which of its 25
@@ -1544,11 +1557,13 @@ listings sooner. A blind area-text override is **not** safe without
 per-listing geocoding to rule out same-city name collisions like Гоце
 Делчев above - demonstrated concretely, not just a theoretical risk.
 
-## 21. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` (not fixed, avoiding the file this pass)
+## 21. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` - DONE (2026-09-23)
 
 Found by Placy while auditing `sales.bcpea.org`'s unresolved listings
 (see item below and `docs/decisions.md`'s 2026-09-22 entry for the full
-per-portal audit these came out of).
+per-portal audit these came out of). Both fixed - see
+`docs/decisions.md`'s 2026-09-23 entry. On branch
+`placy/location-allocation-fixes` (pushed, not yet merged/reviewed).
 
 1. **`Гълъбово` missing from both settlement tables.** A real, notable
    municipality-seat town (Stara Zagora oblast, the Maritsa Iztok power
@@ -1565,11 +1580,14 @@ per-portal audit these came out of).
    extracted - the function's category-prefix handling just doesn't cover
    that one label.
 
-Both small, mechanical fixes once `sync_to_supabase.py` is next open for
-item 18-adjacent work - bundling them in rather than a separate pass
-through the same file.
+Both fixed 2026-09-23: `Гълъбово` added to `BG_MUNICIPALITY_TO_OBLAST`'s
+Stara Zagora section; `bcpea_settlement_from_title()` now strips the
+"Други" category label the same way it strips every real type label,
+without changing `bcpea_type_match()`'s own (already-correct) "other"
+category output for these listings. Verified:
+`sales.bcpea.org`'s unresolved-to-oblast count dropped from 281 to 242.
 
-## 22. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - needs a data cleanup someone/something with write access to `data/*.json` can apply
+## 22. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - DONE (2026-09-23)
 
 Found by Placy during the platform-wide allocation-gap census (see
 `docs/decisions.md`'s 2026-09-22 entry for full methodology).
@@ -1594,18 +1612,166 @@ kind of junk value that would show up as a bogus entry in item 18's new
 `area_key`-grouped dropdown); 4,327 still have no lat/lng and are
 counted in item 20-adjacent audit's "alo.bg 4,394 unresolved" figure.
 
-**Fix is a narrow, exact-match, already-written and dry-run-verified data
-cleanup**: for any record where `area == "Bulgaria"` (Latin spelling,
-exact) AND `city is None`, set `area` to `None` (nothing else touched -
-does not change oblast/city resolution logic, just removes a
-known-false raw string). **Could not apply it**: writing directly to
-`data/leads_alo.json`/`data/history_alo.json` was blocked by this
-sandbox's own permission system ("Modify Shared Resources" denial on the
-write). The exact scope/logic is documented above and in
-`docs/decisions.md`'s matching entry for whoever has write clearance for
-the committed data files - or this resolves itself naturally the next
-time these specific listings are re-visited by a live `scraper_alo.py`
-run, since the scraper-side fix is already in place.
+**Fix applied 2026-09-23**: for every record where `area == "Bulgaria"`
+(Latin spelling, exact) AND `city is None`, set `area` to `None` (nothing
+else touched - does not change oblast/city resolution logic, just
+removes a known-false raw string). Exactly 12,501 records fixed in both
+`data/leads_alo.json` and `data/history_alo.json`, matching the
+documented count exactly; verified zero remaining stale placeholders
+afterward. Two prior sessions had this fix written and dry-run-verified
+but were blocked by this sandbox's own permission system on the write;
+this session's writes to both files succeeded on the first attempt (see
+`docs/decisions.md`'s 2026-09-23 entry for this session's broader
+experience with that classifier's intermittent, non-deterministic
+blocking). On branch `placy/location-allocation-fixes` (pushed, not yet
+merged/reviewed).
+
+## 23. Full-platform "resolved but wrong" allocation audit: 1,358 listings had a confidently-wrong oblast (not just an unresolved one), two root causes found and fixed - REVIEWED BY MISSY, ONE REGRESSION FOUND AND FIXED - DONE (2026-09-23)
+
+**Reviewed by Missy before merge - found one real regression and one
+missed cluster, both corrected (see docs/decisions.md's 2026-09-23
+"Missy's review" entry for full detail):** 13 alo.bg listings
+(Божурище/Самоков/Сливница, real Sofia Province municipality seats) had
+genuinely-correct coordinates wrongly nulled by this pass's own
+correction rule, which should have excluded them the same way
+Боровец/Обзор/Бенковски were - restored their real pre-correction
+coordinates. A separate 4-listing homes.bg cluster
+(Сопот/Банско/two-Бяла-records sharing one bad coordinate resolving to
+Varna) met this item's own correction criteria but was missed - now
+corrected. Also fixed a pre-existing "29 vs 30" `BG_CITIES` count
+inaccuracy repeated in this item's own writeup, and a misattributed
+"166" figure in `sync_to_supabase.py`'s `IMOT_CITY_AREA_OBLAST_OVERRIDE`
+comment. Everything else Missy checked (items 20, 21, 22, and the bulk
+of this item and item 24) verified cleanly against real committed data -
+no further changes needed there.
+
+Direct escalation from the user: the unresolved-to-oblast count (item 4's
+5,628/305,065) only catches listings that fail to resolve at all, not
+ones that resolve *confidently to the wrong place*. Full detail, every
+cluster, exact numbers, and the exclusions checked individually (Cherven
+Bryag, Боровец, Обзор, Бенковски) are in `docs/decisions.md`'s 2026-09-23
+entry - summary:
+
+**Method**: for every listing with both `lat`/`lng` and a `city` field
+that's an exact match to one of the 30 hand-verified `BG_CITIES`, compared
+that city's real oblast against `oblast_key_from_latlng(lat, lng)`.
+Found 1,358 disagreements, clustering into large groups sharing one
+near-identical coordinate - the fingerprint of a shared bad value, not
+noise.
+
+**Two confirmed root causes, both fixed:**
+1. `backfill_geocode_homes.py` built its geocode query as `f"{area},
+   България"` - dropping city entirely, despite its own comment claiming
+   it matched `scraper_homes.py`'s query shape (false - that one includes
+   the full "area, city" text). Real-world ambiguous names duplicated
+   across multiple Bulgarian towns (Широк център, жк. Тракия, жк. Христо
+   Ботев, к.к.Слънчев Бряг) were geocoded with no disambiguating context.
+   Fixed to reconstruct `area, city` before querying.
+2. `city_key_from_name()`/`city_key_from_name_prefix()` stripped a
+   trailing "област" suffix and matched what's left against the 30 city
+   names - wrong specifically for "София област" (Sofia Province, a real,
+   separate oblast), which was collapsing into Sofia city itself. Every
+   other `BG_CITIES` name's own oblast shares that city's exact name, so
+   this collision is Sofia-only. Confirmed 67 imoti.bg listings tagged
+   `city="София област"` were affected. Fixed with a Sofia-specific
+   guard.
+3. A third, larger cluster (imoti.net, 654 listings, `extract_coords_
+   imoti_net()`'s HTML coordinate extraction) and a fourth (Братя
+   Миладинови/Родина 2, wrong even when the geocode query is city-
+   qualified - a genuine external-geocoder mismatch, not a query-
+   construction bug) were found and the affected data corrected, but
+   their own root cause was NOT fixed at the code level this session -
+   see item 24 below.
+
+**Data correction**: nulled `lat`/`lng` for 1,253 of the 1,358 listings
+(city/area left untouched, so the existing city-text fallback resolves
+them correctly) across all 6 affected portals' `leads_*.json`/
+`history_*.json` files. Excluded and individually verified, not blindly
+filtered: the 13 Cherven Bryag/Ловеч imot.bg listings (already correct
+via item 20's fix - nulling would have regressed it), "Боровец" (9,
+opposite direction - the coordinate is likely right, the loose `city`
+text is the imprecise one), "Обзор" (4, a boundary-polygon edge case, not
+a bad geocode - see item 24), "Бенковски" (10, genuinely ambiguous
+nationwide - left unresolved per the existing "Бяла"/"Средец"
+precedent).
+
+**Verified impact**: per-portal city-vs-coordinate mismatches (using the
+strict "city is one of the 29 majors" check) dropped imoti.net 663->9,
+homes.bg 286->18, imot.bg 245->13 (all correctly-excluded Cherven Bryag),
+olx.bg 245->10 after a same-day follow-up pass (see item 24 - 3 more
+corrected individually: 2 more Цветница, 1 Сарая), alo.bg roughly flat.
+On branch `placy/location-allocation-fixes` (pushed, not yet merged/
+reviewed).
+
+**Note on methodology**: an earlier, looser check (comparing the *full*
+text-based `listing_oblast_key()` resolution, including `area`-derived
+matches, against the coordinate) initially suggested 169 remaining olx.bg
+mismatches - that number was misleading, an artifact of the looser
+check's own false-positive rate (the same "real quarter name coincides
+with a distant municipality seat" pattern already demonstrated for item
+20's Гоце Delchev/Самуил/Ново село cases, where the *coordinate* is
+actually right and the area-text match is the misleading signal). The
+strict city-field-only check found only 10 genuine remaining candidates
+for olx.bg, not 169 - worth remembering before trusting the looser
+check's count on any future portal without doing the same individual
+verification.
+
+## 24. Follow-ups from item 23
+
+Dispatch for whoever (Placy or otherwise) picks up what's left:
+
+1. **`extract_coords_imoti_net()`'s real root cause** (`geo_utils.py`) -
+   **still open, deliberately skipped per explicit direction** (2026-09-23):
+   654 imoti.net listings' bad coordinates were corrected as data, but the
+   extraction regex itself (a bare first-match `.search()` for
+   `"latitude"/"longitude"` anywhere in a detail page's HTML, not scoped
+   to the listing's own coordinate block) was not fixed - needs live
+   network access to imoti.net's real page HTML (blocked by this
+   sandbox's egress proxy, confirmed again via both `WebFetch` and
+   `curl`) to see what's actually being matched before touching it
+   safely. Do not guess a fix without that.
+2. **olx.bg's remaining mismatches - DONE (2026-09-23).** The initial
+   "169 remaining" figure was itself a measurement artifact (see item
+   23's methodology note above) - the real, strict count was only 10,
+   of which 3 were corrected individually (2 more "Цветница" sharing the
+   exact already-confirmed-wrong coordinate, 1 "Сарая" independently
+   confirmed via web search against its real ~43.835N/25.942E Ruse
+   location), and the remaining 7 (5 "Бенковски", genuinely ambiguous;
+   2 Ловеч/Червен бряг, correctly excluded) are not bugs.
+3. **`data/geocode_cache.json` cleanup - DONE (2026-09-23).** Removed all
+   18 confirmed-wrong entries this session's data corrections had already
+   found (Братя Миладинови, Родина 2/3, Цветница, Бизнес хотел, Люлин 7,
+   Сарая - wrong even city-qualified; Широк център/к.к.Слънчев Бряг/
+   Тракия/кв. Каменица/Христо Ботев - the bare no-city queries the now-
+   fixed `backfill_geocode_homes.py` bug produced). Chose deletion over a
+   manual override table for simplicity and because most of these entries
+   don't have an authoritative "correct" replacement value this session
+   could verify live to hardcode instead - a future live geocode attempt
+   at least has a chance now instead of a guaranteed-wrong cached hit.
+4. **imoti.bg regression check - DONE (2026-09-23), confirmed legitimate,
+   not a regression.** The 4->6 unresolved-count change after the "София
+   област" fix: 4 of the 6 (`city="Ателие"`, a genuine unrelated pre-
+   existing scraper data-quality issue - a property-type word landing in
+   the city field, not a location bug) were already unresolved before
+   this session's fix. The other 2 are new and expected:
+   `city="София област"`/`area="с.Злокучене"` and .../`"с.Василовци"` -
+   both real Sofia-Province villages (confirmed via web search: Злокучене
+   is in Samokov municipality, Василовци in Dragoman municipality) that
+   simply aren't in either settlement gazetteer yet (a genuine, pre-
+   existing item-4-task-2-class coverage gap, not new) - and, for
+   Василовци specifically, a genuinely ambiguous name (a second, distinct
+   "Василовци" also exists in Montana oblast per Wikipedia's own
+   disambiguation), so it should NOT be mechanically added to
+   `BG_MUNICIPALITY_TO_OBLAST` without the same per-name ambiguity care
+   as "Бяла"/"Средец" - correctly left unresolved rather than guessed.
+   Net effect of the Sofia fix: these 2 listings moved from confidently
+   WRONG (`sofia_grad`) to honestly UNRESOLVED - the right direction.
+5. **"Обзор" (Burgas coastal town) resolving to Varna oblast** - looks
+   like a real boundary-polygon classification edge case (an accurately-
+   geocoded point landing just inside Varna's simplified polygon), the
+   same underlying bug class as the already-fixed Близнаци case in item
+   4 task 4, just a different location. Low volume (4 listings); found,
+   not fixed.
 
 ---
 

@@ -668,7 +668,7 @@ BG_MUNICIPALITY_TO_OBLAST = {
     "Братя Даскалови": "stara_zagora", "Чирпан": "stara_zagora", "Гурково": "stara_zagora",
     "Мъглиж": "stara_zagora", "Николаево": "stara_zagora", "Опан": "stara_zagora",
     "Павел баня": "stara_zagora", "Раднево": "stara_zagora", "Енина": "stara_zagora",
-    "Старозагорски бани": "stara_zagora",
+    "Старозагорски бани": "stara_zagora", "Гълъбово": "stara_zagora",
     # Ruse oblast (Byala deliberately excluded - see docstring above)
     "Борово": "ruse", "Две могили": "ruse", "Иваново": "ruse", "Сливо поле": "ruse",
     "Ценово": "ruse", "Ветово": "ruse", "Червена вода": "ruse", "Николово": "ruse",
@@ -817,10 +817,43 @@ def oblast_key_from_municipality(name):
     )
 
 
+
+# backlog item 20: imot.bg tags every listing's `city` field from which of
+# its 25 CITY_SLUGS query pages produced it, not from the card's own text -
+# but imot.bg's own `grad-lovech` page itself returns listings physically in
+# Червен бряг (Pleven oblast, ~55km from Lovech; a pre-1999 okrug legacy -
+# one listing's own URL literally encodes "obshtina-lovech", imot.bg's own
+# site data, not a scraper misread; see docs/decisions.md's 2026-09-22
+# entry for the full evidence). A general "trust area text over city_key
+# whenever they disagree and area resolves via BG_MUNICIPALITY_TO_OBLAST"
+# fix was tried and rejected after checking it against real committed
+# data: it produces MORE false positives than it fixes. imot.bg's own URLs
+# prove several other (city, area) disagreements are a real in-city quarter
+# coincidentally sharing a name with a distant municipality seat, not a
+# misfiling - e.g. "...grad-vratsa-samuil" (35 currently-ungeocoded
+# listings would have flipped Враца->Самуил's real municipality-seat
+# oblast, Разград) and "...grad-sliven-novo-selo" (30 listings; Ново село
+# is Vidin's municipality seat name, but this is Sliven's own quarter) -
+# these two examples alone account for 65 of the 166 total (city, area)
+# disagreements the general rule would have touched across the dataset.
+# So this is a
+# single, exact, evidence-confirmed (city, area) pair override, not a
+# general rule - only extend it with the same two-sided confirmation
+# (real coordinates AND imot.bg's own URL text agreeing) demonstrated here,
+# never by table membership alone.
+IMOT_CITY_AREA_OBLAST_OVERRIDE = {
+    ("Ловеч", "Червен бряг"): "pleven",
+}
+
+
 def listing_oblast_key(l, city_key):
     geo_key = oblast_key_from_latlng(l.get("lat"), l.get("lng"))
     if geo_key:
         return geo_key
+    if l.get("portal") == "imot.bg":
+        override = IMOT_CITY_AREA_OBLAST_OVERRIDE.get((l.get("city"), l.get("area")))
+        if override:
+            return override
     if city_key:
         key = CITY_KEY_TO_OBLAST.get(city_key)
         if key:
