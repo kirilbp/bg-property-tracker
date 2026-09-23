@@ -596,7 +596,7 @@ needing a total result count will need a different approach (approximate
 count, a capped query, or skipping total-count display), not
 `count=exact`.
 
-## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - user feedback 2026-09-23
+## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - DONE, MERGED (2026-09-23)
 
 User's direct words: *"On each listing the graph with the price changes
 needs to be pinned on the listing rather than popping out when the
@@ -633,7 +633,27 @@ and fit the graph next to it."* Confirmed live in the current
   `docs/design-guidelines.md` and keep the brass/sage/ink tokens item 13
   introduced rather than reintroducing the old blue palette.
 
-## 8. "Compare nearby" button vs. the new Comparables tab - unclear if it's dead, redundant, or both - user feedback 2026-09-23, needs live investigation before fixing
+**Status: shipped and merged.** PR #220 (`pin-price-chart-shrink-map-
+2026-09-23`, commit `e2c4b04`) removed the tab-gated "Price History" tab
+entirely (4 tabs remain: Details/Comparables/Area Data/BTL Stress Test)
+and moved its content into an always-visible `.price-history-panel`,
+paired side by side with the shrunk (260px -> 200px) radius/comparables
+map in a new `.detail-history-row`. Missy's review of that PR caught a
+real gap - the pairing only triggered above ~1380px, missing the common
+1366px laptop width - fixed in a same-day follow-up (`df135d5`, floor
+lowered so pairing triggers at ~1330px+). Reuses item 13's brass/sage/ink
+tokens, no new colors. Independently re-verified live by Dessy
+(2026-09-23, separate session/dispatch) against the real current
+`index.html` via a Playwright harness with vendored CDN assets and a
+real 6,000-row listings fixture: chart renders with zero tab clicks,
+tabs read exactly `Details/Comparables/Area Data/BTL Stress Test`, map +
+chart sit side by side at both 1440px and 1366px, both stack to one
+column at 390px (mobile), no JS errors. Full detail in
+`docs/decisions.md`'s 2026-09-23 entry ("Backlog items 7 and 8...found
+already shipped"). No further action needed unless a regression turns
+up.
+
+## 8. "Compare nearby" button vs. the new Comparables tab - DONE, MERGED (2026-09-23)
 
 User's direct words: *"The comparables button on each listing does not
 do anything too. Fix this."*
@@ -678,6 +698,35 @@ files):**
 - No auth/session/personal-data surface is touched here (read-only
   comparison over already-public listing data) - Revy's review is not
   expected to be needed, but flag her in if anything unexpected turns up.
+
+**Status: shipped and merged.** Reproduced live first, per the task above
+(not guessed): the old "Compare nearby" button was not actually broken
+(its modal defaulted to a 1000m radius, so it always opened populated);
+the real bug was in the newer Comparables tab, which shared
+`detailRadiusM` with the pinned radius panel above it (item 7), and
+`showListingDetail()` reset that to `null` on every listing open - so the
+tab showed only a "pick a radius above" hint and nothing else until the
+user found an unrelated-looking control elsewhere on the page, which is
+exactly what read as "does nothing." Fixed in PR #221
+(`fix-compare-button-2026-09-23`, commit `1b36b64`): (1) `detailRadiusM`
+now defaults to 500m so both the radius panel and the Comparables tab
+show real data immediately; (2) took the recommended design-fork option -
+retired `openCompareModal()`/`closeCompareModal()`/`renderCompareModal()`
+and the `#compareModalOverlay` markup entirely; `#compareBtn` stays as a
+fast entry point but now switches to and scrolls to the Comparables tab
+instead of opening a separate modal, so there's one comparables surface,
+not two. Reasoning logged in `docs/decisions.md`'s 2026-09-23 "Retired
+the old 'Compare nearby' modal" entry. No auth/PII surface touched, per
+the task's own note - Revy's review was not sought. Independently
+re-verified live by Dessy (2026-09-23, separate session/dispatch): real
+Playwright run against the current `index.html` confirms
+`#compareModalOverlay` no longer exists in the DOM at all, `#compareBtn`
+switches to and populates the Comparables tab immediately, and the tab
+shows real comparables data on first open with no empty "pick a radius"
+state whether reached via the button or clicked directly. Full detail in
+`docs/decisions.md`'s 2026-09-23 entry ("Backlog items 7 and 8...found
+already shipped"). No further action needed unless a regression turns
+up.
 
 ## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23 - MOSTLY DONE (2026-09-23): homes.bg/9a/9b/9c/alo.bg all shipped and merged, imot.bg/olx.bg/bcpea.org investigation complete (no further code needed), imoti.net's `description` gap confirmed a genuine per-portal limitation. Only genuinely open pieces: alo.bg's real selector and imoti.net's untried Bulgarian-language page, both deferred pending live network access; bcpea.org's post-9a grid-crawl recovery worth a final re-check once that run lands.
 
@@ -1893,7 +1942,7 @@ pipeline underneath was fine throughout (alo.bg's history grew from
 87,979 to 90,159 listings with zero data loss); only the Supabase sync
 step was broken.
 
-## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
+## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - ROOT CAUSE FOUND (2026-09-23), fix not yet applied
 
 Found by Dessy while testing backlog item 17's price/status history chart,
 confirmed and reproduced independently by Missy during PR #200's review -
@@ -1923,6 +1972,36 @@ should check the real live page first before assuming either explanation.
 Likely a `scraper_homes.py` bug given the pattern (a clean, repeated
 2-value flip looks more like "reading the wrong DOM element on
 alternating scrapes" than a real site behavior), but not confirmed.
+
+**UPDATE 2026-09-23 (Scrapy) - root cause confirmed, it's (a) not (b).**
+`scraper_homes.py`'s `parse_offer()` builds the tracking ID as
+`"homes_" + str(offer["id"])`, dropping the two-letter type prefix
+(`hs`/`as`/`lp`/`la`) that homes.bg's own URL scheme uses to scope its
+numeric IDs - those IDs are only unique **within** a type, not globally.
+Two entirely unrelated listings of different types (e.g. an `hs` house
+and an `lp` land parcel) can share the same numeric ID and collapse onto
+one tracking key, silently overwriting each other's **entire record**
+(not just price) on alternating scrape runs whenever the scraper happens
+to see one type's listing then the other's under the same collapsed ID.
+
+Confirmed directly via git history for `homes_208381`: commits
+`4102c12`/`cf815b1` -> `1a2bbef` show a real flip between a Varna land
+parcel and the Plovdiv house described above - not a price-only glitch,
+the whole record (title, location, sqm) flips too. A full-dataset scan
+found 2 more confirmed cases with the same signature: `homes_209031`,
+`homes_205536`. Broader currently-invisible collisions across the 4 type
+sequences (`hs`/`as`/`lp`/`la`) were flagged as a risk but not fully
+audited - only these 3 have been directly confirmed.
+
+**Fix recommended (not yet applied):** incorporate the type prefix into
+`parse_offer()`'s tracking ID (e.g. `"homes_" + offer["type_prefix"] +
+str(offer["id"])`) so IDs are scoped the same way homes.bg itself scopes
+them. This is a go-forward fix only - it does **not** repair the already-
+corrupted history for `homes_208381`/`homes_209031`/`homes_205536` (and
+any undetected others), which will need a separate one-time backfill/
+split pass to separate the interleaved records back into two distinct
+listings per collided ID, once the new ID scheme exists to split them
+under.
 
 ---
 
