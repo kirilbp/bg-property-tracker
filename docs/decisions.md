@@ -2426,3 +2426,86 @@ paragraph documenting Missy's finding and the fix, mirroring this entry).
 Pushed to `bossy/backlog6-server-query-fix` (tracking
 `bossy/backlog6-server-query`) for Missy's re-review; not merged by this
 session.
+
+### 2026-09-23 (later) - Placy: backlog item 28 sub-item 5 ("Обзор" resolving to Varna oblast) fixed
+
+Worked in a fresh worktree off `origin/main` (`placy/obzor-oblast-fix`).
+Confirmed the real count against current committed data before touching
+anything: exactly 4 listings across all 8 portals' `data/leads_*.json`/
+`data/history_*.json` have `city`/`area` text containing "Обзор" *and*
+`oblast_key_from_latlng()` resolving to `varna` - all 4 are alo.bg
+records (`alo_11340310`, `alo_11030238`, `alo_11027413`, `alo_11040886`),
+all tagged `city="Бургас"`, `area="Обзор"`. The backlog's original "4
+listings, low volume" figure from item 27/28's audit pass held exactly;
+it had not shifted.
+
+**Root cause, confirmed by hand-tracing the real coordinates** (same
+method used for the Близнаци investigation in item 4 task 4): these 4
+listings' real, accurately-geocoded coordinates (e.g. `42.8445,
+27.882196`, `42.84397504, 27.88168498`) are genuinely correct - verified
+against `alo_11340310`'s own scraped title text, "...директен достъп до
+плажа Обзор, област Бургас" ("...direct beach access, Обзор, Burgas
+oblast"), no ambiguity. The bug is in `oblast_key_from_latlng()`'s
+strict point-in-ring test: this point sits ~0.0038deg *inside* Varna
+oblast's own simplified boundary polygon (`data/bg_oblast_boundaries.json`,
+sourced from `yurukov/Bulgaria-geocoding`, intentionally simplified for
+file size) even though it's only ~0.0062deg *outside* Burgas's own
+polygon at the same point - both distances are well inside ordinary
+coastline-simplification/GPS-precision noise range, the same root cause
+already diagnosed and fixed for Близнаци. The difference: Близнаци's
+real point fell just outside the *correct* oblast's polygon and came
+back unresolved (`None`) - fixed by the existing
+`NEAR_BOUNDARY_TOLERANCE_DEG` fallback, which only runs when the strict
+test finds nothing. Обзор's real point falls just inside the *wrong*
+oblast's polygon and the strict test returns a confident (wrong) answer
+- the tolerance fallback never gets a chance to run, because the
+function already returned before reaching it. A genuinely different bug
+shape from the same underlying cause, not something the existing
+tolerance fallback could ever have caught.
+
+**Fix applied**: a small, coordinate-keyed `GEO_OBLAST_OVERRIDE` dict in
+`sync_to_supabase.py`, checked as the very first thing in
+`oblast_key_from_latlng()` (bypassing the strict test only for these
+exact confirmed-wrong points):
+
+```python
+GEO_OBLAST_OVERRIDE = {
+    (42.84397504, 27.88168498): "burgas",
+    (42.8445, 27.882196): "burgas",
+}
+```
+
+Deliberately narrow and evidence-confirmed, matching the same discipline
+already documented for `IMOT_CITY_AREA_OBLAST_OVERRIDE` a few hundred
+lines below it (real coordinates AND independent text confirmation
+agreeing, not a general rule) rather than a broad "prefer city/area text
+over geo whenever they disagree near a border" change - that broader
+rule was explicitly avoided because it would risk regressing every other
+correctly-resolved near-border geo match project-wide (there was no
+attempt to measure that risk, so it wasn't taken).
+
+**No data file edits needed.** Confirmed `data/leads_*.json`/
+`data/history_*.json` never store a precomputed `oblast_key` field - it's
+derived fresh by `sync_to_supabase.py` at sync time (and, per
+`index.html`'s own comment near `listingOblastKey()`, ultimately persisted
+server-side on `merged_listings`/`listing_sources`, not in this repo's
+JSON files) - so unlike several of item 26/27's fixes, there was nothing
+to null or rewrite in the committed JSON; `lat`/`lng`/`city`/`area` were
+already all correct for these 4 listings.
+
+**Verified**: re-ran `oblast_key_from_latlng()` against every one of the
+354 "Обзор"-tagged listings found across all 8 portals' committed data
+(alo.bg 217, bcpea 16, homes.bg 120, imoti.bg 1; olx.bg/imot.bg/bazar.bg
+0) - zero remaining `varna` mismatches after the fix (down from 4), 102
+now correctly resolving to `burgas` via geo (the rest fall back to
+city/area text resolution as before, unaffected). Confirmed no
+regression: the real Близнаци point (`43.1032247, 27.9233784`) still
+resolves to `varna`, and Varna/Sofia city-center points are unaffected.
+`python3 -m pytest tests/` passes (11 passed - no existing test in this
+suite exercises `sync_to_supabase.py`'s geo-resolution functions
+directly, so this was verified via a standalone reproduction script
+against the real committed data instead, the same rigor Missy's audits
+use).
+
+Pushed to `placy/obzor-oblast-fix`, opened as a PR against `main`; not
+merged this session - needs Missy's review first, per the standing rule.

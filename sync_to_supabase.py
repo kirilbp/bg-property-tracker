@@ -543,9 +543,42 @@ def _point_to_ring_distance_deg(lng, lat, ring):
 NEAR_BOUNDARY_TOLERANCE_DEG = 0.003
 
 
+# backlog item 28, sub-item 5 (Обзор, a real Burgas Black Sea coastal
+# town just south of the Varna/Burgas oblast border): the same
+# coastline-simplification root cause already fixed for Близнаци above
+# (item 4 task 4), but the opposite failure shape - there, a real point
+# fell just OUTSIDE the correct oblast's simplified polygon and came back
+# unresolved; here, a handful of alo.bg listings' real, accurately-
+# geocoded coordinates (e.g. 42.8445, 27.882196 - confirmed against the
+# listing's own title text, "...директен достъп до плажа Обзор, област
+# Бургас") fall just INSIDE Varna oblast's own simplified polygon by the
+# strict point-in-ring test, so NEAR_BOUNDARY_TOLERANCE_DEG's fallback
+# below (which only runs when the strict test finds nothing) never even
+# gets a chance to run - the strict test already "succeeds", just for the
+# wrong oblast. Hand-verified: this point sits ~0.0038deg inside Varna's
+# own polygon edge but only ~0.0062deg outside Burgas's - both within
+# ordinary coastline-simplification/GPS noise range, and both the
+# listing's own city ("Бургас", one of the 30 hand-verified BG_CITIES,
+# unambiguously Burgas oblast) and area ("Обзор", a real, unambiguous
+# Burgas-oblast settlement - not on the "Бяла"/"Средец" ambiguous-name
+# list) independently agree it's Burgas. A single, narrow, coordinate-
+# keyed override for these exact confirmed-wrong points - not a general
+# "prefer text over geo near any border" rule, which would risk
+# regressing every OTHER correctly-resolved near-border geo match
+# project-wide (the same reasoning IMOT_CITY_AREA_OBLAST_OVERRIDE below
+# already documents for its own narrow scope).
+GEO_OBLAST_OVERRIDE = {
+    (42.84397504, 27.88168498): "burgas",
+    (42.8445, 27.882196): "burgas",
+}
+
+
 def oblast_key_from_latlng(lat, lng):
     if lat is None or lng is None:
         return None
+    override = GEO_OBLAST_OVERRIDE.get((lat, lng))
+    if override:
+        return override
     for entry in OBLAST_BOUNDARIES:
         for poly in entry["polygons"]:
             min_lng, min_lat, max_lng, max_lat = poly["exterior_bbox"]
