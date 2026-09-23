@@ -3184,6 +3184,153 @@ Changes on `index.html`/`sync_to_supabase.py` (Missy-reviewed, unchanged)
 plus this doc correction, on branch `fix-location-allocation-2026-09-23`
 - not pushed/merged by this session.
 
+## 30. olx.bg's grid crawl chronically times out mid-run, masked by `continue-on-error` - the workflow reports green while whole oblasts get skipped - HIGH PRIORITY, READY TO DISPATCH
+
+From Scrapy's investigation into item 29's gap 4 (dispatched specifically
+to find why the scrapers themselves appear to be missing most of a real
+town's live listings - not a location-allocation bug, a raw-coverage
+one). Full detail and every number: `docs/decisions.md`'s 2026-09-23
+entry ("Scrapy's investigation: olx.bg timeout + bazar.bg/imot.bg
+city-allowlist coverage gap").
+
+**Confirmed root cause.** `.github/workflows/scrape.yml`'s
+`python scraper_olx.py` step has `timeout-minutes: 60` and
+`continue-on-error: true`. The 6 most recent scheduled runs all hit the
+full 60-minute cap exactly (60m12s-60m13s each) - confirmed via the raw
+GitHub Actions log of the latest run (job 107141015650): *"The action
+'Run python scraper_olx.py' has timed out after 60 minutes."*
+`continue-on-error: true` means the overall workflow still reports
+success on every one of these 6 runs - the exact same masked-failure
+shape as the already-fixed alo.bg incident (backlog item 3), just on a
+different scraper and a different failure mode (a hard timeout instead
+of a git-conflict data-discard). Traced one run page-by-page: the step
+got through 15 of `OBLAST_SLUGS`' 26 oblasts before being killed
+mid-page on the 16th - the remaining 10 oblasts (including Ловеч,
+Cherven Bryag's own oblast) got zero coverage that run. `OBLAST_SLUGS`
+is a fixed, never-randomized list (`scraper_olx.py` line 89), so this
+isn't random - whichever oblasts fall late in that list order get
+chronically reduced/uneven re-scrape frequency, not a one-off blip.
+Secondary, lower-priority finding: even a completed oblast query (Pleven,
+confirmed) plateaus around ~1,000-1,700 listings - likely crowded out by
+that oblast's own larger city if results are ordered newest-first, which
+would explain why even a completed Pleven query only surfaced 3 Cherven
+Bryag records. Scrapy's rough national estimate: 35-50% under-capture
+from this scraper alone.
+
+**Why this matters for Cherven Bryag specifically, and why it's
+prioritized above other open backlog work**: this directly explains a
+real chunk of the user's original "only 8 listings" complaint (item 29),
+it's systemic (affects roughly 10 of 26 oblasts' worth of olx.bg
+coverage every run, not one town), and it's the same class of bug
+("workflow reports green while doing nothing real") this project has
+already burned real time on once (item 3, alo.bg). Ranked above any
+backlog item not already in flight, per the standing rule for a
+well-evidenced, scale-confirmed finding.
+
+**Task (general-purpose builder - this is scoped and well-understood,
+builder's call on exact shape):**
+- Stop the timeout being silently masked. A real timeout must surface as
+  a real, visible failure (loudly, e.g. via `check_scrape_freshness.py`-
+  style reporting or the step's own exit status), not a silent green
+  success - non-negotiable, per this role's "fail loud" standing rule,
+  even if the underlying capacity problem isn't fully solved in one pass.
+- Fix the actual under-coverage, not just the reporting. Options Scrapy
+  and this session both consider reasonable (pick the one that fits
+  best, don't feel bound to exactly one): (a) a resumable/checkpointed
+  oblast loop - note `scraper_olx.py` already has this exact pattern
+  built for its own *detail*-fetch phase (`fetch_listing_details()`'s
+  `deadline`/`on_checkpoint` params, lines ~352-382) but the *grid* crawl
+  (`fetch_listings()`, iterating `OBLAST_SLUGS`) does not use it yet -
+  extending the same mechanism to the grid loop is the most consistent
+  fix with this codebase's own existing precedent; (b) splitting the 26
+  oblasts across two separate scheduled workflow steps/runs; (c) a longer
+  timeout, only if the builder can show with real numbers why that's
+  safe rather than just kicking the can further down 26 oblasts. If
+  picking (a) or (b), also randomize or rotate `OBLAST_SLUGS`' iteration
+  order (or persist which oblasts were covered last run) so a bounded
+  run doesn't always starve the same tail-end oblasts.
+- Verify locally (syntax-check, a dry run against a small slice, or
+  reasoning through the checkpoint logic against real log timing) before
+  any live `workflow_dispatch` - per the standing rule against debugging
+  scripts by repeatedly dispatching them live against real GitHub
+  Actions. One correct live dispatch beats several iterating live.
+- No auth/session/credentials/personal-data surface here (public listing
+  scraping) - Revy's review is not expected to be needed.
+- Send to Missy the moment it's locally verified, before starting
+  anything else.
+
+## 31. bazar.bg and imot.bg: nationwide coverage is structurally limited to a fixed ~25-30-city allowlist - Bulgaria's ~230 smaller towns and ~5,000 villages are never queried - HIGH PRIORITY, SCOPED, READY TO DISPATCH
+
+From the same Scrapy investigation as item 30 above. Full detail:
+`docs/decisions.md`'s matching 2026-09-23 entry.
+
+**Confirmed root cause - a genuine, self-disclosed design limitation,
+not a crawl-health bug.** Both `scraper_bazar.py` (`CITY_SLUGS`, lines
+90-120, 29 cities) and `scraper_imot.py` (`CITY_SLUGS`, lines 89-115, 24
+cities) achieve "nationwide" coverage exclusively by querying a fixed
+list of Bulgaria's largest cities - each portal's own module docstring
+already documents this as a deliberate scope choice, not a regression.
+Cherven Bryag is on neither list, and neither are Bulgaria's ~230 other
+smaller towns or ~5,000 villages. Confirmed via direct count: 100% of
+every captured listing's `city` field in both `data/leads_bazar.json`
+(50,979 records) and `data/leads_imot.json` (26,285 records) is one of
+the allowlisted names, zero exceptions - the 8/13 Cherven Bryag records
+that did get captured are incidental leakage (tagged under a neighboring
+allowlisted city, area text parsed separately), not a real crawl of the
+town. Confirmed NOT a crawl-health issue: both scrapers finish well
+within their timeout budget on every one of 6 consecutive recent runs -
+this is unlike item 30, a scope gap, not a masked failure. Spot-checked
+5 other small/mid towns (Panagyurishte, Troyan, Petrich, Karnobat,
+Popovo): zero exact matches on either portal for all 5, confirming this
+is systemic, not Cherven-Bryag-specific. Scrapy's rough national
+estimate: 20-35% of true listing inventory on these two portals is
+structurally never queried.
+
+**Design-fork decision, made per this role's standing rule rather than
+held for the user (reasoning in `docs/decisions.md`): scope a first
+concrete fix now.** This is a real scope/runtime tradeoff, not a pure
+bug fix - but it touches none of the four things this role asks the
+user first about (no data deleted, no cost, no auth/security, not
+genuinely risky - worst case is a longer scraper runtime, the same
+category item 30 above already has a designed answer for). Recommended
+concrete shape: extend `CITY_SLUGS` on both scrapers to oblast-level
+coverage, the same pattern `scraper_olx.py`'s `OBLAST_SLUGS` already
+uses to get real nationwide reach (28 oblasts covers 100% of Bulgarian
+territory, unlike a city list that can only ever cover a finite,
+manually-curated set of towns) - **but built with the checkpointed/
+resumable crawl loop from item 30 from the very start**, not copied from
+olx.bg's current (broken) monolithic-loop shape. Building oblast-level
+coverage without that safeguard would just recreate item 30's exact bug
+on two more scrapers at legitimately larger scale. Do item 30 first (or
+at least land its checkpointing design) so this item can reuse the same
+mechanism rather than inventing a second one.
+
+**Task (general-purpose builder, after item 30's mechanism exists):**
+- Design and implement oblast-level (or another defined, principled
+  method the builder can justify - e.g. oblast capitals plus the
+  existing city list, deduped) slicing for `scraper_bazar.py` and
+  `scraper_imot.py`, each independently (different files, safe to
+  parallelize against each other, but each should come after/reuse item
+  30's checkpointing mechanism rather than being built blind).
+- Reuse or closely mirror `scraper_olx.py`'s own `OBLAST_SLUGS` list and
+  URL-slug pattern where the portal's URL structure allows it, rather
+  than re-deriving oblast slugs from scratch - check each portal's own
+  site structure directly (live network access, not guessed) before
+  assuming the URL shape matches.
+- Each scraper already tags a listing's `city` from which `CITY_SLUGS`
+  entry matched (see each file's own docstring) - an oblast-level query
+  will return listings from many actual cities per oblast, so this
+  tagging logic needs to change to read the listing's own city/area text
+  directly (the way olx.bg and the other nationwide-since-2026-08-25
+  portals already do) rather than trusting the query slug as the city.
+  Check for and handle overlap/double-counting between the existing
+  `CITY_SLUGS` entries and the new oblast-level query, since a city like
+  Sofia or Plovdiv would otherwise be returned by both.
+- Verify locally before any live dispatch, same discipline as item 30.
+- No auth/session/credentials/personal-data surface - Revy not expected
+  to be needed.
+- Send to Missy the moment it's locally verified.
+
 ---
 ---
 

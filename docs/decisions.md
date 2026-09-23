@@ -3015,3 +3015,81 @@ raw scraper-coverage gap), which this investigation's own methodology
 never reached since it's a different layer (scraper coverage, not
 allocation of listings that were actually scraped) - now dispatched to
 Scrapy rather than left implied-solved by this entry's original framing.
+
+### 2026-09-23 - Scrapy's investigation: olx.bg timeout + bazar.bg/imot.bg city-allowlist coverage gap - folded into the backlog as items 30/31, prioritized high
+
+Re-fetched `origin/main` first per standing practice (moved a lot today -
+now at `743a3d0`, PR #247 merged). Scrapy was dispatched (by the session
+before this one) specifically to chase item 29's gap 4 - Missy's finding
+that the location-allocation fixes in PR #247 didn't explain the real
+magnitude of the user's "only 8 listings" complaint, and that a raw
+scraper-coverage gap looked like the dominant cause. Her full findings
+are now in `docs/backlog.md` items 30 and 31; this entry records the
+priority and scoping calls made on them.
+
+**No `Agent` tool available in this session** (confirmed by checking,
+per this role's own standing instruction - `ToolSearch` for
+`Agent`/`Task`/subagent-spawning tools returned nothing, and the
+explicit deferred-tools list given at session start doesn't include one
+either). So nothing here was implemented or dispatched to a subagent
+directly - this session's own work was limited to reading the real code
+to ground Scrapy's claims (confirmed `CITY_SLUGS` line numbers/counts in
+`scraper_bazar.py`/`scraper_imot.py`, confirmed `scraper_olx.py`'s
+workflow step has `timeout-minutes: 60`/`continue-on-error: true` in
+`.github/workflows/scrape.yml`, and found that `scraper_olx.py`'s own
+detail-fetch phase already has a `deadline`/`on_checkpoint` pattern the
+grid-crawl phase lacks - useful precedent for item 30's fix, not just
+Scrapy's own claim taken on faith), writing up items 30/31, and
+producing a dispatch list for whoever invoked this session to fire as
+sibling `Agent` calls. Per this role's standing rule for this exact gap:
+not self-reviewing this against Missy's rubric and calling it her
+sign-off (nothing has been built yet to review), and not silently
+skipping the dispatch step.
+
+**Priority call**: ranked items 30/31 above any backlog item not already
+in flight (item 6's PR #239 stays where it is, mid-review). Reasoning:
+this is the same masked-failure bug class the project already burned
+real time on once (item 3, alo.bg's git-conflict data discard) - a
+workflow reporting green while a real chunk of its work silently
+doesn't happen - now confirmed on a second scraper (olx.bg) via a
+different mechanism (a raw step timeout, not a git conflict); it
+directly explains a real share of today's user complaint (item 29); and
+it's explicitly nationwide/systemic (Scrapy's 5-town spot-check, not
+just Cherven Bryag), not a one-town edge case. The user's own framing in
+this session's task also flagged it as high priority - concurred with,
+not just deferred to, given the reasoning above stands independently.
+
+**Design-fork decision on item 31 (bazar.bg/imot.bg's city-allowlist
+scope)**: the task brief left it open whether this crosses into
+"ask the user first" territory, since it's a real scope/runtime
+tradeoff (What Bulgaria-wide coverage should mean for these two
+scrapers), not a pure bug fix. Decided to scope a first concrete fix now
+rather than hold for the user, per this role's standing "take the
+recommended option, log the reasoning, keep going" rule for a design
+fork. Reasoning: the four things this role stops for are deleting/
+irreversibly overwriting data, anything that costs money, anything
+touching auth/security, or something genuinely risky - none apply here.
+The worst-case downside is a longer scraper runtime, and that's already
+the exact problem item 30 has a designed answer for (checkpointed/
+resumable crawling) - so item 31 explicitly inherits that answer rather
+than being scoped as a blind, separate risk. Recommended method: oblast-
+level slicing (28 oblasts, 100% territorial coverage by construction),
+mirroring `scraper_olx.py`'s own already-proven `OBLAST_SLUGS` pattern
+rather than inventing a new one or trying to hand-curate an expanded
+city list (which would only ever narrow the gap, never close it, and
+adds an ongoing "did we remember every town" maintenance burden a
+geographic partition doesn't have). Explicitly sequenced after item 30:
+building oblast-level coverage without item 30's checkpointing
+mechanism would just recreate the exact same masked-timeout bug on two
+more scrapers at larger scale, which would be a worse outcome than not
+acting yet.
+
+**What's dispatched, what's not**: both items are written up as ready to
+hand to a general-purpose builder (no auth/session/credentials/personal-
+data surface on either - Revy's review isn't expected to be needed on
+either, only Missy's). Item 30 is scoped tightly enough a builder can
+likely just build it. Item 31 is scoped with a recommended concrete
+method rather than left as an open product question, but is sequenced
+to start only once item 30's mechanism exists to reuse - see the
+hand-back message for the exact dispatch order and what each builder
+needs.
