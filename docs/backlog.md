@@ -39,6 +39,29 @@ no subagent-spawning tool available, so it was self-reviewed directly
 against Missy's own rubric rather than skipped; flagged there as a real
 gap, not a shortcut taken lightly.
 
+**Correction (2026-09-23) - the "future cleanup candidate" flagged above
+was actually a live, daily-failing bug, not a harmless no-op.** The
+above assumed `check_reminders.py`'s daily job "will keep running, keep
+exiting 0, and correctly find nothing new" now that reminders no longer
+write to Supabase. That was wrong: `check-reminders.yml` has failed
+every single run since it was created (5/5), with `404 Client Error:
+Not Found` on `GET .../rest/v1/reminders` - the live Supabase project
+never actually has this table (the `supabase/schema.sql` migration for
+it was apparently never applied), so the query fails outright rather
+than returning an empty, harmless result set. Since reminders are
+permanently localStorage-only now, this table will never receive a row
+either way - fixing the migration would just make the job "succeed"
+while still doing nothing useful forever. Deleted `check_reminders.py`,
+`.github/workflows/check-reminders.yml`, and the related one-off
+`backfill_reminder_owner.py`/`.github/workflows/
+backfill-reminder-owner.yml` (both built for the same now-removed
+auth-gated reminders design, per backlog #62) - all four are genuinely
+dead code with no live purpose, not just currently-unused. See
+`docs/decisions.md`'s matching 2026-09-23 entry for full detail. The
+Dashboard's Reminders card already stopped promising a GitHub-issue
+nudge as part of the original login-removal work, so no user-facing
+copy needs to change.
+
 <details>
 <summary>Prior investigation (kept for history only - not an open problem)</summary>
 
