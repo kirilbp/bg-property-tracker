@@ -510,15 +510,24 @@ def save_history(history):
 # fresh grid re-touch wipe them off an already-detail-checked, still-active
 # listing every ~6 hours - docs/backlog.md item 9a.
 #
-# NOTE: "area" (district enrichment) and "photo" are deliberately NOT
-# included here - unlike the fields above, the grid crawl always supplies
-# a real (non-empty) value for both, just a less complete one before a
-# detail visit (settlement-only area, best-effort thumbnail), so the
+# NOTE: "area" (district enrichment) is deliberately NOT included here -
+# unlike the fields above, the grid crawl always supplies a real
+# (non-empty) value for it, just a less complete one before a detail visit
+# (settlement-only area rather than settlement+district), so the
 # "missing/falsy in the fresh record" merge rule below can't safely tell
 # "grid's own value" apart from "should keep the richer detail-page value"
 # without guessing. Left as a known smaller-severity gap for a follow-up,
 # not guessed at here.
-_DETAIL_ONLY_FIELDS = ("description", "detail_checked", "lat", "lng")
+#
+# "photo" IS included, unlike "area": fetch_listings_page() (the grid
+# crawl) sets it to None whenever the listing card's own image is the
+# shared "photo-placeholder.png" (see this module's docstring - very
+# common, since "the real gallery only exists on the detail page"), so a
+# fresh grid record's falsy photo is unambiguously "grid has nothing
+# useful here", exactly like a fresh lat/lng always being the None
+# placeholder above. No guessing needed - same merge rule already applied
+# to lat/lng applies identically to photo.
+_DETAIL_ONLY_FIELDS = ("description", "detail_checked", "lat", "lng", "photo")
 
 
 def update_history(history, listings):
