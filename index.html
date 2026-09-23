@@ -3688,8 +3688,17 @@ async function loadData() {
     // live-verified, repeatedly, that even after trimming its heaviest
     // columns and tuning concurrency/ordering, the *sustained* volume of
     // requests needed to page through it in full was enough on its own to
-    // exhaust something on the free-tier project (a connection pool, most
-    // likely) partway through nearly every real load. merged_listings
+    // exhaust something on the project (a connection pool, most likely)
+    // partway through nearly every real load. This was originally found
+    // and fixed on the free tier, but re-audited after the Supabase Pro
+    // upgrade (docs/backlog.md item 11) and deliberately NOT reverted:
+    // even with Pro's higher connection/resource ceilings, shipping every
+    // raw per-portal row (each with its own heavy jsonb columns) to every
+    // browser on every visit is a client-payload/UX problem, not just a
+    // backend-capacity one - see backlog item 6's fuller writeup. The fix
+    // below (read merged_listings' own precomputed member_portals/
+    // member_count instead, fetch listing_sources lazily per-listing)
+    // stays correct regardless of plan tier. merged_listings
     // already carries member_portals/member_count (computed server-side
     // from the same merge), which covers the "+portal" badges and the
     // per-portal stat below without needing listing_sources at all - the
