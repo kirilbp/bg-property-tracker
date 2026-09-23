@@ -1254,11 +1254,95 @@ network failure reproduced identically on unmodified `main`, unrelated to
 this change). See `docs/decisions.md`'s matching 2026-09-23 entry for
 full screenshot-by-screenshot detail.
 
-## 11. Supabase Pro plan follow-ups - PENDING
+## 11. Supabase Pro plan follow-ups - AUDIT DONE (2026-09-23), one code
+comment updated, nothing else changed, one dashboard setting flagged
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
+
+**Status (2026-09-23): full audit done** across `sync_to_supabase.py`,
+every `scraper*.py`/`backfill_*.py`, `index.html`, and
+`measure_listings_payload.py`/`audit_cross_city_merges.py`. Searched for
+every explicit free-tier/cost/500MB/connection-pool/statement-timeout
+reference (`grep -i "free.?tier|500 ?MB|connection.?pool|backoff|retry|
+statement_timeout|57014"` across the whole repo, not just a guess at
+likely files) and read each hit's surrounding code to judge whether it
+was cost-motivated or serving a second, still-valid purpose. Full
+per-finding reasoning in `docs/decisions.md`'s 2026-09-23 "Backlog item
+11" entry. Summary:
+
+- **Only one place in the whole codebase explicitly cites the free tier
+  as its reason for existing**: `index.html`'s `loadData()` comment,
+  explaining why `listing_sources` isn't bulk-loaded (only
+  `merged_listings` is) - originally written to say the sustained
+  request volume "exhaust[ed] something on the free-tier project (a
+  connection pool, most likely)". **Not reverted** - backlog item 6
+  already independently re-examined this exact design after the Pro
+  upgrade and concluded the underlying problem (shipping every raw
+  per-portal row's heavy jsonb columns to every browser on every visit)
+  is a client-payload/UX problem, not just backend capacity, so it holds
+  regardless of plan tier. The comment itself was stale/misleading
+  though (still framed as purely a free-tier workaround) - **updated**
+  to state plainly that this was re-audited post-Pro-upgrade and
+  deliberately kept, with a pointer to item 6's fuller reasoning. Comment
+  only, no logic changed.
+- **`sync_to_supabase.py`'s `request_with_retries()`** (`BATCH_SIZE=500`,
+  `MAX_HTTP_RETRIES=4`, `RETRY_BACKOFF_SECONDS=5`) - **not free-tier
+  motivated at all**, and left unchanged. Its own comment explains it
+  exists because a real production sync once crashed outright on a
+  single transient Postgres 57014 (statement timeout) with zero retry
+  logic anywhere - this protects against genuine transient errors on any
+  tier, not a cost workaround. `BATCH_SIZE=500` has no free-tier-related
+  comment anywhere and isn't a payload-size cost throttle; it's sized to
+  keep individual upsert batches comfortably clear of the same
+  statement-timeout wall documented elsewhere in this file (a bigger
+  batch is a *higher*-risk change on this specific axis, not a safe
+  relaxation) - left as-is.
+- **`scraper.py`/`scraper_alo.py`/every other scraper's own
+  `fetch_with_retries()`-style retry/backoff** - these retry HTTP
+  fetches against the *external portals* (imoti.net, alo.bg, etc.), not
+  Supabase. Unrelated to Supabase's plan tier; out of scope for this
+  item, left unchanged.
+- **Keyset pagination** (`fetchAllRows()` in `index.html`,
+  `delete_stale_merged_listings()` in `sync_to_supabase.py`,
+  `audit_cross_city_merges.py`) replacing `OFFSET`-based paging - this
+  was a fix for a genuine Postgres query-plan cost problem (`OFFSET`'s
+  scan-and-discard cost growing with page depth, eventually exceeding
+  the statement timeout), not a free-tier-specific limit. Would still be
+  necessary on Pro (the underlying cost-scaling is inherent to `OFFSET`,
+  not a tier setting) - left unchanged.
+- **No deliberate row-count/payload-size throttling or "keep it small
+  because free tier" comments found anywhere** - `prune_snapshots()`
+  (`geo_utils.py`) shrinks redundant same-price history snapshots, but
+  that's genuine deduplication (never drops a real price change or the
+  most recent snapshot), not a cost-driven cap, and is worth keeping on
+  any tier.
+- **"Free tier" mentions in `docs/strategy/marketing-strategy.md` and
+  `subscription-strategy.md` are a false-positive match** - those
+  describe imotenradar.com's own future *product* subscription tiers
+  (a business-model doc), unrelated to Supabase's infrastructure tier.
+  Not touched.
+
+**Live Supabase dashboard setting flagged, not applied (this sandbox has
+no live Supabase access)**: several places in this codebase
+(`measure_listings_payload.py`'s `count=exact` fallback,
+`audit_cross_city_merges.py`'s deep-OFFSET failures,
+`sync_to_supabase.py`'s `delete_stale_merged_listings()` comment) document
+hitting Postgres error 57014 (`statement_timeout`) on expensive queries
+against `merged_listings`. All of these are already worked around
+gracefully in code (keyset pagination, a documented fallback row count),
+so nothing is broken today - but the Postgres **`statement_timeout` for
+the API roles (`anon`/`authenticated`) is itself a project-level Supabase
+setting that is only configurable on paid plans** (Free tier can't raise
+it at all). Now that the project is on Pro, Kiril could raise it via the
+Supabase dashboard (Project Settings -> Database -> Configuration/Roles,
+or `alter role authenticator set statement_timeout = '...'` in the SQL
+editor) if a future feature needs a genuinely expensive query (e.g. a
+real `count=exact` for pagination totals, per item 6 slice 2's own open
+question). **Not required** - purely optional headroom, since every
+current caller already degrades gracefully without it - flagging it here
+so it isn't lost, not because anything is currently broken.
 
 ## 12. Motivation score rework - DONE
 
