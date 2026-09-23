@@ -53,18 +53,22 @@ earlier fixes — both are still running as of this report and will need
 their own review/merge/report once done, likely after 7am.
 
 **Top 3 strategic actions ready to act on now** (full reasoning in Part 2):
-1. Route the garage/category fix and the un-logged Account-page/Browse-by-
-   city work to Missy for review — nothing here has been confirmed shipped
-   through the standing review gate yet, and the strategy docs assume that
-   gate is respected before anything is called "live."
-2. Because the Account & Subscription preview page now exists, the
+1. Because the Account & Subscription preview page now exists, the
    subscription-strategy.md pricing decision (tier count, price points,
    annual discount) is now the actual bottleneck — it's the one input that
    unlocks wiring real billing, and marketing's referral mechanics wait on
    it too.
-3. Turn on the SEO content-page generator now — it depends on nothing that
+2. Turn on the SEO content-page generator now — it depends on nothing that
    shipped or is still pending tonight, it's ready to start today, and it
    compounds the longer it runs.
+3. Stand up the AI customer-service agent (Crisp vs. Intercom Fin) before
+   opening beta recruitment — it's the one item actually gating the beta
+   from starting, per `docs/strategy/beta-testing-strategy.md`'s own
+   sequencing.
+
+(Getting tonight's work through Missy's review is no longer on this
+list — it was the top action when this report was first drafted, but all
+five PRs have since been reviewed and merged; see Part 2, Action 1.)
 
 ---
 
@@ -254,13 +258,17 @@ single piece of tonight's work most directly relevant to them, since
 yet. Treat `subscription-strategy.md` as newly partially-actionable (see
 action 2 below), not stale.
 
-## Action 1 — Get tonight's unreviewed work through Missy before treating any of it as final
+## Action 1 — Resolved: tonight's work is through Missy's review
 
-Directly follows from Part 1. The garage/category fix and the two
-un-logged features (Browse-by-city, Account page) all need their review
-status confirmed. This isn't a strategy recommendation so much as the
-standing process being followed — but it blocks nothing else below, so it
-shouldn't hold up the rest of this list.
+This was the top action when this report was first drafted: the garage/
+category fix and two un-logged features (Browse-by-city, Account page)
+all needed their review status confirmed. **Update: resolved.** All five
+of tonight's PRs (#255 garage fix, #257 Browse-by-city, #258 Lead
+Generator modal, #259 Account page, #260 design-inspiration research)
+have since been Missy-reviewed, approved, and merged to `main` — see
+`docs/decisions.md`'s "2026-09-23 (later)" entry for what each review
+specifically checked and found. Nothing here needs your action; kept in
+this list only so you can see the process was followed, not skipped.
 
 ## Action 2 — Now that the Account/Subscription page exists, the pricing decision is the real bottleneck
 
