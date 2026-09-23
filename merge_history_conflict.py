@@ -66,6 +66,54 @@ leads*.json self-heals within one cycle with no separate merge logic
 needed; writing a safe generic merger for an array keyed by nothing would
 be real, unnecessary extra risk for zero lasting benefit.
 
+**"latest" is now a per-field merge, not a per-record coin flip on
+snapshot recency (issue #243 / docs/missy-findings/2026-09-23.md).**
+The paragraph above ("'latest' is a shallow dict merge preferring
+whichever side's own snapshot history is more recent") was true of the
+first version of this script and is exactly what caused a real, confirmed
+incident: PR #199 fixed imoti.net's "everything is 'apartment'"
+classifier bug by correcting `latest.category` in place on `main`, with
+no new snapshot appended (a deliberate data-only correction). Four hours
+later, a `scrape-large.yml` run that had checked out `main` BEFORE that
+fix landed - so was still running the old, buggy classifier - hit its
+rebase conflict AFTER the fix was already on `main`. That run's `latest`
+had a chronologically newer snapshot (it really did re-scrape), so the
+old "whichever side's snapshots are more recent wins the whole `latest`
+dict" rule picked the *stale, buggy* run's `category`, silently
+reintroducing the bug for ~17,680 listings. Snapshot recency is a
+legitimate signal for fields that genuinely change in the real world
+between scrapes (price_eur, sqm, photo, detail-page fields, etc. - this
+script's job there is unchanged and still works exactly as documented
+above). It is NOT a legitimate signal for `category`/`category_confidence`
+/`portal`/`city` (`STABLE_LATEST_FIELDS` below): these are
+classifier/parser output *for a given listing's own already-stored
+inputs*, so two sides genuinely disagreeing on one of them is much more
+likely to mean one side ran different (typically older) code than that
+the real world changed. And critically, this script can lean on a real
+asymmetry rather than a guess: at the moment a conflict is being resolved,
+`main`'s code can never be OLDER than `local`'s - `local`'s code was
+whatever the run checked out whenever it started and is frozen for that
+run's whole duration, while `main` only ever moves forward - so `local`
+running newer code than what's on `main` right now isn't a real
+possibility in this git-rebase-onto-main flow. For `category`/
+`category_confidence` specifically, this script goes one step further
+than trusting that asymmetry blindly: for the two portals whose scraper
+calls `category_classifier.classify_listing()` with exactly the
+title/url that end up stored in `latest` (imoti.net, alo.bg -
+`RECOMPUTABLE_CLASSIFIER_PORTALS` below; imoti.bg also uses that
+classifier but with extra inputs `latest` doesn't retain, so it's
+deliberately excluded rather than recomputed inexactly), it actually
+re-runs today's classifier against each side's own stored title/url and
+prefers whichever side's stored value that recomputation still confirms
+- catching cases the recency-asymmetry argument alone wouldn't (e.g. a
+classifier keyword-list improvement that landed on `main` as a *code*
+change, before any new scrape re-touched this particular listing, so
+`main`'s own stored `latest.category` is itself still the stale value
+until its own next scrape). See `_resolve_stable_field_conflicts()`'s own
+docstring for the exact precedence. For every other field, and for the 6
+portals without a safe recompute, behavior is unchanged from the
+paragraph above.
+
 Usage (from the workflow's conflict-fallback step, after `git pull
 --rebase origin main` reports a conflict):
     python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
@@ -82,6 +130,42 @@ from datetime import datetime
 from pathlib import Path
 
 HISTORY_NAME_RE = None  # set below, avoids importing re at module import time for a one-liner
+
+# Imported defensively - this script's own rule (see main()'s "always exit
+# 0" comment) is that a merge failure here should degrade, never crash the
+# whole conflict-resolution pass. If category_classifier.py is ever moved/
+# renamed/broken, _recompute_category() below just returns None for every
+# record and the STABLE_LATEST_FIELDS fallback (prefer "main") still
+# applies on its own.
+try:
+    from category_classifier import classify_listing
+except ImportError:
+    classify_listing = None
+
+# scraper.py (portal "imoti.net") and scraper_alo.py (portal "alo.bg") both
+# call classify_listing() with exactly title=<the same title stored in
+# "latest">, url=<the same url stored in "latest"> - so recomputing from a
+# record's own stored "latest" reproduces their exact original call.
+# scraper_imoti_bg.py (portal "imoti.bg") also uses classify_listing(), but
+# passes description= (imoti.bg's title-only scraped record doesn't always
+# retain a matching description string in the same shape) and a url
+# mutated with a category slug that's popped off before "latest" is ever
+# saved - recomputing from "latest" alone would NOT reproduce that call, so
+# imoti.bg is deliberately left out rather than guessed at with an inexact
+# recompute. The other 5 portals (bazar.bg, bcpea.org, homes.bg, imot.bg,
+# olx.bg) use a different classifier entirely (geo_utils.classify_category()
+# or, for homes.bg, a non-text classification from which search category the
+# listing was found under) - not recomputed here.
+RECOMPUTABLE_CLASSIFIER_PORTALS = {"imoti.net", "alo.bg"}
+
+# "latest" fields that are classifier/parser-derived output for a given
+# listing's own already-stored inputs, not raw scraped real-world state -
+# see the module docstring's "'latest' is now a per-field merge" section
+# for the full reasoning. Deliberately does NOT include price_eur/sqm/
+# photo/site_posted_at/lat/lng/description/detail_checked/etc. - those
+# really do change over time and snapshot recency remains a legitimate,
+# unchanged signal for them.
+STABLE_LATEST_FIELDS = {"category", "category_confidence", "portal", "city"}
 
 
 def is_history_file(path):
@@ -118,6 +202,94 @@ def freshest_seen_at(rec):
     return snaps[-1].get("seen_at")
 
 
+def _recompute_category(latest):
+    """Best-effort recompute of (category, category_confidence) straight
+    from this record's own stored title/url, using whatever
+    category_classifier.py is on disk right now (the same code a future
+    scrape would use). Returns None when this record's portal isn't one
+    of RECOMPUTABLE_CLASSIFIER_PORTALS, classify_listing isn't
+    importable, or the record is missing the inputs it needs - callers
+    treat None as "couldn't verify," never as a value to trust."""
+    if classify_listing is None:
+        return None
+    if latest.get("portal") not in RECOMPUTABLE_CLASSIFIER_PORTALS:
+        return None
+    if not latest.get("title") or not latest.get("url"):
+        return None
+    category, confidence, _ = classify_listing(title=latest["title"], url=latest["url"])
+    return category, confidence
+
+
+def _resolve_category_conflict(main_latest, local_latest):
+    """Only called when main_latest/local_latest both have a "category"
+    and/or "category_confidence" and they disagree. Returns the
+    (category, category_confidence) pair to use, in this order of trust:
+
+    1. Recompute BOTH sides' own (title, url) through today's classifier.
+       If exactly one side's stored category still matches its own fresh
+       recompute and the other doesn't, that side is verified correct
+       right now - use its (category, category_confidence) together,
+       never mixed from different sides (confidence only makes sense
+       paired with the category it was computed for). This is what
+       correctly picks PR #199's already-merged fix over a stale, pre-fix
+       run's fresher-but-wrong snapshot (issue #243): the stale run's OWN
+       stored category no longer matches what today's classifier produces
+       from that same run's own title/url, because the run's title/url
+       were never wrong - only the code path that turned them into a
+       category was.
+    2. If both sides' own recomputes agree with each other - whether or
+       not either matches what was actually stored (e.g. the classifier
+       gained a keyword since both these runs happened) - that shared
+       fresh answer is the most current truth available; use it directly
+       rather than trusting either side's possibly-stale stored value.
+    3. Otherwise recompute couldn't settle it (not a recomputable portal,
+       missing title/url, or neither/both sides' stored value survives
+       its own recompute without converging) - fall back to main's stored
+       value. main is always at least as new, code-wise, as local (see
+       the module docstring) even when this script can't independently
+       verify the specific field, so this is a reasoned default, not a
+       coin flip.
+    """
+    main_pair = (main_latest.get("category"), main_latest.get("category_confidence"))
+    local_pair = (local_latest.get("category"), local_latest.get("category_confidence"))
+
+    main_recomputed = _recompute_category(main_latest)
+    local_recomputed = _recompute_category(local_latest)
+
+    main_verified = main_recomputed is not None and main_recomputed == main_pair
+    local_verified = local_recomputed is not None and local_recomputed == local_pair
+
+    if main_verified and not local_verified:
+        return main_pair
+    if local_verified and not main_verified:
+        return local_pair
+    if main_recomputed is not None and main_recomputed == local_recomputed:
+        return main_recomputed
+    return main_pair
+
+
+def _resolve_stable_field_conflicts(main_latest, local_latest):
+    """Returns a dict of overrides for STABLE_LATEST_FIELDS keys present
+    (with a differing value) on both sides - these override whatever the
+    recency-based shallow union in merge_record() picked for just these
+    specific keys; every other key (including a STABLE_LATEST_FIELDS key
+    only one side has) is untouched."""
+    overrides = {}
+    if (
+        main_latest.get("category") != local_latest.get("category")
+        or main_latest.get("category_confidence") != local_latest.get("category_confidence")
+    ) and "category" in main_latest and "category" in local_latest:
+        category, confidence = _resolve_category_conflict(main_latest, local_latest)
+        overrides["category"] = category
+        overrides["category_confidence"] = confidence
+    for field in STABLE_LATEST_FIELDS - {"category", "category_confidence"}:
+        if field not in main_latest or field not in local_latest:
+            continue
+        if main_latest[field] != local_latest[field]:
+            overrides[field] = main_latest[field]
+    return overrides
+
+
 def merge_record(main_rec, local_rec):
     if main_rec is None:
         return local_rec
@@ -152,6 +324,11 @@ def merge_record(main_rec, local_rec):
     # fields the newer side's plain grid-crawl "latest" never carried -
     # see module docstring) survives instead of being silently dropped.
     merged_latest = {**older_latest, **newer_latest}
+    # ...except STABLE_LATEST_FIELDS, where the newer-snapshot side isn't
+    # a trustworthy winner (see module docstring / _resolve_stable_field_
+    # conflicts()'s own docstring) - only actually overrides anything when
+    # main_rec and local_rec both have the field and disagree.
+    merged_latest.update(_resolve_stable_field_conflicts(main_rec.get("latest", {}), local_rec.get("latest", {})))
 
     merged = dict(main_rec if main_fresh and (not local_fresh or main_fresh >= local_fresh) else local_rec)
     merged["first_seen"] = first_seen
