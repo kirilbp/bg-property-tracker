@@ -1085,6 +1085,56 @@
   .pref-density-hint { font-size: 12px; color: var(--taupe); text-transform: none; letter-spacing: normal; font-weight: 400; }
   input[type="radio"] { accent-color: var(--brass); }
 
+  /* --- Account (login + subscription/payment PREVIEW - deliberately
+     inert, see the HTML section comment on #section-account). Own
+     .acct-tab-btn/.acct-tab-content copy of the .pref-tab-btn/
+     .pref-tab-content pattern (not a reuse) for the same collision-
+     avoidance reason documented above .pref-saletype-btn: a shared,
+     unscoped class name would let this page's tabs fight the Preferences
+     page's tabs for "active" state since both are toggled by an
+     unscoped document.querySelectorAll(). Same for .acct-mode-btn vs.
+     .pref-saletype-btn/.lg-saletype-btn - a third copy of the same
+     two-state pill toggle, not a shared class. */
+  .acct-tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid var(--taupe-light); flex-wrap: wrap; }
+  .acct-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 4px; margin-right: 20px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--taupe); cursor: pointer;
+  }
+  .acct-tab-btn:hover { color: var(--ink-soft); }
+  .acct-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
+  .acct-tab-content { display: none; padding-top: 8px; max-width: 480px; }
+  .acct-tab-content.active { display: block; }
+  .acct-mode-btn {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-size: 13px;
+    padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
+  }
+  .acct-mode-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
+  /* Sage signal color (design-guidelines.md section 4 - the one place a
+     second color is allowed, small-caps/plain text only, never a filled
+     badge) used here for the local-only "preview" confirmation text shown
+     after submitting either inert form - deliberately not the brass accent
+     (reserved for actions) or the error/brick tone (this isn't an error). */
+  .acct-inert-status { display: inline-block; margin-left: 12px; font-family: var(--font-sans); font-size: 12px; color: var(--sage); vertical-align: middle; }
+  .acct-form-subhead {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--taupe); margin: 4px 0 14px; padding-top: 18px; border-top: 1px solid var(--taupe-light);
+  }
+  .pricing-card {
+    background: white; border: 1px solid var(--taupe-light); border-radius: 8px; padding: 28px;
+    margin: 16px 0 28px; max-width: 420px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+  .pricing-tier-name {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--brass-deep); margin-bottom: 10px;
+  }
+  .pricing-price { font-family: var(--font-serif); color: var(--ink); }
+  .pricing-amount { font-size: 38px; font-weight: 500; }
+  .pricing-period { font-size: 14px; color: var(--taupe); font-family: var(--font-sans); margin-left: 4px; }
+  .pricing-sub { font-size: 12px; color: var(--taupe); margin-top: 6px; font-family: var(--font-sans); }
+  .pricing-features { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .pricing-features li { font-size: 13px; color: var(--ink-soft); font-family: var(--font-sans); padding-left: 22px; position: relative; line-height: 1.5; }
+  .pricing-features li::before { content: "✓"; position: absolute; left: 0; color: var(--brass-deep); font-weight: 600; }
+
   /* Single-hue "heat" intensity - design-guidelines.md section 4/9 forbids
      saturated multi-color status treatments (no red/yellow/green traffic
      lights), so heat is expressed as varying opacity of the one brass
@@ -1122,6 +1172,7 @@
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="preferences"><span class="icon">⚙️</span> Preferences</button>
+    <button class="nav-item" data-section="account"><span class="icon">👤</span> Account</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -1702,6 +1753,124 @@
 
           <div class="pref-tab-content" data-pref-tab-content="calendar">
             <p class="pl-sub" style="margin-top:16px;">Not applicable yet - flagged plainly rather than built. imotenradar has no calendar view, no Google Calendar connection, and no iCal feed anywhere in the app today, so there's nothing here to configure. The closest existing feature is per-listing <strong>Reminders</strong> (a date + note, shown on the Home dashboard) - see Dashboard &gt; Reminders. A real Calendar settings screen only makes sense once (or if) a calendar view or external calendar sync is actually built.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account (docs/backlog.md "Account/Subscription page preview" -
+           login + subscription/payment UI, deliberately INERT. Do not wire
+           this up to Supabase Auth or a real payment processor - see the
+           comment on #acctLoginForm/#acctPaymentForm below and
+           docs/decisions.md's 2026-09-22 "Login removed entirely" entry for
+           why: the user explicitly ordered login removed and does not want
+           the site to ever prompt/require it again. This page previews what
+           account/billing will look like once (if) that changes, without
+           reactivating any of it. No login gate exists anywhere else in the
+           app because of this page - Saved listings, Lead Generators,
+           Reminders, and Pipeline all remain fully usable with no account,
+           exactly as before. -->
+      <section class="page" id="section-account">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Account</h2>
+              <p class="pl-sub">A preview of upcoming account and subscription features. <strong>Nothing on this page is active yet</strong> — imotenradar has no login and no billing today. Saved listings, Lead Generators, Reminders, and the Pipeline already work fully in this browser with no account required, and will keep working exactly as they do now no matter what you do on this page.</p>
+            </div>
+          </div>
+
+          <div class="acct-tabs" id="acctTabs">
+            <button type="button" class="acct-tab-btn active" data-acct-tab="login">Login</button>
+            <button type="button" class="acct-tab-btn" data-acct-tab="subscription">Subscription</button>
+          </div>
+
+          <div class="acct-tab-content active" data-acct-tab-content="login">
+            <div class="pill-toggle-row" style="margin:16px 0;">
+              <button type="button" class="acct-mode-btn active" data-acct-mode="login">Log in</button>
+              <button type="button" class="acct-mode-btn" data-acct-mode="signup">Sign up</button>
+            </div>
+
+            <!-- Deliberately INERT - no sb.auth call, no CURRENT_USER, no
+                 session, no gate on any other page. Submitting this form
+                 only shows a local "preview only" status message (see
+                 acctLoginForm's submit listener near the bottom of the
+                 script). Do not wire this to Supabase Auth without a fresh,
+                 explicit go-ahead - see the section comment above. -->
+            <form id="acctLoginForm" novalidate>
+              <div class="modal-field">
+                <label>Email</label>
+                <input type="email" id="acctEmail" placeholder="you@example.com" autocomplete="username" />
+              </div>
+              <div class="modal-field">
+                <label>Password</label>
+                <input type="password" id="acctPassword" placeholder="••••••••" autocomplete="current-password" />
+              </div>
+              <div class="modal-field" id="acctConfirmField" style="display:none;">
+                <label>Confirm password</label>
+                <input type="password" id="acctConfirmPassword" placeholder="••••••••" autocomplete="new-password" />
+              </div>
+
+              <p class="modal-hint" style="margin-bottom:16px;">Logging in is optional and not required to use imotenradar — everything above already works in this browser with no account. This form is a preview of what's coming; submitting it won't create an account or sign you in to anything.</p>
+
+              <button type="submit" class="brass-btn" id="acctLoginSubmitBtn">Log in</button>
+              <span class="acct-inert-status" id="acctLoginStatus"></span>
+            </form>
+          </div>
+
+          <div class="acct-tab-content" data-acct-tab-content="subscription">
+            <p class="pl-sub" style="margin-top:16px;">Preview only — pricing and payment aren't live yet. This is what subscribing will look like once billing is turned on.</p>
+
+            <div class="pricing-card">
+              <div class="pricing-card-header">
+                <div class="pricing-tier-name">Imoten Radar Pro</div>
+                <div class="pricing-price"><span class="pricing-amount">€19</span><span class="pricing-period">/ month</span></div>
+                <div class="pricing-sub">or €190 / year (2 months free) — cancel anytime</div>
+              </div>
+              <ul class="pricing-features">
+                <li>Hourly data refresh across all 8 portals, instead of every 6 hours</li>
+                <li>Unlimited Lead Generators &amp; saved searches</li>
+                <li>Full price-history, Comparables &amp; Area Data analytics</li>
+                <li>BTL Stress Test &amp; Deal Calculator on every listing</li>
+                <li>Deal Pipeline with unlimited saved deals</li>
+                <li>Email alerts for new Lead Generator matches, once accounts are live</li>
+              </ul>
+            </div>
+
+            <!-- Deliberately INERT - no Stripe/payment-processor call of any
+                 kind, no charge, no network request. Submitting this form
+                 only shows a local "preview only" status message. Do not
+                 wire this to a real payment processor without the user's
+                 explicit go-ahead on pricing/processor first - see the
+                 section comment above. -->
+            <form id="acctPaymentForm" novalidate>
+              <p class="acct-form-subhead">Payment details</p>
+              <div class="modal-field">
+                <label>Name on card</label>
+                <input type="text" id="acctCardName" placeholder="Full name" autocomplete="cc-name" />
+              </div>
+              <div class="modal-field">
+                <label>Card number</label>
+                <input type="text" id="acctCardNumber" placeholder="4242 4242 4242 4242" inputmode="numeric" autocomplete="cc-number" />
+              </div>
+              <div class="modal-field-row">
+                <div class="modal-field">
+                  <label>Expiry (MM/YY)</label>
+                  <input type="text" id="acctCardExpiry" placeholder="MM/YY" autocomplete="cc-exp" />
+                </div>
+                <div class="modal-field">
+                  <label>CVC</label>
+                  <input type="text" id="acctCardCvc" placeholder="123" inputmode="numeric" autocomplete="cc-csc" />
+                </div>
+              </div>
+              <div class="modal-field">
+                <label>Billing email</label>
+                <input type="email" id="acctBillingEmail" placeholder="you@example.com" autocomplete="email" />
+              </div>
+
+              <p class="modal-hint" style="margin-bottom:16px;">Payments aren't connected yet — no card will be charged and no subscription will be created. This form previews the flow ahead of launch.</p>
+
+              <button type="submit" class="brass-btn" id="acctSubscribeBtn">Subscribe — coming soon</button>
+              <span class="acct-inert-status" id="acctSubscribeStatus"></span>
+            </form>
           </div>
         </div>
       </section>
@@ -9298,6 +9467,49 @@ document.getElementById('leadgenSortBy').addEventListener('change', (e) => {
 });
 
 window.addEventListener('hashchange', maybeImportSharedLeadGenerator);
+
+// --- Account (login + subscription/payment PREVIEW) --------------------
+// Deliberately, completely inert - no Supabase Auth call, no CURRENT_USER,
+// no session/localStorage write, no payment-processor call, no network
+// request of any kind. Both forms below only preventDefault() and show a
+// local status message. Do NOT add an sb.auth.* call or a real payment
+// call here without a fresh, explicit go-ahead - the user explicitly
+// ordered login removed site-wide (docs/decisions.md 2026-09-22) and this
+// page exists to preview the UI only, not to reactivate it. Nothing here
+// gates any other page - Saved listings/Lead Generators/Reminders/Pipeline
+// are untouched by this block.
+document.querySelectorAll('.acct-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.acct-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.acct-tab-content').forEach(c => c.classList.toggle('active', c.dataset.acctTabContent === btn.dataset.acctTab));
+  });
+});
+
+document.querySelectorAll('.acct-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.acct-mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const isSignup = btn.dataset.acctMode === 'signup';
+    document.getElementById('acctConfirmField').style.display = isSignup ? '' : 'none';
+    document.getElementById('acctLoginSubmitBtn').textContent = isSignup ? 'Create account' : 'Log in';
+    document.getElementById('acctLoginStatus').textContent = '';
+  });
+});
+
+document.getElementById('acctLoginForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  // No auth call - see the block comment above. Just a local, honest
+  // "this isn't live yet" acknowledgement.
+  document.getElementById('acctLoginStatus').textContent = 'Preview only — accounts aren\'t active yet. Nothing was submitted.';
+});
+
+document.getElementById('acctPaymentForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  // No payment-processor call - see the block comment above. Just a local,
+  // honest "this isn't live yet" acknowledgement; no card is charged and no
+  // subscription record is created anywhere.
+  document.getElementById('acctSubscribeStatus').textContent = 'Preview only — subscriptions aren\'t live yet. Nothing was charged or submitted.';
+});
 
 // --- Preferences (docs/property-filter-spec.md section 9; docs/backlog.md
 // item 19) --------------------------------------------------------------
