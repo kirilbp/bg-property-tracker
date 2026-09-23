@@ -972,6 +972,66 @@
   .btl-pass-line.fail { color: var(--ink-soft); }
   .btl-disclaimer { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); line-height: 1.5; margin-top: 20px; }
 
+  /* --- Deal Calculator (docs/backlog.md item 18; docs/deal-calculator-
+     formulas.md) ----------------------------------------------------------
+     Reuses the .btl-* input/output tokens (same calculator "feel" as the
+     already-shipped BTL Stress Test tab) plus .pl-card-grid/.modal-* for the
+     template gallery and creation wizard, rather than introducing a fifth
+     visual language for what is, at heart, the same kind of form-plus-
+     computed-output panel. */
+  .dc-strategy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin: 4px 0 8px; }
+  .dc-strategy-card {
+    text-align: left; background: white; border: 1px solid var(--taupe-light); border-radius: 6px;
+    padding: 16px; cursor: pointer; font-family: var(--font-sans); transition: border-color 150ms ease-out;
+  }
+  .dc-strategy-card:hover:not(:disabled) { border-color: var(--brass); }
+  .dc-strategy-card.active { border-color: var(--brass); background: rgba(169,129,46,0.06); }
+  .dc-strategy-card:disabled { cursor: not-allowed; opacity: 0.55; }
+  .dc-strategy-name { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0 0 4px; }
+  .dc-strategy-full { font-size: 12px; color: var(--taupe); margin: 0 0 8px; line-height: 1.4; }
+  .dc-strategy-blurb { font-size: 12px; color: var(--ink-soft); margin: 0; line-height: 1.45; }
+  .dc-soon-badge {
+    display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--taupe); background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 3px;
+    padding: 2px 6px; margin-bottom: 8px;
+  }
+  .dc-wizard-steps { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: -6px 0 16px; }
+  .dc-wizard-steps .current { color: var(--ink); font-weight: 600; }
+  .dc-back-link {
+    background: none; border: none; color: var(--brass-deep); font-family: var(--font-sans); font-size: 13px;
+    font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .dc-back-link:hover { text-decoration: underline; }
+  .dc-listing-context {
+    display: flex; align-items: center; gap: 10px; background: var(--ivory-deep); border: 1px solid var(--taupe-light);
+    border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft);
+  }
+  .dc-listing-context strong { color: var(--ink); }
+  .dc-section-subhead {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--taupe); margin: 22px 0 10px; padding-top: 14px; border-top: 1px solid var(--taupe-light);
+  }
+  .dc-section-subhead:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .dc-template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin: 16px 0 32px; }
+  .dc-template-card { background: white; border: 1px solid var(--taupe-light); border-radius: 6px; padding: 18px; font-family: var(--font-sans); }
+  .dc-template-strategy-tag {
+    display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--brass-deep); background: rgba(169,129,46,0.10); border-radius: 3px; padding: 2px 7px; margin-bottom: 8px;
+  }
+  .dc-template-name { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0 0 10px; }
+  .dc-template-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 12px; }
+  .dc-template-metric-label { font-size: 10px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 2px; }
+  .dc-template-metric-value { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
+  .dc-template-footer { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--taupe-light); }
+  .dc-template-link-line { font-size: 12px; color: var(--taupe); margin: 0 0 10px; }
+  .dc-template-link-line a { color: var(--brass-deep); text-decoration: none; }
+  .dc-template-link-line a:hover { text-decoration: underline; }
+  .dc-empty-state { text-align: center; color: var(--taupe); padding: 28px 20px; font-family: var(--font-sans); font-size: 13px; border: 1px dashed var(--taupe-light); border-radius: 6px; margin: 16px 0 32px; }
+  .dc-disclaimer {
+    font-family: var(--font-sans); font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 0 0 20px;
+  }
+
   /* --- Market Data hub (docs/property-filter-spec.md section 7; backlog
      item 12) -------------------------------------------------------------
      Reuses the .cmp-*/.pl-* tokens and component classes item 11 already
@@ -1053,6 +1113,7 @@
     <button class="nav-item" data-section="leadgen"><span class="icon">🎯</span> Lead Generators</button>
     <button class="nav-item" data-section="pipeline"><span class="icon">🗂️</span> Pipeline</button>
     <button class="nav-item" data-section="comparables"><span class="icon">📐</span> Comparables</button>
+    <button class="nav-item" data-section="dealcalc"><span class="icon">🧮</span> Deal Calculator</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
     <button class="nav-item" data-section="preferences"><span class="icon">⚙️</span> Preferences</button>
@@ -1344,6 +1405,40 @@
             <div id="cmpMapView" class="pl-map" style="display:none;"></div>
           </div>
           <p class="cmp-empty-state" id="cmpEmptyState">Pick a city (and, optionally, a quarter), then run a search to see comparable listings.</p>
+        </div>
+      </section>
+
+      <!-- Deal Calculator (docs/backlog.md item 18; docs/property-filter-
+           spec.md section 8; docs/deal-calculator-formulas.md). MVP scope:
+           the overall mechanism (pick a strategy -> strategy-specific form ->
+           save as a reusable template or link to a listing) proven with two
+           fully-computed strategies, BTL (extends the shipped Stress Test -
+           see computeBtlStressTest()/BTL_DEFAULTS above) and FLIP. The other
+           7 non-dropped strategies (BRRR, BTSA, BRSAR, R2R, R2SA,
+           COM2RESI-TOSELL, Assisted Sale) show as "Coming soon" in the
+           strategy picker rather than half-built - see docs/backlog.md for
+           the deferred follow-up. PLO and Title Split are absent entirely,
+           not even as placeholders (PLO needs BG legal confirmation no
+           formula exists for yet; Title Split is a confirmed drop - BG's
+           condominium ownership regime has no equivalent problem to solve). -->
+      <section class="page" id="section-dealcalc">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Deal Calculator</h2>
+              <p class="pl-sub">Model an investment strategy — save it as a reusable template, or link it to a specific listing from that listing's own "Deal Calculator" tab.</p>
+            </div>
+            <button type="button" class="brass-btn" id="dcNewTemplateBtn">+ New Calculation</button>
+          </div>
+          <p class="dc-disclaimer">Figures are guidance only, not financial or legal advice. Bulgarian tax, fee, and mortgage-rate defaults below are best-available research estimates (see <code>docs/deal-calculator-formulas.md</code>), not a live feed — a lawyer, accountant, or mortgage broker should confirm the real figures before you act on a saved calculation.</p>
+
+          <p class="dc-section-subhead">My Templates</p>
+          <div class="dc-template-grid" id="dcMyTemplatesGrid"></div>
+          <p class="dc-empty-state" id="dcMyTemplatesEmpty">No reusable templates yet — click "+ New Calculation" to build one.</p>
+
+          <p class="dc-section-subhead">Linked to Properties</p>
+          <div class="dc-template-grid" id="dcLinkedTemplatesGrid"></div>
+          <p class="dc-empty-state" id="dcLinkedTemplatesEmpty">No calculations linked to a specific listing yet — open a listing and use its "Deal Calculator" tab.</p>
         </div>
       </section>
 
@@ -1793,6 +1888,25 @@
     <div class="modal-footer">
       <button type="button" class="modal-btn-secondary" id="reminderModalCancelBtn">Cancel</button>
       <button type="button" class="modal-btn-primary" id="reminderModalSaveBtn">Save reminder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deal Calculator wizard (docs/backlog.md item 18): step 1 picks a
+     strategy, step 2 shows that strategy's own form + live-computed outputs.
+     Footer is only shown on step 2 (nothing to save from the strategy
+     picker) - toggled by renderDealCalcModal(). Wide (.compare-modal) to fit
+     the strategy grid and the two-column input/output layout comfortably. -->
+<div class="modal-overlay compare-modal" id="dealCalcModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2 id="dealCalcModalTitle">New Deal Calculation</h2>
+      <button class="modal-close-btn" id="dealCalcModalCloseBtn">✕</button>
+    </div>
+    <div id="dealCalcModalBody"></div>
+    <div class="modal-footer" id="dealCalcModalFooter" style="display:none;">
+      <button type="button" class="modal-btn-secondary" id="dealCalcModalCancelBtn">Cancel</button>
+      <button type="button" class="modal-btn-primary" id="dealCalcModalSaveBtn">Save</button>
     </div>
   </div>
 </div>
@@ -3768,6 +3882,14 @@ document.getElementById('reminderModalSaveBtn').addEventListener('click', saveRe
 document.getElementById('reminderModalOverlay').addEventListener('click', (e) => {
   if (e.target.id === 'reminderModalOverlay') closeReminderModal();
 });
+
+document.getElementById('dealCalcModalCloseBtn').addEventListener('click', closeDealCalcModal);
+document.getElementById('dealCalcModalCancelBtn').addEventListener('click', closeDealCalcModal);
+document.getElementById('dealCalcModalSaveBtn').addEventListener('click', saveDealCalcTemplateFromWizard);
+document.getElementById('dealCalcModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'dealCalcModalOverlay') closeDealCalcModal();
+});
+document.getElementById('dcNewTemplateBtn').addEventListener('click', () => openDealCalcModal());
 
 // Cross-portal duplicate detection (price+sqm+area fuzzy matching - see
 // sync_to_supabase.py's group_listings() for the full algorithm and its
@@ -7693,6 +7815,635 @@ function wireBtlTabInputs(l) {
   });
 }
 
+// --- Deal Calculator (docs/backlog.md item 18; docs/property-filter-spec.md
+// section 8; docs/deal-calculator-formulas.md) ---------------------------
+// MVP mechanism proof, not all 9 replicable strategies at once: the overall
+// "pick a strategy -> strategy-specific form -> save as a reusable template
+// or link to a listing" mechanism is built generically (DEAL_CALC_STRATEGIES,
+// the wizard state machine, the template gallery), with two strategies fully
+// wired to real formulas from the doc above - BTL (deliberately reuses
+// computeBtlStressTest()/BTL_DEFAULTS rather than reimplementing the ICR
+// stress test, then layers rental-yield/cap-rate/cash-flow/cash-on-cash math
+// on top - doc section 2) and FLIP (doc section 4, a simpler, self-contained
+// strategy chosen specifically to prove the mechanism cleanly). The other 7
+// non-dropped strategies are listed as disabled "Coming soon" cards in the
+// picker, never a half-built form - see docs/backlog.md for what's deferred.
+// No login: saved in this browser's own localStorage, same pattern as
+// leadGenerators/pipelineDeals/pipelineStages above.
+const DEAL_CALC_TEMPLATES_KEY = 'dealCalculatorTemplates';
+let DEAL_CALC_TEMPLATES = [];
+
+const DEAL_CALC_STRATEGIES = [
+  { id: 'btl', name: 'BTL', full: 'Buy To Let', live: true,
+    blurb: 'Long-term rental — extends the BTL Stress Test with rental yield, cap rate, monthly cash flow, and cash-on-cash return.' },
+  { id: 'flip', name: 'FLIP', full: 'Buy, Refurb, Sell', live: true,
+    blurb: 'Total project cost, total cash needed, gross profit, and ROI on a buy-refurb-resell project.' },
+  { id: 'brrr', name: 'BRRR', full: 'Buy, Rehab, Rent, Refinance', live: false },
+  { id: 'btsa', name: 'BTSA', full: 'Buy To Serviced Accommodation (short-term let)', live: false },
+  { id: 'brsar', name: 'BRSAR', full: 'Buy, Refurb, Serviced Accommodation, Refinance', live: false },
+  { id: 'r2r', name: 'R2R', full: 'Rent To Rent', live: false },
+  { id: 'r2sa', name: 'R2SA', full: 'Rent To Serviced Accommodation', live: false },
+  { id: 'com2resi', name: 'COM2RESI-TOSELL', full: 'Commercial to Residential, sell by units', live: false },
+  { id: 'assisted', name: 'Assisted Sale', full: 'Add Value & Sell', live: false },
+];
+
+function loadDealCalcTemplates() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DEAL_CALC_TEMPLATES_KEY) || '[]');
+    DEAL_CALC_TEMPLATES = Array.isArray(saved)
+      ? saved.filter(t => t && typeof t.id === 'string' && typeof t.strategy === 'string' && t.inputs && typeof t.inputs === 'object')
+      : [];
+  } catch (e) {
+    console.error('Failed to load Deal Calculator templates from localStorage', e);
+    DEAL_CALC_TEMPLATES = [];
+  }
+}
+function saveDealCalcTemplatesToStorage() {
+  try {
+    localStorage.setItem(DEAL_CALC_TEMPLATES_KEY, JSON.stringify(DEAL_CALC_TEMPLATES));
+  } catch (e) {
+    console.error('Failed to save Deal Calculator templates', e);
+  }
+}
+
+// Wizard state - one calculator being built/edited at a time, mirroring the
+// btlInputs/editingLeadGeneratorId single-active-editor pattern already used
+// elsewhere in this file.
+let dcWizardStep = 'strategy'; // 'strategy' | 'form'
+let dcWizardStrategy = null;
+let dcWizardInputs = {};
+let dcWizardName = '';
+let dcWizardListing = null;    // the merged listing object, when opened from a listing's own tab
+let dcWizardListingId = null;  // merged.id this calculation will be linked to, or null for a reusable template
+let dcWizardEditingId = null;  // existing template id being edited, or null when creating new
+
+// Standard amortizing-loan monthly payment (docs/deal-calculator-formulas.md
+// section 1.3) - needed for BTL's post-purchase monthly cash flow, which (unlike
+// the ICR stress test above) is assessed against a real repayment mortgage,
+// not an interest-only one.
+function amortizedMonthlyPayment(principal, annualRatePct, years) {
+  if (!principal || principal <= 0) return 0;
+  const r = (annualRatePct / 100) / 12;
+  const n = Math.round((years || 0) * 12);
+  if (n <= 0) return 0;
+  if (r === 0) return principal / n;
+  const factor = Math.pow(1 + r, n);
+  return principal * (r * factor) / (factor - 1);
+}
+
+// BTL: reuses computeBtlStressTest() for the already-shipped ICR
+// affordability check (loanAmount/monthlyInterestOnly/minRentToPass/
+// maxPriceToPass/passes), then adds the new fields from the formulas doc's
+// section 2 on top - never reimplements the stress test itself.
+function computeDealCalcBtl(inputs) {
+  const stress = computeBtlStressTest(inputs);
+  const annualRent = (inputs.monthlyRent || 0) * 12;
+  const grossYieldPct = inputs.price > 0 ? (annualRent / inputs.price) * 100 : null;
+
+  const managementFee = annualRent * ((inputs.managementFeePct || 0) / 100);
+  const maintenance = (inputs.price || 0) * ((inputs.maintenancePct || 0) / 100);
+  const voidAllowance = annualRent * ((inputs.voidPct || 0) / 100);
+  const hoaAnnual = (inputs.hoaMonthly || 0) * 12;
+  const annualOperatingCosts = managementFee + maintenance + (inputs.insuranceAnnual || 0) + voidAllowance + hoaAnnual;
+
+  const noi = annualRent - annualOperatingCosts;
+  const netYieldPct = inputs.price > 0 ? (noi / inputs.price) * 100 : null;
+  const marketValue = inputs.currentMarketValue > 0 ? inputs.currentMarketValue : inputs.price;
+  const capRatePct = marketValue > 0 ? (noi / marketValue) * 100 : null;
+
+  const monthlyMortgagePayment = amortizedMonthlyPayment(stress.loanAmount, inputs.interestPct, inputs.loanTermYears);
+  const monthlyOperatingCosts = annualOperatingCosts / 12;
+  const monthlyCashFlow = (inputs.monthlyRent || 0) - monthlyMortgagePayment - monthlyOperatingCosts;
+  const annualCashFlow = monthlyCashFlow * 12;
+
+  const deposit = (inputs.price || 0) * (1 - (inputs.ltvPct || 0) / 100);
+  const closingCosts = (inputs.price || 0) * ((inputs.closingCostsPct || 0) / 100);
+  const totalCashInvested = deposit + closingCosts + (inputs.refurbCost || 0);
+  const cashOnCashPct = totalCashInvested > 0 ? (annualCashFlow / totalCashInvested) * 100 : null;
+
+  return {
+    ...stress, annualRent, grossYieldPct, annualOperatingCosts, noi, netYieldPct, capRatePct,
+    monthlyMortgagePayment, monthlyOperatingCosts, monthlyCashFlow, annualCashFlow,
+    deposit, closingCosts, totalCashInvested, cashOnCashPct,
+  };
+}
+
+// FLIP (docs/deal-calculator-formulas.md section 4) - a simpler, self-
+// contained strategy with no dependency on any previously-shipped feature,
+// chosen specifically to prove the "pick a strategy -> get a calculator ->
+// see results" mechanism independently of the BTL extension above.
+function computeDealCalcFlip(inputs) {
+  const closingCosts = (inputs.purchasePrice || 0) * ((inputs.closingCostsPct || 0) / 100);
+  const totalProjectCosts = (inputs.purchasePrice || 0) + closingCosts + (inputs.renovationBudget || 0)
+    + (inputs.holdingCosts || 0) + (inputs.financingCost || 0);
+  const totalCashNeeded = totalProjectCosts - (inputs.purchaseLoanAmount || 0);
+  const sellingCosts = (inputs.expectedResalePrice || 0) * ((inputs.sellingCostsPct || 0) / 100);
+  const grossProfit = (inputs.expectedResalePrice || 0) - sellingCosts - totalProjectCosts;
+  const roiPct = totalCashNeeded > 0 ? (grossProfit / totalCashNeeded) * 100 : null;
+  return { closingCosts, totalProjectCosts, totalCashNeeded, sellingCosts, grossProfit, roiPct };
+}
+
+function computeDealCalcResultFor(template) {
+  return template.strategy === 'btl' ? computeDealCalcBtl(template.inputs) : computeDealCalcFlip(template.inputs);
+}
+
+// Defaults per strategy - BTL's mortgage assumptions come straight off
+// BTL_DEFAULTS (itself overridable via Preferences > Deal Stacker) so this
+// calculator and the Stress Test tab never silently disagree on LTV/rate/ICR.
+// Purchase price pre-fills from a linked listing's real price_eur where a
+// listing is supplied; there's no sqm-denominated input in either strategy's
+// own formula (per the formulas doc, price is a single total, not per-m²),
+// so sqm is surfaced as read-only context in the wizard banner instead - see
+// dc-listing-context markup below.
+function initDealCalcInputs(strategyId, listing) {
+  const price = (listing && listing.price_eur) ? listing.price_eur : 0;
+  if (strategyId === 'btl') {
+    return {
+      price,
+      ltvPct: BTL_DEFAULTS.ltvPct,
+      interestPct: BTL_DEFAULTS.interestPct,
+      icrPct: BTL_DEFAULTS.icrPct,
+      loanTermYears: 25,
+      closingCostsPct: 3.5,   // Bulgarian transfer tax + notary + registry rule of thumb (formulas doc section 1.1)
+      refurbCost: 0,
+      monthlyRent: null,      // required, never defaulted - same rule as the Stress Test tab
+      managementFeePct: 10,
+      maintenancePct: 1,
+      voidPct: 5,
+      insuranceAnnual: 0,
+      hoaMonthly: 0,
+      currentMarketValue: price,
+    };
+  }
+  if (strategyId === 'flip') {
+    return {
+      purchasePrice: price,
+      closingCostsPct: 3.5,
+      purchaseLoanAmount: 0,
+      renovationBudget: 0,
+      holdingCosts: 0,
+      financingCost: 0,
+      expectedResalePrice: price,
+      sellingCostsPct: 3,     // Bulgarian agent commission rule of thumb (formulas doc section 4)
+    };
+  }
+  return {};
+}
+
+function defaultDealCalcName() {
+  const def = DEAL_CALC_STRATEGIES.find(s => s.id === dcWizardStrategy);
+  const label = def ? def.name : 'Deal';
+  const context = dcWizardListing ? (dcWizardListing.area || dcWizardListing.title || '') : '';
+  return [label, context].filter(Boolean).join(' — ') || label;
+}
+
+function openDealCalcModal(opts) {
+  opts = opts || {};
+  dcWizardStep = 'strategy';
+  dcWizardStrategy = null;
+  dcWizardInputs = {};
+  dcWizardName = '';
+  dcWizardEditingId = null;
+  dcWizardListing = opts.listing || null;
+  dcWizardListingId = opts.listing ? opts.listing.id : null;
+  document.getElementById('dealCalcModalOverlay').classList.add('open');
+  renderDealCalcModal();
+}
+function closeDealCalcModal() {
+  document.getElementById('dealCalcModalOverlay').classList.remove('open');
+}
+
+function openDealCalcModalForEdit(templateId) {
+  const t = DEAL_CALC_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  dcWizardStep = 'form';
+  dcWizardStrategy = t.strategy;
+  dcWizardInputs = { ...t.inputs };
+  dcWizardName = t.name;
+  dcWizardEditingId = t.id;
+  dcWizardListingId = t.listingId || null;
+  dcWizardListing = t.listingId ? (MERGED_LISTINGS.find(x => x.id === t.listingId) || null) : null;
+  document.getElementById('dealCalcModalOverlay').classList.add('open');
+  renderDealCalcModal();
+}
+
+function selectDealCalcStrategy(id) {
+  const def = DEAL_CALC_STRATEGIES.find(s => s.id === id);
+  if (!def || !def.live) return; // "Coming soon" cards are inert, not half-built forms
+  dcWizardStrategy = id;
+  dcWizardInputs = initDealCalcInputs(id, dcWizardListing);
+  dcWizardName = defaultDealCalcName();
+  dcWizardStep = 'form';
+  renderDealCalcModal();
+}
+
+function renderDealCalcModal() {
+  const titleEl = document.getElementById('dealCalcModalTitle');
+  const body = document.getElementById('dealCalcModalBody');
+  const footer = document.getElementById('dealCalcModalFooter');
+  if (!titleEl || !body) return;
+  footer.style.display = dcWizardStep === 'form' ? 'flex' : 'none';
+
+  if (dcWizardStep === 'strategy') {
+    titleEl.textContent = 'New Deal Calculation';
+    body.innerHTML = `
+      <p class="dc-wizard-steps"><span class="current">1. Choose a strategy</span> &nbsp;→&nbsp; 2. Enter details</p>
+      ${dcWizardListing ? `
+        <div class="dc-listing-context">📍 Linking this calculation to <strong>${escapeHtml(dcWizardListing.title || dcWizardListing.area || 'this listing')}</strong>${dcWizardListing.sqm ? ', ' + fmt(dcWizardListing.sqm) + ' m²' : ''} — purchase price will pre-fill below.</div>
+      ` : ''}
+      <div class="dc-strategy-grid">
+        ${DEAL_CALC_STRATEGIES.map(s => `
+          <button type="button" class="dc-strategy-card${dcWizardStrategy === s.id ? ' active' : ''}" data-dc-strategy="${s.id}" ${s.live ? '' : 'disabled'}>
+            ${s.live ? '' : '<span class="dc-soon-badge">Coming soon</span><br/>'}
+            <p class="dc-strategy-name">${escapeHtml(s.name)}</p>
+            <p class="dc-strategy-full">${escapeHtml(s.full)}</p>
+            ${s.live ? `<p class="dc-strategy-blurb">${escapeHtml(s.blurb)}</p>` : ''}
+          </button>
+        `).join('')}
+      </div>
+      <p class="dc-disclaimer">Figures are guidance only, not financial or legal advice — Bulgarian tax, fee, and rate defaults are best-available estimates (see <code>docs/deal-calculator-formulas.md</code>); confirm with a lawyer, accountant, or mortgage broker before acting on a saved calculation.</p>
+    `;
+    body.querySelectorAll('[data-dc-strategy]').forEach(btn => {
+      btn.addEventListener('click', () => selectDealCalcStrategy(btn.dataset.dcStrategy));
+    });
+    return;
+  }
+
+  // dcWizardStep === 'form'
+  const def = DEAL_CALC_STRATEGIES.find(s => s.id === dcWizardStrategy);
+  titleEl.textContent = (dcWizardEditingId ? 'Edit ' : 'New ') + (def ? def.name : '') + ' Calculation';
+  const formHtml = dcWizardStrategy === 'btl' ? renderDealCalcBtlFormHtml() : renderDealCalcFlipFormHtml();
+  body.innerHTML = `
+    <p class="dc-wizard-steps">1. Choose a strategy &nbsp;→&nbsp; <span class="current">2. Enter details</span></p>
+    ${!dcWizardEditingId ? `<button type="button" class="dc-back-link" id="dcBackToStrategyBtn">← Change strategy</button>` : ''}
+    ${dcWizardListing ? `
+      <div class="dc-listing-context">📍 Linked to <strong>${escapeHtml(dcWizardListing.title || dcWizardListing.area || 'this listing')}</strong>${dcWizardListing.sqm ? ', ' + fmt(dcWizardListing.sqm) + ' m²' : ''}</div>
+    ` : ''}
+    <div class="modal-field">
+      <label>Name</label>
+      <input type="text" id="dcNameInput" value="${escapeHtml(dcWizardName || '')}" placeholder="${escapeHtml(defaultDealCalcName())}" />
+    </div>
+    ${formHtml}
+  `;
+  const backBtn = document.getElementById('dcBackToStrategyBtn');
+  if (backBtn) backBtn.addEventListener('click', () => { dcWizardStep = 'strategy'; renderDealCalcModal(); });
+  wireDealCalcModalInputs();
+}
+
+function renderDealCalcBtlFormHtml() {
+  const inp = dcWizardInputs;
+  const result = computeDealCalcBtl(inp);
+  const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  return `
+    <div class="btl-grid">
+      <div>
+        <p class="dc-section-subhead">Purchase &amp; financing</p>
+        <div class="btl-input-row">
+          <label>Purchase price (€)</label>
+          <input type="number" id="dc_price" data-dc-field="price" value="${inp.price}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Loan-to-value (%)</label>
+          <input type="number" id="dc_ltvPct" data-dc-field="ltvPct" value="${inp.ltvPct}" min="0" max="100" />
+        </div>
+        <div class="btl-input-row">
+          <label>Interest rate (% / year)</label>
+          <input type="number" id="dc_interestPct" data-dc-field="interestPct" value="${inp.interestPct}" min="0" step="0.1" />
+        </div>
+        <div class="btl-input-row">
+          <label>Loan term for cash-flow math (years)</label>
+          <input type="number" id="dc_loanTermYears" data-dc-field="loanTermYears" value="${inp.loanTermYears}" min="1" step="1" />
+          <p class="btl-input-hint">Used only for the amortizing monthly payment in the cash-flow figures below - the ICR stress test itself is still assessed interest-only, the standard lender-test convention.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Interest Cover Ratio required (%)</label>
+          <input type="number" id="dc_icrPct" data-dc-field="icrPct" value="${inp.icrPct}" min="0" step="5" />
+        </div>
+        <div class="btl-input-row">
+          <label>Transfer tax + closing costs (%)</label>
+          <input type="number" id="dc_closingCostsPct" data-dc-field="closingCostsPct" value="${inp.closingCostsPct}" min="0" step="0.1" />
+          <p class="btl-input-hint">Bulgarian municipal transfer tax + notary + registry fees - typical rule of thumb ~3-4.5% of price.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Refurb / furnishing before letting (€)</label>
+          <input type="number" id="dc_refurbCost" data-dc-field="refurbCost" value="${inp.refurbCost}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Current / refinanced market value (€, for cap rate)</label>
+          <input type="number" id="dc_currentMarketValue" data-dc-field="currentMarketValue" value="${inp.currentMarketValue}" min="0" />
+          <p class="btl-input-hint">Defaults to purchase price - change it after a refinance/revaluation to see cap rate diverge from net yield.</p>
+        </div>
+
+        <p class="dc-section-subhead">Rental income &amp; running costs</p>
+        <div class="btl-input-row">
+          <label>Your estimated monthly rent (€)</label>
+          <input type="number" id="dc_monthlyRent" data-dc-field="monthlyRent" value="${inp.monthlyRent ?? ''}" min="0" placeholder="You provide this" />
+          <p class="btl-input-hint">Required - imotenradar has no Bulgarian rental-listing dataset to estimate this from yet. Enter your own comparable-rent research.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Management fee, if managed (% of rent)</label>
+          <input type="number" id="dc_managementFeePct" data-dc-field="managementFeePct" value="${inp.managementFeePct}" min="0" step="0.5" />
+        </div>
+        <div class="btl-input-row">
+          <label>Maintenance / repairs reserve (% of price / year)</label>
+          <input type="number" id="dc_maintenancePct" data-dc-field="maintenancePct" value="${inp.maintenancePct}" min="0" step="0.1" />
+        </div>
+        <div class="btl-input-row">
+          <label>Void-period allowance (% of rent / year)</label>
+          <input type="number" id="dc_voidPct" data-dc-field="voidPct" value="${inp.voidPct}" min="0" step="0.5" />
+        </div>
+        <div class="btl-input-row">
+          <label>Insurance (€ / year)</label>
+          <input type="number" id="dc_insuranceAnnual" data-dc-field="insuranceAnnual" value="${inp.insuranceAnnual}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>HOA / building maintenance fee (€ / month)</label>
+          <input type="number" id="dc_hoaMonthly" data-dc-field="hoaMonthly" value="${inp.hoaMonthly}" min="0" />
+          <p class="btl-input-hint">Bulgarian condominium (етажна собственост) fee.</p>
+        </div>
+      </div>
+      <div class="btl-outputs">
+        <div class="btl-output-row">
+          <p class="btl-output-label">Gross / Net rental yield</p>
+          <p class="btl-output-value" style="font-size:20px;">${fmtPct(result.grossYieldPct)} / ${fmtPct(result.netYieldPct)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Cap rate</p>
+          <p class="btl-output-value" style="font-size:20px;">${fmtPct(result.capRatePct)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Monthly cash flow (after mortgage &amp; running costs)</p>
+          <p class="btl-output-value">${fmtEur(result.monthlyCashFlow)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Cash-on-cash return</p>
+          <p class="btl-output-value">${fmtPct(result.cashOnCashPct)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Total cash invested (deposit + closing costs + refurb)</p>
+          <p class="btl-output-value" style="font-size:18px;">${fmtEur(result.totalCashInvested)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Minimum rent to pass the ICR stress test</p>
+          <p class="btl-output-value" style="font-size:16px;">${fmtEur(result.minRentToPass)}</p>
+        </div>
+        ${result.passes != null ? `
+          <p class="btl-pass-line ${result.passes ? 'pass' : 'fail'}">${result.passes ? '✓ Passes the ICR stress test at your entered rent.' : '✗ Does not pass the ICR stress test at your entered rent.'}</p>
+        ` : ''}
+        <p class="btl-disclaimer">Extends the BTL Stress Test tab's own ICR affordability check with rental-yield, cap-rate, cash-flow, and cash-on-cash-return math (docs/deal-calculator-formulas.md section 2) - illustrative Bulgarian-market defaults, not financial advice.</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderDealCalcFlipFormHtml() {
+  const inp = dcWizardInputs;
+  const result = computeDealCalcFlip(inp);
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
+  return `
+    <div class="btl-grid">
+      <div>
+        <div class="btl-input-row">
+          <label>Purchase price (€)</label>
+          <input type="number" id="dc_purchasePrice" data-dc-field="purchasePrice" value="${inp.purchasePrice}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Transfer tax + closing costs (%)</label>
+          <input type="number" id="dc_closingCostsPct" data-dc-field="closingCostsPct" value="${inp.closingCostsPct}" min="0" step="0.1" />
+        </div>
+        <div class="btl-input-row">
+          <label>Purchase financing loan amount (€, 0 = all cash)</label>
+          <input type="number" id="dc_purchaseLoanAmount" data-dc-field="purchaseLoanAmount" value="${inp.purchaseLoanAmount}" min="0" />
+          <p class="btl-input-hint">Any part of the purchase paid with borrowed money rather than your own cash - reduces Total Cash Needed below.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Renovation budget (€)</label>
+          <input type="number" id="dc_renovationBudget" data-dc-field="renovationBudget" value="${inp.renovationBudget}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Holding costs over the project (€)</label>
+          <input type="number" id="dc_holdingCosts" data-dc-field="holdingCosts" value="${inp.holdingCosts}" min="0" />
+          <p class="btl-input-hint">Utilities, condo fees, insurance, property tax pro-rated over the expected hold period.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Financing cost (€)</label>
+          <input type="number" id="dc_financingCost" data-dc-field="financingCost" value="${inp.financingCost}" min="0" />
+          <p class="btl-input-hint">Bridging-loan interest over the hold period, or your own cost-of-capital estimate.</p>
+        </div>
+        <div class="btl-input-row">
+          <label>Expected resale price (€)</label>
+          <input type="number" id="dc_expectedResalePrice" data-dc-field="expectedResalePrice" value="${inp.expectedResalePrice}" min="0" />
+        </div>
+        <div class="btl-input-row">
+          <label>Selling costs (%, agent commission etc.)</label>
+          <input type="number" id="dc_sellingCostsPct" data-dc-field="sellingCostsPct" value="${inp.sellingCostsPct}" min="0" step="0.1" />
+          <p class="btl-input-hint">Typically 2-3% agent commission in Bulgaria, plus any resale notary/legal costs.</p>
+        </div>
+      </div>
+      <div class="btl-outputs">
+        <div class="btl-output-row">
+          <p class="btl-output-label">Total Project Costs</p>
+          <p class="btl-output-value" style="font-size:20px;">${fmtEur(result.totalProjectCosts)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Total Cash Needed</p>
+          <p class="btl-output-value" style="font-size:20px;">${fmtEur(result.totalCashNeeded)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">Gross Profit</p>
+          <p class="btl-output-value">${fmtEur(result.grossProfit)}</p>
+        </div>
+        <div class="btl-output-row">
+          <p class="btl-output-label">ROI</p>
+          <p class="btl-output-value">${fmtPct(result.roiPct)}</p>
+        </div>
+        <p class="btl-disclaimer">Standard flip-ROI math - profit measured against cash actually deployed, not total project cost (docs/deal-calculator-formulas.md section 4) - illustrative Bulgarian-market defaults, not financial advice.</p>
+      </div>
+    </div>
+  `;
+}
+
+function wireDealCalcModalInputs() {
+  const body = document.getElementById('dealCalcModalBody');
+  if (!body) return;
+  body.querySelectorAll('[data-dc-field]').forEach(el => {
+    el.addEventListener('input', () => {
+      const field = el.dataset.dcField;
+      const v = parseFloat(el.value);
+      dcWizardInputs[field] = isNaN(v) ? (field === 'monthlyRent' ? null : 0) : v;
+      const activeId = el.id;
+      renderDealCalcModal();
+      // Same full-re-render-then-refocus pattern as wireBtlTabInputs() above -
+      // recomputing every output on each keystroke is cheap, and re-rendering
+      // the whole form would otherwise steal focus after the first character.
+      const refocus = document.getElementById(activeId);
+      if (refocus) refocus.focus();
+    });
+  });
+  const nameInput = document.getElementById('dcNameInput');
+  if (nameInput) nameInput.addEventListener('input', () => { dcWizardName = nameInput.value; });
+}
+
+function saveDealCalcTemplateFromWizard() {
+  if (!dcWizardStrategy) return;
+  const name = (dcWizardName || '').trim() || defaultDealCalcName();
+  const now = new Date().toISOString();
+  if (dcWizardEditingId) {
+    const t = DEAL_CALC_TEMPLATES.find(x => x.id === dcWizardEditingId);
+    if (t) {
+      t.name = name;
+      t.inputs = { ...dcWizardInputs };
+      t.updatedAt = now;
+    }
+  } else {
+    DEAL_CALC_TEMPLATES.push({
+      id: 'dc_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      strategy: dcWizardStrategy,
+      name,
+      inputs: { ...dcWizardInputs },
+      listingId: dcWizardListingId,
+      listingSnapshot: dcWizardListing
+        ? { title: dcWizardListing.title, area: dcWizardListing.area, price_eur: dcWizardListing.price_eur, sqm: dcWizardListing.sqm }
+        : null,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+  saveDealCalcTemplatesToStorage();
+  const linkedListingId = dcWizardListingId;
+  closeDealCalcModal();
+  renderDealCalcSection();
+  refreshOpenListingDealCalcTabIfLinkedTo(linkedListingId);
+}
+
+function duplicateDealCalcTemplate(templateId) {
+  const t = DEAL_CALC_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  const now = new Date().toISOString();
+  DEAL_CALC_TEMPLATES.push({
+    ...t,
+    id: 'dc_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    name: t.name + ' (copy)',
+    inputs: { ...t.inputs },
+    createdAt: now,
+    updatedAt: now,
+  });
+  saveDealCalcTemplatesToStorage();
+  renderDealCalcSection();
+  refreshOpenListingDealCalcTabIfLinkedTo(t.listingId);
+}
+
+function deleteDealCalcTemplate(templateId) {
+  const idx = DEAL_CALC_TEMPLATES.findIndex(x => x.id === templateId);
+  if (idx === -1) return;
+  const listingId = DEAL_CALC_TEMPLATES[idx].listingId;
+  DEAL_CALC_TEMPLATES.splice(idx, 1);
+  saveDealCalcTemplatesToStorage();
+  renderDealCalcSection();
+  refreshOpenListingDealCalcTabIfLinkedTo(listingId);
+}
+
+// Keeps a currently-open listing detail page's own Deal Calculator tab in
+// sync after a save/duplicate/delete elsewhere (the nav section's own
+// "Linked to Properties" gallery) - same "only re-render if still looking at
+// it" guard showListingDetail()'s own async fetches use.
+function refreshOpenListingDealCalcTabIfLinkedTo(listingId) {
+  if (!listingId) return;
+  if (location.hash === '#/listing/' + listingId) {
+    const merged = MERGED_LISTINGS.find(x => x.id === listingId);
+    if (merged) renderListingDetail(merged);
+  }
+}
+
+function renderDealCalcTemplateCard(t) {
+  const def = DEAL_CALC_STRATEGIES.find(s => s.id === t.strategy);
+  const result = computeDealCalcResultFor(t);
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
+  const metricsHtml = t.strategy === 'btl' ? `
+    <div class="dc-template-metrics">
+      <div><p class="dc-template-metric-label">Net yield</p><p class="dc-template-metric-value">${fmtPct(result.netYieldPct)}</p></div>
+      <div><p class="dc-template-metric-label">Cap rate</p><p class="dc-template-metric-value">${fmtPct(result.capRatePct)}</p></div>
+      <div><p class="dc-template-metric-label">Monthly cash flow</p><p class="dc-template-metric-value">${fmtEur(result.monthlyCashFlow)}</p></div>
+      <div><p class="dc-template-metric-label">Cash-on-cash</p><p class="dc-template-metric-value">${fmtPct(result.cashOnCashPct)}</p></div>
+    </div>
+  ` : `
+    <div class="dc-template-metrics">
+      <div><p class="dc-template-metric-label">Total project costs</p><p class="dc-template-metric-value">${fmtEur(result.totalProjectCosts)}</p></div>
+      <div><p class="dc-template-metric-label">Total cash needed</p><p class="dc-template-metric-value">${fmtEur(result.totalCashNeeded)}</p></div>
+      <div><p class="dc-template-metric-label">Gross profit</p><p class="dc-template-metric-value">${fmtEur(result.grossProfit)}</p></div>
+      <div><p class="dc-template-metric-label">ROI</p><p class="dc-template-metric-value">${fmtPct(result.roiPct)}</p></div>
+    </div>
+  `;
+  return `
+    <div class="dc-template-card" data-dc-template-id="${t.id}">
+      <span class="dc-template-strategy-tag">${escapeHtml(def ? def.name : t.strategy)}</span>
+      <p class="dc-template-name">${escapeHtml(t.name)}</p>
+      ${t.listingId ? `<p class="dc-template-link-line">Linked to <a href="#/listing/${encodeURIComponent(t.listingId)}" data-dc-goto-listing="${t.listingId}">${escapeHtml((t.listingSnapshot && t.listingSnapshot.title) || 'this listing')}</a></p>` : ''}
+      ${metricsHtml}
+      <div class="dc-template-footer">
+        <button type="button" class="pl-secondary-btn" data-dc-edit="${t.id}">✎ Edit</button>
+        <button type="button" class="pl-secondary-btn" data-dc-duplicate="${t.id}">⧉ Duplicate</button>
+        <button type="button" class="pl-secondary-btn" data-dc-delete="${t.id}">🗑 Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+function wireDealCalcTemplateCardEvents(container) {
+  if (!container) return;
+  container.querySelectorAll('[data-dc-edit]').forEach(btn => btn.addEventListener('click', () => openDealCalcModalForEdit(btn.dataset.dcEdit)));
+  container.querySelectorAll('[data-dc-duplicate]').forEach(btn => btn.addEventListener('click', () => duplicateDealCalcTemplate(btn.dataset.dcDuplicate)));
+  container.querySelectorAll('[data-dc-delete]').forEach(btn => btn.addEventListener('click', () => deleteDealCalcTemplate(btn.dataset.dcDelete)));
+  container.querySelectorAll('[data-dc-goto-listing]').forEach(a => a.addEventListener('click', (e) => { e.preventDefault(); showListingDetail(a.dataset.dcGotoListing); }));
+}
+
+// Standalone "Deal Calculator" nav section (#section-dealcalc) - the "My
+// Templates" (reusable) / "Linked to Properties" split the spec calls for.
+function renderDealCalcSection() {
+  const myTemplates = DEAL_CALC_TEMPLATES.filter(t => !t.listingId);
+  const linked = DEAL_CALC_TEMPLATES.filter(t => t.listingId);
+
+  const myGrid = document.getElementById('dcMyTemplatesGrid');
+  const myEmpty = document.getElementById('dcMyTemplatesEmpty');
+  if (myGrid) {
+    myGrid.innerHTML = myTemplates.map(renderDealCalcTemplateCard).join('');
+    wireDealCalcTemplateCardEvents(myGrid);
+  }
+  if (myEmpty) myEmpty.style.display = myTemplates.length === 0 ? 'block' : 'none';
+
+  const linkedGrid = document.getElementById('dcLinkedTemplatesGrid');
+  const linkedEmpty = document.getElementById('dcLinkedTemplatesEmpty');
+  if (linkedGrid) {
+    linkedGrid.innerHTML = linked.map(renderDealCalcTemplateCard).join('');
+    wireDealCalcTemplateCardEvents(linkedGrid);
+  }
+  if (linkedEmpty) linkedEmpty.style.display = linked.length === 0 ? 'block' : 'none';
+}
+
+// Listing detail page's own "Deal Calculator" tab (spec section 8's
+// per-listing "Create" button) - calculations already linked to this exact
+// listing, plus a button to start a new one pre-filled from it.
+function renderListingDealCalcTabHtml(merged) {
+  const templates = DEAL_CALC_TEMPLATES.filter(t => t.listingId === merged.id);
+  return `
+    <p class="pl-sub" style="margin:0 0 16px;">Model an investment strategy against this specific listing - purchase price pre-fills automatically. Calculations saved here also appear under "Linked to Properties" in the Deal Calculator section.</p>
+    <button type="button" class="brass-btn" id="dcNewForListingBtn">+ New Deal Calculation</button>
+    <div class="dc-template-grid" id="dcListingTemplatesGrid" style="margin-top:20px;">
+      ${templates.map(renderDealCalcTemplateCard).join('')}
+    </div>
+    ${templates.length === 0 ? '<p class="dc-empty-state">No deal calculations saved against this listing yet.</p>' : ''}
+  `;
+}
+
+function wireListingDealCalcTab(merged) {
+  const btn = document.getElementById('dcNewForListingBtn');
+  if (btn) btn.addEventListener('click', () => openDealCalcModal({ listing: merged }));
+  wireDealCalcTemplateCardEvents(document.getElementById('dcListingTemplatesGrid'));
+}
+
 function renderListingDetail(merged) {
   const l = merged.sources[detailSourceIndex] || merged.sources[0];
   const badges = buildBadgesHtml(l);
@@ -7882,6 +8633,7 @@ function renderListingDetail(merged) {
           <button class="detail-tab-btn${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab="comparables">Comparables</button>
           <button class="detail-tab-btn${detailActiveTab === 'areadata' ? ' active' : ''}" data-tab="areadata">Area Data</button>
           <button class="detail-tab-btn${detailActiveTab === 'btl' ? ' active' : ''}" data-tab="btl">BTL Stress Test</button>
+          <button class="detail-tab-btn${detailActiveTab === 'dealcalc' ? ' active' : ''}" data-tab="dealcalc">Deal Calculator</button>
         </div>
         <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
           ${l.description
@@ -7902,6 +8654,9 @@ function renderListingDetail(merged) {
         </div>
         <div class="detail-tab-content${detailActiveTab === 'btl' ? ' active' : ''}" data-tab-content="btl">
           ${renderBtlTabHtml(l)}
+        </div>
+        <div class="detail-tab-content${detailActiveTab === 'dealcalc' ? ' active' : ''}" data-tab-content="dealcalc">
+          ${renderListingDealCalcTabHtml(merged)}
         </div>
       </div>
     </div>
@@ -8035,6 +8790,8 @@ function renderListingDetail(merged) {
   // renderListingDetail() re-render the way the radius/view-toggle buttons
   // do - the listeners need to already be live by the time that happens.
   wireBtlTabInputs(l);
+  // Same unconditional-wiring rationale as wireBtlTabInputs() just above.
+  wireListingDealCalcTab(merged);
 
   updateRadiusMap(l);
 }
@@ -8187,6 +8944,8 @@ function showSection(name) {
     renderComparablesResults();
   } else if (name === 'preferences') {
     renderPreferencesPage();
+  } else if (name === 'dealcalc') {
+    renderDealCalcSection();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -8906,6 +9665,7 @@ loadLeadGenerators();
 loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
+loadDealCalcTemplates();
 maybeImportSharedLeadGenerator();
 
 // Kicked off in parallel with loadData()'s much larger bulk fetch below,

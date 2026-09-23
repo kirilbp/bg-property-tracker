@@ -2509,3 +2509,157 @@ use).
 
 Pushed to `placy/obzor-oblast-fix`, opened as a PR against `main`; not
 merged this session - needs Missy's review first, per the standing rule.
+
+### 2026-09-23 - Deal Calculator (backlog item 18): mechanism + BTL + FLIP shipped as an MVP, 7 strategies deliberately deferred (Dessy)
+
+Dispatched now that the formula-work blocker was resolved earlier the same
+day (`docs/deal-calculator-formulas.md`, reviewed by Missy). Scoped
+explicitly as an MVP proof of the overall mechanism with 2 of the 9
+replicable strategies, not all 9 at once - built in an isolated worktree
+(`/tmp/wt/dessy-deal-calculator`, branch `dessy/deal-calculator-2026-09-23`)
+off a freshly-fetched `origin/main` (head `d9d7077f`) after checking
+`git worktree list` for collisions; found several other live worktrees
+(`dessy-detail-page-consolidation`, `dessy-send-letters`,
+`dessy-preferences`, `placy-obzor-oblast`) but none touching the Deal
+Calculator, BTL Stress Test, or listing-detail-tab code specifically.
+
+**Design choice: extend the existing "Deal Calculator" surface out of the
+already-shipped BTL Stress Test tab's own visual language, not a new
+sub-app.** A new top-level "Deal Calculator" nav section
+(`#section-dealcalc`, sitting between Comparables and Dashboard in the
+sidebar) plus a matching tab on the listing detail page (alongside
+Details/Comparables/Area Data/BTL Stress Test), both driven by the same
+`DEAL_CALC_STRATEGIES` array and `dealCalcModalOverlay` wizard. The wizard
+is 2 steps (choose a strategy -> enter details), reusing `.modal-panel`/
+`.compare-modal`'s existing wide-modal treatment and, for the form step,
+the exact `.btl-grid`/`.btl-input-row`/`.btl-outputs`/`.btl-output-value`
+classes the BTL Stress Test tab already uses - a new calculator screen
+should read as more of the same pattern the user already knows, not a
+fifth visual language, per design-guidelines.md's "perfect order = a
+strict, repeated visual hierarchy" principle.
+
+**BTL extends, never reimplements, the shipped Stress Test.**
+`computeDealCalcBtl(inputs)` calls the real `computeBtlStressTest()`/
+`BTL_DEFAULTS` from item 15 for the ICR affordability check first, then
+layers the formulas doc's section-2 additions (gross/net rental yield, cap
+rate, annual operating costs, an amortizing monthly mortgage payment via a
+new `amortizedMonthlyPayment()` standard-formula helper, monthly/annual
+cash flow, total cash invested, cash-on-cash return) on top in one
+function - never a second, parallel copy of the ICR math. FLIP
+(`computeDealCalcFlip()`) was chosen as the second strategy specifically
+because it's simpler and self-contained (doc section 4), proving the
+"pick a strategy -> get a form -> see results -> save" mechanism works
+independently of any prior feature, not just as an extension of one.
+
+**Persistence**: one new localStorage key, `dealCalculatorTemplates`
+(array of `{id, strategy, name, inputs, listingId, listingSnapshot,
+createdAt, updatedAt}`), following the exact same no-login,
+this-browser-only pattern already established by `leadGenerators`/
+`pipelineStages`/`pipelineTags`/`pipelineDeals` - loaded once at startup
+(`loadDealCalcTemplates()`) alongside those, no new persistence mechanism
+invented for this feature.
+
+**Judgment call: no sqm-denominated field in either strategy's form.** The
+dispatch asked for pre-filling "purchase price/sqm... where applicable"
+when opened from a listing. Checked both strategies' real formulas in
+`deal-calculator-formulas.md` first rather than guessing - neither BTL nor
+FLIP takes size as an input at all (price is a single total, not a
+per-m² figure; that only shows up later for COM2RESI-TOSELL's build-cost
+math, deferred). Rather than add a cosmetic, unused sqm input field just
+to say something was "pre-filled," sqm is surfaced as plain read-only
+context in the wizard's "Linked to..." banner (e.g. "Linked to 1 bedroom
+apartment, 128 m² Sofia, Geo Milev, 128 m²"), while purchase price - the
+one field the formulas actually use - is the one that pre-fills into the
+form itself, confirmed live against a real fixture listing
+(`m_a1a89f586cea0f80`, €243,000).
+
+**Judgment call: FLIP gained one field beyond the formulas doc's literal
+wording** - a "purchase financing loan amount (€, 0 = all cash)" input,
+subtracted from Total Project Costs to get Total Cash Needed. The doc's
+own FLIP section already explains Total Cash Needed as "Total Project
+Costs minus any purchase-financing loan principal that isn't the
+investor's own cash" but doesn't name a specific input field for it -
+added the smallest field that makes that sentence literally computable
+rather than silently assuming an all-cash purchase.
+
+**Judgment call: PLO and Title Split are entirely absent, not shown as
+"Coming soon" either.** The dispatch's own instruction was explicit here
+(PLO has no formula pending legal confirmation; Title Split is a
+confirmed drop, not a deferral) - kept them out of `DEAL_CALC_STRATEGIES`
+entirely rather than listing all 11 UK-named strategies with 2 different
+flavors of "not available."
+
+**Not touched, flagged instead of silently expanded into**: Preferences'
+own "Deal Calculator Templates" sub-tab (item 19 explicitly left this
+unbuilt pending item 18, and a separate live worktree,
+`/tmp/wt/dessy-preferences`, appeared to still be active on Preferences
+during this dispatch) - adding to a shared, actively-touched page mid-flight
+risked a messier merge for no requirement in this dispatch's own scope.
+Logged in backlog item 18 as a small, ready-to-pick-up follow-up instead
+(the Bulgarian transfer-tax % default this calculator already hardcodes at
+3.5% is exactly the kind of value that sub-tab exists to make editable).
+
+**Verified with a real Playwright harness** (vendored Chart.js/Leaflet/
+supabase-js locally, the same pattern and ~304-row fixture
+`/tmp/wt/dessy-preferences`'s own verification session used, reused here
+rather than rebuilt from scratch), against the actual current
+`index.html`:
+- Strategy picker: 9 cards render, BTL/FLIP enabled, all 7 others disabled
+  with a "Coming soon" badge, neither PLO nor Title Split present at all.
+- BTL and FLIP arithmetic **independently re-derived from the formulas doc
+  in the test script itself** (not copied from `index.html`'s own
+  implementation, so this is a real cross-check, not a tautology) and
+  compared against the rendered output: BTL at price=€100,000, rent=
+  €600/mo, LTV 70%, 4.0% interest, 25yr term, insurance €120/yr, HOA
+  €20/mo (all other fields at the calculator's own shipped defaults:
+  closing costs 3.5%, refurb €0, management fee 10%, maintenance 1%, void
+  allowance 5%, ICR 125%, market value defaulted to price) matched gross
+  yield 7.2%, net yield 4.76%, cap rate 4.76%, monthly cash flow ≈€27,
+  cash-on-cash ≈0.97%, total cash invested €33,500, minimum rent to pass
+  the ICR test ≈€292, all within rounding tolerance. **Correction (this
+  dispatch):** the insurance/HOA inputs above are not the calculator's
+  shipped defaults (those default to €0), and an earlier version of this
+  entry omitted them, understating a reviewer's ability to reproduce this
+  result from the 5 headline inputs alone. With insurance/HOA left at
+  their shipped €0 defaults, the same 5 headline inputs instead produce
+  net yield 5.12%, cap rate 5.12%, monthly cash flow ≈€57, cash-on-cash
+  ≈2.05% - gross yield, total cash invested, and minimum rent to pass are
+  unchanged since insurance/HOA don't enter those formulas. Both sets of
+  numbers were re-confirmed directly against the shipped
+  `computeDealCalcBtl()`. FLIP at purchase=€80,000,
+  reno=€15,000, holding=€2,000, financing=€1,000, resale=€130,000,
+  selling 3% matched Total Project Costs €100,800, Total Cash Needed
+  €100,800, Gross Profit €25,300, ROI ≈25.1% exactly.
+- A filled BTL calculator saved as "Test BTL Template" survived a real
+  full page reload (`localStorage.getItem('dealCalculatorTemplates')`
+  round-tripped correctly) and still appeared under "My Templates".
+- Opened the calculator from a real fixture listing
+  (`m_a1a89f586cea0f80`, imoti.net, price_eur 243000, sqm 128) via its own
+  detail page's new "Deal Calculator" tab - purchase price pre-filled to
+  exactly `243000`, and the wizard's context banner correctly showed
+  "128 m²". Saved as "Linked BTL Test" and confirmed it appeared both in
+  that listing's own tab and under "Linked to Properties" in the main
+  Deal Calculator section.
+- Tested at 1440px and 390px (mobile sidebar toggle, wizard modal, and the
+  FLIP form all screenshotted and legible at 390px - the shared
+  `.btl-grid` responsive breakpoint from the existing BTL Stress Test tab
+  handles the column collapse without any new CSS needed).
+- Zero console/page errors, after adding local `fonts.googleapis.com`/
+  `fonts.gstatic.com` route stubs to the test harness itself (not
+  `index.html`) - this sandbox's egress proxy can't complete a real TLS
+  handshake to Google Fonts for `index.html`'s own pre-existing Playfair
+  Display/Inter `<link>`, a known, previously-documented (see this file's
+  2026-09-23 mobile-sidebar-nav entry) environment limitation unrelated to
+  this feature, reproduced identically against an unmodified baseline.
+
+**Explicitly flagged per the dispatch's own instruction, not a silent
+gap**: `docs/deal-calculator-formulas.md` itself states a human (Bulgarian
+real-estate lawyer/accountant/mortgage broker) should sanity-check the
+BG-specific legal/tax/rate figures (3.5% transfer tax, 70% LTV, 4.0%
+interest, etc.) before this is load-bearing for a real financial decision
+- repeated in this PR's own description, not just here.
+
+No backend/scraper/schema files touched. Pushed as
+`dessy/deal-calculator-2026-09-23`, PR opened against `main`, not merged -
+needs Missy's review before shipping (no auth/PII surface, so Revy's
+review isn't required per the standing scoping rule).
