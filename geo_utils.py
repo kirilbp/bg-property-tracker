@@ -142,13 +142,40 @@ def extract_coords_bazar(html):
     return None
 
 
-# alo.bg's real free-text description sits in a <div class="obqva-block">,
-# but always prefixed with a fixed boilerplate paragraph (contact
-# instructions + reference number + responsible broker, when the listing
-# has one) ahead of the actual text - confirmed live via probe_descriptions.py
-# against a real listing. Each regex strips one known-fixed segment, only
-# if present, so a private-seller listing (no boilerplate at all) passes
-# through unchanged.
+# NOTE (backlog #9, 2026-09-23): `.obqva-block` was previously believed to
+# hold alo.bg's real free-text description, but a later investigation
+# sampling 200 real non-empty descriptions from data/leads_alo.json found
+# 165/200 (82.5%) are literal substrings of that same listing's own `title`
+# field - e.g. title "...Двустаен апартамент в к-с Суит хоум 2 Слънчев
+# бряг, област Бургас" -> stored description "Двустаен апартамент в к-с
+# Суит хоум 2". Re-sampling 300 records independently while fixing this
+# reproduced the same shape at an even higher rate (265/300 = 88.3% exact
+# substrings; nearly all of the remainder are still obvious near-duplicate
+# title fragments, e.g. differing only by a trailing "!" or an emoji the
+# title-truncation display cut off), never real seller-written prose. This
+# is the same bug class as the already-fixed homes.bg case just above
+# `extract_description_ldjson()`'s definition (see scraper_homes.py): a
+# field that looks like a real description but is actually an echo of the
+# title/heading blurb next to it.
+#
+# `.obqva-block` is therefore very likely the wrong element - probably a
+# heading/summary blurb rendered near the title, not alo.bg's actual ad
+# body - but this could not be confirmed live: alo.bg is blocked from this
+# sandbox's network egress (both a plain HTTPS request and the WebFetch
+# tool return a hard EGRESS_BLOCKED/403 for www.alo.bg), so a real probe of
+# a live detail page to find the correct selector (if alo.bg even has a
+# separate free-text ad-body element at all) is **deferred pending live
+# access**, exactly like the still-open homes.bg description gap documented
+# in scraper_homes.py.
+#
+# Until then, this returns None unconditionally rather than the
+# `.obqva-block` text: a title-echo is actively misleading (it looks like a
+# real description, so a caller/reader trusts it as one), so showing "no
+# description available" is strictly better than showing a fake one - same
+# reasoning as the homes.bg fix. This only stops *new* writes; it does not
+# retroactively clear already-stored title-echo descriptions in
+# data/leads_alo.json / data/history_alo.json (same scope as the homes.bg
+# fix, which also only stopped writing the wrong value going forward).
 _ALO_DESC_PREFIX_RES = [
     re.compile(r"^Допълнителна информация\s*"),
     re.compile(r"^За повече информация.*?в alo\.bg\.\s*"),
@@ -158,15 +185,13 @@ _ALO_DESC_PREFIX_RES = [
 
 
 def extract_description_alo(html):
-    soup = BeautifulSoup(html, "html.parser")
-    node = soup.find("div", class_="obqva-block")
-    if not node:
-        return None
-    text = node.get_text(" ", strip=True)
-    for pat in _ALO_DESC_PREFIX_RES:
-        text = pat.sub("", text)
-    text = text.strip()
-    return text or None
+    # Deliberately always returns None - see the NOTE above this function.
+    # `_ALO_DESC_PREFIX_RES` is unused for now but kept in place (not
+    # deleted): the boilerplate-stripping logic it encodes was confirmed
+    # live against a real listing and is still expected to be needed once a
+    # correct selector is found; a bare "not implemented" stub would lose
+    # that already-verified logic.
+    return None
 
 
 # bazar.bg and olx.bg both embed the listing's real, agent/seller-written
