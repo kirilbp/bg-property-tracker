@@ -499,6 +499,28 @@ def save_history(history):
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# Fields fetch_listing_detail() (run separately via backfill_detail_bcpea.py
+# - main() never calls it inline, see fetch_listings()'s own comment) adds
+# on top of what the grid crawl (fetch_listings_page()) itself produces:
+# "description" and "detail_checked" are never set by the grid at all;
+# "lat"/"lng" ARE present on a fresh grid record but only ever as the
+# None placeholder fetch_listings() defaults them to - real coordinates
+# only ever come from this detail pass's own geocode call. update_history()
+# below must merge these in from the previous "latest" rather than let a
+# fresh grid re-touch wipe them off an already-detail-checked, still-active
+# listing every ~6 hours - docs/backlog.md item 9a.
+#
+# NOTE: "area" (district enrichment) and "photo" are deliberately NOT
+# included here - unlike the fields above, the grid crawl always supplies
+# a real (non-empty) value for both, just a less complete one before a
+# detail visit (settlement-only area, best-effort thumbnail), so the
+# "missing/falsy in the fresh record" merge rule below can't safely tell
+# "grid's own value" apart from "should keep the richer detail-page value"
+# without guessing. Left as a known smaller-severity gap for a follow-up,
+# not guessed at here.
+_DETAIL_ONLY_FIELDS = ("description", "detail_checked", "lat", "lng")
+
+
 def update_history(history, listings):
     now = datetime.now(timezone.utc).isoformat()
     for l in listings:
@@ -506,7 +528,13 @@ def update_history(history, listings):
         if lid not in history:
             history[lid] = {"first_seen": now, "snapshots": []}
         history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
+        prev_latest = history[lid].get("latest") or {}
+        merged = dict(l)
+        for field in _DETAIL_ONLY_FIELDS:
+            prev_value = prev_latest.get(field)
+            if merged.get(field) in (None, "", []) and prev_value not in (None, "", []):
+                merged[field] = prev_value
+        history[lid]["latest"] = merged
     return history
 
 
