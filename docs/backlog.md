@@ -404,12 +404,12 @@ dropdowns - confirmed via grep, `MERGED_LISTINGS` is referenced in 28
 places across `index.html`) then operates against that in-memory copy.
 That's a genuinely cross-cutting change, not a quick tweak.
 
-**Connects to, but is not solved by, backlog item 7** (Supabase Pro
+**Connects to, but is not solved by, backlog item 15** (Supabase Pro
 follow-ups): the code comment explaining why a full-table client load was
 accepted in the first place cites free-tier connection-pool exhaustion as
 the reason a fuller per-listing (`listing_sources`) load was cut back -
 i.e. this design predates the Pro upgrade and was shaped around the old
-500 MB/connection-pool constraints item 7 already flags for revisiting.
+500 MB/connection-pool constraints item 11 already flags for revisiting.
 But even on Pro, shipping a multi-hundred-thousand-row, heavy-jsonb table
 to every browser on every refresh is a real UX problem regardless of
 backend capacity - this needs an actual query/architecture fix, not just
@@ -430,7 +430,7 @@ answered here.
 **Not yet attempted - deliberately not touched this session.** Two real
 blockers, not laziness: (1) this session has no `Agent` tool, so it can't
 safely coordinate live with Dessy, who may be actively mid-edit on this
-exact file (`index.html`) for backlog item 9's listing-detail redesign -
+exact file (`index.html`) for backlog item 17's listing-detail redesign -
 editing the same large file in parallel without a way to check her
 current state risks a real collision, not a hypothetical one (confirmed
 live during this session: another agent, Selly, pushed a commit to this
@@ -488,7 +488,7 @@ methodology).
    `measure_listings_payload.py`'s own `NARROW_COLUMNS` exactly (same
    already-measured 33.4% bytes/row reduction applies) and deliberately
    leaves `area_key` out, since it's still not live on the production
-   table (backlog item 18) - `listingAreaKey()`'s existing
+   table (backlog item 26) - `listingAreaKey()`'s existing
    `normalizeArea(l.area)` client-side fallback is unaffected and still
    covers this.
 2. **Real caching layer**: IndexedDB (not localStorage - even narrowed,
@@ -541,12 +541,12 @@ considered and why this was chosen over them. A precomputed
 jsonb payload entirely) would close this gap properly, but needs a
 schema migration + a live sync run to actually exist on the production
 table first - exactly the same landmine already flagged for `area_key`
-(item 18) - so it's not attempted here; filed as a follow-up, not
+(item 22) - so it's not attempted here; filed as a follow-up, not
 solved.
 
 **Verified, not assumed:**
 - A Node `vm` harness loading the real, unmodified `index.html` script
-  (same established pattern as the item 18 entry) confirmed: the bulk
+  (same established pattern as the item 22 entry) confirmed: the bulk
   select's column list excludes all 3 heavy columns; a cold load
   fetches once and writes the cache; a second `loadData()` within TTL
   reads the cache and makes **zero** bulk network calls; an expired
@@ -596,20 +596,197 @@ needing a total result count will need a different approach (approximate
 count, a capped query, or skipping total-count display), not
 `count=exact`.
 
-## 7. Supabase Pro plan follow-ups - PENDING
+## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - user feedback 2026-09-23
+
+User's direct words: *"On each listing the graph with the price changes
+needs to be pinned on the listing rather than popping out when the
+button is clicked. Make the map smaller as it is taking too much space
+and fit the graph next to it."* Confirmed live in the current
+`index.html` (post item 13's redesign - this wasn't fixed by that pass):
+
+- The price-history chart (`.price-history-chart-wrap`, 240px tall,
+  canvas `#detailPriceChart`, ~line 6600) only renders/shows when the
+  "Price History" tab is active - still gated behind `switchDetailTab()`
+  (~line 5749) and the tab-button row at ~line 6576-6581 (which now has
+  5 tabs: Details/Price History/Comparables/Area Data/BTL Stress Test,
+  added by items 13/15). Matches the user's "pops out when clicked"
+  complaint exactly.
+- The radius-comparables map (`#radiusMap` / `.radius-map`, 260px tall,
+  rendered inside `renderRadiusPanel()`, injected at ~line 6575 - just
+  above the tab row) sits full-width in its own block, stacked above the
+  tabs, not next to the price chart.
+
+**Task (Dessy):**
+- Make the price-history chart always visible on the page (no tab click
+  required) - pin it into the main flow rather than gating it behind the
+  Price History tab. The other 4 tabs (Details, Comparables, Area Data,
+  BTL Stress Test) can stay tab-gated; only the graph itself needs to
+  come out of the tab system per the user's explicit ask.
+- Shrink the map and place it side by side with the (now pinned) price
+  chart - a two-column row instead of two separate stacked full-width
+  blocks. Keep the map genuinely usable at the smaller size, and check
+  the result at both desktop and mobile widths (this is a real page, not
+  an artifact, but the same "don't break at phone width" discipline
+  applies).
+- This touches the same section of the same page as item 13's recent
+  redesign and item 9's design-guideline palette work - check
+  `docs/design-guidelines.md` and keep the brass/sage/ink tokens item 13
+  introduced rather than reintroducing the old blue palette.
+
+## 8. "Compare nearby" button vs. the new Comparables tab - unclear if it's dead, redundant, or both - user feedback 2026-09-23, needs live investigation before fixing
+
+User's direct words: *"The comparables button on each listing does not
+do anything too. Fix this."*
+
+**Important - the picture has changed since this feedback was likely
+given.** Item 15 ("Comparables & Area Data analytics") shipped a full
+Comparables *tab* (`data-tab="comparables"`, `renderComparablesTabHtml()`,
+~line 6612-6613) on 2026-09-22, reviewed by Missy and merged. But the
+**older** "⇄ Compare nearby" button (`id="compareBtn"`, ~line 6557) is
+still also present, still wired to `openCompareModal(merged)` (opens a
+separate modal, not the new tab) - so the page currently has two
+different comparables entry points side by side. On a static code read
+the old button's wiring (click handler, modal markup, CSS `.open` class,
+`findComparables()`) still all looks intact, same as it did before
+item 15 shipped - which means either:
+(a) the user is clicking the old "Compare nearby" button specifically
+    and it has a live-only bug (JS exception earlier in
+    `renderListingDetail()` killing a later listener, a stacking/z-index
+    issue hiding the opened modal, something that only shows up in a
+    real browser), or
+(b) the user is clicking (or means) the new "Comparables" tab and
+    *that's* what's not working, or
+(c) both exist and having two different "comparables" surfaces is
+    itself confusing enough to read as "does nothing" (clicking the old
+    button while expecting the new tab's richer behavior).
+
+**Task (Dessy first, per her own standing instruction to start
+frontend-looking bugs herself and flag rather than touch scraper/schema
+files):**
+- Reproduce live (run the app - see the `run` skill - and click both
+  the "Compare nearby" button and the "Comparables" tab) before changing
+  anything; don't guess from the static read above.
+- If the old button is genuinely broken, either fix it or - likely the
+  better product call now that the full Comparables tab exists - retire
+  the old modal/button entirely and point that action at the new tab
+  instead, so there's one comparables surface, not two. If going that
+  route, treat it as a design-fork decision per the standing rule: take
+  the recommended option (consolidate on the newer, fuller tab) and log
+  the reasoning in `docs/decisions.md`, don't leave both.
+- If the new tab itself has a bug, fix it there and leave the
+  consolidation question for a follow-up.
+- No auth/session/personal-data surface is touched here (read-only
+  comparison over already-public listing data) - Revy's review is not
+  expected to be needed, but flag her in if anything unexpected turns up.
+
+## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23
+
+User's direct words: *"the description is missing. There are just a few
+words on most listings."* Independently re-verified directly against the
+current committed `data/leads_*.json` files (not just repeating the
+original report) - `index.html` already renders `l.description` in full
+via `escapeHtml()` with an honest "not available" fallback when empty
+(~line 6584-6587, plus a "See more" truncation-at-display only, not a
+data problem) - the frontend is not the issue:
+
+- **`data/leads.json` (imoti.net, `scraper.py`)**: 0 of 27,251 listings
+  have a `description` key at all - the scraper never scrapes/writes one.
+  Confirmed unchanged by the recent "Backfill imoti.net listing details"
+  commit (`dbc304a`), which touched price/history data, not description.
+- **`data/leads_homes.json` (homes.bg, `scraper_homes.py`)**: 67,705 of
+  74,010 (91.5%) have a non-empty `description`, but it's construction-
+  material/furnishing tags ("Тухла/Бетон, Полуобзаведен" - "Brick/
+  Concrete, Semi-furnished"), not real descriptive text - a wrong-field/
+  wrong-selector bug, not a missing-field bug.
+- **`data/leads_imot.json`**: 4,510/26,285 (17.2%) non-empty, but
+  substantial when present (avg 1,102 chars) - looks like a genuine
+  detail-page-fetch coverage gap.
+- **`data/leads_olx.json`**: 12,474/36,586 (34.1%) non-empty, avg 1,037
+  chars when present - same coverage-gap pattern.
+- **`data/leads_bcpea.json`**: 159/2,220 (7.2%) non-empty, but avg 1,488
+  chars when present - same coverage-gap pattern, worth checking whether
+  it's connected to bcpea's already-known low photo-coverage rate (43.6%,
+  clean per Missy's 2026-09-22 audit) or a separate mechanism.
+- **`data/leads_alo.json`**: 31,599/90,159 (35.0%) non-empty, but only
+  **52 chars average** when present - much shorter than the other
+  coverage-gap portals. Worth checking live whether this is a genuinely
+  short source description (some portals just don't write much) or
+  another wrong-selector bug like homes.bg's, before assuming it's the
+  same "coverage gap" shape as imot.bg/olx.bg/bcpea.
+- **`data/leads_bazar.json`**: 23,380/50,979 (45.9%) non-empty, avg 159
+  chars - same "shorter than expected, check the selector" flag as
+  alo.bg above.
+- **`data/leads_imoti_bg.json` (imoti.bg)** is healthy: 863/910 (94.8%)
+  non-empty, avg 764 chars - proof this is achievable today, and a
+  working reference for whoever fixes the other portals.
+
+**Tasks (backend/scraper work, not frontend - route to a general-purpose
+builder; consider having Scrapy root-cause the coverage-gap/short-average
+mechanics first for tasks 3-4, similar to how she'd audit a dead crawl,
+since the picture is more varied than a single "coverage gap" pattern
+across 5 portals):**
+1. `scraper.py` (imoti.net): add a `description` field, scraped from the
+   listing detail page, written the same way the other scrapers do.
+2. `scraper_homes.py`: fix the wrong-field/selector bug - find and use
+   homes.bg's actual free-text description field instead of whatever
+   currently lands in `offer["description"]` (the material/furnishing
+   tag line).
+3. `scraper_imot.py`, `scraper_olx.py`, `scraper_bcpea.py`: investigate
+   the detail-page-fetch coverage gap (53-93% of listings never got a
+   description despite fetched ones being substantial).
+4. `scraper_alo.py`, `scraper_bazar.py`: investigate the short-average
+   pattern specifically (52/159 chars) - confirm live whether this is a
+   real short source description or a wrong-selector bug before treating
+   it as the same fix as task 3.
+- Each task is independently shippable - don't block one portal's fix on
+  another's investigation.
+- No auth/session/personal-data surface involved (public listing
+  descriptions only) - Revy's review is not expected to be needed.
+
+## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority
+
+User's direct words: *"The overall design and appearance of the website
+does not come as luxurious and stylish."* This lands **after** item 13's
+listing-detail redesign already shipped real design-guideline work
+(Playfair Display + Inter, warm ivory/brass/ink palette - see item 13's
+"Design-scope note") - so this isn't a request to start from zero, it's
+confirmation that item 13's own documented scope limit is now a real gap
+the user is feeling: that redesign was **deliberately scoped to
+`#section-listing` only** ("the rest of the site - sidebar nav, listing
+cards, modals - intentionally keeps its current look... a full site-wide
+reskin against the same palette is item 21's scope, not redone piecemeal
+here"). Item 21 ("Visual/premium design refresh") already exists for
+exactly this - this entry elevates its priority rather than duplicating
+it: move it up to be worked next after items 7-9 above, instead of
+sitting at its current position after the full items 13-20 feature
+build-out.
+
+**Task (Dessy):** pick up item 21 now rather than later - a site-wide
+pass reusing the CSS variables/palette item 13 already defined globally
+(per item 13's note: "defined as global CSS variables for later reuse"),
+applied to the listing grid/cards, sidebar nav, search/filter panel, and
+modals (save/reminder/lead-generator/compare) that item 13 explicitly
+left untouched. Also fold in the "one primary action per view" restraint
+principle from `docs/design-guidelines.md` where the detail page (and
+elsewhere) currently shows several equal-weight buttons (Save, Compare
+nearby, Remind me, pipeline actions all styled the same). If this
+surfaces a need for non-frontend changes, stop and flag per Dessy's
+standing instruction rather than touching backend/scraper files herself.
+
+## 11. Supabase Pro plan follow-ups - PENDING
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
 
-## 8. Motivation score rework - DONE
+## 12. Motivation score rework - DONE
 
 Shipped in PR #162: 5-component formula (relisted, distinct reductions,
 size of drop, days on market, below area average), rescale option A when
 area-average is unavailable, Hot/Warm thresholds recalibrated to 40/15
 against real data distribution. Confirmed live.
 
-## 9. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE, MERGED (2026-09-22, Dessy)
+## 13. Listing detail page redesign: multi-portal badge, price/status history, keyword tags - Nosy spec, highest investor value - CORE SCOPE DONE, MERGED (2026-09-22, Dessy)
 
 Reviewed by Missy (verdict: no blocking findings, all claims independently
 verified against real committed data) and merged in
@@ -688,7 +865,7 @@ detail view only (`#section-listing` and its own elements) - typography
 spacing per `docs/design-guidelines.md` are applied there, plus defined
 as global CSS variables for later reuse, but the rest of the site
 (sidebar nav, listing cards, modals) intentionally keeps its current
-look. A full site-wide reskin against the same palette is item 17's
+look. A full site-wide reskin against the same palette is item 21's
 scope, not redone piecemeal here.
 
 **Not included here (see "Confirmed drops" below):** CT Band, Owner
@@ -697,7 +874,7 @@ scope, not redone piecemeal here.
 Bulgarian energy-certificate data source is confirmed - see "Open
 questions").
 
-## 10. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban) - DONE, MERGED (2026-09-22, Dessy)
+## 14. Saved searches ("Lead Generators") + home dashboard + Deal Pipeline (kanban) - DONE, MERGED (2026-09-22, Dessy)
 
 Reviewed by Missy (verdict: approve - independently verified every data-gap
 claim against the real committed data, confirmed the localStorage schema
@@ -792,7 +969,7 @@ shared checkout - PR to follow. Summary:
     oversights**: "floor level" isn't scraped by any of the 8 portals
     (checked the full field union across `data/leads_*.json`) - omitted
     from cards rather than faked. "Filter by Agent" isn't buildable either
-    - same already-flagged gap as item 9's Agent panel (no scraped listing
+    - same already-flagged gap as item 13's Agent panel (no scraped listing
     carries an agent/agency name or contact field) - the toolbar says so
     explicitly instead of showing a control that can't do anything.
   - **Design-guidelines judgment call**: the spec's own card description
@@ -800,17 +977,17 @@ shared checkout - PR to follow. Summary:
     icon-grid of stats - both are `docs/design-guidelines.md` section 9's
     explicitly named anti-patterns (items 1-2). Built the same *content*
     the spec asks for, presented as small-caps muted text labels and plain
-    inline facts instead, matching the restrained treatment item 9 already
+    inline facts instead, matching the restrained treatment item 13 already
     established for the listing detail page - not a silent improvisation,
     the guidelines document directly instructs this substitution.
 - **Design-scope note**: the new/redesigned surfaces (Lead Generators
   gallery, the three new dashboard widgets, the whole Pipeline board) draw
   on `docs/design-guidelines.md`'s warm ivory/brass palette and Playfair/
-  Inter type pairing - the same CSS variables item 9 introduced. Shared
+  Inter type pairing - the same CSS variables item 13 introduced. Shared
   chrome those surfaces still reuse (the generic `.modal-*` classes, the
   sidebar nav) intentionally keeps its existing blue-accented look, same
-  scoping call item 9 made - a full site-wide reskin is item 15's Pipeline
-  sub-item name aside, really item 17's job, not repeated piecemeal here.
+  scoping call item 13 made - a full site-wide reskin is item 19's Pipeline
+  sub-item name aside, really item 21's job, not repeated piecemeal here.
 - **Storage**: `pipelineStages`/`pipelineTags`/`pipelineDeals` are three
   new plain localStorage keys, following the existing no-login,
   this-browser-only pattern used by `leadGenerators`/`savedListingIds`/
@@ -820,7 +997,7 @@ shared checkout - PR to follow. Summary:
 - **Not done**: Missy's review, and a real PR to `main` (branch is pushed,
   PR still to be opened as part of this same pass).
 
-## 11. Comparables & Area Data analytics (own-data market stats + BTL stress test) - DONE, MERGED (2026-09-22, Dessy)
+## 15. Comparables & Area Data analytics (own-data market stats + BTL stress test) - DONE, MERGED (2026-09-22, Dessy)
 
 Reviewed by Missy (verdict: blocked on one real bug, fixed and re-verified
 before merge - `areaDataMatches()` matched on area name alone, and common
@@ -862,7 +1039,7 @@ listing history - no new data source required. Spec sections 4 and 5
 **Status (2026-09-22): all four sub-items implemented in `index.html`,
 self-tested against real committed data via a headless-browser harness
 (no `Agent`/subagent-spawning tool available this session to hand off to
-Missy directly - same documented gap as item 18's dispatch), not yet
+Missy directly - same documented gap as item 22's dispatch), not yet
 reviewed by her.** Summary:
 
 - **Comparables tool - built as two surfaces, not one**, reusing the
@@ -874,7 +1051,7 @@ reviewed by her.** Summary:
     + quarter (кв.) dropdowns (quarter deliberately disabled until a city
     is picked - see below) + radius-in-km input + property-type/bedroom/
     price/size filters + a "Search" button, running averages bar, and a
-    Card/Table/Map/Export view toggle reusing item 10's own `.pl-*`
+    Card/Table/Map/Export view toggle reusing item 14's own `.pl-*`
     component classes (card grid, table, map, view toggle) rather than a
     new visual language.
   - The listing detail page's existing radius-average panel and Compare
@@ -964,7 +1141,7 @@ reviewed by her.** Summary:
   "Gaps in Nosy's spec" section, not something to fix piecemeal in this
   pass).
 - **Design-guideline judgment calls made, not covered explicitly by
-  `docs/design-guidelines.md`**: reused item 10's `.pl-*` component
+  `docs/design-guidelines.md`**: reused item 14's `.pl-*` component
   classes (card grid/table/map/view-toggle) for both new Comparables
   surfaces rather than inventing new markup for the same visual pattern;
   histogram "subject bucket" highlighting uses a single brass bar against
@@ -976,7 +1153,7 @@ reviewed by her.** Summary:
   Supabase project (blocked from this sandbox, same as every other recent
   item).
 
-## 12. Market Data hub (portfolio-level aggregate tiles) - DONE, MERGED (2026-09-22, Dessy)
+## 16. Market Data hub (portfolio-level aggregate tiles) - DONE, MERGED (2026-09-22, Dessy)
 
 Reviewed by Missy (verdict: one real bug found and fixed before merge -
 the Adverts Evolution chart's "newly tracked" series sampled the OLDEST
@@ -991,18 +1168,18 @@ codebase has no lat/lng-based city resolution anywhere; the stale
 "Bulgaria" rows actually resolve via ordinary title-text matching.
 The city-vs-area collision risk this line of work has hit twice before -
 Area Performance's nationwide-by-city / drilled-into-quarters grouping,
-the new `.market-tab-btn` CSS-class separation from item 9's tabs to
+the new `.market-tab-btn` CSS-class separation from item 13's tabs to
 avoid state cross-talk - were both independently verified correct, not
 just trusted.) and merged in
 [PR #211](https://github.com/kirilbp/bg-property-tracker/pull/211).
 
-Reuses item 11's aggregation work at a broader, cross-listing scope. Spec
+Reuses item 15's aggregation work at a broader, cross-listing scope. Spec
 section 7. Fully replicable, built purely from imotenradar's own scraped
 listing history (price, status, time-on-market, agent) aggregated by
 area: Strategy Heat Map, Postcode Performance -> city/quarter Performance,
 Market Live Map (Yield/Asking Prices/Time On Market/Demand), Adverts
 Evolution (stock changes: Available/STC-equivalent/Removed over time),
-Agent Properties (all listings by a given agent). Sequence after item 11
+Agent Properties (all listings by a given agent). Sequence after item 15
 since it's the same underlying aggregation, wider lens.
 
 **Status (2026-09-22): 4 of the backlog's own 5 named tiles built and
@@ -1025,7 +1202,7 @@ alongside it):
 - **Strategy Heat Map**: same rows, ranked by a selectable own-data metric
   (motivated-seller share = % with a price drop, avg days on market, avg
   €/m²) - "yield" is not offered as a metric, no Bulgarian rental dataset
-  exists to compute it from (same gap item 11's Area Data tab already
+  exists to compute it from (same gap item 15's Area Data tab already
   documents). Heat is shown as varying opacity of the single brass accent
   color, never a hue change - design-guidelines.md's ban on red/yellow/
   green status treatments applies here as much as anywhere else.
@@ -1047,7 +1224,7 @@ alongside it):
   Removed has one.
 - **Agent Properties - NOT built, confirmed not possible with current
   data.** Re-checked the full field union across every `data/leads_*.json`
-  file directly (not just trusted item 9's earlier finding): no agent/
+  file directly (not just trusted item 13's earlier finding): no agent/
   agency name, phone, or contact field exists anywhere in imotenradar's
   scraped data. Flagged plainly in the UI (a `.market-gap-note` under the
   hub) rather than a fake/empty tile. Needs new scraper work (a detail-page
@@ -1069,7 +1246,7 @@ Playwright against a 6,000-listing fixture sampled from real committed
 (CDN/Supabase network calls stubbed with local npm-installed pinned
 Chart.js/Leaflet/supabase-js copies and a route-intercepted REST fixture
 server, since this sandbox's egress proxy blocks the live Supabase project
-and every CDN this app loads from - same approach item 11 used). Confirmed:
+and every CDN this app loads from - same approach item 15 used). Confirmed:
 all 4 tabs render with zero page errors nationwide and drilled into Sofia;
 city/type filter state persists correctly across tab switches; the heat
 map/live map re-render correctly when their own metric dropdown changes;
@@ -1084,7 +1261,7 @@ mobile viewport with no layout breakage.
 
 **One real, already-known data-quality issue surfaced (not caused) by this
 work, worth flagging again since it's now visible in a new place**: backlog
-item 22's stale alo.bg `area == "Bulgaria"` placeholder rows (still
+item 26's stale alo.bg `area == "Bulgaria"` placeholder rows (still
 uncleaned in committed data as of this writing) show up as a bogus
 "Bulgaria" row in the Sofia-scoped Area Performance table.
 
@@ -1102,12 +1279,12 @@ existing `listingAreaKey()` guard" line was also wrong - that guard is
 `if (!l.area) return`, and `"Bulgaria"` is a truthy non-empty string, so
 it does nothing for this specific placeholder value. The bottom-line
 conclusion is still accurate (real, pre-existing, not caused by this
-item, self-resolves once item 22's cleanup lands) - only the stated
+item, self-resolves once item 26's cleanup lands) - only the stated
 mechanism was invented rather than checked; corrected here rather than
 left standing.
 
 **One design-scope judgment call**: the hub's own tabs reuse the `.pl-*`/
-`.cmp-*` design tokens/components item 11 already established (cards,
+`.cmp-*` design tokens/components item 15 already established (cards,
 tables, view toggle, brass accent) rather than a new visual language, but
 are NOT wired through the listing-detail page's `.detail-tab-btn`/
 `.detail-tab-content` classes despite being visually identical - see the
@@ -1123,7 +1300,7 @@ decisions.md` have already flagged). This PR is open on `main`, **not
 self-merged**, specifically so Missy's real review happens before it ships,
 per this repo's standing rule.
 
-## 13. Send Letters / motivated-seller outreach campaigns - BUILT, PARKED PER USER DECISION - DO NOT RESUME WITHOUT ASKING (2026-09-23)
+## 17. Send Letters / motivated-seller outreach campaigns - BUILT, PARKED PER USER DECISION - DO NOT RESUME WITHOUT ASKING (2026-09-23)
 
 **Built end-to-end and reviewed (PR #214, closed unmerged 2026-09-23)** -
 both Missy's and Revy's technical review passed clean (client-side only,
@@ -1150,7 +1327,7 @@ Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
 Bulgarian-replicable, high-value workflow" and a genuinely portable
 feature if imotenradar wants to pursue a deal-sourcing angle, not just an
-aggregator - but it's a materially bigger scope than items 9-12 (mail-merge
+aggregator - but it's a materially bigger scope than items 13-16 (mail-merge
 templating, a reverse address lookup, and an actual physical-mail send
 integration/partner, none of which imotenradar has any of today), so it
 sits after the smaller, faster-to-ship analytics items despite the high
@@ -1164,7 +1341,7 @@ content, sender return address, batch reference) with a documented
 `TODO(mail-provider)` for a human to pick a real vendor, sign up, and add
 an API key - not a real paid integration. Chosen over integrating a real
 vendor because that would be a new recurring paid external commitment
-(a different category than items 9-12's frontend/data work) that this
+(a different category than items 13-16's frontend/data work) that this
 session cannot itself sign up for or pay for, and because "anything that
 costs money" is one of the few categories this project's standing rules
 require real human sign-off on rather than an autonomous call. Everything
@@ -1205,9 +1382,9 @@ addresses, even though no auth/login is involved).
    to detect responses automatically, last/next delivery dates). "Create
    a new campaign" flow: pick a Letter Design, pick addresses (from
    saved listings, a Lead Generator, or the Deal Pipeline - reuse
-   whichever selection pattern items 9/10 already established). No
+   whichever selection pattern items 13/14 already established). No
    design-guidelines-only work here (Dessy not needed), but style with
-   the existing brass/sage/ink CSS variables from item 9's redesign
+   the existing brass/sage/ink CSS variables from item 13's redesign
    rather than introducing new ones.
 2. **Letter Designs template bank + editor (Dessy).** Situation-keyed
    template pills: General, Back on Market, Price Reduced, Withdrawn,
@@ -1256,7 +1433,7 @@ Don't batch multiple tasks' review together - each goes the moment it's
 locally verified, per this project's standing "nothing ships without
 Missy, and she sees it immediately" rule.
 
-## 14. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 18. Deal Calculator (investment strategy modeling) - needs formula work before building
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
@@ -1277,7 +1454,7 @@ sequenced after the items above rather than blocking on them.
 - Open question, needs Bulgarian legal confirmation before deciding:
   PLO (Purchase Lease Option) - see "Open questions" below.
 
-## 15. Preferences / settings to support items 9-14
+## 19. Preferences / settings to support items 13-18
 
 Spec section 9. Mostly small, fully-replicable settings screens that
 exist to back the features above rather than stand alone - sequence each
@@ -1287,19 +1464,19 @@ Preferences as one block:
   natively, so the UK mile/km toggle complexity isn't even needed),
   Search Results (motivation-indicator thresholds - already a close
   match to imotenradar's own motivation-score fields), Lead Generator
-  defaults, Pipeline (stage + tag configuration - ship with item 10),
+  defaults, Pipeline (stage + tag configuration - ship with item 14),
   Notifications (new-lead-generator-count / status-change mechanics -
-  ship with item 10), Deal Stacker defaults (BG mortgage-rate defaults -
-  ship with item 11's Stress Test), Calendar integration, Letters defaults
-  (ship with item 13), Deal Calculator Templates defaults (replace UK
+  ship with item 14), Deal Stacker defaults (BG mortgage-rate defaults -
+  ship with item 15's Stress Test), Calendar integration, Letters defaults
+  (ship with item 17), Deal Calculator Templates defaults (replace UK
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
-  item 14).
+  item 18).
 
-## 16. Map tab additions
+## 20. Map tab additions
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
-ship alongside item 9. The one genuinely good UK-concept-with-a-real-BG-
+ship alongside item 13. The one genuinely good UK-concept-with-a-real-BG-
 substitute is worth calling out on its own: **cadastral map integration**
 ("Title Plans"/"Title Boundaries" substitute) - Bulgaria's Кадастрална
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
@@ -1307,10 +1484,16 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 17. Visual/premium design refresh
+## 21. Visual/premium design refresh
+
+**Priority elevated by item 10** (user feedback, 2026-09-23: the live
+site still doesn't read as luxurious/stylish, since item 13's redesign
+was deliberately scoped to the listing detail page only) - work this
+next, after items 7-9, rather than waiting for items 13-16 to fully
+build out.
 
 Spec's closing "Design direction" section, not a feature but a directive
-that should land as part of items 9-12's builds rather than a standalone
+that should land as part of items 13-16's builds rather than a standalone
 pass: richer typography (serif/high-contrast display face for headings),
 more generous whitespace between listing-card elements, a refined
 restrained palette (deep neutral tones + one considered accent) in place
@@ -1318,7 +1501,7 @@ of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
 
-## 18. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
+## 22. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
 
 **Numbered last but work this immediately after item 6/7 - do not let its
 position at the end of this list imply low priority.** From the user
@@ -1462,9 +1645,9 @@ pipeline underneath was fine throughout (alo.bg's history grew from
 87,979 to 90,159 listings with zero data loss); only the Supabase sync
 step was broken.
 
-## 19. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
+## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
 
-Found by Dessy while testing backlog item 9's price/status history chart,
+Found by Dessy while testing backlog item 17's price/status history chart,
 confirmed and reproduced independently by Missy during PR #200's review -
 not a one-off glitch.
 
@@ -1495,10 +1678,10 @@ alternating scrapes" than a real site behavior), but not confirmed.
 
 ---
 
-## 20. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet
+## 24. imot.bg: `city` field wrongly wins over a listing's own area text when a settlement imot.bg's own site groups under a different city hasn't been geocoded yet
 
 Found by Placy while checking whether the Cherven Bryag/"град Ловеч"
-oddity Missy flagged (item 18's investigation) is a systemic pattern.
+oddity Missy flagged (item 22's investigation) is a systemic pattern.
 Full detail, evidence and methodology: `docs/decisions.md`'s 2026-09-22
 entry.
 
@@ -1533,7 +1716,7 @@ confirmation and imot.bg's own URL-text claim agreeing as genuine
 misfiling.
 
 **Recommended fix, not yet implemented (needs `sync_to_supabase.py`, left
-for whoever picks it up after item 18 settles to avoid the same-file
+for whoever picks it up after item 22 settles to avoid the same-file
 collision):** don't let `city_key` win over `area`-derived resolution
 unconditionally for imot.bg specifically when the two disagree and
 `area` resolves via the hand-verified `BG_MUNICIPALITY_TO_OBLAST` (not
@@ -1544,7 +1727,7 @@ listings sooner. A blind area-text override is **not** safe without
 per-listing geocoding to rule out same-city name collisions like Гоце
 Делчев above - demonstrated concretely, not just a theoretical risk.
 
-## 21. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` (not fixed, avoiding the file this pass)
+## 25. Two small settlement/gazetteer gaps found incidentally in `sync_to_supabase.py` (not fixed, avoiding the file this pass)
 
 Found by Placy while auditing `sales.bcpea.org`'s unresolved listings
 (see item below and `docs/decisions.md`'s 2026-09-22 entry for the full
@@ -1566,10 +1749,10 @@ per-portal audit these came out of).
    that one label.
 
 Both small, mechanical fixes once `sync_to_supabase.py` is next open for
-item 18-adjacent work - bundling them in rather than a separate pass
+item 22-adjacent work - bundling them in rather than a separate pass
 through the same file.
 
-## 22. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - needs a data cleanup someone/something with write access to `data/*.json` can apply
+## 26. alo.bg: stale `"Bulgaria"` placeholder area value still in committed data (12,501 rows), scraper code already fixed - needs a data cleanup someone/something with write access to `data/*.json` can apply
 
 Found by Placy during the platform-wide allocation-gap census (see
 `docs/decisions.md`'s 2026-09-22 entry for full methodology).
@@ -1590,9 +1773,9 @@ Tarnovo) correctly parsed, not the bug; excluded from scope.
 Of the 12,501: 5,009 already have real lat/lng from a coordinate backfill
 and resolve to the correct oblast today despite the stale text (only the
 user-visible `area` label/filter value is wrong - this is exactly the
-kind of junk value that would show up as a bogus entry in item 18's new
+kind of junk value that would show up as a bogus entry in item 22's new
 `area_key`-grouped dropdown); 4,327 still have no lat/lng and are
-counted in item 20-adjacent audit's "alo.bg 4,394 unresolved" figure.
+counted in item 24-adjacent audit's "alo.bg 4,394 unresolved" figure.
 
 **Fix is a narrow, exact-match, already-written and dry-run-verified data
 cleanup**: for any record where `area == "Bulgaria"` (Latin spelling,
@@ -1618,18 +1801,18 @@ only the specific sub-feature named, not the whole item it belongs to:
   would come from Имотен регистър (Registry Agency) / Кадастър, but
   unlike UK Land Registry it's not known whether transaction-price data
   is openly scrapable in Bulgaria. Blocks: the *true* "Last Sold Data"
-  histogram in item 11 (asking-price version ships regardless), the
-  "Last sold(Land reg)" count pill in item 11's Comparables view, and the
-  Market Data hub's "Last Sold Map" tile in item 12.
-- **Price vs Income tile** (item 12) - Bulgaria's NSI does publish
+  histogram in item 15 (asking-price version ships regardless), the
+  "Last sold(Land reg)" count pill in item 15's Comparables view, and the
+  Market Data hub's "Last Sold Map" tile in item 16.
+- **Price vs Income tile** (item 16) - Bulgaria's NSI does publish
   regional income data publicly, but granularity match to this tile's
   needs is unverified.
-- **Census Data overlay** (item 16) - NSI publishes census data; unknown
+- **Census Data overlay** (item 20) - NSI publishes census data; unknown
   whether it's available at fine enough geocoded granularity/overlay
   form.
-- **Crime data map** (item 16) - no known equivalent to UK police.uk's
+- **Crime data map** (item 20) - no known equivalent to UK police.uk's
   public, fine-grained geocoded crime dataset for Bulgaria.
-- **Planning Applications** (items 11/12) - no known equivalent to the UK's
+- **Planning Applications** (items 15/16) - no known equivalent to the UK's
   standardized, often API-accessible per-council planning-application
   data in Bulgaria.
 - **Bulgarian energy-efficiency certificate as an EPC substitute** (items
@@ -1637,7 +1820,7 @@ only the specific sub-feature named, not the whole item it belongs to:
   scheme (A-G-ish bands), but whether imotenradar's scraped source
   portals actually expose it is unknown. Omit the field entirely until
   confirmed rather than faking it.
-- **PLO (Purchase Lease Option) strategy** (item 14) - relies on a UK
+- **PLO (Purchase Lease Option) strategy** (item 18) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
   call.
@@ -1654,7 +1837,7 @@ benefits/rent-cap scheme), Title Split - Hold/Sell strategy,
 Freehold/Leasehold tenure toggle (Bulgarian tenure is effectively always
 freehold-equivalent), "Low EPC"/"Short Lease" letter-campaign situation
 types, Stamp Duty as a field (replaced by a Bulgarian transfer-tax %
-default instead, see item 15), and the UK-broker-specific "Get Finance"
+default instead, see item 19), and the UK-broker-specific "Get Finance"
 partner tab (lowest priority of all 7 listing-detail tabs per spec;
 revisit only as a monetization feature if a Bulgarian mortgage-broker
 partnership is ever pursued - not part of the current build).
@@ -1667,7 +1850,7 @@ source screenshots were desktop), alert-email behavior (vs. in-app
 notifications), exact export file contents (CSV/PDF/etc.), validation/
 error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
-these block starting items 9-17; revisit if/when they turn out to matter
+these block starting items 13-21; revisit if/when they turn out to matter
 for a specific item.
 
 ## Parked - do not start

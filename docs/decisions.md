@@ -1369,3 +1369,85 @@ here, backlog item 13 is broken into concrete dispatchable tasks (see
 what context/acceptance criteria) is handed back to the invoking session
 so it can make the actual `Agent` calls itself. Nothing in this entry has
 been built, self-reviewed, or merged.
+
+## 2026-09-23 (later same day) - User frontend feedback triaged into new backlog items 7-10; discovered and worked around a live renumbering collision; no Agent tool this session either
+
+Start-of-session check: read `docs/missy-findings/2026-09-22.md`. Both
+findings were already accounted for by the time this session actually
+looked - the alo.bg dead crawl (issue #183) and the imoti.net
+category-classifier bug (issue #194) are both now marked DONE in
+`docs/backlog.md` (items 3 and 5), shipped by other work between when
+the user's briefing was written and when this session ran. Verified this
+directly rather than trusting the briefing's "as of 2026-09-22" framing,
+since backlog.md had moved on - no action needed for either.
+
+The user then gave direct frontend feedback (5 complaints about the live
+site: overall design not luxurious, price-history graph tab-gated
+instead of pinned, map too large relative to the graph, the "Comparables"
+button apparently doing nothing, and listing descriptions missing/wrong
+on most portals). Verified each claim myself against current code/data
+before writing it up, rather than relaying the briefing verbatim:
+
+- **Design**: found item 13 (listing detail redesign) had *already*
+  shipped real Playfair Display/Inter/brass-palette work on 2026-09-22 -
+  but explicitly scoped to the listing detail page only, per its own
+  "Design-scope note." The user's complaint about the *overall* site
+  still stands because the sitewide pass (item 21) hasn't happened yet.
+  Rather than duplicate item 21, added item 10 to elevate its priority
+  and cross-referenced both directions.
+- **Graph/map layout**: confirmed live in the current `index.html` that
+  the price-history chart is still gated behind `switchDetailTab()` and
+  the radius map is still a separate full-width block - not touched by
+  the recent redesign. Added as item 7 with real line numbers.
+- **Comparables button**: found the picture had changed since the
+  user's feedback was likely written - item 15 shipped a full
+  Comparables *tab* on 2026-09-22 (Missy-reviewed, merged), but the
+  *older* "Compare nearby" button/modal is still also present, wired and
+  looking structurally intact on a static read. Wrote item 8 as an
+  investigation task rather than a guessed fix, naming the real
+  possibility that the fix is to retire the old button in favor of the
+  new tab (a design-fork call for whoever picks it up to make after
+  reproducing it live, logged here as guidance rather than decided
+  blind).
+- **Descriptions**: re-sampled every portal's `data/leads_*.json`
+  directly against current data (not the older numbers in the briefing) -
+  confirmed imoti.net's `scraper.py` still writes zero `description`
+  fields (unaffected by the recent "Backfill imoti.net listing details"
+  commit, which touched price/history only) and homes.bg's wrong-content
+  bug is unchanged. Found the "coverage gap" pattern for the 5 remaining
+  portals is less uniform than the original framing suggested -
+  alo.bg (52 chars avg) and bazar.bg (159 chars avg) look meaningfully
+  shorter than imot.bg/olx.bg/bcpea (1,000+ chars avg when present),
+  which may be a wrong-selector bug like homes.bg's rather than a pure
+  coverage gap - split into 4 independently-shippable tasks (item 9)
+  instead of treating all 5 non-imoti.net/non-homes.bg portals as one
+  fix.
+
+**Real, avoidable mistake caught mid-session, worth recording:** this
+session initially wrote and committed these backlog changes against a
+`docs/backlog.md` that had gone stale during the session (fetched at
+session start, but origin/main moved significantly further - three more
+merged PRs, a parked item, and a full renumbering - while this session
+was still reading/writing). The first commit and `git push` attempt was
+correctly rejected (non-fast-forward). Rather than force-pushing or
+blindly rebasing text over a doc that had been semantically
+restructured, discarded that stale local commit entirely
+(`git reset --hard origin/main`) and redid the whole analysis fresh
+against the real current state - which is what caught that #194 was
+already fixed and that the Comparables situation had changed. Flagging
+this as a real lesson for future sessions working on a fast-moving,
+multi-agent-edited doc like this one: re-fetch and re-verify claims
+against current `main` immediately before writing anything into
+`docs/backlog.md`, don't trust a briefing's snapshot even from earlier
+the same day, and never force-push over a rejected push on this file.
+
+**No `Agent` tool available this session** (checked via `ToolSearch`
+before concluding it, same constraint prior sessions have hit
+repeatedly). Did not self-review this work and call it Missy's sign-off,
+did not ship anything silently. Output is limited to the backlog edits
+(items 7-10 above) plus a dispatch list handed back to the calling
+session, naming which agent (Dessy for items 7/8/10, a general-purpose
+builder - optionally via Scrapy first - for item 9) should take each
+task and with what context, so the invoking session can make those
+`Agent` calls itself. Nothing in items 7-10 has shipped or been reviewed
+by Missy or Revy as of this entry.
