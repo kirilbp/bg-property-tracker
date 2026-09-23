@@ -1270,6 +1270,13 @@
               </label>
             </div>
             <div>
+              <label>Photos</label>
+              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
+                <input type="checkbox" id="onlyWithPhotos" style="width:auto;" />
+                Only with photos
+              </label>
+            </div>
+            <div>
               <label>Sort by</label>
               <select id="sortBy">
                 <option value="price-asc">Price (low to high)</option>
@@ -4329,9 +4336,12 @@ async function writeListingsCache(rows) {
 //     nesting-complexity reason as the 'other' type bucket.
 //
 // Every other predicate this item's own dispatch named (price/sqm/days/
-// reduced/excludeSold/search/type [6 real buckets + auction]/city/oblast)
-// IS translated as a real WHERE clause below - area is the one exception,
-// see the "area" bullet above.
+// reduced/excludeSold/onlyWithPhotos/search/type [6 real buckets +
+// auction]/city/oblast) IS translated as a real WHERE clause below - area
+// is the one exception, see the "area" bullet above. onlyWithPhotos
+// ("Only with photos" filter) is a plain `photo IS NOT NULL` on an
+// always-populated scalar column (no migration-backfill window like
+// area_key), so it's exact server-side, not just an approximation.
 
 // PostgREST's or()/and() filter DSL treats a bare value as ending at the
 // next top-level comma, colon, or parenthesis - a value containing any of
@@ -4453,6 +4463,7 @@ function buildFastListingsQuery(filters, cursor, select) {
   if (filters.minDays > 0) query = query.gte('days_on_market', filters.minDays);
   if (filters.minReduced > 0) query = query.gte('price_drop_count', filters.minReduced);
   if (filters.excludeSold) query = query.neq('status', 'sold');
+  if (filters.onlyWithPhotos) query = query.not('photo', 'is', null);
 
   // area: deliberately NOT translated to a server-side predicate - see the
   // big "area" bullet in the comment block above (Missy's PR #239 review).
@@ -6694,6 +6705,7 @@ function readFilterState() {
     minDays: parseFloat(document.getElementById('minDaysOnMarket').value) || 0,
     minReduced: parseFloat(document.getElementById('minTimesReduced').value) || 0,
     excludeSold: document.getElementById('excludeSold').checked,
+    onlyWithPhotos: document.getElementById('onlyWithPhotos').checked,
     sortBy: document.getElementById('sortBy').value,
     searchQuery: (document.getElementById('searchQuery').value || '').trim().toLowerCase(),
     activeLeadGenerator,
@@ -6727,6 +6739,11 @@ function matchesAllFilters(l, filters) {
     (l.days_on_market ?? 0) >= filters.minDays &&
     (l.price_drop_count ?? 0) >= filters.minReduced &&
     (!filters.excludeSold || l.status !== 'sold') &&
+    // "no photo" is genuinely l.photo === null in real data (checked
+    // data/leads*.json directly - every portal writes either a real
+    // https:// thumbnail URL or JSON null, never '' or a placeholder
+    // string), so a plain truthiness check is exact, not a guess.
+    (!filters.onlyWithPhotos || !!l.photo) &&
     listingMatchesSearch(l, filters.searchQuery) &&
     matchesLeadGenerator(l, filters.activeLeadGenerator) &&
     matchesTypeFilter(l, filters.type) &&
@@ -9139,6 +9156,7 @@ document.getElementById('roomsFilter').addEventListener('change', renderFromStar
 document.getElementById('minDaysOnMarket').addEventListener('input', renderFromStart);
 document.getElementById('minTimesReduced').addEventListener('input', renderFromStart);
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
+document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
