@@ -2226,4 +2226,4 @@ Dispatched as the core piece of backlog item 6's slice 2 (see this file's own "B
 
 **Explicitly not touched, per the design's own scoping** (see the earlier "slice 2" design entry for the full reasoning): `findComparables()`, `computeRadiusAverage()`, `marketAggregateRows()`, and `populateAreaFilter()`/`areaKeyGroups()` all still read the full background-loaded `MERGED_LISTINGS` array exactly as before - confirmed via the diff itself (none of those four functions appear in it at all), not just by intent.
 
-**Status**: PR opened against a fresh `main`, **not merged** - needs Missy's review before shipping, per the standing "nothing ships without her sign-off" rule. Not auth/PII surface, so Revy's review isn't required. `docs/backlog.md` item 6 updated to reflect this piece as done-pending-review.
+**Status**: [PR #239](https://github.com/kirilbp/bg-property-tracker/pull/239) opened against a fresh `main`, **not merged** - needs Missy's review before shipping, per the standing "nothing ships without her sign-off" rule. Not auth/PII surface, so Revy's review isn't required. `docs/backlog.md` item 6 updated to reflect this piece as done-pending-review.

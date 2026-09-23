@@ -700,8 +700,10 @@ undocumented regression found along the way are in `docs/decisions.md`'s
    nulls - first paint, pagination (including the exact last-page
    boundary and a rapid-double-click race), 9 filter/sort scenarios, and
    the handoff to the authoritative slow path once the bulk load resolves,
-   21 assertions, all passing. PR opened, **not merged - needs Missy's
-   review** (no auth/PII surface, so Revy's review isn't required). See
+   21 assertions, all passing.
+   [PR #239](https://github.com/kirilbp/bg-property-tracker/pull/239) -
+   **not merged - needs Missy's review** (no auth/PII surface, so Revy's
+   review isn't required). See
    `docs/decisions.md`'s matching entry for the full design, the real
    findings surfaced while building it, and what's deliberately still out
    of scope.
