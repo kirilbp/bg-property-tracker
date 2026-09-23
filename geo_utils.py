@@ -542,11 +542,22 @@ def bcpea_type_match(title):
 
 def bcpea_settlement_from_title(title):
     match = bcpea_type_match(title)
-    if not match:
-        return None
-    raw_type, _ = match
-    rest = title[len(raw_type):]
-    return re.sub(r"^,\s*", "", rest).strip() or None
+    if match:
+        raw_type, _ = match
+        rest = title[len(raw_type):]
+        return re.sub(r"^,\s*", "", rest).strip() or None
+    # "Други" ("Other") is a real bcpea.org category label outside
+    # BCPEA_RAW_TYPES' controlled vocabulary - deliberately NOT added there,
+    # since bcpea_type_match() returning None for it is exactly what makes
+    # type_filter_bucket() correctly bucket these listings "other" (backlog
+    # item 21). But the settlement name still follows the same
+    # "<category label>, <settlement>" shape every other bcpea title uses
+    # (e.g. "Други, Брезово"), so settlement extraction alone needs its own
+    # narrow handling of this one label to not lose the location signal.
+    if title and title.startswith("Други"):
+        rest = title[len("Други"):]
+        return re.sub(r"^,\s*", "", rest).strip() or None
+    return None
 
 
 BG_CITIES = [
@@ -566,13 +577,31 @@ BG_CITY_BY_NAME = {name: key for key, name in BG_CITIES}
 def city_key_from_name(name):
     if not name:
         return None
+    # Sofia is the one BG_CITIES name where this "strip a trailing 'област'"
+    # normalization below is actively wrong, not just a no-op: "София
+    # област" (Sofia Province/Софийска област) is a REAL, DIFFERENT oblast
+    # from Sofia city itself (city_key "sofia" -> oblast "sofia_grad";
+    # Sofia Province is oblast "sofia" - see BG_OBLASTS/CITY_KEY_TO_OBLAST's
+    # own comments for the same sofia/sofia_grad split). Every other
+    # BG_CITIES name's own oblast happens to share that city's exact name
+    # (e.g. Plovdiv city sits in an oblast that's also just called
+    # "Пловдив"), so stripping "област" there is harmless - only Sofia has
+    # two differently-named oblasts where blindly stripping "област" turns
+    # a real reference to the SURROUNDING region into a false match for the
+    # CAPITAL city. Confirmed live: 67 imoti.bg listings literally tagged
+    # city="София област" (backlog item 20-22-adjacent audit) were all
+    # resolving to sofia_grad instead of the correct "sofia" (province)
+    # oblast before this fix.
+    stripped = name.strip()
+    if re.match(r"^софия\s*област$", stripped, flags=re.IGNORECASE):
+        return None
     # Strips a trailing settlement-type suffix a portal's own title text can
     # tack on after the real city name - "област" (region), or homes.bg's
     # own "<City> - град"/"- село" (town/village) convention, live-sampled
     # from real currently-active homes.bg titles like "София, София - град"
     # (the second "София" is the last comma segment the title fallback
     # reads, but " - град" made it fail to match "София" exactly).
-    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", stripped, flags=re.IGNORECASE).strip()
     return BG_CITY_BY_NAME.get(normalized)
 
 
@@ -592,7 +621,12 @@ BG_CITY_PREFIX_RE = re.compile(
 def city_key_from_name_prefix(name):
     if not name:
         return None
-    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", name.strip(), flags=re.IGNORECASE).strip()
+    stripped = name.strip()
+    # Same Sofia-specific guard as city_key_from_name() above - a name
+    # starting with "София област" must not prefix-match "София" the city.
+    if re.match(r"^софия\s*област\b", stripped, flags=re.IGNORECASE):
+        return None
+    normalized = re.sub(r"\s*(?:област|-\s*град|-\s*село)$", "", stripped, flags=re.IGNORECASE).strip()
     match = BG_CITY_PREFIX_RE.match(normalized)
     return BG_CITY_BY_NAME.get(match.group(1)) if match else None
 
