@@ -674,9 +674,8 @@ undocumented regression found along the way are in `docs/decisions.md`'s
    isolated worktree off a fresh `origin/main`. `render()` now fires a
    small server-side query for just the current page - predicates
    translated from its own `.filter()` chain (price/sqm/days/reduced/
-   excludeSold/search/city/oblast, plus the 6 real type buckets + auction;
-   `area` is sent too, forward-compatible with item 26's still-pending
-   `area_key` migration - see below) - and paints the grid from it
+   excludeSold/search/city/oblast, plus the 6 real type buckets + auction)
+   - and paints the grid from it
    immediately, while `loadData()`'s existing IndexedDB-cached bulk fetch
    keeps running unchanged in the background for every other consumer
    (Comparables, Market Data hub, Lead Generator counts/dropdowns, home
@@ -692,7 +691,8 @@ undocumented regression found along the way are in `docs/decisions.md`'s
    rather than perfectly exact for a few predicates that have no safe
    server-side form at all (`rooms` - title-regex-derived, no DB column; a
    Lead Generator's radius/polygon geofencing; the "Most recently reduced"
-   sort) - those are simply not fast-pathed (the client re-check still
+   sort; `area` - see the Missy's-review correction below) - those are
+   simply not fast-pathed (the client re-check still
    enforces them exactly), a documented, bounded "shorter preview page,
    never a wrong one" trade-off, not an oversight. Verified with a mocked-
    Supabase-REST Playwright harness (no live Supabase access in this
@@ -702,11 +702,32 @@ undocumented regression found along the way are in `docs/decisions.md`'s
    the handoff to the authoritative slow path once the bulk load resolves,
    21 assertions, all passing.
    [PR #239](https://github.com/kirilbp/bg-property-tracker/pull/239) -
-   **not merged - needs Missy's review** (no auth/PII surface, so Revy's
+   **not merged - needs Missy's re-review** (no auth/PII surface, so Revy's
    review isn't required). See
    `docs/decisions.md`'s matching entry for the full design, the real
    findings surfaced while building it, and what's deliberately still out
    of scope.
+
+   **Correction (Missy's PR #239 review, fixed same-PR):** the original
+   version of this piece sent `area` server-side as a bare
+   `.eq('area_key', filters.area)`, justified as "forward-compatible" with
+   item 26's still-pending `area_key` migration. Missy correctly flagged
+   that as a real gap, not just a today-inert one: `area_key` only gets
+   backfilled on a live row by the *next* `sync_to_supabase.py` run after
+   that migration lands, so there's a real window (up to one full sync
+   cycle) where a live row has `area_key IS NULL` while its raw `area`
+   text is populated and would match via the client-side
+   `listingAreaKey()`'s `l.area_key || normalizeArea(l.area)` fallback. A
+   bare `eq()` would silently exclude that row during the window, and -
+   unlike every other predicate here - the mandatory client-side re-check
+   can't catch it, since it only ever re-filters rows the server already
+   returned; a wrongly-excluded row never arrives to be re-checked. That
+   directly contradicted this fix's own "can only ever return fewer rows,
+   never a wrong page" safety claim. Fixed by simply not fast-pathing
+   `area` at all - same treatment as `rooms`/Lead Generator radius/
+   `recent-drop-desc` above, relying purely on the client-side re-check.
+   Revisit once `area_key` has had a full backfill cycle after its
+   migration lands.
 4. Documented follow-up, do not dispatch blind: `findComparables()`'s
    server-side radius-search redesign - needs a live Supabase SQL-editor
    migration and a live-data test this sandbox can't perform. File as

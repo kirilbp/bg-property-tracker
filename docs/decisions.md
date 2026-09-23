@@ -2324,3 +2324,105 @@ the source line reads that way.
 
 Pushed to `dessy/fix-amenity-marker-color-2026-09-23` for Missy's
 re-review; not merged by this session.
+
+### 2026-09-23 (later) - PR #239 review fix: `area` un-fast-pathed after Missy found a self-healing claim that wasn't true
+
+Missy's review of PR #239 (backlog item 6's core slice 2) found one real
+correctness gap, verified correct and not re-litigated here: the original
+`buildFastListingsQuery()` translated the area filter as a bare
+`.eq('area_key', filters.area)`, on the stated reasoning that this was
+"forward-compatible" and would "start working the moment the migration
+lands with no further code change." That reasoning missed a real window:
+`area_key` (item 26's newly-added column) only gets backfilled on a live
+row by the *next* `sync_to_supabase.py` run after its migration lands, so
+there's a real window (up to one full sync cycle) where a live row has
+`area_key IS NULL` while its raw `area` text is populated - a row the
+client-side `listingAreaKey()` (`l.area_key || normalizeArea(l.area)`)
+would correctly match via its text fallback, but a bare server-side
+`eq()` would silently exclude. Critically, this is a case the fix's own
+headline safety guarantee - "a server-side predicate can only ever return
+fewer rows than it should, never a wrong page, because the client-side
+re-check catches the rest" - does NOT cover: the re-check only re-filters
+rows the server already returned, so a wrongly-excluded row never arrives
+to be re-checked at all. Today this is fully inert (`area_key` doesn't
+exist on the live table yet, so the query 42703s and the whole fast path
+abandons to the slow/correct path for that render) - but it would have
+silently activated, with this exact wrong-page bug, the moment the
+migration ships, and the code/docs' own "self-heals with zero further
+work" claim would have been false at that point.
+
+**Fix chosen: option (b) from Missy's own two suggested fixes** - don't
+fast-path translate `area` at all, treating it exactly like
+`rooms`/Lead Generator radius/`recent-drop-desc` are already treated in
+this same PR (left out of `buildFastListingsQuery()`'s server-side
+translation, relying purely on the mandatory client-side
+`matchesAllFilters()` re-check to correctly filter it from whatever page
+comes back). Chosen over option (a) (OR-ing the `area_key` eq with a
+text-based `or()` fallback matching `normalizeArea()`'s own logic) because
+it's simpler, follows this PR's own already-established and already-
+accepted pattern instead of introducing new OR-clause escaping/
+normalization logic that would need its own careful verification, and the
+accepted trade-off is identical to `rooms`'s: an area-filtered fast page
+may come back thinner than `PAGE_SIZE` (never wrong, just possibly short)
+until the background bulk load resolves and the authoritative slow path
+takes over. Revisit once `area_key` has had one full backfill cycle after
+its migration lands - a legitimate follow-up, not a permanent gap.
+`index.html` changes: removed the `.eq('area_key', filters.area)` call
+from `buildFastListingsQuery()`, and rewrote both that function's inline
+comment and the larger "predicates NOT translated server-side" comment
+block above it (previously listing only `rooms`/Lead-Generator-geo/
+`recent-drop-desc`) to add `area` with the reasoning above, and to correct
+the summary line that used to list `area` among the predicates translated
+as a real WHERE clause.
+
+**Also fixed, Missy's lower-severity secondary finding**: the
+verification harness's `mockdb.js` (scratchpad, not part of this PR's
+diff - `/tmp/claude-0/.../scratchpad/perftest/mockdb.js` from the
+original PR #239 session) parsed `or` filters via
+`searchParams.get('or')`, which only reads the FIRST value - but real
+`postgrest-js` calls `.or()` once per distinct predicate
+(`buildFastListingsQuery()` itself can chain a search-text `or()`, a
+type-bucket `or()`, and a pagination-cursor `or()` on the same request),
+sending multiple `or=` query-string params that real PostgREST ANDs
+together. The mock silently ignored every `or=` param but the first, so
+the "type filter + Next page" / "search + Next page" combination -
+ordinary real-world usage - was never actually exercised by the PR's own
+verification suite despite its claims. Fixed `mockdb.js` to use
+`searchParams.getAll('or')` and AND every parsed filter tree together
+(previously a single `if (orParam)` block, now a loop over `getAll('or')`
+that filters `result` once per param). Added two new
+`mockdb.test.js` cases - a type-bucket `or()` combined with a
+pagination-cursor `or()` (two `or=` params), and a search-text `or()`
+combined with the same cursor `or()` - each asserting the exact resulting
+id set, plus each clause's own in-isolation result, specifically so a
+future regression that silently drops one `or=` param again would produce
+a visibly wrong id list rather than a coincidentally-still-passing test.
+Confirmed by hand-reverting the `getAll`/loop fix locally and re-running
+`mockdb.test.js`: the new type-bucket+cursor test fails against the old
+`.get()`-only code (wrong id set: `[2, 1]` instead of the correct `[]`),
+then re-confirmed passing again with the fix restored - proving the new
+test actually catches this regression, not just tolerating it. Did not
+attempt a full live-Playwright re-run of the original PR's end-to-end
+harness (`run.js`, same scratchpad directory): it points at a now-gone
+prior-session worktree path and this sandbox has no downloaded Chromium
+build for the globally-installed `playwright` package (no
+`ms-playwright`/`.local-browsers` cache found) - verified the fix at the
+`mockdb.js` unit level instead, which is where the actual parsing bug
+lived and where Missy's finding was specifically about.
+
+**Verified**: worked in a fresh worktree off the PR branch
+(`origin/bossy/backlog6-server-query`, new branch
+`bossy/backlog6-server-query-fix`), merged current `origin/main` in - a
+real conflict in this file only (this same day's PR #238-review, item 20,
+and item 11 entries had all been appended after this PR's own entry on
+`origin/main`), resolved by keeping this PR's entry followed by all three
+of `origin/main`'s later same-day entries, per this file's append-only
+convention. `node --check` against the freshly re-extracted `<script>`
+block passes. `docs/backlog.md` item 6's PR #239 summary updated to match
+(removed the "`area` is sent too, forward-compatible..." line, added
+`area` to the not-fast-pathed predicate list, and added a "Correction"
+paragraph documenting Missy's finding and the fix, mirroring this entry).
+
+Pushed to `bossy/backlog6-server-query-fix` (tracking
+`bossy/backlog6-server-query`) for Missy's re-review; not merged by this
+session.

@@ -3841,10 +3841,10 @@ async function writeListingsCache(rows) {
 // load resolves and the slow path (render()'s existing, unchanged logic)
 // takes over.
 //
-// Three predicates have NO safe, verifiable server-side translation at
+// Four predicates have NO safe, verifiable server-side translation at
 // all, confirmed by reading the real schema/code rather than guessed, and
 // are deliberately never sent to Postgres (the client-side re-check above
-// still enforces all three exactly - this only affects fast-path page
+// still enforces all four exactly - this only affects fast-path page
 // fullness, never correctness):
 //   - "rooms": extractRoomCount() derives this from free-text title regex
 //     (Bulgarian "N-стаен" patterns, a fixed word list, and an English
@@ -3863,6 +3863,28 @@ async function writeListingsCache(rows) {
 //     bulk fetch (slice 1). No scalar column stands in for it the way
 //     first_seen_at now does for listingFirstSeenDate() - there's genuinely
 //     nothing to sort by server-side.
+//   - "area" - Missy's PR #239 review (docs/decisions.md's own follow-up
+//     entry has the full writeup): the client-side equivalent,
+//     listingAreaKey(l), is `l.area_key || normalizeArea(l.area)` - it
+//     falls back to deriving the key from raw text whenever area_key is
+//     null. area_key is backlog item 26's newly-added column, and a live
+//     row only gets it backfilled by the NEXT sync_to_supabase.py run
+//     after that migration lands - so there's a real window (up to one
+//     full sync cycle) where a live row has area_key IS NULL while l.area
+//     is populated and would match via the client fallback. A bare
+//     `.eq('area_key', filters.area)` would silently exclude that row
+//     during the window, and - unlike every other predicate on this list -
+//     the mandatory client-side re-check below CANNOT catch it: the
+//     re-check only re-filters rows the server already returned, and a
+//     wrongly-excluded row never arrives to be re-checked. That's a
+//     genuine "fewer rows AND the wrong page" case, not the bounded
+//     "fewer rows, never wrong" guarantee this whole design otherwise
+//     relies on - so, matching the rooms/leadgen-geo precedent above,
+//     area is simply never sent server-side. An area-filtered fast page
+//     may come back thinner than PAGE_SIZE until the background bulk load
+//     takes over, exactly like rooms - never wrong, just possibly short.
+//     Revisit once area_key has had one full backfill cycle after its
+//     migration lands (a legitimate follow-up, not a permanent gap).
 //
 // Two more predicates ARE sent server-side, but as an approximation kept
 // deliberately simple rather than fully exact, again because the client-side
@@ -3882,9 +3904,10 @@ async function writeListingsCache(rows) {
 //     matching are left to the client-side re-check only, for the same
 //     nesting-complexity reason as the 'other' type bucket.
 //
-// Every other predicate this item's own dispatch named (price/sqm/area/
-// days/reduced/excludeSold/search/type [6 real buckets + auction]/city/
-// oblast) IS translated as a real WHERE clause below.
+// Every other predicate this item's own dispatch named (price/sqm/days/
+// reduced/excludeSold/search/type [6 real buckets + auction]/city/oblast)
+// IS translated as a real WHERE clause below - area is the one exception,
+// see the "area" bullet above.
 
 // PostgREST's or()/and() filter DSL treats a bare value as ending at the
 // next top-level comma, colon, or parenthesis - a value containing any of
@@ -4007,18 +4030,17 @@ function buildFastListingsQuery(filters, cursor, select) {
   if (filters.minReduced > 0) query = query.gte('price_drop_count', filters.minReduced);
   if (filters.excludeSold) query = query.neq('status', 'sold');
 
-  // area: filtered by the precomputed area_key column - docs/decisions.md
-  // confirms this is NOT yet live on the production merged_listings table
-  // (schema.sql has the `alter table` migration, not yet run - a real,
-  // live-confirmed 42703 "column does not exist" today). Sent anyway,
-  // forward-compatible: fetchFastListingsPage()'s catch-all below treats
-  // ANY error from this query (this one included) as "abandon the fast
-  // path for this render", never as "silently drop the filter and return
-  // unfiltered rows" - so this starts working the moment that migration
-  // lands, with no code change here, and is simply never fast-pathed until
-  // then (the background bulk load's listingAreaKey() fallback already
-  // covers it correctly in the meantime, unchanged).
-  if (filters.area) query = query.eq('area_key', filters.area);
+  // area: deliberately NOT translated to a server-side predicate - see the
+  // big "area" bullet in the comment block above (Missy's PR #239 review).
+  // A bare `.eq('area_key', filters.area)` would be unsafe once area_key's
+  // migration lands: a live row only gets area_key backfilled on the next
+  // sync_to_supabase.py run after that, so there's a real window where a
+  // matching row has area_key IS NULL and would be silently excluded by an
+  // eq() - and the mandatory client-side re-check can't catch that, since
+  // it only ever re-filters rows the server already returned. Left out
+  // entirely, same as rooms/leadgen-geo - the client-side re-check
+  // (matchesAllFilters() -> listingAreaKey()'s own area_key-or-normalizeArea
+  // fallback) enforces it exactly on whatever page comes back.
 
   if (filters.city) {
     query = filters.city === 'others' ? query.is('city_key', null) : query.eq('city_key', filters.city);
