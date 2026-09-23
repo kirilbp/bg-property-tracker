@@ -385,8 +385,16 @@ def save_history(history):
 # below must merge these in from the previous "latest" rather than let a
 # fresh grid re-touch wipe them off an already-detail-checked, still-active
 # listing every ~6 hours - docs/backlog.md item 9a. (imoti.net has no
-# "description" field yet at all - docs/backlog.md item 9 task 1 - so it
-# isn't in this list; add it here too once that ships.)
+# "description" field at all, deliberately - docs/backlog.md item 9 task 1
+# investigated this: backfill_detail_imoti_net.py's own docstring already
+# documents a live-confirmed finding, predating that backlog task, that
+# imoti.net's own /en/ detail page - the only page this scraper ever
+# fetches - carries no free-text description anywhere, in meta tags,
+# ld+json, or any labeled HTML block. A genuine per-portal data gap, not a
+# missing-selector bug, so there is nothing for this list to merge-protect
+# unless a different page (e.g. imoti.net's Bulgarian-language equivalent,
+# untried - this sandbox also has no live imoti.net access to check it)
+# turns up a real source for it.)
 _DETAIL_ONLY_FIELDS = ("site_posted_at", "lat", "lng", "photos", "detail_checked")
 
 
