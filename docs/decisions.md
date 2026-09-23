@@ -3093,3 +3093,139 @@ method rather than left as an open product question, but is sequenced
 to start only once item 30's mechanism exists to reuse - see the
 hand-back message for the exact dispatch order and what each builder
 needs.
+
+### 2026-09-23 - Ready's first assignment: garage/parking-amenity tiebreak root-caused and fixed - 2,058 apartments (and a few houses/land/business) un-mis-filed from the Garages section
+
+**The complaint, confirmed real and quantified beyond the single example
+already in `.claude/agents/ready.md`**: sampled 50 real listings at random
+from the 2,516 low-confidence garage-tagged pool (not just the 8 already
+sampled before this role existed) and re-ran the current `reason` on all
+2,516 (not just the sample), not just eyeballing titles. 2,077 of 2,516
+(82.6%) were `tied_categories` verdicts that include "garage"; 2,049 of
+those (81.4% of the whole pool) tie garage against "flat" specifically.
+Every one of the 41 garage/flat-tie titles in the random 50-sample was an
+unambiguous real apartment (room-count word + "апартамент"/"мезонет"/
+"студио" as the title's lead subject, парking mentioned afterward as an
+amenity - e.g. "Тристаен апартамент в кв. Прослав с ПАРКОМЯСТО", "Двустаен
+апартамент + Паркомясто"). The remaining 9 were genuine garage-for-sale
+listings (imoti.net's templated "Garage, NN м2 City, District" titles,
+correctly low-confidence for an unrelated reason - `single_signal_only`,
+not a tie at all). A further 28 of 2,516 tie garage against house/business/
+shop/land without flat involved (all manually read - same amenity pattern,
+e.g. "Етаж от къща с гараж и паркомясто" = a house floor listing, "гараж"/
+"паркомясто" attached amenities). This confirms the tiebreak is genuinely
+the dominant mechanism behind the complaint, not just the one example.
+
+**Root cause, confirmed by reading the whole file + existing tests first**:
+`CATEGORY_ORDER = ["garage", "shop", "business", "land", "house", "flat"]`
+in `category_classifier.py` was used as an unconditional tiebreak whenever
+two categories' weighted scores landed exactly equal - "garage" being
+first in the list meant it won literally every tie it was part of,
+regardless of which category actually described the property. The scorer
+only ever checks "does this category's keyword appear anywhere in this
+signal" (boolean, no position) so it has no way to tell a listing's real
+subject noun from an attached-amenity mention.
+
+**The fix** (`category_classifier.py`, `_resolve_garage_tie`/
+`_title_match_positions`): when "garage" is one of the tied categories,
+resolve the tie by which tied category's own keyword appears LEFTMOST in
+the *title* (the strongest, purpose-written signal - see `SIGNAL_WEIGHTS`)
+instead of by `CATEGORY_ORDER`. Bulgarian listing titles are consistently
+subject-first, amenities-appended (confirmed across the whole sample) - a
+genuine garage-for-sale listing's title is templated to open with the word
+itself ("Garage, 14 м2 Sofia, ..."), so garage stays leftmost (and keeps
+winning) in that case, while an amenity mention is always appended after
+the real subject noun. Verified this correctly does NOT just make flat/
+house win globally - `Гараж на 50м от нов комплекс с апартаменти` (a real
+garage listing that happens to mention nearby apartments, the exact
+counter-example the task brief called out) still classifies as garage,
+because "гараж" is still leftmost. Only overrides the tie when EVERY tied
+category has its own match inside the title itself (if the tie relies on
+url/description alone for one side, there's no apples-to-apples position
+to compare, so it falls through to the original `CATEGORY_ORDER` behavior
+unchanged) - and it's deliberately scoped to ties that include "garage"
+specifically (the one root-caused, quantified pattern), not a rewrite of
+every category-pair's tiebreak, most of which haven't been individually
+audited against real data.
+
+**Quantified effect** (`backfill_garage_tiebreak_regression.py`, run
+against the 3 portals whose scrapers actually call
+`category_classifier.classify_listing()` - imoti.net, alo.bg, imoti.bg;
+confirmed by reading each scraper's own call site that bazar.bg/bcpea/
+imot.bg/olx.bg use the separate, older `geo_utils.classify_category()`
+and homes.bg hardcodes `"high"` confidence, so none of those 4 portals are
+touched by this bug or this fix at all):
+- imoti.net: 335 garage/low-confidence records checked, 0 reclassified
+  (all genuinely garage - the templated single-signal title pattern).
+- imoti.bg: 6 checked, 0 reclassified (same).
+- alo.bg: 2,175 checked, **2,058 reclassified** - 2,035 to `flat`, 17 to
+  `house`, 4 to `land`, 2 to `business`. 117 correctly remain `garage`.
+- **Total: 2,058 of 2,516 (81.8%) of the originally garage-tagged
+  low-confidence pool reclassified**, all of them out of `garage` and
+  never into it (confirmed by diffing the fix's output against every one
+  of the 118,321 records these 3 portals' `classify_listing()` actually
+  governs - zero changes to any record whose stored category wasn't
+  already `garage`).
+- Regression check: spot-checked 15 random previously-`"high"`-confidence
+  garage/shop/business/land listings (from a 4,458-record pool) - all 15
+  correctly unchanged, confirmed genuinely still their own category by
+  reading each title.
+- Data-integrity check on the actual backfill run: diffed
+  `data/history_alo.json` before/after - exactly 2,058 records touched,
+  the *only* field that changed on any of them is `category`
+  (`category_confidence` stays `"low"` - still fundamentally a
+  resolved-tie verdict, not upgraded to a false "high"), `snapshots`/
+  `first_seen`/every other field byte-for-byte identical. `leads_alo.json`
+  regenerated via `scraper_alo.py`'s own `compute_leads()` so cross-
+  listing aggregates (e.g. `area_avg_price_per_sqm`) aren't left computed
+  over the wrong bucket for the corrected 2,058.
+
+**Residual, explicitly NOT fixed in this pass** (documented rather than
+silently left unexplained):
+- 19 of the 2,516 pool remain a genuine, unresolved tie even after the
+  fix - mostly (14 of 19) alo.bg listings whose *title* field is a
+  deliberate last-100-characters truncation (`scraper_alo.py` line ~362,
+  `title = pre_price[-100:] ...` - already commented/reasoned-about code,
+  not a new bug being introduced here) that happens to have chopped off
+  the leading room-count word for these specific listings, so there's no
+  title-position evidence for one side of the tie at all. 3 of those 19
+  would resolve correctly using the URL slug as a fallback position
+  signal instead (checked live) - deliberately not added in this pass to
+  keep the shipped fix minimal and fully audited for a 3-record gain;
+  flagging as a possible tiny follow-up if it recurs at larger scale. The
+  other ~5 of 19 are genuinely ambiguous multi-way ties (e.g. imoti.bg's
+  "Търговско помещение, ..." commercial listings tying shop/business/
+  land/garage) that a human would need to read the full listing to call
+  confidently - left as low-confidence, per Ready's standing "never guess
+  a category" rule, rather than forced to a guess.
+- Separately discovered, NOT fixed here (out of this fix's scope, flagged
+  for a future pass): a small number of listings lose to a *non-tied*
+  scoring artifact, not the tiebreak - e.g. alo_11375674 ("Четиристаен в
+  Свети Влас + паркомясто + склад", a real 4-room flat) scores `flat`=3
+  (title-only, since `CATEGORY_KEYWORDS["flat"]`'s Latin list is missing
+  `chetiristaen`, a separate small keyword-list gap) but `garage`=5 and
+  `business`=5 (each matched in BOTH title and its own URL-slug copy of
+  the same word), so `flat` loses on raw score before the tiebreak logic
+  ever runs. This is a real, related pattern (amenity words getting
+  double-counted via URL-slug duplication of the title) but is a distinct
+  mechanism from the CATEGORY_ORDER tiebreak this task root-caused and
+  fixed, affects a much smaller and not-yet-quantified count, and fixing
+  it would mean touching `SIGNAL_WEIGHTS`/the scoring architecture more
+  broadly rather than the tiebreak alone - deliberately left as a
+  separate follow-up rather than scope-creeping this fix.
+
+**Tests**: `tests/test_category_classifier_garage_tiebreak.py` - proven to
+discriminate the bug per this project's test standard (6 of 7 assertions
+fail against a reimplementation of the exact pre-fix tiebreak logic,
+confirmed live by temporarily reverting just `category_classifier.py` and
+re-running; all 7 pass against the fixed code), plus the explicit
+non-regression cases from the task brief (garage-leftmost-of-its-own-tie
+stays garage, a non-garage tie is untouched, a tie missing title evidence
+on one side falls back unchanged). Full suite (50 tests) passes.
+
+**Not shipped by this session** - per this role's standing rule ("nothing
+ships without Missy's review... you have Write/Edit access, which means
+your changes need the same sign-off gate, not a self-certified pass"):
+built in an isolated worktree
+(`ready/fix-garage-tiebreak-2026-09-23`), locally verified as above, and
+handed back for routing to Missy rather than merged directly.

@@ -113,6 +113,70 @@ _KEYWORD_RE_CACHE = {
     for cat, kws in CATEGORY_KEYWORDS.items()
 }
 
+# garage/<anything> tiebreak fix (docs/decisions.md 2026-09-23 "Ready" entry,
+# .claude/agents/ready.md): CATEGORY_ORDER puts "garage" first, so it used to
+# win every tie unconditionally - including the dominant real-world case,
+# confirmed against a random sample of the affected pool, where "гараж"/
+# "паркомясто" (garage/parking space) is mentioned as an attached AMENITY
+# inside a flat/house/shop/business listing's own title ("Тристаен
+# апартамент ... с ПАРКОМЯСТО", "Етаж от къща с гараж и паркомясто"), not the
+# listing's own subject. A genuine garage-for-sale listing's title is instead
+# templated to OPEN with the word itself ("Garage, 14 м2 Sofia, ...") - the
+# garage keyword is the very first thing mentioned, nothing precedes it.
+#
+# Bulgarian listing titles are conventionally subject-first, amenities-
+# appended, so whichever tied category's own keyword appears LEFTMOST in the
+# title is its real subject; this resolves a garage/X tie by that position
+# instead of by CATEGORY_ORDER, but only when every tied category actually
+# has its own match inside the title (the strongest, purpose-written signal -
+# see SIGNAL_WEIGHTS - so a positional comparison across categories is
+# apples-to-apples) and only when garage itself isn't the leftmost (i.e.
+# doesn't override anything when garage genuinely is the subject, e.g. a real
+# garage listing that happens to also mention "near the apartments" later -
+# "гараж" still precedes "апартаменти" there, so garage still wins). Anywhere
+# this can't be determined (title missing, or a tied category's score came
+# only from url/description) falls through to the original CATEGORY_ORDER
+# behavior unchanged.
+#
+# Deliberately scoped to ties that include "garage" specifically - the one
+# root-caused, quantified pattern (2,049 of 2,516 low-confidence
+# garage-tagged listings as of 2026-09-23; see backfill_garage_tiebreak.py) -
+# rather than rewriting the tiebreak for every category combination, most of
+# which haven't been individually audited against real data.
+def _title_match_positions(categories, title):
+    """Maps each of `categories` to the character index of its earliest own
+    keyword match inside `title` (case-insensitive), leaving out any
+    category that has no match in `title` itself (only url/description
+    contributed to its share of the tied score)."""
+    if not title:
+        return {}
+    text = title.lower()
+    positions = {}
+    for cat in categories:
+        idxs = [m.start() for m in (p.search(text) for p in _KEYWORD_RE_CACHE[cat]) if m]
+        if cat == "flat":
+            room_count_match = _ROOM_COUNT_RE.search(text)
+            if room_count_match:
+                idxs.append(room_count_match.start())
+        if idxs:
+            positions[cat] = min(idxs)
+    return positions
+
+
+def _resolve_garage_tie(winners, title):
+    """Given a set of tied `winners` that includes "garage", returns the
+    category that should actually win (see the module comment above this
+    function), or None to leave CATEGORY_ORDER's existing fallback alone."""
+    positions = _title_match_positions(winners, title)
+    if len(positions) != len(winners):
+        return None
+    leftmost = min(positions, key=positions.get)
+    if positions[leftmost] == positions["garage"]:
+        # Exact tie in title position (or garage genuinely is leftmost) -
+        # inconclusive either way, so don't override.
+        return None
+    return leftmost
+
 # Each signal's contribution to a category's score. The URL often encodes
 # the portal's own category cleanly in a path segment (e.g. a search or
 # listing URL containing ".../garazhi-parkomesta/...") so it counts for
@@ -161,6 +225,10 @@ def classify_listing(title=None, description=None, url=None):
     winner = winners[0]
 
     if len(winners) > 1:
+        if "garage" in winners:
+            resolved = _resolve_garage_tie(winners, title)
+            if resolved is not None:
+                return resolved, "low", "tied_categories_by_title_position:" + ",".join(winners)
         return winner, "low", "tied_categories:" + ",".join(winners)
 
     # High confidence requires agreement across more than one independent
