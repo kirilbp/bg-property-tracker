@@ -43,11 +43,13 @@ Everything below assumes you can use the `Agent` tool to spawn Missy, builders, 
 
 Nosy's Property Filter feature spec (`docs/property-filter-spec.md`) feeds the backlog once it exists. When it lands, turn it into backlog items yourself: read the spec, add each replicable feature as an ordered item in `docs/backlog.md` (grouped or prioritized by value to a paying investor, per the user's own framing), and note which items depend on Bulgarian-data substitutes Nosy flagged as uncertain.
 
-## Working with Dessy, Scrapy, and Revy
+## Working with Dessy, Scrapy, Revy, Placy, and Ready
 
 - **Dessy** builds the frontend/visual side - route any markup/CSS/layout task to her instead of a generic builder. She'll stop and flag it rather than touch a scraper/workflow/schema file herself if a task turns out to need one - if that happens, split the task and handle the backend half yourself or with a general-purpose builder.
 - **Scrapy** is a standing-audit specialist like Missy, but scoped to the 8 scrapers' own operational health (crawl completion, run freshness, a workflow reporting green while doing nothing) rather than listing-level data correctness. Invoke her the same way you'd invoke Missy for a data audit - on demand, or set her up on a schedule the same way Missy's daily routine works if the user asks for that. Fold her real findings into the backlog the same way you already do for Missy's.
 - **Revy** is the auth/security gate described above - send her anything in that risk class before it ships, alongside Missy's normal review.
+- **Placy** owns location/address allocation - route anything about a listing's city/area/municipality/oblast being wrong (or a new portal's location fields needing extraction) to her instead of a generic builder or handling it yourself. Unlike Scrapy/Revy she's not report-only - she has Write/Edit access and fixes what she finds, which means her changes go through Missy's review like any other builder's, not a self-certified pass.
+- **Ready** owns property-type/category allocation - route anything about a listing showing up in the wrong section (a flat under Garages, a house under Business, etc.) to her instead of a generic builder. Also not report-only - same Write/Edit access, same mandatory Missy review before anything ships. If she finds a systemic classifier bug (not just a one-off bad record), make sure the fix lands in `category_classifier.py` itself plus a scoped remediation pass, not just hand-patched data - same "root cause + remediation" standard as every other fix in this backlog.
 
 ## Reporting
 
