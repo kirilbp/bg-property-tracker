@@ -727,10 +727,14 @@ since the picture is more varied than a single "coverage gap" pattern
 across 5 portals):**
 1. `scraper.py` (imoti.net): add a `description` field, scraped from the
    listing detail page, written the same way the other scrapers do.
-2. `scraper_homes.py`: fix the wrong-field/selector bug - find and use
-   homes.bg's actual free-text description field instead of whatever
-   currently lands in `offer["description"]` (the material/furnishing
-   tag line).
+2. **`scraper_homes.py`: DONE (2026-09-23).** Fixed the wrong-field/
+   selector bug - homes.bg's construction-material/furnishing tag line was
+   landing in `offer["description"]` instead of real free text. Shipped in
+   [PR #217](https://github.com/kirilbp/bg-property-tracker/pull/217),
+   merged to `main` as commit `7ad475a` (merge of `675b451`, "Stop showing
+   homes.bg construction-material tags as listing descriptions"). Reviewed
+   and approved by Missy - she independently re-verified the root cause,
+   tested the fix, and confirmed no regressions before it shipped.
 3. `scraper_imot.py`, `scraper_olx.py`, `scraper_bcpea.py`: investigate
    the detail-page-fetch coverage gap (53-93% of listings never got a
    description despite fetched ones being substantial).
@@ -742,6 +746,104 @@ across 5 portals):**
   another's investigation.
 - No auth/session/personal-data surface involved (public listing
   descriptions only) - Revy's review is not expected to be needed.
+
+**Update 2026-09-23: Scrapy-style investigation of tasks 3-4, dispatched
+per the note above (a general-purpose agent standing in for Scrapy per her
+own file's process, since she isn't directly invocable as a subagent type
+from this session - report-only, no code touched). Findings restructure
+the remaining scope below; task numbers above are kept for reference but
+superseded by the reprioritized task list that follows.**
+
+**9a. `update_history()` grid-crawl overwrite bug - NEW, repo-wide, HIGH
+PRIORITY - promoted above tasks 3/4 below.** Bigger in scope than task
+3/4's original "coverage gap" framing: `update_history()` in
+`scraper_imot.py`, `scraper_olx.py`, `scraper_bcpea.py`, `scraper_alo.py`,
+`scraper_bazar.py`, and `scraper.py` (imoti.net) - all six scrapers that
+have this function - does `history[lid]["latest"] = l` unconditionally,
+where `l` is that run's grid-only crawl data (no `description`/`photos`/
+`detail_checked` keys). `scrape.yml` runs every 6 hours and re-touches any
+listing still active in the grid, so this silently **wipes already-
+backfilled detail-page data (description, photos, detail_checked) for
+every still-active listing, every ~6 hours** - only a listing that goes
+"removed" between being detail-checked and the next scrape keeps its
+backfilled data permanently. Quantified directly from real GitHub Actions
+job logs (not inferred) for bcpea/imot/olx: each portal's detail-backfill
+queue was observed resetting by hundreds to over a thousand listings
+across a single `scrape.yml` boundary, with net queue size sometimes
+*growing* rather than shrinking.
+
+Reprioritized above tasks 3/4 (and above the still-open task 1) because
+this is live, ongoing, repo-wide data loss affecting 6 scrapers on a
+6-hour cadence, not a one-time backlog to clear - every hour this stays
+unfixed, more already-completed backfill work (including whatever ships
+from tasks 3/4/6 below) gets silently undone again at the next scrape.
+Fixing tasks 3/4's coverage gaps without fixing this first means the new
+backfill work is itself at risk of being wiped on the next scrape cycle.
+
+- **Task (general-purpose builder):** in each of the six scrapers, change
+  `update_history()` so a fresh grid-crawl record only overwrites the
+  fields the grid crawl actually provides (price, status, title, url,
+  etc.) and preserves any existing `description`/`photos`/
+  `detail_checked` (and any other detail-page-only fields) already present
+  on `history[lid]["latest"]` when the fresh record doesn't carry them -
+  merge, don't replace. Same fix pattern should be identical across all
+  six files. Write a real regression test (or a focused unit test against
+  sample data) proving a grid-only re-touch no longer clears previously
+  backfilled fields, not just a manual read-through. No auth/session/
+  personal-data surface - Revy's review not expected to be needed, Missy's
+  review is required before merge as always.
+
+**Tasks 3/4, reframed per-portal with the investigation's findings (all
+independently verified, not guessed):**
+- **imot.bg, olx.bg (was task 3's "coverage gap" for these two)**: genuine
+  coverage gap confirmed - real, succeeding backfill workflows (verified
+  via actual log content, not just a green checkmark), but 9a's reset bug
+  means net progress isn't reliable until that's fixed first. No
+  recurrence of the 2026-09-19 detail_checked-on-failure bug (item 1) -
+  all three scrapers checked for task 3 correctly only set
+  `detail_checked` after a real successful fetch. **Sequencing: fix 9a
+  first, then this coverage-gap backfill work will actually stick.**
+- **bcpea.org (was task 3's "coverage gap" for this portal)**: same
+  coverage gap + same 9a reset bug - cleanest before/after log evidence of
+  the three (a backfill run's 400-listing progress was found completely
+  reset by the very next run, crossing a `scrape.yml` boundary). Same
+  sequencing note as imot.bg/olx.bg above. **Separately, its low hit-rate-
+  when-checked (18% of checked listings get a real description vs 75-91%
+  for imot/olx) is investigated and likely NOT a bug**: the best-supported
+  explanation is that sales.bcpea.org (a court-enforcement auction
+  registry) genuinely often has no free-text "Описание" field to begin
+  with - but this couldn't be confirmed live (bcpea.org is blocked from
+  this sandbox), so it's a plausible read, not a confirmed fact. No
+  further task filed for the hit-rate question; worth a live check
+  whenever someone has bcpea.org network access, not blocking.
+- **alo.bg (was task 4's "short-average" portal) - NEW FIXABLE TASK,
+  same shape as the already-fixed homes.bg bug (task 2 above).** Confirmed
+  with strong evidence (not just the 52-char average): sampled 200 real
+  non-empty descriptions, 165/200 (82.5%) are literal substrings of that
+  same listing's own title, not real prose - e.g. title "...Двустаен
+  апартамент в к-с Суит хоум 2 Слънчев бряг, област Бургас" ->
+  description "Двустаен апартамент в к-с Суит хоум 2".
+  `extract_description_alo()` in `geo_utils.py` reads `.obqva-block`,
+  very likely the wrong element (probably a heading/summary blurb, not the
+  real ad body). **Task (general-purpose builder):** find the right
+  selector via a live probe of an alo.bg detail page - this sandbox can't
+  reach alo.bg, so this needs to happen from an environment that can, or
+  ship the same honest partial fix the homes.bg task took: stop writing
+  the wrong data (the safe half) and flag/defer the "find and use the real
+  selector" half if live access genuinely isn't available, rather than
+  guessing at a selector. No auth/session/personal-data surface - Revy's
+  review not expected to be needed, Missy's review required before merge.
+- **bazar.bg (was task 4's other "short-average" portal) - investigated,
+  likely NOT a bug, resolved (not an open coverage-gap task anymore).**
+  82% of non-empty descriptions are exactly 160 characters (classic SEO
+  meta-description truncation length), extracted via the same ld+json
+  mechanism that gives olx.bg its healthy 1,037-char average. One open
+  caveat, stated plainly rather than assumed away: can't rule out without
+  live bazar.bg access (also blocked from this sandbox) that a longer
+  description exists elsewhere on the page under a different selector -
+  so this is "probably fine, low priority to double check" rather than
+  fully closed. No task filed; revisit only if someone with live
+  bazar.bg access has spare time, not prioritized.
 
 ## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority
 
