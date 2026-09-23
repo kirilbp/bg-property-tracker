@@ -2663,3 +2663,75 @@ No backend/scraper/schema files touched. Pushed as
 `dessy/deal-calculator-2026-09-23`, PR opened against `main`, not merged -
 needs Missy's review before shipping (no auth/PII surface, so Revy's
 review isn't required per the standing scoping rule).
+
+### 2026-09-23 - `merge_history_conflict.py` silently reintroduced the just-fixed imoti.net category bug - fixed with a per-field, recompute-verified merge
+
+Found by Missy's 2026-09-23 daily audit (issue #243). `merge_record()`
+picked which side of a rebase conflict's whole `latest` dict won by
+comparing `freshest_seen_at()` - each side's last snapshot timestamp.
+That conflates "scraped more recently" (a legitimate signal for fields
+that genuinely drift, like price/status) with "ran more-correct code"
+(something a timestamp alone can't tell you). PR #199 corrected
+imoti.net's `category` field in place, without adding a new snapshot. A
+`scrape-large.yml` run that had checked out `main` before PR #199 merged
+- still running the old, buggy classifier - hit its rebase conflict
+after PR #199 landed; its run genuinely added a newer snapshot, so the
+old logic picked its whole `latest` dict, silently reintroducing the
+wrong `category` for 17,680 of imoti.net's 27,251 listings within hours
+of the original fix landing.
+
+Fix: `latest` now merges per-field instead of picking one side's dict
+wholesale. Volatile fields keep the existing recency-based behavior.
+A new `STABLE_LATEST_FIELDS` set (`category`, `category_confidence`,
+`portal`, `city`) gets different treatment on disagreement, since these
+are classifier/parser output for a listing's own stored inputs, not
+real-world state that legitimately changes over time:
+- For imoti.net and alo.bg specifically (the two portals whose scraper
+  calls `category_classifier.classify_listing()` with exactly the
+  inputs `latest` retains - title/url), re-runs today's classifier
+  against each side's own stored title/url and prefers whichever side's
+  stored value still matches its own fresh recompute, or the shared
+  answer if both sides' recomputes independently agree with each other.
+  Deliberately excludes imoti.bg even though it also uses
+  `classify_listing()` - its call mutates the URL with a category slug
+  that's popped before `latest` is saved, so recomputing from stored
+  `latest` alone can't reproduce the original call; verified by reading
+  `scraper_imoti_bg.py` directly rather than assumed.
+- Everything else (other portals' classifiers, missing inputs,
+  non-converging recomputes, `portal`/`city`) falls back to preferring
+  `main`: in this rebase-onto-main flow, the local run's code is frozen
+  at whatever it checked out when it started, while `main` only ever
+  advances, so local can never be running code newer than what's on
+  `main` at merge time.
+
+Also remediates the already-corrupted live data:
+`backfill_apartment_category_regression.py` recomputes
+`category`/`category_confidence` for every imoti.net record still
+showing the impossible `"apartment"` value (17,680 -> 0, verified by
+direct diff - only those two fields touched, no other record changed),
+and `data/leads.json` was regenerated via `scraper.py`'s own
+`compute_leads()` rather than hand-patched, since the corruption had
+also polluted area/price-per-sqm aggregates for imoti.net's other
+~9,500 already-correct listings.
+
+Verified with 21/21 tests (10 new in `tests/test_merge_history_conflict.py`
+covering the exact regression shape both directions, a real
+git-plumbing-level reproduction of the actual incident, and edge cases;
+11 pre-existing tests unchanged) plus Missy's independent re-verification
+- she re-ran the full suite herself in an isolated worktree, reproduced
+the git-plumbing incident independently rather than trusting the
+builder's claim, hand-traced every branch of the new resolution logic to
+confirm the "prefer main" fallback only fires when recompute-verification
+can't settle it (not as a blanket override), and spot-checked 12 of the
+17,680 remediated records against a fresh `classify_listing()` call
+herself (0 mismatches).
+
+Flagged as a generic risk, not fully closed by this fix: any
+correctness-only data change (touches `latest` without adding a
+snapshot) to a field outside `STABLE_LATEST_FIELDS`, on a portal outside
+`RECOMPUTABLE_CLASSIFIER_PORTALS`, remains vulnerable to the same
+stale-run clobbering via the "prefer main" fallback's reasoning holding
+only as well as "main only ever advances" holds in practice. Not
+extended further here since doing so for every field/portal would need
+its own recompute-verification design per field, which wasn't this
+incident's scope.
