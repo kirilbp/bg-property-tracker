@@ -1270,6 +1270,13 @@
               </label>
             </div>
             <div>
+              <label>Photos</label>
+              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
+                <input type="checkbox" id="onlyWithPhotos" style="width:auto;" />
+                Only with photos
+              </label>
+            </div>
+            <div>
               <label>Sort by</label>
               <select id="sortBy">
                 <option value="price-asc">Price (low to high)</option>
@@ -4329,9 +4336,15 @@ async function writeListingsCache(rows) {
 //     nesting-complexity reason as the 'other' type bucket.
 //
 // Every other predicate this item's own dispatch named (price/sqm/days/
-// reduced/excludeSold/search/type [6 real buckets + auction]/city/oblast)
-// IS translated as a real WHERE clause below - area is the one exception,
-// see the "area" bullet above.
+// reduced/excludeSold/onlyWithPhotos/search/type [6 real buckets +
+// auction]/city/oblast) IS translated as a real WHERE clause below - area
+// is the one exception, see the "area" bullet above. onlyWithPhotos
+// ("Only with photos" filter) is `photo IS NOT NULL AND photo NOT IN
+// (<PHOTO_PLACEHOLDER_URLS>)` on an always-populated scalar column (no
+// migration-backfill window like area_key) - see PHOTO_PLACEHOLDER_URLS's
+// own comment (Missy's PR #256 catch: 4 portals use a real, non-null
+// placeholder URL instead of null for "no photo") - so it's exact
+// server-side, not just an approximation.
 
 // PostgREST's or()/and() filter DSL treats a bare value as ending at the
 // next top-level comma, colon, or parenthesis - a value containing any of
@@ -4356,6 +4369,42 @@ function pgrestQuoteValue(v) {
     return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
   }
   return s;
+}
+
+// "Only with photos" filter (matchesAllFilters() below and
+// buildFastListingsQuery() further down) - shared by both so the list only
+// lives in one place. Missy's PR #256 review caught that `l.photo === null`
+// is NOT the only "no real photo" case: 4 of the 8 portals write a real,
+// non-null URL pointing at the portal's own static "no image available"
+// asset instead of null when a listing has no photo, and each URL string
+// repeats verbatim hundreds of times (a shared stock graphic, not real
+// per-listing content) - verified directly against data/leads_alo.json,
+// data/leads_bazar.json, data/leads_imot.json, and data/leads_imoti_bg.json
+// (929 / 539 / 469 / 81 occurrences respectively, exactly matching Missy's
+// counts independently recomputed). The other 4 portals (imoti.net,
+// sales.bcpea.org, homes.bg, olx.bg - data/leads.json, leads_bcpea.json,
+// leads_homes.json, leads_olx.json) were checked the same way and have NO
+// non-null photo value repeated more than 5 times anywhere in their data,
+// so they get no entry here - every non-null photo there is genuinely
+// unique per listing. alo.bg separately reuses a handful of per-agency
+// avatar.jpg images across a few listings each (real /user_files/... paths,
+// not this static-asset pattern) - deliberately NOT included here since
+// those are a different, much smaller, more ambiguous case than a portal's
+// generic "no picture" icon and out of scope for this fix.
+const PHOTO_PLACEHOLDER_URLS = [
+  'https://www.alo.bg/img/no_image.svg',
+  'https://bazar.bg/img/gallery/noPhoto.svg',
+  'https://www.imot.bg/images/picturess/nophoto_490x341.svg',
+  'https://imoti.bg/assets/img/no_pic.jpg',
+];
+
+// True only for a genuine, real per-listing photo - null/undefined/empty
+// AND any of the known portal placeholder graphics above all count as "no
+// real photo". Used by both matchesAllFilters() (client-side) and
+// buildFastListingsQuery() (server-side, via PHOTO_PLACEHOLDER_URLS
+// directly) so the two never drift apart.
+function hasRealPhoto(photo) {
+  return !!photo && !PHOTO_PLACEHOLDER_URLS.includes(photo);
 }
 
 // Reverse of CATEGORY_TO_BUCKET (see that const's own comment) - only the
@@ -4453,6 +4502,18 @@ function buildFastListingsQuery(filters, cursor, select) {
   if (filters.minDays > 0) query = query.gte('days_on_market', filters.minDays);
   if (filters.minReduced > 0) query = query.gte('price_drop_count', filters.minReduced);
   if (filters.excludeSold) query = query.neq('status', 'sold');
+  if (filters.onlyWithPhotos) {
+    // Both conditions needed: NOT IN alone leaves NULL rows to PostgREST's
+    // own three-valued-logic handling rather than an explicit exclusion,
+    // and IS NOT NULL alone still lets the 4 known placeholder URLs
+    // through - see PHOTO_PLACEHOLDER_URLS's comment above for why those
+    // aren't just null. pgrestQuoteValue() per URL since each one contains
+    // ':' characters, which PostgREST's filter grammar treats as reserved
+    // (see pgrestQuoteValue()'s own comment).
+    query = query
+      .not('photo', 'is', null)
+      .not('photo', 'in', `(${PHOTO_PLACEHOLDER_URLS.map(pgrestQuoteValue).join(',')})`);
+  }
 
   // area: deliberately NOT translated to a server-side predicate - see the
   // big "area" bullet in the comment block above (Missy's PR #239 review).
@@ -6694,6 +6755,7 @@ function readFilterState() {
     minDays: parseFloat(document.getElementById('minDaysOnMarket').value) || 0,
     minReduced: parseFloat(document.getElementById('minTimesReduced').value) || 0,
     excludeSold: document.getElementById('excludeSold').checked,
+    onlyWithPhotos: document.getElementById('onlyWithPhotos').checked,
     sortBy: document.getElementById('sortBy').value,
     searchQuery: (document.getElementById('searchQuery').value || '').trim().toLowerCase(),
     activeLeadGenerator,
@@ -6727,6 +6789,10 @@ function matchesAllFilters(l, filters) {
     (l.days_on_market ?? 0) >= filters.minDays &&
     (l.price_drop_count ?? 0) >= filters.minReduced &&
     (!filters.excludeSold || l.status !== 'sold') &&
+    // hasRealPhoto() excludes both null AND the known portal placeholder
+    // URLs (PHOTO_PLACEHOLDER_URLS, see its own comment) - a plain
+    // truthiness check alone is NOT exact, see Missy's PR #256 review.
+    (!filters.onlyWithPhotos || hasRealPhoto(l.photo)) &&
     listingMatchesSearch(l, filters.searchQuery) &&
     matchesLeadGenerator(l, filters.activeLeadGenerator) &&
     matchesTypeFilter(l, filters.type) &&
@@ -9139,6 +9205,7 @@ document.getElementById('roomsFilter').addEventListener('change', renderFromStar
 document.getElementById('minDaysOnMarket').addEventListener('input', renderFromStart);
 document.getElementById('minTimesReduced').addEventListener('input', renderFromStart);
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
+document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
