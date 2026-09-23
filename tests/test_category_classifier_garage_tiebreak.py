@@ -96,7 +96,18 @@ class GarageTiebreakDiscriminatesBugTest(unittest.TestCase):
         category, confidence, reason = classify_listing(title=title)
         self.assertEqual(category, "flat")
         self.assertEqual(confidence, "low")
-        self.assertTrue(reason.startswith("tied_categories_by_title_position:"))
+        # Reason prefix updated by Ready's second assignment (docs/
+        # decisions.md 2026-09-23 "Ready's second assignment" entry):
+        # _resolve_subject_over_amenity() now generalizes this exact same
+        # tie shape and is checked first, so it reports the win via its own
+        # "title_subject_override:" reason instead of
+        # "tied_categories_by_title_position:" - the category/confidence
+        # this test actually cares about are unchanged and still asserted
+        # above; test_subject_over_amenity_*.py covers the new reason
+        # string's own shape directly.
+        self.assertTrue(
+            reason.startswith("title_subject_override:") or reason.startswith("tied_categories_by_title_position:")
+        )
 
     def test_house_with_garage_amenity_discriminates(self):
         title = "Етаж от къща с гараж и паркомясто"
