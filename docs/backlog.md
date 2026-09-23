@@ -1934,7 +1934,11 @@ all figures/fields are EUR, not BGN** (matching `index.html`'s existing
   BRRR, BTSA, BRSAR, FLIP, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale.
 - **Still a business call, not a technical blocker** (per
   `deal-calculator-formulas.md` section 8): R2R (long-term subletting)
-  is legal in Bulgaria by default unless a head lease forbids it.
+  is legal in Bulgaria by default for a *part*-property sublet (e.g.
+  room-by-room/co-living); a *whole*-property sublet needs the head
+  landlord's explicit consent instead (corrected per Missy's review -
+  see `deal-calculator-formulas.md` section 7 for the Art. 234 ZZD
+  distinction).
   R2SA/BTSA/BRSAR (short-term/serviced accommodation) are also legal but
   *regulated* - they require Tourism Act categorization/registration as
   an accommodation place, with a real per-bed fee and platform-enforced

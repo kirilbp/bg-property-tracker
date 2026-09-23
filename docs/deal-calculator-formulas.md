@@ -289,18 +289,31 @@ at an agreed monthly rent, then sublets it (long-term, often
 room-by-room in a shared house / "co-living" model) at a higher
 aggregate rent. Margin is the spread.
 
-**Legal basis in Bulgaria (researched, not inferred):** under the
-Obligations and Contracts Act (ZZD), a tenant **may sublet by default
-unless the head lease expressly forbids it** - the opposite default from
-some other jurisdictions. The original tenant (the R2R investor) remains
-personally liable to the head landlord regardless of the subletting
-arrangement. This means the R2R mechanism is **structurally legal in
-Bulgaria without any special licensing**, subject to: (a) the head
-lease not containing a no-subletting clause (a real, checkable
-contract-negotiation input, not a legal blocker), and (b) ordinary
-residential subletting is not itself commercially regulated the way
-short-term/tourist accommodation is (contrast with R2SA, section 8's
-note). Source: [Bulgarian law of obligations - lease of immovable property](https://www.bulgaria-law-of-obligations.bg/rent-movable-immovable-property.html), summarized further at [Innovires - Rental Agreement Bulgaria 2026](https://www.innovires.com/en/blog/rental-agreement-bulgaria.html).
+**Legal basis in Bulgaria (researched, not inferred - corrected per
+Missy's review, 2026-09-23):** under Art. 234 of the Obligations and
+Contracts Act (ZZD), the default cuts **two different ways depending on
+scope**, and the original wording here overstated the permissive side:
+a tenant **may sublet *part* of the leased property by default without
+the landlord's consent**, but **subletting the *entire* property is NOT
+permitted by default and requires the head landlord's consent** - the
+opposite of what was previously claimed. The original tenant (the R2R
+investor) remains personally liable to the head landlord regardless of
+the subletting arrangement either way.
+
+Practical effect for R2R: a **room-by-room/co-living sublet** (the model
+this section describes above) falls under the permissive "sublet a
+part" default and needs no special consent beyond an ordinary lease that
+doesn't forbid it. A **whole-unit R2R deal** (head-leasing an entire
+flat and re-letting it as a single unit to one sub-tenant - also a
+common R2R structure, just not the one described above) falls under the
+*restrictive* default and needs the head landlord's explicit consent -
+it is **not** "structurally legal without any special licensing" the
+way the room-by-room model is. Whoever implements this should surface
+this distinction as an input (is the sublet whole-property or
+part-property?) rather than treating R2R as uniformly licence-free.
+Ordinary residential subletting (either form) is not itself commercially
+regulated the way short-term/tourist accommodation is (contrast with
+R2SA, section 8's note). Source: [Bulgarian law of obligations - lease of immovable property](https://www.bulgaria-law-of-obligations.bg/rent-movable-immovable-property.html), summarized further at [Innovires - Rental Agreement Bulgaria 2026](https://www.innovires.com/en/blog/rental-agreement-bulgaria.html).
 
 **Inputs:** head-lease monthly rent (paid to owner), any deposit/
 guarantee paid to owner, setup/refurb cost (furnishing, safety
