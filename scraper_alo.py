@@ -498,6 +498,21 @@ def save_history(history):
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# Fields fetch_update_dates() (run separately via backfill_detail_alo.py -
+# main() never calls it inline, see fetch_listings()'s own comment) adds
+# on top of what the grid crawl (fetch_listings_page()) itself produces -
+# never present on a fresh grid-only record. update_history() below must
+# merge these in from the previous "latest" rather than let a fresh grid
+# re-touch wipe them off an already-detail-checked, still-active listing
+# every ~6 hours - docs/backlog.md item 9a. Same field list
+# merge_history_conflict.py's own module docstring already names for this
+# exact gap.
+_DETAIL_ONLY_FIELDS = (
+    "description", "photos", "site_updated_at", "lat", "lng",
+    "_detail_fetched", "_photos_checked",
+)
+
+
 def update_history(history, listings):
     now = datetime.now(timezone.utc).isoformat()
     for l in listings:
@@ -505,7 +520,13 @@ def update_history(history, listings):
         if lid not in history:
             history[lid] = {"first_seen": now, "snapshots": []}
         history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
+        prev_latest = history[lid].get("latest") or {}
+        merged = dict(l)
+        for field in _DETAIL_ONLY_FIELDS:
+            prev_value = prev_latest.get(field)
+            if merged.get(field) in (None, "", []) and prev_value not in (None, "", []):
+                merged[field] = prev_value
+        history[lid]["latest"] = merged
     return history
 
 

@@ -326,6 +326,18 @@ def save_history(history):
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# Fields backfill_detail_bazar.py's own detail-page pass adds on top of
+# what the grid crawl (fetch_listings_page()) itself produces:
+# "description"/"photos"/"coords_checked" are never set by the grid at
+# all; "lat"/"lng" ARE present on a fresh grid record but only ever as the
+# None placeholder fetch_listings_page() sets them to - real coordinates
+# only ever come from that separate detail pass. update_history() below
+# must merge these in from the previous "latest" rather than let a fresh
+# grid re-touch wipe them off an already-detail-checked, still-active
+# listing every ~6 hours - docs/backlog.md item 9a.
+_DETAIL_ONLY_FIELDS = ("description", "photos", "coords_checked", "lat", "lng")
+
+
 def update_history(history, listings):
     now = datetime.now(timezone.utc).isoformat()
     for l in listings:
@@ -333,7 +345,13 @@ def update_history(history, listings):
         if lid not in history:
             history[lid] = {"first_seen": now, "snapshots": []}
         history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
+        prev_latest = history[lid].get("latest") or {}
+        merged = dict(l)
+        for field in _DETAIL_ONLY_FIELDS:
+            prev_value = prev_latest.get(field)
+            if merged.get(field) in (None, "", []) and prev_value not in (None, "", []):
+                merged[field] = prev_value
+        history[lid]["latest"] = merged
     return history
 
 
