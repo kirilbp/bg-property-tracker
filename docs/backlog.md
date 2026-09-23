@@ -1203,11 +1203,12 @@ MISSY'S REVIEW.** Built a real off-canvas nav pattern in `index.html`: a
 small hamburger toggle (`#sidebarToggle`, brass/ink palette, no new blue,
 no icon library - three plain CSS bars, consistent with the rest of the
 site not using a stock icon set) appears only at `max-width: 768px`
-(chosen as the midpoint of this file's two existing two-column-to-single-
-column stacking breakpoints, 700px for `.btl-grid` and 800px for
-`.detail-grid` - there was no single pre-existing "mobile nav" breakpoint
-to match exactly, so 768px was picked as the closest fit to established
-convention plus the industry-standard mobile/tablet split). Below that
+(close to, though not the exact midpoint of, this file's two existing
+two-column-to-single-column stacking breakpoints - 700px for `.btl-grid`
+and 800px for `.detail-grid`, whose true midpoint is 750px - there was no
+single pre-existing "mobile nav" breakpoint to match exactly, so 768px was
+picked as the de facto industry-standard mobile/tablet split instead).
+Below that
 width the sidebar (`#appSidebar`) becomes `position: fixed`, off-screen
 via `transform: translateX(-100%)`, and slides in as a 220px overlay
 above a dimmed backdrop (`#sidebarBackdrop`) when toggled; the main

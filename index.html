@@ -90,10 +90,12 @@
 
   /* Mobile off-canvas nav (backlog: sidebar doesn't collapse at mobile
      widths, flagged by the PR #233 investigation). Below the 768px
-     breakpoint - the midpoint of this file's existing two-column-to-
-     single-column stacking breakpoints (700px for .btl-grid, 800px for
-     .detail-grid), chosen since there's no single pre-existing "mobile nav"
-     breakpoint to match exactly - the sidebar becomes a fixed off-canvas
+     breakpoint - close to (though not the exact midpoint of) this file's
+     existing two-column-to-single-column stacking breakpoints (700px for
+     .btl-grid, 800px for .detail-grid; their true midpoint is 750px),
+     picked instead as the de facto industry-standard mobile/tablet split
+     since there's no single pre-existing "mobile nav" breakpoint to match
+     exactly - the sidebar becomes a fixed off-canvas
      panel toggled by .sidebar-toggle instead of permanently occupying
      ~220px of a ~390px viewport. Hidden entirely above 768px so desktop
      stays visually identical (sidebar always visible, no toggle shown). */
