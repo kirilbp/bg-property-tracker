@@ -63,9 +63,12 @@ backfill_detail_alo.py (a separate, resumable, prioritized-by-newest-first
 job) visits listing pages over time to fill in site_updated_at/lat,lng/
 description via fetch_update_dates() (kept here, now unused by the main
 scrape path but still imported and reused by the backfill script).
-description is extracted via geo_utils.extract_description_alo(), which
-strips a fixed boilerplate prefix (contact instructions/reference number/
-broker name) that precedes the real text on agency-posted listings.
+description is extracted via geo_utils.extract_description_alo() - as of
+backlog #9 (2026-09-23) this deliberately always returns None rather than
+`.obqva-block` text, which turned out to be a title echo, not a real
+free-text description; see the NOTE above that function in geo_utils.py
+for the full investigation and why finding the real selector is deferred
+pending live alo.bg access.
 """
 
 import re

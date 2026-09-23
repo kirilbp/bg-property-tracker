@@ -281,6 +281,22 @@
   .detail-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
   .detail-tab-content { display: none; padding-top: 20px; }
   .detail-tab-content.active { display: block; }
+  /* Item 7 (docs/backlog.md): the price-history chart is now pinned into
+     the main flow (always visible, no tab click required) and sits beside
+     the shrunk radius/comparables map rather than each being a separate
+     full-width stacked block. .detail-history-row uses auto-fit rather
+     than a fixed viewport media query because the actual available width
+     here depends on the OUTER .detail-grid's own breakpoint too (photo
+     column vs info column) - auto-fit collapses to one column whenever
+     the real space is tight, at any nesting depth, instead of guessing a
+     single viewport width that works for every case. */
+  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; align-items: start; margin: 0 0 20px; }
+  .detail-history-row .radius-panel { margin: 0; }
+  .price-history-panel {
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .price-history-panel .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 10px; }
   .price-history-chart-wrap { height: 240px; margin-top: 12px; }
   .price-history-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 0 0; }
   .price-history-legend span { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--taupe); display: inline-flex; align-items: center; gap: 6px; }
@@ -397,7 +413,11 @@
   .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
   .radius-result .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 2px; }
   .radius-result .value { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
-  .radius-map { height: 260px; border-radius: 4px; margin-top: 10px; z-index: 0; }
+  /* Shrunk from 260px (docs/backlog.md item 7) now that the map sits in a
+     half-width column next to the pinned price chart rather than a
+     full-width block on its own - still tall enough to read the radius
+     circle and comparable pins at a glance. */
+  .radius-map { height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
 
   /* Lead generators gallery */
@@ -5746,13 +5766,15 @@ function renderPriceHistoryChart(priceHistory, statusInfo) {
   });
 }
 
-function switchDetailTab(tab, chartPriceHistory, statusInfo, l) {
+// Item 7 (docs/backlog.md): the price-history chart is pinned outside the
+// tab system now (always visible, rendered once per renderListingDetail()
+// call below - see the unconditional renderPriceHistoryChart() call near
+// the bottom of that function), so it no longer needs a case here.
+function switchDetailTab(tab, l) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
-  if (tab === 'pricehistory') {
-    renderPriceHistoryChart(chartPriceHistory, statusInfo);
-  } else if (tab === 'comparables' && l) {
+  if (tab === 'comparables' && l) {
     // A Leaflet map can't size itself correctly while its container is
     // display:none, so the Map sub-view (if selected) needs a fresh init
     // exactly when this tab - and therefore its container - becomes
@@ -6572,10 +6594,36 @@ function renderListingDetail(merged) {
           <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
-        ${renderRadiusPanel(l)}
+        <!-- Item 7 (docs/backlog.md): the price-history chart used to only
+             render inside the "Price History" tab (gated behind a click) -
+             it's now pinned here, always visible, side by side with the
+             (shrunk) radius/comparables map instead of each being a
+             separate full-width stacked block. The other tabs below stay
+             click-gated; only the graph itself needed to come out. -->
+        <div class="detail-history-row">
+          ${renderRadiusPanel(l)}
+          <div class="price-history-panel">
+            <p class="label">Price history${priceDropCount > 0 ? ` · ${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'}` : ''}</p>
+            <div class="detail-stats" style="margin-top:0;">
+              <div class="detail-stat"><p class="label">Price reductions</p><p class="value">${priceDropCount}</p></div>
+              <div class="detail-stat"><p class="label">First tracked price</p><p class="value">€${fmt(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
+              <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
+            </div>
+            <div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>
+            <div class="price-history-legend">
+              <span><span class="swatch" style="background:${PRICE_HISTORY_STABLE_COLOR};"></span>Price</span>
+              <span><span class="swatch" style="background:${PRICE_HISTORY_DROP_COLOR};"></span>Price drop</span>
+              ${relistEvents.length > 0 ? `<span><span class="swatch" style="background:${PRICE_HISTORY_RELIST_COLOR};"></span>Relisted</span>` : ''}
+              ${l.source_status === 'removed' && l.removed_at ? `<span><span class="swatch" style="background:${PRICE_HISTORY_BAND_COLOR.replace('0.055', '0.5')};"></span>No longer listed on ${escapeHtml(l.portal)}</span>` : ''}
+            </div>
+            ${priceHistory.length <= 1
+              ? `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing. The dot above is the current price; this chart will fill in as changes are observed.</p>`
+              : ''}
+            ${relistEventsHtml}
+          </div>
+        </div>
         <div class="detail-tabs">
           <button class="detail-tab-btn${detailActiveTab === 'details' ? ' active' : ''}" data-tab="details">Details</button>
-          <button class="detail-tab-btn${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab="pricehistory">Price History${priceDropCount > 0 ? ` (${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'})` : ''}</button>
           <button class="detail-tab-btn${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab="comparables">Comparables</button>
           <button class="detail-tab-btn${detailActiveTab === 'areadata' ? ' active' : ''}" data-tab="areadata">Area Data</button>
           <button class="detail-tab-btn${detailActiveTab === 'btl' ? ' active' : ''}" data-tab="btl">BTL Stress Test</button>
@@ -6590,24 +6638,6 @@ function renderListingDetail(merged) {
             <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
           </div>
           ${renderKeywordsPanel(merged, l)}
-        </div>
-        <div class="detail-tab-content${detailActiveTab === 'pricehistory' ? ' active' : ''}" data-tab-content="pricehistory">
-          <div class="detail-stats" style="margin-top:0;">
-            <div class="detail-stat"><p class="label">Price reductions</p><p class="value">${priceDropCount}</p></div>
-            <div class="detail-stat"><p class="label">First tracked price</p><p class="value">€${fmt(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
-            <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
-          </div>
-          <div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>
-          <div class="price-history-legend">
-            <span><span class="swatch" style="background:${PRICE_HISTORY_STABLE_COLOR};"></span>Price</span>
-            <span><span class="swatch" style="background:${PRICE_HISTORY_DROP_COLOR};"></span>Price drop</span>
-            ${relistEvents.length > 0 ? `<span><span class="swatch" style="background:${PRICE_HISTORY_RELIST_COLOR};"></span>Relisted</span>` : ''}
-            ${l.source_status === 'removed' && l.removed_at ? `<span><span class="swatch" style="background:${PRICE_HISTORY_BAND_COLOR.replace('0.055', '0.5')};"></span>No longer listed on ${escapeHtml(l.portal)}</span>` : ''}
-          </div>
-          ${priceHistory.length <= 1
-            ? `<p class="price-history-empty">No price changes recorded yet — the price has stayed the same since we started tracking this listing. The dot above is the current price; this chart will fill in as changes are observed.</p>`
-            : ''}
-          ${relistEventsHtml}
         </div>
         <div class="detail-tab-content${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab-content="comparables">
           ${renderComparablesTabHtml(l)}
@@ -6642,7 +6672,7 @@ function renderListingDetail(merged) {
   const statusInfo = { removedAt: l.removed_at, isRemoved: l.source_status === 'removed' };
 
   document.getElementById('listingDetailBody').querySelectorAll('.detail-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, chartPriceHistory, statusInfo, l));
+    btn.addEventListener('click', () => switchDetailTab(btn.dataset.tab, l));
   });
 
   const detailCompViewToggle = document.getElementById('detailCompViewToggle');
@@ -6700,12 +6730,12 @@ function renderListingDetail(merged) {
   if (prevBtn && pos && pos.prevId) prevBtn.addEventListener('click', () => showListingDetail(pos.prevId));
   if (nextBtn && pos && pos.nextId) nextBtn.addEventListener('click', () => showListingDetail(pos.nextId));
 
-  if (detailActiveTab === 'pricehistory') {
-    renderPriceHistoryChart(chartPriceHistory, statusInfo);
-  } else if (detailChart) {
-    detailChart.destroy();
-    detailChart = null;
-  }
+  // Item 7 (docs/backlog.md): pinned into the main flow now, so it renders
+  // on every detail-page render rather than only while a "Price History"
+  // tab happened to be active - renderPriceHistoryChart() already
+  // destroys any previous Chart.js instance itself (see its own top line),
+  // so calling it unconditionally here is safe on re-renders too.
+  renderPriceHistoryChart(chartPriceHistory, statusInfo);
 
   // Card/table views (and the map, only if that tab+sub-view is actually
   // active/visible - see refreshDetailComparablesViews()'s own comment)
