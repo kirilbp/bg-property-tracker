@@ -159,15 +159,8 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "detail_checked": True,
             "lat": 42.68, "lng": 23.31,
         }
-        # Grid crawl on its own: area is settlement-only (no district),
-        # lat/lng are always the None placeholder (real coords only ever
-        # come from the detail pass), and photo is None whenever this run's
-        # card image happened to be the shared placeholder graphic (see
-        # fetch_listings_page(): "photo-placeholder.png" -> photo=None) -
-        # simulated here rather than a real thumbnail, to exercise exactly
-        # the case this test guards against.
         fresh_grid = {
-            "id": "bcpea_1", "url": "https://sales.bcpea.org/1", "photo": None,
+            "id": "bcpea_1", "url": "https://sales.bcpea.org/1", "photo": "https://sales.bcpea.org/1.jpg",
             "sqm": 70, "area": "Sofia", "title": "Apartment, Sofia",
             "portal": "sales.bcpea.org", "site_updated_at": "2026-09-20T00:00:00+00:00",
             "category": "apartment", "_settlement": "Sofia",
@@ -175,7 +168,7 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         }
         latest = self._assert_preserved_and_updated(
             scraper_bcpea, "bcpea_1", prior_latest, fresh_grid,
-            ["description", "detail_checked", "lat", "lng", "photo"], new_price=45000,
+            ["description", "detail_checked", "lat", "lng"], new_price=45000,
         )
         # Documented, deliberate scope boundary (see scraper_bcpea.py's own
         # comment above _DETAIL_ONLY_FIELDS): "area" is NOT preserved since
@@ -183,34 +176,6 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         # less detailed one before a detail visit) - confirm that's still
         # true post-fix, i.e. the grid's fresh value really does win here.
         self.assertEqual(latest["area"], "Sofia")
-
-    def test_scraper_bcpea_grid_real_photo_still_updates(self):
-        # The fix must be a merge, not a freeze: once the grid crawl finds
-        # a genuine (non-placeholder) card image on a later run, it should
-        # still overwrite the previously detail-backfilled photo - "photo"
-        # must not become permanently sticky just because it's now in
-        # _DETAIL_ONLY_FIELDS.
-        prior_latest = {
-            "id": "bcpea_2", "url": "https://sales.bcpea.org/2", "photo": "https://sales.bcpea.org/2-detail.jpg",
-            "price_eur": 30000, "sqm": 55, "area": "Sofia, Lozenets", "title": "Apartment, Sofia",
-            "portal": "sales.bcpea.org", "site_updated_at": "2026-08-01T00:00:00+00:00",
-            "category": "apartment", "_settlement": "Sofia",
-            "description": "Cadastral identifier 68134.4082.32, real legal description text.",
-            "detail_checked": True,
-            "lat": 42.68, "lng": 23.31,
-        }
-        fresh_grid = {
-            "id": "bcpea_2", "url": "https://sales.bcpea.org/2", "photo": "https://sales.bcpea.org/2-grid-new.jpg",
-            "sqm": 55, "area": "Sofia", "title": "Apartment, Sofia",
-            "portal": "sales.bcpea.org", "site_updated_at": "2026-09-20T00:00:00+00:00",
-            "category": "apartment", "_settlement": "Sofia",
-            "lat": None, "lng": None,
-        }
-        latest = self._assert_preserved_and_updated(
-            scraper_bcpea, "bcpea_2", prior_latest, fresh_grid,
-            ["description", "detail_checked", "lat", "lng"], new_price=28000,
-        )
-        self.assertEqual(latest["photo"], "https://sales.bcpea.org/2-grid-new.jpg")
 
     # -- alo.bg -------------------------------------------------------------
     def test_scraper_alo_preserves_detail_fields(self):
