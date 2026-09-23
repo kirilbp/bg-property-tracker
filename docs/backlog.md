@@ -1858,7 +1858,7 @@ pipeline underneath was fine throughout (alo.bg's history grew from
 87,979 to 90,159 listings with zero data loss); only the Supabase sync
 step was broken.
 
-## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - not yet investigated
+## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - ROOT CAUSE FOUND (2026-09-23), fix not yet applied
 
 Found by Dessy while testing backlog item 17's price/status history chart,
 confirmed and reproduced independently by Missy during PR #200's review -
@@ -1888,6 +1888,36 @@ should check the real live page first before assuming either explanation.
 Likely a `scraper_homes.py` bug given the pattern (a clean, repeated
 2-value flip looks more like "reading the wrong DOM element on
 alternating scrapes" than a real site behavior), but not confirmed.
+
+**UPDATE 2026-09-23 (Scrapy) - root cause confirmed, it's (a) not (b).**
+`scraper_homes.py`'s `parse_offer()` builds the tracking ID as
+`"homes_" + str(offer["id"])`, dropping the two-letter type prefix
+(`hs`/`as`/`lp`/`la`) that homes.bg's own URL scheme uses to scope its
+numeric IDs - those IDs are only unique **within** a type, not globally.
+Two entirely unrelated listings of different types (e.g. an `hs` house
+and an `lp` land parcel) can share the same numeric ID and collapse onto
+one tracking key, silently overwriting each other's **entire record**
+(not just price) on alternating scrape runs whenever the scraper happens
+to see one type's listing then the other's under the same collapsed ID.
+
+Confirmed directly via git history for `homes_208381`: commits
+`4102c12`/`cf815b1` -> `1a2bbef` show a real flip between a Varna land
+parcel and the Plovdiv house described above - not a price-only glitch,
+the whole record (title, location, sqm) flips too. A full-dataset scan
+found 2 more confirmed cases with the same signature: `homes_209031`,
+`homes_205536`. Broader currently-invisible collisions across the 4 type
+sequences (`hs`/`as`/`lp`/`la`) were flagged as a risk but not fully
+audited - only these 3 have been directly confirmed.
+
+**Fix recommended (not yet applied):** incorporate the type prefix into
+`parse_offer()`'s tracking ID (e.g. `"homes_" + offer["type_prefix"] +
+str(offer["id"])`) so IDs are scoped the same way homes.bg itself scopes
+them. This is a go-forward fix only - it does **not** repair the already-
+corrupted history for `homes_208381`/`homes_209031`/`homes_205536` (and
+any undetected others), which will need a separate one-time backfill/
+split pass to separate the interleaved records back into two distinct
+listings per collided ID, once the new ID scheme exists to split them
+under.
 
 ---
 
