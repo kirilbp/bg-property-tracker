@@ -3410,6 +3410,130 @@ this role's standing "nothing ships without Missy" rule.
 ---
 ---
 
+## 33. Full-population location-allocation audit (user directive: "check extremely carefully every listing's allocation") - two real root causes found and fixed, remaining gaps quantified and disclosed - PENDING MISSY REVIEW (2026-09-23, Placy)
+
+Direct user mandate for an exhaustive, not sampled, re-verification of
+location allocation across the whole dataset, building on items 27-29's
+already-shipped fixes and the disclosed-but-unfixed coordinate-coverage
+gap. Full methodology, every number, and the two independent verification
+scripts used are in `docs/decisions.md`'s matching 2026-09-23 entry -
+summary:
+
+**Method 1 (full population of what's deterministically checkable):**
+every active listing with real lat/lng (68,948 of 225,381 active listings,
+30.4% - exact per-portal breakdown in decisions.md) had its coordinate-
+derived oblast (`oblast_key_from_latlng()`) cross-checked against its
+stored city/area text. Found 4,972 raw disagreements; root-caused every
+cluster, not just counted them:
+- **690 active + 15 removed imoti.net listings (fixed):** a fresh
+  recurrence of the already-known, still-not-root-cause-fixed
+  `extract_coords_imoti_net()` bug (item 28 sub-item 1) - one shared,
+  geographically-impossible central-Sofia coordinate appeared on hundreds
+  of listings whose own city field names Plovdiv/Haskovo/Varna/
+  Pazardzhik/etc. Same scoped remediation as item 27's original 654-record
+  correction: nulled the coordinate, left city/area text untouched.
+  **The extractor's own root cause remains unfixed** - live network access
+  to imoti.net is still blocked from this sandbox (reconfirmed via curl
+  and WebFetch) - so this WILL keep recurring on every future scrape until
+  someone with live access can inspect the real page HTML.
+- **~4,265 remaining "mismatches" (not bugs, verified):** every top
+  cluster, across all 8 portals, matches the already-documented "generic
+  neighborhood name coincides with a distant municipality seat" false-
+  positive class (Тракия, Виница, Бояна, Дружба, Галата, Пчелина, Борово,
+  Хаджи Димитър, Боровец, etc. - see items 20/24/29). The real pipeline
+  (`listing_oblast_key()`) already trusts the coordinate over this text,
+  so these are confirmed NOT live errors - spot-checked exhaustively, not
+  assumed.
+
+**Method 2 (a NEW bug this exhaustive pass surfaced, not from Method 1's
+own list):** while root-causing the coordinate-vs-text disagreements, also
+checked every case where a listing's `city` field and its own title text
+resolve to DIFFERENT city_keys nationwide (32 active listings hit this
+cross-oblast). Found `listing_city_key()`'s "title overrides field on
+disagreement" rule (added for one real 2026-09-23-earlier case) was too
+permissive: 31 of 32 came from the loose "city name anywhere in the title"
+fallback matching text that wasn't the listing's own location at all - a
+real estate agency literally named "Varna North Properties" managing units
+in genuinely-Dobrich-oblast coastal towns (Балчик/Каварна/Топола) made
+every one of its own listings' titles contain "Varna," wrongly overriding
+a correct `city="Добрич"` field (alo.bg's own titles are scraped as
+"<Agency Name> преди N дни <real ad title>" - confirmed on 56,882/77,769
+active alo.bg titles). Same shape independently confirmed on olx.bg (12
+cases) and bazar.bg (3 of 4). **Fixed** in `geo_utils.py`: narrowed the
+override to only the structured "<description>, <City>" comma-segment
+signal (the one case, out of 32, the rule was actually designed for -
+verified via web search: a bazar.bg listing genuinely at k.k. Kamchia,
+Varna oblast, wrongly field-tagged "Габрово"). **Verified real production
+impact**: 14 active listings (8 alo.bg, 3 olx.bg, 3 bazar.bg) had no
+coordinates to be rescued by geo and were resolving to a confidently WRONG
+oblast today - now correct. Unresolved-to-oblast count unaffected (1,318
+before/after - the fix corrects wrong-to-right, creates no new gaps).
+
+**Method 3 (internal-consistency check for the 156,271 active listings
+with no coordinates - mandate item 2):** 148,424 resolve to some oblast
+via the current pipeline, 7,847 remain genuinely unresolved (pre-existing,
+item-4-class gap, unaffected here). Of the resolved ones, 8,386 would look
+"internally inconsistent" if area text were trusted equally to city text -
+but the pipeline already trusts city first (confirmed correct design), so
+these are NOT live errors either, same false-positive class as Method 1.
+
+**Honestly disclosed remaining gap, not fixed (needs individual
+verification, not a blanket rule - same discipline as items 24/29's own
+conclusion):** 14,212 active, no-coordinate listings have NO usable
+city_key at all (missing/unresolvable city field AND the structured
+title-comma method also fails) and resolve PURELY from area-text via the
+settlement/municipality gazetteer, with no city cross-check to catch a
+generic-name collision. At least 83 of these match an ALREADY-KNOWN
+collision-prone name (necessarily an undercount - only names already
+identified via this session's and prior sessions' spot-checks were
+tested). Also flagged a structural limitation in the automated ambiguous-
+name exclusion itself: it can only catch a name that's a real EKATTE
+settlement in more than one oblast - it CANNOT catch a name that's a real
+settlement in exactly one oblast but is ALSO commonly reused as an
+informal neighborhood name elsewhere (since the reused name never
+registers as its own EKATTE settlement to trigger the "spans >1 oblast"
+check). This is why generic quarter names keep surfacing even after the
+automated exclusion work already shipped.
+
+**Also noted, explicitly out of this item's scope (location ALLOCATION,
+not location PRECISION):** across homes.bg (90.3%), imot.bg (71.9%), and
+alo.bg (64.5%) specifically, a large majority of "has coordinates"
+listings share an EXACT duplicate coordinate with 50+ other listings.
+For homes.bg/imot.bg this matches the already-documented, intentional
+Nominatim neighborhood-level-geocoding-with-caching design (`geo_utils.py`'s
+own docstring) - not a bug. For alo.bg (documented as needing no
+geocoding at all - real per-listing HTML-embedded coordinates) this is
+more likely large agencies reusing one generic resort/complex pin across
+many real units they manage (e.g. 1,703 Slanchev Bryag listings sharing
+one exact coordinate to 7 decimal places) than a scraper bug - the
+extraction regex is correctly scoped to a real per-listing map link, and
+the oblast/area this pin resolves to is still correct either way (Sunny
+Beach is unambiguously Burgas oblast). Doesn't affect oblast/area
+allocation correctness (this item's actual mandate), but is a genuine
+per-unit GPS-precision caveat relevant to radius-search accuracy (already
+partially covered by item 29's coordinate-coverage disclosure) - flagged
+for whoever owns that feature, not chased further here.
+
+**Verification**: both fixes independently verified via two different
+reconstruction methods (a hand-rebuilt "old vs new" comparison caught and
+then corrected its OWN bug - an incomplete reconstruction of
+`listing_oblast_key()`'s real fallback chain that initially produced a
+wildly wrong 6,773-record delta - before being replaced with a comparison
+that calls the actual unmodified `sb.listing_oblast_key()` both times,
+varying only the one input under test). `python3 -m pytest tests/` - 50
+passed, 4 subtests passed, no regressions. `data/leads.json`/
+`data/history.json` diffs confirmed byte-for-byte identical except the
+intended `lat`/`lng` lines (`git diff | grep -v '"lat"\|"lng"'` returns
+0 lines for both files).
+
+**Not shipped by this session** - built in an isolated worktree
+(`placy/full-audit-2026-09-23`, rebased clean onto the latest `origin/main`
+mid-session with no conflicts), handed back for Missy's review per
+standing process, not self-merged.
+
+---
+---
+
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
 
 Flagged by Nosy as genuinely open, not confirmed either way. Each blocks

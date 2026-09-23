@@ -3325,3 +3325,275 @@ All four were logged here after the fact rather than at merge time
 because of the pace of tonight's parallel work - flagging that gap
 itself so it doesn't recur: going forward, whoever merges a PR should
 add its decisions.md entry in the same turn, not defer it.
+
+### 2026-09-23 - Placy: full-population location-allocation audit (backlog item 33) - direct user mandate for exhaustive, not sampled, re-verification
+
+**Why this pass, and what's different from items 27-29:** direct
+instruction to "improve the work as well and check extremely carefully
+every listing's allocation," explicitly citing this role's own prior
+mistakes ("Placy has made a lot of mistakes and she is not careful") and
+asking for the closest-to-exhaustive check the codebase actually supports,
+not another spot-check. Built in an isolated worktree
+(`placy/full-audit-2026-09-23`, off `origin/main`), checked `git status`/
+`git log` before starting and again mid-session when `origin/main`
+advanced by 9 commits (rebased clean, no conflicts - the advancing commits
+only touched `index.html`/docs, nothing this session edited).
+
+**Denominator, quantified honestly (mandate's own explicit ask):** 225,381
+active listings across all 8 portals. 68,948 (30.6%) have real lat/lng and
+resolve to a real oblast via `oblast_key_from_latlng()` (before this
+session's own coordinate remediation below; 68,420/30.4% after - the drop
+is this session correctly EXCLUDING newly-confirmed-corrupted coordinates
+from the "real coordinates" count, not new missingness). Per-portal
+coordinate coverage (active, post-remediation): imoti.net 13.0% (was
+16.0% - see below), alo.bg 34.2%, homes.bg 36.4%, imot.bg 43.1%, olx.bg
+36.3%, bazar.bg 1.6%, imoti.bg 55.3%, sales.bcpea.org 78.5%.
+
+**Method 1 - full population of every listing with coordinates, cross-
+checked against text:** for all 68,948 geo-resolved active listings,
+computed both a city-derived oblast (via `listing_city_key()` ->
+`CITY_KEY_TO_OBLAST`) and an area-derived oblast (via
+`oblast_key_from_name`/`_prefix`/`oblast_key_from_municipality`/
+`cyr_oblast_key_from_text` on the raw `area` field) and compared each
+against `oblast_key_from_latlng()`. Found 4,972 raw disagreements. Root-
+caused every cluster rather than reporting a raw count:
+
+1. **690 active + 15 removed imoti.net listings - a real, currently-live
+   bug, fixed via scoped data remediation.** Grouped the disagreements by
+   rounded coordinate and found the exact same fingerprint item 27 already
+   diagnosed for this portal (`extract_coords_imoti_net()`'s unscoped
+   first-match `"latitude"/"longitude"` regex): 719 listings (out of 3,703
+   imoti.net active listings with any coordinate at all) sit at
+   essentially one shared coordinate (~42.696-42.701N, 23.321-23.326E -
+   central Sofia), and their own `city` field names Пловдив (360),
+   Хасково (90), Варна (65), Бургас (52), Пазарджик (45), Перник (29),
+   Стара Загора (17), Враца (13) - geographically impossible for a single
+   real coordinate. This is a **fresh recurrence since item 27's one-time
+   654-record correction**, not the same already-fixed records - item 28
+   sub-item 1 explicitly flagged that the extractor's own root cause was
+   never fixed (needs live HTML access to imoti.net, blocked from this
+   sandbox), so every scrape/refresh since then has kept re-corrupting new
+   records the same way. Re-confirmed the block is still real this session
+   (`curl` -> `CONNECT tunnel failed, response 403`; `WebFetch` ->
+   `EGRESS_BLOCKED`), so the extractor itself remains unfixed and this
+   WILL recur again. Applied the identical scoped remediation as item 27
+   (only where `city` is an EXACT match to one of the 30 hand-verified
+   `BG_CITIES` AND the coordinate's real oblast disagrees - no title-text
+   ambiguity risk): nulled `lat`/`lng` for 705 total records (690 active +
+   15 removed, across both `data/leads.json` and `data/history.json`'s
+   `latest` sub-objects, matching item 27's own dual-file pattern) and
+   left `city`/`area` untouched so the existing text fallback resolves
+   these listings correctly going forward. Re-verified 0 remaining strict
+   mismatches for imoti.net afterward. Confirmed the diff touches only
+   `lat`/`lng` lines (`git diff data/leads.json | grep -v '"lat"\|"lng"'`
+   returns nothing for either file).
+
+2. **~4,265 remaining disagreements - verified NOT bugs, not just assumed
+   away.** Spot-checked the largest cluster in every one of the 8 portals'
+   own disagreement lists (homes.bg's own top cluster alone was жк.
+   Тракия -> stara_zagora, 1,075 records) and every single one matches the
+   already-documented "generic neighborhood name coincides with a distant
+   municipality seat" false-positive class from items 20/24/29 - Тракия
+   (Plovdiv/Shumen's own common district name, unrelated to Stara
+   Zagora's own Тракия municipality), Виница/Бояна/Борово/Хаджи
+   Димитър/Симеоново/Княжево/Гоце Делчев (real Varna/Sofia neighborhoods),
+   Галата (real Varna district), Пчелина (the exact case already
+   documented in `geo_utils.py`'s own module docstring), Дружба (a generic
+   Soviet-era name reused nationwide), Боровец (a real Sofia Province
+   resort town loosely tagged `city="София"` by several portals - already
+   individually excluded in item 27 for exactly this reason, re-confirmed
+   here with 6 more examples: Божурище/Горна Малина/Драгоман, all real
+   Sofia Province towns near the capital). In every one of these, the real
+   pipeline (`listing_oblast_key()`) already resolves correctly via the
+   coordinate (which wins unconditionally over city/area text) - so
+   despite superficially "disagreeing," these are confirmed NOT live
+   errors, consistent with (and now verified at full population scale
+   against) items 24/29's own prior conclusion not to blanket-fix this
+   class.
+
+**Method 2 - a genuinely new bug this pass found, via the same
+methodology applied one level up (city field vs. title text, not city vs.
+coordinate):** while building Method 1's checks, also computed
+`listing_city_key()`'s two internal signals (the raw `city` field vs. a
+fresh title-only resolution) separately for every active listing
+nationwide and compared them. Found 32 active listings nationwide where
+both resolve and land in DIFFERENT oblasts - small in absolute count, but
+investigating why revealed a real, previously-undocumented design flaw:
+
+`listing_city_key()`'s "when field and title disagree, title wins" rule
+(added for one earlier real case - a stale/wrong field vs. a title
+structured `"<description>, <City>"` that correctly named a different real
+city in its own last comma segment) was being fed by BOTH that structured
+signal AND two much looser ones (`latin_city_key_from_text()`/
+`cyr_city_key_from_text()`, "does this Bulgarian/Latin city name appear
+ANYWHERE in the title text") with equal authority. Of the 32 disagreements,
+**31 came from the loose path, and every one was independently confirmed
+wrong**:
+- **alo.bg (16, including the 1 cross-checked live via the pattern's own
+  distinctive shape):** alo.bg's own scraper concatenates
+  `"<Agency Name> преди N дни <real ad title>"` or
+  `"<Agency Name> днешна обява <real ad title>"` onto every title -
+  confirmed this exact shape on 56,882 of 77,769 (73.2%) active alo.bg
+  titles, confirmed to occur with the match always in the first 0-66
+  characters (a genuine leading prefix, never scattered). A real estate
+  agency literally named "Varna North Properties" (confirmed via its own
+  listing URLs, e.g. `alo.bg/tristaen-apartament-s-morska-panorama-
+  11361892`) manages real units in Балчик/Каварна/Топола/Стражица - all
+  real, unambiguous Добрич-oblast coastal towns, correctly tagged
+  `city="Добрич"` - but `latin_city_key_from_text()` matched "Varna" in
+  the agency's own business name before the real ad content ever appears,
+  wrongly overriding the correct field with `"varna"`. 7 of these 15
+  active listings have no coordinates to be rescued by geo, so were
+  resolving to the confidently WRONG `varna` oblast in production today.
+  A second, single-record case (`alo_11079542`, city="Благоевград") hit
+  the same shape via a different agency's title containing an unrelated
+  "гр. Пловдив" fragment.
+- **olx.bg (12):** same loose-match shape, different cause - a real
+  Sofia listing (city="София", genuine Sofia district "Хладилника",
+  independently confirmed correct via its own coordinates resolving to
+  `sofia_grad`) whose title text contains an unrelated "- гр. Пловдив -"
+  fragment (most likely a multi-branch agency's mistemplated ad, same
+  root shape as alo.bg's case); similar patterns for Перник/Русе/Ямбол
+  listings.
+- **bazar.bg (3 of 4):** same shape (`city="Димитровград"`, a real
+  Haskovo-oblast town, vs. an unrelated "гр. Стара Загора"/"гр. Пловдив"
+  title fragment) - flagged as the one cluster in this whole pass NOT
+  independently confirmable without live bazar.bg access: these 3 records'
+  own `area` field independently says "Хасково" too (agreeing with the
+  `city` field, not the title), so the fix's general policy (trust
+  structured fields over the loose title-text fallback) was applied
+  consistently, but unlike the alo.bg cases this wasn't cross-verified
+  against a live source page - flagged honestly as "policy-consistent,
+  not individually proven" rather than claimed as fully certain.
+- **The 1 exception (bazar.bg, `bazar_55868117`):** title "2-стаен
+  апартамент кк.Камчия, Варна" - a real Varna-oblast Black Sea resort
+  (к.к. Камчия), wrongly field-tagged `city="Габрово"` (an inland city
+  with no plausible connection). This came from the STRUCTURED
+  comma-segment method, not the loose fallback - exactly the shape the
+  original override rule was designed for, and correctly still resolves
+  to `varna` after the fix.
+
+**Fix**: split `_title_derived_city_key()` into a strict, structured
+comma-segment-only variant (`_title_derived_city_key_strict()`) and kept
+the full loose-fallback chain only for recovering a city when the field
+itself is missing - `listing_city_key()`'s override-on-disagreement logic
+now only trusts the strict signal. Verified this doesn't reintroduce the
+original bug it was meant to fix (still correctly flips the Камчия/Габрово
+case) while eliminating all 31 confirmed false positives. **Verified real
+production impact** (isolated via two independent methods - the first
+attempt had its own bug, caught before trusting it, see Verification
+below): 14 active listings had no coordinates to be rescued by geo and
+were resolving to a confidently WRONG oblast in production today - alo.bg
+`alo_8060157`/`8250788`/`11376813`/`7257619`/`9215141`/`8070643`/
+`10816326` (varna -> dobrich) and `alo_11079542` (plovdiv -> blagoevgrad);
+olx.bg `olx_a5GSo`/`a39Rl` (sofia_grad -> stara_zagora) and `olx_a5qUS`
+(sliven -> blagoevgrad); bazar.bg `bazar_54216606`/`55060374`/`55060530`
+(stara_zagora/plovdiv -> haskovo). All now correct. Unresolved-to-oblast
+count unaffected (1,318 before and after across the full active
+population) - confirms the fix only corrects wrong-to-right answers, never
+creates a new gap. Checked the parity JS copy in `index.html`
+(`listingCityKey()`) and confirmed it does NOT have this bug at all - it
+already prioritizes a precomputed `l.city_key` (server-computed by this
+same, now-fixed, Python function) first and has no disagreement-override
+logic of its own, just an additive fallback chain - so no `index.html`
+change was needed (also avoided touching it given tonight's heavy
+concurrent frontend activity there, per this repo's own shared-working-
+directory discipline).
+
+**Method 3 - internal-consistency check for the 156,271 active listings
+with NO coordinates (mandate item 2):** computed what the real,
+unmodified `listing_oblast_key()` (no geo available) resolves for every
+one of them. 148,424 (95.0%) resolve to some oblast; 7,847 (5.0%) remain
+genuinely unresolved - this matches the existing item-4-class gap, not a
+new finding, and is unaffected by this session's fixes. Of the 148,424
+resolved, 8,386 would look "internally inconsistent" under a naive
+city-vs-area text comparison (the same false-positive class as Method
+1's remaining ~4,265 - top offenders identical: Тракия/Виница/Бояна/
+Галата/Пчелина/Борово/etc., now confirmed at full no-coordinate-population
+scale too) - but since the real pipeline already trusts `city_key` over
+raw area text (confirmed correct design), these are NOT live errors.
+
+**Honestly disclosed remaining gap - NOT fixed, needs individual
+verification per this project's own "never guess a location" rule, same
+as items 24/29's own conclusion not to blanket-fix the false-positive
+class:** isolated the genuinely at-risk subset - 14,212 active, no-
+coordinate listings (homes.bg 5,890, alo.bg 4,849, olx.bg 3,229, bcpea
+202, imoti.bg 42) have NO usable `city_key` at all (missing/unresolvable
+`city` field AND the structured title-comma method also fails) and
+resolve PURELY from `area` text via `oblast_key_from_municipality()`/
+`BG_SETTLEMENT_TO_OBLAST` - with no city-level signal to catch a
+generic-name collision the way Method 1/3's false-positive pool is
+protected. Checked how many match an ALREADY-CONFIRMED collision-prone
+name from this session's own findings (Тракия/Виница/Бояна/Дружба/
+Галата/Пчелина/Борово/Хаджи Димитър/Елена/Княжево/Гоце Делчев/Симеоново/
+Аврен/Устрем/Байкал/Ново село/Църква/Съединение/Плиска/Малчика/Ливада/
+Бистрица): only 83 - necessarily an undercount, since this only tests
+names already identified via spot-checks, not an exhaustive census of
+every possible collision. Also identified a structural limitation in the
+automated ambiguous-name exclusion itself (`bg_settlements_to_oblast.json`'s
+own "spans >1 oblast" auto-exclusion, see item 4/25's own comments): it
+can only catch a name that is itself a real EKATTE settlement in more
+than one oblast - it structurally CANNOT catch a name that's a real
+settlement in exactly ONE oblast but is ALSO commonly reused as an
+informal neighborhood name elsewhere (Тракия/Дружба/etc. are informal
+district names, not separate EKATTE settlements, in most of the cities
+that reuse them) - explaining why this false-positive class keeps
+surfacing even after the automated exclusion work already shipped. Left
+unresolved rather than guessed, per standing policy; flagged as a
+candidate for a future individually-verified pass, not a ready-to-ship
+fix.
+
+**Also noted, explicitly out of this item's scope (location precision,
+not allocation - flagged for whoever owns radius-search accuracy, not
+chased further here):** across homes.bg (90.3% of its 24,362 coordinate-
+having active listings), imot.bg (71.9% of 7,589), and alo.bg (64.5% of
+26,621), a large majority of "has coordinates" listings share an EXACT
+duplicate coordinate (not just rounded) with 50+ other listings. For
+homes.bg/imot.bg this matches `geo_utils.py`'s own already-documented,
+intentional design (Nominatim geocoding at neighborhood precision, cached
+by query string, so every listing in the same neighborhood legitimately
+shares one point) - not a bug. For alo.bg (documented as needing no
+geocoding - real per-listing HTML-embedded coordinates) this is more
+likely large agencies reusing one generic resort/complex map pin across
+many real units (e.g. 1,703 Slanchev Bryag listings sharing one exact
+coordinate to 7 decimal places - `extract_coords_alo()`'s regex is
+correctly scoped to a real per-listing map-share link, not a first-match-
+anywhere bug like imoti.net's) than a scraper bug - "source data itself is
+imprecise," not "our bug," per the mandate's own requested distinction.
+Doesn't affect oblast/area allocation correctness (confirmed: Sunny Beach
+is unambiguously Burgas oblast either way), so out of this item's actual
+scope, but a genuine per-unit GPS-precision caveat worth flagging for
+radius-search accuracy specifically (already partially covered by item
+29's coordinate-coverage disclosure).
+
+**Verification, including a self-caught mistake worth documenting rather
+than hiding:** an early version of this session's own "before/after"
+comparison for the Method 2 fix hand-reconstructed the pre-fix
+`listing_oblast_key()` logic rather than calling the real function, missed
+that the real function ALSO falls back to scanning the title's own last
+comma segment and a whole-text oblast-name search (`latin_oblast_key_
+from_text`/`cyr_oblast_key_from_text`) independent of `city_key` entirely
+- produced a wildly wrong "6,773 records changed, unresolved count 8,002
+-> 1,318" result. Caught this before reporting it by tracing one specific
+sample record by hand and finding the real function resolved it via a
+code path the reconstruction never replicated. Rewrote the comparison to
+call the actual, unmodified `sb.listing_oblast_key()` for both the old and
+new `city_key` inputs instead of reimplementing any part of it - the
+correct, trustworthy result (14 records, 1,318 unresolved both before and
+after) is what's reported above and is independently consistent with a
+separate, simpler direct scan for "no-coordinate + old/new city_key
+disagree" records. `python3 -m pytest tests/` - 50 passed, 4 subtests
+passed, no regressions. `data/leads.json`/`data/history.json` diffs
+confirmed to touch only `lat`/`lng` lines. Not verified: the actual
+rendered UI or a live Supabase sync run (same standing limitation as every
+prior session in this area - no live Supabase/browser session available
+in this sandbox); imoti.net/bazar.bg's own live pages (network access
+confirmed still blocked, see above).
+
+Built in an isolated worktree (`placy/full-audit-2026-09-23`, rebased
+clean onto `origin/main` after it advanced by 9 commits mid-session, no
+conflicts - the advancing commits only touched `index.html`/docs files
+this session never edited). Changes: `geo_utils.py` (code fix),
+`data/leads.json` + `data/history.json` (data remediation), this file and
+`docs/backlog.md` (item 33). Not self-merged - handed back for Missy's
+review per standing process.
