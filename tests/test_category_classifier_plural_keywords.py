@@ -297,5 +297,82 @@ class TitleBorrowingThirdFailureModeTest(unittest.TestCase):
         self.assertEqual(category, "land")
 
 
+class HouseProximityMarkerCoverageTest(unittest.TestCase):
+    """Missy's PR #264 FOURTH review (2026-09-23, BLOCKING): the previous
+    TitleBorrowingThirdFailureModeTest only ever exercised "от" (indirectly,
+    via the olx_9RCOH-style test above) and "до" -  the other 4 markers
+    actually present in _HOUSE_PROXIMITY_MARKER_RE ("близо до", "в близост
+    до", "граничещ...", "съседен/съседни/съседна") were never individually
+    tested, and one of them ("съседен", the uncontracted masculine singular
+    form) was silently broken by a movable-vowel gap: the old
+    "съседн\\w*" stem requires the literal substring "съседн" (д
+    immediately followed by н), which "съседен" (с-ъ-с-е-д-Е-н) does not
+    contain - only the contracted "съседна"/"съседни"/"съседно"/
+    "съседният" forms did. Fixed to "съседе?н\\w*". This class tests all
+    six markers individually, each via the same Part B mechanism (title
+    has a context-only plural "къщи"/"вили" mention with a proximity
+    marker and no land competitor of its own; description independently
+    demotes via its own land keyword appearing before the house mention),
+    so this class of per-marker gap can't slip through silently again."""
+
+    def test_marker_ot_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 1000м2 на 50 метра от къщи, ток и вода",
+            description="Поземлен имот 1000м2 на 50 метра от къщи, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_do_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 1200м2 до вили, ток и вода",
+            description="Поземлен имот 1200м2 до вили, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_blizo_do_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 900м2 близо до къщи, ток и вода",
+            description="Поземлен имот 900м2 близо до къщи, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_v_blizost_do_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 1100м2 в близост до вили, ток и вода",
+            description="Поземлен имот 1100м2 в близост до вили, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_granichesht_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 800м2, граничещ с къщи, ток и вода",
+            description="Поземлен имот 800м2, граничещ с къщи, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_sasedno_uncontracted_masculine_borrows_land_verdict(self):
+        # Missy's exact live reproduction (2026-09-23) - "съседен"
+        # (uncontracted masculine singular indefinite) is the specific
+        # morphological form the old "съседн\w*" stem missed. Holding
+        # everything else identical to the other marker tests above,
+        # swapping only the marker: this must resolve to "land" exactly
+        # like every other marker, not stay "house" via single_signal_only.
+        category, _, _ = classify_listing(
+            title="Имот 630м2 съседен на последните къщи",
+            description=(
+                "Поземлен имот 630м2 на 100 метра от последните вили, "
+                "до ток и вода."
+            ),
+        )
+        self.assertEqual(category, "land")
+
+    def test_marker_pokray_borrows_land_verdict(self):
+        category, _, _ = classify_listing(
+            title="Имот 950м2 покрай къщи, ток и вода",
+            description="Поземлен имот 950м2 покрай къщи, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
+
+
 if __name__ == "__main__":
     unittest.main()

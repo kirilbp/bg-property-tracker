@@ -12,7 +12,13 @@ Confirmed live: imotibg_515292 ("Търговско помещение, Репу
 commercial food-service space) was wrongly flipped flat->land purely
 because its description contains this boilerplate shape. Missy searched all
 6 non-bcpea portals for "поземлен имот с идентификатор" and found 15 total
-records: 12 genuinely land, 2 genuinely business, 1 (imotibg_515292) wrong.
+records: 11 genuinely land, 2 genuinely business, 1 (imotibg_515292) wrong
+(the fix target, flat), and 1 (olx_9Sr6A, an admin building with garage
+cells) correctly `garage` via CATEGORY_ORDER's static tiebreak against
+land/business/flat - unaffected by _ZEMYA_IMOT_RE either way, listed here
+only so the count adds up to the full 15 (corrected from an earlier
+"12 land" miscount, PR #264 fourth review, 2026-09-23: olx_9Sr6A was
+wrongly folded into the "land" bucket the first time this was counted).
 See category_classifier.py's _ZEMYA_IMOT_RE for the fix - a negative
 lookahead that excludes only the "поземлен имот" + "с идентификатор"
 boilerplate shape, while still matching every other real phrasing

@@ -249,7 +249,7 @@ _ZEMYA_IMOT_RE = re.compile(r"поземлен имот(?!\s*,?\s*с идент�
 # "къщи" is the direct, unmarked object of a sale verb, not preceded by any
 # of these markers, and is genuinely the ad's own real subject.
 _HOUSE_PROXIMITY_MARKER_RE = re.compile(
-    r"\b(от|до|близо\s+до|в\s+близост\s+до|граничещ\w*|съседн\w*|покрай)\b",
+    r"\b(от|до|близо\s+до|в\s+близост\s+до|граничещ\w*|съседе?н\w*|покрай)\b",
     re.IGNORECASE,
 )
 
