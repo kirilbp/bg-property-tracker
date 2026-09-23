@@ -3259,7 +3259,30 @@ builder's call on exact shape):**
 - Send to Missy the moment it's locally verified, before starting
   anything else.
 
-## 31. bazar.bg and imot.bg: nationwide coverage is structurally limited to a fixed ~25-30-city allowlist - Bulgaria's ~230 smaller towns and ~5,000 villages are never queried - HIGH PRIORITY, SCOPED, READY TO DISPATCH
+## 31. bazar.bg and imot.bg: nationwide coverage is structurally limited to a fixed ~25-30-city allowlist - Bulgaria's ~230 smaller towns and ~5,000 villages are never queried - DONE, MERGED (2026-09-23)
+
+**Shipped as two parallel PRs, both Missy-reviewed and merged: #251
+(bazar.bg, `add-bazar-oblast-coverage-2026-09-23`) and #252 (imot.bg,
+`add-imot-oblast-coverage-2026-09-23`).** imot.bg got the originally
+recommended oblast-level slicing (27 `OBLAST_SLUGS`, mirroring
+`scraper_olx.py`'s pattern, kept alongside the existing `CITY_SLUGS` so
+Sofia city's own depth isn't diluted by the combined Sofia-oblast page).
+bazar.bg's site structure turned out not to support an apartments-scoped
+oblast query (only a sitewide all-category one, which would have broken
+its price-based category filter) - live-investigated and explicitly
+rejected as a correctness regression rather than forced in; used the
+pre-authorized fallback instead, widening `CITY_SLUGS` by 8 real,
+individually-verified settlements (29 -> 37). Both scrapers now also
+have the checkpointed/resumable crawl loop from item 30, so the wider
+query lists rotate instead of starving the same tail every run, plus
+city/area tagging read from each listing's own card text rather than
+trusted from the query slug (closing a live mistagging bug as a side
+effect, not just adding new coverage). Honest residual limitation on
+both, stated in-code: this is a real, evidence-based widening, not full
+nationwide coverage - most of Bulgaria's ~5,000 villages are still
+outside both scrapers' reach. A session with real network access to
+bazar.bg/imot.bg should do one confirming live check before the next
+scheduled run.
 
 From the same Scrapy investigation as item 30 above. Full detail:
 `docs/decisions.md`'s matching 2026-09-23 entry.
