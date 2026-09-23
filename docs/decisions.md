@@ -2761,3 +2761,257 @@ Deleted via `mcp__github__delete_file` rather than a local `git rm` - the auto-m
 **Left untouched, per the same "clutter is safe, dropping is risky" reasoning already established for this exact situation in the 2026-09-22 entry**: `supabase/schema.sql`'s `reminders` table definition, its RLS policies, and the `user_id` column - none of this is live (the table doesn't exist), so there's nothing to actually drop; the schema.sql text itself is left in place as dormant/historical rather than edited, consistent with how the rest of the login-removal cleanup was scoped as frontend-only.
 
 **Not investigated further, correctly out of scope**: whether `reminders` (or any other table documented in `schema.sql`) should actually be created live now, since nothing in the current app writes to it - that's a decision for whoever revisits cross-device reminder sync as a fresh, explicitly-scoped feature, not something to build reactively while cleaning up a dead workflow.
+
+### 2026-09-23 - Cherven Bryag Lead Generator undercount: two real gaps found and fixed (area-key prefix stripping, portal-agnostic oblast override), plus a real radius-mode coordinate-coverage blind spot disclosed rather than silently hidden
+
+User directly reported the live site's Lead Generator for Cherven Bryag
+showing only 8 listings against real portal screenshots showing far more
+(bazar.bg 36, imot.bg 22, olx.bg 7 - not even every scraped portal), with
+sharp feedback that Placy's prior work in this area "made a lot of
+mistakes." Full independent re-investigation, not a reassurance pass -
+every number below was recomputed against the real committed data, not
+assumed from a prior session's notes.
+
+**Root cause 1 (fixed): `normalize_area()`/`normalizeArea()`'s prefix
+stripping (item 22/backlog item 18's own fix) was incomplete.** It only
+stripped кв./жк./v prefixes. Live-audited all ~300k raw `area` values
+across all 8 `leads_*.json` files and found two more settlement-type
+prefixes just as common, never handled at all: "с."/"село" (village,
+13,867 raw values, e.g. "с.Дерманци") and "гр."/"град" (town, 8,521 raw
+values, e.g. "гр.Червен Бряг"), plus "в.з." (villa zone, 447, e.g. "в.з.
+Киноцентър"). Concretely, this meant homes.bg's "гр.Червен Бряг" and every
+other portal's bare "Червен бряг" (imot.bg, imoti.bg, imoti.net, bcpea -
+the same real Pleven-oblast town) normalized to two DIFFERENT area keys
+("gr.cherven bryag" vs "cherven bryag"), splitting the town's own
+listings across two dropdown/Lead-Generator entries - the exact same bug
+class item 18 already fixed for кв./жк., just two more prefixes it
+missed.
+
+Fixed in both `index.html`'s `AREA_PREFIX_RE`/`normalizeArea()` and
+`sync_to_supabase.py`'s identically-named Python copies (kept 1:1 as the
+existing comments already require). Safety design: a literal period is
+treated as sufficient proof of abbreviation (safe to strip with no
+required trailing space, since most real с./гр. values have none at all -
+"с.Дерманци" not "с. Дерманци"), while a spelled-out word with no dot
+("град"/"gr"/"kv"/"grad"/bare "v"/"s") is only stripped when followed by
+real whitespace - live data has real neighborhood names that merely START
+WITH the same letters ("Градска Част" = "urban part", a real Varna
+neighborhood; "Града Балчик"), and the word-boundary requirement
+correctly leaves both untouched. Verified against the full real dataset,
+not just hand-picked examples: 17 real samples spanning every prefix
+shape and every known false-positive-risk case, byte-identical between
+the Python and a standalone Node run of the exact new JS regex. Platform-
+wide effect: 8,573 -> 7,030 distinct area keys (1,543 spurious duplicate
+keys collapsed into their correct real-settlement key).
+
+**Correction (Missy's review, 2026-09-23): the Cherven Bryag-specific
+number below was wrong in the original version of this entry - the fix's
+real effect on this one town is much smaller than first claimed, and does
+NOT by itself explain the magnitude of the user's "only 8" report.**
+Missy ran the real OLD (pre-fix) regex directly against the committed
+data and found the "cherven bryag" area-key group was already **28 raw
+records / 15 active across 6 portals** before this fix - imot.bg 13,
+bazar.bg 8, olx.bg 3, imoti.net 2, imoti.bg 1, bcpea 1 - because all six
+of those portals' own raw `area` values for this town are already bare,
+unprefixed "Червен бряг"/"Cherven Bryag" strings with nothing for even
+the OLD regex to strip. I re-verified this independently and it's
+correct: only **homes.bg's single "гр.Червен Бряг" record** actually
+needed the new prefix-stripping to fold in. The real, fully-verified
+before/after is **28 raw/15 active (6 portals) -> 29 raw/16 active (7
+portals)** - a one-record recovery, not the "13 (imot.bg only) -> 29"
+story this entry originally claimed. The area-key fix itself is still
+real, correctly implemented, and platform-wide valuable (the 8,573 ->
+7,030 collapse above is independently confirmed exact and unaffected by
+this correction) - it just isn't what explains this user's specific
+complaint. Even the pre-fix baseline of 15 active records for Cherven
+Bryag was already nearly double the reported "8," so something else is
+the dominant cause - see the new note at the end of this entry.
+
+**What that dominant cause very likely is (found by Missy's review, not
+this investigation - handed to Scrapy, not chased down here):** comparing
+the scrapers' own committed inventory against the real live portals shows
+a raw scrape-coverage gap, separate from and larger than Root cause 3's
+missing-coordinates problem below. `data/leads_bazar.json` has only 8
+total Cherven Bryag records EVER (active + removed combined) against 36
+currently active on the live bazar.bg site; `data/leads_olx.json` has
+only 3 total ever vs. 7 active live; `data/leads_imot.json` has 13 total
+records ever (7 currently active) vs. 22 active live - I re-verified all
+three counts directly against the committed data myself and they hold,
+though the imot.bg figure is 13 total/7 active rather than "13 active" as
+first relayed. These are listings the scrapers apparently
+never captured at all - no amount of area-key normalization or oblast-
+override fixing recovers a listing that was never scraped in the first
+place, so this is very likely the actual dominant explanation for the
+user's "only 8" report, and this investigation did not touch it (wrong
+layer - scraper operational health is Scrapy's domain, not location-
+allocation). Dispatched to Scrapy to investigate directly; flagged here
+so this entry doesn't read as having found the dominant cause when a
+bigger, still-undiagnosed one exists.
+
+Verified this does NOT incorrectly merge "Червен бряг" (the real Pleven
+town) with olx.bg's/homes.bg's "с.Червен Брег"/"Червен брег" (5+5=10
+records) - confirmed via direct evidence these are a genuinely different,
+real village near Dupnitsa in Kyustendil oblast ("общ.Дупница" in every
+one of their own titles/URLs; `data/bg_settlements_to_oblast.json` itself
+lists "Червен брег" -> `kyustendil`, a separate gazetteer entry from
+"Червен бряг" -> `pleven` via `BG_MUNICIPALITY_TO_OBLAST`) - the "я" vs
+"е" spelling difference is a real, different place, not a portal typo,
+and the fix correctly keeps them on separate area keys since only the
+*prefix* is stripped, not the core word.
+
+**Root cause 2 (fixed): the imot.bg-only `IMOT_CITY_AREA_OBLAST_OVERRIDE`
+(item 24) was too narrow - the same portal-regional-grouping-disagrees-
+with-real-oblast pattern recurs on other portals for this exact town.**
+imoti.net's own 2 Cherven Bryag listings (`city: "Ловеч"`,
+`area: "Cherven Bryag"`, URL literally
+`.../lovech/lovech-cherven-brjag/...` - imoti.net's own site groups it
+under Lovech too, same as imot.bg) and imoti.bg's 1 listing (`city:
+"Ловеч"`, URL `.../ловеч/червен-бряг-...`) hit the identical mislabeling,
+but the override only ever checked `l.get("portal") == "imot.bg"`.
+imoti.bg's own record happened to already have real (correct) lat/lng so
+its `oblast_key` resolved correctly anyway (geo lookup wins first); but
+imoti.net's 2 records have no coordinates at all, so before this fix they
+resolved to the wrong `lovech` oblast via the `city_key` fallback -
+confirmed by directly running the real, unmodified `listing_oblast_key()`
+against both real records (`lovech`) and again after the fix (`pleven`).
+
+Fixed by widening the override from an exact-raw-string, imot.bg-only
+dict entry to a portal-agnostic one keyed by `(city, normalize_area(area))`
+- `CITY_AREA_OBLAST_OVERRIDE = {("Ловеч", "cherven bryag"): "pleven"}` -
+so the same already-evidence-confirmed fact (this exact `city` value
+combined with this exact real settlement really is Pleven oblast,
+regardless of which portal said so or how it spelled the town name)
+applies uniformly. This is NOT a reintroduction of the general "trust
+area over city_key" rule item 24 already tried and rejected (it produced
+more false positives than fixes, e.g. "grad-vratsa-samuil"/"grad-sliven-
+novo-selo" being real in-city quarters, not misfilings) - it's the same
+single already-verified pair, now portal/spelling-independent instead of
+needing a separate literal entry per portal. Verified narrow scope: only
+27 records nationwide match the widened key (all genuinely Cherven Bryag/
+Ловеч), confirmed by scanning every record in all 8 leads files.
+
+**Checked whether this is systemic beyond Cherven Bryag - it mostly
+isn't, confirming item 24's own prior finding rather than contradicting
+it.** Ran the same "does a listing's city resolve to one oblast while its
+own area text resolves to a real settlement in a DIFFERENT oblast" scan
+across all 8 portals (not just imot.bg, which item 24 already scoped to
+54 pairs/1,641 listings). Found 213 distinct (city, area) mismatch pairs
+covering 18,011 records - but manual review of the largest ones shows the
+overwhelming majority are the same false-positive shape item 24 already
+documented and explicitly rejected fixing generically: ordinary Bulgarian
+neighborhood names that merely coincide with a distant municipality seat
+'s name (е.g. "Тракия" is a hugely common neighborhood name in Plovdiv/
+Shumen, unrelated to Stara Zagora's own Тракия municipality; "Бояна"/
+"Симеоново"/"Княжево"/"Борово"/"Гоце Делчев" are all real Sofia
+neighborhoods, not references to the distant towns sharing their name;
+"Дружба" is a generic Soviet-era neighborhood name reused in dozens of
+cities). Did NOT blanket-apply any of these - extending
+`CITY_AREA_OBLAST_OVERRIDE` further needs the same two-sided
+(coordinates + portal URL text) confirmation already established as the
+bar for Cherven Bryag, which wasn't done here for any of the 213
+candidates. Flagging this list as a candidate pool for a future
+individually-verified pass, not as a ready-to-ship fix.
+
+**Root cause 3 (disclosed, not "fixed" - there is no correctness fix
+available without either real coordinates or guessing): radius/polygon-
+mode Lead Generators silently drop every listing with no lat/lng, and
+real coordinate coverage is far lower than the ~21% figure already
+documented in `index.html`'s zero-results message.** Live-measured
+2026-09-23 across all 8 portals' current active listings: only 69,019 of
+225,975 (30.5%) have real coordinates at all; the other 156,956 (69.5%)
+are silently invisible to ANY radius/polygon search regardless of whether
+they're genuinely inside it. Coverage varies enormously by portal -
+bazar.bg 1.3% (despite genuinely embedding real coordinates in its own
+HTML - this is a backfill-throughput gap, not a missing-data one;
+`coords_checked` is only true for 2,366/22,394 active listings, and even
+among those checked only 282 yielded real coordinates, both worth Scrapy
+investigating separately, out of this scope), imoti.net 14.5%, alo.bg
+33.4%, homes.bg 36.6%, olx.bg 38.6%, imot.bg 43.2%, bcpea 52.4%, imoti.bg
+55.1%. For the Cherven Bryag/Pleven-oblast case specifically: 382 active
+Pleven-oblast listings have coordinates, but 4,667 active Pleven-oblast
+listings do not - a search for a small radius anywhere in Pleven oblast
+is working against roughly an 8%-of-true-population sample with zero
+indication that's what's happening.
+
+This is squarely a scraper/backfill-throughput problem (Scrapy's
+domain, not fixed here), but the *silent* part of "silently invisible"
+is a location-allocation/UX honesty problem, and this project's own
+"fail loud, not silent" principle (already applied to misleading copy
+elsewhere in this log) says a low count should never look identical to a
+complete one. Fixed in `index.html`: `matchesLeadGenerator()` split into
+`matchesLeadGeneratorFilters()` (price/sqm/type only) plus the existing
+area/geometry check, and a new `leadGenUnmappedNearbyCount()` counts
+active listings that would otherwise match a radius/polygon generator's
+non-location filters, share its search's own resolved oblast (via the
+already-correct `listingOblastKey()`), and lack coordinates - shown as an
+explicit, clearly-labeled "+N more nearby without exact coordinates (not
+counted)" line on both the Lead Generator gallery card and the live
+results banner (a new `#countCaveat` element), never folded into the
+match count itself. Deliberately province-level, not radius-precise, and
+deliberately NOT a second, looser matching pass - this project never
+guesses a location (see the "leave unclassified rather than guess" rule
+already applied throughout `geo_utils.py`/`sync_to_supabase.py`), so an
+unmapped listing is disclosed as "in the same broad region, unknown
+whether actually in your radius," never counted as if it were confirmed
+inside it. Known, explicit limitation: only resolves the search's oblast
+from Cyrillic city/municipality text (`oblastKeyFromName`/
+`oblastKeyFromNamePrefix`/`oblastKeyFromMunicipality`, reusing existing
+functions) - a Latin-typed town name that isn't one of the ~29 major
+cities (e.g. literally typing "Cherven Bryag" rather than "Червен бряг"
+into the generator's city field) won't resolve and the caveat silently
+won't show for that specific phrasing, since there is no existing
+client-side Latin-to-municipality gazetteer to extend safely without
+either shipping a large new table or guessing a transliteration - flagged
+as a follow-up, not fixed here.
+
+**Verification performed:** every numeric claim above was recomputed
+directly against the real committed `data/leads_*.json` files and the
+real, unmodified/updated `sync_to_supabase.py` functions (`normalize_area`,
+`listing_oblast_key`, `listing_city_key`, `oblast_key_from_municipality`)
+in this session, not carried over from a prior one. `normalizeArea()`'s
+new JS regex was independently run in a real Node process against the
+same 17 samples the Python version was checked against, byte-identical
+results. `index.html`'s full inline script (`<script>...</script>`) was
+extracted and passed through `node --check` after every edit - valid
+syntax throughout. **Not verified**: the actual rendered UI (no live
+Supabase-backed browser session available in this sandbox) - the new
+`#countCaveat` banner and gallery-card caveat line are implemented and
+code-reviewed but not screenshot-tested; the `area_key`/`oblast_key`
+Supabase columns these fixes ultimately populate are computed by
+`sync_to_supabase.py` and only take effect for the persisted
+`merged_listings` table on its next real sync run (automatic - see the
+existing `scrape.yml`/`sync-supabase.yml` schedule), not something this
+sandbox can trigger or observe directly; `index.html`'s own
+`normalizeArea()` fallback (`l.area_key || normalizeArea(l.area)`,
+already the documented pattern since item 22) means the area-key fix is
+effective client-side immediately regardless of that sync timing, but the
+oblast-override fix and the `#countCaveat` disclosure both read
+`l.oblast_key`/`l.lat`/`l.lng` as already-stored columns and so depend on
+that next sync run to reflect the corrected values for previously-
+mis-oblast'd records specifically (the disclosure mechanism itself works
+immediately either way, since it's a pure function of already-loaded
+`MERGED_LISTINGS` data). **Still not fixed, out of this scope, reported
+not remediated**: the underlying scrape-coverage/geocode-backfill-
+throughput gap (Root cause 3's real cause) - Scrapy's domain; and the 213
+unreviewed (city, area) mismatch candidate pairs from the systemic check
+above - would need individual two-sided verification before any of them
+could safely join `CITY_AREA_OBLAST_OVERRIDE`.
+
+Changes on `index.html` and `sync_to_supabase.py` (both files confirmed
+not concurrently edited by another agent's in-flight work when this
+session started, and re-diffed clean against `origin/main` after it
+advanced by 3 unrelated commits - `merge_history_conflict.py` - mid-
+session). Committed to `fix-location-allocation-2026-09-23`, not pushed/
+merged by this session.
+
+**Missy's review (2026-09-23): the code above (`index.html`/
+`sync_to_supabase.py`) is confirmed correct, safe, and well-verified - no
+code changes required.** She found one real error in this entry as
+originally written - the "13 (imot.bg only)" Cherven-Bryag-specific claim
+- corrected above after independently re-verifying her number against the
+real data myself (confirmed exact: 28 raw/15 active/6 portals pre-fix).
+She also surfaced the likely-dominant real cause documented above (the
+raw scraper-coverage gap), which this investigation's own methodology
+never reached since it's a different layer (scraper coverage, not
+allocation of listings that were actually scraped) - now dispatched to
+Scrapy rather than left implied-solved by this entry's original framing.

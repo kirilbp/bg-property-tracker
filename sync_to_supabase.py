@@ -73,7 +73,16 @@ def transliterate(s):
     return "".join(CYR_TO_LAT.get(c, c) for c in s)
 
 
-AREA_PREFIX_RE = re.compile(r"^(v|kv\.?|zh\.?k?\.?)\s+")
+# Kept 1:1 with index.html's own AREA_PREFIX_RE/normalizeArea() - see that
+# copy's own comment for the full story (backlog item 18 only stripped
+# кв./жк./v; this also strips с./село, гр./град, and в.з. - all three
+# live-confirmed missing at nationwide scale, e.g. "гр.Червен Бряг" vs bare
+# "Червен бряг" normalizing to two different area keys for the same real
+# Pleven-oblast town). Same "dot alone is proof enough, bare word needs a
+# real trailing space" safety rule, same reason: real neighborhood names
+# like "Градска Част" merely start with the same letters as "град" and
+# must not be truncated by a bare-word match with no word boundary.
+AREA_PREFIX_RE = re.compile(r"^(?:v\.z\.|s\.|gr\.)\s*|^(?:vz|v|kv\.?|zh\.?k?\.?|grad|gr|s)\s+")
 
 
 def normalize_area(area):
@@ -565,7 +574,7 @@ NEAR_BOUNDARY_TOLERANCE_DEG = 0.003
 # keyed override for these exact confirmed-wrong points - not a general
 # "prefer text over geo near any border" rule, which would risk
 # regressing every OTHER correctly-resolved near-border geo match
-# project-wide (the same reasoning IMOT_CITY_AREA_OBLAST_OVERRIDE below
+# project-wide (the same reasoning CITY_AREA_OBLAST_OVERRIDE below
 # already documents for its own narrow scope).
 GEO_OBLAST_OVERRIDE = {
     (42.84397504, 27.88168498): "burgas",
@@ -872,10 +881,26 @@ def oblast_key_from_municipality(name):
 # So this is a
 # single, exact, evidence-confirmed (city, area) pair override, not a
 # general rule - only extend it with the same two-sided confirmation
-# (real coordinates AND imot.bg's own URL text agreeing) demonstrated here,
-# never by table membership alone.
-IMOT_CITY_AREA_OBLAST_OVERRIDE = {
-    ("Ловеч", "Червен бряг"): "pleven",
+# (real coordinates AND a portal's own URL text agreeing) demonstrated
+# here, never by table membership alone.
+#
+# 2026-09-23 (Placy investigation into a real undercount report): widened
+# from imot.bg-only, exact-raw-string matching to any portal, matched by
+# normalize_area() instead of a literal string - live-confirmed the SAME
+# "Ловеч"+Червен-бряг pair recurs on imoti.net (own URL:
+# ".../lovech/lovech-cherven-brjag/...", city="Ловеч", area="Cherven Bryag"
+# in Latin script - normalize_area() maps it to the same "cherven bryag"
+# key the Cyrillic imot.bg/imoti.bg records already use) and on imoti.bg
+# itself (city="Ловеч", area="Червен бряг") - both missed by the old
+# imot.bg-only gate. This isn't the general rule rejected above: it's the
+# same one already-confirmed (city, real-settlement) pair, just matched
+# portal-independently and spelling-independently rather than needing a
+# separate literal entry per portal's own text formatting - the underlying
+# fact being encoded ("Ловеч" + something that really is Cherven Bryag
+# really is Pleven oblast, regardless of which portal said so or how it
+# spelled the town name) doesn't depend on which portal reported it.
+CITY_AREA_OBLAST_OVERRIDE = {
+    ("Ловеч", "cherven bryag"): "pleven",
 }
 
 
@@ -883,10 +908,9 @@ def listing_oblast_key(l, city_key):
     geo_key = oblast_key_from_latlng(l.get("lat"), l.get("lng"))
     if geo_key:
         return geo_key
-    if l.get("portal") == "imot.bg":
-        override = IMOT_CITY_AREA_OBLAST_OVERRIDE.get((l.get("city"), l.get("area")))
-        if override:
-            return override
+    override = CITY_AREA_OBLAST_OVERRIDE.get((l.get("city"), normalize_area(l.get("area"))))
+    if override:
+        return override
     if city_key:
         key = CITY_KEY_TO_OBLAST.get(city_key)
         if key:
