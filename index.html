@@ -1722,6 +1722,60 @@ let pipelineSearchQuery = '';
 let pipelineViewMode = 'card'; // card | table | map
 let pipelineMap = null;
 
+// Backs resolvedPipelineDeals() - keyed by listing id, populated by
+// refreshPipelineListingsCache() below via a targeted `.in('id', ...)`
+// query against the handful of ids the user has actually pipelined
+// (PIPELINE_DEALS), NOT by scanning the full MERGED_LISTINGS array
+// (backlog item 6: resolvedPipelineDeals() used to build a Map from every
+// row in MERGED_LISTINGS - hundreds of thousands of rows - just to resolve
+// a handful of pipelined ids, on every Pipeline/Dashboard render).
+let PIPELINE_LISTINGS_CACHE = {};
+
+// Every field the Pipeline's card/table/map/CSV views actually read off a
+// listing (createPipelineCard, renderPipelineTableView, exportPipelineCsv,
+// pipelineDistanceLabel/pipelineStatusLabel/pipelinePriceChangeLabel) -
+// deliberately not select('*'), same narrowing rationale as
+// MERGED_LISTINGS_BULK_COLUMNS above, just for a handful of rows instead
+// of the whole table. first_seen_at (backlog item 6 slice-1 fix) powers
+// the "Listed" label/CSV column the same way it now does in the main grid.
+const PIPELINE_LISTING_COLUMNS =
+  'id,portal,url,photo,price_eur,sqm,area,title,price_per_sqm,' +
+  'price_drop_count,drop_pct,days_on_market,status,lat,lng,first_seen_at';
+
+// Fetches exactly the listings the user has pipelined, by id - replaces
+// resolvedPipelineDeals()'s old full-array scan. Fire-and-forget-friendly:
+// on any failure (network blip, or a live project where this project's
+// migration hasn't landed yet) this leaves the existing cache in place
+// rather than blanking out an already-working Pipeline view. Not blocking
+// the way the main MERGED_LISTINGS_BULK_COLUMNS fetch was (this already
+// degrades gracefully via the try/catch below) - but given the same
+// still-pending-migration column dependency, it gets the same
+// stripMissingSelectColumn() treatment fetchAllRows() uses (defined
+// further down this file, alongside MERGED_LISTINGS_BULK_COLUMNS) for
+// consistency, so a missing column here costs one retry instead of one
+// full silent Pipeline-refresh failure per column added ahead of its
+// migration.
+async function refreshPipelineListingsCache() {
+  const dealIds = Object.keys(PIPELINE_DEALS);
+  if (dealIds.length === 0) { PIPELINE_LISTINGS_CACHE = {}; return; }
+  let columns = PIPELINE_LISTING_COLUMNS;
+  try {
+    let data, error;
+    while (true) {
+      ({ data, error } = await sb.from('merged_listings').select(columns).in('id', dealIds));
+      if (!error) break;
+      const stripped = stripMissingSelectColumn('merged_listings', columns, error.message);
+      if (stripped === null) throw error; // not a missing-column failure - fall through to the catch below
+      columns = stripped; // bounded the same way fetchAllRows() is - see stripMissingSelectColumn()
+    }
+    const next = {};
+    (data || []).forEach(row => { next[row.id] = { ...row, rooms: extractRoomCount(row.title) }; });
+    PIPELINE_LISTINGS_CACHE = next;
+  } catch (e) {
+    console.error('Failed to refresh Deal Pipeline listings', e);
+  }
+}
+
 function loadPipelineStages() {
   try {
     const saved = JSON.parse(localStorage.getItem(PIPELINE_STAGES_KEY) || 'null');
@@ -1779,6 +1833,19 @@ function isInPipeline(listingId) {
   return Object.prototype.hasOwnProperty.call(PIPELINE_DEALS, listingId);
 }
 
+// Keeps PIPELINE_LISTINGS_CACHE (and, transitively, whichever of the
+// Dashboard's pipeline widget or the Pipeline page itself is currently on
+// screen) in sync after a change to PIPELINE_DEALS's *membership* - a new
+// id added or one removed. Not needed for setDealStage()/toggleDealTag(),
+// which only change a deal's own metadata, not which ids exist, so those
+// keep re-rendering directly from the existing cache.
+function refreshPipelineListingsCacheAndRerender() {
+  refreshPipelineListingsCache().then(() => {
+    if (document.getElementById('section-pipeline').classList.contains('active')) renderPipeline();
+    if (document.getElementById('section-dashboard').classList.contains('active')) renderDashPipelineActions();
+  });
+}
+
 // stageId defaults to the first configured stage - if every stage has been
 // deleted (edge case, the config UI always leaves at least one), falls back
 // to a bare 'unstaged' id so the deal is still tracked rather than dropped.
@@ -1792,11 +1859,13 @@ function addToPipeline(listingId, stageId, leadGenId) {
   if (stageId) deal.stageId = stageId;
   PIPELINE_DEALS[listingId] = deal;
   savePipelineDeals();
+  refreshPipelineListingsCacheAndRerender();
 }
 
 function removeFromPipeline(listingId) {
   delete PIPELINE_DEALS[listingId];
   savePipelineDeals();
+  refreshPipelineListingsCacheAndRerender();
 }
 
 function setDealStage(listingId, stageId) {
@@ -1813,16 +1882,17 @@ function toggleDealTag(listingId, tagId) {
   savePipelineDeals();
 }
 
-// Resolves every stored deal against MERGED_LISTINGS by id, same
+// Resolves every stored deal against PIPELINE_LISTINGS_CACHE by id (kept
+// fresh by refreshPipelineListingsCache()'s targeted query, not a scan of
+// the full MERGED_LISTINGS array - see that function's comment), same
 // "drop silently if no longer tracked" pattern reminderRowHtml()/
 // renderDashboardReminders() already use - a merged_listings row can be
 // deleted outright when a group's membership changes (sync_to_supabase.py's
 // delete_stale_merged_listings()), and a deal outlives the listing it was
 // added for.
 function resolvedPipelineDeals() {
-  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
   return Object.entries(PIPELINE_DEALS)
-    .map(([listingId, deal]) => ({ listing: byId.get(listingId), deal, listingId }))
+    .map(([listingId, deal]) => ({ listing: PIPELINE_LISTINGS_CACHE[listingId], deal, listingId }))
     .filter(row => row.listing);
 }
 
@@ -3287,19 +3357,81 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // the real ~214,889-row table) vs. 836 bytes/row (~171MB, 33.4% smaller)
 // once description/photos/price_history are dropped - see
 // MERGED_LISTINGS_BULK_COLUMNS below for exactly which columns and why.
+//
+// Read-path mirror of sync_to_supabase.py's upsert()/_MISSING_COLUMN_RE
+// (see that function's own comment for the production incident - backlog
+// item 18's area_key - this pattern exists to prevent recurring). That one
+// covers the WRITE path: PostgREST answers an insert/upsert naming a
+// column the live table doesn't have yet with a soft PGRST204 ("Could not
+// find the '<col>' column of '<table>' in the schema cache"), which
+// upsert() already detects, strips, and retries. A SELECT naming a missing
+// column gets a different, harder failure: PostgREST forwards Postgres's
+// own 42703 straight through as "column <table>.<col> does not exist" -
+// live-confirmed via measure_listings_payload.py's own area_key probe
+// (backlog item 18) - and neither fetchAllRows() nor
+// refreshPipelineListingsCache() had ever handled that shape, so it went
+// uncaught (backlog item 6 slice-2's Missy review: PR #231 added
+// first_seen_at to MERGED_LISTINGS_BULK_COLUMNS, unconditionally sent on
+// every single page load, with that same still-pending migration - would
+// have broken loadData() for every visitor until someone ran the SQL by
+// hand). Fixed the same way as the write path: detect it, strip that one
+// column, retry - just matched against supabase-js's returned `error`
+// instead of an HTTP response body, since supabase-js is what both call
+// sites use (raw fetch()/requests isn't involved in either).
+//
+// Bounded by construction, not by a retry counter: stripping a column
+// makes the exact same match impossible on the next attempt (the check
+// below refuses to "strip" a column no longer in the list), so this can
+// fire at most once per distinct column actually present in the select -
+// a handful at most, never unbounded - regardless of how many times a
+// genuinely-missing column's error recurs for any other reason.
+// Tolerant of Postgres's own quoted form too ('column "col" does not
+// exist') even though only the unquoted "<table>.<col>" shape has actually
+// been observed live so far (measure_listings_payload.py) - cheap
+// insurance against a future PostgREST/Postgres version formatting it
+// differently, and case-insensitive for the same reason.
+const _MISSING_SELECT_COLUMN_RE = /column\s+"?([\w.]+)"?\s+does not exist/i;
+
+function stripMissingSelectColumn(table, columns, errorMessage) {
+  const match = _MISSING_SELECT_COLUMN_RE.exec(errorMessage || '');
+  if (!match) return null; // not this failure shape - let the caller handle it as a real error
+  // PostgREST has been observed schema-qualifying this as "<table>.<col>";
+  // tolerate an unqualified "<col>" too rather than assume the exact form.
+  const parts = match[1].split('.');
+  const col = parts[parts.length - 1];
+  const tbl = parts.length > 1 ? parts[parts.length - 2] : table;
+  if (tbl !== table) return null; // some other table's column - not ours to strip
+  const cols = columns.split(',');
+  if (!cols.includes(col)) return null; // already stripped (or never ours) - refuse, so this can't loop
+  console.warn(`${table} is missing column '${col}' on the live Supabase table (pending manual ` +
+    `schema.sql migration, see docs/decisions.md) - stripping it from this query's column list ` +
+    `and retrying so this isn't blocked on that migration landing.`);
+  return cols.filter(c => c !== col).join(',');
+}
+
 async function fetchAllRows(table, columns) {
   const batchSize = 1000;
   const maxRetries = 3;
-  const select = columns || '*';
+  let select = columns || '*';
 
   async function fetchBatch(cursor) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    let transientAttempts = 0;
+    while (true) {
       let query = sb.from(table).select(select).order('id').limit(batchSize);
       if (cursor !== null) query = query.gt('id', cursor);
       const { data, error } = await query;
       if (!error) return data;
-      if (attempt === maxRetries) throw error;
-      await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+
+      // Mutates the outer `select` (not just this batch's local copy) so
+      // later pages of this same fetchAllRows() call inherit the narrowed
+      // list too, instead of re-discovering the same missing column once
+      // per 1000-row page.
+      const stripped = stripMissingSelectColumn(table, select, error.message);
+      if (stripped !== null) { select = stripped; continue; }
+
+      transientAttempts++;
+      if (transientAttempts >= maxRetries) throw error;
+      await new Promise(resolve => setTimeout(resolve, 500 * transientAttempts));
     }
   }
 
@@ -3399,12 +3531,28 @@ function extractRoomCount(title) {
 // per this repo's own documentation standard, not silently accepted -
 // see docs/decisions.md's 2026-09-22 backlog-item-6 entry for the full
 // reasoning on why this was chosen over the alternatives.
+//
+// A fourth consumer of price_history - listingFirstSeenDate(), which
+// powers Lead Generator "new since last check" badges and the Deal
+// Pipeline's "Listed" label - was NOT among those accepted trade-offs: it
+// silently broke outright (always null/stale) once price_history left
+// this bulk fetch, since nothing else in this file falls back to a
+// detail-page-only fetch for it the way the three above do. Fixed by
+// precomputing first_seen_at server-side instead (see below) rather than
+// adding it to this same lazy-detail-page-only trade-off list.
+// first_seen_at (backlog item 6 slice-1 regression fix): a precomputed
+// timestamp, populated server-side by sync_to_supabase.py from the exact
+// same price_history[0].date this bulk fetch used to derive that value
+// from before price_history was dropped from it below - see
+// listingFirstSeenDate()'s own comment for the full story. Cheap (a
+// timestamptz, not a jsonb payload), so it belongs in the narrow list here
+// unlike price_history itself.
 const MERGED_LISTINGS_BULK_COLUMNS =
   'id,portal,url,photo,price_eur,sqm,area,title,category,' +
   'category_confidence,type_bucket,city_key,oblast_key,lat,lng,' +
   'price_per_sqm,price_drop_count,drop_pct,days_on_market,score,status,' +
   'member_count,member_portals,area_avg_price_per_sqm,pct_vs_area_avg,' +
-  'site_updated_at,site_posted_at,updated_at';
+  'site_updated_at,site_posted_at,updated_at,first_seen_at';
 
 // --- Bulk listings cache (backlog item 6) --------------------------------
 // IndexedDB, not localStorage: even narrowed, the full merged_listings
@@ -3538,6 +3686,11 @@ async function loadData() {
     populateLeadGenNeighborhoods();
     populateComparablesFilters();
     renderHome();
+    // Deal Pipeline's own small targeted query (kicked off in parallel,
+    // way below this function) - awaited here, not before, so it never
+    // delays this function's own much bigger fetch above; in practice
+    // already resolved by the time a 200k+-row bulk load finishes.
+    await pipelineListingsReady;
     renderDashboard();
     render();
 
@@ -4109,7 +4262,21 @@ function describeLeadGenerator(gen) {
 // sourceListedMetaHtml() already uses for the multi-portal badge row's
 // "Tracked since" fallback (backlog item 9). Used here to work out whether
 // a Lead Generator match is "new since last check".
+//
+// Prefers the precomputed first_seen_at column (backlog item 6 slice-1
+// regression fix) - populated server-side by sync_to_supabase.py from
+// this exact same price_history[0].date logic, just moved server-side so
+// it survives the bulk merged_listings fetch narrowing price_history out
+// (see MERGED_LISTINGS_BULK_COLUMNS above). Falls back to deriving it from
+// l.price_history directly for any row that still carries it (a single
+// listing's own detail-page fetch, which still pulls price_history in
+// full - see showListingDetail()) - covers a listing synced before this
+// column existed, or a live project where the schema.sql migration adding
+// it hasn't been applied yet (in which case first_seen_at is simply absent
+// from every row, same as any other not-yet-migrated column - see
+// upsert()'s own PGRST204 handling in sync_to_supabase.py).
 function listingFirstSeenDate(l) {
+  if (l.first_seen_at) return l.first_seen_at;
   return Array.isArray(l.price_history) && l.price_history.length > 0 && l.price_history[0].date
     ? l.price_history[0].date
     : null;
@@ -6941,6 +7108,10 @@ function showSection(name) {
     renderDashboard();
   } else if (name === 'pipeline') {
     renderPipeline();
+    // Refresh in the background (prices/status can have changed since the
+    // cache was last populated) and re-render once it resolves - never
+    // blocks the section switch itself.
+    refreshPipelineListingsCache().then(renderPipeline);
   } else if (name === 'comparables' && cmpSearched) {
     renderComparablesResults();
   }
@@ -7506,7 +7677,9 @@ document.addEventListener('click', (e) => {
     addToPipeline(id, null, activeLeadGenerator ? activeLeadGenerator.id : null);
   }
   updatePipelineButtonsFor(id);
-  if (document.getElementById('section-pipeline').classList.contains('active')) renderPipeline();
+  // addToPipeline()/removeFromPipeline() above already refresh
+  // PIPELINE_LISTINGS_CACHE and re-render the Pipeline page/Dashboard
+  // widget if either is on screen - nothing further needed here.
 });
 
 function updatePipelineButtonsFor(id) {
@@ -7528,6 +7701,15 @@ loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
 maybeImportSharedLeadGenerator();
+
+// Kicked off in parallel with loadData()'s much larger bulk fetch below,
+// not sequenced after it - Deal Pipeline resolution no longer needs
+// MERGED_LISTINGS at all (see refreshPipelineListingsCache()), just this
+// one small targeted query. loadData() awaits this same promise right
+// before its own first renderDashboard()/render() call, so the Pipeline's
+// counts/cards are correct on first paint without ever touching the full
+// bulk array.
+const pipelineListingsReady = refreshPipelineListingsCache();
 
 setGreeting();
 loadData();

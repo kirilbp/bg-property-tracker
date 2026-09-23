@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - slice 2 DESIGNED, DISPATCH NEEDED - URGENT
+## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - two small slice-2-adjacent fixes DONE - core slice 2 (server-side pagination) still open - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -587,12 +587,12 @@ Generators, the `synthesizeSingleSource()` race-condition fix is real
 and correctly scoped, and the live measurement run) and merged in
 [PR #203](https://github.com/kirilbp/bg-property-tracker/pull/203).
 
-**Slice 2 status (2026-09-23): design/scoping done, nothing implemented
-- this session had no `Agent`/Task tool at all (confirmed by checking,
-not assumed), so per this role's own operating rule for that case, the
-non-trivial architecture change below was designed and handed back as a
-dispatch list rather than self-implemented and self-approved. Full
-design, the real-data investigation behind it, and a previously-
+**Slice 2 status (2026-09-23, Bossy, PR #228, docs-only, merged):
+design/scoping done. No `Agent`/Task tool that session either (confirmed
+by checking, not assumed), so per this role's own operating rule for that
+case, the non-trivial architecture change below was designed and handed
+back as a dispatch list rather than self-implemented and self-approved.
+Full design, the real-data investigation behind it, and a previously-
 undocumented regression found along the way are in `docs/decisions.md`'s
 2026-09-23 "Backlog item 6 slice 2" entry; summary:**
 
@@ -641,32 +641,60 @@ undocumented regression found along the way are in `docs/decisions.md`'s
   live before depending on it, not assumed.
 
 **Dispatch needed, in this order (none executed this session):**
-1. Small, independent, ship first: add a precomputed `first_seen_at`
-   column (schema + `sync_to_supabase.py`, derived from
-   `price_history[0].date`) to fix the Lead Generator regression above.
-   General-purpose builder.
-2. Small, independent: Deal Pipeline's `resolvedPipelineDeals()` maps
-   the *entire* `MERGED_LISTINGS` array just to look up the handful of
-   ids a user actually pipelined - replace with a targeted
-   `select(...).in('id', dealIds)` query. General-purpose builder.
+1. **DONE (2026-09-23)**: add a precomputed `first_seen_at` column
+   (schema + `sync_to_supabase.py`, derived from `price_history[0].date`)
+   to fix the Lead Generator regression above. Also fixed the Deal
+   Pipeline's "Listed" label/CSV export, which read the exact same broken
+   function against the same bulk-fetched rows - a fourth consumer
+   Bossy's own writeup above didn't separately name. **Requires a live
+   Supabase migration Kiril needs to run manually** (`upsert()`'s existing
+   PGRST204 missing-column detection-and-strip-and-retry pattern - the
+   same one item 22's `area_key` migration already exercises - makes the
+   sync degrade gracefully until then, but the column stays empty/absent
+   and the badge stays broken until it's actually applied):
+   ```sql
+   alter table listing_sources add column if not exists first_seen_at timestamptz;
+   alter table merged_listings add column if not exists first_seen_at timestamptz;
+   ```
+2. **DONE (2026-09-23)**: Deal Pipeline's `resolvedPipelineDeals()` no
+   longer maps the *entire* `MERGED_LISTINGS` array to look up the
+   handful of ids a user actually pipelined - replaced with
+   `PIPELINE_LISTINGS_CACHE`, an id-keyed cache backed by a targeted
+   `select(...).in('id', dealIds)` query (`refreshPipelineListingsCache()`),
+   fetched in parallel with `loadData()`'s bulk fetch and refreshed on
+   `PIPELINE_DEALS` membership changes or when the Pipeline page opens.
+   Deal Pipeline resolution no longer depends on the full bulk array at
+   all.
+
+   Both 1 and 2 shipped together in
+   [PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) -
+   pending Missy's review, not yet merged.
 3. The core piece: server-side filtered/paginated query for the primary
    grid per the design above - build in an isolated worktree off a
    **fresh** `origin/main` (re-check `git log`/active branches
-   immediately before starting - four other worktrees were actively
+   immediately before starting - several other worktrees were actively
    touching `index.html`-adjacent work as of this design pass, see the
    decisions.md entry), verify against real live data, Missy's review
    (not Revy - no auth/PII surface), ship via a real PR. Sequence after
-   tasks 1-2, not in parallel with them (shared `index.html` data-layer
-   file).
+   tasks 1-2 land (shared `index.html` data-layer file), not in parallel
+   with them - **still open**.
 4. Documented follow-up, do not dispatch blind: `findComparables()`'s
    server-side radius-search redesign - needs a live Supabase SQL-editor
    migration and a live-data test this sandbox can't perform. File as
-   its own item once task 3 ships.
+   its own item once task 3 ships - **still open**.
 5. Documented follow-up: Market Data hub (item 12) server-side
    aggregation - confirmed NOT broken by the design above (keeps reading
    the background-loaded full array, unaffected), just not improved;
    worth a real fix only if that tab's own load time becomes its own
-   complaint.
+   complaint - **still open, low priority**.
+
+Note `Prefer: count=exact` against `merged_listings` hits Postgres's
+`statement_timeout` live (confirmed, error 57014) - any pagination UI
+needing a total result count will need a different approach (approximate
+count, a capped query, or skipping total-count display), not
+`count=exact`. See `docs/decisions.md`'s 2026-09-23 slice 2 entry for the
+full composite-keyset-cursor / decoupled-first-paint design already
+worked out for task 3.
 
 ## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - DONE, MERGED (2026-09-23)
 

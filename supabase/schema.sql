@@ -255,6 +255,22 @@ drop policy if exists "own rows only" on lead_generators;
 create policy "own rows only" on lead_generators for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Precomputed "first seen" timestamp (backlog item 6 slice-1 regression
+-- fix), populated server-side by sync_to_supabase.py's build_rows() from
+-- the same best-source price_history[0].date the frontend's own
+-- listingFirstSeenDate() already reads - just moved server-side and
+-- stored as a real column instead of derived client-side from
+-- price_history, which slice 1 (PR #203) dropped from the bulk
+-- merged_listings list-view fetch (MERGED_LISTINGS_BULK_COLUMNS). Without
+-- this column, every Lead Generator's "new since last check" badge
+-- (computeLeadGenCounts() -> listingFirstSeenDate()) has silently read
+-- stale/zero since slice 1 shipped, since l.price_history is undefined in
+-- that fetch. listing_sources also gets the column (same derivation, off
+-- that row's own price_history) for consistency, though the frontend only
+-- reads it off merged_listings today.
+alter table listing_sources add column if not exists first_seen_at timestamptz;
+alter table merged_listings add column if not exists first_seen_at timestamptz;
+
 -- reminders moves under the same per-user auth, for the same reason - see
 -- the anon policies above being dropped. user_id is nullable (a reminder
 -- created before this migration ran has none yet, until the one-time
