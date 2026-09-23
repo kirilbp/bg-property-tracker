@@ -3355,6 +3355,59 @@ mechanism rather than inventing a second one.
 - Send to Missy the moment it's locally verified.
 
 ---
+
+## 32. Apartments (and some houses) mis-filed under the Garages section because their listing mentions a parking space - root-caused, fixed, backfilled - PENDING MISSY REVIEW (2026-09-23, Ready)
+
+User-reported ("there are apartments listed under the garage section just
+because the description mention that there is a parking space allocated")
+and confirmed real: `category_classifier.py`'s `CATEGORY_ORDER` tiebreak
+put "garage" first, so it won every tied classification unconditionally -
+including the dominant case, confirmed by sampling: a listing title
+mentions "паркомясто"/"гараж" (parking space/garage) as an attached
+AMENITY of a real flat/house/shop/business listing
+("Тристаен апартамент ... с ПАРКОМЯСТО"), tying garage against the
+listing's real category, and garage won purely by list position.
+
+**Root-caused and fixed in `category_classifier.py`**: a garage/X tie is
+now resolved by which tied category's own keyword appears leftmost in the
+listing's title (its real subject, Bulgarian titles being consistently
+subject-first/amenity-appended) instead of by list position - verified
+this does NOT just make flat/house win every garage tie globally (a real
+garage-for-sale listing that also mentions nearby apartments still stays
+garage, since "гараж" is still leftmost there).
+
+**Quantified**: of the 2,516 listings that were `category: "garage"` +
+`category_confidence: "low"` as of 2026-09-23 (across imoti.net, alo.bg,
+imoti.bg - the only 3 portals whose scrapers call this classifier), 2,058
+(81.8%) reclassify - 2,035 to `flat`, 17 to `house`, 4 to `land`, 2 to
+`business`. 458 correctly remain `garage`. Backfilled via
+`backfill_garage_tiebreak_regression.py` (modeled on
+`backfill_apartment_category_regression.py`'s pattern) - only `category`
+changed on any touched record, `category_confidence`/snapshots/
+first_seen/everything else byte-for-byte identical; leads*.json
+regenerated via each portal's own `compute_leads()`. Zero regressions:
+diffed the fix's output against all 118,321 records these 3 portals'
+classifier governs - no record whose stored category wasn't already
+`garage` changes at all; spot-checked 15 random previously-correct
+`"high"`-confidence garage/shop/business/land listings, all unchanged.
+
+**Tests**: `tests/test_category_classifier_garage_tiebreak.py`, proven to
+discriminate the bug (fails against the pre-fix tiebreak, passes fixed) -
+this project's test standard.
+
+Full detail, including the residual ~19-record edge case (alo.bg title-
+truncation) and a separately-discovered, NOT-yet-fixed related pattern
+(amenity words double-counted via URL-slug duplication, a handful of
+records e.g. "Четиристаен ... + паркомясто + склад" losing on raw score
+before the tiebreak even runs) deliberately left as a follow-up rather
+than scope-creeping this fix: `docs/decisions.md`'s matching 2026-09-23
+entry.
+
+**Built in an isolated worktree** (`ready/fix-garage-tiebreak-2026-09-23`),
+locally verified, not self-merged - handed back for routing to Missy per
+this role's standing "nothing ships without Missy" rule.
+
+---
 ---
 
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
