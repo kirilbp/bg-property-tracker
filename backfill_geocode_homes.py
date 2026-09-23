@@ -77,12 +77,26 @@ def main():
             print(f"DEBUG: stopping at {attempted}/{MAX_LOOKUPS_PER_RUN} - approaching this run's time budget")
             break
         latest = rec["latest"]
-        location = latest.get("title", "")
         area = latest.get("area", "")
-        # Same query shape scraper_homes.py builds at scrape time - the
-        # cache is keyed by this exact string, so a live lookup here later
-        # counts as a hit for any future scrape run too.
-        geo_query = f"{area}, България" if area else None
+        city = latest.get("city")
+        # Reconstructs the same "<area>, <city>" location string
+        # scraper_homes.py's own in-line cache-only lookup queries at scrape
+        # time (parse_offer()'s geo_query = f"{location}, България", where
+        # location is homes.bg's own raw "area, city" text) - NOT what this
+        # function used to build (bare `area` alone, despite this comment's
+        # own claim that it matched). Dropping city here was a real bug
+        # (backlog item 20-22-adjacent audit, 2026-09-22/23): any area name
+        # that's ambiguous across more than one Bulgarian city/town - e.g.
+        # "Широк център", "жк. Тракия", "жк. Христо Ботев", "к.к.Слънчев
+        # Бряг" are all real names duplicated in multiple towns - got
+        # geocoded to whichever city Nominatim guessed with no
+        # disambiguating context, silently corrupting the oblast for
+        # hundreds of listings whose own `city` field was already correct.
+        # Including city here both fixes new lookups and reuses the exact
+        # same cache key scraper_homes.py's own query would produce, so a
+        # correct lookup here counts as a cache hit for future scrapes too.
+        location = f"{area}, {city}" if area and city else area
+        geo_query = f"{location}, България" if location else None
         if not geo_query:
             continue
         attempted += 1
