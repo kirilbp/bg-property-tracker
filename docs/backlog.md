@@ -1198,6 +1198,33 @@ rather than bolted on here. Recommend it as the next design-related
 backlog item given how much it undercuts the "luxurious" read on mobile
 specifically.
 
+**Follow-up: sidebar mobile collapse - DONE (2026-09-23, Dessy), AWAITING
+MISSY'S REVIEW.** Built a real off-canvas nav pattern in `index.html`: a
+small hamburger toggle (`#sidebarToggle`, brass/ink palette, no new blue,
+no icon library - three plain CSS bars, consistent with the rest of the
+site not using a stock icon set) appears only at `max-width: 768px`
+(chosen as the midpoint of this file's two existing two-column-to-single-
+column stacking breakpoints, 700px for `.btl-grid` and 800px for
+`.detail-grid` - there was no single pre-existing "mobile nav" breakpoint
+to match exactly, so 768px was picked as the closest fit to established
+convention plus the industry-standard mobile/tablet split). Below that
+width the sidebar (`#appSidebar`) becomes `position: fixed`, off-screen
+via `transform: translateX(-100%)`, and slides in as a 220px overlay
+above a dimmed backdrop (`#sidebarBackdrop`) when toggled; the main
+content takes the full viewport width when it's closed. All 7 existing
+nav items and active-section highlighting are untouched - purely a
+presentation/layout change, no content or JS routing logic changed beyond
+opening/closing the panel (clicking a nav item still calls the existing
+`showSection()` and also now closes the panel; backdrop click and Escape
+close it too). Above 768px the new CSS rules don't apply at all, so
+desktop is pixel-identical to before. Verified with a real Playwright
+harness (local vendored Chart.js/Leaflet/Supabase-js, realistic
+`merged_listings` fixture, zero new console errors at both 390px and
+1440px - the one console error present is a pre-existing Google Fonts
+network failure reproduced identically on unmodified `main`, unrelated to
+this change). See `docs/decisions.md`'s matching 2026-09-23 entry for
+full screenshot-by-screenshot detail.
+
 ## 11. Supabase Pro plan follow-ups - PENDING
 
 Free-tier limits are gone, daily backups are running. Revisit anything
