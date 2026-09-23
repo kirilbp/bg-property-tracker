@@ -550,13 +550,12 @@
   .modal-error { color: #b91c1c; font-size: 13px; margin: -8px 0 14px; display: none; }
   .modal-error.show { display: block; }
 
-  /* Comparables modal */
+  /* Comparables table (Comparables tab + standalone Comparables nav
+     section). .compare-modal is kept as a plain "wide modal" width
+     modifier - still used by the stages/tags config modal - even though
+     the dedicated Compare-nearby modal it was named for was retired
+     (docs/backlog.md item 8, docs/decisions.md). */
   .compare-modal .modal-panel { max-width: 920px; }
-  .compare-subject-row {
-    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 14px;
-    margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-  }
-  .compare-subject-row strong { color: #1e3a8a; }
   .compare-table-wrap { overflow-x: auto; }
   .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .compare-table th, .compare-table td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap; }
@@ -566,7 +565,6 @@
   .compare-table a { color: #2563eb; text-decoration: none; }
   .compare-table a:hover { text-decoration: underline; }
   .compare-empty { text-align: center; color: #94a3b8; padding: 30px 20px; }
-  .compare-truncated-note { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }
 
   /* Deal Pipeline + Home dashboard widgets (docs/backlog.md item 10) - same
      scoped-palette approach as the Lead Generators block above. */
@@ -1383,22 +1381,6 @@
   </div>
 </div>
 
-<div class="modal-overlay compare-modal" id="compareModalOverlay">
-  <div class="modal-panel">
-    <div class="modal-header">
-      <h2>Compare nearby listings</h2>
-      <button class="modal-close-btn" id="compareModalCloseBtn">✕</button>
-    </div>
-    <div class="radius-btn-row" id="compareRadiusButtons" style="margin-bottom:14px;">
-      <button type="button" class="radius-btn" data-compare-radius="250">250m</button>
-      <button type="button" class="radius-btn" data-compare-radius="500">500m</button>
-      <button type="button" class="radius-btn" data-compare-radius="1000">1000m</button>
-      <button type="button" class="radius-btn" data-compare-radius="1500">1500m</button>
-    </div>
-    <div id="compareModalBody"></div>
-  </div>
-</div>
-
 <!-- Pipeline stages + tags configuration (property-filter-spec.md section 9:
      both are arbitrary-length and fully user-editable, not a fixed set). -->
 <div class="modal-overlay compare-modal" id="plConfigModalOverlay">
@@ -1748,12 +1730,6 @@ let detailPhotoIndex = 0;
 // to duplicate render()'s own filter/sort logic there.
 let CURRENT_RESULT_IDS = [];
 let detailMap = null;
-// Separate from detailRadiusM - the inline radius panel and the Compare
-// modal are opened independently (a user can check the panel's average
-// without ever opening Compare, or vice versa), so each keeps its own
-// selected radius rather than fighting over one shared value.
-let compareRadiusM = 1000;
-let compareMergedListing = null;
 // Listing detail page's own Comparables tab (docs/property-filter-spec.md
 // section 5) - shares detailRadiusM with the inline radius-average panel
 // above the tabs (one radius selection, both surfaces agree), but keeps
@@ -2869,18 +2845,15 @@ function renderRadiusPanel(l) {
   `;
 }
 
-// Compare modal - a dedicated side-by-side view of the same findComparables()
-// set the inline radius panel already computes, but with per-listing rows
-// (price, size, €/m², days on market, price change, distance) instead of
-// just an average, plus its own radius control so it doesn't fight over
-// detailRadiusM with the panel embedded in the page behind it.
-// Shared by the Compare modal, the listing detail page's own Comparables
-// tab, and the standalone Comparables nav section's table view - one row
-// shape for "a comparable listing" everywhere it's shown as a table, so
-// the three surfaces don't drift into three slightly different tables.
-// isSubject rows (only used by the first two, which are anchored to one
-// specific listing) render a plain, unlinked distance label instead of
-// a real one, since "distance from itself" is always zero/meaningless.
+// Shared row shape for "a comparable listing" everywhere one is shown as a
+// table row: the listing detail page's own Comparables tab and the
+// standalone Comparables nav section's table view (docs/backlog.md item 8 -
+// a third caller, a separate "Compare nearby" modal with its own parallel
+// radius control, used to exist here too; retired in favor of pointing
+// straight at the Comparables tab below, see docs/decisions.md).
+// isSubject rows (only used by the tab, anchored to one specific listing)
+// render a plain, unlinked distance label instead of a real one, since
+// "distance from itself" is always zero/meaningless.
 function comparableTableRowHtml(s, isSubject) {
   return `
     <tr${isSubject ? ' class="compare-subject-row-highlight"' : ''}>
@@ -2894,97 +2867,6 @@ function comparableTableRowHtml(s, isSubject) {
     </tr>
   `;
 }
-
-function openCompareModal(merged) {
-  compareMergedListing = merged;
-  document.getElementById('compareModalOverlay').classList.add('open');
-  renderCompareModal();
-}
-
-function closeCompareModal() {
-  document.getElementById('compareModalOverlay').classList.remove('open');
-  compareMergedListing = null;
-}
-
-function renderCompareModal() {
-  if (!compareMergedListing) return;
-  const merged = compareMergedListing;
-  const l = merged.sources[detailSourceIndex] || merged.sources[0];
-
-  document.querySelectorAll('#compareRadiusButtons .radius-btn').forEach(btn => {
-    btn.classList.toggle('active', parseInt(btn.dataset.compareRadius, 10) === compareRadiusM);
-  });
-
-  const body = document.getElementById('compareModalBody');
-
-  if (l.lat == null || l.lng == null) {
-    body.innerHTML = `<p class="compare-empty">Location data isn't available for this listing yet, so nearby comparables can't be found.</p>`;
-    return;
-  }
-
-  // Distance is computed here (not carried by findComparables(), which only
-  // needs it as a filter threshold) so rows can be sorted closest-first -
-  // the most useful default order for a side-by-side comparison, and the
-  // same ordering the map markers implicitly suggest.
-  const comparables = findComparables(l, compareRadiusM)
-    .map(m => ({ ...m, _distanceKm: haversineKm(l.lat, l.lng, m.lat, m.lng) }))
-    .sort((a, b) => a._distanceKm - b._distanceKm);
-
-  if (comparables.length === 0) {
-    body.innerHTML = `
-      <div class="compare-subject-row">
-        <span><strong>${escapeHtml(l.title)}</strong> · €${fmt(l.price_eur)}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</span>
-      </div>
-      <p class="compare-empty">No other ${l.category || 'apartment'} listings with a known location found within ${compareRadiusM}m.</p>
-    `;
-    return;
-  }
-
-  // Capped rather than rendering every match - a dense area at 1500m can
-  // return hundreds of comparables, and a table that long stops being a
-  // usable side-by-side view. Closest-first sort above means the cap always
-  // drops the least relevant (farthest) rows, not an arbitrary subset.
-  const MAX_ROWS = 30;
-  const shown = comparables.slice(0, MAX_ROWS);
-
-  const truncatedNote = comparables.length > MAX_ROWS
-    ? `<p class="compare-truncated-note">Showing the closest ${MAX_ROWS} of ${comparables.length} comparables within ${compareRadiusM}m.</p>`
-    : '';
-
-  body.innerHTML = `
-    <div class="compare-table-wrap">
-      <table class="compare-table">
-        <thead>
-          <tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
-        </thead>
-        <tbody>
-          ${comparableTableRowHtml(l, true)}
-          ${shown.map(s => comparableTableRowHtml(s, false)).join('')}
-        </tbody>
-      </table>
-    </div>
-    ${truncatedNote}
-  `;
-
-  body.querySelectorAll('[data-compare-goto]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      closeCompareModal();
-      showListingDetail(a.dataset.compareGoto);
-    });
-  });
-}
-
-document.getElementById('compareModalCloseBtn').addEventListener('click', closeCompareModal);
-document.getElementById('compareModalOverlay').addEventListener('click', (e) => {
-  if (e.target.id === 'compareModalOverlay') closeCompareModal();
-});
-document.querySelectorAll('#compareRadiusButtons .radius-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    compareRadiusM = parseInt(btn.dataset.compareRadius, 10);
-    renderCompareModal();
-  });
-});
 
 // --- Manual reminders (backlog stage 8) -------------------------------------
 // A user-set note + date on a listing. Backlog #62 briefly moved this
@@ -6705,7 +6587,19 @@ function renderListingDetail(merged) {
     });
   });
 
-  document.getElementById('compareBtn').addEventListener('click', () => openCompareModal(merged));
+  document.getElementById('compareBtn').addEventListener('click', () => {
+    // Backlog item 8: this used to open a separate "Compare nearby" modal
+    // with its own radius control and its own render path - a second,
+    // parallel comparables experience alongside the newer Comparables tab
+    // below, built off the exact same findComparables() data. Having two
+    // different surfaces for the same thing (one populated instantly, one
+    // that opened empty until a radius was picked elsewhere) is what read
+    // as "the comparables button does not do anything" - fixed by
+    // retiring the modal and pointing this button at the one real
+    // Comparables tab instead (see docs/decisions.md).
+    switchDetailTab('comparables', l);
+    document.querySelector('.detail-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   document.getElementById('reminderBtn').addEventListener('click', () => openReminderModal(merged));
 
   const detailPlAddBtn = document.getElementById('detailPipelineAddBtn');
@@ -6815,7 +6709,17 @@ function showListingDetail(id) {
   if (!merged) return;
   detailSourceIndex = 0;
   detailActiveTab = 'details';
-  detailRadiusM = null;
+  // Backlog item 8: this used to reset to null on every listing open, so
+  // both the radius panel above the tabs AND the Comparables tab (which
+  // shares this same value) opened empty - just a "pick a radius" hint,
+  // no numbers, no map - until the user went hunting for a small radius
+  // pill elsewhere on the page. That read as "does nothing," which is
+  // exactly the reported bug. Defaulting to 500m (one of the existing
+  // radius choices, not a new one) means both surfaces show real
+  // comparable data immediately, matching the spec's description of this
+  // tab as already "pre-scoped to the current listing's location + type."
+  // Users can still change or clear it via the radius buttons as before.
+  detailRadiusM = 500;
   detailCompViewMode = 'card';
   btlInputs = null;
   merged._resultPos = currentResultPosition(id);

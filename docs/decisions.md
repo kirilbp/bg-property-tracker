@@ -1451,3 +1451,61 @@ builder - optionally via Scrapy first - for item 9) should take each
 task and with what context, so the invoking session can make those
 `Agent` calls itself. Nothing in items 7-10 has shipped or been reviewed
 by Missy or Revy as of this entry.
+
+### 2026-09-23 - Retired the old "Compare nearby" modal in favor of the Comparables tab (backlog item 8)
+
+Reproduced live (local server + Playwright, CDN scripts vendored/
+intercepted since the sandbox has no real egress to cdnjs/unpkg/jsdelivr/
+Supabase - responses swapped for local copies and a small synthetic
+`merged_listings` dataset via route interception) rather than trusting
+the static read. Findings:
+
+- The old "⇄ Compare nearby" button (`#compareBtn` → `openCompareModal()`)
+  was **not** actually broken - it opened its modal and rendered a
+  populated comparables table immediately, because its own `compareRadiusM`
+  defaulted to 1000m.
+- The new Comparables **tab** (`data-tab="comparables"`,
+  `renderComparablesTabHtml()`) was the one with the real bug: it shares
+  `detailRadiusM` with the pinned radius panel above the tabs (item 7),
+  and `showListingDetail()` reset that to `null` on every listing open.
+  Result: clicking the tab on any listing showed nothing but a single
+  muted-gray sentence ("Pick a radius above...") - no numbers, no cards,
+  no map - unless the user first went back up to an unrelated-looking
+  panel and clicked a radius pill there. Confirmed via screenshot: this
+  is indistinguishable from "does nothing" at a glance, which matches
+  the user's exact wording.
+
+Two separate but related fixes, both scoped to `index.html`:
+
+1. **Real bug fix**: `showListingDetail()` now defaults `detailRadiusM`
+   to `500` (one of the existing radius choices, not a new one) instead
+   of `null`. Both the radius panel and the Comparables tab now show
+   real data the moment a listing opens, no extra click required - this
+   alone fixes the reported "does nothing" complaint for the tab.
+2. **Design-fork call, taking the backlog's recommended option**: with
+   the tab now actually working, keeping a second, separate "Compare
+   nearby" modal (its own radius control, its own render path, same
+   underlying `findComparables()` data) is redundant and was itself part
+   of what made the feature confusing - two comparables surfaces that
+   don't stay in sync (different default radius, different view options)
+   invites exactly the "which one is the real one, and why did the other
+   one look empty" confusion the backlog flagged as possibility (c).
+   Retired `openCompareModal()`/`closeCompareModal()`/`renderCompareModal()`,
+   the `#compareModalOverlay` modal markup, and the now-dead
+   `compareRadiusM`/`compareMergedListing` state entirely. The
+   `#compareBtn` button stays (a fast, above-the-fold entry point is
+   still worth keeping) but now calls `switchDetailTab('comparables', l)`
+   and scrolls the tab into view instead of opening a modal - one
+   comparables surface, reachable two ways, not two competing surfaces.
+   `comparableTableRowHtml()` (shared row markup) and the `.compare-*`
+   CSS needed by the tab/standalone Comparables page were kept; only the
+   modal-only CSS (`.compare-subject-row`, `.compare-truncated-note`)
+   was removed as genuinely dead code caused directly by this change.
+   `.compare-modal` (the wide-modal-width class) was kept since the
+   stages/tags config modal also uses it.
+
+No auth/session/personal-data surface touched (read-only comparison over
+already-public listing data) - Revy's review not expected to be needed,
+per the backlog item's own note. Verified at both desktop (1400px) and
+mobile (390px) widths post-fix; committed to `fix-compare-button-2026-09-23`
+off `main`, not pushed or merged.
