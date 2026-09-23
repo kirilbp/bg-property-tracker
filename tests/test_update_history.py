@@ -10,11 +10,22 @@ silently wiped out already-backfilled detail-page-only fields
 (description, photos, detail_checked, and portal-specific equivalents)
 on every single run for every still-active listing.
 
-This test proves, for each of the six scrapers, that a grid-only
-re-touch of a listing that already has those detail fields no longer
-clears them - the actual bug this fixes - while still confirming the
-grid's own fresh fields (price, etc.) really do get applied, so the fix
-is a merge, not an accidental freeze.
+scraper_imoti_bg.py has the identical `update_history()` bug shape but was
+missed by that original fix - it wasn't part of the "all six scrapers with
+this function" investigation, even though it genuinely has the same
+function. Its own exposure is slightly different in mechanism (it calls
+its best-effort fetch_listing_detail() inline for every listing on every
+run rather than as a separate backfill pass, so a single transient
+per-run failure there - not just a grid-only re-touch - can also produce
+the None that gets wiped in), but the fix and the field-preservation
+behavior being tested are the same.
+
+This test proves, for each of these seven scrapers, that a grid-only
+re-touch (or, for imoti.bg, a simulated transient detail-fetch failure)
+of a listing that already has those detail fields no longer clears them -
+the actual bug this fixes - while still confirming fresh data (price,
+and for imoti.bg a successful description/site_posted_at re-fetch) really
+does get applied, so the fix is a merge, not an accidental freeze.
 
 Run with: python3 -m unittest tests.test_update_history -v
 (no pytest / other test framework is installed in this repo - see the
@@ -33,6 +44,7 @@ import scraper_alo
 import scraper_bazar
 import scraper_bcpea
 import scraper_imot
+import scraper_imoti_bg
 import scraper_olx
 
 
@@ -147,9 +159,6 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "detail_checked": True,
             "lat": 42.68, "lng": 23.31,
         }
-        # Grid crawl on its own: area is settlement-only (no district), photo
-        # is whatever thumbnail it found this run, lat/lng are always the
-        # None placeholder (real coords only ever come from the detail pass).
         fresh_grid = {
             "id": "bcpea_1", "url": "https://sales.bcpea.org/1", "photo": "https://sales.bcpea.org/1.jpg",
             "sqm": 70, "area": "Sofia", "title": "Apartment, Sofia",
@@ -238,6 +247,73 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             scraper_imoti_net, "imoti_net_1", prior_latest, fresh_grid,
             ["site_posted_at", "lat", "lng", "photos", "detail_checked"], new_price=68000,
         )
+
+    # -- imoti.bg -----------------------------------------------------------
+    # Unlike the other five portals above, imoti.bg's fetch_listings() calls
+    # fetch_listing_detail(l["url"]) inline for EVERY listing on EVERY run
+    # (not a separate, one-time backfill pass) and writes its two results
+    # (description, site_posted_at) onto the fresh record unconditionally.
+    # fetch_listing_detail()'s own docstring says it's best-effort and
+    # "never raises... a missing description/date shouldn't drop a
+    # listing", so a single transient per-run failure (timeout, a missing
+    # meta tag that day, a page render hiccup) legitimately produces
+    # (None, None) for a listing that had a real description/
+    # site_posted_at on a previous run - update_history() must not let that
+    # wipe the previously-captured values.
+    def test_scraper_imoti_bg_preserves_detail_fields_on_transient_failure(self):
+        prior_latest = {
+            "id": "imotibg_1", "url": "https://imoti.bg/1", "photo": "https://imoti.bg/1.jpg",
+            "price_eur": 90000, "sqm": 72, "area": "Center", "city": "Пловдив",
+            "title": "Тристаен апартамент, Center", "portal": "imoti.bg",
+            "lat": 42.14, "lng": 24.75, "category": "apartment", "category_confidence": "high",
+            "description": "Реален текст на обявата, взет от детайлната страница.",
+            "site_posted_at": "2026-08-20T00:00:00+00:00",
+        }
+        # Simulates fetch_listing_detail() hitting a transient failure this
+        # run: fetch_listings() still calls it unconditionally and writes
+        # whatever it returns - (None, None) here - straight onto the fresh
+        # record, exactly as fetch_listings() itself does.
+        fresh_grid = {
+            "id": "imotibg_1", "url": "https://imoti.bg/1", "photo": "https://imoti.bg/1.jpg",
+            "sqm": 72, "area": "Center", "city": "Пловдив", "title": "Тристаен апартамент, Center",
+            "portal": "imoti.bg", "lat": 42.14, "lng": 24.75,
+            "category": "apartment", "category_confidence": "high",
+            "description": None, "site_posted_at": None,
+        }
+        self._assert_preserved_and_updated(
+            scraper_imoti_bg, "imotibg_1", prior_latest, fresh_grid,
+            ["description", "site_posted_at"], new_price=87000,
+        )
+
+    def test_scraper_imoti_bg_updates_detail_fields_on_successful_refetch(self):
+        # The fix must be a merge, not a freeze: when fetch_listing_detail()
+        # DOES succeed and returns new, real values, those must still take
+        # effect rather than description/site_posted_at becoming
+        # permanently sticky once set.
+        prior_latest = {
+            "id": "imotibg_2", "url": "https://imoti.bg/2", "photo": "https://imoti.bg/2.jpg",
+            "price_eur": 55000, "sqm": 48, "area": "Lozenets", "city": "София",
+            "title": "Двустаен апартамент, Lozenets", "portal": "imoti.bg",
+            "lat": 42.68, "lng": 23.32, "category": "apartment", "category_confidence": "high",
+            "description": "Стар текст на обявата.",
+            "site_posted_at": "2026-06-01T00:00:00+00:00",
+        }
+        fresh_grid = {
+            "id": "imotibg_2", "url": "https://imoti.bg/2", "photo": "https://imoti.bg/2.jpg",
+            "sqm": 48, "area": "Lozenets", "city": "София", "title": "Двустаен апартамент, Lozenets",
+            "portal": "imoti.bg", "lat": 42.68, "lng": 23.32,
+            "category": "apartment", "category_confidence": "high",
+            "description": "Нов, обновен текст на обявата от детайлната страница.",
+            "site_posted_at": "2026-09-20T00:00:00+00:00",
+        }
+        history = self._make_history("imotibg_2", prior_latest)
+        fresh = copy.deepcopy(fresh_grid)
+        fresh["price_eur"] = 53000
+        result = scraper_imoti_bg.update_history(history, [fresh])
+        latest = result["imotibg_2"]["latest"]
+        self.assertEqual(latest["description"], fresh_grid["description"])
+        self.assertEqual(latest["site_posted_at"], fresh_grid["site_posted_at"])
+        self.assertEqual(latest["price_eur"], 53000)
 
     # -- new listing (no prior history) still works normally --------------
     def test_new_listing_with_no_prior_history_is_unaffected(self):
