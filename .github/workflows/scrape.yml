@@ -93,7 +93,23 @@ jobs:
       # bare nationwide URL alone isn't enough) instead of Sofia-only's
       # single region, so this needs real headroom over the old 20-minute
       # cap.
-      - run: python scraper_olx.py
+      #
+      # docs/backlog.md item 30: all 6 most recent scheduled runs hit this
+      # 60-minute cap exactly and got hard-killed mid-page, always losing
+      # the same ~10 tail oblasts (OBLAST_SLUGS is a fixed order) - masked
+      # every time by continue-on-error below, same masked-failure shape as
+      # item 3's alo.bg incident. scraper_olx.py's own grid crawl is now
+      # checkpointed/deadline-aware (50-minute internal budget, well under
+      # this 60-minute cap) and rotates which oblast it starts from each
+      # run, so it should now exit cleanly on its own well before this
+      # timeout-minutes would ever fire - this stays as an external
+      # safety-net cap, not the primary limiter. `id:` so the "surface a
+      # real timeout" step near the end of this job (after the commit/push
+      # below) can check this exact step's own real outcome, since
+      # continue-on-error only forces the step's *conclusion*, not its
+      # *outcome*, to success.
+      - id: scraper_olx
+        run: python scraper_olx.py
         timeout-minutes: 60
         continue-on-error: true
 
@@ -206,3 +222,26 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+      # docs/backlog.md item 30: the scraper_olx.py step above keeps
+      # continue-on-error: true (deliberately - see its own comment, one
+      # portal crashing/timing out must not cascade and lose every other
+      # portal's already-scraped data), so a real timeout there would
+      # otherwise make this whole workflow run report green with zero
+      # visible signal, exactly like item 3's alo.bg incident did on a
+      # different mechanism (a git-conflict data discard, not a timeout).
+      # continue-on-error only overrides a step's *conclusion*, not its
+      # *outcome* - steps.scraper_olx.outcome still reports the step's real
+      # result (failure, including a timeout-minutes kill) even though the
+      # run as a whole reports success. Runs last (if: always(), after the
+      # commit/push and sync_to_supabase above have already landed this
+      # run's data regardless) purely to turn that real result into a
+      # visible, loud failure of the run itself - it changes no other
+      # step's behavior and loses no data either way.
+      - if: always()
+        run: |
+          if [ "${{ steps.scraper_olx.outcome }}" = "failure" ]; then
+            echo "::error::python scraper_olx.py failed or timed out this run (step outcome=failure) - see its own step's log above for the real cause. continue-on-error kept the overall run's conclusion green so other scrapers/the commit could still proceed, but a real scraper failure must not go unreported - see docs/backlog.md item 30."
+            exit 1
+          fi
+          echo "OK: scraper_olx.py step outcome was '${{ steps.scraper_olx.outcome }}' (not a failure/timeout)"
