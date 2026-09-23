@@ -1881,6 +1881,34 @@ Not fixed (Missy flagged as minor, non-blocking): an undocumented "Родина 
 
 All fixes verified: both re-affected JSON files checked for valid JSON and unchanged record counts after every edit; the restored alo.bg coordinates confirmed to match their pre-regression values exactly; `sync_to_supabase.py` re-compiled clean after the comment fix.
 
+### 2026-09-23 - Backlog item 6 slice 2: design + scoping done, no implementation this session (no `Agent` tool)
+
+**This session had no `Agent`/Task tool available at all** - confirmed by checking the deferred-tool list rather than assumed, per the platform constraint documented for this role. Per this role's own operating rule for that case, no application code was written or committed this session: `index.html`'s data-loading layer is exactly the kind of non-trivial, cross-cutting change that belongs with a builder, reviewed by Missy, not self-implemented and self-approved. What follows is the planning/design work this role can still do without that tool, handed back as a dispatch list rather than executed.
+
+**Read first, not guessed:** `docs/backlog.md` item 6 (slice 1, PR #203, merged) and its own "Slice 2, explicitly not attempted" note; the real `index.html` on `origin/main` (`fetchAllRows()`, `loadData()`, `MERGED_LISTINGS_BULK_COLUMNS`, `render()`, `findComparables()`, `matchesLeadGenerator()`/`computeLeadGenCounts()`, `marketAggregateRows()`, `resolvedPipelineDeals()`); `supabase/schema.sql` (confirmed: no `lat`/`lng` index, no `first_seen_at`-type column, `area_key` defined but per item 18/26's own note not yet live on the production table).
+
+**Repo state check before proposing anything** (per this item's own explicit instruction to check for concurrent editors of this exact file first): `git worktree list` shows four *other* active worktrees right now - `dessy-detail-page-consolidation` (branched at `origin/main`'s current tip, no divergence yet - looks like a session that just started), `dessy-send-letters` (`dessy/send-letters-campaigns`, real unmerged commits ahead of main), `dessy-sitewide-design-verify`, and `scrapy-item9-descriptions`. At least the first two are very likely to touch `index.html` directly (the listing-detail page and a new Send Letters section respectively). This is the same collision risk the original item 6 entry flagged as real, not hypothetical - confirmed still true today. **Whoever dispatches slice 2's builder should check these worktrees'/branches' live status immediately before starting**, not rely on this snapshot.
+
+**Real, previously-undocumented finding from this investigation**: slice 1 already silently broke Lead Generator "new since last check" counts. `computeLeadGenCounts()` -> `listingFirstSeenDate(l)` reads `l.price_history[0].date`, but `price_history` is one of the three heavy columns slice 1 deliberately dropped from the bulk `merged_listings` fetch (`MERGED_LISTINGS_BULK_COLUMNS`). Slice 1's own writeup flagged the "Relisted" badge, "Most recently reduced" sort, and description search as accepting this exact trade-off - it did not mention this fourth consumer of `price_history`. Nothing crashes (the function already null-checks), but every Lead Generator's orange "new since last check" badge silently reads as 0/stale until a listing's own detail page has been opened at least once this session. Flagging this now rather than letting it surface later as an unexplained regression report.
+
+**Design decided (a real fork, taken directly per this role's standing rule, not left open for the implementer):**
+
+1. **Scope this pass to the primary listings grid/table only** (`render()` + its pagination), not every `MERGED_LISTINGS` consumer. Rejected the more sweeping "eliminate the full in-memory array everywhere" framing: `marketAggregateRows()` (Market Data hub, item 12) and `findComparables()`/`computeRadiusAverage()` (Comparables, item 11) both do full-array scans that are genuine aggregate/radius queries a single paginated page cannot answer correctly - moving *those* server-side needs its own schema/RPC work (a `lat`/`lng` index at minimum, likely a Postgres function for the radius search, possibly a materialized view or `GROUP BY` RPC for the aggregate tiles) that cannot be designed blind without live Supabase access this sandbox doesn't have (confirmed blocked again, same as every prior session). Trying to redesign all of it in one pass is exactly the kind of scope creep this item's own history has repeatedly warned against.
+2. **Decouple the grid's first paint from `loadData()`'s full bulk fetch, rather than replacing the bulk fetch.** The real remaining "slow to load" complaint on a cold cache (no valid IndexedDB entry yet) is that `render()` today can't draw anything until the *entire* ~171MB/215-round-trip narrowed fetch resolves. Fix: fire a small server-side query for just the current page (a handful of rows) against `merged_listings`, built from the exact same predicates `render()`'s `.filter()` already encodes (price/sqm/area/rooms/days/reduced/excludeSold/search/lead-generator/type/city/oblast), and paint the grid from that immediately. Kick off the existing (unchanged) IndexedDB-cached bulk `loadData()` in parallel, in the background, not blocking - every consumer that still needs the full array (Comparables, Market Data hub, Lead Generator counts/dropdowns, home dashboard, area filter population) keeps using it exactly as today, showing a "still loading" state until it resolves, the same graceful-degradation pattern slice 1 already established for the three lazy columns. This is the one change that actually fixes the complaint (time to first paint) without requiring a correct answer to the harder aggregate/radius questions first.
+3. **Pagination: composite keyset cursor, not `OFFSET`/`.range()`.** Deep pages via `.range(offset, offset+N)` degrade linearly with `OFFSET` size regardless of the count problem - a second, separate performance risk this item's own text didn't call out yet. Generalize `fetchAllRows()`'s own existing `.gt('id', cursor).order('id')` pattern (already proven, already live) to an arbitrary sort column: `.order(sortColumn, {ascending}).order('id', {ascending}).gt/lt(cursorSortValue, cursorId)` - a composite `(sortColumnValue, id)` cursor handles ties correctly and costs the same regardless of how deep the page is. Prev/Next only need a small stack of visited cursors (push on Next, pop on Prev), not true arbitrary-page jumping.
+4. **Total count: never `count=exact` against a filtered query** - confirmed live (error 57014, `statement_timeout`), already the documented landmine. Decided: show an immediate optimistic figure (nothing blocking), silently upgraded to an exact number once the background bulk load (point 2) resolves and can compute the same filtered count client-side `render()` already does today - so the "Showing X-Y of Z" exact figure users see today still shows up eventually, just not synchronously on every keystroke/filter change, and never from a `count=exact` round trip. A one-time, unfiltered `{ count: 'estimated' }` HEAD request (PostgREST's planner-based estimate, cheap, no full scan) can back an immediate "~214,000 listings tracked" headline stat for the *unfiltered* case specifically - **flagged as unverified against this project's actual PostgREST version/config**, not to be trusted blind; whoever implements this should test it live against a real filtered query first (this sandbox has no Supabase network route to do that itself) before depending on it, same "measure, don't assume" discipline as every other item in this file.
+5. **Do not touch `findComparables()`, `marketAggregateRows()`, or the area-filter dropdown population in this pass** - they keep reading the same background-loaded, IndexedDB-cached `MERGED_LISTINGS` array they already do today, unchanged. This is a deliberate, explicit scoping decision (see point 1), not an oversight.
+
+**Dispatch, in this order** (none of it executed this session - no `Agent` tool):
+
+1. **Small, independent, ship first**: fix the newly-found Lead Generator "new since last check" regression from slice 1. Add a small precomputed `first_seen_at` timestamp column (`listing_sources`/`merged_listings` schema + `sync_to_supabase.py`, derived from `price_history[0].date` at sync time - cheap, not a jsonb payload) and add it to `MERGED_LISTINGS_BULK_COLUMNS`; switch `listingFirstSeenDate()` to prefer it with the existing `price_history`-based logic as a fallback for a listing whose detail page has been opened this session. General-purpose builder (Python sync script + schema + a narrow `index.html` data-layer touch, not visual). Low risk, low blast radius, and worth shipping without waiting on the bigger item below.
+2. **Small, independent**: Deal Pipeline's `resolvedPipelineDeals()` currently builds a `Map` from the *entire* `MERGED_LISTINGS` array just to look up the handful of listing ids a user has actually added to their pipeline (`PIPELINE_DEALS`, a small local, user-curated set). Replace with a targeted `select(...).in('id', dealIds)` query - removes one more consumer's dependency on the full bulk array being loaded at all, independent of everything else here. General-purpose builder.
+3. **The core piece**: server-side filtered/paginated query for the primary grid, per the design above (predicate translation, composite-keyset pagination, decoupled/backgrounded bulk load, no-`count=exact` total display). This is the real risk and the real fix for "slow to load." General-purpose builder (data-architecture, not visual, even though it edits `index.html`) - build in an isolated worktree off a **fresh** `origin/main` (re-check `git log`/branch list immediately before starting, given the active worktrees found above), verify against real data (a live Supabase measurement, the same rigor as every prior item 6 pass), get Missy's review (not Revy - no auth/PII surface here), ship via a real PR. Sequence after task 1 (shares the bulk-columns constant) and, given both touch `index.html`'s shared data-loading layer, serialize after task 2 rather than parallelizing them.
+4. **Documented follow-up, not attempted, do not dispatch blind**: `findComparables()`'s server-side radius-search redesign. Needs a live Supabase SQL-editor migration (a `lat`/`lng` index at minimum, likely a Postgres RPC for the haversine/bounding-box logic) and a live-data round-trip test this sandbox cannot perform - the same "can't safely design this blind" reasoning that already applied to `area_key`'s migration. File as its own backlog item once slice 2's core piece has shipped, rather than guessing at a schema now.
+5. **Documented follow-up, not attempted**: Market Data hub (item 12) server-side aggregation. Confirmed it still works correctly under the design above (it keeps reading the full background-loaded array, unaffected) - not broken by this pass, but also not improved: its tiles still need that full load to have completed at least once. A real fix (server-side `GROUP BY`/materialized view) is a separate, larger piece of work, worth doing only if this specific tab's own load time becomes a complaint on its own.
+
+**Status recorded in `docs/backlog.md` item 6**: slice 2 design/scoping done and written up here; implementation dispatch above is what's needed next. Nothing in `index.html`, `sync_to_supabase.py`, or `supabase/schema.sql` was changed this session - this entry and the matching backlog update are the only changes, on branch `bossy/item6-slice2-design` off a fresh `origin/main`, not merged.
+
 ### 2026-09-23 - Backlog items 7 and 8 (listing-detail price chart pinning + Compare nearby consolidation) found already shipped and Missy-reviewed on `main` - independently re-verified live, only `docs/backlog.md`'s status text was stale
 
 Dispatched to do this work fresh in a new worktree off `origin/main`. Before writing any code, re-read both items' full text from a freshly-fetched `origin/main` (per the standing lesson in this file's "later same day" 2026-09-23 entry about not trusting a stale local `docs/backlog.md`) and read the current `index.html` around the cited line numbers - both items' described bugs were already gone.
@@ -1896,6 +1924,251 @@ Dispatched to do this work fresh in a new worktree off `origin/main`. Before wri
 **Action taken**: no code changes needed (there was nothing left to build). Updated `docs/backlog.md` items 7 and 8 to DONE, pointing at the real PRs/commits above and this entry, so the backlog reflects what `main` actually contains. Did not touch item 9 (descriptions) or item 10 (sitewide design), which are separate, still-open items outside this dispatch's scope - confirmed item 10's referenced sitewide-palette PR (#224) is also already merged, but leaving that status update to whoever owns item 10 rather than reaching outside my actual dispatch (7/8) opportunistically.
 
 **Missy re-review not sought for this pass**: no `Agent`/Task-spawning tool available in this session (same recurring constraint as every prior entry in this file), and there is no new *code* here for her to review - the code she'd be reviewing is the exact already-merged, already-reviewed `e2c4b04`/`df135d5`/`1b36b64` commits (her review of `e2c4b04`'s 1366px gap is what produced `df135d5`, confirmed directly from that commit's own message). The only change in this pass is a `docs/backlog.md` status correction plus this entry - flagging that explicitly rather than presenting it as a fresh Missy sign-off, consistent with this file's own established discipline for sessions without Agent-tool access.
+
+### 2026-09-23 - Backlog item 6: two small slice-2-adjacent fixes shipped (Lead Generator "new since last check" regression, Deal Pipeline full-array scan)
+
+Picked up Bossy's dispatch (`docs/backlog.md` item 6, PR #228, design-only,
+open/unmerged as of this session) items 1 and 2 - the two fixes explicitly
+called out as small and independent of the core slice-2 pagination piece
+(item 3) and safe to ship ahead of it. Read the real current `index.html`
+and `sync_to_supabase.py` on a fresh `origin/main` before touching
+anything, per this repo's own "confirm, don't take the claim on faith"
+discipline - both findings below were verified directly, not assumed from
+PR #228's writeup.
+
+**Confirmed real, currently live**: `computeLeadGenCounts()` ->
+`listingFirstSeenDate(l)` reads `l.price_history[0].date`, but
+`price_history` is one of the three heavy columns slice 1 (PR #203)
+deliberately dropped from `MERGED_LISTINGS_BULK_COLUMNS`. Every Lead
+Generator's orange "new since last check" badge has silently read
+stale/zero for every listing since slice 1 shipped - confirmed by reading
+both the bulk-fetch column list and `listingFirstSeenDate()`'s own logic
+directly, not taking PR #228's claim on faith. Also confirmed the same
+break independently affects the Deal Pipeline's "Listed" label
+(`createPipelineCard`/`renderPipelineTableView`) and its CSV export
+(`exportPipelineCsv`) - all three call the same function against the same
+bulk-fetched rows, a consumer PR #228's own writeup didn't separately
+name.
+
+**Fix**: added a precomputed `first_seen_at timestamptz` column to both
+`listing_sources` and `merged_listings` (`supabase/schema.sql`), following
+the exact `alter table ... add column if not exists` pattern already
+established there for `category_confidence`/`oblast_key`/`area_key`.
+`sync_to_supabase.py`'s `build_rows()` now populates it via a new
+`first_seen_at_for()` helper - deliberately just
+`price_history[0].date` read server-side, not reimplemented or
+"improved" (e.g. no min-across-history-entries logic), so it produces the
+identical value the frontend was already computing, just earlier and
+without needing the jsonb payload in the browser at all.
+`MERGED_LISTINGS_BULK_COLUMNS` now includes `first_seen_at` (cheap - a
+scalar timestamp, not jsonb), and `listingFirstSeenDate()` prefers it,
+falling back to the original `l.price_history[0].date` derivation for any
+row that still carries `price_history` in full (a single listing's own
+detail-page fetch, via `showListingDetail()`'s existing lazy fetch) - one
+function, one fallback, rather than duplicating the derivation logic in
+two places. This single fix covers all three broken consumers (Lead
+Generator badge, Pipeline "Listed" label, Pipeline CSV export) since they
+all route through the same function.
+
+**Migration required, not assumed live**: `upsert()` already has a
+`PGRST204`-detection-and-strip-and-retry pattern (`_MISSING_COLUMN_RE`,
+added for the `area_key` migration/item 18 - checked before writing any
+new logic rather than assuming it existed) that generically strips
+whatever column PostgREST reports missing and retries - `first_seen_at`
+needs no new handling there, it's covered by the existing generic path.
+Until Kiril runs the migration below in the Supabase SQL editor, syncs
+keep working exactly as today (the column is silently stripped and
+retried) and `first_seen_at` is simply absent from every row - same
+degrade-gracefully behavior `area_key` already relies on, not a new
+failure mode:
+
+```sql
+alter table listing_sources add column if not exists first_seen_at timestamptz;
+alter table merged_listings add column if not exists first_seen_at timestamptz;
+```
+
+**Deal Pipeline inefficiency, fixed.** `resolvedPipelineDeals()` built a
+`Map` from every row in `MERGED_LISTINGS` (hundreds of thousands of rows)
+on every Pipeline/Dashboard render, just to resolve the handful of ids in
+`PIPELINE_DEALS` a user has actually pipelined. Replaced with
+`PIPELINE_LISTINGS_CACHE`, an id-keyed cache backed by a targeted
+`sb.from('merged_listings').select(PIPELINE_LISTING_COLUMNS).in('id',
+dealIds)` query (`refreshPipelineListingsCache()`) - `PIPELINE_LISTING_
+COLUMNS` is its own narrow column list (same rationale as
+`MERGED_LISTINGS_BULK_COLUMNS`, just for a handful of rows), covering
+every field the Pipeline's card/table/map/CSV views actually read
+(verified by grepping every `l.<field>` access across
+`createPipelineCard`/`renderPipelineTableView`/`exportPipelineCsv`/
+`pipelineDistanceLabel`/`pipelineStatusLabel`/`pipelinePriceChangeLabel`,
+not guessed). `rooms` (derived client-side from title, same as
+`MERGED_LISTINGS`) is computed the same way (`extractRoomCount`) when the
+cache is populated, so the shape matches what the Pipeline UI already
+expects.
+
+Sequencing: the targeted query is kicked off in parallel with `loadData()`
+'s much larger bulk fetch at page load (both fire right after
+`loadPipelineDeals()`), and `loadData()` awaits that same promise
+immediately before its first `renderDashboard()`/`render()` call - not
+before the bulk fetch itself, so it never delays the page's own dominant
+network cost. The cache is refreshed (and whichever of the Dashboard's
+pipeline widget or the Pipeline page itself is on screen re-rendered)
+whenever `PIPELINE_DEALS`'s membership changes
+(`addToPipeline()`/`removeFromPipeline()`, centralized in those two
+functions rather than scattered across every call site that invokes
+them), and opportunistically in the background whenever the Pipeline
+section is opened (covers price/status drift on already-pipelined
+listings between visits, a distinct concern from membership changing).
+Net effect: Deal Pipeline resolution no longer touches
+`MERGED_LISTINGS`/the full bulk array at all.
+
+**Verified**: `node --check` against the extracted script block (no
+syntax errors); `python3 -m py_compile sync_to_supabase.py` clean; grepped
+every Pipeline-view field access against `PIPELINE_LISTING_COLUMNS`
+by hand to confirm nothing was missed (`sqm` was almost missed on a first
+pass - caught by re-checking the CSV export/table view specifically).
+**Not verified live** (this sandbox's egress proxy blocks Supabase, same
+constraint as every prior item-6 entry) - no real before/after network
+measurement was possible; this is a code-review-level verification, not a
+live one, same caveat Bossy's own PR #228 already flagged for anything
+needing live Supabase access.
+
+**Scope discipline**: deliberately did not touch the core slice-2 piece
+(server-side filtered/paginated queries for the primary grid,
+`findComparables()`'s radius search, or the Market Data hub) - both fixes
+here are exactly the two Bossy's design pass called out as small,
+independent, and safe to ship ahead of that larger, riskier change. Built
+in an isolated worktree off a fresh `origin/main` (`git worktree add`),
+not the shared checkout - `git worktree list` confirmed
+`dessy/detail-page-consolidation`, `dessy/send-letters-campaigns`,
+`dessy/sitewide-design-verify-2026-09-23`, and
+`scrapy/item9-description-fixes` were all still active against
+`index.html`-adjacent work at the time this branch was cut, consistent
+with every prior item-6 entry's collision warning - not merged into this
+work, left for whoever resolves them at merge time.
+
+**Not merged, Missy's review required** (per this repo's explicit "nothing
+ships without her sign-off" rule for anything beyond a docs-only change) -
+pushed to `item6-quickfixes-2026-09-23`,
+[PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) opened
+against `main`, not merged by this session.
+
+### 2026-09-23 (later same day) - PR #231 blocking fix: the read path had no missing-column resilience, unlike the write path
+
+Missy's review of PR #231 found a real blocking issue (trusted directly,
+not re-litigated here): the `first_seen_at` fix above added that column to
+`MERGED_LISTINGS_BULK_COLUMNS`, which `loadData()` passes unconditionally
+to `fetchAllRows('merged_listings', ...)` on every single page visit -
+the site's primary data load. `first_seen_at`'s own migration is still
+manually pending in the Supabase SQL editor (same unapplied-migration
+situation as `area_key`, backlog item 18). `upsert()` already has generic
+`PGRST204`-detection-and-strip-and-retry resilience for this exact class
+of problem on the *write* path (`_MISSING_COLUMN_RE` in
+`sync_to_supabase.py`) - but `fetchAllRows()`/`loadData()`, the *read*
+path, had none. A `select=...,first_seen_at` against a table missing that
+column is a hard PostgREST error (42703, "column does not exist" -
+already live-confirmed once for `area_key` via
+`measure_listings_payload.py`), not the soft PGRST204 upsert() handles,
+and `loadData()`'s catch block just shows "Could not load listings data."
+Merging PR #231 as-is would have broken the entire site's listing load for
+every visitor until someone ran the migration by hand.
+
+**Fix (option b from Missy's report - give the read path the same
+resilience the write path already has, generally, not just for this one
+column)**: added `stripMissingSelectColumn(table, columns, errorMessage)`
+next to `fetchAllRows()` in `index.html` - a client-side mirror of
+`upsert()`'s detect-and-strip-and-retry shape, matched against
+supabase-js's returned `error.message` (`/column\s+"?([\w.]+)"?\s+does
+not exist/i`) instead of an HTTP response body, since supabase-js is what
+both call sites here use. `fetchAllRows()`'s `fetchBatch()` now strips a
+detected missing column from its (closure-scoped, so later keyset pages
+inherit the fix too) column list and retries immediately, separately from
+its existing transient-error retry budget. Applied to both
+`MERGED_LISTINGS_BULK_COLUMNS` (the blocking one) and
+`PIPELINE_LISTING_COLUMNS`/`refreshPipelineListingsCache()` (not
+blocking - already degraded gracefully via its own try/catch - but given
+the identical still-pending-migration dependency, made consistent rather
+than left as the odd one out).
+
+**No infinite-loop risk, reasoned through by hand since this sandbox can't
+reach live Supabase**: `stripMissingSelectColumn()` refuses to strip a
+column that isn't currently in the column list it was given
+(`!cols.includes(col) -> return null`), and stripping is exactly what
+removes it from that list - so the same column can trigger exactly one
+strip-and-retry, never a repeat. Bounded by the column list's own length
+(a handful of columns), not by a retry counter. A genuinely-unrelated,
+persistent error (network blip, real outage) doesn't match the regex at
+all, so it falls straight through to the pre-existing transient-retry
+path (`maxRetries`, unchanged) and eventually throws - same failure mode
+as before this fix, not worsened by it. Traced the missing-`first_seen_at`
+case end-to-end: the strip leaves the column simply absent from every
+fetched row, and `listingFirstSeenDate()` already treats an absent
+`first_seen_at` as a cue to fall back to `l.price_history` (itself absent
+from this same narrowed select), landing on `null` - the exact
+already-accepted "badge/label reads null, page doesn't break" trade-off
+this file's own 2026-09-22 backlog-item-6 entry documented for the other
+three lazy-loaded columns, not a new failure mode.
+
+**Verified**: `node --check` against the extracted `<script>` block
+(clean); hand-traced the retry logic (and a small standalone Node
+simulation of the strip-and-retry loop against mocked success/failure
+responses) to confirm it terminates in both the missing-column and the
+genuinely-broken cases; `python3 -m pytest tests/test_update_history.py`
+still 11/11 passing (Python-only, unaffected by this change, checked
+anyway). **Not verified live** - this sandbox's egress proxy blocks
+Supabase, same standing constraint as every prior item-6 entry; this is
+code-review-level verification of the failure path, not a live
+reproduction.
+
+Built in an isolated worktree off `origin/item6-quickfixes-2026-09-23`
+itself (not a fresh `main`) - this fixes PR #231 in place, it isn't a
+restart - then checked for new `origin/main` commits to merge forward
+(none since PR #231 opened; already up to date). Pushed this commit
+straight onto `item6-quickfixes-2026-09-23` (fast-forward), so it lands
+as a new commit on PR #231 itself rather than a separate stacked PR or
+orphaned work. Not merged by this session - Missy's re-review still
+needed.
+
+### 2026-09-23 (later) - Backlog items 10/21 (site-wide design pass): verified already-merged work, found and fixed 4 leftover inconsistencies
+
+Dispatched to pick up backlog items 10/21 (site-wide design refresh, elevated by the user's direct "does not come as luxurious and stylish" feedback). First step was reading `docs/backlog.md` as checked out locally, which turned out to be stale relative to `origin/main` - the local working tree was still on an old commit (`placy/location-allocation-fixes`, item numbering topping out at 24, no item 10/21 matching the dispatch's description at all). `git fetch` + reading `origin/main`'s own `docs/backlog.md` resolved the mismatch: item numbering had shifted upstream (old item 9 -> 13, old item 17 -> 21, etc.) and, more importantly, **the actual work had already been done and merged to `origin/main`** - "Site-wide design pass: extend brass/ivory/ink palette beyond listing detail" (commit `0406dd2` + a same-day follow-up `fe576a6`), merged via PR #224 into PR #226 (`claude/merge-final`), already on `main`'s head (`c7c8eb6`) - but `docs/backlog.md` on `main` still showed items 10/21 as open, with no `docs/decisions.md` entry for that work at all. Built in a fresh worktree off `origin/main` per the collision-handling instructions, rather than trusting the stale local checkout or assuming the merge was clean.
+
+Rather than redo already-good work blind, verified it directly: read the full diff of `0406dd2`/`fe576a6`, then did a real Playwright audit (vendored Chart.js/Leaflet/Supabase-js locally, a mocked `merged_listings` REST response using the same 6,000-row fixture a prior session had already built at `/tmp/dessy-test`, screenshots at 1440px and 390px) across every page named in the dispatch - Home, Leads grid, listing detail + Reminder modal, Lead Generators + its modal, Pipeline + its config modal, Comparables, Dashboard, Market Data, Help. Confirmed the merged work is genuinely thorough and well-reasoned (its own commit message's judgment calls - e.g. keeping "up" market-direction text brass rather than red, single-hue heat-map opacity instead of a red/yellow/green scale - checked out correctly against the live code, not just the commit description) - zero page errors, zero leftover bright-blue-SaaS surfaces found in the CSS itself.
+
+**Four small, real inconsistencies found and fixed**, all evidenced by direct comparison against the rest of the already-recolored app (not guessed):
+- `updateRadiusMap()`'s comparable-listing markers on the listing detail page's own radius/Comparables Leaflet map were still `#dc2626` (saturated red) - every other "comparable listing" marker in the app (the Comparables tab's own map, the Lead Generator radius-picker map, the Market Data heat map) was already the brass `#8a6a24`/`#a9812e` pair. Recolored to match.
+- `.leadgen-icon-btn.danger:hover` and `.pl-icon-btn.danger:hover` (the Lead Generator card's delete icon, the Pipeline card's remove icon) used a one-off hex pair (`#b08d3f`/`#7a3b2e`) instead of the `--error` CSS variable item 13 already defined for exactly this "muted danger, not stock red" purpose. Switched both to `var(--error)`.
+- Every native `<input type="checkbox">` site-wide (property-type filters, neighborhood pickers, "Exclude sold," Pipeline tag pickers) rendered with the browser's own default blue tick - confirmed via `grep` that `accent-color` was never used anywhere in the file. Fixed with one global rule (`input[type="checkbox"] { accent-color: var(--brass); }`) rather than touching each checkbox's markup.
+- Every Leaflet "subject point" marker (detail page radius map, detail page Comparables-tab map, Lead Generator radius-picker map - 3 call sites) used `L.marker()`'s default blue pin icon, a second uncontrolled accent hue on every location-aware page. Replaced with a small CSS-only brass teardrop (`brassPinIcon()` returning an `L.divIcon`, `.brass-pin` for the shape) reused across all three sites - no new image asset needed, verified rendering correctly via a cropped screenshot of the actual map.
+
+All four verified visually (screenshots before/after where relevant) and confirmed with a final full click-through regression (all pages, both viewports) showing zero page errors after the fixes.
+
+**Explicitly not attempted, flagged instead**: the search/filter panel's lack of progressive disclosure (all 9 filters visible at once) and, more visibly, **the sidebar's lack of any mobile collapse** - real 390px screenshots of every page show the fixed 220px dark sidebar consuming more than half the viewport, squeezing body copy into an unreadably narrow wrapped column and turning the Market Data table into one-cell-per-line. Both were already explicitly named as deliberate scope cuts in the original merged commit's own message ("out of scope for a color/typography pass"); this session's own mobile screenshots confirm they're still real and still open. Not attempted here since a mobile nav collapse is a real interaction-pattern change (open/close state, a hamburger affordance) rather than a palette/hierarchy fix, and bundling a new, untested interaction pattern into a verification pass risked more than it was worth - logged in `docs/backlog.md` item 10 as the recommended next design-related follow-up instead of guessed at blind.
+
+**No backend/scraper/schema files touched.** No Missy review of this specific change is recorded anywhere in this file or in the original merged commit's own history - flagging this plainly rather than assuming it happened silently: the original site-wide pass reached `main` with no visible review trail, and this follow-up hasn't been reviewed by Missy either as of this writing. Recommending Missy review both together before treating items 10/21 as fully closed, even though `docs/backlog.md` marks them DONE per the actual shipped state of the code.
+
+### 2026-09-23 (later still) - Backlog item 10 follow-up: sidebar mobile off-canvas nav built (Dessy)
+
+Dispatched specifically to close the one real, flagged-but-unbuilt defect from the prior 2026-09-23 entry above: the fixed 220px sidebar never collapsing at mobile widths, eating over half a 390px viewport on every page. Checked `git worktree list` first per the collision-handling instruction - five other worktrees existed touching various things (`dessy-detail-page-consolidation`, `dessy-send-letters`, `dessy-sitewide-design-verify`, `scrapy-item9-descriptions`, plus a couple of ad-hoc `/tmp/wt` checkouts) but none had uncommitted changes to the sidebar/header CSS or markup specifically (confirmed by reading the relevant `index.html` regions in a fresh `origin/main` worktree rather than any of those). Built in a new isolated worktree (`/tmp/wt/mobile-sidebar-nav`, branch `dessy/mobile-sidebar-nav-2026-09-23`) off a freshly-fetched `origin/main` (head `8eb53f3`, PR #233 already merged) per the standing instruction not to trust a possibly-stale local checkout - the primary `/home/user/bg-property-tracker` checkout was in fact still sitting on an unrelated `placy/location-allocation-fixes` commit with the pre-item-10 blue sidebar, confirming that lesson is still live.
+
+**Breakpoint decision**: `index.html` has no single existing "mobile nav" breakpoint to copy - the closest real conventions are the two-column-to-single-column stacking points already used for map/chart-style layouts (`.btl-grid` at `max-width: 700px`, `.detail-grid` at `max-width: 800px`) plus a separate, unrelated set of card-grid reflow points (560/900/1400px) and a fluid `auto-fit`/`minmax` grid for `.detail-history-row` (the actual item-7/8 price-chart-and-map pairing) that uses no fixed breakpoint at all. Picked **768px** - close to, though not the exact midpoint of, the 700/800 pair (whose true midpoint is 750px) - as the de facto industry-standard tablet/mobile split, rather than inventing an unrelated number - documented directly in the CSS comment so a future builder doesn't have to re-derive this reasoning.
+
+**Correction (Missy's review, 2026-09-23):** the original wording here, in `docs/backlog.md`, and in the CSS comment all asserted 768px was "the midpoint" of 700/800, which is arithmetically wrong (the true midpoint is 750). 768px itself is still a defensible choice on its own separate merit (the industry-standard breakpoint) - only the "midpoint" framing was incorrect, now fixed in all three locations.
+
+**What was built** (`index.html` only - markup, CSS, client JS, no backend/data touched):
+- A new `.sidebar-toggle` hamburger button (three plain CSS bars, brass-hover/ink-bar styling pulled from the existing `--ink`/`--brass`/`--taupe-light` variables - no new blue, no icon library, since none was already in use anywhere else in the file) added to the page `<header>`, wrapped so it sits left of the existing `<h1>`/subtitle block. Hidden by `display: none` outside the new media query, so it doesn't exist visually or functionally above 768px.
+- `#appSidebar` (added an id to the existing `<aside class="sidebar">`, no other markup changes to its contents - all 7 nav items, icons, and the active-state highlighting logic are byte-for-byte untouched) gets `position: fixed; transform: translateX(-100%)` only inside `@media (max-width: 768px)`, sliding to `translateX(0)` when a new `.open` class is toggled on. A new `#sidebarBackdrop` div (dimmed ink overlay, `rgba(36,31,26,0.45)`) sits behind it, click-to-close.
+- JS: `openSidebar()`/`closeSidebar()` toggle the `.open` class on both the sidebar and backdrop, plus `aria-expanded` on the toggle button and a `body.style.overflow = 'hidden'` scroll lock while open. Wired to: the hamburger button (toggle), the backdrop (click closes), `Escape` (closes), and - importantly for preserving existing behavior - every existing `.nav-item` click now also calls `closeSidebar()` in addition to its existing `showSection()` call, so picking a page from the open mobile menu both navigates and dismisses the overlay in one tap, matching standard off-canvas-nav convention. A `resize` listener also force-closes the panel if the viewport is grown past 768px while it's open, though the CSS media query alone already guarantees desktop never shows a stuck-open overlay regardless (the `.sidebar.open` rule only exists inside the `max-width: 768px` block).
+
+**Verified with a real Playwright harness**, reusing the exact pattern and vendored assets (`chart.umd.min.js`, `supabase.js`, `leaflet.js`/`leaflet-draw.js`, all locally vendored since this sandbox's egress proxy still blocks the CDNs) from the prior sessions' `/tmp/dessy-verify-78` and `/tmp/dessy-test` harnesses, and the same realistic 6,000-row `merged_listings` fixture, with `page.route` intercepting `**/rest/v1/**` Supabase calls. Checked, all against the real current `index.html` (not a rewritten copy - only the CDN `<script src>`/`<link href>` URLs were swapped for local `vendor/` paths in the throwaway test copy, everything else byte-identical):
+- **1440px desktop**: `#appSidebar` bounding box is `{x:0, y:0, width:220, height:...}` (always visible, in normal flow, not fixed), `#sidebarToggle` `isVisible()` is `false`. Screenshot confirms pixel-equivalent layout to before this change - sidebar always visible, no toggle rendered anywhere.
+- **390px mobile, sidebar closed (default state)**: `#sidebarToggle` visible, `#appSidebar` has no `.open` class, its bounding box is `{x:-220, ...}` (fully off-screen via the transform), and `.main`'s bounding box is `{x:0, width:390}` - full viewport width, confirming the sidebar no longer eats any of the 390px viewport when closed. `document.documentElement.scrollWidth === window.innerWidth` (390 = 390) on both the Home page and, after navigating there via the open menu, the Market Data page - no page-level horizontal overflow introduced.
+- **390px mobile, sidebar opened**: after clicking `#sidebarToggle`, `#appSidebar` gains `.open`, its bounding box becomes `{x:0, width:220}` (slid fully into view as an overlay), `#sidebarBackdrop` gains `.open`, and `aria-expanded` flips to `"true"`. Screenshot shows the sidebar as a dark overlay panel above a dimmed, still-visible-through backdrop, all 7 nav items and the brass active-state left-border on "Home" intact and legible.
+- **Interaction regression checks, all passing**: clicking a `.nav-item` (`Market Data`) while the menu is open both navigates (`#section-market` gains `.active`) and closes the sidebar (`.open` class removed) in one action; clicking the backdrop closes it; pressing `Escape` closes it.
+- **Zero new console errors** at either viewport. The only console entry logged in both the modified copy and a byte-for-byte unmodified `origin/main` baseline copy (built and tested identically, same harness, same fixture) was `net::ERR_CERT_AUTHORITY_INVALID` on the Google Fonts stylesheet request - a pre-existing artifact of this sandbox's egress-proxy TLS interception on the external `fonts.googleapis.com` preconnect, reproduced identically with no code changes at all, confirming it isn't something this change introduced.
+
+**Judgment calls made, flagged here rather than silently decided**: (1) the 768px breakpoint, reasoned above, since no exact existing convention covered "collapse the whole sidebar" specifically; (2) closing the panel automatically on nav-item click, which isn't literally requested by the design guidelines but is the standard off-canvas-nav behavior and avoids a broken-feeling UI where picking a new page leaves the overlay obscuring it; (3) using plain CSS bars for the hamburger icon rather than an emoji/glyph (matching the file's existing pattern of small CSS-drawn accents like `brassPinIcon()` rather than pulling in an icon font/library, since none exists in this codebase per a direct check).
+
+**Not touched**: the search/filter panel's still-open lack of progressive disclosure (item 10's other explicitly-named gap) - out of scope for this dispatch, still open. No backend/scraper/schema files touched. Pushed as `dessy/mobile-sidebar-nav-2026-09-23`, PR opened against `main`, not merged - needs Missy's review before shipping (no auth/PII surface, so Revy's review isn't required per the standing scoping rule).
 
 ### 2026-09-23 - homes.bg tracking-ID type-collision bug (backlog item 23): go-forward fix applied, 2 of 3 confirmed-corrupted IDs split, 1 left open pending live verification
 

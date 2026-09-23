@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - slice 2 open - URGENT
+## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - two small slice-2-adjacent fixes DONE - core slice 2 (server-side pagination) still open - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -587,14 +587,114 @@ Generators, the `synthesizeSingleSource()` race-condition fix is real
 and correctly scoped, and the live measurement run) and merged in
 [PR #203](https://github.com/kirilbp/bg-property-tracker/pull/203).
 
-**Slice 2 remains open**: real server-side filtered/paginated Supabase
-queries and `findComparables()`'s in-memory radius-search redesign - not
-attempted, deliberately scoped out of slice 1. Whoever picks it up should
-note `Prefer: count=exact` against `merged_listings` hits Postgres's
-statement_timeout live (confirmed, error 57014) - any pagination UI
+**Slice 2 status (2026-09-23, Bossy, PR #228, docs-only, merged):
+design/scoping done. No `Agent`/Task tool that session either (confirmed
+by checking, not assumed), so per this role's own operating rule for that
+case, the non-trivial architecture change below was designed and handed
+back as a dispatch list rather than self-implemented and self-approved.
+Full design, the real-data investigation behind it, and a previously-
+undocumented regression found along the way are in `docs/decisions.md`'s
+2026-09-23 "Backlog item 6 slice 2" entry; summary:**
+
+- **A real, previously-undocumented finding**: slice 1 already silently
+  broke Lead Generator "new since last check" counts -
+  `computeLeadGenCounts()` -> `listingFirstSeenDate()` reads
+  `l.price_history[0].date`, one of the three heavy columns slice 1
+  deliberately dropped from the bulk fetch. Nothing crashes, but every
+  Lead Generator's orange "new" badge silently reads stale/zero until a
+  listing's detail page has been opened this session. Not caught by
+  slice 1's own writeup, which flagged the "Relisted" badge/"Most
+  recently reduced" sort/description search but missed this fourth
+  consumer. Needs its own small fix (see dispatch below) - ship this
+  first, independent of the bigger piece.
+- **Design decision (a real fork, taken directly per this role's standing
+  rule)**: scope this pass to the primary listings grid/table only, not
+  every `MERGED_LISTINGS` consumer. `findComparables()` (Comparables,
+  item 11) and `marketAggregateRows()` (Market Data hub, item 12) both do
+  genuine full-array aggregate/radius scans that a single paginated page
+  can't answer - moving those server-side needs its own schema/RPC work
+  (a `lat`/`lng` index at minimum) that can't be designed blind without
+  live Supabase access (confirmed blocked again this session, same as
+  every prior one). Filed as two separate, explicit follow-ups rather
+  than attempted here.
+- **The actual fix for "slow to load"**: decouple the grid's first paint
+  from `loadData()`'s full bulk fetch rather than replacing it - fire a
+  small server-side query for just the current page (predicates
+  translated 1:1 from `render()`'s existing `.filter()` logic) and paint
+  immediately, while the existing IndexedDB-cached bulk load keeps
+  running in the background for every feature that still needs the full
+  array (Comparables, Market Data hub, Lead Gen counts/dropdowns,
+  dashboard, area filter) exactly as today.
+- **Pagination**: a composite keyset cursor `(sortColumnValue, id)`,
+  generalizing `fetchAllRows()`'s own existing `.gt('id', cursor)`
+  pattern to arbitrary sort columns - not `OFFSET`/`.range()`, which
+  degrades on deep pages regardless of the count problem (a second,
+  separate risk this item hadn't flagged yet).
+- **Total count**: never `count=exact` on a filtered query (confirmed
+  live, error 57014, the already-documented landmine). Show an
+  immediate optimistic figure, silently upgraded to an exact number once
+  the background bulk load resolves and can compute it client-side the
+  same way `render()` does today - never a blocking `count=exact` round
+  trip. A one-time unfiltered `{ count: 'estimated' }` HEAD request can
+  back a headline "~N listings tracked" stat, but is flagged as
+  unverified against this project's actual PostgREST config - test it
+  live before depending on it, not assumed.
+
+**Dispatch needed, in this order (none executed this session):**
+1. **DONE (2026-09-23)**: add a precomputed `first_seen_at` column
+   (schema + `sync_to_supabase.py`, derived from `price_history[0].date`)
+   to fix the Lead Generator regression above. Also fixed the Deal
+   Pipeline's "Listed" label/CSV export, which read the exact same broken
+   function against the same bulk-fetched rows - a fourth consumer
+   Bossy's own writeup above didn't separately name. **Requires a live
+   Supabase migration Kiril needs to run manually** (`upsert()`'s existing
+   PGRST204 missing-column detection-and-strip-and-retry pattern - the
+   same one item 22's `area_key` migration already exercises - makes the
+   sync degrade gracefully until then, but the column stays empty/absent
+   and the badge stays broken until it's actually applied):
+   ```sql
+   alter table listing_sources add column if not exists first_seen_at timestamptz;
+   alter table merged_listings add column if not exists first_seen_at timestamptz;
+   ```
+2. **DONE (2026-09-23)**: Deal Pipeline's `resolvedPipelineDeals()` no
+   longer maps the *entire* `MERGED_LISTINGS` array to look up the
+   handful of ids a user actually pipelined - replaced with
+   `PIPELINE_LISTINGS_CACHE`, an id-keyed cache backed by a targeted
+   `select(...).in('id', dealIds)` query (`refreshPipelineListingsCache()`),
+   fetched in parallel with `loadData()`'s bulk fetch and refreshed on
+   `PIPELINE_DEALS` membership changes or when the Pipeline page opens.
+   Deal Pipeline resolution no longer depends on the full bulk array at
+   all.
+
+   Both 1 and 2 shipped together in
+   [PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) -
+   pending Missy's review, not yet merged.
+3. The core piece: server-side filtered/paginated query for the primary
+   grid per the design above - build in an isolated worktree off a
+   **fresh** `origin/main` (re-check `git log`/active branches
+   immediately before starting - several other worktrees were actively
+   touching `index.html`-adjacent work as of this design pass, see the
+   decisions.md entry), verify against real live data, Missy's review
+   (not Revy - no auth/PII surface), ship via a real PR. Sequence after
+   tasks 1-2 land (shared `index.html` data-layer file), not in parallel
+   with them - **still open**.
+4. Documented follow-up, do not dispatch blind: `findComparables()`'s
+   server-side radius-search redesign - needs a live Supabase SQL-editor
+   migration and a live-data test this sandbox can't perform. File as
+   its own item once task 3 ships - **still open**.
+5. Documented follow-up: Market Data hub (item 12) server-side
+   aggregation - confirmed NOT broken by the design above (keeps reading
+   the background-loaded full array, unaffected), just not improved;
+   worth a real fix only if that tab's own load time becomes its own
+   complaint - **still open, low priority**.
+
+Note `Prefer: count=exact` against `merged_listings` hits Postgres's
+`statement_timeout` live (confirmed, error 57014) - any pagination UI
 needing a total result count will need a different approach (approximate
 count, a capped query, or skipping total-count display), not
-`count=exact`.
+`count=exact`. See `docs/decisions.md`'s 2026-09-23 slice 2 entry for the
+full composite-keyset-cursor / decoupled-first-paint design already
+worked out for task 3.
 
 ## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - DONE, MERGED (2026-09-23)
 
@@ -728,7 +828,7 @@ state whether reached via the button or clicked directly. Full detail in
 already shipped"). No further action needed unless a regression turns
 up.
 
-## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23
+## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23 - MOSTLY DONE (2026-09-23): homes.bg/9a/9b/9c/alo.bg all shipped and merged, imot.bg/olx.bg/bcpea.org investigation complete (no further code needed), imoti.net's `description` gap confirmed a genuine per-portal limitation. Only genuinely open pieces: alo.bg's real selector and imoti.net's untried Bulgarian-language page, both deferred pending live network access; bcpea.org's post-9a grid-crawl recovery worth a final re-check once that run lands.
 
 User's direct words: *"the description is missing. There are just a few
 words on most listings."* Independently re-verified directly against the
@@ -849,6 +949,13 @@ review surfaced two real, verified, non-blocking findings, filed below as
 9b (fast follow-up) and 9c (new, separately-scoped item) rather than
 reopening 9a.
 
+**9b shipped:** merged as [PR #223](https://github.com/kirilbp/bg-property-tracker/pull/223)
+to `main` (2026-09-23). Reviewed and approved by Missy - she independently
+confirmed the placeholder-photo grid behavior by reading the actual code
+and reproduced the revert-test (bug present -> test fails with the exact
+claimed assertion). No auth/session/personal-data surface, Revy's review
+correctly not sought.
+
 **9b. `scraper_bcpea.py`: `photo` wrongly excluded from
 `_DETAIL_ONLY_FIELDS` - fast follow-up to 9a, one-line fix.** Missy's
 review of PR #219 found `_DETAIL_ONLY_FIELDS`'s comment claims the merge
@@ -871,6 +978,14 @@ field on this one portal.
   overwrites an existing real detail-backfilled photo.
 - No auth/session/personal-data surface - Revy's review not expected to
   be needed. Missy's review required before merge.
+
+**9c shipped:** merged as [PR #222](https://github.com/kirilbp/bg-property-tracker/pull/222)
+to `main` (2026-09-23). Reviewed and approved by Missy - her first review
+correctly caught unrelated bcpea test contamination accidentally picked
+up onto this branch (a concurrent task's in-progress edits, snapshotted
+mid-edit by the branch-creation method used); stripped and re-reviewed
+clean before merge. No auth/session/personal-data surface, Revy's review
+correctly not sought.
 
 **9c. `scraper_imoti_bg.py`: same unconditional-replace `update_history()`
 bug as 9a, missed by PR #219's scope - NEW, same priority class as 9a.**
@@ -906,44 +1021,78 @@ define `update_history()`, and neither was touched:
 
 **Tasks 3/4, reframed per-portal with the investigation's findings (all
 independently verified, not guessed):**
-- **imot.bg, olx.bg (was task 3's "coverage gap" for these two)**: genuine
-  coverage gap confirmed - real, succeeding backfill workflows (verified
-  via actual log content, not just a green checkmark), but 9a's reset bug
-  means net progress isn't reliable until that's fixed first. No
-  recurrence of the 2026-09-19 detail_checked-on-failure bug (item 1) -
-  all three scrapers checked for task 3 correctly only set
-  `detail_checked` after a real successful fetch. **Sequencing: fix 9a
-  first, then this coverage-gap backfill work will actually stick.**
-- **bcpea.org (was task 3's "coverage gap" for this portal)**: same
-  coverage gap + same 9a reset bug - cleanest before/after log evidence of
-  the three (a backfill run's 400-listing progress was found completely
-  reset by the very next run, crossing a `scrape.yml` boundary). Same
-  sequencing note as imot.bg/olx.bg above. **Separately, its low hit-rate-
-  when-checked (18% of checked listings get a real description vs 75-91%
-  for imot/olx) is investigated and likely NOT a bug**: the best-supported
-  explanation is that sales.bcpea.org (a court-enforcement auction
-  registry) genuinely often has no free-text "Описание" field to begin
-  with - but this couldn't be confirmed live (bcpea.org is blocked from
-  this sandbox), so it's a plausible read, not a confirmed fact. No
-  further task filed for the hit-rate question; worth a live check
+- **imot.bg, olx.bg (was task 3's "coverage gap" for these two) - task 3
+  investigation now complete, sequencing precondition (9a) has shipped, no
+  further scraper code needed.** Genuine coverage gap confirmed - real,
+  succeeding backfill workflows (verified via actual log content, not just
+  a green checkmark). No recurrence of the 2026-09-19
+  detail_checked-on-failure bug (item 1) - all three scrapers checked for
+  task 3 correctly only set `detail_checked` after a real successful
+  fetch. **Re-derived directly against the real committed data on
+  2026-09-23, after 9a/9b/9c all shipped** (not just re-quoting the
+  original audit's numbers, per this repo's standing rule): `imot.bg` is
+  now 5,009/26,285 (19.1%) non-empty description, up from the original
+  audit's 17.2% - `olx.bg` is now 12,972/36,586 (35.5%), up from 34.1%.
+  Both small but real upward moves, consistent with 9a's merge-not-replace
+  fix letting backfill progress accumulate instead of resetting. `_DETAIL_
+  ONLY_FIELDS` in both `scraper_imot.py`/`scraper_olx.py` already includes
+  `description` (confirmed by reading the current code, not assumed).
+- **bcpea.org (was task 3's "coverage gap" for this portal) - same
+  status, with the clearest evidence of the three that 9a is actually
+  working.** Walked `data/leads_bcpea.json`'s non-empty-description count
+  through the real git history around 9a's merge time (2026-09-23
+  06:53 UTC): 921 (pre-merge) -> **159** in the very next grid-crawl
+  commit (`185ecc4`, 04:47 UTC - this one landed *before* 9a merged, and
+  is the same reset-to-near-zero pattern task 3's original investigation
+  already documented) -> **528** in the first backfill run after 9a
+  merged (`8f82b45`, 07:04 UTC) - a real partial recovery in a single run,
+  not another reset. Current real total: 528/2,220 (23.8%), well up from
+  the original audit's 7.2% (159/2,220). **Caveat, stated plainly rather
+  than assumed away: no `scrape.yml` grid-crawl has landed yet since 9a
+  merged** (the next scheduled run was still pending as of this
+  investigation) - so the specific claim "a fresh grid re-touch no longer
+  wipes this portal's backfilled descriptions" is supported by 9a's code
+  being present and reviewed (`_DETAIL_ONLY_FIELDS` includes
+  `"description"`), not yet by an observed real post-fix grid-crawl commit
+  for this portal. Worth re-checking `data/leads_bcpea.json`'s count after
+  the next `scrape.yml` run lands, to close this out with full confidence.
+  **Separately, its hit-rate-when-checked has also moved**: was cited as
+  18% (vs 75-91% for imot/olx); recomputed now at 528/1,283 detail-checked
+  = 41.2% - still well below imot.bg's 75.4%/olx.bg's 91.3%, consistent
+  with (not proof of) the standing theory that sales.bcpea.org (a
+  court-enforcement auction registry) genuinely often has no free-text
+  "Описание" field to begin with. Still can't be confirmed live -
+  `sales.bcpea.org` is still blocked from this sandbox (re-confirmed via
+  curl on 2026-09-23) - so this remains a plausible read, not a confirmed
+  fact. No further task filed for either question; worth a live check
   whenever someone has bcpea.org network access, not blocking.
-- **alo.bg (was task 4's "short-average" portal) - NEW FIXABLE TASK,
-  same shape as the already-fixed homes.bg bug (task 2 above).** Confirmed
-  with strong evidence (not just the 52-char average): sampled 200 real
-  non-empty descriptions, 165/200 (82.5%) are literal substrings of that
-  same listing's own title, not real prose - e.g. title "...Двустаен
-  апартамент в к-с Суит хоум 2 Слънчев бряг, област Бургас" ->
-  description "Двустаен апартамент в к-с Суит хоум 2".
+- **alo.bg (was task 4's "short-average" portal) - DONE, partial fix
+  shipped (2026-09-23), same shape as the already-fixed homes.bg bug (task
+  2 above).** Confirmed with strong evidence (not just the 52-char
+  average): sampled 200 real non-empty descriptions, 165/200 (82.5%) are
+  literal substrings of that same listing's own title, not real prose -
+  e.g. title "...Двустаен апартамент в к-с Суит хоум 2 Слънчев бряг,
+  област Бургас" -> description "Двустаен апартамент в к-с Суит хоум 2".
   `extract_description_alo()` in `geo_utils.py` reads `.obqva-block`,
   very likely the wrong element (probably a heading/summary blurb, not the
-  real ad body). **Task (general-purpose builder):** find the right
-  selector via a live probe of an alo.bg detail page - this sandbox can't
-  reach alo.bg, so this needs to happen from an environment that can, or
-  ship the same honest partial fix the homes.bg task took: stop writing
-  the wrong data (the safe half) and flag/defer the "find and use the real
-  selector" half if live access genuinely isn't available, rather than
-  guessing at a selector. No auth/session/personal-data surface - Revy's
-  review not expected to be needed, Missy's review required before merge.
+  real ad body). Re-confirmed independently with a fresh 300-record sample
+  (265/300 = 88.3%, same shape at a higher rate) while shipping the fix.
+  alo.bg is unreachable from this sandbox - confirmed via both a plain
+  `curl` and the `WebFetch` tool against a real listing URL (both return a
+  hard block), so the real selector could not be found live. Shipped the
+  same honest partial fix the homes.bg task took instead of guessing:
+  `extract_description_alo()` now unconditionally returns `None` rather
+  than the likely-wrong `.obqva-block` text - stops new writes going
+  forward, does not retroactively scrub already-stored bad descriptions in
+  `data/leads_alo.json`/`data/history_alo.json`. **The other half - find
+  and use the real selector - is still genuinely open**, deferred pending
+  live alo.bg access from whoever has it next. Reviewed and approved by
+  Missy (independently re-sampled 300 records herself, seed 42, no reuse
+  of the builder's sample, got the same 88.3%; confirmed no caller breaks
+  on `None`; confirmed alo.bg is genuinely unreachable, not assumed).
+  Merged as [PR #218](https://github.com/kirilbp/bg-property-tracker/pull/218)
+  to `main`. No auth/session/personal-data surface, Revy's review
+  correctly not sought.
 - **bazar.bg (was task 4's other "short-average" portal) - investigated,
   likely NOT a bug, resolved (not an open coverage-gap task anymore).**
   82% of non-empty descriptions are exactly 160 characters (classic SEO
@@ -956,7 +1105,42 @@ independently verified, not guessed):**
   fully closed. No task filed; revisit only if someone with live
   bazar.bg access has spare time, not prioritized.
 
-## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority
+**Task 1 (`scraper.py`/imoti.net: add a `description` field) - investigated
+(2026-09-23), genuine per-portal limitation confirmed, no code fix
+possible from here - not closing the door on it, but nothing to guess at
+either.** Before writing any code, checked whether this had already been
+looked at: `backfill_detail_imoti_net.py`'s own module docstring already
+carries a live-confirmed finding that **predates this backlog item** -
+"confirmed live via probe_descriptions.py that imoti.net's own detail
+page carries no free-text description anywhere - neither in its meta
+tags nor its ld+json block nor any labeled HTML block, only structured
+price/sqm/floor/broker-contact info." That detail page is the *only* one
+`scraper.py` ever fetches (the site's `/en/` English-language path - see
+that module's own docstring on why, from the item 5 investigation). Tried
+to independently re-verify this claim live rather than just trust it (per
+this repo's standing rule) - both a plain `curl` and the `WebFetch` tool
+against `www.imoti.net` return a hard egress block from this sandbox, the
+same block already documented elsewhere in this file for imoti.net. So
+this can't be freshly confirmed or overturned from here; taken as the
+best available evidence rather than re-guessed. Given a genuine absence
+of the field on the only page fetched, "written the same way the other
+scrapers do it" isn't achievable without a different data source -
+selected a selector to scrape would be guessing at data that isn't there,
+the same anti-pattern this backlog explicitly avoids elsewhere (alo.bg
+above, homes.bg's PR #217). Only change made: corrected a stale comment
+in `scraper.py`'s `_DETAIL_ONLY_FIELDS` block that said description would
+be "added here too once that ships" - it now records the investigated
+conclusion instead, so a future reader doesn't re-open this expecting a
+different outcome without new information. **Genuinely open follow-up,
+not attempted here**: imoti.net likely has a Bulgarian-language version of
+each listing page (this scraper only ever visits the English one) that
+was never probed for a free-text description - worth a live check by
+whoever next has imoti.net network access, same "deferred pending live
+access" framing as the alo.bg selector search above. No auth/session/
+personal-data surface either way - Revy's review not expected to be
+needed for this task.
+
+## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority - DONE (2026-09-23)
 
 User's direct words: *"The overall design and appearance of the website
 does not come as luxurious and stylish."* This lands **after** item 13's
@@ -985,6 +1169,90 @@ elsewhere) currently shows several equal-weight buttons (Save, Compare
 nearby, Remind me, pipeline actions all styled the same). If this
 surfaces a need for non-frontend changes, stop and flag per Dessy's
 standing instruction rather than touching backend/scraper files herself.
+
+**Status: done, in two passes.** The bulk of the site-wide pass (sidebar,
+listing grid/cards, search/filter panel, home/help pages, pagination, and
+the shared modal CSS used by Lead Generator/Reminder/Pipeline-config
+modals) shipped directly to `main` on 2026-09-23 ("Site-wide design pass:
+extend brass/ivory/ink palette beyond listing detail" + a same-day follow-
+up fix, both already merged via PR #224 before this entry was written up -
+verified live in the actual `index.html` on `main`, not just from the
+commit message). See item 21 below for the full inventory of what that
+pass covered. This entry's own remaining work was a **verification +
+consistency pass** on top of that already-merged work (real Playwright
+screenshots at 1440px and 390px across every page - Home, Leads grid,
+listing detail + Reminder modal, Lead Generators + its modal, Pipeline +
+its config modal, Comparables, Dashboard, Market Data, Help - zero page
+errors), which found and fixed 4 small leftover inconsistencies the
+original pass missed:
+- The listing detail page's own radius/comparables Leaflet map was the
+  one place still drawing comparable-listing markers in saturated red
+  (`#dc2626`) instead of the brass used for the exact same "comparable
+  listing" concept everywhere else in the app (Comparables tab, Lead
+  Generator radius map, Market Data heat map) - a real, if small,
+  violation of section 4/9's "reserve red strictly for functional errors."
+  Recolored to match.
+- Two `.danger`-hover icon-button states (Lead Generator card delete
+  icon, Pipeline card remove icon) used an ad-hoc one-off hex pair
+  (`#b08d3f`/`#7a3b2e`) instead of the `--error` CSS variable already
+  defined for exactly this "muted danger, not stock red" purpose -
+  switched both to `var(--error)`.
+- Every native checkbox site-wide (property-type filters, neighborhood
+  pickers, "Exclude sold," tag pickers) rendered with the browser's
+  default blue tick - an uncontrolled second accent hue on every page
+  with a checkbox. Fixed with one global rule,
+  `input[type="checkbox"] { accent-color: var(--brass); }` - no
+  per-checkbox markup changes needed.
+- Every Leaflet map's "subject point" marker (detail page radius map,
+  detail page Comparables-tab map, Lead Generator radius-picker map) used
+  Leaflet's own default blue pin icon, another uncontrolled second accent
+  hue. Replaced with a small CSS-only brass teardrop (`brassPinIcon()` /
+  `.brass-pin`, no new image asset) reused across all three call sites.
+
+**Explicitly still open, flagged rather than attempted here** (both
+already named as deliberate scope cuts by the original pass, confirmed
+still real by this pass's own mobile screenshots): the search/filter
+panel still shows all 9 filters at once instead of a progressive-
+disclosure "3-4 primary + More filters" pattern, and - the more visible
+one - **the sidebar does not collapse at mobile widths**: real 390px-wide
+screenshots of every page (Home, Market Data, Help, Pipeline, etc.) show
+the fixed 220px dark sidebar eating well over half the viewport, squeezing
+body text into an unreadably narrow column and wrapping data tables one
+cell per line. This is a real, visible defect on mobile, not a nitpick -
+but fixing it means a real interaction pattern (hamburger/off-canvas nav
+with open/close state), a meaningfully different kind of change than a
+palette/hierarchy pass, so it's deliberately left as its own follow-up
+rather than bolted on here. Recommend it as the next design-related
+backlog item given how much it undercuts the "luxurious" read on mobile
+specifically.
+
+**Follow-up: sidebar mobile collapse - DONE (2026-09-23, Dessy), AWAITING
+MISSY'S REVIEW.** Built a real off-canvas nav pattern in `index.html`: a
+small hamburger toggle (`#sidebarToggle`, brass/ink palette, no new blue,
+no icon library - three plain CSS bars, consistent with the rest of the
+site not using a stock icon set) appears only at `max-width: 768px`
+(close to, though not the exact midpoint of, this file's two existing
+two-column-to-single-column stacking breakpoints - 700px for `.btl-grid`
+and 800px for `.detail-grid`, whose true midpoint is 750px - there was no
+single pre-existing "mobile nav" breakpoint to match exactly, so 768px was
+picked as the de facto industry-standard mobile/tablet split instead).
+Below that
+width the sidebar (`#appSidebar`) becomes `position: fixed`, off-screen
+via `transform: translateX(-100%)`, and slides in as a 220px overlay
+above a dimmed backdrop (`#sidebarBackdrop`) when toggled; the main
+content takes the full viewport width when it's closed. All 7 existing
+nav items and active-section highlighting are untouched - purely a
+presentation/layout change, no content or JS routing logic changed beyond
+opening/closing the panel (clicking a nav item still calls the existing
+`showSection()` and also now closes the panel; backdrop click and Escape
+close it too). Above 768px the new CSS rules don't apply at all, so
+desktop is pixel-identical to before. Verified with a real Playwright
+harness (local vendored Chart.js/Leaflet/Supabase-js, realistic
+`merged_listings` fixture, zero new console errors at both 390px and
+1440px - the one console error present is a pre-existing Google Fonts
+network failure reproduced identically on unmodified `main`, unrelated to
+this change). See `docs/decisions.md`'s matching 2026-09-23 entry for
+full screenshot-by-screenshot detail.
 
 ## 11. Supabase Pro plan follow-ups - PENDING
 
@@ -1697,7 +1965,7 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 21. Visual/premium design refresh
+## 21. Visual/premium design refresh - DONE (2026-09-23, Dessy)
 
 **Priority elevated by item 10** (user feedback, 2026-09-23: the live
 site still doesn't read as luxurious/stylish, since item 13's redesign
@@ -1713,6 +1981,49 @@ restrained palette (deep neutral tones + one considered accent) in place
 of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
+
+**Status: done.** Shipped in two pieces, both against `docs/design-
+guidelines.md`'s already-established (item 13) Playfair Display + Inter /
+warm ivory-brass-ink-sage CSS variables - no new palette invented:
+
+1. **The main pass** (merged straight to `main`, 2026-09-23, before this
+   write-up): recolored/re-typeset every remaining surface item 13 had
+   left untouched - the sidebar (warm ink canvas, brass active state with
+   a left-border accent instead of a solid fill, understated no-fill
+   hover), the main listing grid/cards (photo-dominant cards kept, but
+   badges rebuilt as small-caps muted pills - one brass "Hot deal" accent,
+   one sage signal color for every buyer-favorable price fact, neutral
+   ink/taupe for everything else - replacing the old saturated red/green/
+   blue/purple ribbon system per section 6/9's explicit "status labels,
+   not ribbons" rule), the search/filter panel, pagination, Home page
+   (stat tiles, portal chips, type/city pills), Help page, the Reminders
+   list, and the shared modal CSS used by the Lead Generator/Reminder/
+   Pipeline-config modals. Also applied "one primary action per view"
+   (section 5/6): the Home page's second solid CTA was demoted to an
+   outline `.cta-btn-secondary`, and the listing detail page's Save/
+   Compare/Remind/Pipeline row already had this from item 13 (one solid
+   brass Save, everything else outline) - confirmed still correct, not
+   re-touched.
+2. **A verification + consistency follow-up** (this entry, same day):
+   real Playwright screenshots at 1440px and 390px across every page -
+   Home, Leads grid, listing detail + Reminder modal, Lead Generators +
+   its modal, Pipeline + its config modal, Comparables, Dashboard, Market
+   Data, Help - confirmed the main pass's coverage claims against the
+   actual rendered `index.html` (zero page errors) rather than trusting
+   the commit message, and found/fixed 4 small leftover inconsistencies
+   the main pass missed: a saturated-red (`#dc2626`) comparable-listing
+   marker on the listing detail page's own radius map (every other
+   comparable-marker map in the app was already brass); two `.danger`-
+   hover icon buttons (Lead Generator delete, Pipeline remove) using an
+   ad-hoc hex pair instead of the existing `--error` variable; every
+   native checkbox site-wide rendering with the browser's default blue
+   tick (fixed with one global `accent-color: var(--brass)` rule); and
+   every Leaflet map's "subject point" marker using Leaflet's default
+   blue pin icon (replaced with a small CSS-only brass teardrop,
+   `brassPinIcon()`, reused across all three call sites - no new image
+   asset). Full detail of both pieces and what's still explicitly open
+   (progressive-disclosure filters, no mobile sidebar collapse) is under
+   item 10 above.
 
 ## 22. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
 
@@ -1954,6 +2265,18 @@ Supabase itself isn't touched by this backfill (no DB credentials in this
 environment) - the next real `sync_to_supabase.py` run will pick up the
 id change and should clean up the 2 stale rows via its existing
 delete-stale logic; whoever runs it next should verify that.
+
+**Correction (Missy's PR #234 review, 2026-09-23):** the split above had
+silently dropped `homes_208381`'s most recent real snapshot and mistagged
+`homes_hs208381` as `"removed"` when it's actually `"active"` -
+`backfill_split_homes_id_collision.py` was sourcing both files' new
+entries from `leads_homes.json`'s shorter, already-deduped
+`price_history` instead of `history_homes.json`'s own complete
+`snapshots` list. Fixed and re-verified losslessly against the real
+`history_homes.json` snapshot counts (24 for `homes_208381`, 8 for
+`homes_205536`, both now fully accounted for); `homes_205536`'s split was
+unaffected (its two source lists were already identical). Full detail in
+`docs/decisions.md`'s matching correction entry.
 
 ---
 
