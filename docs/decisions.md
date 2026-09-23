@@ -2802,13 +2802,51 @@ not just hand-picked examples: 17 real samples spanning every prefix
 shape and every known false-positive-risk case, byte-identical between
 the Python and a standalone Node run of the exact new JS regex. Platform-
 wide effect: 8,573 -> 7,030 distinct area keys (1,543 spurious duplicate
-keys collapsed into their correct real-settlement key). For Cherven Bryag
-specifically: the "cherven bryag" area-key group grows from 13 (imot.bg
-only, since that was the only portal whose value happened to already
-match the OLD regex's coverage) to 29 raw records across 7 portals
-(imot.bg 13, bazar.bg 8, olx.bg 3, imoti.bg 1, imoti.net 2, homes.bg 1,
-bcpea 1) once homes.bg's "гр.Червен Бряг" variant is correctly folded in
-- 16 of those 29 are currently `active`.
+keys collapsed into their correct real-settlement key).
+
+**Correction (Missy's review, 2026-09-23): the Cherven Bryag-specific
+number below was wrong in the original version of this entry - the fix's
+real effect on this one town is much smaller than first claimed, and does
+NOT by itself explain the magnitude of the user's "only 8" report.**
+Missy ran the real OLD (pre-fix) regex directly against the committed
+data and found the "cherven bryag" area-key group was already **28 raw
+records / 15 active across 6 portals** before this fix - imot.bg 13,
+bazar.bg 8, olx.bg 3, imoti.net 2, imoti.bg 1, bcpea 1 - because all six
+of those portals' own raw `area` values for this town are already bare,
+unprefixed "Червен бряг"/"Cherven Bryag" strings with nothing for even
+the OLD regex to strip. I re-verified this independently and it's
+correct: only **homes.bg's single "гр.Червен Бряг" record** actually
+needed the new prefix-stripping to fold in. The real, fully-verified
+before/after is **28 raw/15 active (6 portals) -> 29 raw/16 active (7
+portals)** - a one-record recovery, not the "13 (imot.bg only) -> 29"
+story this entry originally claimed. The area-key fix itself is still
+real, correctly implemented, and platform-wide valuable (the 8,573 ->
+7,030 collapse above is independently confirmed exact and unaffected by
+this correction) - it just isn't what explains this user's specific
+complaint. Even the pre-fix baseline of 15 active records for Cherven
+Bryag was already nearly double the reported "8," so something else is
+the dominant cause - see the new note at the end of this entry.
+
+**What that dominant cause very likely is (found by Missy's review, not
+this investigation - handed to Scrapy, not chased down here):** comparing
+the scrapers' own committed inventory against the real live portals shows
+a raw scrape-coverage gap, separate from and larger than Root cause 3's
+missing-coordinates problem below. `data/leads_bazar.json` has only 8
+total Cherven Bryag records EVER (active + removed combined) against 36
+currently active on the live bazar.bg site; `data/leads_olx.json` has
+only 3 total ever vs. 7 active live; `data/leads_imot.json` has 13 total
+records ever (7 currently active) vs. 22 active live - I re-verified all
+three counts directly against the committed data myself and they hold,
+though the imot.bg figure is 13 total/7 active rather than "13 active" as
+first relayed. These are listings the scrapers apparently
+never captured at all - no amount of area-key normalization or oblast-
+override fixing recovers a listing that was never scraped in the first
+place, so this is very likely the actual dominant explanation for the
+user's "only 8" report, and this investigation did not touch it (wrong
+layer - scraper operational health is Scrapy's domain, not location-
+allocation). Dispatched to Scrapy to investigate directly; flagged here
+so this entry doesn't read as having found the dominant cause when a
+bigger, still-undiagnosed one exists.
 
 Verified this does NOT incorrectly merge "Червен бряг" (the real Pleven
 town) with olx.bg's/homes.bg's "с.Червен Брег"/"Червен брег" (5+5=10
@@ -2963,5 +3001,17 @@ Changes on `index.html` and `sync_to_supabase.py` (both files confirmed
 not concurrently edited by another agent's in-flight work when this
 session started, and re-diffed clean against `origin/main` after it
 advanced by 3 unrelated commits - `merge_history_conflict.py` - mid-
-session). Not committed or pushed - routed to Missy for independent
-review first, per standing process.
+session). Committed to `fix-location-allocation-2026-09-23`, not pushed/
+merged by this session.
+
+**Missy's review (2026-09-23): the code above (`index.html`/
+`sync_to_supabase.py`) is confirmed correct, safe, and well-verified - no
+code changes required.** She found one real error in this entry as
+originally written - the "13 (imot.bg only)" Cherven-Bryag-specific claim
+- corrected above after independently re-verifying her number against the
+real data myself (confirmed exact: 28 raw/15 active/6 portals pre-fix).
+She also surfaced the likely-dominant real cause documented above (the
+raw scraper-coverage gap), which this investigation's own methodology
+never reached since it's a different layer (scraper coverage, not
+allocation of listings that were actually scraped) - now dispatched to
+Scrapy rather than left implied-solved by this entry's original framing.

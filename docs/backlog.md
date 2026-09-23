@@ -3081,7 +3081,7 @@ Dispatch for whoever (Placy or otherwise) picks up what's left:
    which cover this path directly - no existing test suite for
    `sync_to_supabase.py`'s geo-resolution functions).
 
-## 29. Cherven Bryag Lead Generator undercount (user-reported, "Placy made a lot of mistakes") - two real gaps found and fixed, plus a radius-mode coordinate-coverage blind spot disclosed - DONE, pending review (2026-09-23)
+## 29. Cherven Bryag Lead Generator undercount (user-reported, "Placy made a lot of mistakes") - two real gaps found and fixed, a radius-mode coordinate-coverage blind spot disclosed, dominant likely cause handed to Scrapy - CODE REVIEWED AND CONFIRMED CORRECT BY MISSY, DOCS CORRECTED (2026-09-23)
 
 User reported the live Lead Generator for Cherven Bryag showing only 8
 listings vs. real portal counts far higher (bazar.bg 36, imot.bg 22,
@@ -3099,10 +3099,20 @@ fixable without either real coordinates or guessing):**
    incomplete** - never stripped с./село (13,867 raw values), гр./град
    (8,521), or в.з. (447) prefixes, only кв./жк./v. Fixed in both
    `index.html` and `sync_to_supabase.py`, kept 1:1 as required. Platform-
-   wide: 8,573 -> 7,030 distinct area keys. For Cherven Bryag: its area-
-   key group grows from 13 (imot.bg only) to 29 raw records across 7
-   portals (16 active) once homes.bg's "гр.Червен Бряг" variant correctly
-   folds in.
+   wide: 8,573 -> 7,030 distinct area keys (independently confirmed, still
+   holds). **Correction (Missy's review): the Cherven-Bryag-specific
+   number originally given here was wrong.** The "cherven bryag" area-key
+   group was already 28 raw records/15 active across 6 portals (imot.bg
+   13, bazar.bg 8, olx.bg 3, imoti.net 2, imoti.bg 1, bcpea 1) **before**
+   this fix, since those 6 portals' own raw `area` values for this town
+   were already bare/unprefixed - only homes.bg's single "гр.Червен Бряг"
+   record actually needed the new prefix stripping. Real effect: 28
+   raw/15 active (6 portals) -> 29 raw/16 active (7 portals), a one-record
+   recovery, not "13 (imot.bg only) -> 29." This fix does **not** explain
+   the magnitude of the user's "only 8" report by itself - the pre-fix
+   baseline (15 active) was already nearly double that. See item 29's own
+   entry in `docs/decisions.md` for Missy's likely real explanation
+   (a raw scraper-coverage gap, handed to Scrapy - not diagnosed here).
 2. **`IMOT_CITY_AREA_OBLAST_OVERRIDE` (item 24) was imot.bg-only** - the
    same portal-regional-grouping mislabeling recurs for this exact town on
    imoti.net (own URL: `.../lovech/lovech-cherven-brjag/...`) and imoti.bg.
@@ -3129,6 +3139,19 @@ fixable without either real coordinates or guessing):**
    resolves the search's oblast from Cyrillic city/municipality text - a
    Latin-typed town name outside the ~29 major cities won't trigger the
    caveat. Flagged, not fixed.
+4. **Likely dominant cause, found by Missy's review, not this
+   investigation - handed to Scrapy, not chased down here:** a raw
+   scraper-coverage gap separate from gap 3 above. `data/leads_bazar.json`
+   has only 8 Cherven Bryag records EVER (active+removed) vs. 36 active on
+   the live bazar.bg site; `data/leads_olx.json` has 3 total ever vs. 7
+   active live; `data/leads_imot.json` has 13 total (7 active) vs. 22
+   active live (all three counts independently re-verified against the
+   committed data). These are listings the scrapers apparently never
+   captured at all - no area-key or oblast-override fix recovers a
+   listing that was never scraped. This is very likely the real
+   explanation for the user's "only 8" report (the pre-fix area-key
+   baseline for this town was already 15 active, not 8) - out of this
+   item's scope (scraper operational health, not location allocation).
 
 **Verification**: every number recomputed directly against real committed
 `data/leads_*.json` and the real (updated) `sync_to_supabase.py`
@@ -3143,12 +3166,23 @@ fallback means the area-key half is effective immediately regardless.
 
 **Not fixed, explicitly out of scope, reported not remediated**: the
 underlying scrape/geocode-backfill-throughput gap driving gap 3 (Scrapy's
-domain); the 213 unreviewed (city,area) mismatch candidates from the
-systemic re-check (would need individual two-sided verification before
-any join `CITY_AREA_OBLAST_OVERRIDE`).
+domain); gap 4's raw scraper-coverage gap, very likely the actual
+dominant cause of the user's report (dispatched to Scrapy separately);
+the 213 unreviewed (city,area) mismatch candidates from the systemic
+re-check (would need individual two-sided verification before any join
+`CITY_AREA_OBLAST_OVERRIDE`).
 
-Changes on `index.html`/`sync_to_supabase.py`, not committed/pushed -
-routed to Missy for independent review, per standing process.
+**Missy's review (2026-09-23): code confirmed correct, safe, and well-
+verified in `index.html`/`sync_to_supabase.py` - no code changes needed.**
+Found one real documentation error (the "13 (imot.bg only) -> 29" claim
+above, corrected in this entry and in `docs/decisions.md`) and surfaced
+gap 4 above, which this investigation's own methodology never reached
+(wrong layer - scraper coverage, not location allocation). Docs corrected
+same day; code unchanged from Missy's reviewed version.
+
+Changes on `index.html`/`sync_to_supabase.py` (Missy-reviewed, unchanged)
+plus this doc correction, on branch `fix-location-allocation-2026-09-23`
+- not pushed/merged by this session.
 
 ---
 ---
