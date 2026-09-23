@@ -728,12 +728,27 @@
     font-size: 13px; font-weight: 500; cursor: pointer;
   }
   .leadgen-banner button:hover { border-color: var(--taupe); }
-  .pill-toggle-row { display: flex; gap: 6px; }
+  .pill-toggle-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .lg-saletype-btn {
     background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-size: 13px;
     padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
   }
   .lg-saletype-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
+  /* Lead Generator modal redesign (property-filter-spec.md's "Add New Lead
+     Generator" reference, BG-adapted): property type is a real multi-select
+     (each pill toggles independently, unlike the exclusive sale-type/
+     auction pills below it), so it gets its own class rather than reusing
+     .lg-saletype-btn's "clear every sibling, then activate one" wiring.
+     Auctions is exclusive-select (Any/Exclude/Only), same interaction shape
+     as sale type, but kept as its own class for the same reason
+     .pref-saletype-btn already is (see comment below) - a shared class name
+     would mean one unscoped querySelectorAll('.x-btn') click handler fights
+     over "active" state with any other pill group sharing that class. */
+  .lg-proptype-btn, .lg-auction-btn {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-size: 13px;
+    padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
+  }
+  .lg-proptype-btn.active, .lg-auction-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
   /* Preferences > Lead Generator's own copy of .lg-saletype-btn - a separate
      class, not a reuse, because the Lead Generator modal already wires a
      single unscoped document.querySelectorAll('.lg-saletype-btn') click
@@ -777,8 +792,27 @@
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .modal-field input[type="text"]:focus, .modal-field input[type="number"]:focus { outline: none; border-color: var(--brass); }
+  .modal-field select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
+  }
+  .modal-field select:focus { outline: none; border-color: var(--brass); }
   .modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .modal-hint { font-size: 12px; color: var(--taupe); margin: 4px 0 0; line-height: 1.5; }
+  /* Lead Generator modal redesign: groups fields into labeled sections
+     (Listing type / Property details / Location), same idea as Property
+     Filter's grouped "Add New Lead Generator" reference, but a plain
+     divider-and-heading rather than that reference's permanent two-pane
+     Templates sidebar - see the redesign's handoff notes for why a
+     Templates list wasn't ported over. First section (Name) has no header
+     of its own, so .first skips the divider/top-margin that every other
+     section uses to separate it from what's above. */
+  .modal-section-title {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 26px 0 14px; padding-top: 18px;
+    border-top: 1px solid var(--taupe-light);
+  }
+  .modal-section-title.first { margin-top: 0; padding-top: 0; border-top: none; }
   .checkbox-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;
     max-height: 180px; overflow-y: auto; border: 1px solid var(--taupe-light); border-radius: 4px; padding: 10px;
@@ -2006,6 +2040,46 @@
       <input type="text" id="lgName" placeholder="e.g. Lyulin flips" />
     </div>
 
+    <div class="modal-section-title first">Listing type</div>
+
+    <div class="modal-field">
+      <label>Sale type</label>
+      <div class="pill-toggle-row">
+        <button type="button" class="lg-saletype-btn active" data-saletype="sale">For Sale</button>
+        <button type="button" class="lg-saletype-btn" data-saletype="rent">To Rent</button>
+        <button type="button" class="lg-saletype-btn" data-saletype="both">Both</button>
+      </div>
+      <p class="modal-hint">imotenradar doesn't scrape rental listings yet (nationwide rental inventory is currently too thin to track reliably), so a "To Rent" or "Both" generator won't have real matches until that changes - tag it now so it's ready when it does.</p>
+    </div>
+
+    <div class="modal-section-title">Property details</div>
+
+    <div class="modal-field">
+      <label>Property type</label>
+      <div class="pill-toggle-row" id="lgPropertyTypeRow">
+        <button type="button" class="lg-proptype-btn active" data-type="flat">Flat</button>
+        <button type="button" class="lg-proptype-btn active" data-type="house">House</button>
+        <button type="button" class="lg-proptype-btn active" data-type="land">Land</button>
+        <button type="button" class="lg-proptype-btn active" data-type="garage">Garage</button>
+        <button type="button" class="lg-proptype-btn active" data-type="shop">Shop</button>
+        <button type="button" class="lg-proptype-btn active" data-type="business">Commercial</button>
+      </div>
+      <p class="modal-hint">Leave all selected (or clear all) to include every type.</p>
+    </div>
+
+    <div class="modal-field">
+      <label>Rooms</label>
+      <select id="lgRooms">
+        <option value="">Any</option>
+        <option value="1">1 (studio)</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5+</option>
+      </select>
+      <p class="modal-hint">Room count is read from each listing's title text, not a scraped field, so a listing whose title doesn't state it won't match a specific pick - leave on "Any" to include those too.</p>
+    </div>
+
     <div class="modal-field-row">
       <div class="modal-field">
         <label>Min price (€)</label>
@@ -2017,36 +2091,33 @@
       </div>
     </div>
 
-    <div class="modal-field">
-      <label>Min size (m²)</label>
-      <input type="number" id="lgMinSqm" placeholder="No min" style="max-width:200px;" />
+    <div class="modal-field-row">
+      <div class="modal-field">
+        <label>Min size (m²)</label>
+        <input type="number" id="lgMinSqm" placeholder="No min" />
+      </div>
+      <div class="modal-field">
+        <label>Max size (m²)</label>
+        <input type="number" id="lgMaxSqm" placeholder="No max" />
+      </div>
     </div>
 
     <div class="modal-field">
-      <label>Property types</label>
-      <div class="checkbox-grid">
-        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="apartment" checked /> Apartment</label>
-        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="house" /> House</label>
-        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="land" /> Land</label>
-        <label class="checkbox-item"><input type="checkbox" class="lgPropertyType" value="commercial" /> Commercial</label>
+      <label>Auctions</label>
+      <div class="pill-toggle-row">
+        <button type="button" class="lg-auction-btn active" data-auction="any">Any</button>
+        <button type="button" class="lg-auction-btn" data-auction="exclude">Exclude auctions</button>
+        <button type="button" class="lg-auction-btn" data-auction="only">Only auctions</button>
       </div>
-      <p class="modal-hint">Leave all checked (or all unchecked) to include every type.</p>
+      <p class="modal-hint">"Only auctions" matches listings from the National Auction Chamber (sales.bcpea.org) - enforcement-agent and private property auctions.</p>
     </div>
+
+    <div class="modal-section-title">Location</div>
 
     <div class="modal-field">
       <label>City</label>
       <input type="text" id="lgCity" value="Sofia" />
       <p class="modal-hint">The platform now covers all of Bulgaria (8 sites, 305,000+ listings). When this is a recognized major city (Sofia, Plovdiv, Varna, Burgas, etc.) it narrows Neighborhood matches to that city; for a smaller town, leave the neighborhood picker to match by name alone and the town's own name will usually already be in that list.</p>
-    </div>
-
-    <div class="modal-field">
-      <label>Sale type</label>
-      <div class="pill-toggle-row">
-        <button type="button" class="lg-saletype-btn active" data-saletype="sale">For Sale</button>
-        <button type="button" class="lg-saletype-btn" data-saletype="rent">To Rent</button>
-        <button type="button" class="lg-saletype-btn" data-saletype="both">Both</button>
-      </div>
-      <p class="modal-hint">imotenradar doesn't scrape rental listings yet (nationwide rental inventory is currently too thin to track reliably), so a "To Rent" or "Both" generator won't have real matches until that changes - tag it now so it's ready when it does.</p>
     </div>
 
     <div class="modal-field">
@@ -5472,6 +5543,16 @@ const LEGACY_PROPERTY_TYPE_TO_BUCKETS = {
   commercial: ['garage', 'shop', 'business'],
 };
 
+// Lead Generator gallery card badge labels - covers both the 6 real
+// typeFilterBucket() values this modal now saves and the 4 legacy
+// checkbox values (apartment/commercial) an older saved generator may
+// still hold, so a card never shows a raw unstyled lowercase string for
+// either shape of saved data.
+const LEADGEN_TYPE_BADGE_LABELS = {
+  flat: 'Flat', house: 'House', land: 'Land', garage: 'Garage',
+  shop: 'Shop', business: 'Commercial', apartment: 'Flat', commercial: 'Commercial',
+};
+
 // Price/size/type filters only, no area/location check at all - split out
 // of matchesLeadGenerator() below so leadGenUnmappedNearbyCount() can reuse
 // the exact same "would this listing match if it had coordinates" logic
@@ -5483,10 +5564,20 @@ function matchesLeadGeneratorFilters(l, gen) {
   if (f.minPrice != null && l.price_eur < f.minPrice) return false;
   if (f.maxPrice != null && l.price_eur > f.maxPrice) return false;
   if (f.minSqm != null && (l.sqm || 0) < f.minSqm) return false;
+  if (f.maxSqm != null && (l.sqm || 0) > f.maxSqm) return false;
   if (f.propertyTypes && f.propertyTypes.length) {
     const allowedBuckets = f.propertyTypes.flatMap(t => LEGACY_PROPERTY_TYPE_TO_BUCKETS[t] || [t]);
     if (!allowedBuckets.includes(typeFilterBucket(l))) return false;
   }
+  // Same "exact value, '5' means 5+" semantics as the main results filter's
+  // #roomsFilter (see its own comment) - kept identical rather than a
+  // looser "at least N" reading, so a saved generator's Rooms pick behaves
+  // exactly like picking the same value on the results page itself.
+  if (f.rooms) {
+    if (f.rooms === '5' ? (l.rooms ?? 0) < 5 : l.rooms !== parseInt(f.rooms, 10)) return false;
+  }
+  if (f.auctionMode === 'exclude' && l.portal === 'sales.bcpea.org') return false;
+  if (f.auctionMode === 'only' && l.portal !== 'sales.bcpea.org') return false;
   return true;
 }
 
@@ -5592,7 +5683,16 @@ function describeLeadGenerator(gen) {
   if (f.minPrice) priceParts.push(`€${fmt(f.minPrice)}+`);
   if (f.maxPrice) priceParts.push(`up to €${fmt(f.maxPrice)}`);
   lines.push(priceParts.length ? priceParts.join(' · ') : 'Any price');
-  lines.push(f.minSqm ? `${f.minSqm}m² min` : 'Any size');
+  const sizeParts = [];
+  if (f.minSqm) sizeParts.push(`${f.minSqm}m²+`);
+  if (f.maxSqm) sizeParts.push(`up to ${f.maxSqm}m²`);
+  lines.push(sizeParts.length ? sizeParts.join(' · ') : 'Any size');
+  // Only shown when set (design-guidelines.md's "sequence, don't dump" rule
+  // for card density) - most generators won't touch these two, so a bare
+  // price/size/area card stays exactly as short as it always was.
+  if (f.rooms) lines.push(f.rooms === '5' ? '5+ rooms' : `${f.rooms} room${f.rooms === '1' ? '' : 's'}`);
+  if (f.auctionMode === 'only') lines.push('Auctions only');
+  if (f.auctionMode === 'exclude') lines.push('Excludes auctions');
 
   const area = gen.area;
   if (area.mode === 'neighborhood') {
@@ -5715,8 +5815,12 @@ function renderLeadGenGallery() {
 
   const cardsHtml = rows.map(({ gen, counts }) => {
     const lines = describeLeadGenerator(gen);
+    // "All types" (empty propertyTypes) shows all 6 real buckets as badges,
+    // not the 4 legacy checkbox values this list used to default to - those
+    // legacy values (apartment/commercial) still display correctly too, via
+    // LEADGEN_TYPE_BADGE_LABELS' fallback to the raw string below.
     const types = (gen.filters.propertyTypes && gen.filters.propertyTypes.length)
-      ? gen.filters.propertyTypes : ['apartment', 'house', 'land', 'commercial'];
+      ? gen.filters.propertyTypes : ['flat', 'house', 'land', 'garage', 'shop', 'business'];
     const saleTypeLabel = { sale: 'For Sale', rent: 'To Rent', both: 'For Sale & To Rent' }[gen.saleType || 'sale'];
     return `
       <div class="leadgen-card">
@@ -5731,7 +5835,7 @@ function renderLeadGenGallery() {
           <div id="leadgenMap-${gen.id}" class="leadgen-mini-map"></div>
           <div class="leadgen-type-row">
             <span class="leadgen-type-badge leadgen-saletype-badge">${saleTypeLabel}</span>
-            ${types.map(t => `<span class="leadgen-type-badge">${escapeHtml(t)}</span>`).join('')}
+            ${types.map(t => `<span class="leadgen-type-badge">${escapeHtml(LEADGEN_TYPE_BADGE_LABELS[t] || t)}</span>`).join('')}
           </div>
         </div>
         <button class="leadgen-check-btn" data-check-id="${gen.id}">Check Leads</button>
@@ -5956,7 +6060,10 @@ function resetLeadGenModalFields() {
   document.getElementById('lgMinPrice').value = '';
   document.getElementById('lgMaxPrice').value = '';
   document.getElementById('lgMinSqm').value = '';
-  document.querySelectorAll('.lgPropertyType').forEach(cb => cb.checked = true);
+  document.getElementById('lgMaxSqm').value = '';
+  document.getElementById('lgRooms').value = '';
+  document.querySelectorAll('.lg-proptype-btn').forEach(b => b.classList.add('active'));
+  document.querySelectorAll('.lg-auction-btn').forEach(b => b.classList.toggle('active', b.dataset.auction === 'any'));
   // Preferences > Lead Generator defaults (docs/backlog.md item 19) - only
   // applied here, for a brand-new generator; openLeadGenModal()'s own
   // gen-editing branch below overwrites these with the saved generator's
@@ -6000,11 +6107,23 @@ function openLeadGenModal(genId) {
     document.getElementById('lgMinPrice').value = gen.filters.minPrice ?? '';
     document.getElementById('lgMaxPrice').value = gen.filters.maxPrice ?? '';
     document.getElementById('lgMinSqm').value = gen.filters.minSqm ?? '';
+    document.getElementById('lgMaxSqm').value = gen.filters.maxSqm ?? '';
+    document.getElementById('lgRooms').value = gen.filters.rooms ?? '';
     document.getElementById('lgCity').value = gen.area.city || 'Sofia';
     document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === (gen.saleType || 'sale')));
-    const types = gen.filters.propertyTypes || [];
-    document.querySelectorAll('.lgPropertyType').forEach(cb => {
-      cb.checked = types.length === 0 || types.includes(cb.value);
+    document.querySelectorAll('.lg-auction-btn').forEach(b => b.classList.toggle('active', b.dataset.auction === (gen.filters.auctionMode || 'any')));
+    // Expands through the same LEGACY_PROPERTY_TYPE_TO_BUCKETS map
+    // matchesLeadGeneratorFilters() itself uses, so a generator saved under
+    // the old 4-checkbox scheme (apartment/house/land/commercial) still
+    // shows the right pills lit up here - "commercial" -> garage+shop+
+    // business, "apartment" -> flat - rather than only recognizing the new
+    // 6-bucket values this modal now saves.
+    const savedTypes = gen.filters.propertyTypes || [];
+    const activeBuckets = savedTypes.length
+      ? new Set(savedTypes.flatMap(t => LEGACY_PROPERTY_TYPE_TO_BUCKETS[t] || [t]))
+      : null; // null = nothing saved = every type included
+    document.querySelectorAll('.lg-proptype-btn').forEach(btn => {
+      btn.classList.toggle('active', !activeBuckets || activeBuckets.has(btn.dataset.type));
     });
 
     if (gen.area.mode === 'neighborhood') {
@@ -6074,8 +6193,12 @@ function saveLeadGenFromModal() {
   const minPrice = parseFloat(document.getElementById('lgMinPrice').value) || null;
   const maxPrice = parseFloat(document.getElementById('lgMaxPrice').value) || null;
   const minSqm = parseFloat(document.getElementById('lgMinSqm').value) || null;
-  const checkedTypes = Array.from(document.querySelectorAll('.lgPropertyType:checked')).map(cb => cb.value);
-  const propertyTypes = (checkedTypes.length === 0 || checkedTypes.length === 4) ? [] : checkedTypes;
+  const maxSqm = parseFloat(document.getElementById('lgMaxSqm').value) || null;
+  const rooms = document.getElementById('lgRooms').value || null;
+  const checkedTypes = Array.from(document.querySelectorAll('.lg-proptype-btn.active')).map(b => b.dataset.type);
+  const propertyTypes = (checkedTypes.length === 0 || checkedTypes.length === 6) ? [] : checkedTypes;
+  const auctionBtn = document.querySelector('.lg-auction-btn.active');
+  const auctionMode = auctionBtn && auctionBtn.dataset.auction !== 'any' ? auctionBtn.dataset.auction : null;
   const city = document.getElementById('lgCity').value.trim() || 'Sofia';
 
   const area = { mode: lgAreaMode, city };
@@ -6109,7 +6232,7 @@ function saveLeadGenFromModal() {
     name,
     createdAt: existing ? existing.createdAt : new Date().toISOString(),
     lastCheckedAt: existing ? existing.lastCheckedAt : null,
-    filters: { minPrice, maxPrice, minSqm, propertyTypes },
+    filters: { minPrice, maxPrice, minSqm, maxSqm, propertyTypes, rooms, auctionMode },
     area,
     saleType,
   };
@@ -9542,6 +9665,21 @@ document.getElementById('lgRadiusCustom').addEventListener('input', () => {
 document.querySelectorAll('.lg-saletype-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Property type: a real multi-select, each pill toggles only itself (unlike
+// the exclusive sale-type/auction pills above and below it).
+document.getElementById('lgPropertyTypeRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.lg-proptype-btn');
+  if (!btn) return;
+  btn.classList.toggle('active');
+});
+
+document.querySelectorAll('.lg-auction-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lg-auction-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   });
 });
