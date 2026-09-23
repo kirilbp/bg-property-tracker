@@ -57,6 +57,13 @@
     margin: 0;
     color: var(--ink);
   }
+  /* Native checkboxes (property-type/neighborhood/tag pickers, "Exclude
+     sold") otherwise render with the browser's default blue tick - a
+     leftover second accent hue design-guidelines.md section 4 explicitly
+     rules out ("more than one accent hue anywhere in the system"). This
+     single rule retints every checkbox site-wide to the one brass accent,
+     with no per-checkbox markup changes needed. */
+  input[type="checkbox"] { accent-color: var(--brass); }
   .app { display: flex; min-height: 100vh; }
 
   /* Sidebar - docs/design-guidelines.md palette (backlog item 10, elevating
@@ -501,6 +508,20 @@
      circle and comparable pins at a glance. */
   .radius-map { height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
+  /* Brass subject-point map pin (see brassPinIcon() in JS) - a CSS-only
+     teardrop replacing Leaflet's default blue marker icon everywhere a
+     single subject point needs its own marker distinct from the brass
+     comparable dots around it, so the map has exactly one accent color
+     rather than two. */
+  .brass-pin {
+    width: 20px; height: 20px; margin: 2px 0 0 2px; border-radius: 50% 50% 50% 0;
+    background: var(--brass-deep); border: 2px solid var(--ivory); transform: rotate(-45deg);
+    box-shadow: 0 1px 4px rgba(36,31,26,0.35);
+  }
+  .brass-pin::after {
+    content: ''; position: absolute; top: 5px; left: 5px; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--ivory);
+  }
 
   /* Lead generators gallery */
   /* Lead Generators, Dashboard widgets, and the Deal Pipeline (docs/backlog.md
@@ -548,7 +569,7 @@
     cursor: pointer; font-size: 14px; color: var(--ink-soft);
   }
   .leadgen-icon-btn:hover { border-color: var(--taupe); background: var(--ivory-deep); }
-  .leadgen-icon-btn.danger:hover { border-color: #b08d3f; background: var(--ivory-deep); color: #7a3b2e; }
+  .leadgen-icon-btn.danger:hover { border-color: var(--error); background: var(--ivory-deep); color: var(--error); }
   .leadgen-type-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
   .leadgen-type-badge { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; padding: 2px 9px; border-radius: 999px; background: var(--ivory-deep); color: var(--ink-soft); }
   .leadgen-saletype-badge { background: rgba(169,129,46,0.12); color: var(--brass-deep); }
@@ -716,7 +737,7 @@
   .pl-stage-select { flex: 1; padding: 7px 8px; border: 1px solid var(--taupe-light); border-radius: 4px; font-family: var(--font-sans); font-size: 12px; background: white; color: var(--ink-soft); }
   .pl-icon-btn { border: 1px solid var(--taupe-light); background: white; border-radius: 4px; padding: 6px 9px; cursor: pointer; font-size: 13px; color: var(--ink-soft); }
   .pl-icon-btn:hover { border-color: var(--taupe); background: var(--ivory-deep); }
-  .pl-icon-btn.danger:hover { border-color: #b08d3f; color: #7a3b2e; }
+  .pl-icon-btn.danger:hover { border-color: var(--error); color: var(--error); }
   .pl-tag-popover {
     position: absolute; bottom: calc(100% + 6px); left: 0; background: white; border: 1px solid var(--taupe-light);
     border-radius: 6px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 5; min-width: 180px;
@@ -2845,6 +2866,24 @@ function computeRadiusAverage(l, radiusM) {
   return { count: prices.length, avgPrice, avgPerSqm, avgSqm };
 }
 
+// Leaflet's own default marker icon is a saturated blue pin - a second,
+// uncontrolled accent hue on every map in the app (design-guidelines.md
+// section 4's "no more than one accent hue anywhere in the system"). A
+// small CSS-only brass teardrop (see .brass-pin below) replaces it
+// wherever a single "this one" subject point needs to stand out from the
+// brass comparable dots around it, with no image asset needed. Built lazily
+// (not a top-level constant) so a blocked Leaflet CDN doesn't throw before
+// this even runs.
+function brassPinIcon() {
+  return L.divIcon({
+    className: 'brass-pin-icon',
+    html: '<div class="brass-pin"></div>',
+    iconSize: [22, 30],
+    iconAnchor: [11, 29],
+    popupAnchor: [0, -26],
+  });
+}
+
 // Tears down any previous Leaflet instance (its container div gets replaced
 // wholesale via innerHTML on every re-render, which would otherwise leak
 // map instances and throw "container is already initialized") and, if this
@@ -2874,7 +2913,7 @@ function updateRadiusMap(l) {
     maxZoom: 19,
   }).addTo(detailMap);
 
-  const subjectMarker = L.marker([l.lat, l.lng]).addTo(detailMap).bindPopup('This listing');
+  const subjectMarker = L.marker([l.lat, l.lng], { icon: brassPinIcon() }).addTo(detailMap).bindPopup('This listing');
 
   if (detailRadiusM) {
     const circle = L.circle([l.lat, l.lng], {
@@ -2885,12 +2924,16 @@ function updateRadiusMap(l) {
       weight: 2,
     }).addTo(detailMap);
 
+    // Brass, matching every other comparable-listing marker site-wide
+    // (Comparables tab, Lead Generator radius map, Market heat map) -
+    // this map was the one leftover spot still using a saturated red for
+    // a non-error, decorative marker (design-guidelines.md section 4/9).
     findComparables(l, detailRadiusM).slice(0, 300).forEach(s => {
       L.circleMarker([s.lat, s.lng], {
         radius: 6,
-        color: '#dc2626',
-        fillColor: '#dc2626',
-        fillOpacity: 0.7,
+        color: '#8a6a24',
+        fillColor: '#a9812e',
+        fillOpacity: 0.75,
         weight: 1,
       }).addTo(detailMap).bindPopup(
         `${escapeHtml(s.title || s.portal)}<br>€${fmt(s.price_eur)}${s.price_per_sqm ? ' · €' + fmt(s.price_per_sqm) + '/m²' : ''}`
@@ -4334,7 +4377,7 @@ function initLgRadiusMap() {
 function updateLgRadiusMapMarker() {
   if (!lgRadiusMap || !lgRadiusCenter) return;
   if (lgRadiusMapMarker) lgRadiusMap.removeLayer(lgRadiusMapMarker);
-  lgRadiusMapMarker = L.marker([lgRadiusCenter.lat, lgRadiusCenter.lng]).addTo(lgRadiusMap);
+  lgRadiusMapMarker = L.marker([lgRadiusCenter.lat, lgRadiusCenter.lng], { icon: brassPinIcon() }).addTo(lgRadiusMap);
   updateLgRadiusCircle();
 }
 
@@ -5970,7 +6013,7 @@ function renderDetailCompMap(l, comparables) {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   }).addTo(detailCompMap);
-  const subjectMarker = L.marker([l.lat, l.lng]).addTo(detailCompMap).bindPopup('This listing');
+  const subjectMarker = L.marker([l.lat, l.lng], { icon: brassPinIcon() }).addTo(detailCompMap).bindPopup('This listing');
   const markers = [subjectMarker];
   comparables.slice(0, 300).forEach(s => {
     markers.push(
