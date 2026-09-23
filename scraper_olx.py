@@ -119,6 +119,13 @@ OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
 HISTORY_FILE = OUT_DIR / "history_olx.json"
 LEADS_FILE = OUT_DIR / "leads_olx.json"
+# Persists only which OBLAST_SLUGS index the grid crawl should start from
+# next run (see fetch_listings()'s own comment) - deliberately its own tiny
+# file rather than folded into history_olx.json, since it's loop-position
+# state, not per-listing state, and item 31 (bazar.bg/imot.bg oblast-level
+# coverage, docs/backlog.md) is expected to reuse this exact small-file
+# pattern for its own rotation state rather than inventing a new one.
+GRID_STATE_FILE = OUT_DIR / "olx_grid_state.json"
 
 MAX_CARD_TEXT_LENGTH = 500
 MAX_PRICE_MENTIONS = 1
@@ -129,6 +136,20 @@ MAX_PAGES = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
 MAX_CONSECUTIVE_PAGE_FAILURES = 5
+
+# docs/backlog.md item 30: all 6 most recent scheduled runs hit the
+# workflow step's full 60-minute timeout-minutes cap exactly (60m12s-
+# 60m13s each, confirmed via the real GitHub Actions logs), getting through
+# only ~15 of OBLAST_SLUGS' 26 oblasts (~4min/oblast average) before being
+# hard-killed mid-page - continue-on-error then reported the workflow green
+# anyway. 50 minutes leaves a 10-minute buffer under that 60-minute cap -
+# comfortably more than the worst-case overshoot of one single page fetch
+# already in flight when the deadline is checked (fetch_html_with_retries()
+# tops out around 3 attempts * 30s nav timeout + <=15s backoff, ~1.75min)
+# plus the final checkpoint (a fast, local JSON write) - while keeping
+# real headroom over the ~15 oblasts/run the unbounded loop used to get
+# through before being killed.
+TIME_BUDGET_SECONDS = 50 * 60
 
 LISTING_LINK_RE = re.compile(r"/d/ad/[^\"'#]*-ID(\w+)\.html")
 PRICE_RE = re.compile(r"[\d\s]{3,10}\s?€")
@@ -382,19 +403,75 @@ def fetch_listing_details(listings, on_checkpoint=None, checkpoint_every=150, de
         browser.close()
 
 
-def fetch_listings():
+def load_grid_state():
+    if GRID_STATE_FILE.exists():
+        try:
+            return json.loads(GRID_STATE_FILE.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return {}
+
+
+def save_grid_state(state):
+    GRID_STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def fetch_listings(deadline=None, on_checkpoint=None):
+    # deadline/on_checkpoint mirror the exact pattern fetch_listing_details()
+    # already uses for its own detail-fetch phase (see that function's own
+    # comment, and backfill_detail_olx.py for a real caller) - stop cleanly,
+    # with everything fetched so far already saved, before the workflow
+    # step's own timeout-minutes would hard-kill the process mid-page
+    # instead (docs/backlog.md item 30: all 6 most recent scheduled runs hit
+    # that 60-minute cap exactly and lost whatever wasn't committed yet).
+    #
+    # OBLAST_SLUGS is a fixed list order, so a bounded run that always
+    # started at index 0 would always run out of budget on the same ~10
+    # tail oblasts (confirmed: 15/26 covered every time, always the same
+    # first 15) - GRID_STATE_FILE's next_start_index instead rotates which
+    # oblast THIS run starts from to wherever the PREVIOUS run left off, so
+    # a bounded run's leftover oblasts shift each time and every oblast gets
+    # roughly even coverage across runs instead of the tail being starved
+    # forever.
+    #
+    # No checkpoint_every here (unlike fetch_listing_details()'s fixed
+    # item-count one) - a completed oblast (up to MAX_PAGES pages) is
+    # already this loop's natural unit of progress, so on_checkpoint fires
+    # once per completed oblast instead. A future caller with a different
+    # natural batch size (e.g. item 31's bazar.bg/imot.bg oblast-level
+    # crawl, docs/backlog.md) can add its own checkpoint_every-style
+    # throttling on top of on_checkpoint without changing this shape.
     seen = {}
     geocoder = Geocoder()
+    state = load_grid_state()
+    start_index = state.get("next_start_index", 0) % len(OBLAST_SLUGS)
+    order = OBLAST_SLUGS[start_index:] + OBLAST_SLUGS[:start_index]
+    if start_index:
+        print(f"DEBUG: grid crawl resuming at oblast index {start_index} "
+              f"({order[0][0]}) per {GRID_STATE_FILE.name}'s rotation state")
+
+    oblasts_completed = 0
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=USER_AGENT, locale="bg-BG")
         page = context.new_page()
 
-        for oblast_display, slug in OBLAST_SLUGS:
+        for oblast_display, slug in order:
+            if deadline is not None and time.monotonic() >= deadline:
+                print(f"DEBUG: stopping grid crawl before {oblast_display} - approaching this run's time "
+                      f"budget, {len(order) - oblasts_completed} of {len(order)} oblasts left for a future run")
+                break
+
             search_url = f"{SEARCH_BASE}/{slug}/"
             oblast_before = len(seen)
             consecutive_failures = 0
+            oblast_interrupted = False
             for page_num in range(1, MAX_PAGES + 1):
+                if deadline is not None and time.monotonic() >= deadline:
+                    print(f"DEBUG: stopping mid-{oblast_display} at page {page_num} - "
+                          f"approaching this run's time budget")
+                    oblast_interrupted = True
+                    break
                 url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
                 link_count = fetch_listings_page(page, url, seen, geocoder, oblast_display)
                 print(f"DEBUG: {oblast_display} page {page_num} links matching listing URL pattern = {link_count}")
@@ -414,9 +491,31 @@ def fetch_listings():
                 consecutive_failures = 0
                 if link_count <= 1:
                     break
-            print(f"DEBUG: {oblast_display} done, {len(seen) - oblast_before} new listings")
+
+            suffix = " (interrupted mid-page, will resume here next run)" if oblast_interrupted else ""
+            print(f"DEBUG: {oblast_display} done, {len(seen) - oblast_before} new listings{suffix}")
+
+            if oblast_interrupted:
+                # Doesn't count as completed - next_start_index below stays
+                # pointed at this same oblast so the next run resumes on it
+                # instead of skipping straight past it.
+                break
+
+            oblasts_completed += 1
+            if on_checkpoint:
+                on_checkpoint(list(seen.values()), geocoder)
 
         browser.close()
+
+    # If every oblast in `order` completed, (start_index + len(order)) wraps
+    # back to start_index exactly - correct, since a fully-completed lap
+    # makes the next run's starting point unimportant either way.
+    next_start_index = (start_index + oblasts_completed) % len(OBLAST_SLUGS)
+    save_grid_state({"next_start_index": next_start_index})
+    if oblasts_completed < len(order):
+        print(f"DEBUG: grid crawl covered {oblasts_completed}/{len(order)} oblasts this run - next run "
+              f"resumes at oblast index {next_start_index} ({OBLAST_SLUGS[next_start_index][0]})")
+
     geocoder.save()
     return list(seen.values())
 
@@ -567,12 +666,41 @@ def compute_leads(history):
 
 
 def main():
-    listings = fetch_listings()
     history = load_history()
-    history = update_history(history, listings)
-    save_history(history)
+    recorded_ids = set()
+
+    def record_new(listings_so_far):
+        # Keyed by listing id (not just called once at the end) so a run
+        # that checkpoints several times mid-crawl (see fetch_listings())
+        # only ever appends the delta since the last checkpoint into
+        # history's snapshots - calling update_history() again on the same
+        # listing within one run would otherwise double-append a near-
+        # duplicate snapshot for it.
+        nonlocal history
+        new_listings = [l for l in listings_so_far if l["id"] not in recorded_ids]
+        if not new_listings:
+            return
+        history = update_history(history, new_listings)
+        recorded_ids.update(l["id"] for l in new_listings)
+        save_history(history)
+        leads = compute_leads(history)
+        LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def checkpoint(listings_so_far, geocoder):
+        record_new(listings_so_far)
+        geocoder.save()
+
+    deadline = time.monotonic() + TIME_BUDGET_SECONDS
+    listings = fetch_listings(deadline=deadline, on_checkpoint=checkpoint)
+    # Final catch-up: fetch_listings() only checkpoints after each *fully
+    # completed* oblast, so a run interrupted mid-oblast (deadline hit
+    # partway through that oblast's own page loop) can still be holding a
+    # few pages' worth of listings that were never checkpointed.
+    # record_new()'s id-delta tracking makes this a cheap no-op on a normal
+    # run where nothing was interrupted. geocoder.save() isn't repeated here
+    # - fetch_listings() already called it itself right before returning.
+    record_new(listings)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
 
 
