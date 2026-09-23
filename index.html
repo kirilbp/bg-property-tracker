@@ -171,6 +171,11 @@
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
   .count { font-size: 13px; color: var(--taupe); margin: 16px 0; }
+  /* Radius/polygon Lead Generator coordinate-coverage caveat (see
+     leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
+     visible caveat, not muted like .count, since it's disclosing a real
+     blind spot in the result count above it, not routine metadata. */
+  .count-caveat { font-size: 13px; color: var(--brass-deep, #96702f); margin: -8px 0 16px; }
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
   @media (max-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -1283,6 +1288,7 @@
         </div>
 
         <p class="count" id="count"></p>
+        <p class="count-caveat" id="countCaveat" style="display:none;"></p>
         <div class="pagination" id="paginationTop" style="display:none;"></div>
         <div class="grid" id="grid"></div>
         <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
@@ -4659,7 +4665,36 @@ const AREA_CYR_TO_LAT = {
   'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
   'ш': 'sh', 'щ': 'sht', 'ъ': 'a', 'ь': '', 'ю': 'yu', 'я': 'ya',
 };
-const AREA_PREFIX_RE = /^(v|kv\.?|zh\.?k?\.?)\s+/;
+// Extended 2026-09-23 (Placy investigation into a real undercount report -
+// a Cherven Bryag radius/area search showing far fewer matches than the
+// real portals) - the original version only stripped кв./жк./v prefixes.
+// Real committed data (live-audited across all 8 leads_*.json files)
+// showed two settlement-type prefixes just as common as those, never
+// handled at all: "с."/"село" (village, e.g. "с.Дерманци" - 13,867 raw
+// area values) and "гр."/"град" (town, e.g. "гр.Червен Бряг" - 8,521 raw
+// area values), plus "в.з." (вилна зона/villa zone, e.g. "в.з. Киноцентър"
+// - 447). None of the three appear in the original alternation at all, so
+// e.g. "гр.Червен Бряг" (homes.bg) and bare "Червен бряг" (imot.bg/
+// imoti.bg/imoti.net/bcpea - the same real Pleven-oblast town) normalized
+// to two DIFFERENT area keys ("gr.cherven bryag" vs "cherven bryag"),
+// splitting one real settlement's listings across two dropdown entries -
+// the exact same bug class backlog item 18 already fixed for кв./жк., just
+// two more prefixes it missed.
+//
+// A period is treated as sufficient proof of abbreviation on its own (safe
+// to strip with no required trailing space - most real "с."/"гр." values
+// have no space at all, e.g. "с.Дерманци"), while a spelled-out word with
+// no dot ("град"/"gr"/"kv"/"grad"/bare "v"/"s") is only stripped when
+// followed by real whitespace, a word-boundary safety net that matters:
+// live data has real neighborhood names that merely START WITH the same
+// letters, e.g. "Градска Част" ("urban part", a real neighborhood) and
+// "Града Балчик" - requiring the trailing space means "grad" only matches
+// when it's genuinely its own separate word, so neither of those gets
+// wrongly truncated. Verified against all ~300k raw area values in the
+// real committed data: this correctly strips every genuine с./гр./град/
+// в.з. prefix sample checked and leaves every "Градска"/"Града"-style
+// false-positive-risk word untouched.
+const AREA_PREFIX_RE = /^(?:v\.z\.|s\.|gr\.)\s*|^(?:vz|v|kv\.?|zh\.?k?\.?|grad|gr|s)\s+/;
 function normalizeArea(area) {
   if (!area) return '';
   let s = Array.from(area.toLowerCase().trim())
@@ -5116,7 +5151,12 @@ const LEGACY_PROPERTY_TYPE_TO_BUCKETS = {
   commercial: ['garage', 'shop', 'business'],
 };
 
-function matchesLeadGenerator(l, gen) {
+// Price/size/type filters only, no area/location check at all - split out
+// of matchesLeadGenerator() below so leadGenUnmappedNearbyCount() can reuse
+// the exact same "would this listing match if it had coordinates" logic
+// without duplicating it (and without silently re-deciding location
+// matching a second, different way - see that function's own comment).
+function matchesLeadGeneratorFilters(l, gen) {
   if (!gen) return true;
   const f = gen.filters || {};
   if (f.minPrice != null && l.price_eur < f.minPrice) return false;
@@ -5126,6 +5166,12 @@ function matchesLeadGenerator(l, gen) {
     const allowedBuckets = f.propertyTypes.flatMap(t => LEGACY_PROPERTY_TYPE_TO_BUCKETS[t] || [t]);
     if (!allowedBuckets.includes(typeFilterBucket(l))) return false;
   }
+  return true;
+}
+
+function matchesLeadGenerator(l, gen) {
+  if (!gen) return true;
+  if (!matchesLeadGeneratorFilters(l, gen)) return false;
 
   const area = gen.area || {};
   if (area.mode === 'neighborhood') {
@@ -5153,6 +5199,55 @@ function matchesLeadGenerator(l, gen) {
     if (!pointInPolygon(l.lat, l.lng, area.polygon)) return false;
   }
   return true;
+}
+
+// Radius/polygon mode's geometry check above is correct math - but it can
+// only ever run on a listing that HAS real lat/lng, and live-verified
+// against the real committed data (2026-09-23 investigation), only ~30% of
+// all active listings nationwide do (coverage varies hugely by portal -
+// e.g. bazar.bg ~1%, imoti.net ~15%, imoti.bg ~55% - most detail-page/
+// geocode backfills are still working through a nationwide-scale backlog,
+// see docs/decisions.md). A listing missing coordinates is silently
+// excluded by matchesLeadGenerator() with no way for a user to tell
+// "genuinely nothing here" apart from "something's here but not mapped
+// yet" - the exact gap a real user report flagged (a Cherven Bryag radius
+// search showing far fewer matches than the real portals themselves).
+//
+// This does NOT guess that an unmapped listing is actually inside the
+// radius - this project never guesses a location (see CLAUDE.md/
+// docs/decisions.md's "leave unclassified rather than guess" rule already
+// applied throughout geo_utils.py/sync_to_supabase.py). It only discloses
+// how many listings share the search's own broad oblast/province (via
+// listingOblastKey(), already correct at that granularity - see the
+// "Others" bucket fixes in docs/decisions.md) and would otherwise match
+// every non-location filter, so a user can see the size of the blind spot
+// instead of mistaking a low count for the true number of listings nearby.
+// Deliberately province-level, not radius-precise: there is no listing-
+// level ground truth to be more precise than that without either real
+// coordinates (which is exactly what's missing) or guessing.
+//
+// Returns 0 for neighborhood mode (that mode matches on area TEXT, not
+// coordinates - see matchesLeadGenerator() above - so it has no equivalent
+// blind spot) and 0 whenever the generator's own typed city/town text
+// doesn't resolve to a known oblast (left unresolved rather than guessed,
+// same discipline as everywhere else this project derives an oblast from
+// free text).
+function leadGenUnmappedNearbyCount(gen) {
+  if (!gen) return 0;
+  const area = gen.area || {};
+  if (area.mode !== 'radius' && area.mode !== 'polygon') return 0;
+  const targetOblast = oblastKeyFromName(area.city) || oblastKeyFromNamePrefix(area.city)
+    || oblastKeyFromMunicipality(area.city) || null;
+  if (!targetOblast) return 0;
+  let count = 0;
+  MERGED_LISTINGS.forEach(l => {
+    if (l.status === 'sold') return;
+    if (l.lat != null && l.lng != null) return; // has coordinates - already correctly tested by the real geometry check, not part of this blind spot
+    if (!matchesLeadGeneratorFilters(l, gen)) return;
+    if (listingOblastKey(l) !== targetOblast) return;
+    count++;
+  });
+  return count;
 }
 
 function populateLeadGenNeighborhoods() {
@@ -5232,7 +5327,7 @@ function computeLeadGenCounts(gen) {
     const firstSeen = listingFirstSeenDate(l);
     if (!gen.lastCheckedAt || (firstSeen && new Date(firstSeen) > new Date(gen.lastCheckedAt))) fresh++;
   });
-  return { total, fresh };
+  return { total, fresh, unmapped: leadGenUnmappedNearbyCount(gen) };
 }
 
 // Sale-type tab (property-filter-spec.md section 2: "tabs All / For Sale /
@@ -5311,6 +5406,7 @@ function renderLeadGenGallery() {
           </div>
           <h3>${escapeHtml(gen.name)}</h3>
           ${lines.map(l => `<p class="leadgen-summary-line">${escapeHtml(l)}</p>`).join('')}
+          ${counts.unmapped > 0 ? `<p class="leadgen-summary-line" title="Listings in the same province as this search that are missing exact map coordinates, so they couldn't be tested against the radius/area - not counted in the match total above, shown so a low count isn't mistaken for 'nothing here'">+${fmt(counts.unmapped)} more nearby without exact coordinates (not counted)</p>` : ''}
           <div id="leadgenMap-${gen.id}" class="leadgen-mini-map"></div>
           <div class="leadgen-type-row">
             <span class="leadgen-type-badge leadgen-saletype-badge">${saleTypeLabel}</span>
@@ -6667,6 +6763,24 @@ function render() {
   document.getElementById('count').textContent = filtered.length === 0
     ? `0 of ${MERGED_LISTINGS.length} listings`
     : `Showing ${fmt(pageStart + 1)}-${fmt(pageStart + pageItems.length)} of ${fmt(filtered.length)} listings`;
+
+  // Same coordinate-coverage blind spot as the "0 results" message below,
+  // surfaced here too - a nonzero-but-undercounted radius/polygon result
+  // (the shape a real user report flagged: far fewer matches than the real
+  // portals show) looked identical to "this is the true, complete count"
+  // with no indication anything was missing. See
+  // leadGenUnmappedNearbyCount()'s own comment for what this number is
+  // (and isn't) - never shown for the 0-results case, which already has
+  // its own fuller explanation via #empty below.
+  const countCaveat = document.getElementById('countCaveat');
+  const unmappedNearby = filtered.length > 0 ? leadGenUnmappedNearbyCount(filters.activeLeadGenerator) : 0;
+  if (unmappedNearby > 0) {
+    countCaveat.textContent = `+${fmt(unmappedNearby)} more listings in the same province are missing exact map `
+      + `coordinates, so they couldn't be checked against this radius/area - not included in the count above.`;
+    countCaveat.style.display = 'block';
+  } else {
+    countCaveat.style.display = 'none';
+  }
 
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
