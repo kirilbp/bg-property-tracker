@@ -363,7 +363,7 @@ still open:**
   imoti.net was; if either is, the same bug class could exist there.
   Needs its own investigation pass before assuming it's fine.
 
-## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - two small slice-2-adjacent fixes DONE - core slice 2 (server-side pagination) still open - URGENT
+## 6. Site is very slow to load/refresh - slice 1 DONE, MERGED - two small slice-2-adjacent fixes DONE, MERGED - core slice 2 (server-side pagination) DONE, pending review - URGENT
 
 From the user directly, unprompted (2026-09-22) - the live site
 (imotenradar.com) refreshes/loads very slowly and needs to be made as
@@ -668,16 +668,43 @@ undocumented regression found along the way are in `docs/decisions.md`'s
 
    Both 1 and 2 shipped together in
    [PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) -
-   pending Missy's review, not yet merged.
-3. The core piece: server-side filtered/paginated query for the primary
-   grid per the design above - build in an isolated worktree off a
-   **fresh** `origin/main` (re-check `git log`/active branches
-   immediately before starting - several other worktrees were actively
-   touching `index.html`-adjacent work as of this design pass, see the
-   decisions.md entry), verify against real live data, Missy's review
-   (not Revy - no auth/PII surface), ship via a real PR. Sequence after
-   tasks 1-2 land (shared `index.html` data-layer file), not in parallel
-   with them - **still open**.
+   merged.
+3. **DONE, pending review** - the core piece: server-side filtered/
+   paginated query for the primary grid per the design above. Built in an
+   isolated worktree off a fresh `origin/main`. `render()` now fires a
+   small server-side query for just the current page - predicates
+   translated from its own `.filter()` chain (price/sqm/days/reduced/
+   excludeSold/search/city/oblast, plus the 6 real type buckets + auction;
+   `area` is sent too, forward-compatible with item 26's still-pending
+   `area_key` migration - see below) - and paints the grid from it
+   immediately, while `loadData()`'s existing IndexedDB-cached bulk fetch
+   keeps running unchanged in the background for every other consumer
+   (Comparables, Market Data hub, Lead Generator counts/dropdowns, home
+   dashboard, area filter population). Composite `(sortColumnValue, id)`
+   keyset pagination (never `OFFSET`/`.range()`), Prev/Next via a small
+   cursor stack (no arbitrary-page jumping), never `count: 'exact'` or
+   `'estimated'` (an honest "at least N" lower bound instead, silently
+   upgraded to an exact figure once the background bulk load resolves and
+   the existing full-array `render()` path takes over). Every fetched
+   fast-path row is re-checked against the exact same `matchesAllFilters()`/
+   `sortComparator()` the slow path uses before it's ever painted, which is
+   what makes the server-side predicate translation safe to be best-effort
+   rather than perfectly exact for a few predicates that have no safe
+   server-side form at all (`rooms` - title-regex-derived, no DB column; a
+   Lead Generator's radius/polygon geofencing; the "Most recently reduced"
+   sort) - those are simply not fast-pathed (the client re-check still
+   enforces them exactly), a documented, bounded "shorter preview page,
+   never a wrong one" trade-off, not an oversight. Verified with a mocked-
+   Supabase-REST Playwright harness (no live Supabase access in this
+   sandbox) against a 350-row synthetic fixture with deliberate ties and
+   nulls - first paint, pagination (including the exact last-page
+   boundary and a rapid-double-click race), 9 filter/sort scenarios, and
+   the handoff to the authoritative slow path once the bulk load resolves,
+   21 assertions, all passing. PR opened, **not merged - needs Missy's
+   review** (no auth/PII surface, so Revy's review isn't required). See
+   `docs/decisions.md`'s matching entry for the full design, the real
+   findings surfaced while building it, and what's deliberately still out
+   of scope.
 4. Documented follow-up, do not dispatch blind: `findComparables()`'s
    server-side radius-search redesign - needs a live Supabase SQL-editor
    migration and a live-data test this sandbox can't perform. File as
