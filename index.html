@@ -333,6 +333,71 @@
   .city-tab-btn.active { border-color: var(--ink); background: var(--ink); color: var(--ivory); font-weight: 600; }
   .city-tab-count { font-weight: 400; opacity: 0.75; margin-left: 4px; }
 
+  /* Browse-by-city photo tiles (replaces the plain text-pill treatment for
+     this one section only - "Browse by Council" below keeps the pill row).
+     Each button also carries .city-tab-btn so the existing delegated click
+     handler and data-city-filter behavior keep working unchanged; these
+     rules are ordered after .city-tab-btn's so they win the cascade for
+     the properties that need to differ (background/padding/border-radius). */
+  .city-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 8px;
+  }
+  .city-tile.city-tab-btn {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    overflow: hidden;
+    background: var(--taupe-light);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    display: block;
+  }
+  .city-tile.city-tab-btn:hover { border-color: transparent; }
+  .city-tile.city-tab-btn.active {
+    background: var(--taupe-light);
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+  .city-tile img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: 50% 42%;
+    transition: transform 350ms ease-out;
+    display: block;
+  }
+  .city-tile:hover img, .city-tile:hover .ph-bg { transform: scale(1.045); }
+  .ph-bg {
+    position: absolute; inset: 0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ph-bg::before {
+    content: attr(data-letter);
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 1.6em; color: var(--ivory); opacity: 0.28;
+    mix-blend-mode: overlay; line-height: 1; user-select: none;
+  }
+  .ph-g0 { background: linear-gradient(135deg, var(--brass) 0%, var(--brass-deep) 100%); }
+  .ph-g1 { background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%); }
+  .ph-g2 { background: linear-gradient(135deg, var(--taupe) 0%, var(--brass-deep) 100%); }
+  .ph-g3 { background: linear-gradient(150deg, var(--ink-soft) 0%, var(--taupe) 100%); }
+  .ph-g4 { background: linear-gradient(135deg, var(--brass-deep) 0%, var(--ink) 100%); }
+  .ph-g5 { background: linear-gradient(150deg, var(--taupe) 0%, var(--brass) 100%); }
+  .city-tile-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(24,20,16,0.94) 0%, rgba(24,20,16,0.55) 40%, rgba(24,20,16,0.02) 70%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 6px 7px; text-align: left;
+  }
+  .city-tile-name { font-family: var(--font-serif); font-weight: 500; font-size: 12.5px; color: var(--ivory); margin: 0; line-height: 1.15; }
+  .city-tile-count { font-family: var(--font-sans); font-size: 9px; color: var(--ivory); opacity: 0.82; line-height: 1.3; }
+  @media (max-width: 640px) {
+    .city-photo-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+    .city-tile-name { font-size: 11px; }
+    .city-tile-count { font-size: 8.5px; }
+  }
+
   /* Help page */
   .help-section { margin-bottom: 24px; }
   .help-section h3 { font-family: var(--font-serif); font-weight: 500; font-size: 17px; margin: 0 0 8px; color: var(--ink); }
@@ -1156,7 +1221,7 @@
         <div class="card">
           <h2>Browse by city</h2>
           <p class="card-sub">The 30 largest cities and towns in Bulgaria, plus "Others" for every listing that isn't specifically one of them. 7 of 8 portals only cover Sofia, so Sofia's count will dominate until more sources expand nationwide - sales.bcpea.org is the one already-nationwide source.</p>
-          <div class="city-tab-row" id="cityTabRow"></div>
+          <div class="city-photo-grid" id="cityTabRow"></div>
         </div>
         <div class="card">
           <h2>Browse by Council</h2>
@@ -2612,39 +2677,49 @@ function renderTypeFilters() {
 // gives the settlement as whatever's left after the matched raw type,
 // independent of whether l.area itself later got overwritten with a more
 // precise district name by the detail-page enrichment pass).
+// Each entry's `photo` is a Wikimedia Commons file title, loaded via
+// commons.wikimedia.org/wiki/Special:FilePath/<title>?width=N (Commons'
+// own stable hotlink-safe redirect). Confidence is high for the larger
+// regional-capital cities; lower for Asenovgrad, Dupnitsa, Svishtov,
+// Montana and Dimitrovgrad (smaller towns/disambiguation-prone names) -
+// renderCityTabs()'s onerror fallback swaps any tile that 404s to a
+// gradient+initial tile, so a bad filename never shows a broken image.
 const BG_CITIES = [
-  { key: 'sofia', label: 'Sofia', name: 'София' },
-  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив' },
-  { key: 'varna', label: 'Varna', name: 'Варна' },
-  { key: 'burgas', label: 'Burgas', name: 'Бургас' },
-  { key: 'ruse', label: 'Ruse', name: 'Русе' },
-  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора' },
-  { key: 'pleven', label: 'Pleven', name: 'Плевен' },
-  { key: 'sliven', label: 'Sliven', name: 'Сливен' },
-  { key: 'dobrich', label: 'Dobrich', name: 'Добрич' },
-  { key: 'shumen', label: 'Shumen', name: 'Шумен' },
-  { key: 'pernik', label: 'Pernik', name: 'Перник' },
-  { key: 'haskovo', label: 'Haskovo', name: 'Хасково' },
-  { key: 'yambol', label: 'Yambol', name: 'Ямбол' },
-  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик' },
-  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград' },
-  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново' },
-  { key: 'vratsa', label: 'Vratsa', name: 'Враца' },
-  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово' },
-  { key: 'vidin', label: 'Vidin', name: 'Видин' },
-  { key: 'asenovgrad', label: 'Asenovgrad', name: 'Асеновград' },
-  { key: 'kazanlak', label: 'Kazanlak', name: 'Казанлък' },
-  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил' },
-  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали' },
-  { key: 'montana', label: 'Montana', name: 'Монтана' },
-  { key: 'dimitrovgrad', label: 'Dimitrovgrad', name: 'Димитровград' },
-  { key: 'targovishte', label: 'Targovishte', name: 'Търговище' },
-  { key: 'lovech', label: 'Lovech', name: 'Ловеч' },
-  { key: 'silistra', label: 'Silistra', name: 'Силистра' },
-  { key: 'dupnitsa', label: 'Dupnitsa', name: 'Дупница' },
-  { key: 'svishtov', label: 'Svishtov', name: 'Свищов' },
+  { key: 'sofia', label: 'Sofia', name: 'София', photo: 'Sofia montage.jpg' },
+  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив', photo: 'Plovdiv montage.jpg' },
+  { key: 'varna', label: 'Varna', name: 'Варна', photo: 'Varna montage.jpg' },
+  { key: 'burgas', label: 'Burgas', name: 'Бургас', photo: 'Burgas montage.jpg' },
+  { key: 'ruse', label: 'Ruse', name: 'Русе', photo: 'Ruse montage.jpg' },
+  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора', photo: 'Stara Zagora montage.jpg' },
+  { key: 'pleven', label: 'Pleven', name: 'Плевен', photo: 'Pleven montage.jpg' },
+  { key: 'sliven', label: 'Sliven', name: 'Сливен', photo: 'Sliven montage.jpg' },
+  { key: 'dobrich', label: 'Dobrich', name: 'Добрич', photo: 'Dobrich montage.jpg' },
+  { key: 'shumen', label: 'Shumen', name: 'Шумен', photo: 'Shumen montage.jpg' },
+  { key: 'pernik', label: 'Pernik', name: 'Перник', photo: 'Pernik montage.jpg' },
+  { key: 'haskovo', label: 'Haskovo', name: 'Хасково', photo: 'Haskovo montage.jpg' },
+  { key: 'yambol', label: 'Yambol', name: 'Ямбол', photo: 'Yambol montage.jpg' },
+  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик', photo: 'Pazardzhik montage.jpg' },
+  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград', photo: 'Blagoevgrad montage.jpg' },
+  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново', photo: 'Veliko Tarnovo montage.jpg' },
+  { key: 'vratsa', label: 'Vratsa', name: 'Враца', photo: 'Vratsa montage.jpg' },
+  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово', photo: 'Gabrovo montage.jpg' },
+  { key: 'vidin', label: 'Vidin', name: 'Видин', photo: 'Vidin montage.jpg' },
+  { key: 'asenovgrad', label: 'Asenovgrad', name: 'Асеновград', photo: 'Asenovgrad montage.jpg' },
+  { key: 'kazanlak', label: 'Kazanlak', name: 'Казанлък', photo: 'Kazanlak montage.jpg' },
+  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил', photo: 'Kyustendil montage.jpg' },
+  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали', photo: 'Kardzhali montage.jpg' },
+  { key: 'montana', label: 'Montana', name: 'Монтана', photo: 'Montana, Bulgaria montage.jpg' },
+  { key: 'dimitrovgrad', label: 'Dimitrovgrad', name: 'Димитровград', photo: 'Dimitrovgrad, Bulgaria montage.jpg' },
+  { key: 'targovishte', label: 'Targovishte', name: 'Търговище', photo: 'Targovishte montage.jpg' },
+  { key: 'lovech', label: 'Lovech', name: 'Ловеч', photo: 'Lovech montage.jpg' },
+  { key: 'silistra', label: 'Silistra', name: 'Силистра', photo: 'Silistra montage.jpg' },
+  { key: 'dupnitsa', label: 'Dupnitsa', name: 'Дупница', photo: 'Dupnitsa montage.jpg' },
+  { key: 'svishtov', label: 'Svishtov', name: 'Свищов', photo: 'Svishtov montage.jpg' },
 ];
 const BG_CITY_BY_NAME = Object.fromEntries(BG_CITIES.map(c => [c.name, c.key]));
+function bgCommonsUrl(fileTitle, width) {
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileTitle)}?width=${width}`;
+}
 
 function bcpeaSettlementFromTitle(l) {
   if (!l.title) return null;
@@ -2830,13 +2905,29 @@ function renderCityTabs() {
     if (key) counts[key]++;
     else othersCount++;
   });
-  row.innerHTML = BG_CITIES.map(c => `
-    <button class="city-tab-btn${activeCityFilter === c.key ? ' active' : ''}" data-city-filter="${c.key}">
-      ${c.label}<span class="city-tab-count">${fmt(counts[c.key])}</span>
-    </button>
-  `).join('') + `
-    <button class="city-tab-btn${activeCityFilter === 'others' ? ' active' : ''}" data-city-filter="others">
-      Others<span class="city-tab-count">${fmt(othersCount)}</span>
+  row.innerHTML = BG_CITIES.map((c, i) => cityTileHtml(c, counts[c.key], activeCityFilter === c.key, i)).join('')
+    + cityTileHtml({ key: 'others', label: 'Others', photo: null }, othersCount, activeCityFilter === 'others', BG_CITIES.length);
+}
+
+// Renders one "Browse by city" photo tile. Real cities load a Wikimedia
+// Commons photo; "Others" (a catch-all bucket, not an actual place) and
+// any city whose photo URL 404s fall back to a gradient+initial tile via
+// the img's onerror handler, so a bad filename never shows a broken image.
+function cityTileHtml(c, count, isActive, gradIndex) {
+  const gradClass = 'ph-g' + (gradIndex % 6);
+  const fallbackHtml = `<div class="ph-bg ${gradClass}" data-letter="${c.label[0]}"></div>`;
+  const photoHtml = c.photo
+    ? `<img src="${bgCommonsUrl(c.photo, 400)}" alt="${c.label}" loading="lazy"
+         onerror="const p=this.parentElement,f=this.dataset.fallback; this.remove(); if (p) p.insertAdjacentHTML('afterbegin', f);"
+         data-fallback="${fallbackHtml.replace(/"/g, '&quot;')}" />`
+    : fallbackHtml;
+  return `
+    <button class="city-tile city-tab-btn${isActive ? ' active' : ''}" data-city-filter="${c.key}" aria-label="${c.label}, ${fmt(count)} listings">
+      ${photoHtml}
+      <div class="city-tile-scrim">
+        <p class="city-tile-name">${c.label}</p>
+        <span class="city-tile-count">${fmt(count)}</span>
+      </div>
     </button>
   `;
 }
