@@ -1140,7 +1140,7 @@ access" framing as the alo.bg selector search above. No auth/session/
 personal-data surface either way - Revy's review not expected to be
 needed for this task.
 
-## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority
+## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority - DONE (2026-09-23)
 
 User's direct words: *"The overall design and appearance of the website
 does not come as luxurious and stylish."* This lands **after** item 13's
@@ -1169,6 +1169,62 @@ elsewhere) currently shows several equal-weight buttons (Save, Compare
 nearby, Remind me, pipeline actions all styled the same). If this
 surfaces a need for non-frontend changes, stop and flag per Dessy's
 standing instruction rather than touching backend/scraper files herself.
+
+**Status: done, in two passes.** The bulk of the site-wide pass (sidebar,
+listing grid/cards, search/filter panel, home/help pages, pagination, and
+the shared modal CSS used by Lead Generator/Reminder/Pipeline-config
+modals) shipped directly to `main` on 2026-09-23 ("Site-wide design pass:
+extend brass/ivory/ink palette beyond listing detail" + a same-day follow-
+up fix, both already merged via PR #224 before this entry was written up -
+verified live in the actual `index.html` on `main`, not just from the
+commit message). See item 21 below for the full inventory of what that
+pass covered. This entry's own remaining work was a **verification +
+consistency pass** on top of that already-merged work (real Playwright
+screenshots at 1440px and 390px across every page - Home, Leads grid,
+listing detail + Reminder modal, Lead Generators + its modal, Pipeline +
+its config modal, Comparables, Dashboard, Market Data, Help - zero page
+errors), which found and fixed 4 small leftover inconsistencies the
+original pass missed:
+- The listing detail page's own radius/comparables Leaflet map was the
+  one place still drawing comparable-listing markers in saturated red
+  (`#dc2626`) instead of the brass used for the exact same "comparable
+  listing" concept everywhere else in the app (Comparables tab, Lead
+  Generator radius map, Market Data heat map) - a real, if small,
+  violation of section 4/9's "reserve red strictly for functional errors."
+  Recolored to match.
+- Two `.danger`-hover icon-button states (Lead Generator card delete
+  icon, Pipeline card remove icon) used an ad-hoc one-off hex pair
+  (`#b08d3f`/`#7a3b2e`) instead of the `--error` CSS variable already
+  defined for exactly this "muted danger, not stock red" purpose -
+  switched both to `var(--error)`.
+- Every native checkbox site-wide (property-type filters, neighborhood
+  pickers, "Exclude sold," tag pickers) rendered with the browser's
+  default blue tick - an uncontrolled second accent hue on every page
+  with a checkbox. Fixed with one global rule,
+  `input[type="checkbox"] { accent-color: var(--brass); }` - no
+  per-checkbox markup changes needed.
+- Every Leaflet map's "subject point" marker (detail page radius map,
+  detail page Comparables-tab map, Lead Generator radius-picker map) used
+  Leaflet's own default blue pin icon, another uncontrolled second accent
+  hue. Replaced with a small CSS-only brass teardrop (`brassPinIcon()` /
+  `.brass-pin`, no new image asset) reused across all three call sites.
+
+**Explicitly still open, flagged rather than attempted here** (both
+already named as deliberate scope cuts by the original pass, confirmed
+still real by this pass's own mobile screenshots): the search/filter
+panel still shows all 9 filters at once instead of a progressive-
+disclosure "3-4 primary + More filters" pattern, and - the more visible
+one - **the sidebar does not collapse at mobile widths**: real 390px-wide
+screenshots of every page (Home, Market Data, Help, Pipeline, etc.) show
+the fixed 220px dark sidebar eating well over half the viewport, squeezing
+body text into an unreadably narrow column and wrapping data tables one
+cell per line. This is a real, visible defect on mobile, not a nitpick -
+but fixing it means a real interaction pattern (hamburger/off-canvas nav
+with open/close state), a meaningfully different kind of change than a
+palette/hierarchy pass, so it's deliberately left as its own follow-up
+rather than bolted on here. Recommend it as the next design-related
+backlog item given how much it undercuts the "luxurious" read on mobile
+specifically.
 
 ## 11. Supabase Pro plan follow-ups - PENDING
 
@@ -1881,7 +1937,7 @@ boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
 data source, unlike the rest of this backlog.
 
-## 21. Visual/premium design refresh
+## 21. Visual/premium design refresh - DONE (2026-09-23, Dessy)
 
 **Priority elevated by item 10** (user feedback, 2026-09-23: the live
 site still doesn't read as luxurious/stylish, since item 13's redesign
@@ -1897,6 +1953,49 @@ restrained palette (deep neutral tones + one considered accent) in place
 of a bright SaaS-blue palette, subtle elevation/shadow and rounded card
 surfaces. Explicitly: match Property Filter's *workflow and information
 density*, not its visual skin - imotenradar should read as more premium.
+
+**Status: done.** Shipped in two pieces, both against `docs/design-
+guidelines.md`'s already-established (item 13) Playfair Display + Inter /
+warm ivory-brass-ink-sage CSS variables - no new palette invented:
+
+1. **The main pass** (merged straight to `main`, 2026-09-23, before this
+   write-up): recolored/re-typeset every remaining surface item 13 had
+   left untouched - the sidebar (warm ink canvas, brass active state with
+   a left-border accent instead of a solid fill, understated no-fill
+   hover), the main listing grid/cards (photo-dominant cards kept, but
+   badges rebuilt as small-caps muted pills - one brass "Hot deal" accent,
+   one sage signal color for every buyer-favorable price fact, neutral
+   ink/taupe for everything else - replacing the old saturated red/green/
+   blue/purple ribbon system per section 6/9's explicit "status labels,
+   not ribbons" rule), the search/filter panel, pagination, Home page
+   (stat tiles, portal chips, type/city pills), Help page, the Reminders
+   list, and the shared modal CSS used by the Lead Generator/Reminder/
+   Pipeline-config modals. Also applied "one primary action per view"
+   (section 5/6): the Home page's second solid CTA was demoted to an
+   outline `.cta-btn-secondary`, and the listing detail page's Save/
+   Compare/Remind/Pipeline row already had this from item 13 (one solid
+   brass Save, everything else outline) - confirmed still correct, not
+   re-touched.
+2. **A verification + consistency follow-up** (this entry, same day):
+   real Playwright screenshots at 1440px and 390px across every page -
+   Home, Leads grid, listing detail + Reminder modal, Lead Generators +
+   its modal, Pipeline + its config modal, Comparables, Dashboard, Market
+   Data, Help - confirmed the main pass's coverage claims against the
+   actual rendered `index.html` (zero page errors) rather than trusting
+   the commit message, and found/fixed 4 small leftover inconsistencies
+   the main pass missed: a saturated-red (`#dc2626`) comparable-listing
+   marker on the listing detail page's own radius map (every other
+   comparable-marker map in the app was already brass); two `.danger`-
+   hover icon buttons (Lead Generator delete, Pipeline remove) using an
+   ad-hoc hex pair instead of the existing `--error` variable; every
+   native checkbox site-wide rendering with the browser's default blue
+   tick (fixed with one global `accent-color: var(--brass)` rule); and
+   every Leaflet map's "subject point" marker using Leaflet's default
+   blue pin icon (replaced with a small CSS-only brass teardrop,
+   `brassPinIcon()`, reused across all three call sites - no new image
+   asset). Full detail of both pieces and what's still explicitly open
+   (progressive-disclosure filters, no mobile sidebar collapse) is under
+   item 10 above.
 
 ## 22. Area/neighborhood filter and Lead Generators use exact raw-string matching against un-normalized portal text - undercounts every settlement, not just Cherven Bryag - DONE, MERGED (2026-09-22)
 
