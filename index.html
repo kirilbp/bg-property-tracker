@@ -39,6 +39,15 @@
     --brass: #a9812e;
     --brass-deep: #8a6a24;
     --sage: #7a8b6f;
+    /* Not one of the 9 core palette colors above - design-guidelines.md
+       section 6 ("Forms and filter panels") explicitly carves out an
+       exception for validation/error text specifically: "reserving any
+       stronger color purely for the text itself, not a filled background."
+       A muted brick tone (not stock red) so it stays legible as "error"
+       while still reading as part of this warm palette rather than a
+       bright SaaS red. Used only by .modal-error - not a general-purpose
+       accent. */
+    --error: #a33f34;
     --font-serif: 'Playfair Display', Georgia, serif;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
@@ -82,7 +91,7 @@
 
   .card {
     background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
-    padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(36,31,26,0.05);
+    padding: 24px; margin-bottom: 24px;
     font-family: var(--font-sans); color: var(--ink);
   }
   .card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; color: var(--ink); }
@@ -139,15 +148,14 @@
 
   /* Listing card - docs/design-guidelines.md section 6: photo-dominant,
      text below the photo (not overlaid), small-caps signal-only badges in
-     place of saturated ribbons, a subtle shadow + hairline border instead
-     of a heavy box, and a slow photo zoom on hover instead of a border
-     color snap. Small radius (6px), not the old fully-rounded 12px. */
+     place of saturated ribbons, a thin hairline border (not combined with
+     a shadow - section 6 is explicit that it's border OR shadow, not
+     both), and a slow photo zoom on hover instead of a border color snap.
+     Small radius (6px), not the old fully-rounded 12px. */
   .listing {
     background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px;
-    overflow: hidden; position: relative; box-shadow: 0 2px 12px rgba(36,31,26,0.05);
-    transition: box-shadow 250ms ease-out;
+    overflow: hidden; position: relative;
   }
-  .listing:hover { box-shadow: 0 4px 20px rgba(36,31,26,0.10); }
   .listing img { transition: transform 350ms ease-out; }
   .listing:hover img { transform: scale(1.04); }
   .save-listing-btn {
@@ -635,7 +643,7 @@
      a filled/saturated background) - kept as text-only red, the one place
      the palette allows a stronger color since it's a genuine error, not a
      decorative status. */
-  .modal-error { color: #a33f34; font-family: var(--font-sans); font-size: 13px; margin: -8px 0 14px; display: none; }
+  .modal-error { color: var(--error); font-family: var(--font-sans); font-size: 13px; margin: -8px 0 14px; display: none; }
   .modal-error.show { display: block; }
 
   /* Comparables table (Comparables tab + standalone Comparables nav
@@ -963,7 +971,7 @@
         <div class="card">
           <h2>Ready to browse?</h2>
           <p class="card-sub">Filter by price, size and area, and sort by motivation score to find the best leads.</p>
-          <button class="cta-btn" id="goToLeadsBtn">Browse listings →</button>
+          <button class="cta-btn-secondary" id="goToLeadsBtn">Browse listings →</button>
         </div>
       </section>
 
