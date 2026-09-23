@@ -1283,11 +1283,95 @@ network failure reproduced identically on unmodified `main`, unrelated to
 this change). See `docs/decisions.md`'s matching 2026-09-23 entry for
 full screenshot-by-screenshot detail.
 
-## 11. Supabase Pro plan follow-ups - PENDING
+## 11. Supabase Pro plan follow-ups - AUDIT DONE (2026-09-23), one code
+comment updated, nothing else changed, one dashboard setting flagged
 
 Free-tier limits are gone, daily backups are running. Revisit anything
 designed around the old 500 MB limit (retry/backoff tuned for storage-
 related 500s, any code that assumed a small dataset for cost reasons).
+
+**Status (2026-09-23): full audit done** across `sync_to_supabase.py`,
+every `scraper*.py`/`backfill_*.py`, `index.html`, and
+`measure_listings_payload.py`/`audit_cross_city_merges.py`. Searched for
+every explicit free-tier/cost/500MB/connection-pool/statement-timeout
+reference (`grep -i "free.?tier|500 ?MB|connection.?pool|backoff|retry|
+statement_timeout|57014"` across the whole repo, not just a guess at
+likely files) and read each hit's surrounding code to judge whether it
+was cost-motivated or serving a second, still-valid purpose. Full
+per-finding reasoning in `docs/decisions.md`'s 2026-09-23 "Backlog item
+11" entry. Summary:
+
+- **Only one place in the whole codebase explicitly cites the free tier
+  as its reason for existing**: `index.html`'s `loadData()` comment,
+  explaining why `listing_sources` isn't bulk-loaded (only
+  `merged_listings` is) - originally written to say the sustained
+  request volume "exhaust[ed] something on the free-tier project (a
+  connection pool, most likely)". **Not reverted** - backlog item 6
+  already independently re-examined this exact design after the Pro
+  upgrade and concluded the underlying problem (shipping every raw
+  per-portal row's heavy jsonb columns to every browser on every visit)
+  is a client-payload/UX problem, not just backend capacity, so it holds
+  regardless of plan tier. The comment itself was stale/misleading
+  though (still framed as purely a free-tier workaround) - **updated**
+  to state plainly that this was re-audited post-Pro-upgrade and
+  deliberately kept, with a pointer to item 6's fuller reasoning. Comment
+  only, no logic changed.
+- **`sync_to_supabase.py`'s `request_with_retries()`** (`BATCH_SIZE=500`,
+  `MAX_HTTP_RETRIES=4`, `RETRY_BACKOFF_SECONDS=5`) - **not free-tier
+  motivated at all**, and left unchanged. Its own comment explains it
+  exists because a real production sync once crashed outright on a
+  single transient Postgres 57014 (statement timeout) with zero retry
+  logic anywhere - this protects against genuine transient errors on any
+  tier, not a cost workaround. `BATCH_SIZE=500` has no free-tier-related
+  comment anywhere and isn't a payload-size cost throttle; it's sized to
+  keep individual upsert batches comfortably clear of the same
+  statement-timeout wall documented elsewhere in this file (a bigger
+  batch is a *higher*-risk change on this specific axis, not a safe
+  relaxation) - left as-is.
+- **`scraper.py`/`scraper_alo.py`/every other scraper's own
+  `fetch_with_retries()`-style retry/backoff** - these retry HTTP
+  fetches against the *external portals* (imoti.net, alo.bg, etc.), not
+  Supabase. Unrelated to Supabase's plan tier; out of scope for this
+  item, left unchanged.
+- **Keyset pagination** (`fetchAllRows()` in `index.html`,
+  `delete_stale_merged_listings()` in `sync_to_supabase.py`,
+  `audit_cross_city_merges.py`) replacing `OFFSET`-based paging - this
+  was a fix for a genuine Postgres query-plan cost problem (`OFFSET`'s
+  scan-and-discard cost growing with page depth, eventually exceeding
+  the statement timeout), not a free-tier-specific limit. Would still be
+  necessary on Pro (the underlying cost-scaling is inherent to `OFFSET`,
+  not a tier setting) - left unchanged.
+- **No deliberate row-count/payload-size throttling or "keep it small
+  because free tier" comments found anywhere** - `prune_snapshots()`
+  (`geo_utils.py`) shrinks redundant same-price history snapshots, but
+  that's genuine deduplication (never drops a real price change or the
+  most recent snapshot), not a cost-driven cap, and is worth keeping on
+  any tier.
+- **"Free tier" mentions in `docs/strategy/marketing-strategy.md` and
+  `subscription-strategy.md` are a false-positive match** - those
+  describe imotenradar.com's own future *product* subscription tiers
+  (a business-model doc), unrelated to Supabase's infrastructure tier.
+  Not touched.
+
+**Live Supabase dashboard setting flagged, not applied (this sandbox has
+no live Supabase access)**: several places in this codebase
+(`measure_listings_payload.py`'s `count=exact` fallback,
+`audit_cross_city_merges.py`'s deep-OFFSET failures,
+`sync_to_supabase.py`'s `delete_stale_merged_listings()` comment) document
+hitting Postgres error 57014 (`statement_timeout`) on expensive queries
+against `merged_listings`. All of these are already worked around
+gracefully in code (keyset pagination, a documented fallback row count),
+so nothing is broken today - but the Postgres **`statement_timeout` for
+the API roles (`anon`/`authenticated`) is itself a project-level Supabase
+setting that is only configurable on paid plans** (Free tier can't raise
+it at all). Now that the project is on Pro, Kiril could raise it via the
+Supabase dashboard (Project Settings -> Database -> Configuration/Roles,
+or `alter role authenticator set statement_timeout = '...'` in the SQL
+editor) if a future feature needs a genuinely expensive query (e.g. a
+real `count=exact` for pagination totals, per item 6 slice 2's own open
+question). **Not required** - purely optional headroom, since every
+current caller already degrades gracefully without it - flagging it here
+so it isn't lost, not because anything is currently broken.
 
 ## 12. Motivation score rework - DONE
 
@@ -1943,26 +2027,50 @@ Don't batch multiple tasks' review together - each goes the moment it's
 locally verified, per this project's standing "nothing ships without
 Missy, and she sees it immediately" rule.
 
-## 18. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 18. Deal Calculator (investment strategy modeling) - formula work DONE, ready to build except 2 open items (2026-09-23)
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
-property) is a strong, fully replicable pattern. But per the spec itself,
-the actual input fields and math behind every strategy's output metrics
-were never shown/captured (INFERRED throughout) - this needs either a
-further Nosy capture pass of a populated calculator or independent
-financial-modeling work before a builder can implement it, so it's
-sequenced after the items above rather than blocking on them.
+property) is a strong, fully replicable pattern. The formula-work
+blocker is now resolved: `docs/deal-calculator-formulas.md` gives real,
+BG-market-adapted input fields and math for every strategy below,
+sourced against standard real-estate-investment formulas (cash-on-cash
+return, cap rate, BRRR "cash left in deal", GDV/residual development
+appraisal, etc.) plus researched Bulgarian defaults (transfer tax,
+mortgage LTV/rates, STR licensing). **Note: that doc also corrects an
+outdated assumption - Bulgaria adopted the euro on 1 January 2026, so
+all figures/fields are EUR, not BGN** (matching `index.html`'s existing
+`price_eur` fields).
 
-- Replicable with Bulgarian-market defaults once formulas are known: BTL,
+- **Ready to build with real formulas:** BTL (extends the shipped BTL
+  Stress Test from item 15 - `computeBtlStressTest()` in `index.html`),
   BRRR, BTSA, BRSAR, FLIP, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale.
-  Whether R2R/serviced-accommodation strategies are common/legal enough
-  in the Bulgarian market to be worth building is a business call for
-  whenever this item is picked up, not a technical blocker.
-- Drop: Title Split - Hold/Sell (relies on UK Land Registry's split-title
-  registration, no known BG equivalent).
-- Open question, needs Bulgarian legal confirmation before deciding:
-  PLO (Purchase Lease Option) - see "Open questions" below.
+- **Still a business call, not a technical blocker** (per
+  `deal-calculator-formulas.md` section 8): R2R (long-term subletting)
+  is legal in Bulgaria by default for a *part*-property sublet (e.g.
+  room-by-room/co-living); a *whole*-property sublet needs the head
+  landlord's explicit consent instead (corrected per Missy's review -
+  see `deal-calculator-formulas.md` section 7 for the Art. 234 ZZD
+  distinction).
+  R2SA/BTSA/BRSAR (short-term/serviced accommodation) are also legal but
+  *regulated* - they require Tourism Act categorization/registration as
+  an accommodation place, with a real per-bed fee and platform-enforced
+  compliance. Whether that regulatory overhead makes these strategies
+  worth building is still the user's call to make when this item is
+  picked up.
+- **Drop, confirmed (not just UK-only-and-unresolved):** Title Split -
+  Hold/Sell. Research now explains *why* there's no BG equivalent to
+  build instead: Bulgaria's condominium ownership regime (етажна
+  собственост) already gives every apartment its own title at
+  construction, so the UK problem title-splitting solves doesn't exist
+  here; converting an *undivided* building is the change-of-designation
+  process already covered under COM2RESI-TOSELL.
+- **Still genuinely open - needs a Bulgarian real-estate lawyer, not
+  more research:** PLO (Purchase Lease Option). See "Open questions"
+  below - no formula was written for it, on purpose, since a
+  lease-option structure's Bulgarian enforceability is unconfirmed and
+  a fabricated formula for an unconfirmed legal structure would be worse
+  than not offering the strategy.
 
 ## 19. Preferences / settings to support items 13-18
 
@@ -1982,7 +2090,7 @@ Preferences as one block:
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
   item 18).
 
-## 20. Map tab additions
+## 20. Map tab additions - Satellite + Amenities SHIPPED (2026-09-23, Dessy), Street View BLOCKED, Cadastral OUT OF SCOPE
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
@@ -1992,7 +2100,82 @@ substitute is worth calling out on its own: **cadastral map integration**
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
 boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
-data source, unlike the rest of this backlog.
+data source, unlike the rest of this backlog - **deliberately not
+attempted in this pass, still open.**
+
+**Shipped 2026-09-23** (built on the existing listing-detail radius map,
+`index.html`'s `updateRadiusMap()`/`renderRadiusPanel()` - the same
+Leaflet integration item 13 already uses, not a new separate "Maps tab"
+with the spec's full 7-icon rail, which would be a materially bigger
+scope than "low effort, ship alongside item 13" calls for):
+
+- **Satellite layer - DONE.** A Street/Satellite toggle (two small
+  buttons above the map, styled like the existing radius-btn/brass
+  palette, no new blue) switches the map's base tile layer between the
+  existing OpenStreetMap street tiles and Esri World Imagery
+  (`server.arcgisonline.com/.../World_Imagery/...`) - a free, keyless
+  aerial-imagery tile service (no account or billing needed, unlike
+  Google's satellite tiles), the standard choice the Leaflet ecosystem
+  uses for exactly this reason (`leaflet-extras/leaflet-providers`'
+  `Esri.WorldImagery` entry).
+- **Amenities (POI) layer - DONE.** An "Amenities" toggle button queries
+  the Overpass API (`overpass-api.de`) - OpenStreetMap's free, keyless,
+  CORS-open live-query service, no account needed (unlike Google
+  Places) - for schools, hospitals, pharmacies, kindergartens, banks,
+  supermarkets, restaurants/cafes, bus stops, and train stations within
+  800m of the listing, and plots them as small hollow (unfilled) brass
+  rings - distinct from the existing solid brass comparable-listing dots
+  by shape, not a second fill color (see docs/decisions.md's 2026-09-23
+  PR #238 review-fix entry: the original sage-filled version violated
+  design-guidelines.md's "sage is text-only, never a filled marker/badge"
+  rule). Results
+  are cached per-listing so re-rendering the map (radius/layer clicks)
+  doesn't re-query. Fails gracefully: a blocked/slow/erroring request or
+  a listing with none nearby shows a small inline note instead of
+  breaking the map.
+- **Street View - NOT built, correctly blocked, not faked.** Checked for
+  a genuinely free/keyless option per this dispatch's instruction before
+  building anything: Google Street View needs a paid/billed API key
+  (already known, out of scope). The realistic open alternatives
+  (Mapillary, KartaView) are not truly keyless either - both require
+  registering for a free API/client token, a credential this sandbox
+  doesn't have and the user would need to supply, and neither has known
+  reliable coverage in Bulgaria the way Google's does. No Bulgarian
+  government or open equivalent is known. **Needs the user to decide
+  whether to supply a Mapillary (or similar) API token, or a Google
+  Street View billing key, before this sub-feature can be built at all**
+  - left undone rather than shipping a broken/empty panel.
+
+**Verification caveat, flagged rather than assumed:** this sandbox's
+egress proxy blocks all external hosts, including ones the live site
+already depends on today (`unpkg.com`, `cdn.jsdelivr.net`, and the
+already-shipped `tile.openstreetmap.org`) - confirmed via direct `curl`
+(403 from the proxy on every one) and via the proxy's own status log.
+So neither the new Esri satellite tiles nor a real Overpass response
+could be fetched live from this session to visually confirm real tile
+pixels/POI data render correctly - this is a sandbox-only limitation,
+not evidence the integrations don't work (the app already relies on
+the same class of external host working in production). Verified
+instead with a real Playwright harness against the actual `index.html`
+(vendored Leaflet/Chart/Supabase locally, reusing a prior session's
+harness pattern in scratchpad) with the two new endpoints stubbed with
+realistic responses (Overpass's own long-documented, stable
+`{elements: [{type, id, lat, lon, tags}]}` JSON shape): confirmed the
+Street/Satellite toggle correctly swaps the active tile layer and
+requests satellite tiles, the Amenities toggle correctly fetches once,
+caches, and plots markers on the map (2/2 stub POIs rendered), the
+graceful-failure note renders correctly when the POI fetch is made to
+fail, an empty-result note renders correctly on a mobile (390px)
+viewport with no layout overflow, and the whole page still loads with
+zero *new* console/page errors (one pre-existing `_leaflet_pos`
+Leaflet-internal warning was independently reproduced against
+unmodified `main` too, confirming it predates this change and isn't a
+regression). **Whoever reviews this should still confirm the real Esri
+tile and Overpass responses render correctly against the live
+deployed site** (this session cannot, being sandboxed) before
+considering the visual/data-accuracy side fully confirmed - the toggle
+mechanics and error-handling are the part this session could verify
+directly.
 
 ## 21. Visual/premium design refresh - DONE (2026-09-23, Dessy)
 
@@ -2621,7 +2804,16 @@ only the specific sub-feature named, not the whole item it belongs to:
 - **PLO (Purchase Lease Option) strategy** (item 18) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
-  call.
+  call. 2026-09-23 research (`docs/deal-calculator-formulas.md` section
+  11): Bulgaria's closest native mechanism, the preliminary contract
+  (предварителен договор), is a promise to complete a sale, not a
+  lease-with-a-purchase-option - it doesn't grant the buyer occupation
+  or income rights the way a PLO's lease component does. No established
+  Bulgarian equivalent to the UK PLO structure was found, and this
+  research couldn't confirm how enforceable a standalone lease+option
+  contract would be if a seller tried to walk away mid-option. Still
+  needs an actual Bulgarian real-estate lawyer's confirmation, not more
+  desk research - no formula has been written for this strategy.
 
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
