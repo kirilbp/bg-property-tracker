@@ -2048,24 +2048,118 @@ Don't batch multiple tasks' review together - each goes the moment it's
 locally verified, per this project's standing "nothing ships without
 Missy, and she sees it immediately" rule.
 
-## 18. Deal Calculator (investment strategy modeling) - formula work DONE, ready to build except 2 open items (2026-09-23)
+## 18. Deal Calculator (investment strategy modeling) - MECHANISM + BTL + FLIP SHIPPED, MVP (2026-09-23, Dessy)
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
 property) is a strong, fully replicable pattern. The formula-work
-blocker is now resolved: `docs/deal-calculator-formulas.md` gives real,
-BG-market-adapted input fields and math for every strategy below,
-sourced against standard real-estate-investment formulas (cash-on-cash
-return, cap rate, BRRR "cash left in deal", GDV/residual development
-appraisal, etc.) plus researched Bulgarian defaults (transfer tax,
-mortgage LTV/rates, STR licensing). **Note: that doc also corrects an
-outdated assumption - Bulgaria adopted the euro on 1 January 2026, so
-all figures/fields are EUR, not BGN** (matching `index.html`'s existing
+blocker was resolved earlier the same day: `docs/deal-calculator-formulas.md`
+gives real, BG-market-adapted input fields and math for every strategy
+below, sourced against standard real-estate-investment formulas
+(cash-on-cash return, cap rate, BRRR "cash left in deal", GDV/residual
+development appraisal, etc.) plus researched Bulgarian defaults (transfer
+tax, mortgage LTV/rates, STR licensing). That doc also corrected an
+outdated assumption - Bulgaria adopted the euro on 1 January 2026, so all
+figures/fields are EUR, not BGN (matching `index.html`'s existing
 `price_eur` fields).
 
-- **Ready to build with real formulas:** BTL (extends the shipped BTL
-  Stress Test from item 15 - `computeBtlStressTest()` in `index.html`),
-  BRRR, BTSA, BRSAR, FLIP, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale.
+**Status: MVP shipped - the mechanism proven end-to-end with 2 of the 9
+replicable strategies fully built, not all 9 at once, per explicit scope.**
+Self-verified with a real Playwright harness (vendored Chart.js/Leaflet/
+supabase-js, the same ~304-row fixture other recent dispatches used)
+against the actual current `index.html` - strategy picker renders with
+both live strategies and all 7 "coming soon" placeholders correctly
+disabled/labeled, BTL and FLIP arithmetic independently re-derived from
+the formulas doc and cross-checked against the app's own computed output
+(not just "something renders"), a filled calculator saves as a template
+and survives a real page reload, and opening the calculator from a real
+listing's own detail page pre-fills purchase price correctly (confirmed
+€243,000 from the fixture's `m_a1a89f586cea0f80` listing) with size shown
+as read-only context alongside it. Tested at 1440px and 390px, zero
+console errors. Not yet reviewed by Missy, not merged - PR to follow.
+
+**What shipped:**
+- **The mechanism, generically, not hardcoded to just these 2 strategies.**
+  A new "Deal Calculator" nav section (`#section-dealcalc`) plus a matching
+  tab on every listing's own detail page. A 2-step wizard modal
+  (`dealCalcModalOverlay`): step 1 is a `DEAL_CALC_STRATEGIES`-driven grid
+  (9 cards - the 2 live strategies below, plus 7 clearly-labeled "Coming
+  soon" disabled placeholders for BRRR/BTSA/BRSAR/R2R/R2SA/
+  COM2RESI-TOSELL/Assisted Sale - see "Deferred" below); step 2 renders
+  that strategy's own form + live-computed outputs (reuses the existing
+  `.btl-grid`/`.btl-input-row`/`.btl-outputs` visual language from the
+  already-shipped BTL Stress Test tab, not a new visual language). Saved
+  calculations persist to a new `dealCalculatorTemplates` localStorage key
+  (same no-login, this-browser-only pattern as `leadGenerators`/
+  `pipelineDeals`/`pipelineStages`), each either a reusable "My Templates"
+  entry (`listingId: null`) or one "Linked to Properties" entry
+  (`listingId` set, opened from that listing's own "Deal Calculator" tab,
+  which pre-fills purchase price from the listing's real `price_eur` and
+  shows its `sqm` as read-only context - see the "sqm" judgment call
+  below). Edit/duplicate/delete wired on every template card in both the
+  nav section and the listing tab, plus a "go to linked property" link.
+- **BTL** - deliberately extends, not reimplements, the shipped BTL Stress
+  Test: `computeDealCalcBtl()` calls the existing `computeBtlStressTest()`/
+  `BTL_DEFAULTS` from item 15 for the ICR affordability check, then layers
+  gross/net rental yield, cap rate, annual operating costs (management fee,
+  maintenance reserve, void allowance, insurance, HOA), an amortizing
+  monthly mortgage payment (`amortizedMonthlyPayment()`, the standard
+  formula from the doc's section 1.3, used only for cash-flow math - the
+  ICR test itself stays interest-only per the existing convention), monthly/
+  annual cash flow, total cash invested, and cash-on-cash return on top -
+  all per `deal-calculator-formulas.md` section 2. `BTL_DEFAULTS` values
+  (themselves overridable via Preferences > Deal Stacker, item 19) seed the
+  new calculator's own LTV/interest/ICR fields so the two tools never
+  silently disagree.
+- **FLIP** - `computeDealCalcFlip()`, a simpler, self-contained strategy
+  (doc section 4) chosen specifically to prove the mechanism independently
+  of the BTL extension: Total Project Costs, Total Cash Needed (minus any
+  purchase-financing loan amount - added as its own input, a direct, small
+  extension of the doc's own "some project cost may be borrowed" framing),
+  Gross Profit, and ROI.
+- **Verified arithmetic** (independently re-derived from the formulas doc
+  in the test script, not copied from `index.html`'s own implementation):
+  BTL at price=€100,000/rent=€600/mo/LTV 70%/4.0%/25yr -> gross yield 7.2%,
+  net yield 4.76%, cap rate 4.76% (market value defaulted to price),
+  monthly cash flow ≈€27, cash-on-cash ≈0.97%, total cash invested
+  €33,500, minimum rent to pass the ICR test ≈€292 - all matched to
+  within rounding. FLIP at purchase=€80,000/reno=€15,000/holding=€2,000/
+  financing=€1,000/resale=€130,000/selling 3% -> Total Project Costs
+  €100,800, Total Cash Needed €100,800 (no loan), Gross Profit €25,300,
+  ROI ≈25.1% - exact match.
+- **Deferred to a follow-up dispatch, clearly labeled, not half-built:**
+  BRRR, BTSA, BRSAR, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale all show as
+  disabled "Coming soon" cards in the strategy picker
+  (`DEAL_CALC_STRATEGIES[].live = false`) - their formulas already exist in
+  `docs/deal-calculator-formulas.md` sections 3/5/6/7/8/9/10, ready for a
+  follow-up using this same now-proven mechanism (add a strategy entry + a
+  `computeDealCalc*()` + a `renderDealCalc*FormHtml()`, following the
+  BTL/FLIP pattern exactly). The R2R/R2SA/BTSA/BRSAR "is this worth
+  building given BG short-term-rental regulation" business question below
+  is still open and unaffected by this dispatch.
+- **Not built, per explicit instruction, not even as placeholders:** PLO
+  (no formula exists - needs Bulgarian legal confirmation first, see
+  `deal-calculator-formulas.md` section 11) and Title Split (confirmed
+  drop - Bulgaria's condominium ownership regime has no equivalent problem
+  to solve, see that doc's section 12).
+- **Judgment call - no sqm-denominated input field in BTL/FLIP.** Neither
+  strategy's own formula (per the doc) takes size as an input - price is a
+  single total, not per-m². Rather than bolt on an unused field, sqm is
+  shown as read-only context in the wizard's "Linked to..." banner instead
+  (confirmed live: "Linked to 1 bedroom apartment, 128 м² Sofia, Geo
+  Milev, 128 m²"), and purchase price is the one field that actually
+  pre-fills into the form. Will apply cleanly to COM2RESI-TOSELL's real
+  per-m² build-cost inputs once that strategy is built in the follow-up.
+- **Not touched, flagged rather than silently expanded into:** the
+  Preferences page's own "Deal Calculator Templates" sub-tab (item 19
+  deliberately left unbuilt pending this item) - out of scope for this
+  dispatch to avoid growing into a shared page mid-flight; worth a small
+  follow-up now that item 18 has a real default (Bulgarian transfer-tax %)
+  to surface there.
+- No backend/scraper/schema files touched.
+
+Original formula-resolution framing, kept for history:
+
 - **Still a business call, not a technical blocker** (per
   `deal-calculator-formulas.md` section 8): R2R (long-term subletting)
   is legal in Bulgaria by default for a *part*-property sublet (e.g.
