@@ -1858,7 +1858,7 @@ pipeline underneath was fine throughout (alo.bg's history grew from
 87,979 to 90,159 listings with zero data loss); only the Supabase sync
 step was broken.
 
-## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - ROOT CAUSE FOUND (2026-09-23), fix not yet applied
+## 23. homes.bg listing `homes_208381` (and possibly others): price oscillates wildly between two exact values across scrape history - FIX APPLIED (2026-09-23) - backfill for 2 of 3 known-corrupted IDs done, 1 left open pending live verification
 
 Found by Dessy while testing backlog item 17's price/status history chart,
 confirmed and reproduced independently by Missy during PR #200's review -
@@ -1918,6 +1918,42 @@ any undetected others), which will need a separate one-time backfill/
 split pass to separate the interleaved records back into two distinct
 listings per collided ID, once the new ID scheme exists to split them
 under.
+
+**FIX APPLIED (2026-09-23).** `scraper_homes.py` now builds the tracking
+ID via `build_tracking_id()`, which reads the real 2-letter type prefix
+straight off the offer's own `viewHref` (ground truth, not guessed from
+our `category`/`type_id` bucketing, which can't tell `LandParcel` from
+`LandAgro` since both map to the same `"land"` bucket) - both places that
+built an id had the bug and both are fixed (`parse_offer()` and the
+pre-parse "already seen this run" dedup check in `scrape_slice()`, which
+would otherwise still cross-type-collide within a single run). Checked
+the rest of the codebase for anything assuming the old unprefixed
+`homes_<digits>` shape (`sync_to_supabase.py`, `index.html`,
+`detect_relistings.py`, `merge_history_conflict.py`) - none parse or
+regex the tracking id itself, all treat it as an opaque string, confirmed
+by running `sync_to_supabase.py`'s row-building against the fixed+split
+data with no crash. Full evidence, the exact commits behind each split,
+and why `homes_209031` was deliberately left unsplit are in
+`docs/decisions.md`'s 2026-09-23 entry.
+
+**Backfill: DONE for `homes_208381`/`homes_205536`, still open for
+`homes_209031`.** The first two had unambiguous, mechanically-confirmed
+dual full-record evidence in `main`'s real git history (two cleanly
+distinguishable records each, with their accumulated `price_history`
+splitting perfectly and losslessly between the two records' exact,
+non-overlapping prices) and were split into `homes_hs208381`/
+`homes_lp208381` and `homes_hs205536`/`homes_lp205536` via
+`backfill_split_homes_id_collision.py` (kept in the repo, run once).
+Post-split, both listings show zero real price drops - the "oscillation"
+was entirely a collision artifact. `homes_209031` has no second
+full-record variant anywhere in local history to split against (only a
+second price value, with nothing showing what listing it belonged to) -
+left untouched rather than guessed; needs live homes.bg access to check
+`as209031`/`lp209031`/`la209031` directly before it's safe to split.
+Supabase itself isn't touched by this backfill (no DB credentials in this
+environment) - the next real `sync_to_supabase.py` run will pick up the
+id change and should clean up the 2 stale rows via its existing
+delete-stale logic; whoever runs it next should verify that.
 
 ---
 

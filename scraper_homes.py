@@ -162,6 +162,42 @@ BGN_TO_EUR = 1.95583
 STATE_RE = re.compile(r"window\.__PRELOADED_STATE__\s*=\s*(\{.*?\});", re.DOTALL)
 SQM_RE = re.compile(r"(\d+)\s?m²")
 
+# homes.bg's own URL scheme type-prefixes every numeric offer id (hs=
+# HouseSell, as=ApartmentSell, lp=LandParcel, la=LandAgro) precisely because
+# those ids are only unique *within* a type, not across the whole site - the
+# last path segment of every offer's viewHref is exactly "<prefix><id>"
+# (confirmed against the full leads_homes.json dataset: as/hs/lp/la are the
+# only prefixes that appear, and each maps 1:1 onto one of the 4
+# TYPE_QUERIES types). build_tracking_id() below previously dropped this
+# prefix (just "homes_" + the bare numeric id), which let two completely
+# unrelated listings of different types silently collide onto one tracking
+# key whenever homes.bg happened to reuse the same numeric id across types -
+# confirmed to have actually happened and corrupted real records (see
+# docs/backlog.md item 23 and docs/decisions.md for the confirmed cases and
+# the one-time backfill/split plan for the listings already corrupted under
+# the old, unprefixed scheme).
+OFFER_URL_ID_RE = re.compile(r"/([a-z]{2})(\d+)$")
+
+
+def build_tracking_id(offer):
+    """Builds this offer's tracking id the same way homes.bg itself scopes
+    its numeric ids: by type prefix, taken from the offer's own viewHref
+    (the ground truth homes.bg assigns), not guessed from our own
+    category/type_id bucketing. Falls back to the old unprefixed id (with a
+    DEBUG log) only if viewHref doesn't match the expected shape - matching
+    this module's existing "never crash the whole run over one malformed
+    offer" philosophy - so a future homes.bg URL format change degrades
+    gracefully instead of raising.
+    """
+    offer_id = offer.get("id")
+    href = offer.get("viewHref") or ""
+    match = OFFER_URL_ID_RE.search(href)
+    if match:
+        return "homes_" + match.group(1) + match.group(2)
+    print(f"DEBUG: could not extract a type prefix from viewHref={href!r} for offer id={offer_id} - "
+          f"falling back to the unprefixed tracking id (collision risk)")
+    return "homes_" + str(offer_id)
+
 
 def parse_price_eur(price):
     # A "price on request" listing reports "value": false (a bool, not a
@@ -295,7 +331,7 @@ def parse_offer(offer, category, geocoder):
     coords = geocoder.geocode_cached_only(geo_query)
 
     return {
-        "id": "homes_" + str(offer["id"]),
+        "id": build_tracking_id(offer),
         "url": BASE_URL + offer["viewHref"],
         "photo": photo_url,
         "photos": photos,
@@ -373,7 +409,7 @@ def scrape_slice(session, geocoder, type_id, category, lo, hi, seen, start_time)
               f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
 
         for offer in results:
-            listing_id = "homes_" + str(offer.get("id"))
+            listing_id = build_tracking_id(offer)
             if listing_id in seen:
                 continue
             try:
