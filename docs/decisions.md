@@ -2048,5 +2048,6 @@ work, left for whoever resolves them at merge time.
 
 **Not merged, Missy's review required** (per this repo's explicit "nothing
 ships without her sign-off" rule for anything beyond a docs-only change) -
-pushed to its own branch, PR opened against `main`, not merged by this
-session.
+pushed to `item6-quickfixes-2026-09-23`,
+[PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) opened
+against `main`, not merged by this session.
