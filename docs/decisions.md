@@ -2610,10 +2610,23 @@ rather than rebuilt from scratch), against the actual current
   in the test script itself** (not copied from `index.html`'s own
   implementation, so this is a real cross-check, not a tautology) and
   compared against the rendered output: BTL at price=€100,000, rent=
-  €600/mo, LTV 70%, 4.0% interest, 25yr term matched gross yield 7.2%, net
-  yield 4.76%, cap rate 4.76%, monthly cash flow ≈€27, cash-on-cash
-  ≈0.97%, total cash invested €33,500, minimum rent to pass the ICR test
-  ≈€292, all within rounding tolerance. FLIP at purchase=€80,000,
+  €600/mo, LTV 70%, 4.0% interest, 25yr term, insurance €120/yr, HOA
+  €20/mo (all other fields at the calculator's own shipped defaults:
+  closing costs 3.5%, refurb €0, management fee 10%, maintenance 1%, void
+  allowance 5%, ICR 125%, market value defaulted to price) matched gross
+  yield 7.2%, net yield 4.76%, cap rate 4.76%, monthly cash flow ≈€27,
+  cash-on-cash ≈0.97%, total cash invested €33,500, minimum rent to pass
+  the ICR test ≈€292, all within rounding tolerance. **Correction (this
+  dispatch):** the insurance/HOA inputs above are not the calculator's
+  shipped defaults (those default to €0), and an earlier version of this
+  entry omitted them, understating a reviewer's ability to reproduce this
+  result from the 5 headline inputs alone. With insurance/HOA left at
+  their shipped €0 defaults, the same 5 headline inputs instead produce
+  net yield 5.12%, cap rate 5.12%, monthly cash flow ≈€57, cash-on-cash
+  ≈2.05% - gross yield, total cash invested, and minimum rent to pass are
+  unchanged since insurance/HOA don't enter those formulas. Both sets of
+  numbers were re-confirmed directly against the shipped
+  `computeDealCalcBtl()`. FLIP at purchase=€80,000,
   reno=€15,000, holding=€2,000, financing=€1,000, resale=€130,000,
   selling 3% matched Total Project Costs €100,800, Total Cash Needed
   €100,800, Gross Profit €25,300, ROI ≈25.1% exactly.

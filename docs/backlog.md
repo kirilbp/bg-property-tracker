@@ -2119,11 +2119,20 @@ console errors. Not yet reviewed by Missy, not merged - PR to follow.
   Gross Profit, and ROI.
 - **Verified arithmetic** (independently re-derived from the formulas doc
   in the test script, not copied from `index.html`'s own implementation):
-  BTL at price=€100,000/rent=€600/mo/LTV 70%/4.0%/25yr -> gross yield 7.2%,
-  net yield 4.76%, cap rate 4.76% (market value defaulted to price),
+  BTL at price=€100,000/rent=€600/mo/LTV 70%/4.0%/25yr, insurance
+  €120/yr and HOA €20/mo (all other fields - closing costs 3.5%, refurb
+  €0, management fee 10%, maintenance 1%, void allowance 5%, ICR 125%,
+  market value defaulted to price - at the calculator's own shipped
+  defaults), -> gross yield 7.2%, net yield 4.76%, cap rate 4.76%,
   monthly cash flow ≈€27, cash-on-cash ≈0.97%, total cash invested
   €33,500, minimum rent to pass the ICR test ≈€292 - all matched to
-  within rounding. FLIP at purchase=€80,000/reno=€15,000/holding=€2,000/
+  within rounding. (Note: insurance and HOA default to €0 in the shipped
+  calculator - the €120/yr and €20/mo values above were test-script
+  inputs, not defaults; with insurance/HOA left at €0, the same 5
+  headline inputs instead produce net yield 5.12%, cap rate 5.12%,
+  monthly cash flow ≈€57, cash-on-cash ≈2.05% - gross yield, total cash
+  invested, and minimum rent to pass are unaffected since insurance/HOA
+  don't enter those formulas.) FLIP at purchase=€80,000/reno=€15,000/holding=€2,000/
   financing=€1,000/resale=€130,000/selling 3% -> Total Project Costs
   €100,800, Total Cash Needed €100,800 (no loan), Gross Profit €25,300,
   ROI ≈25.1% - exact match.
