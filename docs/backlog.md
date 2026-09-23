@@ -800,7 +800,7 @@ state whether reached via the button or clicked directly. Full detail in
 already shipped"). No further action needed unless a regression turns
 up.
 
-## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23
+## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23 - MOSTLY DONE (2026-09-23): homes.bg/9a/9b/9c/alo.bg all shipped and merged, imot.bg/olx.bg/bcpea.org investigation complete (no further code needed), imoti.net's `description` gap confirmed a genuine per-portal limitation. Only genuinely open pieces: alo.bg's real selector and imoti.net's untried Bulgarian-language page, both deferred pending live network access; bcpea.org's post-9a grid-crawl recovery worth a final re-check once that run lands.
 
 User's direct words: *"the description is missing. There are just a few
 words on most listings."* Independently re-verified directly against the
@@ -921,6 +921,13 @@ review surfaced two real, verified, non-blocking findings, filed below as
 9b (fast follow-up) and 9c (new, separately-scoped item) rather than
 reopening 9a.
 
+**9b shipped:** merged as [PR #223](https://github.com/kirilbp/bg-property-tracker/pull/223)
+to `main` (2026-09-23). Reviewed and approved by Missy - she independently
+confirmed the placeholder-photo grid behavior by reading the actual code
+and reproduced the revert-test (bug present -> test fails with the exact
+claimed assertion). No auth/session/personal-data surface, Revy's review
+correctly not sought.
+
 **9b. `scraper_bcpea.py`: `photo` wrongly excluded from
 `_DETAIL_ONLY_FIELDS` - fast follow-up to 9a, one-line fix.** Missy's
 review of PR #219 found `_DETAIL_ONLY_FIELDS`'s comment claims the merge
@@ -943,6 +950,14 @@ field on this one portal.
   overwrites an existing real detail-backfilled photo.
 - No auth/session/personal-data surface - Revy's review not expected to
   be needed. Missy's review required before merge.
+
+**9c shipped:** merged as [PR #222](https://github.com/kirilbp/bg-property-tracker/pull/222)
+to `main` (2026-09-23). Reviewed and approved by Missy - her first review
+correctly caught unrelated bcpea test contamination accidentally picked
+up onto this branch (a concurrent task's in-progress edits, snapshotted
+mid-edit by the branch-creation method used); stripped and re-reviewed
+clean before merge. No auth/session/personal-data surface, Revy's review
+correctly not sought.
 
 **9c. `scraper_imoti_bg.py`: same unconditional-replace `update_history()`
 bug as 9a, missed by PR #219's scope - NEW, same priority class as 9a.**
@@ -978,44 +993,78 @@ define `update_history()`, and neither was touched:
 
 **Tasks 3/4, reframed per-portal with the investigation's findings (all
 independently verified, not guessed):**
-- **imot.bg, olx.bg (was task 3's "coverage gap" for these two)**: genuine
-  coverage gap confirmed - real, succeeding backfill workflows (verified
-  via actual log content, not just a green checkmark), but 9a's reset bug
-  means net progress isn't reliable until that's fixed first. No
-  recurrence of the 2026-09-19 detail_checked-on-failure bug (item 1) -
-  all three scrapers checked for task 3 correctly only set
-  `detail_checked` after a real successful fetch. **Sequencing: fix 9a
-  first, then this coverage-gap backfill work will actually stick.**
-- **bcpea.org (was task 3's "coverage gap" for this portal)**: same
-  coverage gap + same 9a reset bug - cleanest before/after log evidence of
-  the three (a backfill run's 400-listing progress was found completely
-  reset by the very next run, crossing a `scrape.yml` boundary). Same
-  sequencing note as imot.bg/olx.bg above. **Separately, its low hit-rate-
-  when-checked (18% of checked listings get a real description vs 75-91%
-  for imot/olx) is investigated and likely NOT a bug**: the best-supported
-  explanation is that sales.bcpea.org (a court-enforcement auction
-  registry) genuinely often has no free-text "Описание" field to begin
-  with - but this couldn't be confirmed live (bcpea.org is blocked from
-  this sandbox), so it's a plausible read, not a confirmed fact. No
-  further task filed for the hit-rate question; worth a live check
+- **imot.bg, olx.bg (was task 3's "coverage gap" for these two) - task 3
+  investigation now complete, sequencing precondition (9a) has shipped, no
+  further scraper code needed.** Genuine coverage gap confirmed - real,
+  succeeding backfill workflows (verified via actual log content, not just
+  a green checkmark). No recurrence of the 2026-09-19
+  detail_checked-on-failure bug (item 1) - all three scrapers checked for
+  task 3 correctly only set `detail_checked` after a real successful
+  fetch. **Re-derived directly against the real committed data on
+  2026-09-23, after 9a/9b/9c all shipped** (not just re-quoting the
+  original audit's numbers, per this repo's standing rule): `imot.bg` is
+  now 5,009/26,285 (19.1%) non-empty description, up from the original
+  audit's 17.2% - `olx.bg` is now 12,972/36,586 (35.5%), up from 34.1%.
+  Both small but real upward moves, consistent with 9a's merge-not-replace
+  fix letting backfill progress accumulate instead of resetting. `_DETAIL_
+  ONLY_FIELDS` in both `scraper_imot.py`/`scraper_olx.py` already includes
+  `description` (confirmed by reading the current code, not assumed).
+- **bcpea.org (was task 3's "coverage gap" for this portal) - same
+  status, with the clearest evidence of the three that 9a is actually
+  working.** Walked `data/leads_bcpea.json`'s non-empty-description count
+  through the real git history around 9a's merge time (2026-09-23
+  06:53 UTC): 921 (pre-merge) -> **159** in the very next grid-crawl
+  commit (`185ecc4`, 04:47 UTC - this one landed *before* 9a merged, and
+  is the same reset-to-near-zero pattern task 3's original investigation
+  already documented) -> **528** in the first backfill run after 9a
+  merged (`8f82b45`, 07:04 UTC) - a real partial recovery in a single run,
+  not another reset. Current real total: 528/2,220 (23.8%), well up from
+  the original audit's 7.2% (159/2,220). **Caveat, stated plainly rather
+  than assumed away: no `scrape.yml` grid-crawl has landed yet since 9a
+  merged** (the next scheduled run was still pending as of this
+  investigation) - so the specific claim "a fresh grid re-touch no longer
+  wipes this portal's backfilled descriptions" is supported by 9a's code
+  being present and reviewed (`_DETAIL_ONLY_FIELDS` includes
+  `"description"`), not yet by an observed real post-fix grid-crawl commit
+  for this portal. Worth re-checking `data/leads_bcpea.json`'s count after
+  the next `scrape.yml` run lands, to close this out with full confidence.
+  **Separately, its hit-rate-when-checked has also moved**: was cited as
+  18% (vs 75-91% for imot/olx); recomputed now at 528/1,283 detail-checked
+  = 41.2% - still well below imot.bg's 75.4%/olx.bg's 91.3%, consistent
+  with (not proof of) the standing theory that sales.bcpea.org (a
+  court-enforcement auction registry) genuinely often has no free-text
+  "Описание" field to begin with. Still can't be confirmed live -
+  `sales.bcpea.org` is still blocked from this sandbox (re-confirmed via
+  curl on 2026-09-23) - so this remains a plausible read, not a confirmed
+  fact. No further task filed for either question; worth a live check
   whenever someone has bcpea.org network access, not blocking.
-- **alo.bg (was task 4's "short-average" portal) - NEW FIXABLE TASK,
-  same shape as the already-fixed homes.bg bug (task 2 above).** Confirmed
-  with strong evidence (not just the 52-char average): sampled 200 real
-  non-empty descriptions, 165/200 (82.5%) are literal substrings of that
-  same listing's own title, not real prose - e.g. title "...Двустаен
-  апартамент в к-с Суит хоум 2 Слънчев бряг, област Бургас" ->
-  description "Двустаен апартамент в к-с Суит хоум 2".
+- **alo.bg (was task 4's "short-average" portal) - DONE, partial fix
+  shipped (2026-09-23), same shape as the already-fixed homes.bg bug (task
+  2 above).** Confirmed with strong evidence (not just the 52-char
+  average): sampled 200 real non-empty descriptions, 165/200 (82.5%) are
+  literal substrings of that same listing's own title, not real prose -
+  e.g. title "...Двустаен апартамент в к-с Суит хоум 2 Слънчев бряг,
+  област Бургас" -> description "Двустаен апартамент в к-с Суит хоум 2".
   `extract_description_alo()` in `geo_utils.py` reads `.obqva-block`,
   very likely the wrong element (probably a heading/summary blurb, not the
-  real ad body). **Task (general-purpose builder):** find the right
-  selector via a live probe of an alo.bg detail page - this sandbox can't
-  reach alo.bg, so this needs to happen from an environment that can, or
-  ship the same honest partial fix the homes.bg task took: stop writing
-  the wrong data (the safe half) and flag/defer the "find and use the real
-  selector" half if live access genuinely isn't available, rather than
-  guessing at a selector. No auth/session/personal-data surface - Revy's
-  review not expected to be needed, Missy's review required before merge.
+  real ad body). Re-confirmed independently with a fresh 300-record sample
+  (265/300 = 88.3%, same shape at a higher rate) while shipping the fix.
+  alo.bg is unreachable from this sandbox - confirmed via both a plain
+  `curl` and the `WebFetch` tool against a real listing URL (both return a
+  hard block), so the real selector could not be found live. Shipped the
+  same honest partial fix the homes.bg task took instead of guessing:
+  `extract_description_alo()` now unconditionally returns `None` rather
+  than the likely-wrong `.obqva-block` text - stops new writes going
+  forward, does not retroactively scrub already-stored bad descriptions in
+  `data/leads_alo.json`/`data/history_alo.json`. **The other half - find
+  and use the real selector - is still genuinely open**, deferred pending
+  live alo.bg access from whoever has it next. Reviewed and approved by
+  Missy (independently re-sampled 300 records herself, seed 42, no reuse
+  of the builder's sample, got the same 88.3%; confirmed no caller breaks
+  on `None`; confirmed alo.bg is genuinely unreachable, not assumed).
+  Merged as [PR #218](https://github.com/kirilbp/bg-property-tracker/pull/218)
+  to `main`. No auth/session/personal-data surface, Revy's review
+  correctly not sought.
 - **bazar.bg (was task 4's other "short-average" portal) - investigated,
   likely NOT a bug, resolved (not an open coverage-gap task anymore).**
   82% of non-empty descriptions are exactly 160 characters (classic SEO
@@ -1027,6 +1076,41 @@ independently verified, not guessed):**
   so this is "probably fine, low priority to double check" rather than
   fully closed. No task filed; revisit only if someone with live
   bazar.bg access has spare time, not prioritized.
+
+**Task 1 (`scraper.py`/imoti.net: add a `description` field) - investigated
+(2026-09-23), genuine per-portal limitation confirmed, no code fix
+possible from here - not closing the door on it, but nothing to guess at
+either.** Before writing any code, checked whether this had already been
+looked at: `backfill_detail_imoti_net.py`'s own module docstring already
+carries a live-confirmed finding that **predates this backlog item** -
+"confirmed live via probe_descriptions.py that imoti.net's own detail
+page carries no free-text description anywhere - neither in its meta
+tags nor its ld+json block nor any labeled HTML block, only structured
+price/sqm/floor/broker-contact info." That detail page is the *only* one
+`scraper.py` ever fetches (the site's `/en/` English-language path - see
+that module's own docstring on why, from the item 5 investigation). Tried
+to independently re-verify this claim live rather than just trust it (per
+this repo's standing rule) - both a plain `curl` and the `WebFetch` tool
+against `www.imoti.net` return a hard egress block from this sandbox, the
+same block already documented elsewhere in this file for imoti.net. So
+this can't be freshly confirmed or overturned from here; taken as the
+best available evidence rather than re-guessed. Given a genuine absence
+of the field on the only page fetched, "written the same way the other
+scrapers do it" isn't achievable without a different data source -
+selected a selector to scrape would be guessing at data that isn't there,
+the same anti-pattern this backlog explicitly avoids elsewhere (alo.bg
+above, homes.bg's PR #217). Only change made: corrected a stale comment
+in `scraper.py`'s `_DETAIL_ONLY_FIELDS` block that said description would
+be "added here too once that ships" - it now records the investigated
+conclusion instead, so a future reader doesn't re-open this expecting a
+different outcome without new information. **Genuinely open follow-up,
+not attempted here**: imoti.net likely has a Bulgarian-language version of
+each listing page (this scraper only ever visits the English one) that
+was never probed for a free-text description - worth a live check by
+whoever next has imoti.net network access, same "deferred pending live
+access" framing as the alo.bg selector search above. No auth/session/
+personal-data surface either way - Revy's review not expected to be
+needed for this task.
 
 ## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority
 
