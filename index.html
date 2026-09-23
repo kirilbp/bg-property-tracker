@@ -289,8 +289,18 @@
      here depends on the OUTER .detail-grid's own breakpoint too (photo
      column vs info column) - auto-fit collapses to one column whenever
      the real space is tight, at any nesting depth, instead of guessing a
-     single viewport width that works for every case. */
-  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; align-items: start; margin: 0 0 20px; }
+     single viewport width that works for every case.
+     The 260px floor originally used here meant two columns needed
+     2*260+24=544px of info-column width to trigger - which measured out
+     to ~1380px+ of real viewport width once the outer photo column, gap,
+     and page chrome are accounted for, so 1366x768 (one of the most
+     common laptop resolutions) fell just short and stacked instead of
+     pairing. Lowered to 240px (2*240+24=504px needed, ~1330px+ of real
+     viewport width) so 1366px clears the threshold with a comfortable
+     margin without going so low that the paired columns get uselessly
+     narrow at the trigger point; still collapses to one column at real
+     pinch/phone widths exactly as before. */
+  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: start; margin: 0 0 20px; }
   .detail-history-row .radius-panel { margin: 0; }
   .price-history-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
