@@ -793,6 +793,68 @@ backfill work is itself at risk of being wiped on the next scrape cycle.
   personal-data surface - Revy's review not expected to be needed, Missy's
   review is required before merge as always.
 
+**9a shipped:** merged as [PR #219](https://github.com/kirilbp/bg-property-tracker/pull/219)
+to `main` (2026-09-23). Reviewed and approved by Missy - no auth/session/
+personal-data surface, so Revy's review was correctly not sought. Her
+review surfaced two real, verified, non-blocking findings, filed below as
+9b (fast follow-up) and 9c (new, separately-scoped item) rather than
+reopening 9a.
+
+**9b. `scraper_bcpea.py`: `photo` wrongly excluded from
+`_DETAIL_ONLY_FIELDS` - fast follow-up to 9a, one-line fix.** Missy's
+review of PR #219 found `_DETAIL_ONLY_FIELDS`'s comment claims the merge
+rule can't safely tell "grid's own value" apart from "the richer
+detail-page value" for `area` and `photo` without guessing, since the grid
+always supplies a real value for both. True for `area`. Factually wrong
+for `photo`: the scraper's own grid crawl (`fetch_listings_page()`) can
+and does produce `photo: None` whenever the card's image is a shared
+placeholder ("very often", per the module's own docstring) - so the exact
+same merge rule already applied to this portal's `lat`/`lng` would work
+identically for `photo`, no guessing needed. Currently a bcpea listing
+that already has a real detail-backfilled photo can still get silently
+overwritten with `None` on a later grid re-touch that happens to show a
+placeholder image - same bug class 9a fixed, still live for this one
+field on this one portal.
+- **Task (general-purpose builder):** in `scraper_bcpea.py`, add
+  `"photo"` to `_DETAIL_ONLY_FIELDS` and correct the comment to note only
+  `area` genuinely needs the deferral (not both). Add/update a regression
+  test proving a grid re-touch with a placeholder photo no longer
+  overwrites an existing real detail-backfilled photo.
+- No auth/session/personal-data surface - Revy's review not expected to
+  be needed. Missy's review required before merge.
+
+**9c. `scraper_imoti_bg.py`: same unconditional-replace `update_history()`
+bug as 9a, missed by PR #219's scope - NEW, same priority class as 9a.**
+Missy's review of PR #219 found the fix's own scope framing ("all six
+scrapers that have this function") was wrong - two more scrapers also
+define `update_history()`, and neither was touched:
+  - `scraper_homes.py` - investigated, genuinely NOT at risk, no action
+    needed: photos come straight off the grid-crawl JSON on every run (no
+    separate detail-page photo enrichment to lose), and lat/lng self-heal
+    via the persistent shared geocode cache. Correctly excluded.
+  - `scraper_imoti_bg.py` - genuinely exposed to the same live bug,
+    unfixed. `fetch_listings()` calls `fetch_listing_detail(url)` inline
+    on every scrape run for every listing (a best-effort function whose
+    own docstring says it "never raises... a missing description/date
+    shouldn't drop a listing"), then does `l["description"] = description`
+    / `l["site_posted_at"] = site_posted_at` unconditionally (not
+    `if description:`), followed by this scraper's own still-unpatched
+    `update_history()` doing the same wholesale
+    `history[lid]["latest"] = l`. A single transient per-run failure
+    (timeout, missing meta tag, render hiccup) on a listing that
+    previously had a real description will silently overwrite it with
+    `None` - the exact same bug class as 9a, still live.
+- **Task (general-purpose builder):** in `scraper_imoti_bg.py`, give
+  `update_history()` the identical merge-not-replace treatment 9a shipped
+  for the other six scrapers, scoped to `description` and
+  `site_posted_at` (the two fields `fetch_listing_detail()` can produce
+  `None` for on a transient per-listing failure even though a prior run
+  had a real value). Same regression-test requirement as 9a: prove a
+  grid-only re-touch (or a simulated detail-fetch failure) no longer
+  clears a previously-captured `description`/`site_posted_at`.
+- No auth/session/personal-data surface - Revy's review not expected to
+  be needed. Missy's review required before merge.
+
 **Tasks 3/4, reframed per-portal with the investigation's findings (all
 independently verified, not guessed):**
 - **imot.bg, olx.bg (was task 3's "coverage gap" for these two)**: genuine
