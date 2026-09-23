@@ -2784,12 +2784,47 @@ Dispatch for whoever (Placy or otherwise) picks up what's left:
    as "Бяла"/"Средец" - correctly left unresolved rather than guessed.
    Net effect of the Sofia fix: these 2 listings moved from confidently
    WRONG (`sofia_grad`) to honestly UNRESOLVED - the right direction.
-5. **"Обзор" (Burgas coastal town) resolving to Varna oblast** - looks
-   like a real boundary-polygon classification edge case (an accurately-
-   geocoded point landing just inside Varna's simplified polygon), the
-   same underlying bug class as the already-fixed Близнаци case in item
-   4 task 4, just a different location. Low volume (4 listings); found,
-   not fixed.
+5. **"Обзор" (Burgas coastal town) resolving to Varna oblast - DONE
+   (2026-09-23, Placy), on branch `placy/obzor-oblast-fix`, not yet
+   merged/reviewed.** Confirmed the real cause and the real count against
+   current committed data: exactly 4 alo.bg listings
+   (`alo_11340310`/`alo_11030238`/`alo_11027413`/`alo_11040886`, all
+   `city="Бургас"`, `area="Обзор"`) still resolve to `varna` today - the
+   backlog's original "4 listings" estimate held. Same underlying root
+   cause as the already-fixed Близнаци case (item 4 task 4) - ordinary
+   coastline-simplification of `data/bg_oblast_boundaries.json`'s Varna/
+   Burgas border near Обзор - but the opposite failure shape: Близнаци's
+   real point fell just *outside* the correct oblast's simplified polygon
+   and came back unresolved (fixed by `NEAR_BOUNDARY_TOLERANCE_DEG`'s
+   fallback, which only runs when the strict test finds nothing); here
+   the real point (e.g. 42.8445, 27.882196 - confirmed correct via the
+   listing's own title text, "...директен достъп до плажа Обзор, област
+   Бургас") falls just *inside* Varna's own simplified polygon by the
+   strict point-in-ring test, so that fallback never gets a chance to run
+   - the strict test already "succeeds", just for the wrong oblast.
+   Hand-verified the point sits ~0.0038deg inside Varna's polygon edge
+   but only ~0.0062deg outside Burgas's - both well within ordinary
+   simplification/GPS noise range, and both the listing's own `city`
+   ("Бургас", one of the 30 hand-verified `BG_CITIES`) and `area`
+   ("Обзор", a real, unambiguous Burgas-oblast settlement) independently
+   agree it's Burgas. Fixed with a narrow, coordinate-keyed
+   `GEO_OBLAST_OVERRIDE` dict in `sync_to_supabase.py` (checked first
+   thing in `oblast_key_from_latlng()`), matching the same "small,
+   evidence-confirmed, not a general rule" discipline already established
+   for `IMOT_CITY_AREA_OBLAST_OVERRIDE` - not a general "prefer text over
+   geo near borders" rule, which would risk regressing every other
+   correctly-resolved near-border geo match project-wide. No raw listing
+   data needed correcting (lat/lng/city/area were already all correct -
+   only the derived oblast resolution was wrong, computed fresh at sync
+   time, not stored in `data/leads_*.json`/`data/history_*.json`).
+   Verified: all 4 listings now resolve to `burgas`; re-ran the fix
+   against every "Обзор" listing across all 8 portals' committed data
+   (354 total, 102 correctly resolving to `burgas` via geo, the rest via
+   city/area text as before) with zero remaining `varna` mismatches;
+   confirmed no regression to the Близнаци cluster or Varna/Sofia city-
+   center points; `python3 -m pytest tests/` passes (11 passed, none of
+   which cover this path directly - no existing test suite for
+   `sync_to_supabase.py`'s geo-resolution functions).
 
 ---
 ---
