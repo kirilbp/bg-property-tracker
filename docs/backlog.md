@@ -1123,7 +1123,28 @@ decisions.md` have already flagged). This PR is open on `main`, **not
 self-merged**, specifically so Missy's real review happens before it ships,
 per this repo's standing rule.
 
-## 13. Send Letters / motivated-seller outreach campaigns - DESIGN FORK RESOLVED, BROKEN INTO TASKS, AWAITING DISPATCH (2026-09-22)
+## 13. Send Letters / motivated-seller outreach campaigns - BUILT, PARKED PER USER DECISION - DO NOT RESUME WITHOUT ASKING (2026-09-23)
+
+**Built end-to-end and reviewed (PR #214, closed unmerged 2026-09-23)** -
+both Missy's and Revy's technical review passed clean (client-side only,
+no leak paths, no backend/RLS exposure, no auth reintroduced). But
+Revy's review raised a real product/legal question, not a code bug: this
+feature stores real third parties' PII (seller names, addresses, phone
+numbers, emails) indefinitely, unencrypted, with no deletion mechanism,
+for unsolicited outreach to people who never signed up for anything -
+in an EU/GDPR jurisdiction, with real legal-basis/data-minimization
+questions and no retention/deletion path. Escalated to Kiril rather than
+decided by the team, per Revy's own standing "escalate rather than
+guess" rule.
+
+**Kiril's decision**: "Ignore the letters for the moment. We can
+integrate them later." Parked, not abandoned - the built branch
+(`dessy/send-letters-campaigns`) still exists if this gets picked back
+up. **Do not resume building or re-open this without asking Kiril
+first** - this is exactly the kind of legal/privacy-risk product
+decision that needs his explicit call, not autonomous team judgment,
+unlike the routine implementation design forks elsewhere in this
+backlog.
 
 Direct-mail-to-owner outreach workflow (spec sections 5's "Send Letter"
 tab and section 6's full campaign manager). Flagged by Nosy as "fully
