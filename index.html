@@ -1657,6 +1657,10 @@ const PAGE_SIZE = 100;
 let MERGED_LISTINGS = [];
 let PORTAL_COUNTS = {};
 let homeChart = null;
+// Flips true once loadData()'s bulk fetch (cache or live) has populated
+// MERGED_LISTINGS at least once - see render()'s own guard and the "Fast
+// first-paint path" section above loadData() (backlog item 6, core slice 2).
+let BULK_READY = false;
 
 // --- Saved listings (Dashboard bookmarks) -------------------------------------
 // No login system - stored in this browser's own localStorage only, same
@@ -3809,6 +3813,321 @@ async function writeListingsCache(rows) {
   }
 }
 
+// --- Fast first-paint path for the primary listings grid (backlog item 6, ---
+// core slice 2 - see docs/decisions.md's 2026-09-23 "Backlog item 6 slice 2"
+// design entry for the full reasoning this implements) ---------------------
+//
+// Problem: today the grid can't paint anything until loadData()'s full
+// bulk fetch below resolves - on a cold cache that's the entire ~171MB/
+// 215-sequential-round-trip narrowed load (see MERGED_LISTINGS_BULK_COLUMNS'
+// own comment). Fix: fire one small server-side query for just the page
+// actually being viewed, built from the same predicates render()'s
+// MERGED_LISTINGS.filter() already encodes, and paint from that
+// immediately - while loadData() keeps running in parallel/background,
+// completely unchanged, for every other consumer (Comparables, Market Data
+// hub, Lead Generator counts/dropdowns, home dashboard, area filter
+// population - see render() below for the BULK_READY handoff).
+//
+// Correctness guarantee: whatever this fetches is re-run through the exact
+// same matchesAllFilters()/sortComparator() the slow (bulk-array) path
+// uses, on the small fetched batch, before anything is painted - see
+// renderFastPage() below. That's what makes it safe to send a best-effort
+// (not always 100%-precise) predicate translation to Postgres: the
+// client-side re-check can only ever REMOVE a row the server shouldn't
+// have returned, never show one that doesn't really match. The only
+// consequence of an imprecise server-side predicate is a fast-path page
+// that comes back with fewer than PAGE_SIZE genuinely-matching rows -
+// never a wrong one - and it self-heals the moment the background bulk
+// load resolves and the slow path (render()'s existing, unchanged logic)
+// takes over.
+//
+// Four predicates have NO safe, verifiable server-side translation at
+// all, confirmed by reading the real schema/code rather than guessed, and
+// are deliberately never sent to Postgres (the client-side re-check above
+// still enforces all four exactly - this only affects fast-path page
+// fullness, never correctness):
+//   - "rooms": extractRoomCount() derives this from free-text title regex
+//     (Bulgarian "N-стаен" patterns, a fixed word list, and an English
+//     "N bedroom" +1 conversion) - there is no `rooms` column anywhere in
+//     supabase/schema.sql to filter on, and replicating that regex as a
+//     Postgres expression isn't something this sandbox can verify against
+//     real title data without live Supabase access.
+//   - A Lead Generator's radius/polygon geofencing (matchesLeadGenerator()'s
+//     haversineKm()/pointInPolygon() branches) - needs a lat/lng index (or
+//     PostGIS) that doesn't exist yet; already a documented, separate
+//     follow-up for findComparables() in docs/decisions.md, extended here
+//     to this one additional consumer rather than attempted blind.
+//   - The "Most recently reduced" sort (recent-drop-desc) - lastReductionDate()
+//     needs the full price_history jsonb array, one of the three heavy
+//     columns MERGED_LISTINGS_BULK_COLUMNS deliberately excludes from the
+//     bulk fetch (slice 1). No scalar column stands in for it the way
+//     first_seen_at now does for listingFirstSeenDate() - there's genuinely
+//     nothing to sort by server-side.
+//   - "area" - Missy's PR #239 review (docs/decisions.md's own follow-up
+//     entry has the full writeup): the client-side equivalent,
+//     listingAreaKey(l), is `l.area_key || normalizeArea(l.area)` - it
+//     falls back to deriving the key from raw text whenever area_key is
+//     null. area_key is backlog item 26's newly-added column, and a live
+//     row only gets it backfilled by the NEXT sync_to_supabase.py run
+//     after that migration lands - so there's a real window (up to one
+//     full sync cycle) where a live row has area_key IS NULL while l.area
+//     is populated and would match via the client fallback. A bare
+//     `.eq('area_key', filters.area)` would silently exclude that row
+//     during the window, and - unlike every other predicate on this list -
+//     the mandatory client-side re-check below CANNOT catch it: the
+//     re-check only re-filters rows the server already returned, and a
+//     wrongly-excluded row never arrives to be re-checked. That's a
+//     genuine "fewer rows AND the wrong page" case, not the bounded
+//     "fewer rows, never wrong" guarantee this whole design otherwise
+//     relies on - so, matching the rooms/leadgen-geo precedent above,
+//     area is simply never sent server-side. An area-filtered fast page
+//     may come back thinner than PAGE_SIZE until the background bulk load
+//     takes over, exactly like rooms - never wrong, just possibly short.
+//     Revisit once area_key has had one full backfill cycle after its
+//     migration lands (a legitimate follow-up, not a permanent gap).
+//
+// Two more predicates ARE sent server-side, but as an approximation kept
+// deliberately simple rather than fully exact, again because the client-side
+// re-check closes the gap:
+//   - The "Uncategorized" type bucket ('other') - matching "not any of the
+//     ~24 known BCPEA_RAW_TYPES title prefixes AND not any of the 8
+//     CATEGORY_TO_BUCKET categories" needs a much larger negated
+//     and()/or() tree than the 6 real buckets' simple positive match (see
+//     buildFastListingsQuery() below) - not attempted, falls through to the
+//     client-side re-check only (same bounded "short page, not wrong page"
+//     consequence as the three predicates above).
+//   - A Lead Generator's own price/sqm/propertyTypes conditions - checkLeads()
+//     already copies gen.filters.minPrice/maxPrice/minSqm into the shared
+//     minPrice/maxPrice/minSqm inputs (see checkLeads() above), which ARE
+//     translated below via the ordinary price/sqm predicates, so this is
+//     usually redundant, not missing; propertyTypes and neighborhood-area
+//     matching are left to the client-side re-check only, for the same
+//     nesting-complexity reason as the 'other' type bucket.
+//
+// Every other predicate this item's own dispatch named (price/sqm/days/
+// reduced/excludeSold/search/type [6 real buckets + auction]/city/oblast)
+// IS translated as a real WHERE clause below - area is the one exception,
+// see the "area" bullet above.
+
+// PostgREST's or()/and() filter DSL treats a bare value as ending at the
+// next top-level comma, colon, or parenthesis - a value containing any of
+// those (or a literal double quote or backslash) must be wrapped in double
+// quotes, with any literal double quote/backslash inside escaped, per
+// PostgREST's own documented horizontal-filtering grammar. This matters for
+// two real values below: a user's free-text search query (arbitrary input -
+// without this, a search containing a comma could inject extra, unintended
+// OR-branches into the query rather than just failing to match) and BCPEA's
+// own raw type labels (one of which, "Ателие, Таван", genuinely contains a
+// comma). Asserted from PostgREST's published grammar, NOT verified against
+// a live PostgREST instance (this sandbox has no route to one) - flagged
+// plainly per this repo's own discipline. The blast radius of this being
+// subtly wrong is bounded on both sides: a malformed string 400s (caught by
+// fetchFastListingsPage()'s catch-all below, which just abandons the fast
+// path for that render) rather than silently corrupting results, and even a
+// syntactically-valid-but-too-broad match is still cut back down to exactly
+// correct by the mandatory client-side re-check above.
+function pgrestQuoteValue(v) {
+  const s = String(v);
+  if (/[(),:"\\]/.test(s)) {
+    return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  }
+  return s;
+}
+
+// Reverse of CATEGORY_TO_BUCKET (see that const's own comment) - only the
+// 6 real property-type buckets; 'other' and 'auction' are handled
+// separately in buildFastListingsQuery() below.
+const TYPE_BUCKET_CATEGORIES = {
+  flat: ['apartment', 'flat'],
+  house: ['house'],
+  land: ['land'],
+  garage: ['garage'],
+  shop: ['shop'],
+  business: ['commercial', 'business'],
+};
+
+// The BCPEA half of a real type bucket's match, as a PostgREST or()
+// fragment - see typeFilterBucket()'s own comment for why BCPEA needs its
+// own title-prefix match instead of the category column.
+function bcpeaTitleOrFragment(bucketKey) {
+  const def = BCPEA_RAW_TYPES.find(b => b.key === bucketKey);
+  if (!def) return null;
+  return def.rawTypes.map(t => `title.ilike.${pgrestQuoteValue(t + '%')}`).join(',');
+}
+
+// sortBy -> { column, ascending } for the fast path's ORDER BY / keyset
+// cursor column - every column here is already part of
+// MERGED_LISTINGS_BULK_COLUMNS, so no extra select() work is needed.
+// 'recent-drop-desc' has no entry (see the big comment above) - its
+// absence is exactly what signals buildFastListingsQuery() to bail out.
+const FAST_PATH_SORT_COLUMNS = {
+  'price-asc': { column: 'price_eur', ascending: true },
+  'price-desc': { column: 'price_eur', ascending: false },
+  'size-desc': { column: 'sqm', ascending: false },
+  'size-asc': { column: 'sqm', ascending: true },
+  'persqm-asc': { column: 'price_per_sqm', ascending: true },
+  'reduction-desc': { column: 'drop_pct', ascending: false },
+  // Client sortComparator()'s own secondary tie-break (drop_pct, when two
+  // listings have the exact same price_drop_count) is NOT reproduced here -
+  // the fast path orders by price_drop_count alone (plus the id
+  // tiebreaker every sort gets, for pagination correctness). A small,
+  // documented discrepancy in tie ORDER only among exactly-tied
+  // price_drop_count values, not a correctness/completeness issue - the
+  // client-side re-check's own sortComparator() call still re-sorts each
+  // fetched page with the real (2-key) comparator before painting, so
+  // it's only cross-page ordering at that exact tie boundary that can
+  // differ slightly from the slow path's, self-correcting once the
+  // background bulk load takes over.
+  'drops-desc': { column: 'price_drop_count', ascending: false },
+  'vsavg-asc': { column: 'pct_vs_area_avg', ascending: true },
+  'score-desc': { column: 'score', ascending: false },
+};
+
+// Returned by buildFastListingsQuery() when a predicate combination has no
+// safe server-side translation (see the big comment above) - the caller
+// (renderFastPage()) treats this exactly like a network/query error: skip
+// painting from the fast path this render, and let the background bulk
+// load be the one that eventually paints correctly.
+function unsupportedFastPath(reason) {
+  return { ok: false, reason };
+}
+
+// The per-row enrichment every MERGED_LISTINGS row gets - shared by
+// loadData()'s bulk map() and the fast path below (renderFastPage()) so a
+// freshly-fetched fast-path row has the exact same shape (computeUnverified()/
+// extractRoomCount()/sources) as a bulk-loaded one before either is run
+// through matchesAllFilters()/sortComparator()/createListingCard().
+function enrichListingRow(m) {
+  return { ...m, unverified: computeUnverified(m), rooms: extractRoomCount(m.title), sources: null };
+}
+
+// Builds the server-side query for one page of the primary listings grid,
+// translating render()'s own filter predicates - see the big comment above
+// for exactly which ones and why some are intentionally left to the
+// client-side re-check instead. `cursor` is null for the first page, or
+// { sortValue, id } - the (sortColumnValue, id) composite keyset cursor
+// generalizing fetchAllRows()'s own existing `.gt('id', cursor).order('id')`
+// pattern to an arbitrary sort column (docs/decisions.md's slice 2 design).
+// Never `count: 'exact'` - the documented live 57014 statement_timeout
+// landmine on this exact table (see fetchAllRows()'s neighbor comment).
+function buildFastListingsQuery(filters, cursor, select) {
+  const sortCfg = FAST_PATH_SORT_COLUMNS[filters.sortBy];
+  if (!sortCfg) return unsupportedFastPath('sort'); // recent-drop-desc
+
+  const gen = filters.activeLeadGenerator;
+  if (gen) {
+    const areaMode = gen.area && gen.area.mode;
+    if (areaMode === 'radius' || areaMode === 'polygon') return unsupportedFastPath('leadgen-geo');
+  }
+
+  select = select || MERGED_LISTINGS_BULK_COLUMNS;
+  let query = sb.from('merged_listings').select(select);
+
+  if (filters.min > 0) query = query.gte('price_eur', filters.min);
+  if (filters.max !== Infinity) query = query.lte('price_eur', filters.max);
+  if (filters.minSqm > 0) query = query.gte('sqm', filters.minSqm);
+  if (filters.minDays > 0) query = query.gte('days_on_market', filters.minDays);
+  if (filters.minReduced > 0) query = query.gte('price_drop_count', filters.minReduced);
+  if (filters.excludeSold) query = query.neq('status', 'sold');
+
+  // area: deliberately NOT translated to a server-side predicate - see the
+  // big "area" bullet in the comment block above (Missy's PR #239 review).
+  // A bare `.eq('area_key', filters.area)` would be unsafe once area_key's
+  // migration lands: a live row only gets area_key backfilled on the next
+  // sync_to_supabase.py run after that, so there's a real window where a
+  // matching row has area_key IS NULL and would be silently excluded by an
+  // eq() - and the mandatory client-side re-check can't catch that, since
+  // it only ever re-filters rows the server already returned. Left out
+  // entirely, same as rooms/leadgen-geo - the client-side re-check
+  // (matchesAllFilters() -> listingAreaKey()'s own area_key-or-normalizeArea
+  // fallback) enforces it exactly on whatever page comes back.
+
+  if (filters.city) {
+    query = filters.city === 'others' ? query.is('city_key', null) : query.eq('city_key', filters.city);
+  }
+  if (filters.oblast) {
+    query = filters.oblast === 'others' ? query.is('oblast_key', null) : query.eq('oblast_key', filters.oblast);
+  }
+
+  if (filters.searchQuery) {
+    const pattern = pgrestQuoteValue(`%${filters.searchQuery}%`);
+    query = query.or(`title.ilike.${pattern},area.ilike.${pattern}`);
+  }
+
+  if (filters.type === 'auction') {
+    query = query.eq('portal', 'sales.bcpea.org');
+  } else if (filters.type && filters.type !== 'other') {
+    const cats = TYPE_BUCKET_CATEGORIES[filters.type];
+    const bcpeaOr = bcpeaTitleOrFragment(filters.type);
+    if (!cats || !bcpeaOr) return unsupportedFastPath('type'); // shouldn't happen - defensive
+    query = query.or(
+      `and(portal.neq.sales.bcpea.org,category.in.(${cats.join(',')})),and(portal.eq.sales.bcpea.org,or(${bcpeaOr}))`
+    );
+  }
+  // filters.type === 'other': no server-side predicate (see big comment
+  // above) - client-side re-check only.
+
+  query = query.order(sortCfg.column, { ascending: sortCfg.ascending, nullsFirst: false }).order('id', { ascending: true });
+
+  if (cursor) {
+    if (cursor.sortValue === null) {
+      // Already inside the trailing "column IS NULL" group (nullsFirst:
+      // false puts every null-column row after every non-null one,
+      // regardless of sort direction) - every remaining row is also null,
+      // so the only real ordering left is the id tiebreaker.
+      query = query.is(sortCfg.column, null).gt('id', cursor.id);
+    } else {
+      const v = cursor.sortValue;
+      const cmp = sortCfg.ascending ? 'gt' : 'lt';
+      // "Strictly past cursor" OR "in the null group" (always after any
+      // non-null value, both directions, given nullsFirst:false) OR
+      // "tied on the sort column, but past cursor on id".
+      query = query.or(`${sortCfg.column}.${cmp}.${v},${sortCfg.column}.is.null,and(${sortCfg.column}.eq.${v},id.gt.${cursor.id})`);
+    }
+  }
+
+  // +1 lookahead row: tells the caller whether a next page exists without
+  // ever needing count:'exact' or count:'estimated' (neither is used
+  // anywhere in this fast path).
+  query = query.limit(PAGE_SIZE + 1);
+
+  return { ok: true, query, sortCfg, select };
+}
+
+// Executes buildFastListingsQuery()'s query, with the exact same
+// missing-select-column detect/strip/retry pattern fetchAllRows() already
+// uses above (stripMissingSelectColumn()) - safe to reuse as-is here: it
+// only ever narrows the SELECT list (e.g. first_seen_at not migrated
+// yet), never a filter predicate, so it can't silently change which rows
+// match. Any OTHER error (a filter predicate naming a not-yet-migrated
+// column like area_key, a network failure, a malformed or() string) is
+// NOT retried - the whole fast path is abandoned for this render instead,
+// per the big comment above.
+async function fetchFastListingsPage(filters, cursor) {
+  let select = MERGED_LISTINGS_BULK_COLUMNS;
+  const maxRetries = 3; // bounded the same way as stripMissingSelectColumn() itself: stripping
+  // a column makes the exact same match impossible next time, so this can fire at most once
+  // per distinct column actually present in `select` - never unbounded.
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const built = buildFastListingsQuery(filters, cursor, select);
+    if (!built.ok) return built;
+    try {
+      const { data, error } = await built.query;
+      if (!error) return { ok: true, rows: data || [], sortCfg: built.sortCfg };
+      const stripped = stripMissingSelectColumn('merged_listings', select, error.message);
+      if (stripped === null) return unsupportedFastPath('query-error'); // not a select-column issue - a filter predicate
+      // (e.g. area_key not yet live) or something else - abandon the fast path rather than
+      // silently drop a filter and return unfiltered rows.
+      select = stripped;
+      // loop and retry with the narrowed select() - same shape as fetchAllRows()'s own retry.
+    } catch (e) {
+      console.warn('Fast listings page fetch failed, falling back to the background bulk load', e);
+      return unsupportedFastPath('exception');
+    }
+  }
+  return unsupportedFastPath('query-error');
+}
+
 async function loadData() {
   try {
     // merged_listings is already the cross-portal-deduped view (computed
@@ -3857,7 +4176,13 @@ async function loadData() {
 
     if (!cacheIsFresh) writeListingsCache(mergedRows); // fire-and-forget
 
-    MERGED_LISTINGS = mergedRows.map(m => ({ ...m, unverified: computeUnverified(m), rooms: extractRoomCount(m.title), sources: null }));
+    MERGED_LISTINGS = mergedRows.map(enrichListingRow);
+    // From here on, render() (called a few lines below, and by every filter/
+    // pagination interaction from now on) takes its normal, unchanged,
+    // full-array client-side-filtered path instead of the fast/server path
+    // above - see render()'s own BULK_READY guard. Set BEFORE that call so
+    // this very own loadData() render() picks up the switch.
+    BULK_READY = true;
 
     const totalSourceCount = mergedRows.reduce((sum, m) => sum + (m.member_count || 1), 0);
     const countsByPortal = {};
@@ -5824,42 +6149,78 @@ function sortComparator(sortBy) {
   };
 }
 
-function render() {
-  const min = parseFloat(document.getElementById('minPrice').value) || 0;
-  const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-  const minSqm = parseFloat(document.getElementById('minSqm').value) || 0;
-  const area = document.getElementById('areaFilter').value;
-  const rooms = document.getElementById('roomsFilter').value;
-  const minDays = parseFloat(document.getElementById('minDaysOnMarket').value) || 0;
-  const minReduced = parseFloat(document.getElementById('minTimesReduced').value) || 0;
-  const excludeSold = document.getElementById('excludeSold').checked;
-  const sortBy = document.getElementById('sortBy').value;
-  const searchQuery = (document.getElementById('searchQuery').value || '').trim().toLowerCase();
+// Every value render()'s own filter chain reads, gathered in one place so
+// both the slow (full-array) path and the fast/server path (backlog item
+// 6, core slice 2 - see the big comment above loadData()) build their
+// predicates from exactly the same snapshot, instead of two separately-
+// maintained readings of the same DOM/globals drifting apart over time.
+function readFilterState() {
+  return {
+    min: parseFloat(document.getElementById('minPrice').value) || 0,
+    max: parseFloat(document.getElementById('maxPrice').value) || Infinity,
+    minSqm: parseFloat(document.getElementById('minSqm').value) || 0,
+    area: document.getElementById('areaFilter').value,
+    rooms: document.getElementById('roomsFilter').value,
+    minDays: parseFloat(document.getElementById('minDaysOnMarket').value) || 0,
+    minReduced: parseFloat(document.getElementById('minTimesReduced').value) || 0,
+    excludeSold: document.getElementById('excludeSold').checked,
+    sortBy: document.getElementById('sortBy').value,
+    searchQuery: (document.getElementById('searchQuery').value || '').trim().toLowerCase(),
+    activeLeadGenerator,
+    type: activeTypeFilter,
+    city: activeCityFilter,
+    oblast: activeOblastFilter,
+  };
+}
 
-  let filtered = MERGED_LISTINGS.filter(l =>
-    l.price_eur >= min &&
-    l.price_eur <= max &&
-    (l.sqm || 0) >= minSqm &&
+// render()'s own MERGED_LISTINGS.filter() predicate, parameterized on a
+// readFilterState() snapshot instead of closing over the DOM/globals
+// directly - reused as-is (not reimplemented) by the fast path's
+// mandatory client-side re-check (see the big comment above loadData()),
+// which is what makes it safe for that path's own server-side predicate
+// translation to be best-effort rather than perfectly exact: whatever the
+// server returns still has to pass this exact same check before painting.
+function matchesAllFilters(l, filters) {
+  return (
+    l.price_eur >= filters.min &&
+    l.price_eur <= filters.max &&
+    (l.sqm || 0) >= filters.minSqm &&
     // area is now an areaFilter <option> value, which populateAreaFilter()
     // sets to the normalized area_key (not the raw label) - see
     // listingAreaKey()/areaKeyGroups() above (backlog item 18).
-    (area === '' || listingAreaKey(l) === area) &&
+    (filters.area === '' || listingAreaKey(l) === filters.area) &&
     // "5" means "5+" - the room-count select only offers exact values 1-4
     // and a 5+ bucket, matching what's actually extractable (see
     // extractRoomCount()'s own comment) rather than exact values beyond
     // what a listing's title can reliably state.
-    (rooms === '' || (rooms === '5' ? (l.rooms ?? 0) >= 5 : l.rooms === parseInt(rooms, 10))) &&
-    (l.days_on_market ?? 0) >= minDays &&
-    (l.price_drop_count ?? 0) >= minReduced &&
-    (!excludeSold || l.status !== 'sold') &&
-    listingMatchesSearch(l, searchQuery) &&
-    matchesLeadGenerator(l, activeLeadGenerator) &&
-    matchesTypeFilter(l, activeTypeFilter) &&
-    matchesCityFilter(l, activeCityFilter) &&
-    matchesOblastFilter(l, activeOblastFilter)
+    (filters.rooms === '' || (filters.rooms === '5' ? (l.rooms ?? 0) >= 5 : l.rooms === parseInt(filters.rooms, 10))) &&
+    (l.days_on_market ?? 0) >= filters.minDays &&
+    (l.price_drop_count ?? 0) >= filters.minReduced &&
+    (!filters.excludeSold || l.status !== 'sold') &&
+    listingMatchesSearch(l, filters.searchQuery) &&
+    matchesLeadGenerator(l, filters.activeLeadGenerator) &&
+    matchesTypeFilter(l, filters.type) &&
+    matchesCityFilter(l, filters.city) &&
+    matchesOblastFilter(l, filters.oblast)
   );
+}
 
-  filtered.sort(sortComparator(sortBy));
+function render() {
+  const filters = readFilterState();
+
+  // Fast first-paint path (backlog item 6, core slice 2): until the
+  // background bulk load has populated MERGED_LISTINGS at least once,
+  // filtering it client-side would just show "0 listings" - fire the
+  // small server-side query instead and paint from that. Every future
+  // call to render() (any filter/sort/pagination change) keeps routing
+  // here until BULK_READY flips, at which point loadData()'s own trailing
+  // render() call (and every one after it) falls straight through to the
+  // unchanged logic below instead.
+  if (!BULK_READY) { renderFastPage(filters); return; }
+
+  let filtered = MERGED_LISTINGS.filter(l => matchesAllFilters(l, filters));
+
+  filtered.sort(sortComparator(filters.sortBy));
 
   CURRENT_RESULT_IDS = filtered.map(l => l.id);
 
@@ -5956,6 +6317,198 @@ function handlePaginationClick(e) {
 function renderFromStart() {
   currentPage = 1;
   render();
+}
+
+// --- Fast-path pagination state (backlog item 6, core slice 2) ----------
+// Mirrors the slow path's own `currentPage` (not a separate counter) -
+// whatever page number the user is looking at when the background bulk
+// load finally resolves, the slow path (render()'s existing, unchanged
+// logic) picks up and keeps showing that same page number, since
+// currentPage is threaded through unchanged either way.
+let fastCursorStack = [null]; // fastCursorStack[i] = cursor used to fetch page i+1
+let fastPageIndex = 0; // 0-based; last page actually painted from a successful fetch
+let fastFilterSignature = null; // filters snapshot the current fastPageIndex was fetched under
+let fastLastRawRows = []; // raw (pre-enrichment, pre-re-check) rows from the last successful
+// fetch - the only correct source for the NEXT cursor (must be in the server's own sort
+// order, not the client re-sorted/re-filtered display order - see renderFastPage() below).
+let fastHasNext = false;
+let fastRequestToken = 0; // guards a slow, superseded fetch from painting over a newer one
+
+// A small, plain, JSON-serializable snapshot (readFilterState()'s own
+// return value - activeLeadGenerator is a plain saved object too), so a
+// straightforward JSON.stringify is a perfectly good change-detector here.
+function computeFilterSignature(filters) {
+  return JSON.stringify(filters);
+}
+
+// No numbered-page buttons here (unlike buildPaginationHtml() above) - a
+// keyset cursor only supports stepping one page at a time (docs/
+// decisions.md's slice 2 design: "a small stack of visited cursors ... not
+// true arbitrary-page jumping"). Reuses the exact same data-action=
+// "prev"/"next" attributes buildPaginationHtml() does, so the existing
+// handlePaginationClick() (bound once, on page load) drives both without
+// needing a separate branch of its own.
+function buildFastPaginationHtml(pageNum, hasNext) {
+  return `
+    <button data-action="prev" ${pageNum <= 1 ? 'disabled' : ''}>← Prev</button>
+    <span class="page-info">Page ${pageNum}${hasNext ? '' : ' (last)'}</span>
+    <button data-action="next" ${hasNext ? '' : 'disabled'}>Next →</button>
+  `;
+}
+
+// Renders the primary grid from the small server-side query instead of the
+// (still empty, or still populating) MERGED_LISTINGS array - see render()'s
+// own BULK_READY guard, and the big comment above loadData() for the full
+// design this implements.
+//
+// State is only ever committed (fastPageIndex/fastCursorStack/
+// fastFilterSignature/currentPage all updated together, "atomically") once
+// a fetch actually SUCCEEDS - a failed or superseded fetch leaves every one
+// of those exactly as it was, so a transient failure can't desync
+// currentPage from what was actually last painted, and a stale in-flight
+// request that resolves late (fastRequestToken) can never overwrite a
+// newer one's state or paint over its result.
+async function renderFastPage(filters) {
+  // Disable Prev/Next immediately, synchronously, before the branch logic
+  // below even runs - closes a real race a rapid double-click could
+  // otherwise hit: a second click landing while the first click's fetch is
+  // still in flight would read fastPageIndex/fastCursorStack before the
+  // first click's async commit has happened, and could misidentify its own
+  // target page (there is no "page N+2" branch to fall into, so it would
+  // fall through to the defensive "reset to page 1" case instead of
+  // reaching page N+1 as clicked). Disabling here means a second click
+  // during that window is simply ignored by handlePaginationClick()'s own
+  // `if (!btn || btn.disabled) return;` guard, the same way a disabled
+  // button already stops a click at either end of the page range.
+  const prevBtn = document.querySelector('[data-action="prev"]');
+  const nextBtn = document.querySelector('[data-action="next"]');
+  if (prevBtn) prevBtn.disabled = true;
+  if (nextBtn) nextBtn.disabled = true;
+
+  const signature = computeFilterSignature(filters);
+  let resetting, targetIndex, cursor;
+
+  if (signature !== fastFilterSignature || currentPage === 1) {
+    // A filter/sort change (every real call site sets currentPage = 1
+    // before calling render() for exactly this reason - see
+    // renderFromStart()/applyTypeFilter()/checkLeads() etc. above), or the
+    // very first call ever (fastFilterSignature starts null) - page 1
+    // always starts from a null cursor regardless of history, so this also
+    // safely covers a Prev-to-page-1 click without needing the cached
+    // stack at all.
+    resetting = true;
+    targetIndex = 0;
+    cursor = null;
+  } else if (currentPage === fastPageIndex + 2) {
+    // Next: one page forward from the page last actually painted.
+    resetting = false;
+    targetIndex = fastPageIndex + 1;
+    if (targetIndex < fastCursorStack.length) {
+      cursor = fastCursorStack[targetIndex]; // already visited this page before (Next, Prev, Next again)
+    } else {
+      const sortCfg = FAST_PATH_SORT_COLUMNS[filters.sortBy];
+      const lastRaw = fastLastRawRows[fastLastRawRows.length - 1];
+      // sortCfg can be missing here (an unsupported sort, e.g.
+      // recent-drop-desc) only if a previous fetch under the SAME
+      // signature somehow already succeeded, which fetchFastListingsPage()
+      // never allows (it bails out before ever returning ok:true for an
+      // unsupported sort) - the fallback below is unreachable in practice,
+      // kept only so this can never throw.
+      cursor = (lastRaw && sortCfg) ? { sortValue: lastRaw[sortCfg.column] ?? null, id: lastRaw.id } : null;
+    }
+  } else if (currentPage === fastPageIndex) {
+    // Prev: one page back - always already cached, since you can only
+    // reach it by having come from there.
+    resetting = false;
+    targetIndex = fastPageIndex - 1;
+    cursor = fastCursorStack[targetIndex];
+  } else {
+    // Anything else (shouldn't happen from the current UI - fast mode only
+    // ever offers Prev/Next, see buildFastPaginationHtml() above) - keyset
+    // pagination can't jump arbitrarily far, so fall back to page 1 rather
+    // than guess.
+    resetting = true;
+    targetIndex = 0;
+    cursor = null;
+  }
+
+  const token = ++fastRequestToken;
+  const result = await fetchFastListingsPage(filters, cursor);
+  if (token !== fastRequestToken) return; // superseded by a newer render() call - drop this response
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const countEl = document.getElementById('count');
+
+  if (!result.ok) {
+    // No safe fast-path translation for this exact predicate combination
+    // (see fetchFastListingsPage()'s own comment), or the query itself
+    // failed - don't commit any state and don't paint anything that might
+    // be wrong; show a plain loading placeholder and let the background
+    // bulk load (already in flight, entirely unaffected by any of this)
+    // paint the real, correct result once it resolves. currentPage is
+    // reset back to whatever was last actually, successfully painted, so
+    // it can't drift from reality.
+    currentPage = fastPageIndex + 1;
+    grid.innerHTML = '';
+    empty.textContent = 'Loading full results for this view…';
+    empty.style.display = 'block';
+    setPaginationHtml(fastFilterSignature === signature ? buildFastPaginationHtml(fastPageIndex + 1, fastHasNext) : '');
+    countEl.textContent = 'Loading…';
+    return;
+  }
+
+  // Commit - this fetch succeeded, so this is now the real current state.
+  fastFilterSignature = signature;
+  if (resetting) fastCursorStack = [null];
+  else if (targetIndex === fastCursorStack.length) fastCursorStack.push(cursor);
+  fastPageIndex = targetIndex;
+  currentPage = targetIndex + 1;
+  fastHasNext = result.rows.length > PAGE_SIZE; // the +1 lookahead row (buildFastListingsQuery()) told us
+  fastLastRawRows = result.rows.slice(0, PAGE_SIZE);
+
+  // Mandatory client-side re-check (see the big comment above loadData()) -
+  // the exact same predicate/sort the slow path uses (matchesAllFilters()/
+  // sortComparator(), not a reimplementation), just run over this small
+  // fetched batch instead of the full array. This is what makes the
+  // server-side predicate translation above safe to be best-effort: it can
+  // only ever remove a row here, never show one that doesn't really match.
+  const pageRows = fastLastRawRows.map(enrichListingRow).filter(l => matchesAllFilters(l, filters));
+  pageRows.sort(sortComparator(filters.sortBy));
+
+  CURRENT_RESULT_IDS = pageRows.map(l => l.id);
+  grid.innerHTML = '';
+
+  if (pageRows.length === 0) {
+    // Deliberately never claims a confident "0 listings" here (unlike the
+    // slow path's own empty state below) - an imprecisely-translated
+    // predicate (see the big comment above loadData()) can legitimately
+    // filter every row out of THIS page while real matches still exist
+    // further along; only the slow path's full-array scan can say "zero"
+    // for certain.
+    empty.textContent = fastHasNext
+      ? 'No matches on this page yet - keep going or wait for the full results to load.'
+      : 'No listings found yet for these filters - still loading the full list to confirm.';
+    empty.style.display = 'block';
+    setPaginationHtml(buildFastPaginationHtml(fastPageIndex + 1, fastHasNext));
+    countEl.textContent = 'Loading…';
+    return;
+  }
+
+  empty.style.display = 'none';
+  const pageStart = fastPageIndex * PAGE_SIZE;
+  const atLeast = pageStart + pageRows.length;
+  // Never count:'exact' (or 'estimated' - unverified against this
+  // project's live PostgREST config, per docs/decisions.md) - an
+  // immediate, honest lower-bound figure instead, silently upgraded to an
+  // exact count the moment the background bulk load resolves and the slow
+  // path's own render() call (loadData()'s trailing call, or any filter/
+  // pagination interaction after that) overwrites this element the normal
+  // way (unchanged existing code below).
+  countEl.textContent = `Showing ${fmt(pageStart + 1)}-${fmt(atLeast)} of ` +
+    `${fastHasNext ? fmt(atLeast) + '+' : fmt(atLeast)} listings (loading full count…)`;
+  setPaginationHtml(buildFastPaginationHtml(fastPageIndex + 1, fastHasNext));
+  pageRows.forEach(l => grid.appendChild(createListingCard(l)));
 }
 
 // docs/design-guidelines.md's palette (brass/sage/ink) reused for data
@@ -7947,6 +8500,13 @@ maybeImportSharedLeadGenerator();
 const pipelineListingsReady = refreshPipelineListingsCache();
 
 setGreeting();
+// Fires the primary grid's fast first-paint query immediately (backlog
+// item 6, core slice 2 - see the big comment above loadData()), in
+// parallel with loadData()'s own much larger bulk fetch right below -
+// render() itself checks BULK_READY and routes to the fast/server path
+// for as long as that bulk fetch (or a fresh IndexedDB cache read) hasn't
+// resolved yet.
+render();
 loadData();
 </script>
 

@@ -2198,6 +2198,36 @@ Picked up Scrapy's root-cause finding (PR #230, cherry-picked into this branch s
 
 Fixed by reworking `backfill_split_homes_id_collision.py` to split `history_homes.json`'s own pre-split `snapshots` (not `leads_homes.json`'s `price_history`) for both ids, then deriving `leads_homes.json`'s `price_history` from that corrected, complete snapshot list using the same dedup rule `scraper_homes.py`'s `compute_leads()` already applies (collapse consecutive same-price snapshots, keeping only the price-change points) rather than the previous `[e for e in full_history if price matches]` filter, which had also been carrying every repeated-price entry into `price_history` unfiltered - a second, related bug in the same code path (a listing whose price genuinely never changes should have a 1-entry `price_history`, not one entry per scrape). `price_drop_count`/`drop_pct`/`days_on_market`/`source_status`/`removed_at`/`score` were then recomputed from the corrected data with the same formulas as before. Re-verified losslessness against the real source count this time (`history_homes.json`'s original 24/8 snapshot counts, not `leads_homes.json`'s shorter lists): `homes_208381` splits to 13/11 snapshots (24/24 accounted for, matches the 12/11 price-point split only by coincidence of the counts, not by source), `homes_205536` splits to 4/4 (8/8, unchanged). Net corrected result: `homes_hs208381` is `source_status: "active"` (not `"removed"`), `days_on_market` 29 (not 27); `homes_lp208381`/`homes_hs205536`/`homes_lp205536` all keep their prior status but now carry the correctly-deduped 1-entry `price_history` instead of 8-11 duplicate-price entries each.
 
+### 2026-09-23 - Backlog item 6, core slice 2: server-side filtered/paginated query for the primary listings grid
+
+Dispatched as the core piece of backlog item 6's slice 2 (see this file's own "Backlog item 6 slice 2" design entry above, and PR #231's two small independent fixes, both already merged). Read that design entry in full, plus the real current `index.html` (`fetchAllRows()`, `loadData()`, `MERGED_LISTINGS_BULK_COLUMNS`, `render()`, `matchesLeadGenerator()`, `matchesTypeFilter()`/`typeFilterBucket()`, `matchesCityFilter()`/`matchesOblastFilter()`, `listingMatchesSearch()`, `sortComparator()`) before writing anything, per this item's own repeated "read the real code, don't guess" discipline. Checked `git worktree list`/`git log origin/main` immediately before starting - `dessy-detail-page-consolidation`, `dessy-send-letters`, `dessy-sitewide-design-verify`, and `scrapy-item9-descriptions` are all still active elsewhere but none had pushed conflicting commits to `origin/main` since the design pass; built in an isolated worktree off a fresh `origin/main` regardless, per the dispatch's own instruction.
+
+**What shipped, in `index.html`:**
+
+1. **Decoupled the grid's first paint from `loadData()`'s bulk fetch.** A new `render()` guard (`if (!BULK_READY) { renderFastPage(filters); return; }`) routes every call to `render()` - the initial page load and every subsequent filter/sort/pagination interaction alike - to a small server-side query until `BULK_READY` flips true (set right after `loadData()` populates `MERGED_LISTINGS` for the first time, from cache or a live fetch). `render()` itself is now called immediately at bootstrap, in parallel with `loadData()`, instead of only from inside `loadData()`'s own completion callback. Every other consumer of `MERGED_LISTINGS` (Comparables, Market Data hub, Lead Generator counts/dropdowns, home dashboard, `populateAreaFilter()`) is untouched - they still wait on the same background bulk load they always have, exactly as designed.
+
+2. **Predicate translation** (`buildFastListingsQuery()`): price/sqm/days/reduced/excludeSold/search/city/oblast/area/type(6 real buckets + auction) are all sent server-side as real `WHERE` clauses. Two designed simplifications, both documented in the code: the "Uncategorized" type bucket and a Lead Generator's own `propertyTypes`/neighborhood conditions aren't translated (too much `and()`/`or()` nesting to hand-verify safely without live Postgres) - the mandatory client-side re-check (below) still enforces them exactly, just possibly over a smaller server-prefiltered candidate set. `area` is sent as a real `.eq('area_key', ...)` filter even though item 26's `area_key` migration is confirmed not yet live on the production table (a real, live-confirmed 42703 "column does not exist") - deliberately forward-compatible: any Postgrest error at all (this one included) makes `fetchFastListingsPage()` abandon the fast path for that render entirely, never silently drop the filter and return unfiltered rows, so this starts working the moment the migration lands with no further code change.
+
+3. **A real, previously-undocumented finding, found while building this**: `rooms` (the room-count filter) has **no database column at all** - `extractRoomCount()` derives it purely from title-text regex, and neither `merged_listings` nor `listing_sources` has ever carried a `rooms` column (confirmed via `supabase/schema.sql`). Replicating that regex as a Postgres expression wasn't attempted (unverifiable without live Supabase, and a subtly-wrong guess here would be worse than not fast-pathing it at all) - `rooms` is simply never sent server-side; the mandatory client-side re-check (below) still enforces it exactly. Likewise a Lead Generator's radius/polygon geofencing (no lat/lng index yet, already a documented `findComparables()`-adjacent follow-up) and the "Most recently reduced" sort (`recent-drop-desc` - needs the full `price_history` jsonb slice 1 already excludes from the bulk fetch) have no safe server-side form and are proactively detected and skipped before ever querying Postgres.
+
+4. **The correctness guarantee that makes all of the above safe to ship without live verification**: every row `fetchFastListingsPage()` returns is re-run through `matchesAllFilters()` (the exact same predicate `render()`'s slow path uses, extracted into its own function and called by both - not a reimplementation) and re-sorted with the exact same `sortComparator()`, before anything is painted. A server-side predicate that's missing, approximate, or even outright wrong for some reason can only ever make a fast-path page come back with **fewer** genuinely-matching rows than it should - never a wrong one displayed. This is the load-bearing design decision that let the harder predicates above be scoped out rather than guessed at.
+
+5. **Composite keyset pagination**, generalizing `fetchAllRows()`'s own `.gt('id', cursor).order('id')` pattern to an arbitrary sort column: `.order(sortColumn, {ascending, nullsFirst:false}).order('id', {ascending:true})`, cursor as `{sortValue, id}`, translated into a `.gt/.lt` OR an `or()` expression handling the null-group and tie-break cases (see `buildFastListingsQuery()`'s own comments for the exact cases). Prev/Next via a small `fastCursorStack`/`fastPageIndex`, matching the design's "no arbitrary-page jumping" call - state is only ever committed after a fetch actually succeeds, so a failed or superseded (rapid double-click, fast typing) request can't desync `currentPage` from what's actually on screen. Never `count:'exact'` (the documented live 57014 landmine) or `count:'estimated'` (explicitly not attempted - unverifiable against this project's real PostgREST config from this sandbox, per the dispatch's own instruction not to depend on it blind); the count element instead shows an honest "at least N" lower bound (exact when the last page has actually been reached - the `+1` lookahead row makes that knowable without any count query at all), silently replaced with a real exact figure the moment `BULK_READY` flips and the slow path's own unchanged count logic runs.
+
+6. **A second real finding, surfaced while building the verification harness, not by inspection alone**: `sortComparator()`'s `'price-asc'`/`'price-desc'` (pre-existing, unchanged code) do plain `a.price_eur - b.price_eur` with no null-handling, which coerces a null `price_eur` to `0` - i.e. a null-price listing sorts as the *cheapest* listing under the client's own comparator, not last. This fast path's server-side `ORDER BY` uses `nullsFirst:false` (nulls last) for *page membership* instead, matching the project's `fetchAllRows()`-adjacent convention rather than the comparator's own quirk. The two don't fully agree: point 4's mandatory per-page re-sort only ever reorders rows *within* whichever page the server-side order already assigned them to, so a null-price row can land on a different page under this fast path than the "sort everything, then paginate" mental model would suggest. This is harmless for correctness (no row is ever duplicated, skipped, or wrongly filtered - see point 4) and isn't a new inconsistency this change introduces (the slow/bulk path hits the exact same comparator quirk over the whole array, at a third slightly-different final order for a page containing nulls) - flagged here plainly since it's a real, previously-unnoticed quirk of `sortComparator()` itself, not something this task was asked to fix.
+
+**Verified without live Supabase access** (confirmed blocked again this session, same as every prior one - egress proxy 403s a direct `curl` to the project's `*.supabase.co`), as rigorously as this sandbox allows:
+
+- Hand-traced every edge case the dispatch named: an empty result set (own test, confirmed no crash, no false "0 listings" claim), a single/exact-boundary page (the fixture's own natural 100/100/100/24 split over 324 non-sold rows, `Next` correctly disabled only once the server's own `limit(PAGE_SIZE+1)` lookahead row confirms there's nothing more), sort-column ties broken by the `id` tiebreaker (the fixture deliberately ties every ~10 rows on `price_eur`; verified both within a page and *across* the page-2/page-3 boundary, where a wrong tiebreak would show a duplicated or skipped row), Prev at the first page (disabled, verified after a real Next/Next/Prev/Prev round trip returns byte-identical to the original page 1 - proving the cursor stack, not just the button state, is correct), and Next at the last page (disabled, the exact-boundary case above). Also traced, and fixed, a real race this hand-tracing surfaced: a rapid double-click on Next, before the first click's fetch resolves, would read `fastPageIndex` before the first click's commit and could misidentify its own target page, landing on the "unexpected jump -> reset to page 1" fallback instead of the intended next page - fixed by disabling the Prev/Next buttons synchronously, before `renderFastPage()`'s first `await`, so a second click inside that window is refused by the browser itself (a disabled `<button>` doesn't dispatch a click at all) rather than racing.
+- Built a from-scratch reference implementation of just the slice of PostgREST's filter/`order`/`or()` grammar this project's own queries actually use (`mockdb.js` - eq/neq/gt/gte/lt/lte/is/in leaves, one level of `and()`/`or()` nesting, quoted-value escaping, multi-column `order` with `nullsfirst`/`nullslast`), unit-tested on its own against hand-computed expected results (including the exact composite-cursor filter shape this code generates, and the real comma-containing BCPEA raw type `"Ателие, Таван"`) before trusting it as a mocked Supabase REST endpoint.
+- A Playwright harness (headless Chromium, already available in this sandbox) serves the real, unmodified worktree `index.html` over a local HTTP server, vendors Chart.js/Leaflet/supabase-js from local `node_modules` (this sandbox's egress proxy still blocks the real CDNs), and intercepts every `merged_listings` REST call, routing it through `mockdb.js` against a synthetic 350-row fixture built with deliberate price/sqm nulls, price ties, and BCPEA titles (including the comma-containing one). The bulk (`fetchAllRows`) request is held open behind a gate the test controls explicitly, so the test can assert on the fast-path-only state before ever letting the bulk load resolve. 21 assertions, covering: first paint completes and paints real cards **before** `BULK_READY` flips and while the bulk request is still pending; the count element reads as honestly provisional, never a fabricated exact number; fast-path page 1/2/3 content matches an independently-computed expectation (not re-deriving the app's own logic - see below); a full Next/Next/Prev/Prev round trip returns to byte-identical page 1 and page 2 content; `minPrice` and `excludeSold` filter changes reset to page 1 and re-query correctly server-side; an impossible filter shows the empty state without a crash; the unsupported `recent-drop-desc` sort bails out cleanly with **zero** requests sent and zero rows shown (never wrong data); the "house" type bucket's category+BCPEA-title-prefix `or()`/`and()` translation is verified two ways - the request's own query string, and every rendered row independently re-checked against the real, shipped `matchesTypeFilter()`; a search query is verified the same way against the real `listingMatchesSearch()`; a **comma-containing search query** (`"a,status.eq.active"`) is verified both by inspecting the actual `or()` string sent (confirming the value was correctly double-quoted, not naively interpolated) and by confirming no row escapes the real filter check - this is the concrete injection-shaped risk `pgrestQuoteValue()`'s escaping exists to close, and it's the one part of this fix asserted from PostgREST's own published grammar rather than verified against a live PostgREST instance, flagged plainly in `buildFastListingsQuery()`'s own comment; the exact last-page boundary (24 rows, not 100, `Next` disabled); the rapid-double-click race (point 6's fix) produces exactly one request and lands cleanly on page 2; and finally, releasing the gated bulk load flips `BULK_READY`, the count becomes an exact non-provisional figure, and the slow path's numbered pagination buttons appear - confirming the handoff this whole design depends on actually works end to end.
+- The independent "expected" reference used throughout deliberately does **not** reimplement `sortComparator()` (an earlier draft of this harness did, and it produced a false failure that led directly to finding #6 above) - it calls the real, shipped function live, in-page, for the sort step, while keeping the filter step as genuinely independent JS. This is a deliberate verification-methodology choice, not corner-cutting: reusing the exact function under test for the one part of the pipeline (`sortComparator()`) that isn't itself new or risky keeps the test focused on what's actually novel here (the predicate translation and the pagination/cursor mechanics), while a hand-rolled model of it would either duplicate a bug in step with the app (masking a real regression) or silently diverge from it (a false failure, as happened once already while building this).
+- JS syntax-checked (`new Function()` on the extracted `<script>` body) after every edit.
+
+**Explicitly not touched, per the design's own scoping** (see the earlier "slice 2" design entry for the full reasoning): `findComparables()`, `computeRadiusAverage()`, `marketAggregateRows()`, and `populateAreaFilter()`/`areaKeyGroups()` all still read the full background-loaded `MERGED_LISTINGS` array exactly as before - confirmed via the diff itself (none of those four functions appear in it at all), not just by intent.
+
+**Status**: [PR #239](https://github.com/kirilbp/bg-property-tracker/pull/239) opened against a fresh `main`, **not merged** - needs Missy's review before shipping, per the standing "nothing ships without her sign-off" rule. Not auth/PII surface, so Revy's review isn't required. `docs/backlog.md` item 6 updated to reflect this piece as done-pending-review.
+
 ### 2026-09-23 - Backlog item 20 ("Map tab additions"): Satellite + Amenities layers shipped, Street View confirmed blocked (Dessy)
 
 Checked `git worktree list` first per the collision-handling instruction (five other worktrees existed, none touching the listing-detail map code) and built in a fresh isolated worktree (`/tmp/wt/map-layers`, branch `dessy/map-tab-layers-2026-09-23`) off a freshly-fetched `origin/main` rather than the primary `/home/user/bg-property-tracker` checkout - worth flagging explicitly since that primary checkout was, at the time this session started, sitting on a different, older commit whose `docs/backlog.md` had different item numbers for the same content (its "Map tab additions" item was numbered 16, not 20) - a repeat of the exact "stale local checkout" trap the mobile-sidebar-nav entry above already flagged. All work and all backlog references in this entry use fresh `origin/main`'s numbering (item 20).
@@ -2294,3 +2324,105 @@ the source line reads that way.
 
 Pushed to `dessy/fix-amenity-marker-color-2026-09-23` for Missy's
 re-review; not merged by this session.
+
+### 2026-09-23 (later) - PR #239 review fix: `area` un-fast-pathed after Missy found a self-healing claim that wasn't true
+
+Missy's review of PR #239 (backlog item 6's core slice 2) found one real
+correctness gap, verified correct and not re-litigated here: the original
+`buildFastListingsQuery()` translated the area filter as a bare
+`.eq('area_key', filters.area)`, on the stated reasoning that this was
+"forward-compatible" and would "start working the moment the migration
+lands with no further code change." That reasoning missed a real window:
+`area_key` (item 26's newly-added column) only gets backfilled on a live
+row by the *next* `sync_to_supabase.py` run after its migration lands, so
+there's a real window (up to one full sync cycle) where a live row has
+`area_key IS NULL` while its raw `area` text is populated - a row the
+client-side `listingAreaKey()` (`l.area_key || normalizeArea(l.area)`)
+would correctly match via its text fallback, but a bare server-side
+`eq()` would silently exclude. Critically, this is a case the fix's own
+headline safety guarantee - "a server-side predicate can only ever return
+fewer rows than it should, never a wrong page, because the client-side
+re-check catches the rest" - does NOT cover: the re-check only re-filters
+rows the server already returned, so a wrongly-excluded row never arrives
+to be re-checked at all. Today this is fully inert (`area_key` doesn't
+exist on the live table yet, so the query 42703s and the whole fast path
+abandons to the slow/correct path for that render) - but it would have
+silently activated, with this exact wrong-page bug, the moment the
+migration ships, and the code/docs' own "self-heals with zero further
+work" claim would have been false at that point.
+
+**Fix chosen: option (b) from Missy's own two suggested fixes** - don't
+fast-path translate `area` at all, treating it exactly like
+`rooms`/Lead Generator radius/`recent-drop-desc` are already treated in
+this same PR (left out of `buildFastListingsQuery()`'s server-side
+translation, relying purely on the mandatory client-side
+`matchesAllFilters()` re-check to correctly filter it from whatever page
+comes back). Chosen over option (a) (OR-ing the `area_key` eq with a
+text-based `or()` fallback matching `normalizeArea()`'s own logic) because
+it's simpler, follows this PR's own already-established and already-
+accepted pattern instead of introducing new OR-clause escaping/
+normalization logic that would need its own careful verification, and the
+accepted trade-off is identical to `rooms`'s: an area-filtered fast page
+may come back thinner than `PAGE_SIZE` (never wrong, just possibly short)
+until the background bulk load resolves and the authoritative slow path
+takes over. Revisit once `area_key` has had one full backfill cycle after
+its migration lands - a legitimate follow-up, not a permanent gap.
+`index.html` changes: removed the `.eq('area_key', filters.area)` call
+from `buildFastListingsQuery()`, and rewrote both that function's inline
+comment and the larger "predicates NOT translated server-side" comment
+block above it (previously listing only `rooms`/Lead-Generator-geo/
+`recent-drop-desc`) to add `area` with the reasoning above, and to correct
+the summary line that used to list `area` among the predicates translated
+as a real WHERE clause.
+
+**Also fixed, Missy's lower-severity secondary finding**: the
+verification harness's `mockdb.js` (scratchpad, not part of this PR's
+diff - `/tmp/claude-0/.../scratchpad/perftest/mockdb.js` from the
+original PR #239 session) parsed `or` filters via
+`searchParams.get('or')`, which only reads the FIRST value - but real
+`postgrest-js` calls `.or()` once per distinct predicate
+(`buildFastListingsQuery()` itself can chain a search-text `or()`, a
+type-bucket `or()`, and a pagination-cursor `or()` on the same request),
+sending multiple `or=` query-string params that real PostgREST ANDs
+together. The mock silently ignored every `or=` param but the first, so
+the "type filter + Next page" / "search + Next page" combination -
+ordinary real-world usage - was never actually exercised by the PR's own
+verification suite despite its claims. Fixed `mockdb.js` to use
+`searchParams.getAll('or')` and AND every parsed filter tree together
+(previously a single `if (orParam)` block, now a loop over `getAll('or')`
+that filters `result` once per param). Added two new
+`mockdb.test.js` cases - a type-bucket `or()` combined with a
+pagination-cursor `or()` (two `or=` params), and a search-text `or()`
+combined with the same cursor `or()` - each asserting the exact resulting
+id set, plus each clause's own in-isolation result, specifically so a
+future regression that silently drops one `or=` param again would produce
+a visibly wrong id list rather than a coincidentally-still-passing test.
+Confirmed by hand-reverting the `getAll`/loop fix locally and re-running
+`mockdb.test.js`: the new type-bucket+cursor test fails against the old
+`.get()`-only code (wrong id set: `[2, 1]` instead of the correct `[]`),
+then re-confirmed passing again with the fix restored - proving the new
+test actually catches this regression, not just tolerating it. Did not
+attempt a full live-Playwright re-run of the original PR's end-to-end
+harness (`run.js`, same scratchpad directory): it points at a now-gone
+prior-session worktree path and this sandbox has no downloaded Chromium
+build for the globally-installed `playwright` package (no
+`ms-playwright`/`.local-browsers` cache found) - verified the fix at the
+`mockdb.js` unit level instead, which is where the actual parsing bug
+lived and where Missy's finding was specifically about.
+
+**Verified**: worked in a fresh worktree off the PR branch
+(`origin/bossy/backlog6-server-query`, new branch
+`bossy/backlog6-server-query-fix`), merged current `origin/main` in - a
+real conflict in this file only (this same day's PR #238-review, item 20,
+and item 11 entries had all been appended after this PR's own entry on
+`origin/main`), resolved by keeping this PR's entry followed by all three
+of `origin/main`'s later same-day entries, per this file's append-only
+convention. `node --check` against the freshly re-extracted `<script>`
+block passes. `docs/backlog.md` item 6's PR #239 summary updated to match
+(removed the "`area` is sent too, forward-compatible..." line, added
+`area` to the not-fast-pathed predicate list, and added a "Correction"
+paragraph documenting Missy's finding and the fix, mirroring this entry).
+
+Pushed to `bossy/backlog6-server-query-fix` (tracking
+`bossy/backlog6-server-query`) for Missy's re-review; not merged by this
+session.
