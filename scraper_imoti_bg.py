@@ -362,6 +362,23 @@ def save_history(history):
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+# Fields fetch_listing_detail() supplies on top of what the grid crawl
+# (fetch_listings_page()) itself produces. Unlike the other portals'
+# scrapers, fetch_listings() here calls fetch_listing_detail() inline for
+# EVERY listing on EVERY run (not a separate, one-time backfill pass) -
+# but per its own docstring it's best-effort and "never raises... a
+# missing description/date shouldn't drop a listing", so a single
+# transient per-run failure (timeout, a missing meta tag that day, a page
+# render hiccup) legitimately returns (None, None) for a listing that had
+# a real description/site_posted_at on a previous run. update_history()
+# must merge these in from the previous "latest" rather than let a fresh
+# record's None wipe an already-captured value - docs/backlog.md item 9a
+# (originally fixed in six other scrapers, this one was missed since it
+# has the identical bug but wasn't part of that investigation's "all six
+# scrapers with this function" premise).
+_DETAIL_ONLY_FIELDS = ("description", "site_posted_at")
+
+
 def update_history(history, listings):
     now = datetime.now(timezone.utc).isoformat()
     for l in listings:
@@ -369,7 +386,13 @@ def update_history(history, listings):
         if lid not in history:
             history[lid] = {"first_seen": now, "snapshots": []}
         history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
+        prev_latest = history[lid].get("latest") or {}
+        merged = dict(l)
+        for field in _DETAIL_ONLY_FIELDS:
+            prev_value = prev_latest.get(field)
+            if merged.get(field) in (None, "", []) and prev_value not in (None, "", []):
+                merged[field] = prev_value
+        history[lid]["latest"] = merged
     return history
 
 
