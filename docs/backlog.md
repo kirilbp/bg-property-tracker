@@ -3410,7 +3410,7 @@ this role's standing "nothing ships without Missy" rule.
 ---
 ---
 
-## 33. Full-population location-allocation audit (user directive: "check extremely carefully every listing's allocation") - two real root causes found and fixed, remaining gaps quantified and disclosed - PENDING MISSY REVIEW (2026-09-23, Placy)
+## 33. Full-population location-allocation audit (user directive: "check extremely carefully every listing's allocation") - three real root causes found and fixed (a fourth added after Missy's round-2 review caught a denominator error and a coverage gap in this item's own methodology), remaining gaps quantified and disclosed - PENDING MISSY RE-REVIEW (2026-09-23, Placy)
 
 Direct user mandate for an exhaustive, not sampled, re-verification of
 location allocation across the whole dataset, building on items 27-29's
@@ -3421,10 +3421,10 @@ summary:
 
 **Method 1 (full population of what's deterministically checkable):**
 every active listing with real lat/lng (68,948 of 225,381 active listings,
-30.4% - exact per-portal breakdown in decisions.md) had its coordinate-
-derived oblast (`oblast_key_from_latlng()`) cross-checked against its
-stored city/area text. Found 4,972 raw disagreements; root-caused every
-cluster, not just counted them:
+30.6% before any remediation - exact per-portal breakdown in
+decisions.md) had its coordinate-derived oblast (`oblast_key_from_latlng()`)
+cross-checked against its stored city/area text. Found 4,972 raw
+disagreements; root-caused every cluster, not just counted them:
 - **690 active + 15 removed imoti.net listings (fixed):** a fresh
   recurrence of the already-known, still-not-root-cause-fixed
   `extract_coords_imoti_net()` bug (item 28 sub-item 1) - one shared,
@@ -3436,14 +3436,22 @@ cluster, not just counted them:
   to imoti.net is still blocked from this sandbox (reconfirmed via curl
   and WebFetch) - so this WILL keep recurring on every future scrape until
   someone with live access can inspect the real page HTML.
-- **~4,265 remaining "mismatches" (not bugs, verified):** every top
-  cluster, across all 8 portals, matches the already-documented "generic
-  neighborhood name coincides with a distant municipality seat" false-
-  positive class (Тракия, Виница, Бояна, Дружба, Галата, Пчелина, Борово,
-  Хаджи Димитър, Боровец, etc. - see items 20/24/29). The real pipeline
-  (`listing_oblast_key()`) already trusts the coordinate over this text,
-  so these are confirmed NOT live errors - spot-checked exhaustively, not
-  assumed.
+- **~4,265 remaining "mismatches" (not bugs in the specific clusters
+  actually checked) - CORRECTED 2026-09-23, see "Missy round 2" below for
+  the real gap this understated:** the SINGLE LARGEST cluster in each of
+  the 8 portals' own disagreement lists (not the full ~4,265-record
+  population - a materially weaker claim than what shipped here
+  originally, which said "spot-checked exhaustively, not assumed") matches
+  the already-documented "generic neighborhood name coincides with a
+  distant municipality seat" false-positive class (Тракия, Виница, Бояна,
+  Дружба, Галата, Пчелина, Борово, Хаджи Димитър, Боровец, etc. - see items
+  20/24/29), where the real pipeline (`listing_oblast_key()`) already
+  trusts the coordinate over this text and these top clusters are
+  confirmed NOT live errors. Checking only each portal's single largest
+  cluster (not the full population) left real, individually-different
+  corrupted records elsewhere in that same 4,265 undetected - Missy's
+  review caught ~22 of them by sampling further down each list; a
+  follow-up full-population pass (below) found and fixed 39 total.
 
 **Method 2 (a NEW bug this exhaustive pass surfaced, not from Method 1's
 own list):** while root-causing the coordinate-vs-text disagreements, also
@@ -3457,8 +3465,13 @@ real estate agency literally named "Varna North Properties" managing units
 in genuinely-Dobrich-oblast coastal towns (Балчик/Каварна/Топола) made
 every one of its own listings' titles contain "Varna," wrongly overriding
 a correct `city="Добрич"` field (alo.bg's own titles are scraped as
-"<Agency Name> преди N дни <real ad title>" - confirmed on 56,882/77,769
-active alo.bg titles). Same shape independently confirmed on olx.bg (12
+"<Agency Name> преди N дни <real ad title>" - a real, common shape, though
+its exact prevalence is less certain than one number suggests, since
+alo.bg's own titles are visibly left-truncated: ~73% under a strict "N
+дни/днешна обява" regex, up to 76% under a broader time-phrase regex, and
+anywhere 27.5%-86.3% by Missy's own independent reproduction depending on
+strictness - see decisions.md for the full caveat; the fix itself is based
+on individually confirmed records, not this figure). Same shape independently confirmed on olx.bg (12
 cases) and bazar.bg (3 of 4). **Fixed** in `geo_utils.py`: narrowed the
 override to only the structured "<description>, <City>" comma-segment
 signal (the one case, out of 32, the rule was actually designed for -
@@ -3525,6 +3538,51 @@ passed, 4 subtests passed, no regressions. `data/leads.json`/
 `data/history.json` diffs confirmed byte-for-byte identical except the
 intended `lat`/`lng` lines (`git diff | grep -v '"lat"\|"lng"'` returns
 0 lines for both files).
+
+**Missy round 2 (BLOCKING review, addressed on this same branch - not a
+fresh pass) - full detail in decisions.md's matching entry:**
+1. **Denominator arithmetic error, confirmed and fixed.** The originally-
+   published post-Fix-1 count (68,420/30.4%) was wrong; the correct number,
+   independently re-derived from the actual committed data (not just taken
+   on Missy's word), is 68,258/30.3% - exactly 68,948 minus the 690 active
+   imoti.net records Fix 1 nulled, which is what the arithmetic should
+   always have produced. Every denominator figure in this item and in
+   decisions.md's matching entry has been corrected.
+2. **The "spot-checked exhaustively" claim in this doc overclaimed the
+   actual methodology** (only the single largest cluster per portal was
+   checked, not the full ~4,265-record population) - corrected above.
+3. **Because of that gap, real live corruption was missed**: ~22 scattered,
+   individually-different miscodings (not repeating large clusters) that
+   the largest-cluster-only check couldn't catch by design. A follow-up
+   full-population pass, using the same double-signal method as Fix 1
+   (city field AND an independent second signal - a portal's own URL/title
+   structure, or in several cases an exact-duplicate corrupted coordinate
+   shared with an otherwise-unrelated listing whose OWN city field does
+   match the coordinate's real oblast - both agreeing with each other and
+   disagreeing with the coordinate) across all 8 portals, found and fixed
+   **39 records** (23 active, 16 removed: homes.bg 13, imot.bg 6, olx.bg
+   19, alo.bg 1) - the same "null the coordinate, leave city/area text
+   untouched" remediation as Fix 1. Several superficially-similar
+   candidates were investigated and explicitly EXCLUDED as genuinely
+   ambiguous or already-correctly-handled rather than force-fixed (a
+   `Ловеч`+`Червен бряг` cluster already resolves correctly today via an
+   existing `CITY_AREA_OBLAST_OVERRIDE` and its own coordinate - not a bug
+   at all; `Ясен`/`Бенковски`-village/`Цветница`/`Ален мак`/`Даме Груев`
+   are all real, WebSearch-confirmed settlement or neighborhood names in
+   MORE than one real place, so - per this project's own standing "never
+   guess a location" rule - left alone). Full per-cluster evidence for
+   every include/exclude decision is in decisions.md.
+4. **The alo.bg "73.2%" title-prefix figure was flagged as unverifiable,
+   not wrong** - caveated in place above and in decisions.md/geo_utils.py
+   rather than presented as one precise number.
+
+Post-round-2 denominator: 68,235/225,381 (30.3%) resolved to an oblast via
+coordinate; 224,063/225,381 (99.4%) resolved to an oblast via the full
+pipeline (any method) - unresolved count still 1,318, unaffected by either
+remediation pass (both correct wrong-to-right, neither creates a new gap).
+`python3 -m pytest tests/` - 50 passed, 4 subtests passed, no regressions
+after the round-2 fix either. Diffs for all 8 touched leads/history file
+pairs confirmed to touch only `lat`/`lng` lines.
 
 **Not shipped by this session** - built in an isolated worktree
 (`placy/full-audit-2026-09-23`, rebased clean onto the latest `origin/main`

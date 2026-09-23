@@ -766,8 +766,14 @@ def listing_city_key(l):
     # cyr_city_key_from_text() "anywhere in the title" fallbacks matching a
     # city name that ISN'T the listing's own real location at all - e.g.
     # alo.bg's own titles are scraped as "<Agency Name> преди N дни <real ad
-    # title>" (confirmed: 56,882/77,769 active alo.bg titles have this exact
-    # shape), and an agency literally named "Varna North Properties" made
+    # title>" (a real, common shape - roughly 73-76% of active alo.bg
+    # titles under a couple of reasonable regexes, but alo.bg's own titles
+    # are visibly left-truncated in the scraped data, so any single precise
+    # percentage here overstates how exactly this is known - a Missy review
+    # independently reproducing this got anywhere from 27.5% to 86.3%
+    # depending on matching strictness; the shape itself, and the concrete
+    # per-record fix below, don't depend on the exact prevalence figure),
+    # and an agency literally named "Varna North Properties" made
     # every listing it manages elsewhere in Bulgaria (15 confirmed active:
     # real Dobrich-oblast coastal towns - Балчик/Каварна/Топола) wrongly
     # override a correct city="Добрич" field with "varna" (the agency's own
