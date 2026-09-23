@@ -172,7 +172,7 @@
     ],
     "price_drop_count": 1,
     "drop_pct": 14.5,
-    "days_on_market": 5,
+    "days_on_market": 6,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 410,
@@ -344,38 +344,6 @@
     "score": 18
   },
   {
-    "id": "imotibg_515393",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/грбанкя-515393.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a54b219b8a9a_6a54b53fb3600.jpg",
-    "price_eur": 150000,
-    "sqm": 870,
-    "area": "гр.Банкя",
-    "city": "София област",
-    "title": "Парцел, гр.Банкя",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ПАРЦЕЛ  870 М2 В ГР.БАНКЯ- МИХАЙЛОВО , НА ЦЕНТРАЛНА УЛИЦА.\r\nС ДЕНИВИЛАЦИЯ Е МЯСТОТО ,ЗАПОЧНАТ СТРОЕЖ 1998,НА 1-ВА ПЛОЧА.\r\nГРАДСКИ ТРАНСПОРТ ДО МЕТОТО В СОФИЯ,ЧИСТ ВЪЗДУХ И ПАНОРАМА.\r\nНЕ СЪМ В БЪЛГАРИЯ ПОСТОЯННО ЗВЪНЕТЕ ПЕРИОДИЧО",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 172,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 150000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 295,
-    "pct_vs_area_avg": -41.6,
-    "score": 18
-  },
-  {
     "id": "imotibg_515298",
     "url": "https://imoti.bg/продажби/парцел/варна/кк-златни-пясъци-515298.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a43b08c5d88d_6a43b0fe0901e.jpg",
@@ -408,70 +376,6 @@
     "score": 18
   },
   {
-    "id": "imotibg_515271",
-    "url": "https://imoti.bg/продажби/нива/софия-област/сбогьовци-515271.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 30000,
-    "sqm": 3000,
-    "area": "с.Богьовци",
-    "city": "София област",
-    "title": "Нива, с.Богьовци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": null,
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 10,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 30000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 21,
-    "pct_vs_area_avg": -52.4,
-    "score": 18
-  },
-  {
-    "id": "imotibg_515272",
-    "url": "https://imoti.bg/продажби/нива/софия-област/сбогьовци-515272.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 13000,
-    "sqm": 1004,
-    "area": "с.Богьовци",
-    "city": "София област",
-    "title": "Нива, с.Богьовци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": null,
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 13,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 13000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 21,
-    "pct_vs_area_avg": -38.1,
-    "score": 18
-  },
-  {
     "id": "imotibg_514970",
     "url": "https://imoti.bg/продажби/парцел/варна/изгрев-514970.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a0b3b90a5b4d_6a0b3c9e9d751.jpeg",
@@ -501,38 +405,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 575,
     "pct_vs_area_avg": -48.6,
-    "score": 18
-  },
-  {
-    "id": "imotibg_514848",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/спетърч-514848.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 51000,
-    "sqm": 2001,
-    "area": "с.Петърч",
-    "city": "София област",
-    "title": "Парцел, с.Петърч",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ПИ / Поземлен имотв началото на селото от към гр. Костинброд, с правилна форма със затруднен достъп.\r\nС предназачение за жилищно и проимишлено строителство.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 25,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 51000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 42,
-    "pct_vs_area_avg": -39.8,
     "score": 18
   },
   {
@@ -597,38 +469,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 36,
     "pct_vs_area_avg": -40.8,
-    "score": 18
-  },
-  {
-    "id": "imotibg_513945",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/спанчарево-513945.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_694a2d14e751f_694a2d81e0365.jpg",
-    "price_eur": 440000,
-    "sqm": 1100,
-    "area": "с.Панчарево",
-    "city": "София област",
-    "title": "Парцел, с.Панчарево",
-    "portal": "imoti.bg",
-    "lat": 42.6346817,
-    "lng": 23.4314147,
-    "description": "ПРОДАВАМ УРЕГУЛИРАН ПОЗЕМЛЕН ИМОТ В НАЙ-КРАСИВАТА, ТИХА И ЦЕНТРАЛНА ЧАСТ НА ПАНЧАРЕВО НЕПОСРЕДСТВЕНО ДО ЕЗЕРОТО\r\nКвадратура на имота: 1100 м2, \r\nЦЕНА: 440 000 Евро\r\nтел. за контакт 0877 879 789\r\n\r\nАдрес: кв. Панчарево, ул. Риляник №4\r\nПараметри на застрояване:\r\n-\tплътност 40%\r\n-\tкинт 1,3\r\n-\t1320 м2 надземно застрояване и 1000 м2 – подземни гаражи\r\n\r\nУрегулираният поземлен имот е с топ-локация в самото село в непосредствена близост до Панчаревското езеро, в най-тихата и „аристократична” част на Панчарево – местност “Зона за отдих”, където в миналото са се намирали резиденциите на соц-елита. \r\n\r\nИмотът се намира на: \r\n\r\n\tна 100 м. от „Самоковско шосе” \r\n\tна 120 м. от Панчаревското езеро и гребната база \r\n\tна 100 м. от полицейския участък \r\n\tна 20 м. от здравния център\r\n\tна 100 м. от открита фитнес площадка за възрастни и деца\r\n\tна 250 м. от детската градина (ДГ №66 „Елица”) \r\n\tна 200 м. от училището в Панчарево (ОУ №83 Елин Пелин). \r\n\tна 150 м. от спирка на градски транспорт\r\n\r\nИмотът е равен е с прекрасна локация и безпроблемен достъп, както през лятото така и през зимата. Навсякъде около сградата има асфалтов път. В имота има ток и вода. Поради непосредствената близост до полицейския участък,  улицата е една от първите които се почистват през зимата от снега. Имотът е подходящ за строителство на малка кооперация с подземни гаражи (1320 м2 надземно застрояване и 1000 м2 – подземни гаражи) или на голяма луксозна еднофамилна къща.\r\n\r\nВъздушните течения от язовир Искър и Боровец, позволяват въздухът в района на Панчарево да се обменя до 10 пъти на денонощие (за пример в Банкя – която се води че е с изключително чист въздух, обмяната на въздуха е до 7-8 пъти на денонощие). Заради географската специфика на планинските масиви (Витоша, Плана планина и Лозенската планина), въздушните маси в Панчарево нямат възможност да се смесват активно със замърсения софийски въздух, който със своя смог трови Бояна, Драгалевци и Симеоново. Това е и основната причина в Панчарево да е построен рехабилитационният център за белодробни заболявания на Кремиковци.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 400,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 440000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 804,
-    "pct_vs_area_avg": -50.3,
     "score": 18
   },
   {
@@ -965,38 +805,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1449,
     "pct_vs_area_avg": -19.1,
-    "score": 17
-  },
-  {
-    "id": "imotibg_511821",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сбелопопци-511821.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_67f0ddabe0c32_6a8829efb96cd.jpg",
-    "price_eur": 174609,
-    "sqm": 19400,
-    "area": "с.Белопопци",
-    "city": "София област",
-    "title": "Парцел, с.Белопопци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагаме земеделски имот с площ от 19 401 кв.м., находящ се в землището на с. Белопопци, община Горна Малина.\r\nИмотът попада в устройствена зона СМФ съгласно Общия устройствен план на община Горна Малина, което създава възможности за бъдещо инвестиционно развитие на терена.\r\nМестоположението и размерът на имота позволяват разглеждането му като терен за реализация на различни инвестиционни проекти. Сред възможните направления са изграждане на фотоволтаичен парк, логистичен център, складова база, производствен обект, фабрика и други обекти съобразно устройствените параметри и приложимите нормативни изисквания.\r\nСъс своите близо 20 декара имотът предоставя необходимото пространство за цялостно планиране и развитие на бъдещ проект.\r\nЗа повече информация относно устройствената зона, документите, възможностите за развитие и точното местоположение на имота, свържете се с нас.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 9,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 174609
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 14,
-    "pct_vs_area_avg": -35.7,
     "score": 17
   },
   {
@@ -2932,38 +2740,6 @@
     "score": 10
   },
   {
-    "id": "imotibg_513290",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/грбанкя-513290.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_68d6c2b80c1a8_68d6c2f324564.jpg",
-    "price_eur": 120000,
-    "sqm": 500,
-    "area": "гр.Банкя",
-    "city": "София област",
-    "title": "Парцел, гр.Банкя",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продава се парцел в регулация с отлична форма и удобен достъп!\r\n\r\nИмотът е с правилна форма и лек наклон, подходящ за строителство. В парцела има малка постройка – къща с две стаи (по 9,5 кв.м) и антре (6 кв.м), която може да се използва временно или за стопански нужди.\r\n\r\nПредимства:\r\n\r\nПарцел в регулация с възможност за строеж\r\nНалични ток и вода в имота\r\nУдобен достъп от две страни – по новоасфалтирани улици\r\n\r\nПодходящ избор за изграждане на семейна къща или ваканционен имот в спокойна среда.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 240,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 120000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 295,
-    "pct_vs_area_avg": -18.6,
-    "score": 10
-  },
-  {
     "id": "imotibg_510522",
     "url": "https://imoti.bg/продажби/нива/благоевград-област/гр-гоце-делчев-510522.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_67332d9d79533_67332ea7a221b.jpg",
@@ -4856,38 +4632,6 @@
     "score": 5
   },
   {
-    "id": "imotibg_515351",
-    "url": "https://imoti.bg/продажби/къща/софия-област/смала-църква-515351.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a4e2e655c853_6a4e2f62277be.jpg",
-    "price_eur": 96000,
-    "sqm": 635,
-    "area": "с.Мала църква",
-    "city": "София област",
-    "title": "Къща, с.Мала църква",
-    "portal": "imoti.bg",
-    "lat": 42.1884091,
-    "lng": 23.4599303,
-    "description": null,
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 151,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 96000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 157,
-    "pct_vs_area_avg": -3.8,
-    "score": 5
-  },
-  {
     "id": "imotibg_101652",
     "url": "https://imoti.bg/продажби/офис/варна/идеален-център-101652.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_627a3dfc1584f_627a3dfc179bd.jpg",
@@ -5436,6 +5180,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_515732",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сбатулия-515732.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 25200,
+    "sqm": 3600,
+    "area": "с.Батулия",
+    "city": "София област",
+    "title": "Парцел, с.Батулия",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Парцелът е с плодни дръвчета и лек наклон. Има възможност за делене на 2 парцела по 1800 кв. м.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 7,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 25200
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_515724",
     "url": "https://imoti.bg/продажби/заведение/пазарджик/запад-515724.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a86300f8ab06_6a86351fe5fc3.jpg",
@@ -5495,8 +5271,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 414,
-    "pct_vs_area_avg": -86.7,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -5660,6 +5436,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_515663",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сковачевци-515663.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a7b28de7cfb0_6a7b2b87b2dcc.jpg",
+    "price_eur": 110000,
+    "sqm": 60,
+    "area": "с.Ковачевци",
+    "city": "София област",
+    "title": "Къща, с.Ковачевци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продавам имот.\r\nРазстоянието до имота от центъра на София е 38 километра. Дворър е с площ около 400 кв.метра . Къщата в центъра на селото и е с разгъната застроена площ - 60 кв. метра. На долния етаж има хол и кухненски бокс, антре и тоалетна. На горния етаж има две стаи, едната е южно изложение, с балкон с изглед към Рила, другата стая е със северно изложение с изглед към Витоша. На горния етаж има антре и баня. Построена е през 1972г. и е ремонтирана през 2014г. Оградата на имота е от бетон и желязна конструкция и е изградена през 2013 г. Гараж със застроена площ 25 кв. метра и е ремонтиран през 2014г.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1833,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 110000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_515647",
     "url": "https://imoti.bg/продажби/парцел/пловдив/южна-дъга-515647.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a79a286bcba3_6a79a336c0b41.jpg",
@@ -5689,6 +5497,42 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 159,
     "pct_vs_area_avg": -0.8,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515642",
+    "url": "https://imoti.bg/продажби/вила/софия-област/свладо-тричков-515642.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a78ee99c5f0e_6a78f13a73454.jpg",
+    "price_eur": 36000,
+    "sqm": 60,
+    "area": "с.Владо Тричков",
+    "city": "София област",
+    "title": "Вила, с.Владо Тричков",
+    "portal": "imoti.bg",
+    "lat": 42.8649132,
+    "lng": 23.3686863,
+    "description": "Парцел 780 кв.м. с малка сграда състояща се от спалня, кухня, тоалетна и две други помещения (обща застроена площ около 60 кв.м, два етажа). Ток, вода от сонда (кладенец), септична яма. За основен ремонт.  Large yard (780 sq.m) and a small vila (two floors 37 sq.m each) consisting of a bedroom, a kitchen, a WC, and two service rooms. Needs repairs, water from a well (pump). Connected to electricity.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 600,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 29000
+      },
+      {
+        "date": "2026-08-28T04:41:50.772578+00:00",
+        "price_eur": 36000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": -24.1,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -5788,6 +5632,102 @@
     "score": 4
   },
   {
+    "id": "imotibg_515595",
+    "url": "https://imoti.bg/продажби/къща/софия-област/грдолна-баня-515595.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a707e2b1b4fb_6a70831f97371.jpg",
+    "price_eur": 195000,
+    "sqm": 132,
+    "area": "гр.Долна баня",
+    "city": "София област",
+    "title": "Къща, гр.Долна баня",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Двуетажна къща с два търговски обекта на ул. „Търговска“, гр. Долна баня\r\n\r\nПродава се функционален двуетажен имот с отлична локация на главната търговска улица в гр. Долна баня. Сградата разполага със самостоятелни входове за търговската и жилищната част, което позволява независимото им ползване или отдаване под наем.\r\n\r\n    1-ви етаж (Търговска част): Два самостоятелни търговски обекта с директен достъп от ул. „Търговска“. Всеки обект разполага със собствен санитарен възел. Изключително подходящи за магазин, офис, аптека, козметичен салон или друг вид бизнес.\r\n\r\n    2-ри етаж (Жилищна част): Просторен хол с кухненски бокс, две спални, баня с тоалетна, отделна тоалетна и килер.\r\n\r\nСъстояние и подобрения:\r\nСградата е след цялостен основен ремонт:\r\n\r\n    Нова електро- и ВиК инсталация\r\n\r\n    Нов покрив и външна топлоизолация\r\n\r\n    Нова PVC дограма и вътрешни стени с гипсокартон\r\n\r\nДвор и допълнителни удобства:\r\nДворното място (340 кв.м) е озеленено и поддържано. Разполага с навес с барбекю зона, към която има самостоятелна санитарна точка (тоалетна) и отделна стая с възможност за обособяване като лятна кухня.\r\n\r\nПредимства:\r\n\r\n    Стратегическа локация на оживена улица с постоянен човекопоток\r\n\r\n    Възможност за комбинирано ползване – живеене и собствен бизнес или инвестиция с доход от наем\r\n\r\n    Готов за довършителни дейности по вкус на новия собственик",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1477,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 195000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515577",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия-област/грсливница-515577.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 90000,
+    "sqm": 56,
+    "area": "гр.Сливница",
+    "city": "София област",
+    "title": "Двустаен апартамент, гр.Сливница",
+    "portal": "imoti.bg",
+    "lat": 42.705854,
+    "lng": 23.3036113,
+    "description": null,
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1607,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515575",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сдраговищица-515575.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 120000,
+    "sqm": 701,
+    "area": "с.Драговищица",
+    "city": "София област",
+    "title": "Парцел, с.Драговищица",
+    "portal": "imoti.bg",
+    "lat": 42.845538,
+    "lng": 23.2254778,
+    "description": "Продавам 701 кв.празно дворно място в централната част на с.Драговищица общ.Костинброд ,ток,вода,газ,мръсен канал,сонда за вода,виза скица за строеж,единствен собственик цена 120 000€ тел.0888814994",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 171,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 120000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_270066",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/кк-златни-пясъци-270066.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a6b4a963900a_6a6b4a963d193.jpg",
@@ -5879,8 +5819,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 546,
-    "pct_vs_area_avg": -92.7,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -5911,8 +5851,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 546,
-    "pct_vs_area_avg": -88.1,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6032,6 +5972,70 @@
       {
         "date": "2026-08-24T23:43:33.818106+00:00",
         "price_eur": 95000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515516",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сволуяк-515516.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a651d263719b_6a651e9be58f1.png",
+    "price_eur": 48900,
+    "sqm": 326,
+    "area": "с.Волуяк",
+    "city": "София област",
+    "title": "Парцел, с.Волуяк",
+    "portal": "imoti.bg",
+    "lat": 42.7734332,
+    "lng": 23.2428659,
+    "description": "► кв. Волуяк, град София, улица „Дружба“ 75\r\nУПИ - 652 м² парцел в регулация с ток и вода вътре в парцела.\r\n► Намира се на две улици.\r\n - Засаден с дръвчета и цветя. \r\n - Продава се ½ идеална част = 326 м²  х  €85 м² = € 27710.\r\n\r\nhttps://maps.app.goo.gl/vk7ZXLBcXpqEF3ZZA\r\nGPS : 42.768048 , 23.244219",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 150,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 48900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515509",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорна-малина-515509.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a636818d2bd2_6a8829bf71ed7.jpg",
+    "price_eur": 179968,
+    "sqm": 9472,
+    "area": "с.Горна Малина",
+    "city": "София област",
+    "title": "Парцел, с.Горна Малина",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Инвестиционен имот в м. Локвите, Горна Малина – три съседни парцела с обща площ 9 472 кв.м., включени в Общия устройствен план за жилищно строителство. Имотите се продават заедно на цена 19 €/кв.м. (общо 179 968 €) или поотделно на цена 24 €/кв.м. Цените при индивидуална продажба са: Имот 1 – 114 216 €, Имот 2 – 51 960 €, Имот 3 – 61 152 €. Районът предлага отличен достъп до София, спокойна среда и висок инвестиционен потенциал, подходящ както за жилищно строителство, така и за производствена, логистична или складова дейност.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 179968
       }
     ],
     "price_drop_count": 0,
@@ -6167,8 +6171,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 593,
-    "pct_vs_area_avg": 367.1,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6199,8 +6203,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 593,
-    "pct_vs_area_avg": -89.9,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6231,8 +6235,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 593,
-    "pct_vs_area_avg": -95.8,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6263,8 +6267,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 593,
-    "pct_vs_area_avg": -94.9,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6295,8 +6299,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 593,
-    "pct_vs_area_avg": -86.5,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6455,8 +6459,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 295,
-    "pct_vs_area_avg": 60.2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6553,6 +6557,134 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1560,
     "pct_vs_area_avg": -99.2,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515420",
+    "url": "https://imoti.bg/продажби/нива/софия-област/слуково-515420.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a57280e57f74_6a57284b78850.png",
+    "price_eur": 9500,
+    "sqm": 500,
+    "area": "с.Луково",
+    "city": "София област",
+    "title": "Нива, с.Луково",
+    "portal": "imoti.bg",
+    "lat": 42.8970946,
+    "lng": 23.4276053,
+    "description": "Предлагаме за продажба поземлен имот с площ 500 кв.м, с идентификатор 44330.5.14, находящ се в местност Разорчината , с. Луково, община Своге, Софийска област.\r\n\r\n По кадастралната карта имотът е с трайно предназначение на територията земеделска, начин на трайно ползване пасище, категория на земята 10. \r\n\r\nХарактеристики: Площ: 500 кв.м \r\nИдентификатор: 44330.5.14 \r\nС. Луково, общ. Своге, Софийска област Местност: Разорчината \r\nЛице на полски път \r\nПравилна форма на имота \r\nИздадена актуална скица и протокол за трасиране. \r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа и чист въздух.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 9500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515421",
+    "url": "https://imoti.bg/продажби/нива/софия-област/слуково-515421.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a5728de62f6b_6a57293eb09e7.png",
+    "price_eur": 18900,
+    "sqm": 995,
+    "area": "с.Луково",
+    "city": "София област",
+    "title": "Нива, с.Луково",
+    "portal": "imoti.bg",
+    "lat": 42.8970946,
+    "lng": 23.4276053,
+    "description": "Предлагаме за продажба поземлен имот с площ 995 кв.м, с идентификатор 44330.7.21, находящ се в с. Луково, община Своге, Софийска област. По кадастралната карта имотът е с трайно предназначение на територията – земеделска, начин на трайно ползване – друг вид земеделска земя, категория на земята – 10.\r\n\r\nХарактеристики:\r\n\r\nПлощ: 995 кв.м\r\nИдентификатор: 44330.7.21\r\nс. Луково, общ. Своге, Софийска област\r\nЛице на полски път\r\nПравилна форма на имота\r\nИздадена актуална скица и протокол за трасиране.\r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа, чист въздух и отлични възможности за отдих сред природата.\r\n\r\nПродават се и съседните имоти, което дава възможност за закупуване на по-голяма обща площ:\r\n\r\nПИ с идентификатор 44330.5.14 – 500 кв.м, с. Луково.\r\nПИ с идентификатор 62387.56.9906 – 898 кв.м, с. Реброво.\r\n\r\nЦена: 19 €/кв.м.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 18900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515422",
+    "url": "https://imoti.bg/продажби/нива/софия-област/среброво-515422.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a57294d9b7fd_6a57298eab86b.png",
+    "price_eur": 17000,
+    "sqm": 898,
+    "area": "с.Реброво",
+    "city": "София област",
+    "title": "Нива, с.Реброво",
+    "portal": "imoti.bg",
+    "lat": 42.8970946,
+    "lng": 23.4276053,
+    "description": "Предлагаме за продажба поземлен имот с площ 898 кв.м, с идентификатор 62387.56.9906, находящ се в с. Реброво, община Своге, Софийска област. По кадастралната карта имотът е с трайно предназначение на територията – земеделска. Имотът е образуван след изменение на кадастралната карта и е с правилна форма, подходяща за различни видове ползване.\r\n\r\nХарактеристики:\r\n\r\nПлощ: 898 кв.м\r\nИдентификатор: 62387.56.9906\r\nс. Реброво, общ. Своге, Софийска област\r\nЛице на полски път\r\nПравилна форма на имота\r\nИздадена актуална скица-проект и протокол за трасиране.\r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа, чист въздух и лесен достъп до София.\r\n\r\nПродават се и останалите имоти, което дава възможност за закупуване на повече от един парцел:\r\n\r\nПИ с идентификатор 44330.5.14 – 500 кв.м, с. Луково.\r\nПИ с идентификатор 44330.7.21 – 995 кв.м, с. Луково.\r\n\r\nЦена: 19 €/кв.м.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 17000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515393",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/грбанкя-515393.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a54b219b8a9a_6a54b53fb3600.jpg",
+    "price_eur": 150000,
+    "sqm": 870,
+    "area": "гр.Банкя",
+    "city": "София област",
+    "title": "Парцел, гр.Банкя",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ПАРЦЕЛ  870 М2 В ГР.БАНКЯ- МИХАЙЛОВО , НА ЦЕНТРАЛНА УЛИЦА.\r\nС ДЕНИВИЛАЦИЯ Е МЯСТОТО ,ЗАПОЧНАТ СТРОЕЖ 1998,НА 1-ВА ПЛОЧА.\r\nГРАДСКИ ТРАНСПОРТ ДО МЕТОТО В СОФИЯ,ЧИСТ ВЪЗДУХ И ПАНОРАМА.\r\nНЕ СЪМ В БЪЛГАРИЯ ПОСТОЯННО ЗВЪНЕТЕ ПЕРИОДИЧО",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 172,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6748,6 +6880,102 @@
     "score": 4
   },
   {
+    "id": "imotibg_515361",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорни-окол-515361.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a4fbed09cdc4_6a4fc0972ad5e.jpg",
+    "price_eur": 60000,
+    "sqm": 1215,
+    "area": "с.Горни Окол",
+    "city": "София област",
+    "title": "Парцел, с.Горни Окол",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Предлагам за продажба парцел, разположен в живописната местност „Щъркелово гнездо“, в землището на с. Горни Около.\r\nИмотът се намира на тихо и спокойно място, подходящо за изграждане на вила или къща за целогодишно живеене. Парцелът е почистен.\r\nРайонът е обитаем – в съседните къщи живеят хора целогодишно, което осигурява сигурност и добра среда. Местността съчетава спокойствие, чист въздух и красива природа, като същевременно предлага лесен достъп до близките населени места.\r\nЗа повече информация и оглед, моля свържете се с мен.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 49,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 60000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515351",
+    "url": "https://imoti.bg/продажби/къща/софия-област/смала-църква-515351.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a4e2e655c853_6a4e2f62277be.jpg",
+    "price_eur": 96000,
+    "sqm": 635,
+    "area": "с.Мала църква",
+    "city": "София област",
+    "title": "Къща, с.Мала църква",
+    "portal": "imoti.bg",
+    "lat": 42.1884091,
+    "lng": 23.4599303,
+    "description": null,
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 151,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 96000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515352",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/смала-църква-515352.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a4e432c4a135_6a4e437e4f7d9.jpg",
+    "price_eur": 76000,
+    "sqm": 467,
+    "area": "с.Мала църква",
+    "city": "София област",
+    "title": "Парцел, с.Мала църква",
+    "portal": "imoti.bg",
+    "lat": 42.1884091,
+    "lng": 23.4599303,
+    "description": null,
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 163,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 76000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_515347",
     "url": "https://imoti.bg/продажби/парцел/пловдив-област/смарково-515347.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a4e128d633cf_6a4e13a63b106.jpg",
@@ -6821,8 +7049,8 @@
     "city": "София област",
     "title": "Едностаен апартамент, гр.Ботевград",
     "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
+    "lat": 42.8937092,
+    "lng": 23.7289349,
     "description": "Продавам ателие в престижния комплекс Панорама, кв. Изток, Ботевград. Ателието се намира на 1 жилищен етаж, над гаражи. Изключително светло и топло с източно изложение. Готово за живеене, отопление на газ, включени ел. уреди. 44 кв. м., жилищна площ, има прилежащо мазе. От собственик. Готови документи за сделка.\r\nДокладвай",
     "site_posted_at": null,
     "category": "flat",
@@ -6839,8 +7067,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 489,
-    "pct_vs_area_avg": 262.6,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6853,8 +7081,8 @@
     "city": "София област",
     "title": "Парцел, гр.Ботевград",
     "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
+    "lat": 42.8937092,
+    "lng": 23.7289349,
     "description": "Продава имот от 20 282кв.м за вилно селище. Два парцела от масива: 14 280кв.м и 6 000кв.м./около 8 000 кв.м. са в регулация/един до друг с узаконени проекти за осем къщи на един етаж от 100кв.м и веранда 100кв.м., общо РЗП 200кв.м. и прилежащ двор към всяка от 1000кв.м. Имотът е слънчев, равен с чакълиран път до него, вода от сонда, ток  възможност за изграждане на трафопост, канализация септична яма, гледка към града и язовира. За повече информация и огледи на тел: 0877 684 567, Кветослава",
     "site_posted_at": null,
     "category": "land",
@@ -6871,8 +7099,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 489,
-    "pct_vs_area_avg": -84.9,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -6885,8 +7113,8 @@
     "city": "София област",
     "title": "Жилищна сграда, гр.Ботевград",
     "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
+    "lat": 42.8937092,
+    "lng": 23.7289349,
     "description": "Продава имот от 20 282кв.м за вилно селище. Два парцела от масива: 14 280кв.м и 6 000кв.м./около 8 000 кв.м. са в регулация/един до друг с узаконени проекти за осем къщи на един етаж от 100кв.м и веранда 100кв.м., общо РЗП 200кв.м. и прилежащ двор към всяка от 1000кв.м. Имотът е слънчев, равен с чакълиран път до него, вода от сонда, ток  възможност за изграждане на трафопост, канализация септична яма, гледка към града и язовира. За повече информация и огледи на тел: 0877 684 567, Кветослава",
     "site_posted_at": null,
     "category": "house",
@@ -6903,8 +7131,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 489,
-    "pct_vs_area_avg": -84.9,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -7287,8 +7515,72 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 21,
-    "pct_vs_area_avg": 185.7,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515271",
+    "url": "https://imoti.bg/продажби/нива/софия-област/сбогьовци-515271.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 30000,
+    "sqm": 3000,
+    "area": "с.Богьовци",
+    "city": "София област",
+    "title": "Нива, с.Богьовци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": null,
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 10,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 30000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515272",
+    "url": "https://imoti.bg/продажби/нива/софия-област/сбогьовци-515272.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 13000,
+    "sqm": 1004,
+    "area": "с.Богьовци",
+    "city": "София област",
+    "title": "Нива, с.Богьовци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": null,
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 13,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 13000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -7319,8 +7611,40 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 21,
-    "pct_vs_area_avg": -95.2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515279",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/свакарел-515279.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a4281943b08c_6a4282467eb1a.jpg",
+    "price_eur": 135000,
+    "sqm": 1129,
+    "area": "с.Вакарел",
+    "city": "София област",
+    "title": "Парцел, с.Вакарел",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Стара къща (140 кв.м) с голям двор и готови документи в с. Вакарел (махала Семковци). Търсите спокойно бягство от градския шум, съчетано с чист въздух и бърз достъп до София? Предлагаме за продажба прекрасен имот с изрядни документи. Имотът е разположен на самия път с отличен целогодишен достъп и е перфектен както за реставрация, така и за изграждане на нов мечтан дом.Основни характеристики на имота Застроена площ: Двуетажна къща с площ от 70 кв.м на етаж (общо 140 кв.м разгърната площ).Голям парцел: Дворно място с площ от 1129 кв.м, разпределено на две нива (терасовиден терен).Сигурност и автентичност: Целият имот е ограден, като в предната част има масивна и красива каменна ограда.Комуникации и предимства в двора Пълно захранване: Къщата е с партида за ток. Автономно водоснабдяване: В двора има функциониращ кладенец и резервоар за събиране на чиста изворна вода (огромно предимство за безплатна поддръжка на градината).Отлична локация: Имотът се намира точно на пътя в спокойната махала Семковци. Потенциал на терена Разчупеният терен на две нива осигурява прекрасни възможности за модерно ландшафтно проектиране. Можете да обособите панорамна веранда, барбекю зона, овощна градина или басейн. Вакарел е изключително предпочитан район поради близостта си до София по магистрала Тракия и чистата си природа.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 120,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 135000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -7344,6 +7668,70 @@
       {
         "date": "2026-08-24T23:43:33.818106+00:00",
         "price_eur": 2500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515257",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сбенковски-515257.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a3e64392ccbd_6a3e662d74faa.jpg",
+    "price_eur": 600000,
+    "sqm": 401,
+    "area": "с.Бенковски",
+    "city": "София област",
+    "title": "Къща, с.Бенковски",
+    "portal": "imoti.bg",
+    "lat": 42.6979656,
+    "lng": 23.3290136,
+    "description": "Имот с 5 бр. самостоятелни сгради, разположени в просторен двор от 2 262 кв.м. с автоматична порта за автомобили, оборудван и законен кладенец, плодни и цъфтящи дръвчета над 25 бр., цветни градинки, обособена зеленчукова градина, граничещ с рекичка и гледка към Средна гора.\r\n1. Основна къща, монолитна със застроена площ (ЗП) 91 кв.м. и РЗП 249 кв.м. жилищен етаж, таван и сутерен. \r\nРазпределение: \r\nПартер: фоайе с вътрешни стълби към таванската част, две спални, просторна дневна и баня с тоалетна;\r\nТаван: коридор, две спални, кабинет и баня с тоалетна;\r\nСутерен: коридор, механа, пура бар, мазе, перално помещение с тоалетна;\r\n2. Къща за гости, монолитна със ЗП 32 кв.м. с разпределение фоайе, една спалня и баня с тоалетна;\r\n3. Гараж с ЗП 26 кв.м. , който се ползва за склад а в двора има място за паркиране на 2-3 коли.\r\n4. Барака монолитна, обзаведена като работилница с ЗП 32 кв.м.\r\n5. Монолитен навес открит от две страни с ЗП 61,80 кв.м. с обособена лятна кухня, камина/барбекю, пещ за цяло агне, маси за 16 нормални места и барплот.\r\nВ имота има оптичен интернет с покритие на двор сградите и двора, 2 партиди с монофазен и трифазен ток и партида за питейна вода.\r\nПодходящ както за целогодишно ползване, така и за къща за гости.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1496,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 600000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515251",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорна-василица-515251.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a3cc31de1618_6a3cc3938b49b.jpeg",
+    "price_eur": 26500,
+    "sqm": 1247,
+    "area": "с.Горна Василица",
+    "city": "София област",
+    "title": "Парцел, с.Горна Василица",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": null,
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 21,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 26500
       }
     ],
     "price_drop_count": 0,
@@ -7511,8 +7899,40 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 804,
-    "pct_vs_area_avg": -92.5,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515170",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сзлокучене-515170.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a30edd15215f_6a30efaef18a4.jpg",
+    "price_eur": 150000,
+    "sqm": 70,
+    "area": "с.Злокучене",
+    "city": "София област",
+    "title": "Къща, с.Злокучене",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "От собственик. Къщата е санирана, с нов покрив. Ток, вода, канал.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 2143,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -7737,6 +8157,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 409,
     "pct_vs_area_avg": 160.9,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515107",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сджурово-515107.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a22f5b4c3cfc_6a22f88e65475.jpeg",
+    "price_eur": 70000,
+    "sqm": 3879,
+    "area": "с.Джурово",
+    "city": "София област",
+    "title": "Къща, с.Джурово",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Едноетажна къща в с. Джурово, обл. Софийска. \r\nУПИ 3 - 402,267\r\nКъщата се намира във вилната зона на селото, с улица в добро състояние. Селото е в близост до магистрала Хемус. Има ток и вода.\r\nТелефон за връзка: 0888803550, 0882632570",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 18,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 70000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8124,6 +8576,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_514908",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сбистрица-514908.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a02d17aa7d88_6a02d2b74fb75.jpg",
+    "price_eur": 500000,
+    "sqm": 125,
+    "area": "с.Бистрица",
+    "city": "София област",
+    "title": "Къща, с.Бистрица",
+    "portal": "imoti.bg",
+    "lat": 42.5862332,
+    "lng": 23.3605497,
+    "description": "Продава се къща в с. Бистрица, София от собственик.\r\n\r\nПредлагам къща на 3 нива, разположена в живописната и предпочитана местност Бистрица, с прекрасна природа, чист въздух и бърз достъп до София.\r\nРазпределение: \r\n• Първо ниво – 3 спални, коридор и баня с тоалетна, обща площ 60 кв. м\r\n• Второ ниво – просторен хол с кухня, обща площ 50 кв. м\r\n• Трето ниво – ампуре/таванско помещение с площ 12 кв. м\r\nКъщата е с вътрешна стълба между нивата, осигуряваща удобно и функционално разпределение.\r\nДопълнителни предимства: \r\n• Покрита тераса – 60 кв. м\r\n• Двор – 800 кв. м с денивелация, подходящ за озеленяване, кът за отдих или градина\r\n• Спокойна локация сред природа и панорамни гледки\r\nИмотът е подходящ както за постоянно живеене, така и за уикенд къща близо до града.\r\n\r\nЗа повече информация и огледи – свържете се с мен по телефона.\r\nЦена: 500 000 евро",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 4000,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 500000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_514869",
     "url": "https://imoti.bg/продажби/парцел/добрич-област/ссенокос-514869.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69fa26eacfee7_69fa2800ecd74.jpg",
@@ -8185,6 +8669,70 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 73,
     "pct_vs_area_avg": 82.2,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514861",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сгерман-514861.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69f8a0b3d4b4a_69f8a13c110f7.jpg",
+    "price_eur": 159600,
+    "sqm": 150,
+    "area": "с.Герман",
+    "city": "София област",
+    "title": "Къща, с.Герман",
+    "portal": "imoti.bg",
+    "lat": 42.6097339,
+    "lng": 23.4104121,
+    "description": "СТРАХОТНА ПАНОРАМА. МАСИВНА ТУХЛЕНА КЪЩА. ЧИСТ ВЪЗДУХ. НЕВЕРОЯТНА ПРИРОДА. Намира се 15мин от гр. София.\r\n???? Продаваме масивна триетажна къща, намира се във вилна зона ' Терасите' на с. Герман, на близо 800м надморска височина.\r\n ????Разпределение:\r\n   1- ви етаж: Хол, Кухня, Баня с тоалетна, Коридор, Самостоятелен вход.\r\n   2- ри етаж: 2 Спални, Просторно антре, Обща тераса към двете спални.\r\n   3- ти етаж: Просторно, голямо, светло отворено помещение с баня и тоалетна.\r\n???? Имота е подходящ както за инчестиция, така и за целогодишно живеене / до скоро е обитаван дълги години/\r\n\r\n???? В момента няма вода, трябва да се пробие сондаж, до този момент водата се снабдява от съседите, които имат изграден сондаж,ток има, но няма отделна партида, ще трябва да се отвори от новите собственици, канализацията е на септична яма.\r\nВ момент имота е в процес по урегулиране / в момента земята е земеделска за друг вид застрояване/, но къщата е описана подробно в Нотариалния акт.\r\nСтроителство-тухла от 1986год.\r\nКъщата има нужда от ремонт.\r\n\r\nВодещ брокер Михаела Ивова..0888085007, 0878648872\r\nБлагодаря Ви, че прочетохте нашата обява. От целия ни екип хубав и усмихнат ден! Агенция за Недвижими Имоти София Имот + /ОАНИТ/ е създадена 2007год. Брокерите, които работят са с повече от 20годишен опит в сферата на недвижимите имоти...\r\n... НАПЪЛНО БЕЗПЛАТНО СЪДЕЙСТВАМЕ ЗА ОТПУСКАНЕ НА ИПОТЕЧНИ КРЕДИТИ- РАБОТИМ С ВСИЧКИ БАНКИ. БЪРЗО ОДОБРЕНИЕ И ОТЛИЧНИ УСЛОВИЯ- БЕЗПЛАТНО ЗА КРЕДИТОИСКАТЕЛЯ...",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1064,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 159600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514848",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/спетърч-514848.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 51000,
+    "sqm": 2001,
+    "area": "с.Петърч",
+    "city": "София област",
+    "title": "Парцел, с.Петърч",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ПИ / Поземлен имотв началото на селото от към гр. Костинброд, с правилна форма със затруднен достъп.\r\nС предназачение за жилищно и проимишлено строителство.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 25,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 51000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8380,6 +8928,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_514756",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/свасиловци-514756.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69e4727a23903_69e47312732bb.jpg",
+    "price_eur": 90895,
+    "sqm": 2597,
+    "area": "с.Василовци",
+    "city": "София област",
+    "title": "Парцел, с.Василовци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продавам три УПИ с обща площ 2597 кв.м. с директна връзка към главния път.Всяко УПИ е около 900 кв.м. Цената по отделно е по договяряне.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 35,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 90895
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_514740",
     "url": "https://imoti.bg/продажби/едностаен-апартамент/враца-област/гркозлодуй-514740.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/img/no_pic.jpg",
@@ -8409,6 +8989,102 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 907,
     "pct_vs_area_avg": 88.2,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514705",
+    "url": "https://imoti.bg/продажби/къща/софия-област/скостенец-514705.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69dcf45644a5d_69dcf61592d6b.jpg",
+    "price_eur": 135000,
+    "sqm": 136,
+    "area": "с.Костенец",
+    "city": "София област",
+    "title": "Къща, с.Костенец",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "От собственик! Продава се къща в сърцето на живописното село Костенец, само на 100 метра от централния площад, здравната служба, магазини и заведения! Локацията е не просто удобна - тя е перфектна за спокоен и подреден живот с всички градски удобства на крачка разстояние.\r\n\r\nМестоположение:\r\nСело Костенец е сгушено в полите на Рила планина, на 3 км от популярния курорт Вили Костенец, прочут с лековитите си термални извори. Разстоянието до София е едва 74 км, на 3 км е и град Костенец, а ски курортът Боровец е на само 35 км - идеално разположение за любителите на планината, балнеотуризма и зимните спортове.\r\n\r\nДо селото има редовен автобусен транспорт от София, Пловдив, Пазарджик и Самоков, както и жп връзка с директни влакове от София и Пловдив. Достъпът е изключително удобен: маршрутът преминава основно по автомагистрала Тракия, с кратко отклонение в посока Костенец.\r\n\r\nИмотът включва:\r\n- Парцел от 450 кв.м - озеленен, с овощни дървета и лози\r\n- Основна къща с РЗП 136 кв.м, разпределена на два жилищни етажа\r\n- Двуетажна стопанска постройка (по 39 кв.м на етаж, общо 78 кв.м)\r\n- Лятна кухня с барбекю зона (узаконено) - 22 кв.м с три стени тухлена и каменна зидария и покрив от дървена конструкция, идеална за гости и летни събирания\r\n\r\nРазпределение на къщата:\r\n- Първи етаж (68 кв.м): входно антре, дневна с възможност за обособяване на спален кът, отделна трапезария, кухня, баня с тоалетна, отделна тоалетна с достъп от двора и барбекюто\r\n- Втори етаж (68 кв.м): две спални, баня с тоалетна към едната спалня, коридор, панорамна тераса\r\n\r\nДопълнително предимство:\r\n- Одобрен проект за надграждане на трети (тавански) етаж, с разрешение, заверено в общината. Имотът предлага чудесен потенциал за разширение и модернизация.\r\n\r\nОтопление:\r\nОсигурено чрез камина - уют, топлина и ниски разходи за зимата. Идеален дом за целогодишно обитаване или като ваканционна вила с висок инвестиционен потенциал.\r\n\r\nИмотът е с един собственик и напълно изрядни документи - готов за сделка.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 993,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 135000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514706",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/схрабърско-514706.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69dd19b586f5f_69dd1ac893dd7.png",
+    "price_eur": 33152,
+    "sqm": 896,
+    "area": "с.Храбърско",
+    "city": "София област",
+    "title": "Парцел, с.Храбърско",
+    "portal": "imoti.bg",
+    "lat": 42.8108011,
+    "lng": 23.0870578,
+    "description": "Продава равнинен парцел 896 кв.м. в село Храбърско, местност „Черен пешо“, с целогодишен достъп в урбанизирана територия, асфалт, ток на 20км. от София, в близост до язовир „Храбърско“. Електрически стълб за ток има на 20 м. от парцела, водата в района е от кладенци. В съседство се намират нови къщи с постоянно обитаващи ги хора. Приблизително 20 минути с автомобил до столицата.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 37,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 33152
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514707",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/схрабърско-514707.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69dd1d7e76151_69dd1de170180.png",
+    "price_eur": 41255,
+    "sqm": 1115,
+    "area": "с.Храбърско",
+    "city": "София област",
+    "title": "Парцел, с.Храбърско",
+    "portal": "imoti.bg",
+    "lat": 42.8108011,
+    "lng": 23.0870578,
+    "description": "Продава равнинен парцел 1115 кв.м. в село Храбърско, местност „Черен пешо“, с целогодишен достъп в урбанизирана територия, асфалт, ток, вода, на 20км. от София, в близост до язовир „Храбърско“. Електрически стълб в парцела, водата в района е от кладенци. В съседство се намират нови къщи с постоянно обитаващи ги хора. Приблизително 20 минути с автомобил до столицата. Ниско застрояване (до 10 м.).",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 37,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 41255
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8471,8 +9147,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 183,
-    "pct_vs_area_avg": -86.4,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8503,8 +9179,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 183,
-    "pct_vs_area_avg": -86.4,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8535,8 +9211,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 183,
-    "pct_vs_area_avg": 254.7,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -8892,6 +9568,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_514540",
+    "url": "https://imoti.bg/продажби/къща/софия-област/гркостинброд-514540.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 310000,
+    "sqm": 160,
+    "area": "гр.Костинброд",
+    "city": "София област",
+    "title": "Къща, гр.Костинброд",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Вашият нов модерен дом в Костинброд: Простор, спокойствие и стил!\r\n\r\nТърсите перфектния баланс между градския комфорт и спокойствието на извънградския живот? Представяме ви две чисто нови, едноетажни къщи с модерна архитектура, разположени в един от най-тихите и предпочитани райони на град Костинброд.\r\n•\tПлощ: По 160 кв.м и двете къщи- функционално разпределени за максимален комфорт.\r\n•\tДвор: 1100 кв.м.\r\n•\tЕтажност: Едноетажна (без излишни стълби, идеален достъп навсякъде). С голямо таванско помещение.\r\n•\tСтроителство: Ново, висок клас материали и съвременна визия.\r\n•\tДограма: 7- Камерна – Rehal + 3-словен стъклопакет.\r\n•\tОтопление: Подово отопление и замазка. \r\n\r\nВътрешно разпределение:\r\nИнтериорът е проектиран с мисъл за простор и светлина. С огромна и слънчева дневна. 3 просторни спални - осигуряващи лично пространство за всеки член на семейството. 2 бани с тоалетни.\r\nЗащо да изберете този имот?\r\n•\tЛокация: Намира се в спокоен район с чист въздух, същевременно с бърз и лесен достъп до София.\r\n•\tМодерна архитектура: Къща, която се отличава с изчистени линии и съвременен облик.\r\n•\tГотовност: Спестявате време от грубото строителство - имотът очаква само вашите финални щрихи и избор на мебели.\r\n \r\n???? Град Костинброд – Вашето бягство от шума на столицата, без да губите връзка с нея!\r\n???? За огледи и повече информация: 0888649663",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1938,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 310000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_113967",
     "url": "https://imoti.bg/продажби/парцел/варна/мт-прибой-113967.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_627a50bb6d9ad_627a50bbad7a3.jpg",
@@ -8985,6 +9693,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 676,
     "pct_vs_area_avg": -64.2,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514467",
+    "url": "https://imoti.bg/продажби/бизнес-сграда/софия-област/сдолни-лозен-514467.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69b10dceef77c_69b1102567570.jpg",
+    "price_eur": 4900000,
+    "sqm": 5600,
+    "area": "с.Долни Лозен",
+    "city": "София област",
+    "title": "Бизнес сграда, с.Долни Лозен",
+    "portal": "imoti.bg",
+    "lat": 42.5992767,
+    "lng": 23.4996376,
+    "description": "Фирмата  Вкусна Ядка  АД има удоволствието да Ви представи споделено офисно пространство   модерна и изцяло отдадена под наем бизнес-складова база в с. Лозен, община Столична. Разположена на ул.  Съединение , сградата е предпочитано работно място за IT, логистични и търговски екипи, търсещи близост до София, но и спокойствието на регулирана индустриална зона с отлична инфраструктура и бърз достъп до Околовръстен път и Северната скоростна тангента.\r\n\r\n ???? Цена и доходност:\r\n  Обявена цена: 4 900 000 EUR\r\n  Месечен наем: 24 900 EUR\r\n  Годишен наем: ≈ 152 640 EUR\r\n  Брутна годишна доходност (ARI): 6,09 %\r\n  Наематели: дългогодишни договори   гарантиран паричен поток от ден 1\r\n\r\n???? Ключови предимства на района:\r\n  5 мин. до Околовръстен път и София ринг\r\n  10 мин. до летище София\r\n  В непосредствена близост до бъдещата метростанция на Лозен\r\n  Тиха, регулирана зона с постоянно развиваща се инфраструктура\r\n  Достъп до квалифицирана работна ръка от столицата и околните села\r\n\r\n???? Имотът в цифри:\r\n  Парцел: 5 599 кв.м.\r\n  Застроена площ: над 1 900 кв.м.\r\n  Вид строителство: стоманена конструкция с полиуретанови панели   енергоефективна и бърза за поддръжка\r\n  Акт 16 за всички сгради\r\n  Собствен трафопост 400 kVA и фотоволтаична централа 30 kWp   нулеви сметки за ток\r\n  Собствен водоизточник и септична яма   независимост от ВиК мрежата\r\n\r\n???? Офисната част   отдадена под наем на дългогодишни и доверени фирми:\r\n  300 кв.м   9 офиса, заседателна зала, столова, санитарен възел\r\n  Климатизирана, с интернет и СОТ\r\n  Стабилни наематели с договори за 3+ години\r\n\r\n???? Производствено-складова зона   100 % заета, с постоянни наематели:\r\n  3 промишлени халета   460 кв.м, 550 кв.м и 480 кв.м, с височина 3 6 м\r\n  Оборудвани със секционни врати, хладилен склад, лаборатория, столови, санитарни възли, душове и стаи за нощувка\r\n  Подходящи за хранително производство, логистика, пакетаж, студена складова база\r\n  Всички халета са отдадени под наем   влизаш с готови приходи\r\n\r\n???? Допълнителни активи:\r\n  Безмитен склад   оперативен и лицензиран\r\n  Контейнери за съхранение   готови за отдаване\r\n  Фотоволтаична централа 30 kWp   покрива значителна част от консумацията\r\n  Асфалтиран двор   удобен за маневри на ТИР-ове\r\n  4 гаражни врати и 5 товарни секционни врати\r\n  Два независими входа\r\n\r\n???? Сигурност и логистика:\r\n  КПП, физическа охрана, масивна ограда, бариера, видеонаблюдение\r\n  Готов за банково финансиране\r\n  Без тежести и ипотеки\r\n\r\n???? Инвестиционната възможност:\r\nТова не е просто имот   това е готов бизнес със стабилен паричен поток, доверени наематели, високотехнологична инфраструктура и възможност за моментално разрастване. Базата работи на пълен капацитет и носи гарантирана доходност от 6,09 %, без нужда от допълнителни инвестиции.",
+    "site_posted_at": null,
+    "category": "garage",
+    "category_confidence": "low",
+    "price_per_sqm": 875,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 4900000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -9436,6 +10176,70 @@
     "score": 4
   },
   {
+    "id": "imotibg_514189",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/спетърч-514189.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6980d5afbfc15_6980d6e3d0dab.jpg",
+    "price_eur": 39900,
+    "sqm": 690,
+    "area": "с.Петърч",
+    "city": "София област",
+    "title": "Парцел, с.Петърч",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Поземлен имот между къщите на с. Петърч.на две минути пеша до центъра на селото. Подходящ за жилищно строителство и целогодишно живеене.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 58,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 39900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_514154",
+    "url": "https://imoti.bg/продажби/производствена-сграда/софия-област/грихтиман-514154.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_697b17e0b733b_697b184e9d5d0.jpg",
+    "price_eur": 1100000,
+    "sqm": 5930,
+    "area": "гр.Ихтиман",
+    "city": "София област",
+    "title": "Производствена сграда, гр.Ихтиман",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Оферта 77808 НОВА ХЛАДИЛНА СКЛАДОВА БАЗА! УДОБЕН ДОСТЪП! ОТГОВАРЯ НА ВСИЧКИ ЕВРОПЕЙСКИ СТАНДАРТИ! ПОДХОДЯЩА ЗА РАЗЛИЧНИ ДЕЙНОСТИ! Хладилната база е разположена в гр.Ихтиман. Отдава производствено-складова и хладилна база с РЗП 1260 м2, разшоложена в УПИ с площ от 5930 м2, като 80% от УПИ-то е бетонна площадка с удобен достъп за камиони и изграждане на допълнителни конструкции. До имота има асфалтов път. БАЗАТА СЕ СЪСТОЙ ОТ: - Универсална хладилна инсталация с площ 146 м2 , височина 4.80 метра с температура до -30 градуса; - Универсална хладилна инсталация с площ 75 м2 , височина 4.80 метра с температура до -28 градуса; - Универсална хладилна инсталация с площ 60 м2 , височина 4.80 метра с температура до -28 градуса; - Универсална хладилна инсталация за помещение 'Експедиция' с площ 105 м2 , височина 4.80 метра с температура до -5 градуса; - Манипулационна зала с площ 100 м2 и височина 4.80 метра; - Тунелен шоков замразител с обем 60 м3 с температура -30 градуса с капацитет 250 кг/ч; - 2 броя складови помещения по 300 м2 с товарен асансьор между тях; - 2 броя напълно обзаведени офиса; - 6 тоалетни; - 3 бани; - Столова; - Външно помещение за охрана; - Различни сервизни и складови помещения;Базата е разположена на 500 метра от ЖП гара, в близост до магистрала Тракия, на 40 км от София. има и къща на два етажа за ремонт 180кв.м за повече информация и огледи на посочения телефон - 0897010001 - Костадинов Имоти",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 185,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 1100000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_514164",
     "url": "https://imoti.bg/продажби/производствена-сграда/пазарджик-област/грпанагюрище-514164.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_697b4f034df19_697b50b35f8f8.jpg",
@@ -9696,6 +10500,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_513979",
+    "url": "https://imoti.bg/продажби/къща/софия-област/сгинци-513979.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6959513519169_6959519fca5c0.jpg",
+    "price_eur": 49990,
+    "sqm": 173,
+    "area": "с.Гинци",
+    "city": "София област",
+    "title": "Къща, с.Гинци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ОТЛИЧНА КЪЩА НА ТОП МЯСТО- на Центъра. Намира на 45км. от гр. София. Просторен двор. Има регулация, ток и вода. Достъпа е целогодишен, намира се на главния асфалтиран път. Изградено парно за камина с бойлер на първи етаж и котел за цялата къща. Разпределение- Първи етаж хол с кухненски бокс, баня с wc,2 Спални и закрита тераса. Втори етаж хол, баня с wc, коридор и две спални. Има гараж и канал. Мазе под къщата и помощни помещения. До имота минава рекичка. Продава се с обзавеждането. Външна и вътрешна изолация. ПВЦ дограма. Отличен имот подходящ за целогодишно живеене или за инвестиция. Намира се на главния път, близо до спирки, магазини, ресторанти и др. В селото има рибарници. / спортен риболов/, и оградено е от гори, много зеленина и чист въздух...\r\nИзрядни документи!!!\r\nВодещ брокер Михаела Ивова\r\nБлагодаря Ви, че прочетохте нашата обява. От целия ни екип хубав и усмихнат ден! Агенция за Недвижими Имоти София Имот + /ОАНИТ/ е създадена 2007год. Брокерите, които работят са с повече от 20годишен опит в сферата на недвижимите имоти...\r\n... НАПЪЛНО БЕЗПЛАТНО СЪДЕЙСТВАМЕ ЗА ОТПУСКАНЕ НА ИПОТЕЧНИ КРЕДИТИ- РАБОТИМ С ВСИЧКИ БАНКИ. БЪРЗО ОДОБРЕНИЕ И ОТЛИЧНИ УСЛОВИЯ- БЕЗПЛАТНО ЗА КРЕДИТОИСКАТЕЛЯ...",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 289,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 49990
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_513976",
     "url": "https://imoti.bg/продажби/парцел/софия-област/спанчарево-513976.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69578c567963e_69578cc03d670.png",
@@ -9723,8 +10559,72 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 804,
-    "pct_vs_area_avg": -60.2,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_513945",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/спанчарево-513945.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_694a2d14e751f_694a2d81e0365.jpg",
+    "price_eur": 440000,
+    "sqm": 1100,
+    "area": "с.Панчарево",
+    "city": "София област",
+    "title": "Парцел, с.Панчарево",
+    "portal": "imoti.bg",
+    "lat": 42.6346817,
+    "lng": 23.4314147,
+    "description": "ПРОДАВАМ УРЕГУЛИРАН ПОЗЕМЛЕН ИМОТ В НАЙ-КРАСИВАТА, ТИХА И ЦЕНТРАЛНА ЧАСТ НА ПАНЧАРЕВО НЕПОСРЕДСТВЕНО ДО ЕЗЕРОТО\r\nКвадратура на имота: 1100 м2, \r\nЦЕНА: 440 000 Евро\r\nтел. за контакт 0877 879 789\r\n\r\nАдрес: кв. Панчарево, ул. Риляник №4\r\nПараметри на застрояване:\r\n-\tплътност 40%\r\n-\tкинт 1,3\r\n-\t1320 м2 надземно застрояване и 1000 м2 – подземни гаражи\r\n\r\nУрегулираният поземлен имот е с топ-локация в самото село в непосредствена близост до Панчаревското езеро, в най-тихата и „аристократична” част на Панчарево – местност “Зона за отдих”, където в миналото са се намирали резиденциите на соц-елита. \r\n\r\nИмотът се намира на: \r\n\r\n\tна 100 м. от „Самоковско шосе” \r\n\tна 120 м. от Панчаревското езеро и гребната база \r\n\tна 100 м. от полицейския участък \r\n\tна 20 м. от здравния център\r\n\tна 100 м. от открита фитнес площадка за възрастни и деца\r\n\tна 250 м. от детската градина (ДГ №66 „Елица”) \r\n\tна 200 м. от училището в Панчарево (ОУ №83 Елин Пелин). \r\n\tна 150 м. от спирка на градски транспорт\r\n\r\nИмотът е равен е с прекрасна локация и безпроблемен достъп, както през лятото така и през зимата. Навсякъде около сградата има асфалтов път. В имота има ток и вода. Поради непосредствената близост до полицейския участък,  улицата е една от първите които се почистват през зимата от снега. Имотът е подходящ за строителство на малка кооперация с подземни гаражи (1320 м2 надземно застрояване и 1000 м2 – подземни гаражи) или на голяма луксозна еднофамилна къща.\r\n\r\nВъздушните течения от язовир Искър и Боровец, позволяват въздухът в района на Панчарево да се обменя до 10 пъти на денонощие (за пример в Банкя – която се води че е с изключително чист въздух, обмяната на въздуха е до 7-8 пъти на денонощие). Заради географската специфика на планинските масиви (Витоша, Плана планина и Лозенската планина), въздушните маси в Панчарево нямат възможност да се смесват активно със замърсения софийски въздух, който със своя смог трови Бояна, Драгалевци и Симеоново. Това е и основната причина в Панчарево да е построен рехабилитационният център за белодробни заболявания на Кремиковци.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 400,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 440000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_513953",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия-област/грправец-513953.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_694b017de0a96_694b028bd2d4d.jpg",
+    "price_eur": 69000,
+    "sqm": 70,
+    "area": "гр.Правец",
+    "city": "София област",
+    "title": "Двустаен апартамент, гр.Правец",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ОТЛИЧЕН. ПРОСТОРЕН. СЛЪНЧЕВ. ВЪТРЕШЕН. ПАНОРАМЕН. НЕПРЕХОДЕН.\r\nТОП МЯСТО. Разпределение- Просторен слънчев Хол, Тераса, Коридор, Б/Т, отделна Кухня и отделна просторна Спалня. Апартамента е много слънчев, непреходен, вътрешен, южен. Направена е вътрешна и външна изолация. ПВЦ дограма. Строителство- Панел от 1980год. Намира се на много комуникативно място. Отоплението е на климатик. Продава се напълно обзаведен.....\r\nВодещ брокер Михаела Ивова..0888085007, 0878648872",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 986,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 69000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -9887,8 +10787,8 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 183,
-    "pct_vs_area_avg": -82.0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -10148,6 +11048,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_513601",
+    "url": "https://imoti.bg/продажби/нива/софия-област/грбожурище-513601.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_690798500e5a2_69079949c6d31.jpg",
+    "price_eur": 110000,
+    "sqm": 5000,
+    "area": "гр.Божурище",
+    "city": "София област",
+    "title": "Нива, гр.Божурище",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ОТ СОБСТВЕНИК. ЧАСТНО ЛИЦЕ продава земеделска земя, категория 6, местност Мерджанова нива, с.Делян, област София, община Божурище, на 33 км. от София. Поради големината си мисля че е подходяща за зелена енергия - за разполагане на соларни панели или ветрогенератори.\r\nРаботя и с брокери, като в обявената цена са включени 3 % за брокера.\r\nЗа връзка: 0877793456",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 22,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 110000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_268306",
     "url": "https://imoti.bg/продажби/къща/варна-област/с-здравец-268306.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6902333635299_6902333640c01.jpg",
@@ -10340,6 +11272,38 @@
     "score": 4
   },
   {
+    "id": "imotibg_513290",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/грбанкя-513290.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_68d6c2b80c1a8_68d6c2f324564.jpg",
+    "price_eur": 120000,
+    "sqm": 500,
+    "area": "гр.Банкя",
+    "city": "София област",
+    "title": "Парцел, гр.Банкя",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продава се парцел в регулация с отлична форма и удобен достъп!\r\n\r\nИмотът е с правилна форма и лек наклон, подходящ за строителство. В парцела има малка постройка – къща с две стаи (по 9,5 кв.м) и антре (6 кв.м), която може да се използва временно или за стопански нужди.\r\n\r\nПредимства:\r\n\r\nПарцел в регулация с възможност за строеж\r\nНалични ток и вода в имота\r\nУдобен достъп от две страни – по новоасфалтирани улици\r\n\r\nПодходящ избор за изграждане на семейна къща или ваканционен имот в спокойна среда.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 240,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 120000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
     "id": "imotibg_513142",
     "url": "https://imoti.bg/продажби/производствена-сграда/софия/враждебна-513142.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68bbea102d714_69d38a77ae835.jpg",
@@ -10431,8 +11395,40 @@
     "days_on_market": 29,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 804,
-    "pct_vs_area_avg": 203.0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 4
+  },
+  {
+    "id": "imotibg_511821",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сбелопопци-511821.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_67f0ddabe0c32_6a8829efb96cd.jpg",
+    "price_eur": 174609,
+    "sqm": 19400,
+    "area": "с.Белопопци",
+    "city": "София област",
+    "title": "Парцел, с.Белопопци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Предлагаме земеделски имот с площ от 19 401 кв.м., находящ се в землището на с. Белопопци, община Горна Малина.\r\nИмотът попада в устройствена зона СМФ съгласно Общия устройствен план на община Горна Малина, което създава възможности за бъдещо инвестиционно развитие на терена.\r\nМестоположението и размерът на имота позволяват разглеждането му като терен за реализация на различни инвестиционни проекти. Сред възможните направления са изграждане на фотоволтаичен парк, логистичен център, складова база, производствен обект, фабрика и други обекти съобразно устройствените параметри и приложимите нормативни изисквания.\r\nСъс своите близо 20 декара имотът предоставя необходимото пространство за цялостно планиране и развитие на бъдещ проект.\r\nЗа повече информация относно устройствената зона, документите, възможностите за развитие и точното местоположение на имота, свържете се с нас.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 9,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 174609
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 29,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -10657,6 +11653,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 49,
     "pct_vs_area_avg": 78.1,
+    "score": 4
+  },
+  {
+    "id": "imotibg_515780",
+    "url": "https://imoti.bg/продажби/промишлени-терени/софия-област/грелин-пелин-515780.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a8dde32963b1_6a8ddf2f38ae7.jpg",
+    "price_eur": 2200000,
+    "sqm": 26500,
+    "area": "гр.Елин Пелин",
+    "city": "София област",
+    "title": "Промишлени терени, гр.Елин Пелин",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ИНДУСТРИАЛЕН ТЕРЕН ЗА ПРОДАЖБА: 26 500 кв.м с ИЗЛАЗ НА АСФАЛТОВ ПЪТ и СОБСТВЕН ТРАФОПОСТ в гр. Елин Пелин \r\nПредлагаме за съвместна продажба два съседни поземлени имота с обща внушителна площ от 24 655 кв.м. Имотите се намират на изключително комуникативно място в обособената индустриална зона на град Елин Пелин (област София) – район с доказано стратегическо значение за логистика и производство. До имота има трити имот , който все още е земеделска земя и с площ от 1900 квадратни метра, може да се ползва като паркинг или озеленяване към произвдствения имот. \r\nСТРАТЕГИЧЕСКИ ПРЕДИМСТВА НА ИМОТА:\r\n• ДИРЕКТЕН ИЗЛАЗ НА АСФАЛТОВ ПЪТ: Осигурява отличен, бърз и безпроблемен целогодишен достъп за тежкотоварни автомобили (ТИР), автобуси и специализирана техника.\r\n• СОБСТВЕН ТРАФОПОСТ: Разполага с готов трафопост с капацитет, напълно достатъчен за захранване на производствено предприятие, фабрика или мащабен логистичен център. Спестява години чакане и скъпи процедури за присъединяване към мрежата! \r\nИМОТИТЕ СЕ ПРОДОВАТ ЗАЕДНО:\r\n1.\t ПИ с  Идентификатор: № 27303.69.63 ,  Площ: 13 107 кв.м,  Начин на трайно ползване (НТП): За складова база\r\n• Вид територия: Урбанизирана \r\n2.\tПИ с  Идентификатор: № 27303.69.62,  Площ: 11 548 кв.м,  Начин на трайно ползване (НТП): За складова база\r\n3.\tПИ с идентификатор: № 27303.69.42, Площ от 1899 кв.м, Начин на трайно ползване (НТП): зем земя\r\n• Близост до София: Елин Пелин предлага бърза връзка с Околовръстното шосе на столицата, Автомагистрала „Тракия“ (А1) и Автомагистрала „Хемус“ (А2). \r\nДо логистична база Фантастико",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 83,
+    "price_history": [
+      {
+        "date": "2026-08-25T20:39:50.077622+00:00",
+        "price_eur": 2200000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 28,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 4
   },
   {
@@ -12292,38 +13320,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515732",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сбатулия-515732.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 25200,
-    "sqm": 3600,
-    "area": "с.Батулия",
-    "city": "София област",
-    "title": "Парцел, с.Батулия",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Парцелът е с плодни дръвчета и лек наклон. Има възможност за делене на 2 парцела по 1800 кв. м.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 7,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 25200
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 7,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515737",
     "url": "https://imoti.bg/продажби/търговско-помещение/софия/зона-б-5-515737.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a8714c742a94_6a87166fd6c89.jpg",
@@ -12996,38 +13992,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515663",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сковачевци-515663.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a7b28de7cfb0_6a7b2b87b2dcc.jpg",
-    "price_eur": 110000,
-    "sqm": 60,
-    "area": "с.Ковачевци",
-    "city": "София област",
-    "title": "Къща, с.Ковачевци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продавам имот.\r\nРазстоянието до имота от центъра на София е 38 километра. Дворър е с площ около 400 кв.метра . Къщата в центъра на селото и е с разгъната застроена площ - 60 кв. метра. На долния етаж има хол и кухненски бокс, антре и тоалетна. На горния етаж има две стаи, едната е южно изложение, с балкон с изглед към Рила, другата стая е със северно изложение с изглед към Витоша. На горния етаж има антре и баня. Построена е през 1972г. и е ремонтирана през 2014г. Оградата на имота е от бетон и желязна конструкция и е изградена през 2013 г. Гараж със застроена площ 25 кв. метра и е ремонтиран през 2014г.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1833,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 110000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1833,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515655",
     "url": "https://imoti.bg/продажби/парцел/варна/мт-пчелина-515655.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a7a15bef153b_6a7a1692c6c66.jpg",
@@ -13056,42 +14020,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 321,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515642",
-    "url": "https://imoti.bg/продажби/вила/софия-област/свладо-тричков-515642.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a78ee99c5f0e_6a78f13a73454.jpg",
-    "price_eur": 36000,
-    "sqm": 60,
-    "area": "с.Владо Тричков",
-    "city": "София област",
-    "title": "Вила, с.Владо Тричков",
-    "portal": "imoti.bg",
-    "lat": 42.8649132,
-    "lng": 23.3686863,
-    "description": "Парцел 780 кв.м. с малка сграда състояща се от спалня, кухня, тоалетна и две други помещения (обща застроена площ около 60 кв.м, два етажа). Ток, вода от сонда (кладенец), септична яма. За основен ремонт.  Large yard (780 sq.m) and a small vila (two floors 37 sq.m each) consisting of a bedroom, a kitchen, a WC, and two service rooms. Needs repairs, water from a well (pump). Connected to electricity.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 600,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 29000
-      },
-      {
-        "date": "2026-08-28T04:41:50.772578+00:00",
-        "price_eur": 36000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": -24.1,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 600,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -13612,70 +14540,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515595",
-    "url": "https://imoti.bg/продажби/къща/софия-област/грдолна-баня-515595.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a707e2b1b4fb_6a70831f97371.jpg",
-    "price_eur": 195000,
-    "sqm": 132,
-    "area": "гр.Долна баня",
-    "city": "София област",
-    "title": "Къща, гр.Долна баня",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Двуетажна къща с два търговски обекта на ул. „Търговска“, гр. Долна баня\r\n\r\nПродава се функционален двуетажен имот с отлична локация на главната търговска улица в гр. Долна баня. Сградата разполага със самостоятелни входове за търговската и жилищната част, което позволява независимото им ползване или отдаване под наем.\r\n\r\n    1-ви етаж (Търговска част): Два самостоятелни търговски обекта с директен достъп от ул. „Търговска“. Всеки обект разполага със собствен санитарен възел. Изключително подходящи за магазин, офис, аптека, козметичен салон или друг вид бизнес.\r\n\r\n    2-ри етаж (Жилищна част): Просторен хол с кухненски бокс, две спални, баня с тоалетна, отделна тоалетна и килер.\r\n\r\nСъстояние и подобрения:\r\nСградата е след цялостен основен ремонт:\r\n\r\n    Нова електро- и ВиК инсталация\r\n\r\n    Нов покрив и външна топлоизолация\r\n\r\n    Нова PVC дограма и вътрешни стени с гипсокартон\r\n\r\nДвор и допълнителни удобства:\r\nДворното място (340 кв.м) е озеленено и поддържано. Разполага с навес с барбекю зона, към която има самостоятелна санитарна точка (тоалетна) и отделна стая с възможност за обособяване като лятна кухня.\r\n\r\nПредимства:\r\n\r\n    Стратегическа локация на оживена улица с постоянен човекопоток\r\n\r\n    Възможност за комбинирано ползване – живеене и собствен бизнес или инвестиция с доход от наем\r\n\r\n    Готов за довършителни дейности по вкус на новия собственик",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1477,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 195000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1477,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515577",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия-област/грсливница-515577.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 90000,
-    "sqm": 56,
-    "area": "гр.Сливница",
-    "city": "София област",
-    "title": "Двустаен апартамент, гр.Сливница",
-    "portal": "imoti.bg",
-    "lat": 42.705854,
-    "lng": 23.3036113,
-    "description": null,
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1607,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 90000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1607,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515578",
     "url": "https://imoti.bg/продажби/едностаен-апартамент/сливен/дружба-515578.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a6dee2237828_6a6def0b8eede.jpg",
@@ -13737,38 +14601,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1184,
     "pct_vs_area_avg": 7.1,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515575",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сдраговищица-515575.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 120000,
-    "sqm": 701,
-    "area": "с.Драговищица",
-    "city": "София област",
-    "title": "Парцел, с.Драговищица",
-    "portal": "imoti.bg",
-    "lat": 42.845538,
-    "lng": 23.2254778,
-    "description": "Продавам 701 кв.празно дворно място в централната част на с.Драговищица общ.Костинброд ,ток,вода,газ,мръсен канал,сонда за вода,виза скица за строеж,единствен собственик цена 120 000€ тел.0888814994",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 171,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 120000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 171,
-    "pct_vs_area_avg": 0.0,
     "score": 3
   },
   {
@@ -14284,38 +15116,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515516",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сволуяк-515516.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a651d263719b_6a651e9be58f1.png",
-    "price_eur": 48900,
-    "sqm": 326,
-    "area": "с.Волуяк",
-    "city": "София област",
-    "title": "Парцел, с.Волуяк",
-    "portal": "imoti.bg",
-    "lat": 42.7734332,
-    "lng": 23.2428659,
-    "description": "► кв. Волуяк, град София, улица „Дружба“ 75\r\nУПИ - 652 м² парцел в регулация с ток и вода вътре в парцела.\r\n► Намира се на две улици.\r\n - Засаден с дръвчета и цветя. \r\n - Продава се ½ идеална част = 326 м²  х  €85 м² = € 27710.\r\n\r\nhttps://maps.app.goo.gl/vk7ZXLBcXpqEF3ZZA\r\nGPS : 42.768048 , 23.244219",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 150,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 48900
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 150,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515506",
     "url": "https://imoti.bg/продажби/къща/софия/драгалевци-515506.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a63433a79067_6a634377b7edd.jpg",
@@ -14376,38 +15176,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1547,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515509",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорна-малина-515509.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a636818d2bd2_6a8829bf71ed7.jpg",
-    "price_eur": 179968,
-    "sqm": 9472,
-    "area": "с.Горна Малина",
-    "city": "София област",
-    "title": "Парцел, с.Горна Малина",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Инвестиционен имот в м. Локвите, Горна Малина – три съседни парцела с обща площ 9 472 кв.м., включени в Общия устройствен план за жилищно строителство. Имотите се продават заедно на цена 19 €/кв.м. (общо 179 968 €) или поотделно на цена 24 €/кв.м. Цените при индивидуална продажба са: Имот 1 – 114 216 €, Имот 2 – 51 960 €, Имот 3 – 61 152 €. Районът предлага отличен достъп до София, спокойна среда и висок инвестиционен потенциал, подходящ както за жилищно строителство, така и за производствена, логистична или складова дейност.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 179968
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 19,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -14760,102 +15528,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 350,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515420",
-    "url": "https://imoti.bg/продажби/нива/софия-област/слуково-515420.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a57280e57f74_6a57284b78850.png",
-    "price_eur": 9500,
-    "sqm": 500,
-    "area": "с.Луково",
-    "city": "София област",
-    "title": "Нива, с.Луково",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагаме за продажба поземлен имот с площ 500 кв.м, с идентификатор 44330.5.14, находящ се в местност Разорчината , с. Луково, община Своге, Софийска област.\r\n\r\n По кадастралната карта имотът е с трайно предназначение на територията земеделска, начин на трайно ползване пасище, категория на земята 10. \r\n\r\nХарактеристики: Площ: 500 кв.м \r\nИдентификатор: 44330.5.14 \r\nС. Луково, общ. Своге, Софийска област Местност: Разорчината \r\nЛице на полски път \r\nПравилна форма на имота \r\nИздадена актуална скица и протокол за трасиране. \r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа и чист въздух.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 9500
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 19,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515421",
-    "url": "https://imoti.bg/продажби/нива/софия-област/слуково-515421.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a5728de62f6b_6a57293eb09e7.png",
-    "price_eur": 18900,
-    "sqm": 995,
-    "area": "с.Луково",
-    "city": "София област",
-    "title": "Нива, с.Луково",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагаме за продажба поземлен имот с площ 995 кв.м, с идентификатор 44330.7.21, находящ се в с. Луково, община Своге, Софийска област. По кадастралната карта имотът е с трайно предназначение на територията – земеделска, начин на трайно ползване – друг вид земеделска земя, категория на земята – 10.\r\n\r\nХарактеристики:\r\n\r\nПлощ: 995 кв.м\r\nИдентификатор: 44330.7.21\r\nс. Луково, общ. Своге, Софийска област\r\nЛице на полски път\r\nПравилна форма на имота\r\nИздадена актуална скица и протокол за трасиране.\r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа, чист въздух и отлични възможности за отдих сред природата.\r\n\r\nПродават се и съседните имоти, което дава възможност за закупуване на по-голяма обща площ:\r\n\r\nПИ с идентификатор 44330.5.14 – 500 кв.м, с. Луково.\r\nПИ с идентификатор 62387.56.9906 – 898 кв.м, с. Реброво.\r\n\r\nЦена: 19 €/кв.м.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 18900
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 19,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515422",
-    "url": "https://imoti.bg/продажби/нива/софия-област/среброво-515422.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a57294d9b7fd_6a57298eab86b.png",
-    "price_eur": 17000,
-    "sqm": 898,
-    "area": "с.Реброво",
-    "city": "София област",
-    "title": "Нива, с.Реброво",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагаме за продажба поземлен имот с площ 898 кв.м, с идентификатор 62387.56.9906, находящ се в с. Реброво, община Своге, Софийска област. По кадастралната карта имотът е с трайно предназначение на територията – земеделска. Имотът е образуван след изменение на кадастралната карта и е с правилна форма, подходяща за различни видове ползване.\r\n\r\nХарактеристики:\r\n\r\nПлощ: 898 кв.м\r\nИдентификатор: 62387.56.9906\r\nс. Реброво, общ. Своге, Софийска област\r\nЛице на полски път\r\nПравилна форма на имота\r\nИздадена актуална скица-проект и протокол за трасиране.\r\n\r\nИмотът е подходящ за инвестиция, земеделско ползване, пчеларство, овощна градина или като дългосрочна инвестиция в район с красива природа, чист въздух и лесен достъп до София.\r\n\r\nПродават се и останалите имоти, което дава възможност за закупуване на повече от един парцел:\r\n\r\nПИ с идентификатор 44330.5.14 – 500 кв.м, с. Луково.\r\nПИ с идентификатор 44330.7.21 – 995 кв.м, с. Луково.\r\n\r\nЦена: 19 €/кв.м.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 17000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 19,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -15884,38 +16556,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515361",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорни-окол-515361.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a4fbed09cdc4_6a4fc0972ad5e.jpg",
-    "price_eur": 60000,
-    "sqm": 1215,
-    "area": "с.Горни Окол",
-    "city": "София област",
-    "title": "Парцел, с.Горни Окол",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагам за продажба парцел, разположен в живописната местност „Щъркелово гнездо“, в землището на с. Горни Около.\r\nИмотът се намира на тихо и спокойно място, подходящо за изграждане на вила или къща за целогодишно живеене. Парцелът е почистен.\r\nРайонът е обитаем – в съседните къщи живеят хора целогодишно, което осигурява сигурност и добра среда. Местността съчетава спокойствие, чист въздух и красива природа, като същевременно предлага лесен достъп до близките населени места.\r\nЗа повече информация и оглед, моля свържете се с мен.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 49,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 60000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 49,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_264365",
     "url": "https://imoti.bg/продажби/парцел/варна/островна-пз-264365.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_63dbd521488f9_662a333e35a4a.jpg",
@@ -16009,38 +16649,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 62,
     "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515352",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/смала-църква-515352.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a4e432c4a135_6a4e437e4f7d9.jpg",
-    "price_eur": 76000,
-    "sqm": 467,
-    "area": "с.Мала църква",
-    "city": "София област",
-    "title": "Парцел, с.Мала църква",
-    "portal": "imoti.bg",
-    "lat": 42.1884091,
-    "lng": 23.4599303,
-    "description": null,
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 163,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 76000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 157,
-    "pct_vs_area_avg": 3.8,
     "score": 3
   },
   {
@@ -16908,38 +17516,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515279",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/свакарел-515279.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a4281943b08c_6a4282467eb1a.jpg",
-    "price_eur": 135000,
-    "sqm": 1129,
-    "area": "с.Вакарел",
-    "city": "София област",
-    "title": "Парцел, с.Вакарел",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Стара къща (140 кв.м) с голям двор и готови документи в с. Вакарел (махала Семковци). Търсите спокойно бягство от градския шум, съчетано с чист въздух и бърз достъп до София? Предлагаме за продажба прекрасен имот с изрядни документи. Имотът е разположен на самия път с отличен целогодишен достъп и е перфектен както за реставрация, така и за изграждане на нов мечтан дом.Основни характеристики на имота Застроена площ: Двуетажна къща с площ от 70 кв.м на етаж (общо 140 кв.м разгърната площ).Голям парцел: Дворно място с площ от 1129 кв.м, разпределено на две нива (терасовиден терен).Сигурност и автентичност: Целият имот е ограден, като в предната част има масивна и красива каменна ограда.Комуникации и предимства в двора Пълно захранване: Къщата е с партида за ток. Автономно водоснабдяване: В двора има функциониращ кладенец и резервоар за събиране на чиста изворна вода (огромно предимство за безплатна поддръжка на градината).Отлична локация: Имотът се намира точно на пътя в спокойната махала Семковци. Потенциал на терена Разчупеният терен на две нива осигурява прекрасни възможности за модерно ландшафтно проектиране. Можете да обособите панорамна веранда, барбекю зона, овощна градина или басейн. Вакарел е изключително предпочитан район поради близостта си до София по магистрала Тракия и чистата си природа.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 120,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 135000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 120,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515262",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/търговище/център-515262.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a3fb318d17e6_6a3fb5dd8d01f.jpg",
@@ -16972,38 +17548,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515257",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сбенковски-515257.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a3e64392ccbd_6a3e662d74faa.jpg",
-    "price_eur": 600000,
-    "sqm": 401,
-    "area": "с.Бенковски",
-    "city": "София област",
-    "title": "Къща, с.Бенковски",
-    "portal": "imoti.bg",
-    "lat": 42.6979656,
-    "lng": 23.3290136,
-    "description": "Имот с 5 бр. самостоятелни сгради, разположени в просторен двор от 2 262 кв.м. с автоматична порта за автомобили, оборудван и законен кладенец, плодни и цъфтящи дръвчета над 25 бр., цветни градинки, обособена зеленчукова градина, граничещ с рекичка и гледка към Средна гора.\r\n1. Основна къща, монолитна със застроена площ (ЗП) 91 кв.м. и РЗП 249 кв.м. жилищен етаж, таван и сутерен. \r\nРазпределение: \r\nПартер: фоайе с вътрешни стълби към таванската част, две спални, просторна дневна и баня с тоалетна;\r\nТаван: коридор, две спални, кабинет и баня с тоалетна;\r\nСутерен: коридор, механа, пура бар, мазе, перално помещение с тоалетна;\r\n2. Къща за гости, монолитна със ЗП 32 кв.м. с разпределение фоайе, една спалня и баня с тоалетна;\r\n3. Гараж с ЗП 26 кв.м. , който се ползва за склад а в двора има място за паркиране на 2-3 коли.\r\n4. Барака монолитна, обзаведена като работилница с ЗП 32 кв.м.\r\n5. Монолитен навес открит от две страни с ЗП 61,80 кв.м. с обособена лятна кухня, камина/барбекю, пещ за цяло агне, маси за 16 нормални места и барплот.\r\nВ имота има оптичен интернет с покритие на двор сградите и двора, 2 партиди с монофазен и трифазен ток и партида за питейна вода.\r\nПодходящ както за целогодишно ползване, така и за къща за гости.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1496,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 600000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1496,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515260",
     "url": "https://imoti.bg/продажби/къща/софия/горубляне-515260.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a3e992fe98da_6a3e99ccb7b64.jpg",
@@ -17032,38 +17576,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 3957,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515251",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сгорна-василица-515251.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a3cc31de1618_6a3cc3938b49b.jpeg",
-    "price_eur": 26500,
-    "sqm": 1247,
-    "area": "с.Горна Василица",
-    "city": "София област",
-    "title": "Парцел, с.Горна Василица",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": null,
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 21,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 26500
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 21,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -17452,38 +17964,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515170",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сзлокучене-515170.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a30edd15215f_6a30efaef18a4.jpg",
-    "price_eur": 150000,
-    "sqm": 70,
-    "area": "с.Злокучене",
-    "city": "София област",
-    "title": "Къща, с.Злокучене",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "От собственик. Къщата е санирана, с нов покрив. Ток, вода, канал.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 2143,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 150000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2143,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_269841",
     "url": "https://imoti.bg/продажби/парцел/варна/мт-манастирски-рид-269841.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/img/no_pic.jpg",
@@ -17672,38 +18152,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1176,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_515107",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сджурово-515107.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a22f5b4c3cfc_6a22f88e65475.jpeg",
-    "price_eur": 70000,
-    "sqm": 3879,
-    "area": "с.Джурово",
-    "city": "София област",
-    "title": "Къща, с.Джурово",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Едноетажна къща в с. Джурово, обл. Софийска. \r\nУПИ 3 - 402,267\r\nКъщата се намира във вилната зона на селото, с улица в добро състояние. Селото е в близост до магистрала Хемус. Има ток и вода.\r\nТелефон за връзка: 0888803550, 0882632570",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 18,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 70000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 18,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -18252,38 +18700,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_514908",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сбистрица-514908.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a02d17aa7d88_6a02d2b74fb75.jpg",
-    "price_eur": 500000,
-    "sqm": 125,
-    "area": "с.Бистрица",
-    "city": "София област",
-    "title": "Къща, с.Бистрица",
-    "portal": "imoti.bg",
-    "lat": 42.5862332,
-    "lng": 23.3605497,
-    "description": "Продава се къща в с. Бистрица, София от собственик.\r\n\r\nПредлагам къща на 3 нива, разположена в живописната и предпочитана местност Бистрица, с прекрасна природа, чист въздух и бърз достъп до София.\r\nРазпределение: \r\n• Първо ниво – 3 спални, коридор и баня с тоалетна, обща площ 60 кв. м\r\n• Второ ниво – просторен хол с кухня, обща площ 50 кв. м\r\n• Трето ниво – ампуре/таванско помещение с площ 12 кв. м\r\nКъщата е с вътрешна стълба между нивата, осигуряваща удобно и функционално разпределение.\r\nДопълнителни предимства: \r\n• Покрита тераса – 60 кв. м\r\n• Двор – 800 кв. м с денивелация, подходящ за озеленяване, кът за отдих или градина\r\n• Спокойна локация сред природа и панорамни гледки\r\nИмотът е подходящ както за постоянно живеене, така и за уикенд къща близо до града.\r\n\r\nЗа повече информация и огледи – свържете се с мен по телефона.\r\nЦена: 500 000 евро",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 4000,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 500000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 4000,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_514889",
     "url": "https://imoti.bg/продажби/нива/кюстендил-област/сграмаждано-514889.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69fe49130e1bd_69fe4a854b181.png",
@@ -18344,38 +18760,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 76,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514861",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сгерман-514861.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69f8a0b3d4b4a_69f8a13c110f7.jpg",
-    "price_eur": 159600,
-    "sqm": 150,
-    "area": "с.Герман",
-    "city": "София област",
-    "title": "Къща, с.Герман",
-    "portal": "imoti.bg",
-    "lat": 42.6097339,
-    "lng": 23.4104121,
-    "description": "СТРАХОТНА ПАНОРАМА. МАСИВНА ТУХЛЕНА КЪЩА. ЧИСТ ВЪЗДУХ. НЕВЕРОЯТНА ПРИРОДА. Намира се 15мин от гр. София.\r\n???? Продаваме масивна триетажна къща, намира се във вилна зона ' Терасите' на с. Герман, на близо 800м надморска височина.\r\n ????Разпределение:\r\n   1- ви етаж: Хол, Кухня, Баня с тоалетна, Коридор, Самостоятелен вход.\r\n   2- ри етаж: 2 Спални, Просторно антре, Обща тераса към двете спални.\r\n   3- ти етаж: Просторно, голямо, светло отворено помещение с баня и тоалетна.\r\n???? Имота е подходящ както за инчестиция, така и за целогодишно живеене / до скоро е обитаван дълги години/\r\n\r\n???? В момента няма вода, трябва да се пробие сондаж, до този момент водата се снабдява от съседите, които имат изграден сондаж,ток има, но няма отделна партида, ще трябва да се отвори от новите собственици, канализацията е на септична яма.\r\nВ момент имота е в процес по урегулиране / в момента земята е земеделска за друг вид застрояване/, но къщата е описана подробно в Нотариалния акт.\r\nСтроителство-тухла от 1986год.\r\nКъщата има нужда от ремонт.\r\n\r\nВодещ брокер Михаела Ивова..0888085007, 0878648872\r\nБлагодаря Ви, че прочетохте нашата обява. От целия ни екип хубав и усмихнат ден! Агенция за Недвижими Имоти София Имот + /ОАНИТ/ е създадена 2007год. Брокерите, които работят са с повече от 20годишен опит в сферата на недвижимите имоти...\r\n... НАПЪЛНО БЕЗПЛАТНО СЪДЕЙСТВАМЕ ЗА ОТПУСКАНЕ НА ИПОТЕЧНИ КРЕДИТИ- РАБОТИМ С ВСИЧКИ БАНКИ. БЪРЗО ОДОБРЕНИЕ И ОТЛИЧНИ УСЛОВИЯ- БЕЗПЛАТНО ЗА КРЕДИТОИСКАТЕЛЯ...",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1064,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 159600
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1064,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -18828,38 +19212,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_514756",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/свасиловци-514756.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69e4727a23903_69e47312732bb.jpg",
-    "price_eur": 90895,
-    "sqm": 2597,
-    "area": "с.Василовци",
-    "city": "София област",
-    "title": "Парцел, с.Василовци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продавам три УПИ с обща площ 2597 кв.м. с директна връзка към главния път.Всяко УПИ е около 900 кв.м. Цената по отделно е по договяряне.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 35,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 90895
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 35,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_514750",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/бургас/зорница-514750.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69e328f7c810d_69e329bc7bce4.jpg",
@@ -18952,102 +19304,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 554,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514705",
-    "url": "https://imoti.bg/продажби/къща/софия-област/скостенец-514705.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69dcf45644a5d_69dcf61592d6b.jpg",
-    "price_eur": 135000,
-    "sqm": 136,
-    "area": "с.Костенец",
-    "city": "София област",
-    "title": "Къща, с.Костенец",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "От собственик! Продава се къща в сърцето на живописното село Костенец, само на 100 метра от централния площад, здравната служба, магазини и заведения! Локацията е не просто удобна - тя е перфектна за спокоен и подреден живот с всички градски удобства на крачка разстояние.\r\n\r\nМестоположение:\r\nСело Костенец е сгушено в полите на Рила планина, на 3 км от популярния курорт Вили Костенец, прочут с лековитите си термални извори. Разстоянието до София е едва 74 км, на 3 км е и град Костенец, а ски курортът Боровец е на само 35 км - идеално разположение за любителите на планината, балнеотуризма и зимните спортове.\r\n\r\nДо селото има редовен автобусен транспорт от София, Пловдив, Пазарджик и Самоков, както и жп връзка с директни влакове от София и Пловдив. Достъпът е изключително удобен: маршрутът преминава основно по автомагистрала Тракия, с кратко отклонение в посока Костенец.\r\n\r\nИмотът включва:\r\n- Парцел от 450 кв.м - озеленен, с овощни дървета и лози\r\n- Основна къща с РЗП 136 кв.м, разпределена на два жилищни етажа\r\n- Двуетажна стопанска постройка (по 39 кв.м на етаж, общо 78 кв.м)\r\n- Лятна кухня с барбекю зона (узаконено) - 22 кв.м с три стени тухлена и каменна зидария и покрив от дървена конструкция, идеална за гости и летни събирания\r\n\r\nРазпределение на къщата:\r\n- Първи етаж (68 кв.м): входно антре, дневна с възможност за обособяване на спален кът, отделна трапезария, кухня, баня с тоалетна, отделна тоалетна с достъп от двора и барбекюто\r\n- Втори етаж (68 кв.м): две спални, баня с тоалетна към едната спалня, коридор, панорамна тераса\r\n\r\nДопълнително предимство:\r\n- Одобрен проект за надграждане на трети (тавански) етаж, с разрешение, заверено в общината. Имотът предлага чудесен потенциал за разширение и модернизация.\r\n\r\nОтопление:\r\nОсигурено чрез камина - уют, топлина и ниски разходи за зимата. Идеален дом за целогодишно обитаване или като ваканционна вила с висок инвестиционен потенциал.\r\n\r\nИмотът е с един собственик и напълно изрядни документи - готов за сделка.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 993,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 135000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 993,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514706",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/схрабърско-514706.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69dd19b586f5f_69dd1ac893dd7.png",
-    "price_eur": 33152,
-    "sqm": 896,
-    "area": "с.Храбърско",
-    "city": "София област",
-    "title": "Парцел, с.Храбърско",
-    "portal": "imoti.bg",
-    "lat": 42.8108011,
-    "lng": 23.0870578,
-    "description": "Продава равнинен парцел 896 кв.м. в село Храбърско, местност „Черен пешо“, с целогодишен достъп в урбанизирана територия, асфалт, ток на 20км. от София, в близост до язовир „Храбърско“. Електрически стълб за ток има на 20 м. от парцела, водата в района е от кладенци. В съседство се намират нови къщи с постоянно обитаващи ги хора. Приблизително 20 минути с автомобил до столицата.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 37,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 33152
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 37,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514707",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/схрабърско-514707.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69dd1d7e76151_69dd1de170180.png",
-    "price_eur": 41255,
-    "sqm": 1115,
-    "area": "с.Храбърско",
-    "city": "София област",
-    "title": "Парцел, с.Храбърско",
-    "portal": "imoti.bg",
-    "lat": 42.8108011,
-    "lng": 23.0870578,
-    "description": "Продава равнинен парцел 1115 кв.м. в село Храбърско, местност „Черен пешо“, с целогодишен достъп в урбанизирана територия, асфалт, ток, вода, на 20км. от София, в близост до язовир „Храбърско“. Електрически стълб в парцела, водата в района е от кладенци. В съседство се намират нови къщи с постоянно обитаващи ги хора. Приблизително 20 минути с автомобил до столицата. Ниско застрояване (до 10 м.).",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 37,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 41255
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 37,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -19756,38 +20012,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_514540",
-    "url": "https://imoti.bg/продажби/къща/софия-област/гркостинброд-514540.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 310000,
-    "sqm": 160,
-    "area": "гр.Костинброд",
-    "city": "София област",
-    "title": "Къща, гр.Костинброд",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Вашият нов модерен дом в Костинброд: Простор, спокойствие и стил!\r\n\r\nТърсите перфектния баланс между градския комфорт и спокойствието на извънградския живот? Представяме ви две чисто нови, едноетажни къщи с модерна архитектура, разположени в един от най-тихите и предпочитани райони на град Костинброд.\r\n•\tПлощ: По 160 кв.м и двете къщи- функционално разпределени за максимален комфорт.\r\n•\tДвор: 1100 кв.м.\r\n•\tЕтажност: Едноетажна (без излишни стълби, идеален достъп навсякъде). С голямо таванско помещение.\r\n•\tСтроителство: Ново, висок клас материали и съвременна визия.\r\n•\tДограма: 7- Камерна – Rehal + 3-словен стъклопакет.\r\n•\tОтопление: Подово отопление и замазка. \r\n\r\nВътрешно разпределение:\r\nИнтериорът е проектиран с мисъл за простор и светлина. С огромна и слънчева дневна. 3 просторни спални - осигуряващи лично пространство за всеки член на семейството. 2 бани с тоалетни.\r\nЗащо да изберете този имот?\r\n•\tЛокация: Намира се в спокоен район с чист въздух, същевременно с бърз и лесен достъп до София.\r\n•\tМодерна архитектура: Къща, която се отличава с изчистени линии и съвременен облик.\r\n•\tГотовност: Спестявате време от грубото строителство - имотът очаква само вашите финални щрихи и избор на мебели.\r\n \r\n???? Град Костинброд – Вашето бягство от шума на столицата, без да губите връзка с нея!\r\n???? За огледи и повече информация: 0888649663",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1938,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 310000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1938,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_266175",
     "url": "https://imoti.bg/продажби/парцел/варна/около-варна-266175.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_67b734375cc4d_67b7343760c17.jpg",
@@ -20012,38 +20236,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 64,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514467",
-    "url": "https://imoti.bg/продажби/бизнес-сграда/софия-област/сдолни-лозен-514467.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69b10dceef77c_69b1102567570.jpg",
-    "price_eur": 4900000,
-    "sqm": 5600,
-    "area": "с.Долни Лозен",
-    "city": "София област",
-    "title": "Бизнес сграда, с.Долни Лозен",
-    "portal": "imoti.bg",
-    "lat": 42.5992767,
-    "lng": 23.4996376,
-    "description": "Фирмата  Вкусна Ядка  АД има удоволствието да Ви представи споделено офисно пространство   модерна и изцяло отдадена под наем бизнес-складова база в с. Лозен, община Столична. Разположена на ул.  Съединение , сградата е предпочитано работно място за IT, логистични и търговски екипи, търсещи близост до София, но и спокойствието на регулирана индустриална зона с отлична инфраструктура и бърз достъп до Околовръстен път и Северната скоростна тангента.\r\n\r\n ???? Цена и доходност:\r\n  Обявена цена: 4 900 000 EUR\r\n  Месечен наем: 24 900 EUR\r\n  Годишен наем: ≈ 152 640 EUR\r\n  Брутна годишна доходност (ARI): 6,09 %\r\n  Наематели: дългогодишни договори   гарантиран паричен поток от ден 1\r\n\r\n???? Ключови предимства на района:\r\n  5 мин. до Околовръстен път и София ринг\r\n  10 мин. до летище София\r\n  В непосредствена близост до бъдещата метростанция на Лозен\r\n  Тиха, регулирана зона с постоянно развиваща се инфраструктура\r\n  Достъп до квалифицирана работна ръка от столицата и околните села\r\n\r\n???? Имотът в цифри:\r\n  Парцел: 5 599 кв.м.\r\n  Застроена площ: над 1 900 кв.м.\r\n  Вид строителство: стоманена конструкция с полиуретанови панели   енергоефективна и бърза за поддръжка\r\n  Акт 16 за всички сгради\r\n  Собствен трафопост 400 kVA и фотоволтаична централа 30 kWp   нулеви сметки за ток\r\n  Собствен водоизточник и септична яма   независимост от ВиК мрежата\r\n\r\n???? Офисната част   отдадена под наем на дългогодишни и доверени фирми:\r\n  300 кв.м   9 офиса, заседателна зала, столова, санитарен възел\r\n  Климатизирана, с интернет и СОТ\r\n  Стабилни наематели с договори за 3+ години\r\n\r\n???? Производствено-складова зона   100 % заета, с постоянни наематели:\r\n  3 промишлени халета   460 кв.м, 550 кв.м и 480 кв.м, с височина 3 6 м\r\n  Оборудвани със секционни врати, хладилен склад, лаборатория, столови, санитарни възли, душове и стаи за нощувка\r\n  Подходящи за хранително производство, логистика, пакетаж, студена складова база\r\n  Всички халета са отдадени под наем   влизаш с готови приходи\r\n\r\n???? Допълнителни активи:\r\n  Безмитен склад   оперативен и лицензиран\r\n  Контейнери за съхранение   готови за отдаване\r\n  Фотоволтаична централа 30 kWp   покрива значителна част от консумацията\r\n  Асфалтиран двор   удобен за маневри на ТИР-ове\r\n  4 гаражни врати и 5 товарни секционни врати\r\n  Два независими входа\r\n\r\n???? Сигурност и логистика:\r\n  КПП, физическа охрана, масивна ограда, бариера, видеонаблюдение\r\n  Готов за банково финансиране\r\n  Без тежести и ипотеки\r\n\r\n???? Инвестиционната възможност:\r\nТова не е просто имот   това е готов бизнес със стабилен паричен поток, доверени наематели, високотехнологична инфраструктура и възможност за моментално разрастване. Базата работи на пълен капацитет и носи гарантирана доходност от 6,09 %, без нужда от допълнителни инвестиции.",
-    "site_posted_at": null,
-    "category": "garage",
-    "category_confidence": "low",
-    "price_per_sqm": 875,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 4900000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 875,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -20980,38 +21172,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_514189",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/спетърч-514189.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6980d5afbfc15_6980d6e3d0dab.jpg",
-    "price_eur": 39900,
-    "sqm": 690,
-    "area": "с.Петърч",
-    "city": "София област",
-    "title": "Парцел, с.Петърч",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Поземлен имот между къщите на с. Петърч.на две минути пеша до центъра на селото. Подходящ за жилищно строителство и целогодишно живеене.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 58,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 39900
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 42,
-    "pct_vs_area_avg": 39.8,
-    "score": 3
-  },
-  {
     "id": "imotibg_514156",
     "url": "https://imoti.bg/продажби/парцел/пазарджик-област/грбатак-514156.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_697b1d892e8aa_697b1de7c1950.jpg",
@@ -21040,38 +21200,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 31,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_514154",
-    "url": "https://imoti.bg/продажби/производствена-сграда/софия-област/грихтиман-514154.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_697b17e0b733b_697b184e9d5d0.jpg",
-    "price_eur": 1100000,
-    "sqm": 5930,
-    "area": "гр.Ихтиман",
-    "city": "София област",
-    "title": "Производствена сграда, гр.Ихтиман",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Оферта 77808 НОВА ХЛАДИЛНА СКЛАДОВА БАЗА! УДОБЕН ДОСТЪП! ОТГОВАРЯ НА ВСИЧКИ ЕВРОПЕЙСКИ СТАНДАРТИ! ПОДХОДЯЩА ЗА РАЗЛИЧНИ ДЕЙНОСТИ! Хладилната база е разположена в гр.Ихтиман. Отдава производствено-складова и хладилна база с РЗП 1260 м2, разшоложена в УПИ с площ от 5930 м2, като 80% от УПИ-то е бетонна площадка с удобен достъп за камиони и изграждане на допълнителни конструкции. До имота има асфалтов път. БАЗАТА СЕ СЪСТОЙ ОТ: - Универсална хладилна инсталация с площ 146 м2 , височина 4.80 метра с температура до -30 градуса; - Универсална хладилна инсталация с площ 75 м2 , височина 4.80 метра с температура до -28 градуса; - Универсална хладилна инсталация с площ 60 м2 , височина 4.80 метра с температура до -28 градуса; - Универсална хладилна инсталация за помещение 'Експедиция' с площ 105 м2 , височина 4.80 метра с температура до -5 градуса; - Манипулационна зала с площ 100 м2 и височина 4.80 метра; - Тунелен шоков замразител с обем 60 м3 с температура -30 градуса с капацитет 250 кг/ч; - 2 броя складови помещения по 300 м2 с товарен асансьор между тях; - 2 броя напълно обзаведени офиса; - 6 тоалетни; - 3 бани; - Столова; - Външно помещение за охрана; - Различни сервизни и складови помещения;Базата е разположена на 500 метра от ЖП гара, в близост до магистрала Тракия, на 40 км от София. има и къща на два етажа за ремонт 180кв.м за повече информация и огледи на посочения телефон - 0897010001 - Костадинов Имоти",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 185,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 1100000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 185,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -21460,38 +21588,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_513979",
-    "url": "https://imoti.bg/продажби/къща/софия-област/сгинци-513979.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6959513519169_6959519fca5c0.jpg",
-    "price_eur": 49990,
-    "sqm": 173,
-    "area": "с.Гинци",
-    "city": "София област",
-    "title": "Къща, с.Гинци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ОТЛИЧНА КЪЩА НА ТОП МЯСТО- на Центъра. Намира на 45км. от гр. София. Просторен двор. Има регулация, ток и вода. Достъпа е целогодишен, намира се на главния асфалтиран път. Изградено парно за камина с бойлер на първи етаж и котел за цялата къща. Разпределение- Първи етаж хол с кухненски бокс, баня с wc,2 Спални и закрита тераса. Втори етаж хол, баня с wc, коридор и две спални. Има гараж и канал. Мазе под къщата и помощни помещения. До имота минава рекичка. Продава се с обзавеждането. Външна и вътрешна изолация. ПВЦ дограма. Отличен имот подходящ за целогодишно живеене или за инвестиция. Намира се на главния път, близо до спирки, магазини, ресторанти и др. В селото има рибарници. / спортен риболов/, и оградено е от гори, много зеленина и чист въздух...\r\nИзрядни документи!!!\r\nВодещ брокер Михаела Ивова\r\nБлагодаря Ви, че прочетохте нашата обява. От целия ни екип хубав и усмихнат ден! Агенция за Недвижими Имоти София Имот + /ОАНИТ/ е създадена 2007год. Брокерите, които работят са с повече от 20годишен опит в сферата на недвижимите имоти...\r\n... НАПЪЛНО БЕЗПЛАТНО СЪДЕЙСТВАМЕ ЗА ОТПУСКАНЕ НА ИПОТЕЧНИ КРЕДИТИ- РАБОТИМ С ВСИЧКИ БАНКИ. БЪРЗО ОДОБРЕНИЕ И ОТЛИЧНИ УСЛОВИЯ- БЕЗПЛАТНО ЗА КРЕДИТОИСКАТЕЛЯ...",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 289,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 49990
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 289,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_161435",
     "url": "https://imoti.bg/продажби/магазин/варна/колхозен-пазар-161435.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_627a3b2de7a47_627a3b2e180b0.jpg",
@@ -21616,38 +21712,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 9,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_513953",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/софия-област/грправец-513953.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_694b017de0a96_694b028bd2d4d.jpg",
-    "price_eur": 69000,
-    "sqm": 70,
-    "area": "гр.Правец",
-    "city": "София област",
-    "title": "Двустаен апартамент, гр.Правец",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ОТЛИЧЕН. ПРОСТОРЕН. СЛЪНЧЕВ. ВЪТРЕШЕН. ПАНОРАМЕН. НЕПРЕХОДЕН.\r\nТОП МЯСТО. Разпределение- Просторен слънчев Хол, Тераса, Коридор, Б/Т, отделна Кухня и отделна просторна Спалня. Апартамента е много слънчев, непреходен, вътрешен, южен. Направена е вътрешна и външна изолация. ПВЦ дограма. Строителство- Панел от 1980год. Намира се на много комуникативно място. Отоплението е на климатик. Продава се напълно обзаведен.....\r\nВодещ брокер Михаела Ивова..0888085007, 0878648872",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 986,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 69000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 986,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -22484,38 +22548,6 @@
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1127,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
-    "id": "imotibg_513601",
-    "url": "https://imoti.bg/продажби/нива/софия-област/грбожурище-513601.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_690798500e5a2_69079949c6d31.jpg",
-    "price_eur": 110000,
-    "sqm": 5000,
-    "area": "гр.Божурище",
-    "city": "София област",
-    "title": "Нива, гр.Божурище",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ОТ СОБСТВЕНИК. ЧАСТНО ЛИЦЕ продава земеделска земя, категория 6, местност Мерджанова нива, с.Делян, област София, община Божурище, на 33 км. от София. Поради големината си мисля че е подходяща за зелена енергия - за разполагане на соларни панели или ветрогенератори.\r\nРаботя и с брокери, като в обявената цена са включени 3 % за брокера.\r\nЗа връзка: 0877793456",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 22,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 110000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 29,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 22,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -24476,38 +24508,6 @@
     "score": 3
   },
   {
-    "id": "imotibg_515780",
-    "url": "https://imoti.bg/продажби/промишлени-терени/софия-област/грелин-пелин-515780.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a8dde32963b1_6a8ddf2f38ae7.jpg",
-    "price_eur": 2200000,
-    "sqm": 26500,
-    "area": "гр.Елин Пелин",
-    "city": "София област",
-    "title": "Промишлени терени, гр.Елин Пелин",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ИНДУСТРИАЛЕН ТЕРЕН ЗА ПРОДАЖБА: 26 500 кв.м с ИЗЛАЗ НА АСФАЛТОВ ПЪТ и СОБСТВЕН ТРАФОПОСТ в гр. Елин Пелин \r\nПредлагаме за съвместна продажба два съседни поземлени имота с обща внушителна площ от 24 655 кв.м. Имотите се намират на изключително комуникативно място в обособената индустриална зона на град Елин Пелин (област София) – район с доказано стратегическо значение за логистика и производство. До имота има трити имот , който все още е земеделска земя и с площ от 1900 квадратни метра, може да се ползва като паркинг или озеленяване към произвдствения имот. \r\nСТРАТЕГИЧЕСКИ ПРЕДИМСТВА НА ИМОТА:\r\n• ДИРЕКТЕН ИЗЛАЗ НА АСФАЛТОВ ПЪТ: Осигурява отличен, бърз и безпроблемен целогодишен достъп за тежкотоварни автомобили (ТИР), автобуси и специализирана техника.\r\n• СОБСТВЕН ТРАФОПОСТ: Разполага с готов трафопост с капацитет, напълно достатъчен за захранване на производствено предприятие, фабрика или мащабен логистичен център. Спестява години чакане и скъпи процедури за присъединяване към мрежата! \r\nИМОТИТЕ СЕ ПРОДОВАТ ЗАЕДНО:\r\n1.\t ПИ с  Идентификатор: № 27303.69.63 ,  Площ: 13 107 кв.м,  Начин на трайно ползване (НТП): За складова база\r\n• Вид територия: Урбанизирана \r\n2.\tПИ с  Идентификатор: № 27303.69.62,  Площ: 11 548 кв.м,  Начин на трайно ползване (НТП): За складова база\r\n3.\tПИ с идентификатор: № 27303.69.42, Площ от 1899 кв.м, Начин на трайно ползване (НТП): зем земя\r\n• Близост до София: Елин Пелин предлага бърза връзка с Околовръстното шосе на столицата, Автомагистрала „Тракия“ (А1) и Автомагистрала „Хемус“ (А2). \r\nДо логистична база Фантастико",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 83,
-    "price_history": [
-      {
-        "date": "2026-08-25T20:39:50.077622+00:00",
-        "price_eur": 2200000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 28,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 83,
-    "pct_vs_area_avg": 0.0,
-    "score": 3
-  },
-  {
     "id": "imotibg_515781",
     "url": "https://imoti.bg/продажби/къща/велико-търново-област/сбеброво-515781.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a8e037f9a7ec_6a8e041145143.jpeg",
@@ -25847,8 +25847,8 @@
     "days_on_market": 17,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 546,
-    "pct_vs_area_avg": 180.8,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 2
   },
   {
@@ -25879,8 +25879,8 @@
     "days_on_market": 17,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 15000,
-    "pct_vs_area_avg": 0.0,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 2
   },
   {
@@ -26007,8 +26007,8 @@
     "days_on_market": 17,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 414,
-    "pct_vs_area_avg": 86.7,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 2
   },
   {
@@ -26103,8 +26103,8 @@
     "days_on_market": 17,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 489,
-    "pct_vs_area_avg": -92.8,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 2
   },
   {
@@ -26425,6 +26425,70 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 884,
     "pct_vs_area_avg": 145.1,
+    "score": 2
+  },
+  {
+    "id": "imotibg_508468",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/сбелопопци-508468.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_660550f9ba14b_6a882a10a8ea4.jpg",
+    "price_eur": 228000,
+    "sqm": 12000,
+    "area": "с.Белопопци",
+    "city": "София област",
+    "title": "Парцел, с.Белопопци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Предлагаме поземлен имот с площ от 12 000 кв.м. в с. Белопопци, с ПУП и потенциал за развитие на мащабен инвестиционен проект. Местоположението съчетава спокойствието на района с удобна връзка със столицата\r\nРазмерът на терена и наличието на ПУП дават възможност имотът да бъде разглеждан като подходяща основа за различни бизнес начинания – жилищно строителство, складова база, производствена дейност или друг проект според нуждите на инвеститора.\r\nСъс своите 12 декара имотът предоставя достатъчно пространство за реализация на по-мащабна концепция и възможност за обособяване на различни функционални зони в рамките на бъдещия проект.\r\nПодходящ избор за инвеститори, строителни компании и предприемачи, които търсят терен с голяма площ и ПУП, позволяващ по-ясно планиране и развитие на бъдещото предназначение на имота.\r\nЗа повече информация относно документите, ПУП, скица, местоположение и координати на имота, свържете се с нас.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-09-11T08:32:13.809120+00:00",
+        "price_eur": 228000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 12,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
+    "id": "imotibg_502429",
+    "url": "https://imoti.bg/продажби/парцел/софия-област/смакоцево-502429.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6340088ec5d0a_6a882a3aae314.jpg",
+    "price_eur": 80655,
+    "sqm": 4245,
+    "area": "с.Макоцево",
+    "city": "София област",
+    "title": "Парцел, с.Макоцево",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Представяме ви атрактивен имот в село Макоцево, намиращо се между Стара планина и Средна гора, на 30 км. от София и на 10 км от Горна Малина, на територията на една от малкото Зелени общини-Горна Малина.  Голяма част от въздушните маси, които преминават от Северна България към Софийското поле, преминават през имота. Въздухът е съизмерим с този в гр. Банкя и гр. Искрец, подходящ за белодробни заболявания.\r\nИмотът съчетава спокойствието и чистата природа на района с удобен достъп до София, което го прави интересен както за лично ползване, така и като дългосрочна инвестиция.\r\nЗащо този имот?\r\nГолямата площ предоставя отлични възможности за реализация на собствен проект в спокойна и зелена среда. Районът е подходящ за хора, които търсят повече пространство, чист въздух и близост до природата, без да се отказват от достъпа до столицата.\r\nИмотът представлява интересна възможност за инвестиция с потенциал за бъдещо развитие, както и за изграждане на собствен дом или ваканционен имот.\r\nЗа повече информация, документи, скица и координати на имота, свържете се с нас.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-09-11T08:32:13.809120+00:00",
+        "price_eur": 80655
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 12,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 2
   },
   {
@@ -26940,70 +27004,6 @@
     "score": 1
   },
   {
-    "id": "imotibg_508468",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/сбелопопци-508468.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_660550f9ba14b_6a882a10a8ea4.jpg",
-    "price_eur": 228000,
-    "sqm": 12000,
-    "area": "с.Белопопци",
-    "city": "София област",
-    "title": "Парцел, с.Белопопци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Предлагаме поземлен имот с площ от 12 000 кв.м. в с. Белопопци, с ПУП и потенциал за развитие на мащабен инвестиционен проект. Местоположението съчетава спокойствието на района с удобна връзка със столицата\r\nРазмерът на терена и наличието на ПУП дават възможност имотът да бъде разглеждан като подходяща основа за различни бизнес начинания – жилищно строителство, складова база, производствена дейност или друг проект според нуждите на инвеститора.\r\nСъс своите 12 декара имотът предоставя достатъчно пространство за реализация на по-мащабна концепция и възможност за обособяване на различни функционални зони в рамките на бъдещия проект.\r\nПодходящ избор за инвеститори, строителни компании и предприемачи, които търсят терен с голяма площ и ПУП, позволяващ по-ясно планиране и развитие на бъдещото предназначение на имота.\r\nЗа повече информация относно документите, ПУП, скица, местоположение и координати на имота, свържете се с нас.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-09-11T08:32:13.809120+00:00",
-        "price_eur": 228000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 11,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 14,
-    "pct_vs_area_avg": 35.7,
-    "score": 1
-  },
-  {
-    "id": "imotibg_502429",
-    "url": "https://imoti.bg/продажби/парцел/софия-област/смакоцево-502429.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6340088ec5d0a_6a882a3aae314.jpg",
-    "price_eur": 80655,
-    "sqm": 4245,
-    "area": "с.Макоцево",
-    "city": "София област",
-    "title": "Парцел, с.Макоцево",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Представяме ви атрактивен имот в село Макоцево, намиращо се между Стара планина и Средна гора, на 30 км. от София и на 10 км от Горна Малина, на територията на една от малкото Зелени общини-Горна Малина.  Голяма част от въздушните маси, които преминават от Северна България към Софийското поле, преминават през имота. Въздухът е съизмерим с този в гр. Банкя и гр. Искрец, подходящ за белодробни заболявания.\r\nИмотът съчетава спокойствието и чистата природа на района с удобен достъп до София, което го прави интересен както за лично ползване, така и като дългосрочна инвестиция.\r\nЗащо този имот?\r\nГолямата площ предоставя отлични възможности за реализация на собствен проект в спокойна и зелена среда. Районът е подходящ за хора, които търсят повече пространство, чист въздух и близост до природата, без да се отказват от достъпа до столицата.\r\nИмотът представлява интересна възможност за инвестиция с потенциал за бъдещо развитие, както и за изграждане на собствен дом или ваканционен имот.\r\nЗа повече информация, документи, скица и координати на имота, свържете се с нас.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-09-11T08:32:13.809120+00:00",
-        "price_eur": 80655
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 11,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 19,
-    "pct_vs_area_avg": 0.0,
-    "score": 1
-  },
-  {
     "id": "imotibg_515871",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/видин/център-515871.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa3bdbc6dfca_6aa3be5d428db.jpg",
@@ -27188,7 +27188,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 852,
@@ -27252,7 +27252,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1276,
@@ -27444,7 +27444,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 615,
