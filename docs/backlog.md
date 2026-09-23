@@ -596,7 +596,7 @@ needing a total result count will need a different approach (approximate
 count, a capped query, or skipping total-count display), not
 `count=exact`.
 
-## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - user feedback 2026-09-23
+## 7. Listing detail page: pin the price-history graph, shrink the map, place them side by side - DONE, MERGED (2026-09-23)
 
 User's direct words: *"On each listing the graph with the price changes
 needs to be pinned on the listing rather than popping out when the
@@ -633,7 +633,27 @@ and fit the graph next to it."* Confirmed live in the current
   `docs/design-guidelines.md` and keep the brass/sage/ink tokens item 13
   introduced rather than reintroducing the old blue palette.
 
-## 8. "Compare nearby" button vs. the new Comparables tab - unclear if it's dead, redundant, or both - user feedback 2026-09-23, needs live investigation before fixing
+**Status: shipped and merged.** PR #220 (`pin-price-chart-shrink-map-
+2026-09-23`, commit `e2c4b04`) removed the tab-gated "Price History" tab
+entirely (4 tabs remain: Details/Comparables/Area Data/BTL Stress Test)
+and moved its content into an always-visible `.price-history-panel`,
+paired side by side with the shrunk (260px -> 200px) radius/comparables
+map in a new `.detail-history-row`. Missy's review of that PR caught a
+real gap - the pairing only triggered above ~1380px, missing the common
+1366px laptop width - fixed in a same-day follow-up (`df135d5`, floor
+lowered so pairing triggers at ~1330px+). Reuses item 13's brass/sage/ink
+tokens, no new colors. Independently re-verified live by Dessy
+(2026-09-23, separate session/dispatch) against the real current
+`index.html` via a Playwright harness with vendored CDN assets and a
+real 6,000-row listings fixture: chart renders with zero tab clicks,
+tabs read exactly `Details/Comparables/Area Data/BTL Stress Test`, map +
+chart sit side by side at both 1440px and 1366px, both stack to one
+column at 390px (mobile), no JS errors. Full detail in
+`docs/decisions.md`'s 2026-09-23 entry ("Backlog items 7 and 8...found
+already shipped"). No further action needed unless a regression turns
+up.
+
+## 8. "Compare nearby" button vs. the new Comparables tab - DONE, MERGED (2026-09-23)
 
 User's direct words: *"The comparables button on each listing does not
 do anything too. Fix this."*
@@ -678,6 +698,35 @@ files):**
 - No auth/session/personal-data surface is touched here (read-only
   comparison over already-public listing data) - Revy's review is not
   expected to be needed, but flag her in if anything unexpected turns up.
+
+**Status: shipped and merged.** Reproduced live first, per the task above
+(not guessed): the old "Compare nearby" button was not actually broken
+(its modal defaulted to a 1000m radius, so it always opened populated);
+the real bug was in the newer Comparables tab, which shared
+`detailRadiusM` with the pinned radius panel above it (item 7), and
+`showListingDetail()` reset that to `null` on every listing open - so the
+tab showed only a "pick a radius above" hint and nothing else until the
+user found an unrelated-looking control elsewhere on the page, which is
+exactly what read as "does nothing." Fixed in PR #221
+(`fix-compare-button-2026-09-23`, commit `1b36b64`): (1) `detailRadiusM`
+now defaults to 500m so both the radius panel and the Comparables tab
+show real data immediately; (2) took the recommended design-fork option -
+retired `openCompareModal()`/`closeCompareModal()`/`renderCompareModal()`
+and the `#compareModalOverlay` markup entirely; `#compareBtn` stays as a
+fast entry point but now switches to and scrolls to the Comparables tab
+instead of opening a separate modal, so there's one comparables surface,
+not two. Reasoning logged in `docs/decisions.md`'s 2026-09-23 "Retired
+the old 'Compare nearby' modal" entry. No auth/PII surface touched, per
+the task's own note - Revy's review was not sought. Independently
+re-verified live by Dessy (2026-09-23, separate session/dispatch): real
+Playwright run against the current `index.html` confirms
+`#compareModalOverlay` no longer exists in the DOM at all, `#compareBtn`
+switches to and populates the Comparables tab immediately, and the tab
+shows real comparables data on first open with no empty "pick a radius"
+state whether reached via the button or clicked directly. Full detail in
+`docs/decisions.md`'s 2026-09-23 entry ("Backlog items 7 and 8...found
+already shipped"). No further action needed unless a regression turns
+up.
 
 ## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23
 
