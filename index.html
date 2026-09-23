@@ -1725,13 +1725,28 @@ const PIPELINE_LISTING_COLUMNS =
 // resolvedPipelineDeals()'s old full-array scan. Fire-and-forget-friendly:
 // on any failure (network blip, or a live project where this project's
 // migration hasn't landed yet) this leaves the existing cache in place
-// rather than blanking out an already-working Pipeline view.
+// rather than blanking out an already-working Pipeline view. Not blocking
+// the way the main MERGED_LISTINGS_BULK_COLUMNS fetch was (this already
+// degrades gracefully via the try/catch below) - but given the same
+// still-pending-migration column dependency, it gets the same
+// stripMissingSelectColumn() treatment fetchAllRows() uses (defined
+// further down this file, alongside MERGED_LISTINGS_BULK_COLUMNS) for
+// consistency, so a missing column here costs one retry instead of one
+// full silent Pipeline-refresh failure per column added ahead of its
+// migration.
 async function refreshPipelineListingsCache() {
   const dealIds = Object.keys(PIPELINE_DEALS);
   if (dealIds.length === 0) { PIPELINE_LISTINGS_CACHE = {}; return; }
+  let columns = PIPELINE_LISTING_COLUMNS;
   try {
-    const { data, error } = await sb.from('merged_listings').select(PIPELINE_LISTING_COLUMNS).in('id', dealIds);
-    if (error) throw error;
+    let data, error;
+    while (true) {
+      ({ data, error } = await sb.from('merged_listings').select(columns).in('id', dealIds));
+      if (!error) break;
+      const stripped = stripMissingSelectColumn('merged_listings', columns, error.message);
+      if (stripped === null) throw error; // not a missing-column failure - fall through to the catch below
+      columns = stripped; // bounded the same way fetchAllRows() is - see stripMissingSelectColumn()
+    }
     const next = {};
     (data || []).forEach(row => { next[row.id] = { ...row, rooms: extractRoomCount(row.title) }; });
     PIPELINE_LISTINGS_CACHE = next;
@@ -3299,19 +3314,81 @@ const PORTAL_ORDER = ['imoti.net', 'alo.bg', 'homes.bg', 'imot.bg', 'olx.bg', 'b
 // the real ~214,889-row table) vs. 836 bytes/row (~171MB, 33.4% smaller)
 // once description/photos/price_history are dropped - see
 // MERGED_LISTINGS_BULK_COLUMNS below for exactly which columns and why.
+//
+// Read-path mirror of sync_to_supabase.py's upsert()/_MISSING_COLUMN_RE
+// (see that function's own comment for the production incident - backlog
+// item 18's area_key - this pattern exists to prevent recurring). That one
+// covers the WRITE path: PostgREST answers an insert/upsert naming a
+// column the live table doesn't have yet with a soft PGRST204 ("Could not
+// find the '<col>' column of '<table>' in the schema cache"), which
+// upsert() already detects, strips, and retries. A SELECT naming a missing
+// column gets a different, harder failure: PostgREST forwards Postgres's
+// own 42703 straight through as "column <table>.<col> does not exist" -
+// live-confirmed via measure_listings_payload.py's own area_key probe
+// (backlog item 18) - and neither fetchAllRows() nor
+// refreshPipelineListingsCache() had ever handled that shape, so it went
+// uncaught (backlog item 6 slice-2's Missy review: PR #231 added
+// first_seen_at to MERGED_LISTINGS_BULK_COLUMNS, unconditionally sent on
+// every single page load, with that same still-pending migration - would
+// have broken loadData() for every visitor until someone ran the SQL by
+// hand). Fixed the same way as the write path: detect it, strip that one
+// column, retry - just matched against supabase-js's returned `error`
+// instead of an HTTP response body, since supabase-js is what both call
+// sites use (raw fetch()/requests isn't involved in either).
+//
+// Bounded by construction, not by a retry counter: stripping a column
+// makes the exact same match impossible on the next attempt (the check
+// below refuses to "strip" a column no longer in the list), so this can
+// fire at most once per distinct column actually present in the select -
+// a handful at most, never unbounded - regardless of how many times a
+// genuinely-missing column's error recurs for any other reason.
+// Tolerant of Postgres's own quoted form too ('column "col" does not
+// exist') even though only the unquoted "<table>.<col>" shape has actually
+// been observed live so far (measure_listings_payload.py) - cheap
+// insurance against a future PostgREST/Postgres version formatting it
+// differently, and case-insensitive for the same reason.
+const _MISSING_SELECT_COLUMN_RE = /column\s+"?([\w.]+)"?\s+does not exist/i;
+
+function stripMissingSelectColumn(table, columns, errorMessage) {
+  const match = _MISSING_SELECT_COLUMN_RE.exec(errorMessage || '');
+  if (!match) return null; // not this failure shape - let the caller handle it as a real error
+  // PostgREST has been observed schema-qualifying this as "<table>.<col>";
+  // tolerate an unqualified "<col>" too rather than assume the exact form.
+  const parts = match[1].split('.');
+  const col = parts[parts.length - 1];
+  const tbl = parts.length > 1 ? parts[parts.length - 2] : table;
+  if (tbl !== table) return null; // some other table's column - not ours to strip
+  const cols = columns.split(',');
+  if (!cols.includes(col)) return null; // already stripped (or never ours) - refuse, so this can't loop
+  console.warn(`${table} is missing column '${col}' on the live Supabase table (pending manual ` +
+    `schema.sql migration, see docs/decisions.md) - stripping it from this query's column list ` +
+    `and retrying so this isn't blocked on that migration landing.`);
+  return cols.filter(c => c !== col).join(',');
+}
+
 async function fetchAllRows(table, columns) {
   const batchSize = 1000;
   const maxRetries = 3;
-  const select = columns || '*';
+  let select = columns || '*';
 
   async function fetchBatch(cursor) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    let transientAttempts = 0;
+    while (true) {
       let query = sb.from(table).select(select).order('id').limit(batchSize);
       if (cursor !== null) query = query.gt('id', cursor);
       const { data, error } = await query;
       if (!error) return data;
-      if (attempt === maxRetries) throw error;
-      await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+
+      // Mutates the outer `select` (not just this batch's local copy) so
+      // later pages of this same fetchAllRows() call inherit the narrowed
+      // list too, instead of re-discovering the same missing column once
+      // per 1000-row page.
+      const stripped = stripMissingSelectColumn(table, select, error.message);
+      if (stripped !== null) { select = stripped; continue; }
+
+      transientAttempts++;
+      if (transientAttempts >= maxRetries) throw error;
+      await new Promise(resolve => setTimeout(resolve, 500 * transientAttempts));
     }
   }
 

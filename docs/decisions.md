@@ -2051,3 +2051,79 @@ ships without her sign-off" rule for anything beyond a docs-only change) -
 pushed to `item6-quickfixes-2026-09-23`,
 [PR #231](https://github.com/kirilbp/bg-property-tracker/pull/231) opened
 against `main`, not merged by this session.
+
+### 2026-09-23 (later same day) - PR #231 blocking fix: the read path had no missing-column resilience, unlike the write path
+
+Missy's review of PR #231 found a real blocking issue (trusted directly,
+not re-litigated here): the `first_seen_at` fix above added that column to
+`MERGED_LISTINGS_BULK_COLUMNS`, which `loadData()` passes unconditionally
+to `fetchAllRows('merged_listings', ...)` on every single page visit -
+the site's primary data load. `first_seen_at`'s own migration is still
+manually pending in the Supabase SQL editor (same unapplied-migration
+situation as `area_key`, backlog item 18). `upsert()` already has generic
+`PGRST204`-detection-and-strip-and-retry resilience for this exact class
+of problem on the *write* path (`_MISSING_COLUMN_RE` in
+`sync_to_supabase.py`) - but `fetchAllRows()`/`loadData()`, the *read*
+path, had none. A `select=...,first_seen_at` against a table missing that
+column is a hard PostgREST error (42703, "column does not exist" -
+already live-confirmed once for `area_key` via
+`measure_listings_payload.py`), not the soft PGRST204 upsert() handles,
+and `loadData()`'s catch block just shows "Could not load listings data."
+Merging PR #231 as-is would have broken the entire site's listing load for
+every visitor until someone ran the migration by hand.
+
+**Fix (option b from Missy's report - give the read path the same
+resilience the write path already has, generally, not just for this one
+column)**: added `stripMissingSelectColumn(table, columns, errorMessage)`
+next to `fetchAllRows()` in `index.html` - a client-side mirror of
+`upsert()`'s detect-and-strip-and-retry shape, matched against
+supabase-js's returned `error.message` (`/column\s+"?([\w.]+)"?\s+does
+not exist/i`) instead of an HTTP response body, since supabase-js is what
+both call sites here use. `fetchAllRows()`'s `fetchBatch()` now strips a
+detected missing column from its (closure-scoped, so later keyset pages
+inherit the fix too) column list and retries immediately, separately from
+its existing transient-error retry budget. Applied to both
+`MERGED_LISTINGS_BULK_COLUMNS` (the blocking one) and
+`PIPELINE_LISTING_COLUMNS`/`refreshPipelineListingsCache()` (not
+blocking - already degraded gracefully via its own try/catch - but given
+the identical still-pending-migration dependency, made consistent rather
+than left as the odd one out).
+
+**No infinite-loop risk, reasoned through by hand since this sandbox can't
+reach live Supabase**: `stripMissingSelectColumn()` refuses to strip a
+column that isn't currently in the column list it was given
+(`!cols.includes(col) -> return null`), and stripping is exactly what
+removes it from that list - so the same column can trigger exactly one
+strip-and-retry, never a repeat. Bounded by the column list's own length
+(a handful of columns), not by a retry counter. A genuinely-unrelated,
+persistent error (network blip, real outage) doesn't match the regex at
+all, so it falls straight through to the pre-existing transient-retry
+path (`maxRetries`, unchanged) and eventually throws - same failure mode
+as before this fix, not worsened by it. Traced the missing-`first_seen_at`
+case end-to-end: the strip leaves the column simply absent from every
+fetched row, and `listingFirstSeenDate()` already treats an absent
+`first_seen_at` as a cue to fall back to `l.price_history` (itself absent
+from this same narrowed select), landing on `null` - the exact
+already-accepted "badge/label reads null, page doesn't break" trade-off
+this file's own 2026-09-22 backlog-item-6 entry documented for the other
+three lazy-loaded columns, not a new failure mode.
+
+**Verified**: `node --check` against the extracted `<script>` block
+(clean); hand-traced the retry logic (and a small standalone Node
+simulation of the strip-and-retry loop against mocked success/failure
+responses) to confirm it terminates in both the missing-column and the
+genuinely-broken cases; `python3 -m pytest tests/test_update_history.py`
+still 11/11 passing (Python-only, unaffected by this change, checked
+anyway). **Not verified live** - this sandbox's egress proxy blocks
+Supabase, same standing constraint as every prior item-6 entry; this is
+code-review-level verification of the failure path, not a live
+reproduction.
+
+Built in an isolated worktree off `origin/item6-quickfixes-2026-09-23`
+itself (not a fresh `main`) - this fixes PR #231 in place, it isn't a
+restart - then checked for new `origin/main` commits to merge forward
+(none since PR #231 opened; already up to date). Pushed this commit
+straight onto `item6-quickfixes-2026-09-23` (fast-forward), so it lands
+as a new commit on PR #231 itself rather than a separate stacked PR or
+orphaned work. Not merged by this session - Missy's re-review still
+needed.
