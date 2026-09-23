@@ -41,9 +41,20 @@ sequentially with a single git commit step at the end, an uncaught
 exception here would otherwise silently discard every other scraper's
 output for that run too.
 
-Each offer's raw JSON also carries a full "description" and a "photos"
-array (not just the single cover "photo") - both captured and surfaced on
-the listing detail page. There's also a "time" field, initially assumed
+Each offer's raw JSON also carries a "photos" array (not just the single
+cover "photo") - captured and surfaced on the listing detail page. It also
+has a key literally named "description", which despite the name is NOT a
+free-text listing description - confirmed via a full raw-offer dump
+(probe_deeper_history.py, Actions run 32700254970, 2026-08-24) and by
+sampling data/leads_homes.json live (backlog #9): it's consistently a
+short construction-material/furnishing tag line (e.g. "Тухла/Бетон,
+Полуобзаведен" - "Brick/Concrete, Semi-furnished"), never prose, and this
+JSON blob has no other field holding real description text. Surfacing it
+as "description" actively misled users, so parse_offer() below leaves
+that field unset rather than populated with the wrong content - see its
+own comment for what a real fix would require.
+
+There's also a "time" field, initially assumed
 to be a real "last updated" signal (like olx.bg's, see scraper_olx.py) -
 but sampling 280 live offers found 100% of them reporting "днес" (today)
 with zero variation, meaning homes.bg apparently marks every actively
@@ -288,7 +299,32 @@ def parse_offer(offer, category, geocoder):
         "url": BASE_URL + offer["viewHref"],
         "photo": photo_url,
         "photos": photos,
-        "description": offer.get("description") or None,
+        # homes.bg's own JSON key "description" is NOT a free-text listing
+        # description, despite the name - confirmed via a full raw-offer
+        # dump (probe_deeper_history.py, Actions run 32700254970, 2026-08-24):
+        # the complete field set on a search-page offer is id/type/
+        # viewHref/time/location/title/"description"/status/photos/photo/
+        # price/isFav, and "description" itself is consistently a short
+        # construction-material/furnishing tag line (e.g. "Тухла/Бетон,
+        # Полуобзаведен" - "Brick/Concrete, Semi-furnished"), never prose -
+        # also reconfirmed live by sampling data/leads_homes.json (backlog
+        # #9). There is no other candidate field in this JSON blob holding
+        # real description text; a genuine free-text description, if
+        # homes.bg has one at all, would only live on each listing's own
+        # detail page (offer["viewHref"]) - which this scraper never
+        # fetches, since it only ever calls the paginated search/listing
+        # endpoint (see module docstring), not each offer's page. Left
+        # unset (None) rather than populated with the wrong tag line, which
+        # was actively misleading users into thinking they were reading a
+        # real description. Adding a real description would mean an extra
+        # per-listing HTTP fetch across 74,000+ listings - that's a new
+        # capability and a real scale/runtime tradeoff, not a selector fix,
+        # so it's deliberately left to a separate follow-up (the
+        # backfill_detail_alo.py/backfill_detail_bazar.py/etc. pattern
+        # already used for other large portals: a separate, resumable
+        # backfill pass rather than paying that cost inline in the main
+        # scrape) instead of being done here.
+        "description": None,
         "price_eur": price_eur,
         "sqm": sqm,
         "area": area,
