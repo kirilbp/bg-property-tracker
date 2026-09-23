@@ -547,6 +547,20 @@
      circle and comparable pins at a glance. */
   .radius-map { height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
+  /* Backlog item 20 ("Map tab additions"): Street/Satellite/Amenities
+     controls above the radius map - same visual language as .radius-btn
+     (smaller, since it's a secondary control) rather than a separate class
+     that would need its own click-handler wiring conflict with the radius
+     buttons' data-radius parsing. */
+  .map-layer-row { display: flex; gap: 6px; margin-top: 12px; }
+  .map-layer-btn {
+    padding: 5px 10px; border-radius: 4px; border: 1px solid var(--taupe-light); background: var(--ivory);
+    color: var(--ink-soft); font-family: var(--font-sans); font-size: 11px; font-weight: 500; cursor: pointer;
+    transition: border-color 200ms ease-out;
+  }
+  .map-layer-btn:hover { border-color: var(--taupe); }
+  .map-layer-btn.active { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
+  .map-amenities-note { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin: 6px 0 0; }
   /* Brass subject-point map pin (see brassPinIcon() in JS) - a CSS-only
      teardrop replacing Leaflet's default blue marker icon everywhere a
      single subject point needs its own marker distinct from the brass
@@ -1959,6 +1973,11 @@ let detailSourceIndex = 0;
 let detailChart = null;
 let detailActiveTab = 'details';
 let detailRadiusM = null;
+// Backlog item 20 ("Map tab additions"): base layer + POI overlay state for
+// the listing detail radius map. Kept separate from detailRadiusM so
+// switching layers doesn't clear/interact with the radius selection.
+let detailMapLayer = 'street'; // 'street' | 'satellite'
+let detailShowAmenities = false;
 let detailPhotos = [];
 let detailPhotoIndex = 0;
 // Ids only (not full objects) of the current filtered+sorted result set, in
@@ -3009,6 +3028,32 @@ function brassPinIcon() {
 // listing has real coordinates, draws a fresh map centered on it with a
 // pin per comparable found in the currently selected radius, plus the
 // radius circle itself so the distance is visible, not just the number.
+// Backlog item 20 ("Map tab additions") - base-layer tile sources for the
+// listing detail map's Street/Satellite toggle. Both are free, keyless tile
+// services (no account, API key, or billing needed):
+// - Street: the same OpenStreetMap raster tiles already used everywhere
+//   else in this app.
+// - Satellite: Esri World Imagery (server.arcgisonline.com), the standard
+//   free/keyless aerial-imagery basemap the Leaflet ecosystem uses when no
+//   Google Maps billing account is available (Google's satellite tiles
+//   require a paid API key) - see leaflet-extras/leaflet-providers'
+//   "Esri.WorldImagery" entry. This sandbox's egress proxy blocks live
+//   fetches to arcgisonline.com, so tile rendering itself could not be
+//   visually confirmed this session (see docs/backlog.md item 20) - the
+//   URL/attribution follow Esri's own long-documented, stable tile scheme.
+function detailStreetTileLayer() {
+  return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  });
+}
+function detailSatelliteTileLayer() {
+  return L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+    maxZoom: 19,
+  });
+}
+
 function updateRadiusMap(l) {
   if (detailMap) {
     detailMap.remove();
@@ -3027,10 +3072,7 @@ function updateRadiusMap(l) {
   }
 
   detailMap = L.map(container, { scrollWheelZoom: false }).setView([l.lat, l.lng], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-  }).addTo(detailMap);
+  (detailMapLayer === 'satellite' ? detailSatelliteTileLayer() : detailStreetTileLayer()).addTo(detailMap);
 
   const subjectMarker = L.marker([l.lat, l.lng], { icon: brassPinIcon() }).addTo(detailMap).bindPopup('This listing');
 
@@ -3063,6 +3105,74 @@ function updateRadiusMap(l) {
   } else {
     subjectMarker.openPopup();
   }
+
+  if (detailShowAmenities) renderAmenitiesOnMap(detailMap, l);
+}
+
+// Backlog item 20 ("Map tab additions") - nearby points of interest (school,
+// hospital, pharmacy, supermarket, transit) via the Overpass API, OSM's free,
+// keyless live-query service (no account/API key, unlike Google Places).
+// Query shape and response format (a flat `elements` array of
+// { type, id, lat, lon, tags }) follow Overpass's own long-stable, documented
+// API - api.de's endpoint enables CORS for exactly this kind of browser-side
+// use. This sandbox's egress proxy blocks a live call, so a real response
+// could not be fetched/inspected this session (see docs/backlog.md item 20) -
+// treat as unverified-but-standard until confirmed against a live browser.
+// Failures degrade quietly (a small note, not a broken map) rather than
+// risking an uncaught error taking down the rest of the detail page.
+let detailAmenitiesRequestSeq = 0;
+const AMENITIES_CACHE = {}; // "lat,lng" (4dp) -> Overpass elements array, avoids re-querying on every radius/tab click
+
+function renderAmenitiesOnMap(map, l) {
+  const key = `${l.lat.toFixed(4)},${l.lng.toFixed(4)}`;
+  const mySeq = ++detailAmenitiesRequestSeq;
+  const noteEl = document.getElementById('amenitiesNote');
+
+  const plot = (elements) => {
+    // A newer render (radius/layer/tab click, or navigating to a different
+    // listing) may have superseded this fetch by the time it resolves -
+    // drop stale results rather than drawing markers onto a map that's
+    // since moved on or been torn down.
+    if (mySeq !== detailAmenitiesRequestSeq || detailMap !== map) return;
+    if (elements.length === 0 && noteEl) {
+      noteEl.textContent = 'No nearby amenities found in OpenStreetMap data for this location.';
+    }
+    elements.forEach(el => {
+      const lat = el.lat != null ? el.lat : (el.center && el.center.lat);
+      const lon = el.lon != null ? el.lon : (el.center && el.center.lon);
+      if (lat == null || lon == null) return;
+      const tags = el.tags || {};
+      const label = tags.name || tags.amenity || tags.shop || tags.railway || tags.highway || 'Point of interest';
+      L.circleMarker([lat, lon], {
+        radius: 5, color: '#5c6b52', fillColor: '#7a8b6f', fillOpacity: 0.85, weight: 1,
+      }).addTo(map).bindPopup(escapeHtml(label));
+    });
+  };
+
+  if (AMENITIES_CACHE[key]) { plot(AMENITIES_CACHE[key]); return; }
+
+  const radiusM = 800;
+  const query = `[out:json][timeout:15];(` +
+    `node["amenity"~"school|hospital|pharmacy|kindergarten|bank|restaurant|cafe"](around:${radiusM},${l.lat},${l.lng});` +
+    `node["shop"~"supermarket|convenience"](around:${radiusM},${l.lat},${l.lng});` +
+    `node["railway"="station"](around:${radiusM},${l.lat},${l.lng});` +
+    `node["highway"="bus_stop"](around:${radiusM},${l.lat},${l.lng});` +
+    `);out center 60;`;
+  const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
+
+  fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query), controller ? { signal: controller.signal } : undefined)
+    .then(r => { if (!r.ok) throw new Error('Overpass HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      const elements = (data && data.elements) || [];
+      AMENITIES_CACHE[key] = elements;
+      plot(elements);
+    })
+    .catch(() => {
+      if (mySeq !== detailAmenitiesRequestSeq) return;
+      if (noteEl) noteEl.textContent = 'Amenities unavailable right now (couldn\'t reach the map data service).';
+    })
+    .finally(() => { if (timeoutId) clearTimeout(timeoutId); });
 }
 
 function renderRadiusPanel(l) {
@@ -3091,7 +3201,23 @@ function renderRadiusPanel(l) {
     }
   }
 
-  const mapHtml = (l.lat != null && l.lng != null) ? `<div id="radiusMap" class="radius-map"></div>` : '';
+  // Backlog item 20 ("Map tab additions"): Street/Satellite base-layer
+  // toggle + an Amenities (POI) overlay toggle for the map below. A
+  // dedicated class (not .radius-btn) so these don't get swept up by the
+  // radius buttons' own click-handler wiring, which reads a numeric
+  // data-radius attribute these buttons don't have.
+  const mapControlsHtml = (l.lat != null && l.lng != null) ? `
+    <div class="map-layer-row">
+      <button class="map-layer-btn${detailMapLayer === 'street' ? ' active' : ''}" data-map-layer="street">Street</button>
+      <button class="map-layer-btn${detailMapLayer === 'satellite' ? ' active' : ''}" data-map-layer="satellite">Satellite</button>
+      <button class="map-layer-btn${detailShowAmenities ? ' active' : ''}" data-map-amenities-toggle="1">Amenities</button>
+    </div>
+  ` : '';
+  const mapHtml = (l.lat != null && l.lng != null) ? `
+    ${mapControlsHtml}
+    <div id="radiusMap" class="radius-map"></div>
+    ${detailShowAmenities ? `<p id="amenitiesNote" class="map-amenities-note"></p>` : ''}
+  ` : '';
 
   return `
     <div class="radius-panel">
@@ -6944,6 +7070,20 @@ function renderListingDetail(merged) {
     });
   });
 
+  document.getElementById('listingDetailBody').querySelectorAll('[data-map-layer]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      detailMapLayer = btn.dataset.mapLayer;
+      renderListingDetail(merged);
+    });
+  });
+  const amenitiesToggleBtn = document.querySelector('#listingDetailBody [data-map-amenities-toggle]');
+  if (amenitiesToggleBtn) {
+    amenitiesToggleBtn.addEventListener('click', () => {
+      detailShowAmenities = !detailShowAmenities;
+      renderListingDetail(merged);
+    });
+  }
+
   document.getElementById('compareBtn').addEventListener('click', () => {
     // Backlog item 8: this used to open a separate "Compare nearby" modal
     // with its own radius control and its own render path - a second,
@@ -7077,6 +7217,8 @@ function showListingDetail(id) {
   // tab as already "pre-scoped to the current listing's location + type."
   // Users can still change or clear it via the radius buttons as before.
   detailRadiusM = 500;
+  detailMapLayer = 'street';
+  detailShowAmenities = false;
   detailCompViewMode = 'card';
   btlInputs = null;
   merged._resultPos = currentResultPosition(id);

@@ -1953,7 +1953,7 @@ Preferences as one block:
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
   item 18).
 
-## 20. Map tab additions
+## 20. Map tab additions - Satellite + Amenities SHIPPED (2026-09-23, Dessy), Street View BLOCKED, Cadastral OUT OF SCOPE
 
 Spec sections 4 and 5's Maps tab. Street View, Satellite, and Amenities
 (POI) layers are fully replicable generic map layers - low effort, can
@@ -1963,7 +1963,78 @@ substitute is worth calling out on its own: **cadastral map integration**
 карта (Agency of Geodesy, Cartography and Cadastre) provides parcel
 boundaries and is publicly viewable; worth prioritizing if imotenradar
 can integrate it, but scoped as its own task since it's a new external
-data source, unlike the rest of this backlog.
+data source, unlike the rest of this backlog - **deliberately not
+attempted in this pass, still open.**
+
+**Shipped 2026-09-23** (built on the existing listing-detail radius map,
+`index.html`'s `updateRadiusMap()`/`renderRadiusPanel()` - the same
+Leaflet integration item 13 already uses, not a new separate "Maps tab"
+with the spec's full 7-icon rail, which would be a materially bigger
+scope than "low effort, ship alongside item 13" calls for):
+
+- **Satellite layer - DONE.** A Street/Satellite toggle (two small
+  buttons above the map, styled like the existing radius-btn/brass
+  palette, no new blue) switches the map's base tile layer between the
+  existing OpenStreetMap street tiles and Esri World Imagery
+  (`server.arcgisonline.com/.../World_Imagery/...`) - a free, keyless
+  aerial-imagery tile service (no account or billing needed, unlike
+  Google's satellite tiles), the standard choice the Leaflet ecosystem
+  uses for exactly this reason (`leaflet-extras/leaflet-providers`'
+  `Esri.WorldImagery` entry).
+- **Amenities (POI) layer - DONE.** An "Amenities" toggle button queries
+  the Overpass API (`overpass-api.de`) - OpenStreetMap's free, keyless,
+  CORS-open live-query service, no account needed (unlike Google
+  Places) - for schools, hospitals, pharmacies, kindergartens, banks,
+  supermarkets, restaurants/cafes, bus stops, and train stations within
+  800m of the listing, and plots them as small sage-colored dots
+  (distinct from the existing brass comparable-listing dots). Results
+  are cached per-listing so re-rendering the map (radius/layer clicks)
+  doesn't re-query. Fails gracefully: a blocked/slow/erroring request or
+  a listing with none nearby shows a small inline note instead of
+  breaking the map.
+- **Street View - NOT built, correctly blocked, not faked.** Checked for
+  a genuinely free/keyless option per this dispatch's instruction before
+  building anything: Google Street View needs a paid/billed API key
+  (already known, out of scope). The realistic open alternatives
+  (Mapillary, KartaView) are not truly keyless either - both require
+  registering for a free API/client token, a credential this sandbox
+  doesn't have and the user would need to supply, and neither has known
+  reliable coverage in Bulgaria the way Google's does. No Bulgarian
+  government or open equivalent is known. **Needs the user to decide
+  whether to supply a Mapillary (or similar) API token, or a Google
+  Street View billing key, before this sub-feature can be built at all**
+  - left undone rather than shipping a broken/empty panel.
+
+**Verification caveat, flagged rather than assumed:** this sandbox's
+egress proxy blocks all external hosts, including ones the live site
+already depends on today (`unpkg.com`, `cdn.jsdelivr.net`, and the
+already-shipped `tile.openstreetmap.org`) - confirmed via direct `curl`
+(403 from the proxy on every one) and via the proxy's own status log.
+So neither the new Esri satellite tiles nor a real Overpass response
+could be fetched live from this session to visually confirm real tile
+pixels/POI data render correctly - this is a sandbox-only limitation,
+not evidence the integrations don't work (the app already relies on
+the same class of external host working in production). Verified
+instead with a real Playwright harness against the actual `index.html`
+(vendored Leaflet/Chart/Supabase locally, reusing a prior session's
+harness pattern in scratchpad) with the two new endpoints stubbed with
+realistic responses (Overpass's own long-documented, stable
+`{elements: [{type, id, lat, lon, tags}]}` JSON shape): confirmed the
+Street/Satellite toggle correctly swaps the active tile layer and
+requests satellite tiles, the Amenities toggle correctly fetches once,
+caches, and plots markers on the map (2/2 stub POIs rendered), the
+graceful-failure note renders correctly when the POI fetch is made to
+fail, an empty-result note renders correctly on a mobile (390px)
+viewport with no layout overflow, and the whole page still loads with
+zero *new* console/page errors (one pre-existing `_leaflet_pos`
+Leaflet-internal warning was independently reproduced against
+unmodified `main` too, confirming it predates this change and isn't a
+regression). **Whoever reviews this should still confirm the real Esri
+tile and Overpass responses render correctly against the live
+deployed site** (this session cannot, being sandboxed) before
+considering the visual/data-accuracy side fully confirmed - the toggle
+mechanics and error-handling are the part this session could verify
+directly.
 
 ## 21. Visual/premium design refresh - DONE (2026-09-23, Dessy)
 
