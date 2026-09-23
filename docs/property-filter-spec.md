@@ -640,11 +640,25 @@ strategies are UK-market-specific.**
   decision for whoever prioritizes the backlog, not a technical
   blocker.
 
-**INFERRED:** the exact calculation formula behind each strategy's
-output metrics was not shown (only labeled output fields were visible in
-the screenshots) - replicating the *math* precisely would require either
-further screenshots of a populated/expanded calculator or independent
-financial-modeling work, not just this spec.
+**Formerly INFERRED, now resolved via independent financial-modeling
+research:** the exact calculation formula behind each strategy's output
+metrics was not shown in Nosy's screenshots (only labeled output fields
+were visible) - replicating the *math* precisely required independent
+financial-modeling work rather than a further capture pass. That work is
+now done: see **`docs/deal-calculator-formulas.md`** for the full,
+BG-market-adapted formula for every strategy (BTL, BRRR, BTSA, BRSAR,
+FLIP, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale), plus the shared
+Bulgarian transfer-tax/mortgage default inputs. Two items remain
+genuinely open, not resolved by that doc, both flagged there in detail:
+**PLO** (needs Bulgarian legal confirmation of whether a lease-option
+structure is enforceable the way it is in the UK - no formula written)
+and the **R2R/R2SA/BTSA/BRSAR "is this worth building" business
+question** (the doc reports that short-term rental is legal but
+regulated in Bulgaria - requires Tourism Act categorization/registration
+- and that long-term subletting is legal by default; the go/no-go on
+building these strategies is still the user's call). Title Split remains
+a confirmed drop (BG's condominium ownership regime means the UK problem
+it solves doesn't exist here - see that doc's section 12 for why).
 
 ---
 
@@ -750,10 +764,13 @@ Listed explicitly so nothing is silently gap-filled or assumed:
    (section 5) - each row (Energy Rating, Owner, Title, etc.) implies an
    expandable detail but none were shown expanded.
 8. **Deal Calculator's actual input form and formulas** - only the
-   strategy-selection step and saved-result summary cards were shown,
-   not a populated calculator mid-entry, so the specific input fields
-   and math behind each strategy's outputs are unknown (see section 8's
-   INFERRED note).
+   strategy-selection step and saved-result summary cards were shown by
+   Nosy, not a populated calculator mid-entry, so the specific input
+   fields and math behind each strategy's outputs couldn't be captured
+   directly. **Resolved via independent financial-modeling research -
+   see `docs/deal-calculator-formulas.md`** (section 8 above links it),
+   except PLO and the R2R/R2SA/BTSA/BRSAR business-viability question,
+   which remain open pending a legal/business decision.
 
 ---
 

@@ -1914,26 +1914,46 @@ Don't batch multiple tasks' review together - each goes the moment it's
 locally verified, per this project's standing "nothing ships without
 Missy, and she sees it immediately" rule.
 
-## 18. Deal Calculator (investment strategy modeling) - needs formula work before building
+## 18. Deal Calculator (investment strategy modeling) - formula work DONE, ready to build except 2 open items (2026-09-23)
 
 Spec section 8. The overall mechanism (pick a strategy -> get a
 strategy-specific calculator -> save as a reusable template or link to a
-property) is a strong, fully replicable pattern. But per the spec itself,
-the actual input fields and math behind every strategy's output metrics
-were never shown/captured (INFERRED throughout) - this needs either a
-further Nosy capture pass of a populated calculator or independent
-financial-modeling work before a builder can implement it, so it's
-sequenced after the items above rather than blocking on them.
+property) is a strong, fully replicable pattern. The formula-work
+blocker is now resolved: `docs/deal-calculator-formulas.md` gives real,
+BG-market-adapted input fields and math for every strategy below,
+sourced against standard real-estate-investment formulas (cash-on-cash
+return, cap rate, BRRR "cash left in deal", GDV/residual development
+appraisal, etc.) plus researched Bulgarian defaults (transfer tax,
+mortgage LTV/rates, STR licensing). **Note: that doc also corrects an
+outdated assumption - Bulgaria adopted the euro on 1 January 2026, so
+all figures/fields are EUR, not BGN** (matching `index.html`'s existing
+`price_eur` fields).
 
-- Replicable with Bulgarian-market defaults once formulas are known: BTL,
+- **Ready to build with real formulas:** BTL (extends the shipped BTL
+  Stress Test from item 15 - `computeBtlStressTest()` in `index.html`),
   BRRR, BTSA, BRSAR, FLIP, R2R, R2SA, COM2RESI-TOSELL, Assisted Sale.
-  Whether R2R/serviced-accommodation strategies are common/legal enough
-  in the Bulgarian market to be worth building is a business call for
-  whenever this item is picked up, not a technical blocker.
-- Drop: Title Split - Hold/Sell (relies on UK Land Registry's split-title
-  registration, no known BG equivalent).
-- Open question, needs Bulgarian legal confirmation before deciding:
-  PLO (Purchase Lease Option) - see "Open questions" below.
+- **Still a business call, not a technical blocker** (per
+  `deal-calculator-formulas.md` section 8): R2R (long-term subletting)
+  is legal in Bulgaria by default unless a head lease forbids it.
+  R2SA/BTSA/BRSAR (short-term/serviced accommodation) are also legal but
+  *regulated* - they require Tourism Act categorization/registration as
+  an accommodation place, with a real per-bed fee and platform-enforced
+  compliance. Whether that regulatory overhead makes these strategies
+  worth building is still the user's call to make when this item is
+  picked up.
+- **Drop, confirmed (not just UK-only-and-unresolved):** Title Split -
+  Hold/Sell. Research now explains *why* there's no BG equivalent to
+  build instead: Bulgaria's condominium ownership regime (етажна
+  собственост) already gives every apartment its own title at
+  construction, so the UK problem title-splitting solves doesn't exist
+  here; converting an *undivided* building is the change-of-designation
+  process already covered under COM2RESI-TOSELL.
+- **Still genuinely open - needs a Bulgarian real-estate lawyer, not
+  more research:** PLO (Purchase Lease Option). See "Open questions"
+  below - no formula was written for it, on purpose, since a
+  lease-option structure's Bulgarian enforceability is unconfirmed and
+  a fabricated formula for an unconfirmed legal structure would be worse
+  than not offering the strategy.
 
 ## 19. Preferences / settings to support items 13-18
 
@@ -2592,7 +2612,16 @@ only the specific sub-feature named, not the whole item it belongs to:
 - **PLO (Purchase Lease Option) strategy** (item 18) - relies on a UK
   leasehold/option-contract convention; unclear applicability under
   Bulgarian contract law, needs legal confirmation before a keep/drop
-  call.
+  call. 2026-09-23 research (`docs/deal-calculator-formulas.md` section
+  11): Bulgaria's closest native mechanism, the preliminary contract
+  (предварителен договор), is a promise to complete a sale, not a
+  lease-with-a-purchase-option - it doesn't grant the buyer occupation
+  or income rights the way a PLO's lease component does. No established
+  Bulgarian equivalent to the UK PLO structure was found, and this
+  research couldn't confirm how enforceable a standalone lease+option
+  contract would be if a seller tried to walk away mid-option. Still
+  needs an actual Bulgarian real-estate lawyer's confirmation, not more
+  desk research - no formula has been written for this strategy.
 
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
