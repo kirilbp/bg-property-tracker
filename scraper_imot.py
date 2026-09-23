@@ -165,7 +165,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, classify_category, extract_description_imot, extract_photos_imot, compute_motivation_score, listing_city_key, prune_snapshots
+from category_classifier import classify_listing
+from geo_utils import Geocoder, extract_description_imot, extract_photos_imot, compute_motivation_score, listing_city_key, prune_snapshots
 
 BASE_URL = "https://www.imot.bg"
 SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
@@ -386,6 +387,17 @@ def parse_listings_page(html, seen, geocoder, query_display):
         full_url = "https:" + href if href.startswith("//") else (BASE_URL + href if href.startswith("/") else href)
         title = f"{lines[0]}, {area}" if lines else area
         coords = geocoder.geocode_cached_only(f"{area}, {city}, България")
+        # Classified from the raw first card line (not the fuller `title`
+        # with area appended) - same field classify_category() was always
+        # given here, deliberately kept to avoid a new false-positive class
+        # this migration didn't audit: an area/district name matching a
+        # category keyword (e.g. "Промишлена зона"/"Бизнес хотел" are real
+        # place names, already a confirmed false-positive source for other
+        # portals - see category_classifier.py's own "industrial property"/
+        # "commercial property" keyword comments and docs/decisions.md).
+        category, category_confidence, _ = classify_listing(
+            title=lines[0] if lines else title, url=full_url
+        )
 
         seen[listing_id] = {
             "id": "imot_" + listing_id,
@@ -399,7 +411,8 @@ def parse_listings_page(html, seen, geocoder, query_display):
             "portal": "imot.bg",
             "lat": coords["lat"] if coords else None,
             "lng": coords["lng"] if coords else None,
-            "category": classify_category(lines[0] if lines else title),
+            "category": category,
+            "category_confidence": category_confidence,
         }
     return len(matching_links)
 

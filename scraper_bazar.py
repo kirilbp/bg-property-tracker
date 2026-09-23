@@ -146,7 +146,8 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import classify_category, compute_motivation_score, listing_city_key, prune_snapshots
+from category_classifier import classify_listing
+from geo_utils import compute_motivation_score, listing_city_key, prune_snapshots
 
 BASE_URL = "https://bazar.bg"
 SEARCH_BASE = "https://bazar.bg/obiavi/prodazhba-apartamenti"
@@ -388,6 +389,7 @@ def fetch_listings_page(url, city_display):
         href = a["href"]
         full_url = href if href.startswith("http") else BASE_URL + href
         title = lines[0] if lines else area
+        category, category_confidence, _ = classify_listing(title=title, url=full_url)
 
         listings[listing_id] = {
             "id": "bazar_" + listing_id,
@@ -401,7 +403,8 @@ def fetch_listings_page(url, city_display):
             "portal": "bazar.bg",
             "lat": None,
             "lng": None,
-            "category": classify_category(title),
+            "category": category,
+            "category_confidence": category_confidence,
         }
     return listings
 
