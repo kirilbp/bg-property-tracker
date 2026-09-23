@@ -2093,7 +2093,7 @@ all figures/fields are EUR, not BGN** (matching `index.html`'s existing
   a fabricated formula for an unconfirmed legal structure would be worse
   than not offering the strategy.
 
-## 19. Preferences / settings to support items 13-18
+## 19. Preferences / settings to support items 13-18 - PARTIALLY DONE (2026-09-23, Dessy)
 
 Spec section 9. Mostly small, fully-replicable settings screens that
 exist to back the features above rather than stand alone - sequence each
@@ -2110,6 +2110,126 @@ Preferences as one block:
   (ship with item 17), Deal Calculator Templates defaults (replace UK
   Stamp Duty default with a Bulgarian transfer-tax % default - ship with
   item 18).
+
+**Status: 6 of 8 sub-tabs shipped in `index.html`, per this dispatch's own
+explicit scoping ("build only the sub-tabs whose parent feature is actually
+shipped and not parked") - Letters and Deal Calculator Templates
+deliberately NOT built (see below). Self-verified with a real Playwright
+harness (vendored Chart.js/Leaflet/supabase-js, a ~304-row fixture sampled
+from real committed data) against the actual current `index.html` - renders
+at 1440px and 390px, settings persist across a real page reload, and the
+Hot/Warm threshold setting was confirmed to actually change real badge
+behavior live (no reload needed), not just get stored inertly. Not yet
+reviewed by Missy, not merged - PR to follow.**
+
+New "Preferences" nav item + `#section-preferences`, its own `.pref-tab-btn`/
+`.pref-tab-content` sub-tab pattern (a scoped copy of the existing
+`.market-tab-btn`/`.market-tab-content` pair, same collision-avoidance
+reasoning already documented for that split - `switchDetailTab()`-style
+unscoped toggles elsewhere in this file make sharing a class risky). One new
+localStorage key, `sitePreferences` (`PREFERENCES`/`DEFAULT_PREFERENCES`/
+`loadPreferences()`/`persistPreferences()`), following the exact same
+no-login, this-browser-only pattern as `leadGenerators`/`pipelineStages`/
+`pipelineTags`/`pipelineDeals` - one object rather than a key per sub-tab,
+since these are all small, related values usually read together.
+
+- **Display - built, minimal, per this dispatch's own explicit note that
+  the UK mile/km unit-toggle complexity doesn't apply here.** Bulgaria's
+  native-metric explanation is stated directly in the UI rather than just
+  silently omitting the UK controls. The one real control: **Listing card
+  density** (Comfortable / Standard / Compact), a `body.density-*` CSS
+  class swap over the same `.grid` used by the results grid, Saved
+  listings, and Hottest deals - changes how many cards fit per row, not
+  card content. Genuinely wired: applies immediately via
+  `applyPreferencesToState()`, persists, and was screenshotted in all
+  three states.
+- **Search Results - built, wired to real behavior, not just stored.** Hot
+  deal / Warm thresholds (`PREFERENCES.searchResults`), overriding the
+  `HOT_SCORE_THRESHOLD`/`WARM_SCORE_THRESHOLD` module constants (changed
+  `const` -> `let` for exactly this purpose) that `buildBadgesHtml()`
+  already reads everywhere a 🔥Hot/Warm badge renders (results grid, Home's
+  "Hot deals" stat, Dashboard's Hottest Deals, listing detail). A change
+  takes effect immediately (`refreshAfterPreferenceChange()` re-runs
+  `render()`/`renderHome()`/`renderDashboard()` unconditionally, not just
+  when that section happens to be the one currently open - a real staleness
+  bug was caught and fixed in testing: gating those calls behind "only if
+  this section is active" left the Home/Dashboard's already-rendered-but-
+  hidden cards showing stale pre-edit badges, since `showSection()` doesn't
+  re-render "home" just from a nav click). Warm is clamped to always stay
+  below Hot. Help's own "🔥 Hot deal (≥40) / Warm (≥15)" copy now reads the
+  live thresholds via two `<span>`s instead of a hardcoded 40/15.
+- **Lead Generator - built, wired to real defaults, not fixed strings.**
+  Default sort (already-existing `leadgenSortBy`), default city and default
+  sale type (both previously hardcoded `'Sofia'`/`'sale'` in
+  `resetLeadGenModalFields()`, now read from `PREFERENCES.leadGenerator`),
+  and default radius for "Point + radius" mode (pre-selects the matching
+  preset button so placing a point on the map immediately draws a circle at
+  the default size, no second click needed) - all only affect a brand-new
+  "Add New Lead Generator," never an already-saved one (confirmed: the
+  existing gen-editing code path in `openLeadGenModal()` still overwrites
+  these with the real saved generator's values right after).
+- **Pipeline - built as a pointer, not a duplicate.** Stage/tag
+  configuration was already fully shipped with item 14 (arbitrary-length,
+  user-editable names/icons/colors, "Manage stages & tags" modal reachable
+  from the Pipeline board) - rather than re-implementing that same UI a
+  second time inside Preferences, this sub-tab explains that and provides
+  a "Manage stages & tags" button that opens the exact same
+  `plConfigModalOverlay` modal (confirmed live, not just asserted).
+- **Notifications - built minimal, honest about what's real.** Explicitly
+  states in the UI that imotenradar has no login and no backend
+  notification infrastructure (no email, no push, no server-side scheduled
+  jobs) - everything is an in-app, computed-at-render signal. The one real
+  existing mechanism, the orange "N new" badge on Lead Generator cards
+  (Home dashboard inbox + the Lead Generators gallery), gets a genuine
+  on/off toggle (`PREFERENCES.notifications.showNewBadges`) wired into both
+  of its render sites - turning it off hides the badge everywhere it
+  renders without discarding the underlying "new since last check" data.
+  Did not invent settings for alert emails or push notifications - no such
+  infrastructure exists to configure.
+- **Deal Stacker - built, wired to the real calculator, not a decorative
+  form.** LTV %, interest rate %, and Interest Cover Ratio % override
+  `BTL_DEFAULTS` (mutated in place, still a `const` binding - only its
+  properties change), which `initBtlInputs()` already reads fresh every
+  time a listing's BTL Stress Test tab opens (`btlInputs` resets to `null`
+  on every `showListingDetail()` call). Confirmed live: setting a custom
+  LTV in Preferences and then opening any listing's BTL tab pre-fills that
+  exact value, including in its own explanatory hint text.
+- **Calendar - correctly NOT built, flagged rather than faked, per this
+  dispatch's own explicit instruction.** Checked the app for any existing
+  calendar-related UI first: there is none (no calendar view, no Google
+  Calendar connection, no iCal feed) - the closest existing feature is
+  per-listing Reminders (a date + note, shown on the Home dashboard). The
+  Calendar sub-tab is a plain, honest explanation of this rather than a
+  settings form with nothing real to configure. Blocked on a real calendar
+  view or external calendar sync existing first - not attempted here.
+- **Letters defaults - explicitly NOT built, per this dispatch's own
+  instruction and the standing decision at item 17.** Item 17 (Send
+  Letters) is "BUILT, PARKED PER USER DECISION - DO NOT RESUME WITHOUT
+  ASKING" - building settings for a parked feature would itself be
+  resuming it without asking. Not referenced anywhere in the new
+  Preferences UI.
+- **Deal Calculator Templates defaults - explicitly NOT built.** Item 18's
+  formula work is docs-only so far (PR #237) - the actual Deal Calculator
+  feature/UI doesn't exist in `index.html` yet, so a "default transfer tax
+  %" setting would have nothing real to attach to. Skipped entirely rather
+  than built ahead of the feature it configures.
+
+**Design-guideline judgment call, not covered explicitly by the
+guidelines**: the density radio group and the notification checkbox are
+both nested inside the existing `.modal-field` wrapper, which already
+applies a small-caps/uppercase/11px treatment to every `<label>` inside it
+site-wide (the same pattern already used for the Lead Generator modal's own
+property-type checkboxes, e.g. "APARTMENT"/"HOUSE"). Kept that convention
+for the short option/checkbox label text itself rather than inventing a
+one-off sentence-case style, but explicitly reset it back to normal-case
+body text for the longer explanatory hint spans next to each option -
+short labels get the luxury-brand small-caps treatment per
+`docs/design-guidelines.md` section 3, full explanatory sentences never do.
+Also added a global `input[type="radio"] { accent-color: var(--brass); }`
+rule (this is the app's first radio group) mirroring the existing
+`input[type="checkbox"]` rule, so radios don't fall back to the browser's
+default blue tick - the exact "no new blue" anti-pattern the checkbox rule
+was already written to avoid.
 
 ## 20. Map tab additions - Satellite + Amenities SHIPPED (2026-09-23, Dessy), Street View BLOCKED, Cadastral OUT OF SCOPE
 

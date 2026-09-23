@@ -175,6 +175,19 @@
   @media (max-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px) { .grid { grid-template-columns: repeat(1, 1fr); } }
+  /* Preferences > Display > "Listing card density" (docs/backlog.md item 19)
+     - a body-level class swap over the same .grid used everywhere cards
+     render (results, Saved listings, Hottest deals), rather than a second
+     grid implementation. No class on <body> = "standard" = the rules above,
+     unchanged. */
+  body.density-comfortable .grid { grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  @media (max-width: 1400px) { body.density-comfortable .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { body.density-comfortable .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { body.density-comfortable .grid { grid-template-columns: repeat(1, 1fr); } }
+  body.density-compact .grid { grid-template-columns: repeat(8, 1fr); gap: 14px; }
+  @media (max-width: 1400px) { body.density-compact .grid { grid-template-columns: repeat(6, 1fr); } }
+  @media (max-width: 900px) { body.density-compact .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { body.density-compact .grid { grid-template-columns: repeat(2, 1fr); } }
   .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 28px 0; flex-wrap: wrap; }
   .pagination button {
     padding: 8px 16px; border: 1px solid var(--taupe-light); border-radius: 4px;
@@ -651,6 +664,19 @@
     padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
   }
   .lg-saletype-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
+  /* Preferences > Lead Generator's own copy of .lg-saletype-btn - a separate
+     class, not a reuse, because the Lead Generator modal already wires a
+     single unscoped document.querySelectorAll('.lg-saletype-btn') click
+     listener that toggles "active" across every element with that class in
+     the document; sharing it would let this page's pill and the modal's
+     pill fight over each other's active state (same collision class the
+     .market-tab-btn/.detail-tab-btn split already documents elsewhere in
+     this file). */
+  .pref-saletype-btn {
+    background: white; border: 1px solid var(--taupe-light); color: var(--ink-soft); font-size: 13px;
+    padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: var(--font-sans);
+  }
+  .pref-saletype-btn.active { background: var(--ink); border-color: var(--ink); color: var(--ivory); }
 
   /* Modal - docs/design-guidelines.md palette (backlog item 10), shared by
      every remaining modal (Lead Generator config, Reminder, Pipeline
@@ -965,6 +991,35 @@
   .market-tab-content { display: none; padding-top: 20px; }
   .market-tab-content.active { display: block; }
 
+  /* --- Preferences (docs/property-filter-spec.md section 9; docs/backlog.md
+     item 19) - its own .pref-tab-btn/.pref-tab-content copy of the same
+     .market-tab-btn/.market-tab-content pattern, same collision-avoidance
+     reasoning as the comment just above. */
+  .pref-tabs { display: flex; gap: 4px; margin: 16px 0 0; border-bottom: 1px solid var(--taupe-light); flex-wrap: wrap; }
+  .pref-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 4px; margin-right: 20px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--taupe); cursor: pointer;
+  }
+  .pref-tab-btn:hover { color: var(--ink-soft); }
+  .pref-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
+  .pref-tab-content { display: none; padding-top: 8px; max-width: 560px; }
+  .pref-tab-content.active { display: block; }
+  .pref-density-options { display: flex; flex-direction: column; gap: 10px; }
+  /* Deliberately keeps (not overrides) .modal-field label's small-caps
+     uppercase/11px/taupe treatment for the option name itself - the same
+     .checkbox-item-inside-.modal-field precedent already established by
+     the Lead Generator modal's own property-type checkboxes ("APARTMENT",
+     "HOUSE", etc.), so this radio group reads consistently with the rest
+     of the site rather than inventing a one-off sentence-case style. Only
+     .modal-field's flex/layout is missing for a label+hint pairing on one
+     line, added here. */
+  .modal-field .pref-density-option { display: flex; align-items: baseline; gap: 8px; cursor: pointer; }
+  /* The explanatory hint (".pref-density-hint"/".modal-hint" elsewhere)
+     stays normal-case body text - only short field/option labels get the
+     small-caps treatment, full explanatory sentences never do. */
+  .pref-density-hint { font-size: 12px; color: var(--taupe); text-transform: none; letter-spacing: normal; font-weight: 400; }
+  input[type="radio"] { accent-color: var(--brass); }
+
   /* Single-hue "heat" intensity - design-guidelines.md section 4/9 forbids
      saturated multi-color status treatments (no red/yellow/green traffic
      lights), so heat is expressed as varying opacity of the one brass
@@ -1000,6 +1055,7 @@
     <button class="nav-item" data-section="comparables"><span class="icon">📐</span> Comparables</button>
     <button class="nav-item" data-section="dashboard"><span class="icon">📊</span> Dashboard</button>
     <button class="nav-item" data-section="market"><span class="icon">📈</span> Market Data</button>
+    <button class="nav-item" data-section="preferences"><span class="icon">⚙️</span> Preferences</button>
     <button class="nav-item" data-section="help"><span class="icon">❓</span> Help</button>
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -1415,6 +1471,133 @@
         </div>
       </section>
 
+      <!-- Preferences (docs/property-filter-spec.md section 9; docs/backlog.md
+           item 19) - small settings screens backing already-shipped features.
+           Only the sub-tabs whose parent feature is actually shipped and not
+           parked are built here (Letters and Deal Calculator Templates are
+           explicitly excluded - see docs/backlog.md item 19's own scoping
+           note). Same no-login, this-browser-only localStorage pattern as
+           Saved listings/Lead Generators/Pipeline - see PREFERENCES_KEY. -->
+      <section class="page" id="section-preferences">
+        <div class="pl-card">
+          <div class="pl-header-row">
+            <div>
+              <h2 class="pl-h2">Preferences</h2>
+              <p class="pl-sub">Settings that configure how the features above behave. Stored only in this browser (no login, no account) - the same local-only pattern as Saved listings, Lead Generators, and the Pipeline. Clearing your browser data resets everything here back to its default.</p>
+            </div>
+          </div>
+
+          <div class="pref-tabs" id="prefTabs">
+            <button type="button" class="pref-tab-btn active" data-pref-tab="display">Display</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="results">Search Results</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="leadgen">Lead Generator</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="pipeline">Pipeline</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="notifications">Notifications</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="dealstacker">Deal Stacker</button>
+            <button type="button" class="pref-tab-btn" data-pref-tab="calendar">Calendar</button>
+          </div>
+
+          <div class="pref-tab-content active" data-pref-tab-content="display">
+            <p class="pl-sub" style="margin-top:16px;">Bulgaria already uses metric units natively (m², km) for surface area and distance, so imotenradar doesn't need the mile/km or ft²/m² unit toggle Property Filter's UK build has to support - one less setting to carry. The one genuinely useful display preference left is how much room each listing card gets in the results grid.</p>
+            <div class="modal-field">
+              <label>Listing card density</label>
+              <div class="pref-density-options">
+                <label class="pref-density-option"><input type="radio" name="prefDensity" value="comfortable" /> Comfortable <span class="pref-density-hint">Fewer, larger cards per row</span></label>
+                <label class="pref-density-option"><input type="radio" name="prefDensity" value="standard" /> Standard <span class="pref-density-hint">The default layout</span></label>
+                <label class="pref-density-option"><input type="radio" name="prefDensity" value="compact" /> Compact <span class="pref-density-hint">More cards per row, less whitespace</span></label>
+              </div>
+              <p class="modal-hint">Applies to the main results grid, Saved listings, and Hottest deals. Card content is unchanged - only how many fit per row.</p>
+            </div>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="results">
+            <p class="pl-sub" style="margin-top:16px;">Tune the 🔥 Hot / Warm motivation-score cutoffs used on badges across the site (results grid, Home, Dashboard, listing detail). See Help &gt; Motivation score for how the underlying 0–100 score is computed - these two fields only move the badge thresholds, not the formula itself.</p>
+            <div class="modal-field-row">
+              <div class="modal-field">
+                <label>🔥 Hot deal threshold (score ≥)</label>
+                <input type="number" id="prefHotThreshold" min="0" max="100" />
+              </div>
+              <div class="modal-field">
+                <label>Warm threshold (score ≥)</label>
+                <input type="number" id="prefWarmThreshold" min="0" max="100" />
+              </div>
+            </div>
+            <p class="modal-hint">Warm is always kept below Hot - raising Warm above (or to) your Hot value will pull it back down automatically. Default: Hot ≥40, Warm ≥15, recalibrated against imotenradar's real score distribution (see Help).</p>
+            <button type="button" class="pl-secondary-btn" id="prefResetThresholds" style="margin-top:8px;">Reset to defaults</button>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="leadgen">
+            <p class="pl-sub" style="margin-top:16px;">Defaults applied every time you open "Add New Lead Generator" - nothing here affects generators you've already saved.</p>
+            <div class="modal-field">
+              <label>Default sort for the Lead Generators list</label>
+              <select id="prefLgSort">
+                <option value="matches-desc">Sort: Most matches</option>
+                <option value="new-desc">Sort: Most new leads</option>
+                <option value="created-desc">Sort: Recently created</option>
+                <option value="name-asc">Sort: Name A-Z</option>
+              </select>
+            </div>
+            <div class="modal-field-row">
+              <div class="modal-field">
+                <label>Default city</label>
+                <input type="text" id="prefLgCity" placeholder="e.g. Sofia" />
+              </div>
+              <div class="modal-field">
+                <label>Default radius (Point + radius mode, meters)</label>
+                <input type="number" id="prefLgRadius" min="50" step="50" />
+              </div>
+            </div>
+            <div class="modal-field">
+              <label>Default sale type</label>
+              <div class="pill-toggle-row">
+                <button type="button" class="pref-saletype-btn" data-saletype="sale">For Sale</button>
+                <button type="button" class="pref-saletype-btn" data-saletype="rent">To Rent</button>
+                <button type="button" class="pref-saletype-btn" data-saletype="both">Both</button>
+              </div>
+              <p class="modal-hint">imotenradar doesn't scrape rental listings yet, so "To Rent"/"Both" generators won't have real matches until that changes (see Help) - kept here so the default is ready when it does.</p>
+            </div>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="pipeline">
+            <p class="pl-sub" style="margin-top:16px;">Pipeline stages and tags are already fully user-configurable (arbitrary length, your own names/icons/colors) directly from the Pipeline board - this is the same "Manage stages &amp; tags" screen, surfaced here too since it's a genuine Preferences-level setting.</p>
+            <button type="button" class="brass-btn" id="prefOpenPipelineConfig">Manage stages &amp; tags</button>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="notifications">
+            <p class="pl-sub" style="margin-top:16px;">imotenradar has no login and no backend notification service (no email, no push, no server-side scheduled jobs reading your data) - everything here is an in-app-only signal computed live in your browser each time a page renders. The one such mechanism today is the orange "N new" badge on Lead Generator cards, driven by <code>lastCheckedAt</code> (set whenever you click "Check Leads") against each match's first-seen date.</p>
+            <div class="modal-field">
+              <label class="checkbox-item" style="font-size:14px;">
+                <input type="checkbox" id="prefShowNewBadges" />
+                Show "N new" badges on Lead Generator cards and the Home dashboard inbox
+              </label>
+              <p class="modal-hint">Turning this off still tracks new matches internally (nothing is lost) - it just hides the badge if you'd rather check manually. The green "N matches" total badge always stays visible either way.</p>
+            </div>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="dealstacker">
+            <p class="pl-sub" style="margin-top:16px;">Default assumptions pre-filled into the BTL Stress Test tab on every listing's detail page - all editable per-listing at calculation time, these just set the starting point. Illustrative Bulgarian-market figures, not live rates - confirm actual terms with a bank or mortgage broker.</p>
+            <div class="modal-field-row">
+              <div class="modal-field">
+                <label>Loan-to-value (%)</label>
+                <input type="number" id="prefBtlLtv" min="0" max="100" />
+              </div>
+              <div class="modal-field">
+                <label>Interest rate (% / year)</label>
+                <input type="number" id="prefBtlInterest" min="0" step="0.1" />
+              </div>
+              <div class="modal-field">
+                <label>Interest Cover Ratio (%)</label>
+                <input type="number" id="prefBtlIcr" min="0" step="5" />
+              </div>
+            </div>
+          </div>
+
+          <div class="pref-tab-content" data-pref-tab-content="calendar">
+            <p class="pl-sub" style="margin-top:16px;">Not applicable yet - flagged plainly rather than built. imotenradar has no calendar view, no Google Calendar connection, and no iCal feed anywhere in the app today, so there's nothing here to configure. The closest existing feature is per-listing <strong>Reminders</strong> (a date + note, shown on the Home dashboard) - see Dashboard &gt; Reminders. A real Calendar settings screen only makes sense once (or if) a calendar view or external calendar sync is actually built.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- Help -->
       <section class="page" id="section-help">
         <div class="card">
@@ -1441,7 +1624,7 @@
           <div class="help-section">
             <h3>Badges</h3>
             <ul>
-              <li><strong>🔥 Hot deal (≥40) / Warm (≥15)</strong> — motivation score thresholds, recalibrated against the real achievable range now that days-on-market is still compressed (see above) - these will likely need revisiting again as tracking history matures.</li>
+              <li><strong>🔥 Hot deal (≥<span id="helpHotThreshold">40</span>) / Warm (≥<span id="helpWarmThreshold">15</span>)</strong> — motivation score thresholds, recalibrated against the real achievable range now that days-on-market is still compressed (see above); editable in Preferences &gt; Search Results if you want to tune them for your own strategy - these will likely need revisiting again as tracking history matures too.</li>
               <li><strong>X% below/above area avg</strong> — this listing's €/m² vs. the average for its area, across all sources.</li>
               <li><strong>⚠️ Unverified price</strong> — the €/m² is far enough from the area average that it might be a data error (e.g. a misparsed price) rather than a real deal. Worth double-checking against the original listing.</li>
               <li><strong>↓ X% since first seen</strong> — price has dropped since this listing was first scraped.</li>
@@ -1650,8 +1833,11 @@ const UNVERIFIED_PCT_THRESHOLD = 60;
 // while nationwide tracking history is young. These match the real top
 // few percent of the NEW formula's score distribution today and will
 // likely need revisiting again as days-on-market spreads out over time.
-const HOT_SCORE_THRESHOLD = 40;
-const WARM_SCORE_THRESHOLD = 15;
+// `let`, not `const`: Preferences > Search Results (docs/backlog.md item 19)
+// lets the user retune these two cutoffs - see PREFERENCES.searchResults /
+// applyPreferencesToState(), which overwrites these defaults on load.
+let HOT_SCORE_THRESHOLD = 40;
+let WARM_SCORE_THRESHOLD = 15;
 const PAGE_SIZE = 100;
 
 let MERGED_LISTINGS = [];
@@ -1661,6 +1847,116 @@ let homeChart = null;
 // MERGED_LISTINGS at least once - see render()'s own guard and the "Fast
 // first-paint path" section above loadData() (backlog item 6, core slice 2).
 let BULK_READY = false;
+
+// --- Preferences (docs/property-filter-spec.md section 9; docs/backlog.md
+// item 19) - small settings that configure how already-shipped features
+// behave. Same no-login, this-browser-only localStorage pattern as
+// SAVED_LISTING_IDS/LEAD_GENERATORS/PIPELINE_* below - one plain object
+// under its own key rather than a key per sub-tab, since these are all
+// small, related values read together. Letters and Deal Calculator
+// Templates defaults are deliberately NOT included here - item 17 (Letters)
+// is parked per an explicit user decision, and the Deal Calculator itself
+// (item 18) hasn't been built yet - see docs/backlog.md item 19 for the
+// full scoping note.
+const PREFERENCES_KEY = 'sitePreferences';
+const DEFAULT_PREFERENCES = {
+  display: { cardDensity: 'standard' }, // 'comfortable' | 'standard' | 'compact'
+  searchResults: { hotThreshold: 40, warmThreshold: 15 },
+  leadGenerator: { defaultSort: 'matches-desc', defaultCity: 'Sofia', defaultSaleType: 'sale', defaultRadiusM: 500 },
+  notifications: { showNewBadges: true },
+  // Illustrative Bulgarian-market BTL Stress Test defaults - see
+  // BTL_DEFAULTS/computeBtlStressTest() below, which these override.
+  dealStacker: { ltvPct: 70, interestPct: 4.0, icrPct: 125 },
+};
+let PREFERENCES = JSON.parse(JSON.stringify(DEFAULT_PREFERENCES));
+
+function loadPreferences() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || 'null') || {};
+    PREFERENCES = {
+      display: { ...DEFAULT_PREFERENCES.display, ...saved.display },
+      searchResults: { ...DEFAULT_PREFERENCES.searchResults, ...saved.searchResults },
+      leadGenerator: { ...DEFAULT_PREFERENCES.leadGenerator, ...saved.leadGenerator },
+      notifications: { ...DEFAULT_PREFERENCES.notifications, ...saved.notifications },
+      dealStacker: { ...DEFAULT_PREFERENCES.dealStacker, ...saved.dealStacker },
+    };
+  } catch (e) {
+    console.error('Failed to load preferences from localStorage', e);
+    PREFERENCES = JSON.parse(JSON.stringify(DEFAULT_PREFERENCES));
+  }
+  applyPreferencesToState();
+}
+
+function persistPreferences() {
+  try {
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(PREFERENCES));
+  } catch (e) {
+    console.error('Failed to save preferences to localStorage', e);
+  }
+}
+
+// Pushes the loaded/edited PREFERENCES object into the actual live state
+// each preference controls - called on initial load and after every edit,
+// so a setting takes effect immediately rather than only on next reload.
+function applyPreferencesToState() {
+  HOT_SCORE_THRESHOLD = PREFERENCES.searchResults.hotThreshold;
+  WARM_SCORE_THRESHOLD = PREFERENCES.searchResults.warmThreshold;
+  leadgenSortBy = PREFERENCES.leadGenerator.defaultSort;
+  // BTL_DEFAULTS stays a `const` binding - only its own properties are
+  // mutated here, read fresh by initBtlInputs() the next time a listing's
+  // detail page opens (btlInputs is reset to null on every showListingDetail()
+  // call, so this always takes effect on the very next listing viewed).
+  BTL_DEFAULTS.ltvPct = PREFERENCES.dealStacker.ltvPct;
+  BTL_DEFAULTS.interestPct = PREFERENCES.dealStacker.interestPct;
+  BTL_DEFAULTS.icrPct = PREFERENCES.dealStacker.icrPct;
+  document.body.classList.remove('density-comfortable', 'density-compact');
+  if (PREFERENCES.display.cardDensity === 'comfortable') document.body.classList.add('density-comfortable');
+  else if (PREFERENCES.display.cardDensity === 'compact') document.body.classList.add('density-compact');
+  const hotEl = document.getElementById('helpHotThreshold');
+  const warmEl = document.getElementById('helpWarmThreshold');
+  if (hotEl) hotEl.textContent = HOT_SCORE_THRESHOLD;
+  if (warmEl) warmEl.textContent = WARM_SCORE_THRESHOLD;
+}
+
+// Re-renders every already-visible surface a Preferences change can affect,
+// so an edit is visible immediately without needing a manual refresh.
+// MERGED_LISTINGS-dependent renders are skipped before the bulk load
+// resolves (BULK_READY) - render()/renderHome() already guard this
+// themselves elsewhere, but this avoids calling them pointlessly early.
+function refreshAfterPreferenceChange() {
+  if (BULK_READY) {
+    // Unconditional, not gated behind "only if this section is currently
+    // active" - all three read already-loaded, in-memory MERGED_LISTINGS
+    // (no network calls), so refreshing them while hidden is cheap and
+    // avoids a real staleness bug: renderDashboard()'s "Hottest deals"
+    // grid and renderHome()'s "Hot deals" stat tile both bake in the
+    // Hot/Warm thresholds at render time, and neither is re-triggered by
+    // showSection() just from switching pages - if these were skipped
+    // while the Home/Dashboard page isn't the one currently open, a user
+    // who edits a threshold from Preferences and then navigates to
+    // Dashboard would see stale pre-edit badges until some unrelated
+    // event happened to re-render it.
+    render();
+    renderHome();
+    renderDashboard();
+  }
+  const m = location.hash.match(/^#\/listing\/(.+)$/);
+  if (m && document.getElementById('section-listing').classList.contains('active')) showListingDetail(decodeURIComponent(m[1]));
+}
+
+function renderPreferencesPage() {
+  document.querySelectorAll('input[name="prefDensity"]').forEach(r => { r.checked = r.value === PREFERENCES.display.cardDensity; });
+  document.getElementById('prefHotThreshold').value = PREFERENCES.searchResults.hotThreshold;
+  document.getElementById('prefWarmThreshold').value = PREFERENCES.searchResults.warmThreshold;
+  document.getElementById('prefLgSort').value = PREFERENCES.leadGenerator.defaultSort;
+  document.getElementById('prefLgCity').value = PREFERENCES.leadGenerator.defaultCity;
+  document.getElementById('prefLgRadius').value = PREFERENCES.leadGenerator.defaultRadiusM;
+  document.querySelectorAll('.pref-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === PREFERENCES.leadGenerator.defaultSaleType));
+  document.getElementById('prefShowNewBadges').checked = PREFERENCES.notifications.showNewBadges;
+  document.getElementById('prefBtlLtv').value = PREFERENCES.dealStacker.ltvPct;
+  document.getElementById('prefBtlInterest').value = PREFERENCES.dealStacker.interestPct;
+  document.getElementById('prefBtlIcr').value = PREFERENCES.dealStacker.icrPct;
+}
 
 // --- Saved listings (Dashboard bookmarks) -------------------------------------
 // No login system - stored in this browser's own localStorage only, same
@@ -4889,7 +5185,7 @@ function renderLeadGenGallery() {
         <div class="leadgen-card-body">
           <div class="leadgen-badge-row">
             <span class="leadgen-badge leadgen-badge-total" title="Current matches, sold listings excluded">${fmt(counts.total)} match${counts.total === 1 ? '' : 'es'}</span>
-            <span class="leadgen-badge leadgen-badge-new" title="Matches first seen since you last checked this generator">${fmt(counts.fresh)} new</span>
+            ${PREFERENCES.notifications.showNewBadges ? `<span class="leadgen-badge leadgen-badge-new" title="Matches first seen since you last checked this generator">${fmt(counts.fresh)} new</span>` : ''}
           </div>
           <h3>${escapeHtml(gen.name)}</h3>
           ${lines.map(l => `<p class="leadgen-summary-line">${escapeHtml(l)}</p>`).join('')}
@@ -5122,16 +5418,32 @@ function resetLeadGenModalFields() {
   document.getElementById('lgMaxPrice').value = '';
   document.getElementById('lgMinSqm').value = '';
   document.querySelectorAll('.lgPropertyType').forEach(cb => cb.checked = true);
-  document.getElementById('lgCity').value = 'Sofia';
-  document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === 'sale'));
+  // Preferences > Lead Generator defaults (docs/backlog.md item 19) - only
+  // applied here, for a brand-new generator; openLeadGenModal()'s own
+  // gen-editing branch below overwrites these with the saved generator's
+  // real values right after this call, same as it always did.
+  document.getElementById('lgCity').value = PREFERENCES.leadGenerator.defaultCity;
+  document.querySelectorAll('.lg-saletype-btn').forEach(b => b.classList.toggle('active', b.dataset.saletype === PREFERENCES.leadGenerator.defaultSaleType));
   document.getElementById('leadgenModalError').classList.remove('show');
   lgRadiusCenter = null;
-  lgRadiusM = null;
+  lgRadiusM = PREFERENCES.leadGenerator.defaultRadiusM || null;
   lgPolygonLatLngs = null;
   document.querySelectorAll('#lgNeighborhoods input').forEach(cb => cb.checked = false);
   document.querySelectorAll('#lgRadiusButtons .radius-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('lgRadiusCustom').value = '';
   document.getElementById('lgRadiusCustom').style.display = 'none';
+  // Pre-select the preset button matching the default radius (or fall back
+  // to Custom) so placing a point on the map right away draws a circle at
+  // the default size, without needing a second click on a radius button.
+  const defaultPresetBtn = document.querySelector(`#lgRadiusButtons .radius-btn[data-radius="${lgRadiusM}"]`);
+  if (defaultPresetBtn) {
+    defaultPresetBtn.classList.add('active');
+  } else if (lgRadiusM) {
+    const customBtn = document.querySelector('#lgRadiusButtons .radius-btn[data-radius="custom"]');
+    if (customBtn) customBtn.classList.add('active');
+    document.getElementById('lgRadiusCustom').value = lgRadiusM;
+    document.getElementById('lgRadiusCustom').style.display = 'block';
+  }
   if (lgRadiusMapMarker && lgRadiusMap) { lgRadiusMap.removeLayer(lgRadiusMapMarker); lgRadiusMapMarker = null; }
   if (lgRadiusMapCircle && lgRadiusMap) { lgRadiusMap.removeLayer(lgRadiusMapCircle); lgRadiusMapCircle = null; }
   if (lgDrawnItems) lgDrawnItems.clearLayers();
@@ -5882,7 +6194,7 @@ function renderDashLeadgenInbox() {
     <button type="button" class="dash-inbox-row" data-inbox-check-id="${gen.id}">
       <span class="dash-inbox-name">${escapeHtml(gen.name)}</span>
       <span class="leadgen-badge leadgen-badge-total">${fmt(counts.total)}</span>
-      <span class="leadgen-badge leadgen-badge-new">${fmt(counts.fresh)} new</span>
+      ${PREFERENCES.notifications.showNewBadges ? `<span class="leadgen-badge leadgen-badge-new">${fmt(counts.fresh)} new</span>` : ''}
     </button>
   `).join('');
   el.querySelectorAll('[data-inbox-check-id]').forEach(btn => btn.addEventListener('click', () => checkLeads(btn.dataset.inboxCheckId)));
@@ -7873,6 +8185,8 @@ function showSection(name) {
     refreshPipelineListingsCache().then(renderPipeline);
   } else if (name === 'comparables' && cmpSearched) {
     renderComparablesResults();
+  } else if (name === 'preferences') {
+    renderPreferencesPage();
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -8044,6 +8358,106 @@ document.getElementById('leadgenSortBy').addEventListener('change', (e) => {
 });
 
 window.addEventListener('hashchange', maybeImportSharedLeadGenerator);
+
+// --- Preferences (docs/property-filter-spec.md section 9; docs/backlog.md
+// item 19) --------------------------------------------------------------
+document.querySelectorAll('.pref-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pref-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.pref-tab-content').forEach(c => c.classList.toggle('active', c.dataset.prefTabContent === btn.dataset.prefTab));
+  });
+});
+
+document.querySelectorAll('input[name="prefDensity"]').forEach(r => {
+  r.addEventListener('change', () => {
+    if (!r.checked) return;
+    PREFERENCES.display.cardDensity = r.value;
+    persistPreferences();
+    applyPreferencesToState();
+  });
+});
+
+function commitSearchResultThresholds() {
+  let hot = parseInt(document.getElementById('prefHotThreshold').value, 10);
+  let warm = parseInt(document.getElementById('prefWarmThreshold').value, 10);
+  if (isNaN(hot)) hot = DEFAULT_PREFERENCES.searchResults.hotThreshold;
+  if (isNaN(warm)) warm = DEFAULT_PREFERENCES.searchResults.warmThreshold;
+  hot = Math.max(0, Math.min(100, hot));
+  warm = Math.max(0, Math.min(100, warm));
+  // Warm must stay strictly below Hot, or a listing could hit "Warm" and
+  // "Hot" at the same score - buildBadgesHtml() already only ever shows one
+  // of the two (checks Hot first), but a Warm-at-or-above-Hot value would
+  // make the Warm badge unreachable, a confusing dead setting.
+  if (warm >= hot) warm = Math.max(0, hot - 1);
+  PREFERENCES.searchResults.hotThreshold = hot;
+  PREFERENCES.searchResults.warmThreshold = warm;
+  persistPreferences();
+  applyPreferencesToState();
+  document.getElementById('prefHotThreshold').value = hot;
+  document.getElementById('prefWarmThreshold').value = warm;
+  refreshAfterPreferenceChange();
+}
+document.getElementById('prefHotThreshold').addEventListener('change', commitSearchResultThresholds);
+document.getElementById('prefWarmThreshold').addEventListener('change', commitSearchResultThresholds);
+document.getElementById('prefResetThresholds').addEventListener('click', () => {
+  document.getElementById('prefHotThreshold').value = DEFAULT_PREFERENCES.searchResults.hotThreshold;
+  document.getElementById('prefWarmThreshold').value = DEFAULT_PREFERENCES.searchResults.warmThreshold;
+  commitSearchResultThresholds();
+});
+
+document.getElementById('prefLgSort').addEventListener('change', (e) => {
+  PREFERENCES.leadGenerator.defaultSort = e.target.value;
+  persistPreferences();
+  // Keeps the Lead Generators list in sync immediately if it's already
+  // rendered (its own sort <select> re-reads leadgenSortBy on every render).
+  leadgenSortBy = e.target.value;
+  renderLeadGenGallery();
+});
+document.getElementById('prefLgCity').addEventListener('change', (e) => {
+  PREFERENCES.leadGenerator.defaultCity = e.target.value.trim() || DEFAULT_PREFERENCES.leadGenerator.defaultCity;
+  e.target.value = PREFERENCES.leadGenerator.defaultCity;
+  persistPreferences();
+});
+document.getElementById('prefLgRadius').addEventListener('change', (e) => {
+  const v = parseInt(e.target.value, 10);
+  PREFERENCES.leadGenerator.defaultRadiusM = (!isNaN(v) && v > 0) ? v : DEFAULT_PREFERENCES.leadGenerator.defaultRadiusM;
+  e.target.value = PREFERENCES.leadGenerator.defaultRadiusM;
+  persistPreferences();
+});
+document.querySelectorAll('.pref-saletype-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pref-saletype-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    PREFERENCES.leadGenerator.defaultSaleType = btn.dataset.saletype;
+    persistPreferences();
+  });
+});
+
+document.getElementById('prefShowNewBadges').addEventListener('change', (e) => {
+  PREFERENCES.notifications.showNewBadges = e.target.checked;
+  persistPreferences();
+  renderLeadGenGallery();
+  if (document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+});
+
+function commitBtlDefaults() {
+  const ltv = parseFloat(document.getElementById('prefBtlLtv').value);
+  const interest = parseFloat(document.getElementById('prefBtlInterest').value);
+  const icr = parseFloat(document.getElementById('prefBtlIcr').value);
+  PREFERENCES.dealStacker.ltvPct = isNaN(ltv) ? DEFAULT_PREFERENCES.dealStacker.ltvPct : Math.max(0, Math.min(100, ltv));
+  PREFERENCES.dealStacker.interestPct = isNaN(interest) ? DEFAULT_PREFERENCES.dealStacker.interestPct : Math.max(0, interest);
+  PREFERENCES.dealStacker.icrPct = isNaN(icr) ? DEFAULT_PREFERENCES.dealStacker.icrPct : Math.max(0, icr);
+  persistPreferences();
+  applyPreferencesToState();
+  document.getElementById('prefBtlLtv').value = PREFERENCES.dealStacker.ltvPct;
+  document.getElementById('prefBtlInterest').value = PREFERENCES.dealStacker.interestPct;
+  document.getElementById('prefBtlIcr').value = PREFERENCES.dealStacker.icrPct;
+}
+['prefBtlLtv', 'prefBtlInterest', 'prefBtlIcr'].forEach(id => {
+  document.getElementById(id).addEventListener('change', commitBtlDefaults);
+});
+
+document.getElementById('prefOpenPipelineConfig').addEventListener('click', () => openPipelineConfigModal());
 
 // --- Market Data hub (docs/property-filter-spec.md section 7; backlog
 // item 12) -----------------------------------------------------------------
@@ -8480,9 +8894,13 @@ function updatePipelineButtonsFor(id) {
   });
 }
 
-// No login/session to wait on - saved listings, lead generators, and the
-// Deal Pipeline's stages/tags/deals load straight from this browser's own
-// localStorage. loadLeadGenerators() renders the gallery itself once loaded.
+// No login/session to wait on - saved listings, lead generators, the Deal
+// Pipeline's stages/tags/deals, and Preferences all load straight from this
+// browser's own localStorage. Preferences loads first since loadLeadGenerators()
+// (next line) renders the gallery immediately and already needs leadgenSortBy/
+// PREFERENCES.notifications.showNewBadges to be their real, saved values on
+// that very first render, not the hardcoded defaults.
+loadPreferences();
 loadSavedListings();
 loadLeadGenerators();
 loadPipelineStages();
