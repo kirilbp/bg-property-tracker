@@ -830,10 +830,13 @@ def oblast_key_from_municipality(name):
 # data: it produces MORE false positives than it fixes. imot.bg's own URLs
 # prove several other (city, area) disagreements are a real in-city quarter
 # coincidentally sharing a name with a distant municipality seat, not a
-# misfiling - e.g. "...grad-vratsa-samuil" (166 currently-ungeocoded
+# misfiling - e.g. "...grad-vratsa-samuil" (35 currently-ungeocoded
 # listings would have flipped Враца->Самуил's real municipality-seat
-# oblast, Разград) and "...grad-sliven-novo-selo" (Ново село is Vidin's
-# municipality seat name, but this is Sliven's own quarter). So this is a
+# oblast, Разград) and "...grad-sliven-novo-selo" (30 listings; Ново село
+# is Vidin's municipality seat name, but this is Sliven's own quarter) -
+# these two examples alone account for 65 of the 166 total (city, area)
+# disagreements the general rule would have touched across the dataset.
+# So this is a
 # single, exact, evidence-confirmed (city, area) pair override, not a
 # general rule - only extend it with the same two-sided confirmation
 # (real coordinates AND imot.bg's own URL text agreeing) demonstrated here,

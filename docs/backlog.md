@@ -985,7 +985,24 @@ experience with that classifier's intermittent, non-deterministic
 blocking). On branch `placy/location-allocation-fixes` (pushed, not yet
 merged/reviewed).
 
-## 23. Full-platform "resolved but wrong" allocation audit: 1,358 listings had a confidently-wrong oblast (not just an unresolved one), two root causes found and fixed, 1,253 corrected - DONE (2026-09-23)
+## 23. Full-platform "resolved but wrong" allocation audit: 1,358 listings had a confidently-wrong oblast (not just an unresolved one), two root causes found and fixed - REVIEWED BY MISSY, ONE REGRESSION FOUND AND FIXED - DONE (2026-09-23)
+
+**Reviewed by Missy before merge - found one real regression and one
+missed cluster, both corrected (see docs/decisions.md's 2026-09-23
+"Missy's review" entry for full detail):** 13 alo.bg listings
+(Божурище/Самоков/Сливница, real Sofia Province municipality seats) had
+genuinely-correct coordinates wrongly nulled by this pass's own
+correction rule, which should have excluded them the same way
+Боровец/Обзор/Бенковски were - restored their real pre-correction
+coordinates. A separate 4-listing homes.bg cluster
+(Сопот/Банско/two-Бяла-records sharing one bad coordinate resolving to
+Varna) met this item's own correction criteria but was missed - now
+corrected. Also fixed a pre-existing "29 vs 30" `BG_CITIES` count
+inaccuracy repeated in this item's own writeup, and a misattributed
+"166" figure in `sync_to_supabase.py`'s `IMOT_CITY_AREA_OBLAST_OVERRIDE`
+comment. Everything else Missy checked (items 20, 21, 22, and the bulk
+of this item and item 24) verified cleanly against real committed data -
+no further changes needed there.
 
 Direct escalation from the user: the unresolved-to-oblast count (item 4's
 5,628/305,065) only catches listings that fail to resolve at all, not
@@ -995,7 +1012,7 @@ Bryag, Боровец, Обзор, Бенковски) are in `docs/decisions.md
 entry - summary:
 
 **Method**: for every listing with both `lat`/`lng` and a `city` field
-that's an exact match to one of the 29 hand-verified `BG_CITIES`, compared
+that's an exact match to one of the 30 hand-verified `BG_CITIES`, compared
 that city's real oblast against `oblast_key_from_latlng(lat, lng)`.
 Found 1,358 disagreements, clustering into large groups sharing one
 near-identical coordinate - the fingerprint of a shared bad value, not
@@ -1010,7 +1027,7 @@ noise.
    Ботев, к.к.Слънчев Бряг) were geocoded with no disambiguating context.
    Fixed to reconstruct `area, city` before querying.
 2. `city_key_from_name()`/`city_key_from_name_prefix()` stripped a
-   trailing "област" suffix and matched what's left against the 29 city
+   trailing "област" suffix and matched what's left against the 30 city
    names - wrong specifically for "София област" (Sofia Province, a real,
    separate oblast), which was collapsing into Sofia city itself. Every
    other `BG_CITIES` name's own oblast shares that city's exact name, so

@@ -1183,7 +1183,7 @@ re-attempt it blind.
 
 Built a platform-wide check specifically for the failure mode the
 unresolved-count metric can't see: for every listing with both a `lat`/
-`lng` AND a `city` field that's an *exact* match to one of the 29 hand-
+`lng` AND a `city` field that's an *exact* match to one of the 30 hand-
 verified `BG_CITIES` names (a reliable signal - not inferred, not
 fuzzy-matched), compared the city's own real oblast (`CITY_KEY_TO_OBLAST`)
 against `oblast_key_from_latlng(lat, lng)`. Where lat/lng always wins in
@@ -1257,7 +1257,7 @@ could not be inspected directly):
   live Nominatim access to verify a fix against.
 - Also found, same audit: `city_key_from_name()`/`city_key_from_name_prefix()`
   (`geo_utils.py`) strip a trailing "област" suffix and match what's left
-  against the 29 `BG_CITIES` names - correct for every city except Sofia,
+  against the 30 `BG_CITIES` names - correct for every city except Sofia,
   where "София област" (Sofia Province, a real, separate oblast, key
   `"sofia"`) was collapsing into "София" the capital city (key `"sofia"`
   -> oblast `"sofia_grad"`). Every other `BG_CITIES` name's own oblast
@@ -1277,7 +1277,7 @@ city-text fallback in `listing_oblast_key()` takes over) across
 files. Correction rule, chosen to be conservative and evidence-based
 rather than a blanket "prefer city over coordinate" reversal (which would
 have regressed the item 20 fix - see below): city is an exact match to
-one of the 29 major `BG_CITIES`, disagrees with the coordinate's real
+one of the 30 major `BG_CITIES`, disagrees with the coordinate's real
 oblast, AND the exact coordinate (rounded to 3 decimal places, ~110m) is
 shared by 3 or more otherwise-unrelated listings - the group-size
 threshold specifically to avoid nulling a genuine one-off address that
@@ -1464,3 +1464,17 @@ the first attempt, unlike the main correction pass earlier this session
 which needed 2-4 retries on roughly half its writes. Consistent with the
 "non-deterministic, not tied to file size or a specific file" read from
 earlier in this session, not a new finding.
+
+### 2026-09-23 - Missy's review of the escalated allocation pass: one real regression fixed, one missed cluster corrected, documentation accuracy fixed
+
+Missy reviewed the full `placy/location-allocation-fixes` branch before it could merge to `main`. Verdict: not yet safe to merge as-is - one confirmed, reproducible regression, plus one confirmed real cluster the branch's own correction pass should have caught but didn't. Both fixed directly (not sent back to Placy - the diagnosis was precise enough to act on immediately). Everything else Missy checked (items 20, 21, 22, and the bulk of 23/24) verified cleanly against real committed data and needed no changes.
+
+**Regression fixed: 13 alo.bg listings had genuinely-correct coordinates wrongly nulled.** Missy traced it exactly: `city="София"` (plain, not "София област") is untouched by this branch's Sofia-city/Sofia-province fix (that fix only special-cases the literal string "София област"), so `city_key_from_name("София")` still resolves to `sofia_grad` (Sofia city) via the text fallback. The 13 listings (`area` in Божурище/Самоков/Сливница - real Sofia Province municipality seats, unambiguous in `BG_MUNICIPALITY_TO_OBLAST`) had their own coordinate deliberately nulled by the item-23 correction pass under a rule that should have excluded them the same way Боровец/Обзор/Бенковски/Ловеч-Червен-бряг were excluded, but didn't. Verified their pre-nulling coordinates were genuinely correct (Missy cross-checked against real-world coordinates for Samokov/Bozhurishte/Slivnitsa) before restoring: pulled each record's `lat`/`lng` from the commit's own parent state (`8dbdec0^`) and reapplied it in both `data/leads_alo.json` and `data/history_alo.json`. Confirmed exactly 12 of the 13 records needed restoring (the 13th had already been null before Placy's commit too - not part of the regression, correctly left alone); double-checked with the actual before-state that no already-legitimately-null record was touched.
+
+**Missed cluster corrected: 4 homes.bg listings** (`homes_1700690` city=Пловдив/area="гр.Сопот", `homes_1700659` city=Благоевград/area="гр.Банско", `homes_1676704` and `homes_166832` both area="гр.Бяла") shared a near-identical bad coordinate (~43.206, 27.927, resolving to Varna oblast) that matches none of the four real places these listings claim to be. This meets the branch's own stated correction criteria (city/area disagreement with the coordinate's real oblast, shared by >=3 otherwise-unrelated listings) but wasn't caught or excluded in the original pass - confirmed via direct diff it was genuinely never touched. Nulled in both `data/leads_homes.json`/`data/history_homes.json`, letting the city-text (or, for the two "Бяла" listings, the already-established ambiguous-name exclusion) take over instead.
+
+**Documentation accuracy, non-blocking but fixed anyway**: `BG_CITIES` actually has 30 entries, not 29 - a pre-existing inaccuracy (not introduced by this branch) repeated several times in this branch's own new writeup without being noticed. Corrected every "29" reference within the item 23/24 sections of `docs/backlog.md` and `docs/decisions.md` (left the older, already-merged item 18 text's own "29" references alone - out of scope for this fix, a separate pre-existing inaccuracy to clean up another time). Also corrected `sync_to_supabase.py`'s `IMOT_CITY_AREA_OBLAST_OVERRIDE` docstring, which misattributed a "166" total-disagreement count to the single `grad-vratsa-samuil` example alone - that example is actually 35 listings, `grad-sliven-novo-selo` is 30, and the two together account for 65 of the 166 total disagreements the rejected general rule would have touched.
+
+Not fixed (Missy flagged as minor, non-blocking): an undocumented "Родина 4" sub-cluster (3 listings) nulled correctly in the same commit as Родина 2/3 but never mentioned in the commit message or this file - the nulling itself is correct (same shared bad coordinate), just under-documented. Noting it here for the record rather than editing an old commit message.
+
+All fixes verified: both re-affected JSON files checked for valid JSON and unchanged record counts after every edit; the restored alo.bg coordinates confirmed to match their pre-regression values exactly; `sync_to_supabase.py` re-compiled clean after the comment fix.
