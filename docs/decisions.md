@@ -2198,6 +2198,27 @@ Picked up Scrapy's root-cause finding (PR #230, cherry-picked into this branch s
 
 Fixed by reworking `backfill_split_homes_id_collision.py` to split `history_homes.json`'s own pre-split `snapshots` (not `leads_homes.json`'s `price_history`) for both ids, then deriving `leads_homes.json`'s `price_history` from that corrected, complete snapshot list using the same dedup rule `scraper_homes.py`'s `compute_leads()` already applies (collapse consecutive same-price snapshots, keeping only the price-change points) rather than the previous `[e for e in full_history if price matches]` filter, which had also been carrying every repeated-price entry into `price_history` unfiltered - a second, related bug in the same code path (a listing whose price genuinely never changes should have a 1-entry `price_history`, not one entry per scrape). `price_drop_count`/`drop_pct`/`days_on_market`/`source_status`/`removed_at`/`score` were then recomputed from the corrected data with the same formulas as before. Re-verified losslessness against the real source count this time (`history_homes.json`'s original 24/8 snapshot counts, not `leads_homes.json`'s shorter lists): `homes_208381` splits to 13/11 snapshots (24/24 accounted for, matches the 12/11 price-point split only by coincidence of the counts, not by source), `homes_205536` splits to 4/4 (8/8, unchanged). Net corrected result: `homes_hs208381` is `source_status: "active"` (not `"removed"`), `days_on_market` 29 (not 27); `homes_lp208381`/`homes_hs205536`/`homes_lp205536` all keep their prior status but now carry the correctly-deduped 1-entry `price_history` instead of 8-11 duplicate-price entries each.
 
+### 2026-09-23 - Backlog item 20 ("Map tab additions"): Satellite + Amenities layers shipped, Street View confirmed blocked (Dessy)
+
+Checked `git worktree list` first per the collision-handling instruction (five other worktrees existed, none touching the listing-detail map code) and built in a fresh isolated worktree (`/tmp/wt/map-layers`, branch `dessy/map-tab-layers-2026-09-23`) off a freshly-fetched `origin/main` rather than the primary `/home/user/bg-property-tracker` checkout - worth flagging explicitly since that primary checkout was, at the time this session started, sitting on a different, older commit whose `docs/backlog.md` had different item numbers for the same content (its "Map tab additions" item was numbered 16, not 20) - a repeat of the exact "stale local checkout" trap the mobile-sidebar-nav entry above already flagged. All work and all backlog references in this entry use fresh `origin/main`'s numbering (item 20).
+
+**Scope decision**: built directly into the existing listing-detail radius map (`updateRadiusMap()`/`renderRadiusPanel()`, the same Leaflet integration item 13 already uses) rather than a new standalone "Maps tab" with the spec's full 7-icon rail (Street View/Title Plans/Satellite/Amenities/Crime/Postcode/Census) - the dispatch's own framing ("low effort, can ship alongside item 13") and the smallest-reasonable-interpretation standing rule both pointed at extending what already exists rather than building a new tab shell around it. Cadastral map integration was explicitly out of scope for this dispatch (a separate, larger, new-external-data-source task per the backlog item's own text) and wasn't touched.
+
+**Live network access check, done before committing to any approach**: `curl` to `server.arcgisonline.com` (candidate satellite tile host), `overpass-api.de` (candidate POI host), `a.tile.openstreetmap.org` (a host the app already depends on in production), and `unpkg.com` (the CDN the app's own `<script>` tags already point at) all returned a 403 CONNECT-tunnel failure from this sandbox's egress proxy - confirmed via both direct `curl` and the proxy's own `/__agentproxy/status` recent-failures log. This is a blanket, sandbox-wide block on external hosts (including ones already relied on in production), not a signal that either candidate service itself is unreachable in a real browser - treated accordingly rather than as a reason to avoid building the feature.
+
+**What shipped** (`index.html` only):
+- `detailMapLayer`/`detailShowAmenities` state (mirrors the existing `detailRadiusM` pattern - reset on `showListingDetail()`, read by `updateRadiusMap()`/`renderRadiusPanel()`).
+- Street/Satellite toggle: `detailStreetTileLayer()`/`detailSatelliteTileLayer()`, the latter pointing at Esri World Imagery (`server.arcgisonline.com/.../World_Imagery/...`) - chosen over any Google-tiles option since Google's satellite tiles require a paid, billed API key this sandbox/user doesn't have, and Esri's is the standard free/keyless choice the Leaflet ecosystem itself documents for exactly this reason (`leaflet-extras/leaflet-providers`' `Esri.WorldImagery` entry).
+- Amenities toggle: `renderAmenitiesOnMap()` queries the Overpass API (`overpass-api.de/api/interpreter`, OSM's free, keyless, CORS-open live-query service) for schools/hospitals/pharmacies/kindergartens/banks/supermarkets/restaurants/cafes/bus stops/train stations within 800m, plots sage-colored `L.circleMarker`s (matching the existing brass/sage/ink palette - deliberately not blue, and distinguishable from the existing brass comparable-listing dots), caches per-listing to avoid re-querying on every radius/layer click, and degrades to a small inline note (not a broken map) on fetch failure or an empty result.
+- New CSS (`.map-layer-row`/`.map-layer-btn`/`.map-amenities-note`) matches the existing `.radius-btn` visual language exactly (same padding/border/brass-active treatment, just smaller) rather than introducing a new visual idiom for what's functionally the same kind of control.
+- Street View: **investigated, not built, not faked.** Google Street View needs a paid/billed API key (already known, out of scope per the dispatch). Checked the realistic "genuinely free/keyless" alternatives before ruling them out rather than assuming: Mapillary and KartaView both require registering for a free API/client token - a real credential this sandbox doesn't have and the user would need to supply, so not "keyless" in the sense the dispatch asked for - and neither has confirmed reliable coverage in Bulgaria. No Bulgarian government or other open equivalent is known. Left undone and documented in `docs/backlog.md` as blocked on a credential decision, rather than shipping an empty/fake panel.
+
+**Verification**: reused the prior sessions' vendored-Leaflet/Chart/Supabase-js Playwright harness pattern from `/tmp/claude-0/.../scratchpad/testharness` (`view_listing.js`'s CDN-interception approach) against the real, current `index.html` in the worktree - not a rewritten copy. Added a new `view_maplayers.js` script that additionally stubs the two new external endpoints this change adds (`server.arcgisonline.com` tile requests, `overpass-api.de` responses using Overpass's own long-documented, stable `{elements: [{type, id, lat, lon, tags}]}` JSON shape) since neither can be reached live from this sandbox. Confirmed: the Street/Satellite toggle correctly swaps the active tile layer and only requests satellite tiles once Satellite is selected; the Amenities toggle fetches once, caches (a second click doesn't re-fetch), and plots exactly the stubbed POI count as markers on the map; forcing the stubbed Overpass request to fail renders the graceful fallback note text correctly; an empty-result response renders the "no amenities found" note correctly; a 390px mobile viewport shows the three controls wrapping cleanly with no layout overflow (`scrollWidth === innerWidth` held). Independently re-ran the identical harness against a byte-for-byte unmodified `origin/main` worktree and reproduced the one pre-existing `[pageerror] Cannot read properties of undefined (reading '_leaflet_pos')` warning there too - confirming it predates this change (a harness/stubbed-tile-image artifact, not a regression this change introduced) rather than assuming that from the diff alone.
+
+**What this session could not verify, flagged rather than assumed**: real Esri tile pixels and a real Overpass response, since this sandbox has no live route to either host. Whoever reviews this (Missy, per the standing rule - no auth/PII surface, so Revy's review isn't required) or deploys it should do one real live check against the deployed site before treating the visual/data-accuracy side as fully confirmed - the toggle mechanics, caching, and error-handling are what this session was able to verify directly, not the live tile/POI content itself.
+
+No backend/scraper/schema files touched. `docs/backlog.md` item 20 updated with the same shipped/blocked breakdown as this entry. Pushed as `dessy/map-tab-layers-2026-09-23`, PR opened against `main`, not merged.
+
 ### 2026-09-23 - Backlog item 11: Supabase Pro plan follow-up audit - one stale comment updated, everything else reviewed and deliberately left alone
 
 Full audit of `docs/backlog.md` item 11 ("revisit anything designed around the old 500 MB free-tier limit"). Worked in an isolated worktree off a fresh `origin/main` per this repo's standing rule.
@@ -2221,3 +2242,55 @@ Full audit of `docs/backlog.md` item 11 ("revisit anything designed around the o
 **Live Supabase dashboard setting flagged for Kiril, not applied (no live Supabase access from this sandbox)**: `measure_listings_payload.py`'s `count=exact` fallback, `audit_cross_city_merges.py`'s deep-OFFSET investigation, and `sync_to_supabase.py`'s `delete_stale_merged_listings()` comment all independently document hitting real Postgres error 57014 (`statement_timeout`) against `merged_listings` - already-known, already-worked-around (keyset pagination; a documented row-count fallback), nothing currently broken. But the underlying `statement_timeout` for the PostgREST API roles (`anon`/`authenticated`) is itself a project-level Supabase setting that free-tier projects cannot raise at all, and paid-tier projects (Pro and above) can, via the dashboard (Project Settings -> Database) or a SQL-editor `alter role ... set statement_timeout = '...'`. Since the project is now on Pro, this is a real, currently-unused option: raising it would give more headroom for a future genuinely expensive query (e.g. backlog item 6 slice 2 flags wanting a real `count=exact` for pagination totals as an open design question). Flagging this explicitly rather than silently deciding either way, since it's a dashboard action only Kiril can take, and current code doesn't strictly need it - it's optional headroom, not a fix for something broken today.
 
 **Verification**: `python3 -m pytest tests/` - 11 passed, no regressions (expected: the only code change is a comment in `index.html`, and none of the existing tests touch that file). `node --check` against the extracted `<script>` block confirms the comment edit didn't break JS syntax. No functional/behavioral change shipped - this is an audit-plus-one-comment-clarification PR, not a feature or bugfix.
+
+### 2026-09-23 - PR #238 review fix: amenity map markers switched from sage-filled dots to hollow brass rings (Dessy)
+
+Missy's review of PR #238 (backlog item 20's Map tab additions) correctly
+flagged `renderAmenitiesOnMap()`'s POI markers as a real blocking issue:
+`L.circleMarker(..., { color: '#5c6b52', fillColor: '#7a8b6f', fillOpacity:
+0.85 })` is a solid sage-filled circle, which directly contradicts
+design-guidelines.md sections 4 and 9 - sage is reserved strictly for
+small-caps text labels ("New"/"Price reduced"), explicitly never a
+saturated badge fill or colored banner. It also undid the same map's own
+prior fix a few lines above (the comparable-listing dots were switched
+from a saturated red to brass specifically to stop using a second marker
+color/saturated hue on this map) - this PR reintroduced exactly the
+problem that fix eliminated, just with sage instead of red.
+
+**Fix**: kept the amenity markers visually distinct from the solid brass
+comparable-listing dots by shape, not a second color - `L.circleMarker`
+with `color: '#8a6a24'` (the same `--brass-deep` already used for the
+comparable dots' own stroke), `weight: 2`, `fill: false`. Hollow (unfilled)
+brass rings read clearly as a different marker type from the solid brass
+dots at a glance, without introducing any new hue as a marker fill - the
+"outline-only" option Missy's finding suggested, chosen over an icon-based
+marker or a size/shape-only variant because it requires the smallest code
+change, reuses a color already established for this exact map (no new CSS
+class or divIcon needed), and reads unambiguously against both the street
+and satellite base layers. Also updated `docs/backlog.md` item 20's own
+description (previously said "sage-colored dots") and the inline code
+comment to match.
+
+**Verified**: worked in a fresh worktree off the PR branch
+(`dessy/fix-amenity-marker-color-2026-09-23`, based on
+`dessy/map-tab-layers-2026-09-23`), merged current `origin/main` in (a
+real conflict in this file only, resolved by keeping both same-day
+entries). `node --check` against the extracted `<script>` block passes.
+Reused the PR's own Playwright harness (`view_maplayers.js` in scratchpad,
+pointed at the new worktree) - Street/Satellite toggle, Amenities
+fetch/cache/failure-note paths, and the mobile-wrap check all still behave
+identically to the prior verified run, including the one known
+pre-existing `[pageerror] ... _leaflet_pos` harness artifact (confirmed
+in the original PR session as predating this change, not a regression).
+Additionally built a focused visual-comparison script
+(`view_amenity_markers.js`) that renders real amenity markers from the
+fixed code next to a reference solid brass comparable dot on the same
+map and screenshots the result: three hollow brass rings around the
+brass teardrop subject pin, clearly distinguishable from the one solid
+brass dot, confirming the fix is visually distinct without a second hue.
+Confirmed via `circleMarker.options` inspection that the live markers on
+the map genuinely have `fill: false`/`color: '#8a6a24'`, not just that
+the source line reads that way.
+
+Pushed to `dessy/fix-amenity-marker-color-2026-09-23` for Missy's
+re-review; not merged by this session.
