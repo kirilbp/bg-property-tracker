@@ -28114,7 +28114,7 @@
     "portal": "imoti.bg",
     "lat": 42.6586899,
     "lng": 23.2404891,
-    "category": "apartment",
+    "category": "flat",
     "price_per_sqm": 3133,
     "price_history": [
       {
@@ -28129,7 +28129,8 @@
     "removed_at": "2026-08-24T20:20:54.143954+00:00",
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
-    "score": 0
+    "score": 0,
+    "category_confidence": "high"
   },
   {
     "id": "imotibg_515545",

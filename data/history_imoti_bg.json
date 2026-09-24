@@ -930,7 +930,8 @@
       "portal": "imoti.bg",
       "lat": 42.6586899,
       "lng": 23.2404891,
-      "category": "apartment"
+      "category": "flat",
+      "category_confidence": "high"
     }
   },
   "imotibg_514310": {
