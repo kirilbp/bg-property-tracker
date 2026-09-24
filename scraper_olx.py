@@ -77,7 +77,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
 from category_classifier import classify_listing
-from geo_utils import Geocoder, extract_description_ldjson, extract_photos_ldjson, compute_motivation_score, listing_city_key, prune_snapshots
+from geo_utils import Geocoder, extract_description_ldjson, extract_photos_ldjson, extract_sqm_ldjson, compute_motivation_score, listing_city_key, prune_snapshots
 
 BASE_URL = "https://www.olx.bg"
 SEARCH_BASE = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi"
@@ -380,6 +380,24 @@ def fetch_listing_detail(page, listing):
     photos = extract_photos_ldjson(html)
     if photos:
         listing["photos"] = photos
+    # Gap-filler only, from the same ld+json blob's "floorSize" - never
+    # overwrites an sqm the grid crawl's own SQM_RE already found (see
+    # geo_utils.extract_sqm_ldjson()'s own comment for why: unconfirmed
+    # live, no evidence yet it's more reliable than the grid). Every other
+    # spec/coordinate/agency field this project's other portals expose
+    # (property_type_raw, construction_type, built_year, completion_status,
+    # floor_number, floor_qualifier, features, has_elevator, furnished,
+    # has_central_heating, agency_name, agency_website, lat/lng) was
+    # investigated for olx.bg too and deliberately NOT added here - see
+    # extract_sqm_ldjson()'s own comment in geo_utils.py for the field-by-
+    # field reasoning (no standard Schema.org vocabulary for the Bulgarian
+    # specs, a prior confirmed investigation already ruling out coordinates
+    # anywhere on olx.bg's own pages, and real ambiguity - publisher vs.
+    # actual seller - for ld+json "seller"/"author").
+    if not listing.get("sqm"):
+        sqm = extract_sqm_ldjson(html)
+        if sqm:
+            listing["sqm"] = sqm
     return True
 
 
@@ -550,7 +568,23 @@ def save_history(history):
 # previous "latest" rather than let a fresh grid re-touch wipe them off an
 # already-detail-checked, still-active listing every ~6 hours -
 # docs/backlog.md item 9a.
-_DETAIL_ONLY_FIELDS = ("description", "photos", "detail_checked")
+#
+# "sqm" is a special case, same reasoning as scraper_alo.py's own
+# _DETAIL_ONLY_FIELDS comment for the identical field: it's normally a GRID
+# field (fetch_listings_page()'s own SQM_RE sets it directly from card
+# text), which is why it isn't detail-only in the sense the other two
+# fields above are - a fresh grid crawl that DOES find a real sqm value
+# must still be able to overwrite an old one (real edits happen). But now
+# that fetch_listing_detail() can ALSO fill sqm in via extract_sqm_ldjson()
+# (for listings whose card text never showed "кв.м"), the same merge-not-
+# replace protection every other detail-only field already gets is needed
+# here too - otherwise a later grid-only re-touch that finds no sqm on the
+# card would silently wipe a real detail-filled value. Being in this list
+# still means "prefer the fresh value when the fresh value is non-empty"
+# (see update_history() below) - a genuine grid-parsed sqm change still
+# wins, this only stops a grid MISS from clobbering a real detail-page
+# value.
+_DETAIL_ONLY_FIELDS = ("description", "photos", "detail_checked", "sqm")
 
 
 def update_history(history, listings):

@@ -336,6 +336,79 @@ def extract_photos_ldjson(html):
     return []
 
 
+# 2026-09-24 (docs/backlog.md - olx.bg spec-field extension): the same
+# ld+json blob extract_description_ldjson()/extract_photos_ldjson() already
+# read "description"/"image" from was checked for other Schema.org fields
+# useful to this project's spec panel (property_type/construction_type/
+# built_year/completion_status/floor_number/floor_qualifier/features/
+# has_elevator/furnished/has_central_heating - see extract_specs_alo()),
+# agency contact (agency_name/agency_website - see extract_contact_alo()),
+# and coordinates. This sandbox's network egress to olx.bg is blocked (same
+# as when extract_photos_ldjson() above was written, confirmed again live
+# via WebFetch while doing this work) and no raw olx.bg detail-page HTML is
+# saved anywhere in this repo (no probe_*.py output, no test fixture) to
+# inspect instead, so none of that could be verified - and, unlike
+# "description"/"image" (obviously listing-specific, only one plausible
+# meaning), none of the remaining fields have a genuinely safe bet:
+#   - Bulgarian-specific specs (property type, construction type, floor,
+#     elevator/furnished/heating) have no standard Schema.org property at
+#     all - representing them would need guessing site-specific
+#     "additionalProperty" label strings with zero evidence any exist,
+#     exactly the kind of fabricated selector this project's standing rule
+#     (see extract_contact_alo()'s own comment on why phone numbers are
+#     never guessed) forbids.
+#   - Coordinates are NOT a "couldn't check" gap - this file's own module
+#     docstring above already documents a direct prior investigation
+#     (static HTML regex scan + a real headless browser checking for a map
+#     DOM node/live google.maps object/iframe) that found olx.bg carries no
+#     coordinates anywhere on its own pages at all, which is exactly why
+#     Geocoder/Nominatim exists for this portal in the first place. Adding
+#     a speculative geo/latitude/longitude ld+json reader here would
+#     contradict that confirmed finding, not extend it.
+#   - seller/author (for agency_name/agency_website) IS plausible in
+#     principle, but genuinely ambiguous in a way "image" wasn't: Schema.org
+#     "author"/top-level "seller" on a listing can just as easily name the
+#     PUBLISHER (OLX Group / olx.bg itself) as the actual poster, and
+#     getting that wrong wouldn't fail harmlessly the way an absent "image"
+#     key would - it would silently write a wrong, misleading "agency" onto
+#     real listings at nationwide scale. Not implemented without a real
+#     sample to check which one it actually is.
+#
+# floorSize is the one field kept: a genuinely unambiguous, single-meaning
+# standard Schema.org property (a QuantitativeValue holding the listing's
+# own floor area) - same "worth trying, one more optional key on the same
+# already-proven-real blob, degrades to None with zero downside if absent"
+# reasoning extract_photos_ldjson() itself was written on above, before its
+# own "image" key was confirmed working (see that function's comment) via
+# real production data in data/leads_olx.json. The caller (scraper_olx.py's
+# fetch_listing_detail()) only uses this as a GAP-FILLER, never overwriting
+# an sqm the grid crawl's own SQM_RE already found - same restraint
+# scraper_alo.py already applies to extract_specs_alo()'s own sqm result,
+# since there's no live confirmation this ld+json value is actually more
+# reliable than what the grid already provides.
+def extract_sqm_ldjson(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or "{}")
+        except (json.JSONDecodeError, TypeError):
+            continue
+        blobs = data if isinstance(data, list) else [data]
+        for blob in blobs:
+            if not isinstance(blob, dict):
+                continue
+            size = blob.get("floorSize")
+            if not isinstance(size, dict) or size.get("value") is None:
+                continue
+            try:
+                sqm = round(float(str(size["value"]).replace(",", ".")))
+            except (TypeError, ValueError):
+                continue
+            if sqm > 0:
+                return sqm
+    return None
+
+
 # imoti.net's detail page embeds the gallery as separate numbered files -
 # "main_image/thumb_<size>_wm_main_image_<id>_1.jpg" for the cover photo,
 # then "images/thumb_<size>_wm_images_<id>_<n>.jpg" for the rest - each at
