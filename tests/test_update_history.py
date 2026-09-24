@@ -419,6 +419,39 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         self.assertEqual(latest["site_posted_at"], fresh_grid["site_posted_at"])
         self.assertEqual(latest["price_eur"], 53000)
 
+    def test_scraper_imoti_bg_preserves_detail_specs_and_contact(self):
+        # Same shape as test_scraper_alo_preserves_detail_specs_and_contact_
+        # and_sqm above, for the equivalent fields wired in from geo_utils.
+        # extract_specs_imoti_bg()/extract_contact_imoti_bg() - see
+        # scraper_imoti_bg.py's _DETAIL_ONLY_FIELDS comment. Unlike alo.bg,
+        # sqm here is deliberately NOT one of the asserted-preserved
+        # fields - it's still a grid field for imoti.bg (SQM_RE), same
+        # "not additionally protected" reasoning that comment gives.
+        prior_latest = {
+            "id": "imotibg_3", "url": "https://imoti.bg/3", "photo": "https://imoti.bg/3.jpg",
+            "price_eur": 95000, "sqm": 76, "area": "Center", "city": "София",
+            "title": "Тристаен апартамент, Center", "portal": "imoti.bg",
+            "category": "apartment", "category_confidence": "high",
+            "property_type_raw": "Apartment", "features": ["Асансьор", "Обзаведен", "ТЕЦ"],
+            "has_elevator": True, "furnished": True, "has_central_heating": True,
+            "agency_name": "Империал Имоти", "agency_website": "https://imperial-imoti.bg",
+        }
+        # A transient re-fetch failure this run: fetch_listing_detail()
+        # returned (None, None, None, None), so fetch_listings() never set
+        # any of these on the fresh record at all.
+        fresh_grid = {
+            "id": "imotibg_3", "url": "https://imoti.bg/3", "photo": "https://imoti.bg/3.jpg",
+            "sqm": 76, "area": "Center", "city": "София", "title": "Тристаен апартамент, Center",
+            "portal": "imoti.bg", "category": "apartment", "category_confidence": "high",
+        }
+        latest = self._assert_preserved_and_updated(
+            scraper_imoti_bg, "imotibg_3", prior_latest, fresh_grid,
+            ["property_type_raw", "features", "has_elevator", "furnished",
+             "has_central_heating", "agency_name", "agency_website"],
+            new_price=93000,
+        )
+        self.assertIs(latest["furnished"], True)
+
     # -- new listing (no prior history) still works normally --------------
     def test_new_listing_with_no_prior_history_is_unaffected(self):
         fresh_grid = {
