@@ -663,10 +663,39 @@ BG_MUNICIPALITY_TO_OBLAST = {
     "Антон": "sofia", "Софийска": "sofia",
     # Sofia-grad's own sub-municipal districts (villages/towns administered
     # directly by Sofia's own Столична община, NOT Sofia Province).
+    #
+    # "Лозен" is deliberately NOT listed here (2026-09-24, Placy - full
+    # free-text gazetteer mining audit) even though Sofia-grad genuinely has
+    # its own "Лозен" district (район Панчарево) - it's a 4-way real-name
+    # collision, not a 2-way one like "Бяла"/"Средец": WebSearch + ekatte.com
+    # (the same authoritative EKATTE source this project's own gazetteer is
+    # built from) independently confirm THREE more, completely unrelated,
+    # real villages also bare-named "Лозен" - EKATTE 44046 (Strazhitsa
+    # municipality, Veliko Tarnovo oblast), EKATTE 44053 (Septemvri
+    # municipality, Pazardzhik oblast), and EKATTE 44077 (Lyubimets
+    # municipality, Haskovo oblast). Confirmed live impact: 42 olx.bg/bcpea
+    # records nationwide with city=area="Лозен" (no oblast qualifier
+    # captured in either structured field) were ALL silently resolving to
+    # sofia_grad - including ones whose own title explicitly names a
+    # different oblast ("...Лозен, област Пазарджик...",
+    # "...Лозен, област Велико Търново...", "...с. Лозен, Хасково...").
+    # Worse, all 41 of the olx.bg ones shared one corrupted cached geocode
+    # result for the query "Лозен, Лозен, България" (data/geocode_cache.json)
+    # that resolves to a point inside Sofia-grad's own boundary regardless
+    # of which real "Лозен" the listing is actually in - see
+    # listing_oblast_key()'s geo-priority-over-text design, and the matching
+    # data remediation in docs/decisions.md. A listing whose own text
+    # explicitly names a different oblast now self-heals via
+    # cyr_oblast_key_from_text() once the wrong coordinate is removed;
+    # a listing with no such qualifier correctly becomes unresolved rather
+    # than silently wrong, per this project's "never guess" rule. A listing
+    # with city="София" (not merely area="Лозен") still resolves to
+    # sofia_grad correctly and is UNAFFECTED by this exclusion, since
+    # listing_city_key()/CITY_KEY_TO_OBLAST already handles that case
+    # independently of this table.
     "Банкя": "sofia_grad", "Нови Искър": "sofia_grad", "Панчарево": "sofia_grad",
-    "Кремиковци": "sofia_grad", "Бистрица": "sofia_grad", "Лозен": "sofia_grad",
-    "Владая": "sofia_grad", "Желява": "sofia_grad", "Кладница": "sofia_grad",
-    "Рударци": "sofia_grad",
+    "Кремиковци": "sofia_grad", "Бистрица": "sofia_grad",
+    "Владая": "sofia_grad", "Желява": "sofia_grad",
     # Kyustendil oblast
     "Бобов дол": "kyustendil", "Бобовдол": "kyustendil", "Бобошево": "kyustendil",
     "Невестино": "kyustendil", "Рила": "kyustendil", "Сапарева баня": "kyustendil",
@@ -685,12 +714,23 @@ BG_MUNICIPALITY_TO_OBLAST = {
     "Калофер": "plovdiv", "Марково": "plovdiv", "Първенец": "plovdiv", "Труд": "plovdiv",
     "Скутаре": "plovdiv", "Крумово": "plovdiv", "Брестовица": "plovdiv", "Тополово": "plovdiv",
     "Ягодово": "plovdiv", "Белащица": "plovdiv", "Граф Игнатиево": "plovdiv",
+    # "Куртово Конаре" was WRONGLY listed under Pazardzhik oblast below until
+    # 2026-09-24 (Placy, full free-text gazetteer mining audit) - confirmed
+    # via ekatte.com (EKATTE 40717): it's a village in Стамболийски
+    # municipality (already correctly listed as Plovdiv oblast two lines
+    # up), Plovdiv oblast, not Pazardzhik at all. Live impact was
+    # coincidentally zero today (every one of its 43 nationwide records -
+    # all homes.bg, all currently removed - already has city="Пловдив" or
+    # "Стамболийски", both of which independently resolve to Plovdiv oblast
+    # via city text BEFORE this table is ever consulted), but the entry
+    # itself was simply wrong and would misfire the moment a record with no
+    # usable city field but area="Куртово Конаре" showed up.
+    "Куртово Конаре": "plovdiv",
     # Pazardzhik oblast
     "Батак": "pazardzhik", "Белово": "pazardzhik", "Брацигово": "pazardzhik",
     "Лесичово": "pazardzhik", "Панагюрище": "pazardzhik", "Пещера": "pazardzhik",
     "Ракитово": "pazardzhik", "Септември": "pazardzhik", "Сърница": "pazardzhik",
     "Стрелча": "pazardzhik", "Велинград": "pazardzhik", "Мало Конаре": "pazardzhik",
-    "Куртово Конаре": "pazardzhik",
     # Veliko Tarnovo oblast
     "Елена": "veliko_tarnovo", "Горна Оряховица": "veliko_tarnovo", "Лясковец": "veliko_tarnovo",
     "Павликени": "veliko_tarnovo", "Полски Тръмбеш": "veliko_tarnovo", "Стражица": "veliko_tarnovo",
@@ -727,6 +767,24 @@ BG_MUNICIPALITY_TO_OBLAST = {
     # Pernik oblast
     "Брезник": "pernik", "Земен": "pernik", "Ковачевци": "pernik", "Радомир": "pernik",
     "Трън": "pernik",
+    # "Кладница" and "Рударци" were WRONGLY hardcoded to "sofia_grad" above
+    # until 2026-09-24 (Placy) - both are real Vitosha-foothill villages
+    # close enough to Sofia to be commonly (and, per a genuine 2020s
+    # secession petition covered in local press, controversially) mistaken
+    # for part of it, but both are administratively, unambiguously part of
+    # Pernik municipality/oblast, confirmed via ekatte.com (EKATTE 37174 for
+    # Кладница, EKATTE 63152 for Рударци - the same authoritative source
+    # this project's own gazetteer is built from), not Sofia's own Столична
+    # община. Confirmed live impact via a full free-text gazetteer mining
+    # pass: every one of Рударци's 17 nationwide records (100%) and 13/18 of
+    # Кладница's (the other 5 already had city="Перник" set explicitly,
+    # already correctly resolving via city_key independently of this table)
+    # were silently mislabeled sofia_grad - several with their own title
+    # explicitly, repeatedly stating "област Перник"/"община Перник". Unlike
+    # "Лозен" above, no second, different real "Кладница"/"Рударци"
+    # settlement was found anywhere else in Bulgaria (not ambiguous, simply
+    # wrong) - a direct correction, not an exclusion.
+    "Кладница": "pernik", "Рударци": "pernik",
     # Vidin oblast
     "Белоградчик": "vidin", "Бойница": "vidin", "Брегово": "vidin", "Чупрене": "vidin",
     "Димово": "vidin", "Грамада": "vidin", "Кула": "vidin", "Макреш": "vidin",
@@ -927,6 +985,26 @@ def listing_oblast_key(l, city_key):
             key = oblast_key_from_municipality(settlement)
             if key:
                 return key
+        # Last resort, bcpea-only (2026-09-24, Placy): bcpea's own
+        # description is real, official auction-notice legal text (unlike
+        # every other portal's free-text ad copy), and "Столична община" -
+        # Sofia city's own single, official municipality name - is as
+        # unambiguous an administrative signal as a coordinate: there is
+        # exactly one in all of Bulgaria. Needed because "Лозен" was
+        # excluded above as a genuine 4-way name collision (see that
+        # comment) - bcpea_92319 ("Лозен", no city field, no coordinates)
+        # would otherwise regress from correctly-resolved to unresolved
+        # purely as a side effect of that exclusion, even though its own
+        # description explicitly, unambiguously says "село Лозен, Столична
+        # община – район Панчарево". Checked against every one of the 23
+        # active/removed bcpea records whose description mentions "Столична
+        # община" nationwide: 22 already independently resolve to
+        # sofia_grad via their own settlement text and are unaffected by
+        # this fallback (it only ever fires after that lookup already
+        # failed); this is the one exception, now fixed instead of silently
+        # regressed.
+        if settlement and "Столична община" in (l.get("description") or ""):
+            return "sofia_grad"
         return None
     for field in ("city", "area"):
         value = l.get(field)
