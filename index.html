@@ -312,7 +312,20 @@
     transition: border-color 200ms ease-out;
   }
   .cta-btn-secondary:hover { border-color: var(--taupe); }
-  .type-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  /* Fixed set of exactly 8 tiles (6 real type buckets + Uncategorized +
+     the sales.bcpea.org auction tile - see TYPE_FILTER_BUCKETS), not an
+     open-ended list, so - unlike .grid's listing cards - there's no reason
+     to leave this at the mercy of auto-fit's column count for whatever
+     width happens to be available. auto-fit/minmax used to compute exactly
+     7 columns at common desktop widths, stranding the 8th tile alone in a
+     second row with a large empty gap next to it (a real, visible
+     misalignment found live in a design audit, not hypothetical) - fixed
+     by using explicit column counts that are always divisors of 8, so
+     every row is always full. */
+  .type-filter-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px; }
+  @media (max-width: 1400px) { .type-filter-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 900px) { .type-filter-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .type-filter-grid { grid-template-columns: repeat(1, 1fr); } }
   .type-filter-btn {
     display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
     background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 16px 18px;
@@ -454,10 +467,44 @@
   .detail-price-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
   .detail-price { font-family: var(--font-serif); font-weight: 400; font-size: 34px; color: var(--ink); }
   .detail-persqm { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); }
-  .detail-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px; margin: 24px 0; background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px; overflow: hidden; }
-  .detail-stat { background: var(--ivory); padding: 14px 16px; }
+  /* Fixed-length stat rows (4 items here, 3 in the Price History panel
+     below), not an open-ended list - auto-fit/minmax used to pick
+     whatever column count happened to fit the available width, and any
+     count that doesn't evenly divide the actual item count strands the
+     last item(s) alone with the grid's own gap-line background (taupe)
+     showing through the empty cell(s) next to them as an ugly blank box -
+     found live at both the 4-item main block (390px mobile: 3 columns,
+     "Source" stranded alone) and the 3-item Price History block (1440px
+     desktop, paired next to the radius map: 2 columns, "Current price"
+     stranded alone) in a design audit. Fixed with explicit column counts
+     that are always divisors of 4, so every row this block is actually
+     used with (4 items) is always full; the Price History block's own
+     3-item usage gets its own scoped override just below. */
+  .detail-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 24px 0; background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px; overflow: hidden; }
+  @media (max-width: 800px) { .detail-stats { grid-template-columns: repeat(2, 1fr); } }
+  /* Always exactly 3 items (Price reductions/First tracked price/Current
+     price). A first attempt forced 3 equal columns here, which did
+     eliminate the empty-cell bug but immediately traded it for a worse
+     one: this panel is paired side by side with the radius map on desktop
+     (see .detail-history-row), so its own content width is narrow enough
+     (~250px) that 3 columns left no room for a real price value like
+     "€292,740" to render without overflowing its own column - found live
+     in the same audit pass, re-checked after the first fix. Kept at 2
+     columns instead (same as the main block's own mobile breakpoint,
+     already proven comfortable for currency values) with the 3rd
+     (last) item spanning the full row via grid-column, so it fills the
+     space a 2-column empty cell would otherwise leave rather than being
+     stranded next to one. */
+  .price-history-panel .detail-stats { grid-template-columns: repeat(2, 1fr); }
+  .price-history-panel .detail-stats .detail-stat:last-child { grid-column: 1 / -1; }
+  .detail-stat { background: var(--ivory); padding: 14px 16px; min-width: 0; }
   .detail-stat .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 4px; }
-  .detail-stat .value { font-family: var(--font-sans); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0; }
+  /* overflow-wrap: a value long enough to exceed even a comfortable
+     column (a 7-figure price, say) wraps instead of silently overflowing
+     past the card's own edge - the exact failure mode the 3-column
+     attempt above hit, kept here as a general safety net now that it's
+     been seen to happen once already. */
+  .detail-stat .value { font-family: var(--font-sans); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0; overflow-wrap: break-word; }
   .detail-thumbs { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .detail-thumb {
     width: 64px; height: 48px; object-fit: cover; border-radius: 4px; cursor: pointer;
@@ -9127,7 +9174,19 @@ function renderListingDetail(merged) {
     <div class="detail-grid">
       <div>
         <div class="detail-photo-wrap">
-          <img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${l.title}" onerror="this.style.display='none'" />
+          <!-- On a broken photo URL, keep this element in the DOM (its id is
+               read by setDetailPhoto() for the prev/next/thumbnail gallery)
+               and just drop the src/alt rather than hiding it outright -
+               display:none used to collapse .detail-photo-wrap to zero
+               height (aspect-ratio only sizes a rendered box), stranding
+               the prev/next arrow buttons below - which are positioned
+               absolute within that wrapper - floating over empty page
+               background with no visual anchor (found live in a design
+               audit). Removing just the src leaves the element's own
+               aspect-ratio: 4/3 box (and its existing ivory-deep
+               background) intact, so the arrows stay correctly placed
+               over a properly-sized, blank photo area instead. -->
+          <img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${l.title}" onerror="this.removeAttribute('src'); this.alt='';" />
           ${photos.length > 1 ? `
             <button type="button" class="detail-photo-nav prev" aria-label="Previous photo">‹</button>
             <button type="button" class="detail-photo-nav next" aria-label="Next photo">›</button>
