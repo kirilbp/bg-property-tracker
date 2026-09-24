@@ -125,6 +125,17 @@ class KashtiAvtokashtaSubstringCollisionTest(unittest.TestCase):
         category, _, _ = classify_listing(title="Две къщи с голям двор за продажба гр. Борово, обл. Русе")
         self.assertEqual(category, "house")
 
+    def test_digit_glued_kashti_matches_house(self):
+        # Missy's PR #264 third review, non-blocking finding (2026-09-23):
+        # Python's \b doesn't separate a digit from a following Cyrillic
+        # letter (both are \w), so a plain \b-bounded regex silently missed
+        # this real, live-sampled olx.bg title (olx_9ECK4) - was wrongly
+        # "flat"/"low" (no_keyword_match) before this fix.
+        category, _, _ = classify_listing(
+            title="Продава 2къщи в с.Соволяно общ.Кюстендил, Промишлена зона"
+        )
+        self.assertEqual(category, "house")
+
 
 class LandVsHouseContextTest(unittest.TestCase):
     """Missy's PR #264 review, bug class 2: a genuine LAND-plot listing
@@ -227,6 +238,63 @@ class LandVsHouseContextTest(unittest.TestCase):
             description="Продава се едноетажна тухлена къща с двор, готова за нанасяне.",
         )
         self.assertEqual(category, "house")
+
+
+class TitleBorrowingThirdFailureModeTest(unittest.TestCase):
+    """Missy's PR #264 THIRD review (2026-09-23, BLOCKING finding B):
+    _demote_context_only_house_signals' Part B let a signal with no land
+    competitor of its own (like a title whose only house evidence is the
+    ambiguous "къщи"/"вили" plural) borrow the "land wins" verdict from ANY
+    other directly-demoted sibling signal - including the TITLE, even when
+    the title's own plural mention was genuinely the ad's real, unambiguous
+    subject. See category_classifier.py's _HOUSE_PROXIMITY_MARKER_RE /
+    _has_house_proximity_context and Part B's own comment for the fix."""
+
+    def test_title_naming_two_houses_as_direct_object_stays_house(self):
+        # Missy's exact reproduction case (2026-09-23) - title alone
+        # correctly classifies "house"; adding a description that mentions
+        # bordering agricultural land used to wrongly flip the whole
+        # listing to "land" via Part B's title-borrowing, even though
+        # nothing about the title itself was ever ambiguous.
+        title = "Продавам две къщи в село Раковски"
+        description = (
+            "Продавам голям недвижим имот. Земеделска земя в местността, "
+            "граничеща с двете къщи, е включена в сделката. Всяка от "
+            "къщите е тухлена, полумасивна конструкция, с отделен двор."
+        )
+        category, _, _ = classify_listing(title=title)
+        self.assertEqual(category, "house")
+        category, _, _ = classify_listing(title=title, description=description)
+        self.assertEqual(category, "house")
+
+    def test_land_plot_only_evidence_in_description_still_classified_as_land(self):
+        # Non-regression - Part B must still correctly resolve the case it
+        # was originally built for: a title with NO land competitor of its
+        # own, but whose "къщи" mention reads as a locational/distance
+        # reference ("...от последните къщи..." - "from the last houses"),
+        # corroborated by the description's own directly-demoted verdict.
+        # Real, live-sampled olx.bg listing (olx_9RCOH, 2026-09-23).
+        category, confidence, reason = classify_listing(
+            title="код 63103. Имот 630м2  на 100 метра от последните къщи, до ток и вода, Цалапица",
+            description=(
+                "код 63103. Поземлен имот 630м2 на 100 метра от последните къщи, "
+                "до ток и вода и на 150 м от асфалт с пряк достъп по мек път. "
+                "Подходящ за жилищно застрояване след промяна на НТП."
+            ),
+        )
+        self.assertEqual(category, "land")
+
+    def test_title_naming_villas_near_preposition_still_borrows_land_verdict(self):
+        # A title whose plural house mention IS accompanied by a proximity
+        # marker ("до вили" - "near villas"), with no land competitor of
+        # its own in the title itself (so Part A can't settle it directly),
+        # should still be eligible for Part B borrowing when the
+        # description independently demotes.
+        category, _, _ = classify_listing(
+            title="Имот 1200м2 до вили, ток и вода",
+            description="Поземлен имот 1200м2 до вили, ток и вода. Земеделска земя за продажба.",
+        )
+        self.assertEqual(category, "land")
 
 
 if __name__ == "__main__":

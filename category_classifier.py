@@ -73,7 +73,7 @@ CATEGORY_KEYWORDS = {
     ],
     "land": [
         "парцел", "земеделска земя", "земеделски земи", "земеделски имот", "урегулиран поземлен имот",
-        "имот за строеж", "терен", "нива", "дворно място", "поземлен имот",
+        "имот за строеж", "терен", "нива", "дворно място",
         "парцел с къща", "parcel", "teren", "niva", "plot",
         # "упи" (a common abbreviation for "урегулиран поземлен имот" -
         # "regulated land plot") is handled by _UPI_RE below, not as a plain
@@ -90,6 +90,39 @@ CATEGORY_KEYWORDS = {
         # neighboring/planned-development context, never the property being
         # sold) won by default. A 2-word phrase, so no substring-collision
         # risk the way single-word additions need checking for.
+        #
+        # NOT handled as a plain substring here, though (Missy's PR #264
+        # THIRD review, 2026-09-23) - moved to its own guarded regex,
+        # _ZEMYA_IMOT_RE below, because "поземлен имот" is also standard
+        # Bulgarian cadastral-registry BOILERPLATE that routinely appears
+        # inside a completely unrelated building's own listing (flat/house/
+        # shop/business), describing the LAND PARCEL UNDERNEATH that
+        # building, not the property being sold - confirmed live,
+        # imotibg_515292 ("Търговско помещение..." - a 460m² commercial
+        # food-service space) got wrongly flipped flat->land purely because
+        # its description happens to contain "...построена в поземлен имот
+        # с идентификатор № 67338.516.1...", boilerplate identifying the
+        # underlying cadastral parcel, never the listing's own subject. That
+        # exact "поземлен имот с идентификатор" shape is near-universal
+        # cadastral phrasing (confirmed live across a 15-record sample of
+        # every listing matching it on all 6 non-bcpea portals - bcpea.org
+        # uses its own controlled BCPEA_RAW_TYPES vocabulary, not this
+        # keyword scorer, so it's excluded from this guard's own scope) -
+        # but genuine land-for-sale listings ALSO routinely cite their own
+        # parcel's cadastral identifier as part of describing the very land
+        # being sold ("Продава се атрактивен поземлен имот с идентификатор
+        # ..."), so a blanket ban on the phrase would just trade one false
+        # positive for false negatives against real land listings that
+        # happen to state their own identifier. Re-verified against the
+        # SAME 15-record sample after adding the guard below: all 11 other
+        # genuine land listings and both genuine business listings in that
+        # sample carry at least one OTHER, unguarded land/business keyword
+        # match of their own (parcel size phrasing, "земеделск-", the
+        # already-separate "урегулиран поземлен имот" phrase, etc.) so
+        # excluding just the "с идентификатор"-suffixed boilerplate shape
+        # from counting as land evidence doesn't cost them their correct
+        # classification - only imotibg_515292, whose ENTIRE land evidence
+        # was this one boilerplate phrase, changes.
         # "ниви" (plural of "нива") - the exact same feminine noun -а/-и
         # pluralization gap "къщи"/"вили" already needed fixing for below,
         # just never previously found on the land side: "нива" is a literal
@@ -134,6 +167,27 @@ CATEGORY_KEYWORDS = {
 # handled as its own regex rather than a CATEGORY_KEYWORDS entry.
 _ROOM_COUNT_RE = re.compile(r"\d\s*-?\s*стаен")
 
+# Digit-glued word boundary (Missy's PR #264 THIRD review, 2026-09-23,
+# non-blocking): Python's \b treats ASCII digits and Cyrillic letters as the
+# SAME \w class, so a plain \b-bounded regex (e.g. \bкъщи\b) silently fails
+# to match when the word is glued directly to a preceding digit with no
+# space - a real, live Bulgarian listing-title shorthand ("Продава 2къщи в
+# с.Соволяно общ.Кюстендил", confirmed live, olx_9ECK4, 2026-09-23: wrongly
+# flat/low instead of house). Bounding against LETTERS specifically
+# (Cyrillic or Latin) rather than \w's broader digit-inclusive class treats
+# a digit (or punctuation/whitespace/start-of-string) as a valid boundary
+# on either side, while a genuine same-alphabet mid-word collision
+# ("автокъщи", "вкъщи", "павилион", "групи", "принципи") is still correctly
+# rejected exactly as before - confirmed against every existing collision
+# case in tests/test_category_classifier_*.py. Same low-prevalence
+# tradeoff already accepted for УПИ in round 1 (docs/backlog.md), just
+# actually fixed now that it's cheap to do for all four \b-bounded land/
+# house regexes at once via one shared helper rather than four separate
+# near-identical patterns.
+def _letter_bounded(word):
+    return re.compile(r"(?<![а-яa-z])" + word + r"(?![а-яa-z])", re.IGNORECASE)
+
+
 # "упи" ("урегулиран поземлен имот" - "regulated land plot"), a real, very
 # common Bulgarian land-listing title word (confirmed live: olx.bg alone had
 # 154+ genuine land listings misclassified over this, e.g. "УПИ до къщи в
@@ -144,20 +198,70 @@ _ROOM_COUNT_RE = re.compile(r"\d\s*-?\s*стаен")
 # which a title OPENING with "УПИ" (extremely common - it's often the very
 # first word of a land listing's title) never has, so the padded keyword
 # silently never matched the single most common real-world phrasing. A
-# proper \b word-boundary regex (confirmed live to still correctly reject
+# proper letter-boundary regex (confirmed live to still correctly reject
 # "групи"/"принцип" while matching "УПИ" at the very start of a string,
-# mid-title, or followed by a comma) fixes this the same way _ROOM_COUNT_RE
-# already handles "flat"'s own similar shape below.
-_UPI_RE = re.compile(r"\bупи\b", re.IGNORECASE)
+# mid-title, glued to a preceding digit, or followed by a comma) fixes this
+# the same way _ROOM_COUNT_RE already handles "flat"'s own similar shape
+# below.
+_UPI_RE = _letter_bounded("упи")
 
 # "ниви" (plural of "нива" - "field/plot") - see CATEGORY_KEYWORDS["land"]'s
-# own comment above for why this needs its own \b-bounded regex rather than
-# a plain substring (the same feminine -а/-и pluralization gap "къщи"/
-# "вили" needed below, on the land side this time) and why the word
-# boundary specifically matters here (rejects "денивелация"/"денивилация",
-# "лениви" - confirmed live in this project's own stored description text,
+# own comment above for why this needs its own letter-bounded regex rather
+# than a plain substring (the same feminine -а/-и pluralization gap "къщи"/
+# "вили" needed below, on the land side this time) and why the boundary
+# specifically matters here (rejects "денивелация"/"денивилация", "лениви"
+# - confirmed live in this project's own stored description text,
 # 2026-09-23).
-_NIVI_RE = re.compile(r"\bниви\b", re.IGNORECASE)
+_NIVI_RE = _letter_bounded("ниви")
+
+# "поземлен имот" ("land property/plot") - see CATEGORY_KEYWORDS["land"]'s
+# own comment above for the full explanation: this phrase is both a genuine
+# land-listing's own subject-naming AND standard Bulgarian cadastral-
+# registry boilerplate describing the parcel underneath an unrelated
+# building (almost always immediately followed by "с идентификатор" and a
+# cadastral number, e.g. "...построена в поземлен имот с идентификатор №
+# 67338.516.1..."). The negative lookahead excludes only that specific
+# boilerplate shape - "поземлен имот" directly followed by "с
+# идентификатор" (allowing for the whitespace/comma variants confirmed live
+# in this project's own stored text, e.g. a stray non-breaking space) -
+# while still matching every other real phrasing of "поземлен имот",
+# including genuine land listings that cite their OWN parcel's identifier
+# using a different construction (no "с" - e.g. "поземлен имот
+# идентификатор 70247.76.41", confirmed live as olx_9Mx3k, a genuine 5.7
+# decare agricultural land sale) or that mention "с идентификатор" nowhere
+# at all (the overwhelming majority of real land listings using this
+# phrase).
+_ZEMYA_IMOT_RE = re.compile(r"поземлен имот(?!\s*,?\s*с идентификатор)", re.IGNORECASE)
+
+# Proximity/distance markers ("от" - from, "до" - near/to, "близо до" -
+# close to, "в близост до" - in the vicinity of, "граничещ(а/и)" -
+# bordering, "съседен/съседни/съседна" - neighboring, "покрай" - alongside)
+# - the actual Bulgarian idiom this whole land-vs-house "къщи"/"вили"
+# context problem is built around (see _KASHTI_RE/_VILI_RE's own comment
+# above: "20 метра от къщи", "до вили", "граничеща с ... къщи" are all real,
+# sampled examples already documented there). Used by
+# _demote_context_only_house_signals' Part B below (Missy's PR #264 THIRD
+# review, 2026-09-23) to require that a signal's plural-only house mention
+# actually READS like a locational reference to a NEARBY/neighboring house
+# before that signal is eligible to have its verdict overridden by
+# borrowing from an unrelated sibling signal - as opposed to a title like
+# "Продавам две къщи в село Раковски" ("Selling two houses...") where
+# "къщи" is the direct, unmarked object of a sale verb, not preceded by any
+# of these markers, and is genuinely the ad's own real subject.
+_HOUSE_PROXIMITY_MARKER_RE = re.compile(
+    r"\b(от|до|близо\s+до|в\s+близост\s+до|граничещ\w*|съседн\w*|покрай)\b",
+    re.IGNORECASE,
+)
+
+
+def _has_house_proximity_context(text, house_match_start):
+    """True if one of _HOUSE_PROXIMITY_MARKER_RE's markers appears in the
+    ~40 characters immediately before `text[house_match_start]` - i.e. the
+    plural "къщи"/"вили" match at that position reads as a locational
+    reference to nearby/neighboring houses, not the ad's own direct
+    object."""
+    window = text[max(0, house_match_start - 40):house_match_start]
+    return bool(_HOUSE_PROXIMITY_MARKER_RE.search(window))
 
 # "къщи"/"вили" (plural of "къща"/"вила" - "house(s)"/"villa(s)") - Missy's
 # PR #264 review (2026-09-23) found two real, live bugs in how these were
@@ -197,8 +301,11 @@ _NIVI_RE = re.compile(r"\bниви\b", re.IGNORECASE)
 #    that leads the title; this is two SUBJECT-class categories - land and
 #    house are both real property types a listing can genuinely BE - where
 #    one side's only evidence is an inherently context-prone plural word).
-_KASHTI_RE = re.compile(r"\bкъщи\b", re.IGNORECASE)
-_VILI_RE = re.compile(r"\bвили\b", re.IGNORECASE)
+#
+#    Also letter-bounded (not \b-bounded) for the same digit-glue reason
+#    _UPI_RE/_NIVI_RE above are - see _letter_bounded's own comment.
+_KASHTI_RE = _letter_bounded("къщи")
+_VILI_RE = _letter_bounded("вили")
 
 # Tiebreak order only (when two categories score exactly equal) - most
 # specific/least-ambiguous categories first, "flat" last since it's also
@@ -262,6 +369,9 @@ def _title_match_positions(categories, title):
             nivi_match = _NIVI_RE.search(text)
             if nivi_match:
                 idxs.append(nivi_match.start())
+            zemya_imot_match = _ZEMYA_IMOT_RE.search(text)
+            if zemya_imot_match:
+                idxs.append(zemya_imot_match.start())
         if cat == "house":
             for house_re in (_KASHTI_RE, _VILI_RE):
                 house_match = house_re.search(text)
@@ -386,7 +496,7 @@ def _score_signal(signal_name, text, scores, matched_signals):
         # doesn't carry the same live-confirmed regression risk.)
         if cat == "house" and (_KASHTI_RE.search(text) or _VILI_RE.search(text)):
             matched = True
-        if cat == "land" and _NIVI_RE.search(text):
+        if cat == "land" and (_NIVI_RE.search(text) or _ZEMYA_IMOT_RE.search(text)):
             matched = True
         if matched:
             scores[cat] = scores.get(cat, 0) + weight
@@ -464,6 +574,39 @@ def _score_signal(signal_name, text, scores, matched_signals):
 #     independently confirmed "land leads, house trails" within its own
 #     text, so this is corroboration from the same ad's OTHER text, never a
 #     guess from nothing.
+#
+#     THIRD failure mode (Missy's PR #264 third review, 2026-09-23): as
+#     originally written, Part B let ANY signal - including the TITLE -
+#     borrow a demoted sibling's verdict purely because its own house
+#     evidence happened to be the ambiguous plural with no land competitor
+#     of its own, with no check on whether the title's OWN text actually
+#     read as context in the first place. Reproduced live: title "Продавам
+#     две къщи в село Раковски" ("Selling two houses in Rakovski village")
+#     alone correctly classifies as house/single_signal_only, but adding a
+#     description that mentions bordering agricultural land ("Земеделска
+#     земя... граничеща с двете къщи, е включена в сделката") flips the
+#     WHOLE listing to land - even though nothing about the title's own
+#     "две къщи" (a numbered, direct object of "Продавам") was ever
+#     ambiguous. This bypasses the very design rationale the rest of this
+#     file relies on elsewhere ("titles ARE reliably subject-first").
+#
+#     Fixed by requiring TITLE specifically to show its OWN internal
+#     evidence of being a locational/context reference - one of
+#     _HOUSE_PROXIMITY_MARKER_RE's markers ("от", "до", "близо до",
+#     "граничещ...", "съседен...", "покрай" - the actual real-world idiom
+#     this whole context-vs-subject problem is about, already documented
+#     above) appearing shortly before the "къщи"/"вили" match - before
+#     it's eligible for Part B borrowing at all. The motivating case this
+#     mechanism was built for, olx_9RCOH ("...на 100 метра от последните
+#     къщи..."), keeps its "от" marker and is unaffected; a title like
+#     "Продавам две къщи..." has no such marker anywhere near "къщи" and so
+#     is no longer eligible to be overridden by a sibling signal.
+#     Deliberately scoped to the title signal only (Missy's specific,
+#     confirmed finding) - url/description eligibility for Part B is left
+#     as-is, unchanged from the second review's fix, since no live
+#     regression was found there and this file's own established rationale
+#     already treats title differently (Part A above already draws the
+#     same signal-specific distinction).
 # Only applies when "land" has independent evidence somewhere at all
 # (scores.get("land", 0) > 0), so a genuine house listing with zero land
 # mentions anywhere is never touched by any part.
@@ -487,7 +630,7 @@ def _demote_context_only_house_signals(scores, matched_signals, title, descripti
                 if m:
                     idxs.append(m.start())
         if cat == "land":
-            for land_re in (_UPI_RE, _NIVI_RE):
+            for land_re in (_UPI_RE, _NIVI_RE, _ZEMYA_IMOT_RE):
                 m = land_re.search(text)
                 if m:
                     idxs.append(m.start())
@@ -527,6 +670,14 @@ def _demote_context_only_house_signals(scores, matched_signals, title, descripti
         # eligible for cross-signal corroboration if house's evidence here
         # is purely the ambiguous plural context words.
         if has_context and not has_other:
+            if signal_name == "title" and not _has_house_proximity_context(text, house_pos):
+                # Third failure mode fix (see Part B's own comment above):
+                # the title's own plural mention isn't accompanied by any
+                # locational/distance marker, so nothing about the title
+                # itself suggests it's context rather than the ad's real
+                # subject - not eligible to be overridden by a sibling
+                # signal's verdict.
+                continue
             context_only_no_land_competitor.add(signal_name)
 
     if demoted:
