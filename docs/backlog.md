@@ -3591,7 +3591,7 @@ standing process, not self-merged.
 
 ---
 
-## 34. Exhaustive, user-mandated category-allocation audit across all 8 portals - 2 classifier root causes fixed (title/url double-counting, УПИ keyword gap), bazar.bg/imot.bg/olx.bg migrated off the known-bad 4-bucket classifier, 233,053 records recomputed - THIRD ROUND: TWO MORE BLOCKING BUGS FOUND AND FIXED (поземлен-имот cadastral-boilerplate false positive with a factually wrong decisions.md justification; a Part-B title-borrowing design flaw), digit-glued къщи/вили/упи/ниви boundary bug fixed too - FOURTH ROUND: съседен movable-vowel gap in the Part-B proximity-marker gate fixed, plus a miscounted 15-record breakdown corrected - PENDING RE-REVIEW (2026-09-23, Ready)
+## 34. Exhaustive, user-mandated category-allocation audit across all 8 portals - 2 classifier root causes fixed (title/url double-counting, УПИ keyword gap), bazar.bg/imot.bg/olx.bg migrated off the known-bad 4-bucket classifier, 233,053 records recomputed - DONE, MERGED (2026-09-23/24, Ready, PR #264, 6 review rounds)
 
 User directly instructed a full, careful, all-listing audit (not just a
 re-run of item 32's garage/parking-amenity fix). Mapped every portal to
@@ -4009,6 +4009,183 @@ isolated `git worktree` off `origin/main` per this repo's CLAUDE.md, force-
 pushed to the same branch (`ready/exhaustive-category-audit-2026-09-23`)
 since this corrects an already-pushed commit. Not self-merged - handed
 back for Missy's review.
+## 35. `scrape.yml` commit/push failed 3 consecutive scheduled runs on a hard GitHub file-size rejection (GH001) - homes.bg/imot.bg/olx.bg discarded ~15h+ of real data every run, `sync_to_supabase.py` kept syncing from stale local data anyway - ROOT CAUSE FIXED, HANDED BACK FOR REVIEW (2026-09-24)
+
+**The incident, verified against real GitHub Actions job logs (runs
+35883682311, 35918395367, 35945698190 - all `scrape.yml` scheduled runs,
+all `conclusion: failure`), not just paraphrased:**
+
+1. `git push` was rejected with `GH001` on all 3 runs - `remote: error:
+   File data/leads_homes.json is 182.01 MB; this exceeds GitHub's file
+   size limit of 100.00 MB` / `data/history_homes.json is 179.26 MB`
+   (exact text off the real push output).
+2. Root cause: `detect_relistings.py` chained **61,862** simultaneous
+   "delisted then relisted" pairs in one run (its own log line: `Total
+   relistings chained this run: 61862`) - 83.6% of homes.bg's entire
+   74,012-listing tracked backlog. Once a commit fails, `GONE_AFTER`
+   (20h)'s cutoff on the next run compares against an increasingly stale
+   committed baseline; huge swaths of the backlog cross that cutoff while
+   simultaneously being freshly re-scraped under (from the detector's
+   point of view) different listing IDs, and the chain-detection logic
+   misreads that as a mass relisting event, injecting one synthetic
+   snapshot per false match and ballooning both files past the push
+   limit.
+3. `scrape.yml`'s commit step commits `data/` as one atomic commit and
+   its existing retry loop only knows how to recover from an ordinary
+   rebase race (`git pull --rebase` + retry) - a hard GH001 rejection
+   isn't resolvable that way at all, so it resent the identical oversized
+   commit 5 times, failed identically every time, and discarded every
+   other portal's (imot.bg, olx.bg, bazar.bg, imoti.bg, bcpea) real
+   freshly-scraped data too on every attempt, with no GH001-specific
+   diagnosis anywhere in the log.
+4. `sync_to_supabase.py` runs `if: always()` right after and completed
+   successfully on all 3 failed runs regardless - it syncs from local
+   disk, not from what's actually on `main`, and its own data-loss guard
+   only trips on a collapsing row count (row count went *up* here, from
+   the relisting storm, not down). Confirmed live-visible right now: this
+   worktree's checked-out `data/leads_homes.json` / `leads_imot.json` /
+   `leads_olx.json` (the last real committed state on `main`, unaffected
+   by the 3 failed pushes) show **0% `source_status=active`** for all
+   three portals as of this writing - their freshest committed snapshot
+   is 26-28h old, past `GONE_AFTER`.
+5. `check_scrape_freshness.py` (the right kind of guard, built for the
+   alo.bg incident, item 3) was only wired into `scrape-large.yml` for
+   alo.bg/imoti.net - `scrape.yml`'s 6 portals had no equivalent safety
+   net at all.
+
+**Fixes shipped this session, all verified locally (per this project's
+standing rule against iterating live on `scrape.yml`):**
+
+1. **`geo_utils.relisting_chain_guard_tripped()`** (new) - skips chain-
+   injection entirely for a portal, loudly (`::error::`), when a single
+   run's matched relisting pairs exceed `RELISTING_GUARD_ABS` (2000) or
+   `RELISTING_GUARD_RATIO` (5% of the portal's tracked backlog).
+   Calibrated from real committed history, not a guessed round number:
+   git log shows 9 successful `scrape.yml` runs since `detect_
+   relistings.py` went live (2026-09-20 23:59 UTC); bazar.bg - the
+   busiest portal for real relistings by a wide margin - has 1,873
+   relisting-tagged snapshots committed today, ~208/run average and
+   never more than ~0.4% of its own 51,860-listing backlog in a single
+   run (imot.bg: 46 total; olx.bg: 2 total; homes.bg/imoti.bg: 0 - this
+   detector had never chained a single real relisting for homes.bg
+   before the incident). Both thresholds sit roughly an order of
+   magnitude above the highest real per-run figure seen for any portal
+   and two orders of magnitude below the incident's real numbers.
+   `detect_relistings.py` now does a two-pass detect-then-inject so the
+   guard can check the real matched count before any mutation, and exits
+   non-zero when any portal's guard trips (surfaced as a real workflow
+   failure the same way item 30's olx.bg check does, since this step
+   keeps its existing `continue-on-error: true`).
+   - Verified: 9 new tests (`tests/test_relisting_chain_guard.py`) cover
+     the guard function directly (real incident numbers, real healthy
+     bazar.bg per-run rate, 5x that rate, absolute-only and ratio-only
+     trip shapes, zero matches) and through `detect_portal()`'s real
+     pipeline (a synthetic storm - 60/120 matched, 50% - confirms
+     injection is skipped and the history file is byte-for-byte
+     untouched on disk; a synthetic below-threshold case - 3/10,000 -
+     confirms normal injection is unchanged from before this fix).
+     `python3 -m pytest tests/` - 77 passed, 4 subtests passed, no
+     regressions. Also replayed against the REAL committed `data/
+     history_*.json` for all 5 portals this module covers - 0 relistings
+     detected/injected currently (steady state, no pending pairs right
+     now) and the guard did not falsely trip on any of them.
+2. **`scrape.yml`'s commit/push step** now inspects `git push`'s own
+   output for `GH001`/"exceeds GitHub's file size limit" and fails
+   immediately with a specific `::error::` diagnosis instead of running
+   through all 5 identical-and-doomed retry attempts - matches item 30's
+   existing "fail loud" shape. Ordinary conflict-driven rejections
+   (another workflow pushed first) are unaffected and still retry/
+   recover exactly as before.
+   - Verified: extracted the real embedded shell script from the YAML
+     (parsed with `yaml.safe_load`, `bash -n` syntax-checked) and ran it
+     against two real local git repos with a stubbed `git push`: (a) one
+     that always returns the real GH001 message text captured from the
+     incident's own job logs - exits in under 1 second with the new
+     diagnostic message, instead of the ~75 seconds/5 attempts the old
+     code would have spent; (b) one that rejects the push exactly once
+     with an ordinary non-fast-forward message (no GH001 text, simulating
+     a genuine concurrent-push race) then succeeds - confirms the retry
+     path is unaffected and still recovers normally (exit 0, 2nd
+     attempt).
+3. **File-size growth investigated, no gap found to fix**: the task
+   assumption that `scraper_homes.py` might be missing `geo_utils.
+   prune_snapshots()` (used by every other scraper to collapse redundant
+   same-price snapshots) turned out to be wrong - `scraper_homes.py`
+   already calls it (line 461, confirmed by direct read). The real
+   driver of the size blowup was the relisting storm's ~62k spurious
+   *distinct-price* injected snapshots, which `prune_snapshots()`'s
+   same-price-only dedup logic would never have collapsed anyway - fixed
+   by item 1 above, not a pruning gap. Real baseline size for context:
+   `data/leads_homes.json`/`history_homes.json` sit at ~97MB/~95MB in the
+   current (last-known-good, pre-incident) committed state - already
+   close to GitHub's 100MB limit purely from organic multi-portal growth,
+   independent of this incident. Not touched further this session -
+   inventing a new, more aggressive pruning policy beyond the existing
+   `prune_snapshots()` precedent wasn't attempted, per this task's own
+   explicit caution; flagged here for a dedicated follow-up if the
+   organic baseline keeps climbing.
+4. **`check_scrape_freshness.py` extended** to `scrape.yml`'s 6 portals
+   (homes.bg, imot.bg, olx.bg, bazar.bg, imoti.bg, bcpea), wired in as a
+   new final `if: always()` step (no `continue-on-error`), mirroring
+   `scrape-large.yml`'s existing alo.bg/imoti.net wiring exactly. Per
+   this file's own documented caveat ("do NOT extend this check... with
+   this same threshold without first re-deriving a real per-portal
+   margin"), added `PER_PORTAL_MIN_ACTIVE_RATIO` - a per-portal floor,
+   not one shared 40% threshold - calibrated with real margin under each
+   portal's own 2026-09-22-measured healthy active ratio: homes.bg 55%
+   floor (91.2% healthy), imot.bg 45% (68.8%), imoti.bg 55% (90.3%),
+   bcpea 35% (60.1%), and olx.bg/bazar.bg at a more conservative 20%
+   each (43.3%/45.2% healthy - genuinely tight portals, kept below the
+   old global 40% specifically because they don't have the margin to use
+   a higher floor safely).
+   - Verified: ran the extended check against the real currently-
+     committed `data/*.json` for all 6 portals. It correctly flags all 3
+     incident-affected portals (`homes`/`imot`/`olx`, all 0% active vs.
+     their 55%/45%/20% floors) and correctly passes the 3 unaffected ones
+     with real margin (`bazar` 41.1% vs. 20% floor, `imoti_bg` 89.4% vs.
+     55%, `bcpea` 59.8% vs. 35%) - i.e. this check, run against the exact
+     real data this incident produced, would have caught it and only it,
+     not a false-positive on the healthy portals sitting right next to
+     it in the same run.
+5. **`sync_to_supabase.py`'s data-loss guard gap - NOT changed this
+   session, flagged for a dedicated follow-up.** Considered gating sync
+   (or its destructive stale-row cleanup) on whether the same run's own
+   commit/push step is known to have succeeded, but concluded that
+   doesn't actually target the real mechanism: the live-visible symptom
+   here (homes.bg/imot.bg/olx.bg showing depressed active ratios) comes
+   from `GONE_AFTER` staleness compounding across *multiple* runs' worth
+   of failed commits, not from any single run's own push outcome - a run
+   whose OWN push succeeds can still sync against a locally-stale
+   baseline left behind by earlier failed runs, and a run whose push
+   fails is syncing genuinely fresh, correctly-scraped local data for
+   whatever it did manage to touch this run. A fix that's actually
+   correct here would need either per-listing "last successfully
+   committed" state distinct from "last scraped" state, or a `GONE_AFTER`
+   redesign that's aware of git commit history - real scope, and not
+   something to invent under incident-response time pressure against the
+   pipeline's single highest-risk file (writes to live production
+   Supabase). Item 4 above substantially covers the residual risk going
+   forward regardless (a future recurrence of this same staleness
+   cascade now fails the workflow loudly via the extended freshness
+   check, rather than needing another location-allocation audit to
+   surface it) - this item is the harder, structural piece still open.
+
+**Out of scope, explicitly, per the task and this project's standing
+rules**: no live `workflow_dispatch` of `scrape.yml`/`scrape-large.yml`
+against production - everything above was validated locally (syntax
+checks, a real embedded-shell-script extraction + stubbed-git dry run,
+`pytest`, and replays against the real currently-committed data files).
+The actual fix only takes effect on the next real scheduled run once this
+merges. No direct write to or correction of live Supabase data attempted
+or recommended - the sync pipeline, once this ships, is what corrects it
+going forward.
+
+**Not shipped by this session** - built in an isolated worktree
+(`fix-relisting-storm-incident-2026-09-24`, branched off the latest
+`origin/main`), handed back for Missy's review per standing process, not
+self-merged. Files touched: `geo_utils.py`, `detect_relistings.py`,
+`.github/workflows/scrape.yml`, `check_scrape_freshness.py`,
+`tests/test_relisting_chain_guard.py`, this file.
 
 ---
 ---

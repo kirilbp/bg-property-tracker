@@ -4805,3 +4805,39 @@ this corrects an already-pushed commit, per this correction's own explicit
 instruction - not a new commit layered on top pretending the leak never
 happened. **Not self-merged** - handed back for Missy's review before
 merge, same standing rule as every prior pass.
+## 2026-09-24: scrape.yml commit-failure incident (GH001 file-size rejection, relisting chain-storm root cause) - backlog item 35
+
+Full writeup, every real number, and the exact verification performed for
+each fix lives in `docs/backlog.md` item 35 (this session kept it there
+directly rather than splitting narrative/summary across two files, the
+same self-contained shape item 27 used). This entry is a short pointer
+for anyone scanning decisions.md specifically: the incident was
+independently re-verified against real GitHub Actions job logs (`mcp__
+github` tools, not just the paraphrase handed off at task start) for runs
+35883682311/35918395367/35945698190 before any fix was written - the
+182.01MB/179.26MB file sizes, the GH001 push-rejection text, the 61,862
+relistings-chained-in-one-run figure, and the commit-step-fails-then-
+sync-succeeds-anyway step sequence all matched the real logs exactly.
+
+Root cause fix: a new, historically-calibrated guard
+(`geo_utils.relisting_chain_guard_tripped()`) stops `detect_relistings.py`
+from ever chaining an implausible fraction of a portal's backlog as
+relistings in one run again; `scrape.yml`'s commit step now recognizes a
+hard GH001 rejection and fails immediately instead of retrying it 5
+times; `check_scrape_freshness.py` now covers the 6 portals `scrape.yml`
+owns (previously only alo.bg/imoti.net had this safety net), with
+per-portal thresholds re-derived from real healthy-day data rather than
+one shared floor. `sync_to_supabase.py`'s deeper data-loss guard gap
+(syncing from a locally-stale baseline after a commit failure) was
+deliberately NOT touched this session - reasoning for why that's a
+harder, separate problem than it first looks, and why it's flagged for a
+dedicated follow-up instead of a rushed fix, is in backlog item 35's own
+point 5.
+
+Built in an isolated worktree (`fix-relisting-storm-incident-2026-09-24`,
+branched off the latest `origin/main`), no live `workflow_dispatch`
+against production per this project's standing rule - every fix validated
+locally (pytest, a real stubbed-git dry run of the exact embedded shell
+script, and replays of `check_scrape_freshness.py`/`detect_relistings.py`
+against the real currently-committed data files). Not self-merged -
+handed back for Missy's review per standing process.

@@ -40,10 +40,11 @@ on subsequent runs.
 
 import json
 import re
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from geo_utils import compute_motivation_score, listing_city_key
+from geo_utils import compute_motivation_score, listing_city_key, relisting_chain_guard_tripped
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -80,12 +81,12 @@ def _match(pattern, url):
 def detect_portal(portal, history_filename, photo_key_fn):
     path = DATA_DIR / history_filename
     if not path.exists():
-        return 0
+        return 0, False
     history = json.loads(path.read_text(encoding="utf-8"))
 
     last_seens = {lid: rec["snapshots"][-1]["seen_at"] for lid, rec in history.items() if rec.get("snapshots")}
     if not last_seens:
-        return 0
+        return 0, False
     latest_overall = max(last_seens.values())
     cutoff = datetime.fromisoformat(latest_overall) - GONE_AFTER
 
@@ -98,7 +99,28 @@ def detect_portal(portal, history_filename, photo_key_fn):
         if pk:
             active_by_photo.setdefault(pk, []).append(lid)
 
-    injected = 0
+    # First pass: find every candidate (gid, aid) pair WITHOUT mutating
+    # history yet, so the mass-relisting-storm guard below can check the
+    # real matched count before anything is injected - see
+    # relisting_chain_guard_tripped's own docstring/geo_utils.py's
+    # RELISTING_GUARD_ABS comment for why this exists and how its
+    # thresholds were calibrated. Equivalent to the old single-pass
+    # behavior when the guard doesn't trip, for the case that actually
+    # matters here: each match's own "already tagged" check only looks at
+    # snapshots persisted by a PRIOR run, and a match's target aid is
+    # never itself a gid also being matched this pass (an active listing
+    # can't also be one of this portal's gone_ids). One narrow edge case
+    # Missy's review flagged, not fixed here since it's pre-existing and
+    # orthogonal to the storm guard: if two different gids share the same
+    # photo key and could both match the same aid in one run, the old
+    # single-pass code mutated active_rec["first_seen"] on the first
+    # match, which could change whether the second gid's own match
+    # condition evaluates true - this two-pass version always evaluates
+    # every candidate against the pre-mutation first_seen instead, so it
+    # could (rarely) chain a pair the old code would have skipped or vice
+    # versa. No data-loss risk either way; flagged for a future targeted
+    # look, not blocking this fix.
+    matches = []
     for gid in gone_ids:
         pk = photo_key_fn(history[gid]["latest"].get("photo"))
         if not pk:
@@ -117,38 +139,48 @@ def detect_portal(portal, history_filename, photo_key_fn):
             )
             if already:
                 continue
-            # Captured now, before inserting - this is the new listing's own
-            # earliest REAL (non-injected) snapshot, i.e. the actual moment
-            # it first appeared and the price it actually appeared at. Not
-            # necessarily active_rec["snapshots"][0]: a listing chained
-            # through more than one prior relisting already has an earlier
-            # injected marker sitting before its own real first entry.
-            # Recorded on the tag itself (came_back_at/came_back_price) so
-            # index.html can show the exact off-market gap and price instead
-            # of approximating from whenever price_history's next real price
-            # CHANGE happens to land, which can be well after the actual
-            # relist date if the price held steady for a while.
-            first_real_snap = next(
-                (s for s in active_rec["snapshots"] if s.get("source") != "relisted_from"), None
-            )
-            injected_snap = {
-                "seen_at": gone_last_snap["seen_at"],
-                "price_eur": gone_last_snap["price_eur"],
-                "source": "relisted_from",
-                "relisted_from": gid,
-            }
-            if first_real_snap:
-                injected_snap["came_back_at"] = first_real_snap["seen_at"]
-                injected_snap["came_back_price"] = first_real_snap["price_eur"]
-            active_rec["snapshots"].insert(0, injected_snap)
-            active_rec["snapshots"].sort(key=lambda s: s["seen_at"])
-            if gone_last_snap["seen_at"] < active_rec["first_seen"]:
-                active_rec["first_seen"] = gone_last_snap["seen_at"]
-            injected += 1
+            matches.append((gid, aid))
+
+    if relisting_chain_guard_tripped(portal, len(matches), len(history)):
+        return 0, True
+
+    injected = 0
+    for gid, aid in matches:
+        gone_rec = history[gid]
+        gone_last_snap = gone_rec["snapshots"][-1]
+        active_rec = history[aid]
+        # Captured now, before inserting - this is the new listing's own
+        # earliest REAL (non-injected) snapshot, i.e. the actual moment
+        # it first appeared and the price it actually appeared at. Not
+        # necessarily active_rec["snapshots"][0]: a listing chained
+        # through more than one prior relisting already has an earlier
+        # injected marker sitting before its own real first entry.
+        # Recorded on the tag itself (came_back_at/came_back_price) so
+        # index.html can show the exact off-market gap and price instead
+        # of approximating from whenever price_history's next real price
+        # CHANGE happens to land, which can be well after the actual
+        # relist date if the price held steady for a while.
+        first_real_snap = next(
+            (s for s in active_rec["snapshots"] if s.get("source") != "relisted_from"), None
+        )
+        injected_snap = {
+            "seen_at": gone_last_snap["seen_at"],
+            "price_eur": gone_last_snap["price_eur"],
+            "source": "relisted_from",
+            "relisted_from": gid,
+        }
+        if first_real_snap:
+            injected_snap["came_back_at"] = first_real_snap["seen_at"]
+            injected_snap["came_back_price"] = first_real_snap["price_eur"]
+        active_rec["snapshots"].insert(0, injected_snap)
+        active_rec["snapshots"].sort(key=lambda s: s["seen_at"])
+        if gone_last_snap["seen_at"] < active_rec["first_seen"]:
+            active_rec["first_seen"] = gone_last_snap["seen_at"]
+        injected += 1
 
     if injected:
         path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
-    return injected
+    return injected, False
 
 
 def compute_leads(history):
@@ -246,9 +278,14 @@ def compute_leads(history):
 
 def main():
     total = 0
+    any_guard_tripped = False
     for portal, (history_filename, photo_key_fn) in PORTALS.items():
-        injected = detect_portal(portal, history_filename, photo_key_fn)
-        print(f"{portal}: {injected} relisting(s) detected and chained")
+        injected, tripped = detect_portal(portal, history_filename, photo_key_fn)
+        any_guard_tripped = any_guard_tripped or tripped
+        if tripped:
+            print(f"{portal}: chain-storm guard tripped - 0 relisting(s) chained this run (see ::error:: above)")
+        else:
+            print(f"{portal}: {injected} relisting(s) detected and chained")
         total += injected
         if injected:
             leads_filename = history_filename.replace("history_", "leads_", 1)
@@ -257,6 +294,13 @@ def main():
             (DATA_DIR / leads_filename).write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
             print(f"  regenerated {leads_filename} ({len(leads)} leads)")
     print(f"\nTotal relistings chained this run: {total}")
+    if any_guard_tripped:
+        # Non-zero exit so this step's own outcome (scrape.yml keeps
+        # continue-on-error: true here, matching item 30's precedent) can
+        # be surfaced as a real, visible workflow failure by the check
+        # near the end of the job, instead of the guard trip staying
+        # buried in this step's own log output.
+        sys.exit(1)
 
 
 if __name__ == "__main__":

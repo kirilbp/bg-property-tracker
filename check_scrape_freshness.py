@@ -59,8 +59,32 @@ MAX_FRESHEST_SNAPSHOT_AGE_HOURS = 30
 # them. Do NOT extend this check to olx.bg or bazar.bg with this same
 # threshold without first re-deriving a real per-portal margin from their
 # own healthy-day data, the way this was done for alo.bg/imoti.net.
-MIN_ACTIVE_RATIO = 0.40
+DEFAULT_MIN_ACTIVE_RATIO = 0.40
 MIN_LISTINGS_FOR_RATIO_CHECK = 50
+
+# 2026-09-24 (docs/backlog.md's scrape.yml commit-failure incident): wires
+# this check into scrape.yml for the 6 portals it owns (homes.bg, imot.bg,
+# olx.bg, bazar.bg, imoti.bg, bcpea), which previously had no freshness/
+# safety-net coverage at all - exactly the gap that let 3 consecutive
+# failed commits (~15h+ of no fresh data landing on main) go completely
+# undetected. Per the caveat above, each portal gets its OWN floor with
+# real margin below ITS OWN measured healthy-day active ratio (the same
+# 2026-09-22 measurements quoted above) rather than one shared threshold
+# copy-pasted across all of them: homes.bg (91.2% healthy) and imoti.bg
+# (90.3% healthy) can safely take a much higher floor than olx.bg (43.3%)
+# and bazar.bg (45.2%), which stay at a LOWER floor than
+# DEFAULT_MIN_ACTIVE_RATIO precisely because - per the same caveat - they
+# don't have the margin to use a higher one without real false-alarm risk.
+# A portal not listed here (alo.bg, imoti.net's "" suffix) keeps using
+# DEFAULT_MIN_ACTIVE_RATIO unchanged, exactly as before this change.
+PER_PORTAL_MIN_ACTIVE_RATIO = {
+    "homes": 0.55,     # healthy ~91.2% - ~36pt margin
+    "imot": 0.45,      # healthy ~68.8% - ~24pt margin
+    "olx": 0.20,       # healthy ~43.3% - tight portal, see caveat above; best safely-available margin
+    "bazar": 0.20,     # healthy ~45.2% - tight portal, see caveat above; best safely-available margin
+    "imoti_bg": 0.55,  # healthy ~90.3% - ~35pt margin
+    "bcpea": 0.35,     # healthy ~60.1% - ~25pt margin
+}
 
 
 def check_history_freshness(history_path):
@@ -102,7 +126,7 @@ def check_history_freshness(history_path):
     return True
 
 
-def check_leads_active_ratio(leads_path):
+def check_leads_active_ratio(leads_path, min_ratio):
     if not leads_path.exists():
         print(f"::error::check_scrape_freshness.py: {leads_path} does not exist - nothing to check")
         return False
@@ -113,15 +137,15 @@ def check_leads_active_ratio(leads_path):
         return True
     active = sum(1 for l in leads if l.get("source_status") == "active")
     ratio = active / total
-    if ratio < MIN_ACTIVE_RATIO:
+    if ratio < min_ratio:
         print(
             f"::error::check_scrape_freshness.py: {leads_path}: only {active}/{total} listings "
-            f"({ratio:.1%}) are source_status=active (floor {MIN_ACTIVE_RATIO:.0%}) - this looks like "
+            f"({ratio:.1%}) are source_status=active (floor {min_ratio:.0%}) - this looks like "
             f"a portal-wide false-removal event (a dead/stuck crawl aging every listing past its own "
             f"GONE_AFTER threshold), not a real mass delisting."
         )
         return False
-    print(f"OK: check_scrape_freshness.py: {leads_path}: {active}/{total} ({ratio:.1%}) active")
+    print(f"OK: check_scrape_freshness.py: {leads_path}: {active}/{total} ({ratio:.1%}) active (floor {min_ratio:.0%})")
     return True
 
 
@@ -136,8 +160,9 @@ def main():
         suffix_part = f"_{suffix}" if suffix else ""
         history_path = DATA_DIR / f"history{suffix_part}.json"
         leads_path = DATA_DIR / f"leads{suffix_part}.json"
+        min_ratio = PER_PORTAL_MIN_ACTIVE_RATIO.get(suffix, DEFAULT_MIN_ACTIVE_RATIO)
         ok = check_history_freshness(history_path) and ok
-        ok = check_leads_active_ratio(leads_path) and ok
+        ok = check_leads_active_ratio(leads_path, min_ratio) and ok
     if not ok:
         sys.exit(1)
 

@@ -162,6 +162,26 @@ jobs:
       # if: always() - belt-and-suspenders alongside each scraper step's
       # own continue-on-error: true above; commits whatever's on disk
       # regardless of which steps succeeded.
+      #
+      # docs/backlog.md's 2026-09-24 incident: a git push here was
+      # rejected with GH001 (data/leads_homes.json + data/history_homes.
+      # json at 182.01MB/179.26MB, past GitHub's 100MB hard limit - real
+      # numbers off job logs for runs 35883682311/35918395367/
+      # 35945698190, root cause fixed separately by detect_relistings.py's
+      # own chain-storm guard). The retry loop below only knows how to
+      # recover from an ORDINARY conflict (another workflow pushed first -
+      # re-pull and retry genuinely can succeed at that); a hard GH001
+      # file-size rejection is not resolvable that way at all - the exact
+      # same oversized commit gets resent unchanged on every retry, so it
+      # burned through all 5 attempts and 5 identical failures before
+      # finally giving up, discarding every portal's real data on every
+      # attempt (this step commits data/ as one atomic commit) with no
+      # specific diagnosis anywhere in the log. Detecting GH001 (or any
+      # push rejection that isn't a resolvable conflict) and failing
+      # immediately and loudly - instead of masking it behind retries that
+      # can never succeed - matches this project's existing "fail loud,
+      # never silent" pattern (docs/backlog.md item 30's olx.bg timeout
+      # fix).
       - if: always()
         run: |
           git config user.name "property-bot"
@@ -198,9 +218,11 @@ jobs:
                 continue
               fi
             fi
-            if git push; then
-              pushed=true
-              break
+            push_output=$(git push 2>&1) && { pushed=true; echo "$push_output"; break; }
+            echo "$push_output"
+            if echo "$push_output" | grep -qE 'GH001|exceeds GitHub.s file size limit'; then
+              echo "::error::git push rejected by GitHub for exceeding its file size limit (GH001), not an ordinary conflict - retrying would just resend the same oversized commit 5 times and fail identically every time. Failing immediately instead of masking this behind retries meant for a resolvable rebase race (docs/backlog.md item 30's 'fail loud' pattern). This run's scraped data is NOT on main - see the push output above for exactly which file(s) are over the 100MB limit, and docs/backlog.md's 2026-09-24 incident writeup for the known root cause (detect_relistings.py's relisting-chain logic, already guarded against recurring) and prior file-size trend."
+              exit 1
             fi
             echo "Push rejected (attempt $attempt/5) - another workflow likely pushed to main first now that backfills/scrapes run in parallel; re-pulling and retrying"
             sleep $((attempt * 5))
@@ -245,3 +267,25 @@ jobs:
             exit 1
           fi
           echo "OK: scraper_olx.py step outcome was '${{ steps.scraper_olx.outcome }}' (not a failure/timeout)"
+
+      # docs/backlog.md's 2026-09-24 incident: 3 consecutive scheduled runs
+      # failed at the commit/push step above (GH001 file-size rejection)
+      # with no visible signal anywhere else in the job - continue-on-error
+      # on every scraper step plus if: always() on the commit and sync
+      # steps meant the run's OWN conclusion never had to reflect it, and
+      # nothing here was checking whether fresh data had actually landed
+      # on main for the 6 portals this workflow owns (homes.bg, imot.bg,
+      # olx.bg, bazar.bg, imoti.bg, bcpea) - only alo.bg/imoti.net had this
+      # coverage, wired into scrape-large.yml. Mirrors that wiring exactly:
+      # runs last (after the commit/push and sync_to_supabase.py above, so
+      # it checks the real state that landed on main, not this run's
+      # pre-push local state), if: always() so it still runs when an
+      # earlier step failed, and deliberately WITHOUT continue-on-error so
+      # a real staleness event makes this run itself report red instead of
+      # relying on a human noticing days or weeks later. See check_scrape_
+      # freshness.py's own docstring/PER_PORTAL_MIN_ACTIVE_RATIO comment
+      # for what it checks and how each portal's own threshold was
+      # calibrated - do not copy one shared threshold across portals with
+      # very different healthy-day active ratios without re-deriving it.
+      - if: always()
+        run: python check_scrape_freshness.py homes imot olx bazar imoti_bg bcpea
