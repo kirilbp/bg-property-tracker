@@ -2,7 +2,8 @@
 Regression/proof tests for the alo.bg detail-page extraction functions added
 2026-09-24: geo_utils.extract_description_alo() (real implementation,
 replacing the "always return None" stub from backlog #9), geo_utils.
-extract_specs_alo() (new), and geo_utils.extract_contact_alo() (new).
+extract_specs_alo() (new), geo_utils.extract_contact_alo() (new), and
+geo_utils.extract_photos_alo() (existing, fixed this same day - see below).
 
 This sandbox's network egress to alo.bg is blocked (see the NOTE above
 extract_description_alo() in geo_utils.py), so none of this could be tested
@@ -17,17 +18,41 @@ tests exercise that text-based strategy against more than one plausible
 markup shape for the same content, and prove a non-matching page degrades
 to None/partial results instead of crashing or extracting garbage.
 
+2026-09-24 update: a production sample of every listing these extractors
+have actually run against (`_photos_checked: True` in data/history_alo.json)
+showed extract_photos_alo() at a 0.0% hit rate (0/29,792) and
+extract_specs_alo()/extract_contact_alo() at 3.9%/3.7% - see this session's
+investigation for the full numbers. extract_photos_alo() had NO test
+coverage at all before this (the class below is new); its bug (a
+regex requiring one exact `class`/`data-type`/`href` attribute ORDER, which
+real HTML has no reason to honor) is now proven with a same-content,
+reordered/differently-quoted fixture the OLD regex could never have matched
+- the kind of real discrepancy a hand-written order-sensitive regex can't
+be tested against with a fixture the same author writes in the same
+assumed order. extract_specs_alo()'s and extract_contact_alo()'s own
+overly-narrow structural assumptions (label+value flattened into one text
+node; a real contact box always containing a link) are fixed with
+similarly justified, narrowly-scoped loosenings - see each function's own
+comment in geo_utils.py and the new fixtures/tests below for exactly what
+changed and why.
+
 Run with: python3 -m unittest tests.test_alo_detail_extraction -v
 (no pytest / other test framework is installed in this repo.)
 """
 
 import os
+import re
 import sys
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from geo_utils import extract_contact_alo, extract_description_alo, extract_specs_alo
+from geo_utils import (
+    extract_contact_alo,
+    extract_description_alo,
+    extract_photos_alo,
+    extract_specs_alo,
+)
 
 
 # A realistic full detail page, modeled on the real screenshots: a spec
@@ -134,6 +159,46 @@ TITLE_ECHO_BLOCK_NO_REAL_DESCRIPTION = """
 </body></html>
 """
 
+# The OLD `_ALO_GALLERY_ANCHOR_RE` required class/data-type/href to appear
+# in exactly that order, double-quoted, inside one <a> tag - this fixture
+# has the *same* three gallery anchors and the *same* one non-photo
+# data-type="ajax" anchor as a straightforward fixture would, but with
+# attributes reordered (href/data-type/class instead of class/data-type/
+# href) and single-quoted, plus one anchor with an extra `id` attribute
+# wedged between class and data-type. None of this is invalid or unusual
+# HTML - real markup has no obligation to serialize attributes in any
+# particular order - and the OLD regex could not match a single one of
+# these anchors (proven by test_old_regex_would_have_matched_nothing
+# below), which is the concrete, reproducible shape of the 0.0% production
+# hit rate this fix addresses. One relative href (no leading slash, the
+# shape the original comment described) and one with a leading slash (to
+# prove the double-slash join bug is also fixed) are both included.
+ALO_GALLERY_REORDERED_ATTRS_PAGE = """
+<html><body>
+<div class="gallery">
+  <a href='user_files/r/rossterrabg/11346838_1_big.jpg' data-type='image' class='fancyimages thumb'>1</a>
+  <a id="g2" href="/user_files/r/rossterrabg/11346838_2_big.jpg" class="fancyimages" data-type="image">2</a>
+  <a data-type='image' class='fancyimages' href='user_files/r/rossterrabg/11346838_3_big.jpg'>3</a>
+  <a class="fancyimages" data-type="ajax" href="/more-on-google/11346838">More on Google</a>
+</div>
+</body></html>
+"""
+
+# A page with no gallery anchors at all - proves this degrades to an empty
+# list, not an error, same as the original implementation.
+ALO_NO_GALLERY_PAGE = """
+<html><body><p>Няма снимки.</p></body></html>
+"""
+
+# A byte-for-byte copy of the pre-fix `_ALO_GALLERY_ANCHOR_RE`, kept here
+# (not imported from geo_utils, which no longer defines it) purely to prove
+# what it could and couldn't match - see
+# test_old_regex_would_have_matched_nothing below.
+_OLD_ALO_GALLERY_ANCHOR_RE = re.compile(
+    r'<a\b[^>]*\bclass="[^"]*fancyimages[^"]*"[^>]*\bdata-type="image"[^>]*\bhref="([^"]+)"',
+    re.IGNORECASE,
+)
+
 
 class ExtractDescriptionAloTest(unittest.TestCase):
     def test_extracts_real_description_table_shape(self):
@@ -218,6 +283,34 @@ class ExtractSpecsAloTest(unittest.TestCase):
         # nothing usable rather than store a bogus year.
         self.assertIsNone(specs)
 
+    def test_extracts_inline_flattened_label_value_shape(self):
+        # The OLD exact `line == label` check could never match this shape
+        # at all - label and value sharing one flattened text node, no
+        # intervening tag - only the "label alone on its own line" shape
+        # was ever tested, since that's the only shape a screenshot-derived
+        # fixture could assume. This is the shape the 2026-09-24 fix adds
+        # support for (see _ALO_SPEC_LABELS' own comment in geo_utils.py).
+        html = """
+        <ul>
+          <li>Вид на имота: Тристаен апартамент</li>
+          <li>Квадратура - 72 кв.м</li>
+          <li>Вид строителство– Тухла</li>
+        </ul>
+        """
+        specs = extract_specs_alo(html)
+        self.assertIsNotNone(specs)
+        self.assertEqual(specs["property_type_raw"], "Тристаен апартамент")
+        self.assertEqual(specs["sqm"], 72)
+        self.assertEqual(specs["construction_type"], "Тухла")
+
+    def test_inline_shape_does_not_false_positive_on_longer_label(self):
+        # "Етажа" (a real, differently-inflected Bulgarian word) must never
+        # be mistaken for the shorter known label "Етаж" just because it
+        # starts with the same letters - the character right after the
+        # matched label must be a real separator, not just any character.
+        html = "<p>Етажа на входа беше пребоядисан.</p>"
+        self.assertIsNone(extract_specs_alo(html))
+
 
 class ExtractContactAloTest(unittest.TestCase):
     def test_extracts_name_and_real_external_website_table_shape(self):
@@ -239,8 +332,27 @@ class ExtractContactAloTest(unittest.TestCase):
     def test_returns_none_when_heading_absent(self):
         self.assertIsNone(extract_contact_alo(UNRELATED_PAGE))
 
-    def test_returns_none_when_heading_present_but_no_links_at_all(self):
+    def test_extracts_name_when_heading_present_but_no_links_at_all(self):
+        # 2026-09-24 (see extract_contact_alo()'s own comment): this used to
+        # return None outright whenever no ancestor within the search depth
+        # contained a real `<a href>` - reasonable for finding an AGENCY's
+        # storefront link, but wrong for a private seller's contact box,
+        # which plausibly has no link at all (a phone-reveal control is
+        # very plausibly a `<button>`, not an `<a>`) while still showing the
+        # poster's own name as plain text. The fix extracts that name
+        # directly instead of gating the whole box on a link's presence.
         html = """<div><h3>Контакт с подателя на обявата</h3><p>Иван Иванов</p></div>"""
+        contact = extract_contact_alo(html)
+        self.assertIsNotNone(contact)
+        self.assertEqual(contact["agency_name"], "Иван Иванов")
+        self.assertNotIn("agency_website", contact)
+
+    def test_returns_none_when_heading_present_but_truly_no_content(self):
+        # No name-shaped line anywhere within the search depth (only the
+        # heading itself, and a phone-reveal control's own skip-listed
+        # label text) - genuinely nothing to extract, still None.
+        html = """<div><h3>Контакт с подателя на обявата</h3>
+        <button>Виж</button></div>"""
         self.assertIsNone(extract_contact_alo(html))
 
     def test_returns_none_on_garbage_html(self):
@@ -262,6 +374,58 @@ class ExtractContactAloTest(unittest.TestCase):
         self.assertIsNotNone(contact)
         self.assertEqual(contact["agency_name"], "SOLO AGENCY")
         self.assertNotIn("agency_website", contact)
+
+
+class ExtractPhotosAloTest(unittest.TestCase):
+    def test_old_regex_would_have_matched_nothing(self):
+        # Proves the actual production bug, not just a hypothetical one:
+        # the exact pre-fix regex, run against realistically-reordered/
+        # differently-quoted gallery anchors, finds zero matches - the same
+        # 0/29,792 production shape this fix addresses.
+        self.assertEqual(_OLD_ALO_GALLERY_ANCHOR_RE.findall(ALO_GALLERY_REORDERED_ATTRS_PAGE), [])
+
+    def test_extracts_gallery_regardless_of_attribute_order_and_quoting(self):
+        photos = extract_photos_alo(ALO_GALLERY_REORDERED_ATTRS_PAGE)
+        self.assertEqual(
+            photos,
+            [
+                "https://www.alo.bg/user_files/r/rossterrabg/11346838_1_big.jpg",
+                # Leading "/" must not produce a "alo.bg//..." double slash.
+                "https://www.alo.bg/user_files/r/rossterrabg/11346838_2_big.jpg",
+                "https://www.alo.bg/user_files/r/rossterrabg/11346838_3_big.jpg",
+            ],
+        )
+        # The data-type="ajax" anchor (a "more on Google" panel, not a
+        # gallery photo) must never be included.
+        self.assertTrue(all("more-on-google" not in p for p in photos))
+
+    def test_returns_empty_list_when_no_gallery_present(self):
+        self.assertEqual(extract_photos_alo(ALO_NO_GALLERY_PAGE), [])
+
+    def test_returns_empty_list_on_garbage_html(self):
+        self.assertEqual(extract_photos_alo("<<<not even html"), [])
+        self.assertEqual(extract_photos_alo(""), [])
+
+    def test_absolute_href_used_as_is(self):
+        html = """
+        <a class="fancyimages" data-type="image"
+           href="https://cdn.alo.bg/user_files/x/1_big.jpg">1</a>
+        """
+        self.assertEqual(extract_photos_alo(html), ["https://cdn.alo.bg/user_files/x/1_big.jpg"])
+
+    def test_protocol_relative_href_gets_https_scheme(self):
+        html = """
+        <a class="fancyimages" data-type="image"
+           href="//cdn.alo.bg/user_files/x/1_big.jpg">1</a>
+        """
+        self.assertEqual(extract_photos_alo(html), ["https://cdn.alo.bg/user_files/x/1_big.jpg"])
+
+    def test_deduplicates_repeated_href(self):
+        html = """
+        <a class="fancyimages" data-type="image" href="user_files/x/1_big.jpg">1</a>
+        <a class="fancyimages" data-type="image" href="user_files/x/1_big.jpg">1 dup</a>
+        """
+        self.assertEqual(extract_photos_alo(html), ["https://www.alo.bg/user_files/x/1_big.jpg"])
 
 
 if __name__ == "__main__":

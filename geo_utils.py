@@ -437,20 +437,76 @@ def extract_photos_imoti_net(html):
 
 # alo.bg's detail page lists every gallery photo as an <a class="fancyimages"
 # data-type="image" href="user_files/.../<n>_big.jpg"> - a relative URL, and
-# the reason a plain URL-regex scan missed them all (confirmed live via
-# probe_photos_round2.py: 14 such anchors on one listing, none of them an
-# absolute https:// URL). One extra non-photo anchor with data-type="ajax"
-# (a "more on Google" panel) is excluded by requiring data-type="image".
-_ALO_GALLERY_ANCHOR_RE = re.compile(
-    r'<a\b[^>]*\bclass="[^"]*fancyimages[^"]*"[^>]*\bdata-type="image"[^>]*\bhref="([^"]+)"',
-    re.IGNORECASE,
-)
+# the reason a plain URL-regex scan missed them all (per this project's
+# history: a diagnostic probe script, referenced only by name in an earlier
+# version of this comment, was never actually committed to this repo - no
+# probe output, workflow, or captured HTML fixture survives anywhere in git
+# history or in tests/ - so its "14 anchors" claim could not be
+# independently re-verified this session).
+#
+# 2026-09-24 fix (see docs/missy-findings and this change's own commit for
+# the investigation): a production sample of 29,792 real, independently-
+# varied alo.bg listings that the CURRENT extractor has actually run
+# against - i.e. every listing marked `_photos_checked: True` - had a 0.0%
+# photos hit rate. That is not plausible as "alo.bg listings genuinely never
+# have a gallery"; real-estate listings on a major portal virtually always
+# carry more than one photo, and this project's OWN grid-crawl already
+# proves single cover photos are routinely present (see `photo` in
+# fetch_listings_page()). The root cause: the regex below required the
+# anchor's `class`, `data-type`, and `href` attributes to appear in that
+# EXACT order, with double quotes specifically, inside the same `<a ...>`
+# tag - real HTML attribute order/quoting is not guaranteed to match
+# whatever order was hand-transcribed into a regex, and unlike every other
+# extractor in this file (extract_description_alo/extract_specs_alo/
+# extract_contact_alo, all BeautifulSoup-based), this was the only one that
+# parsed raw HTML text as a fixed-order string pattern instead of an actual
+# parsed DOM - and it also shipped with zero test coverage (unlike its three
+# siblings in tests/test_alo_detail_extraction.py), so this brittleness was
+# never caught. Rewritten below to look up the anchor via BeautifulSoup
+# instead - order/quote-independent by construction, exactly like every
+# other alo.bg extractor already is. This still requires the same two
+# identifying signals (a `fancyimages` class token AND `data-type="image"`)
+# with no loosening of what counts as a gallery photo, only of the
+# structural assumption (attribute order) that was demonstrably too narrow.
+#
+# One extra non-photo anchor with data-type="ajax" (a "more on Google"
+# panel, per the original comment) is still excluded by requiring
+# data-type="image".
+_ALO_GALLERY_ANCHOR_CLASS_RE = re.compile(r"\bfancyimages\b", re.IGNORECASE)
 
 
 def extract_photos_alo(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return []
+
     seen = []
-    for href in _ALO_GALLERY_ANCHOR_RE.findall(html):
-        url = href if href.startswith("http") else f"https://www.alo.bg/{href}"
+    for a in soup.find_all("a", attrs={"data-type": "image"}):
+        classes = a.get("class") or []
+        # `class` is a list of tokens once BeautifulSoup parses it, so this
+        # is deliberately checked per-token (order-independent) rather than
+        # re-joining and regexing the whole attribute string, which would
+        # reintroduce the same kind of exact-string assumption this fix is
+        # replacing.
+        if not any(_ALO_GALLERY_ANCHOR_CLASS_RE.search(c) for c in classes):
+            continue
+        href = a.get("href")
+        if not href:
+            continue
+        href = href.strip()
+        # Same relative-URL joining alo.bg's own grid-crawl photo already
+        # needs (see fetch_listings_page()'s img_url handling in
+        # scraper_alo.py) - handles a protocol-relative "//" URL and a
+        # leading "/" without producing a "https://www.alo.bg//..."
+        # double-slash, which a bare f"https://www.alo.bg/{href}" (the
+        # previous join here) would have for any href starting with "/".
+        if href.startswith("//"):
+            url = "https:" + href
+        elif href.startswith("http"):
+            url = href
+        else:
+            url = "https://www.alo.bg/" + href.lstrip("/")
         if url not in seen:
             seen.append(url)
     return seen
@@ -492,6 +548,25 @@ def extract_photos_alo(html):
 # at all this returns None outright - a structural page change should
 # shrink what gets extracted, never produce garbage under a
 # plausible-looking key.
+#
+# 2026-09-24 investigation (see this change's own commit): production data
+# shows only 3.9% of the 29,792 listings the current extractor has actually
+# run against have any spec populated at all - much lower than a real
+# structured spec table plausibly explains on its own (this project has no
+# live evidence either way - the screenshot this was built from can't show
+# what fraction of real listings fill in the table). One assumption in the
+# label-matching below WAS provably too narrow regardless of that base
+# rate, and is fixed here: `line == label` requires the label to be its own
+# ENTIRE, isolated text node before it'll even look for a value - a
+# screenshot can show "Label: Value" rendered as one visual row but cannot
+# show whether that row is really two separate DOM text nodes (what every
+# test fixture here assumed, since that's the only shape anyone could
+# write a fixture for) or one flattened "Label: Value" text node (get_text
+# would then produce a single line, e.g. "Вид на имота: Тристаен
+# апартамент", which the old exact-equality check could never match at
+# all). _alo_label_match() below now also accepts that second shape -
+# still gated on the literal Bulgarian label text, never guessed, just no
+# longer assuming which of the two DOM shapes carries it.
 _ALO_SPEC_LABELS = [
     ("Вид на имота", "property_type_raw"),
     ("Квадратура", "_sqm_raw"),
@@ -549,6 +624,36 @@ def _alo_spec_value(lines, start_idx):
     return " ".join(collected).strip()
 
 
+# Separators that could plausibly join a label to an inline value on the
+# same flattened text node ("Вид на имота: Тристаен апартамент") - a colon
+# or dash (incl. the two common Cyrillic-text dash characters), optionally
+# surrounded by whitespace. The character right after the label must be one
+# of these (not just "any character") specifically so a longer/differently
+# -inflected Bulgarian label that happens to start with the same letters
+# (e.g. a hypothetical "Етажа" row) is never mistaken for a match on the
+# shorter "Етаж" label - see _ALO_SPEC_LABELS' own comment.
+_ALO_SPEC_INLINE_SEPARATOR_CHARS = ":-–— \t"
+
+
+def _alo_label_match(line, label):
+    """Returns "" if `line` is exactly `label` alone (the original, already
+    -tested "label is its own text node" shape - caller then reads the
+    value from subsequent lines via _alo_spec_value()); the inline value
+    text if `line` is `label` immediately followed by a separator and more
+    text on the SAME line (the "flattened Label: Value" shape - see
+    _ALO_SPEC_LABELS' own comment); or None if `line` doesn't match `label`
+    at all."""
+    if line == label:
+        return ""
+    if line.startswith(label):
+        rest = line[len(label):]
+        if rest and rest[0] in _ALO_SPEC_INLINE_SEPARATOR_CHARS:
+            value = rest.lstrip(_ALO_SPEC_INLINE_SEPARATOR_CHARS).strip()
+            if value:
+                return value
+    return None
+
+
 def extract_specs_alo(html):
     try:
         soup = BeautifulSoup(html, "html.parser")
@@ -560,11 +665,15 @@ def extract_specs_alo(html):
     raw = {}
     for i, line in enumerate(lines):
         for label, key in _ALO_SPEC_LABELS:
-            if line == label and key not in raw:
-                value = _alo_spec_value(lines, i + 1)
-                if value:
-                    raw[key] = value
-                break
+            if key in raw:
+                continue
+            inline_value = _alo_label_match(line, label)
+            if inline_value is None:
+                continue
+            value = inline_value if inline_value else _alo_spec_value(lines, i + 1)
+            if value:
+                raw[key] = value
+            break
 
     if not raw:
         return None
@@ -662,33 +771,13 @@ _ALO_CONTACT_SKIP_LINES = frozenset([
 _ALO_CONTACT_ANCESTOR_SEARCH_LEVELS = 6
 
 
-def extract_contact_alo(html):
-    try:
-        soup = BeautifulSoup(html, "html.parser")
-    except Exception:
-        return None
-
-    label_node = soup.find(string=re.compile(r"^\s*" + re.escape(_ALO_CONTACT_HEADING_TEXT) + r"\s*$"))
-    if label_node is None or label_node.parent is None:
-        return None
-
-    # Walk up from the heading to the first ancestor that actually holds a
-    # real link - the heading itself is normally just a bare label with no
-    # anchor of its own, so this expands outward to whatever box wraps the
-    # poster's name/website/phone-reveal button together, without assuming
-    # a fixed nesting depth or class name.
-    node = label_node.parent
-    container = None
-    for _ in range(_ALO_CONTACT_ANCESTOR_SEARCH_LEVELS):
-        if node is None:
-            break
-        if node.find("a", href=True) is not None:
-            container = node
-            break
-        node = node.parent
-    if container is None:
-        return None
-
+def _alo_contact_from_container(container):
+    """Extracts agency_name/agency_website from a single candidate
+    container - the poster-name heuristic and the real-external-website
+    link scan, unchanged from the original implementation (see
+    extract_contact_alo()'s own comment for the reasoning behind each
+    line-classification rule). Returns None if this container yields
+    neither."""
     contact = {}
 
     website = None
@@ -722,6 +811,52 @@ def extract_contact_alo(html):
         break
 
     return contact or None
+
+
+def extract_contact_alo(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+
+    label_node = soup.find(string=re.compile(r"^\s*" + re.escape(_ALO_CONTACT_HEADING_TEXT) + r"\s*$"))
+    if label_node is None or label_node.parent is None:
+        return None
+
+    # Walk up from the heading, trying extraction at each ancestor level and
+    # stopping at the first one that actually yields a name and/or website -
+    # the heading itself is normally just a bare label with no useful
+    # content of its own, so this expands outward to whatever box wraps the
+    # poster's name/website/phone-reveal button together, without assuming
+    # a fixed nesting depth or class name.
+    #
+    # 2026-09-24 (see this change's own commit): this used to require the
+    # candidate container to already contain a real `<a href>` before even
+    # trying to read a name from it - reasonable for finding a real AGENCY's
+    # box (which does carry an alo.bg storefront link), but this field's own
+    # comment above always described it as extracting the poster's name in
+    # general, agency or not. A private individual's contact box plausibly
+    # has NO real `<a href>` at all (a phone-reveal control and a "send
+    # message" control are both very plausibly `<button>`s, not links) - the
+    # href-gated container search would then never even look at that box's
+    # text, silently dropping the poster's name too, not just the (genuinely
+    # absent) website. Production data backs this: only 3.7% of listings
+    # this extractor has actually run against have any agency_name at all -
+    # implausibly low for "the poster's own display name", which alo.bg's
+    # contact box shows for every listing, agency or private. Trying
+    # extraction at every level (name-or-website, no link required to even
+    # look) and keeping the first productive one removes that unjustified
+    # gate while still never guessing a name from unrelated page content
+    # beyond the bounded ancestor search this already used.
+    node = label_node.parent
+    for _ in range(_ALO_CONTACT_ANCESTOR_SEARCH_LEVELS):
+        if node is None:
+            break
+        contact = _alo_contact_from_container(node)
+        if contact:
+            return contact
+        node = node.parent
+    return None
 
 
 # imoti.bg detail-page specs/contact extraction, added 2026-09-24. Unlike

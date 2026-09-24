@@ -425,6 +425,7 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
             consecutive_failures = 0
             l["_detail_fetched"] = True
             l["_photos_checked"] = True
+            l["_gallery_specs_rechecked"] = True
             continue
         if html is None:
             consecutive_failures += 1
@@ -496,6 +497,25 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
         # retried forever - only listings visited before this flag existed
         # get the one-time re-check backfill_detail_alo.py now does.
         l["_photos_checked"] = True
+        # 2026-09-24: the SAME "flag says checked, extractor didn't actually
+        # work" problem _photos_checked was created to solve recurred, this
+        # time within extract_photos_alo() itself rather than in whether it
+        # ran at all - a production sample of every _photos_checked listing
+        # (29,792 of them) found a 0.0% photos hit rate, root-caused to
+        # _ALO_GALLERY_ANCHOR_RE requiring one exact HTML attribute order
+        # that real markup had no reason to honor (see geo_utils.py's own
+        # comment on the fix). extract_specs_alo()/extract_contact_alo()
+        # also had overly-narrow structural assumptions loosened the same
+        # day (see their own comments). Every _photos_checked: True listing
+        # was visited under the OLD, broken photo extractor at least once,
+        # so - same fix as _photos_checked's own creation - a new, separate
+        # marker distinguishes "visited under today's fixed extractors" from
+        # "visited (possibly under the old broken one)". Set unconditionally
+        # on every real visit (like its two siblings) so a listing that
+        # genuinely has no gallery under the fixed extractor still counts as
+        # done and isn't retried forever - only listings visited before
+        # today get backfill_detail_alo.py's new one-time re-check.
+        l["_gallery_specs_rechecked"] = True
         if on_checkpoint and i % checkpoint_every == 0:
             on_checkpoint()
 
@@ -573,7 +593,7 @@ def save_history(history):
 # value.
 _DETAIL_ONLY_FIELDS = (
     "description", "photos", "site_updated_at", "lat", "lng",
-    "_detail_fetched", "_photos_checked", "sqm",
+    "_detail_fetched", "_photos_checked", "_gallery_specs_rechecked", "sqm",
     "property_type_raw", "construction_type", "built_year", "completion_status",
     "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
     "has_central_heating", "agency_name", "agency_website",
