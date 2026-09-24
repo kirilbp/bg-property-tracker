@@ -235,16 +235,19 @@ def label_info(scope, label_text):
 # Every .label__group's label text found anywhere in `expanded`, already
 # known to reliably contain "Район" and "Описание" (the two label_info()
 # calls fetch_listing_detail() already makes, both confirmed against real
-# saved pages - see this module's docstring). Investigated 2026-09-24
-# (bcpea detail gallery/specs task) for a genuine property-spec table
-# (property type/sqm/construction/floor - see target schema in
-# sync_to_supabase.py's SOURCE_FIELDS) the way alo.bg's detail page has
-# one: none of the two real saved pages this scraper was originally built
-# from carried any label beyond those two (confirmed by the original
-# module docstring's own enumeration of "two things not present in the
-# grid" - district and description, nothing else), and every real
-# "Описание" value seen in production data/history_bcpea.json is a single
-# monolithic legal-auction announcement that already embeds the cadastral
+# saved pages). Investigated 2026-09-24 (bcpea detail gallery/specs task)
+# for a genuine property-spec table (property type/sqm/construction/floor
+# - see target schema in sync_to_supabase.py's SOURCE_FIELDS) the way
+# alo.bg's detail page has one: none of the two real saved pages this
+# scraper was originally built from carried any label beyond "Район" and
+# "Описание". Note this module's own docstring only enumerates "Район"
+# and a real photo as the two things the detail page adds over the grid -
+# it predates and never mentions "Описание" (added later, per the
+# separate label_info(expanded, "Описание") call and its own comment
+# citing probe_descriptions.py), so the docstring alone isn't evidence
+# against a spec table; the real evidence is that every "Описание" value
+# seen in production data/history_bcpea.json is a single monolithic
+# legal-auction announcement that already embeds the cadastral
 # identifier/area/boundaries/auction date as free-running prose rather
 # than separate structured fields - not a spec table this site simply
 # doesn't render for a different kind of listing.
