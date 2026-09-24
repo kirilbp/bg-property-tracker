@@ -232,6 +232,101 @@ def label_info(scope, label_text):
     return None
 
 
+# Every .label__group's label text found anywhere in `expanded`, already
+# known to reliably contain "Район" and "Описание" (the two label_info()
+# calls fetch_listing_detail() already makes, both confirmed against real
+# saved pages - see this module's docstring). Investigated 2026-09-24
+# (bcpea detail gallery/specs task) for a genuine property-spec table
+# (property type/sqm/construction/floor - see target schema in
+# sync_to_supabase.py's SOURCE_FIELDS) the way alo.bg's detail page has
+# one: none of the two real saved pages this scraper was originally built
+# from carried any label beyond those two (confirmed by the original
+# module docstring's own enumeration of "two things not present in the
+# grid" - district and description, nothing else), and every real
+# "Описание" value seen in production data/history_bcpea.json is a single
+# monolithic legal-auction announcement that already embeds the cadastral
+# identifier/area/boundaries/auction date as free-running prose rather
+# than separate structured fields - not a spec table this site simply
+# doesn't render for a different kind of listing.
+#
+# This sandbox's network egress to sales.bcpea.org is blocked (confirmed
+# again while investigating this - same as every other scraper's own
+# egress-block note), so a live re-check against today's real markup
+# wasn't possible, and CLAUDE.md rules out iterating that check via a live
+# workflow_dispatch. So this function exists as a defensive, zero-cost
+# tripwire rather than a guess: fetch_listing_detail() calls it and logs
+# any label__group text it doesn't already recognize, so a future
+# detail-checked run (or backfill_detail_bcpea.py's own logs) would
+# surface a genuine new label the moment one actually starts appearing on
+# a real page, without this code ever having to assume one exists today.
+_KNOWN_BCPEA_LABELS = frozenset(["РАЙОН", "ОПИСАНИЕ", "НАСЕЛЕНО МЯСТО"])
+
+
+def unrecognized_labels(expanded):
+    """Every .label__group label text in `expanded` that isn't one of the
+    two fields already extracted (or the grid's settlement label, which
+    also uses this same markup) - see _KNOWN_BCPEA_LABELS' own comment.
+    Returns a sorted list of the exact label text found, or [] when
+    nothing unexpected is present (the expected/confirmed case on every
+    page seen so far)."""
+    found = set()
+    for group in expanded.find_all(class_="label__group"):
+        label = group.find(class_="label")
+        if label:
+            text = label.get_text(strip=True)
+            if text.upper() not in _KNOWN_BCPEA_LABELS:
+                found.add(text)
+    return sorted(found)
+
+
+def extract_photos_bcpea(expanded):
+    """Every real (non-placeholder, non-logo/icon) <img> src found in
+    `expanded`, with the already-proven `.head` image first (exactly the
+    element fetch_listing_detail() already used for the single `photo`
+    field, so a page with only that one image yields a single-element
+    list - identical behavior to before this function existed) followed by
+    any other distinct <img> elsewhere in `expanded`, in DOM order,
+    deduped by resolved URL.
+
+    Whether sales.bcpea.org detail pages ever actually render more than
+    this one photo could not be confirmed this session - network egress to
+    the site is blocked (see this module's docstring) and no second real
+    saved page with extra photos was available to check, unlike the single
+    saved page + saved grid page this scraper was originally built from.
+    This is written as a superset scan of the one already-confirmed-real
+    location (not a guess at some new gallery selector) specifically so it
+    degrades safely either way: if a listing's page genuinely has only the
+    one `.head` image (the confirmed case for every page seen so far),
+    this returns exactly that one URL and nothing more is claimed; if a
+    future page does render additional real photos elsewhere in
+    `expanded`, this captures them without any code change."""
+    def is_real(src):
+        if not src:
+            return False
+        low = src.lower()
+        return not any(bad in low for bad in ("placeholder", "logo", "icon", "spacer"))
+
+    photos = []
+    seen = set()
+
+    def add(img_tag):
+        if img_tag is None:
+            return
+        src = img_tag.get("src")
+        if not is_real(src):
+            return
+        full = src if src.startswith("http") else BASE_URL + src
+        if full not in seen:
+            seen.add(full)
+            photos.append(full)
+
+    head = expanded.find(class_="head")
+    add(head.find("img") if head else None)
+    for img in expanded.find_all("img"):
+        add(img)
+    return photos
+
+
 def debug_html_snippet(html):
     """A short description of unexpected HTML - long enough to tell a bot
     challenge/block page (a title like "Just a moment..." or "Forbidden",
@@ -320,6 +415,12 @@ def fetch_listings_page(browser, url):
     return listings
 
 
+# Populated by fetch_listing_detail()'s unrecognized-label tripwire below -
+# module-level so it dedupes across every listing in one process run (each
+# scheduled run is a fresh process, so this naturally resets run to run).
+_seen_unrecognized_labels = set()
+
+
 def fetch_listing_detail(browser, listing, geocoder):
     # Returns whether the page itself actually loaded - used by
     # fetch_listing_details() to detect a run of consecutive *fetch*
@@ -367,12 +468,24 @@ def fetch_listing_detail(browser, listing, geocoder):
     if description:
         listing["description"] = description
 
-    if not listing.get("photo"):
-        head = expanded.find(class_="head")
-        img_tag = head.find("img") if head else None
-        if img_tag and img_tag.get("src") and "placeholder" not in img_tag["src"].lower():
-            src = img_tag["src"]
-            listing["photo"] = src if src.startswith("http") else BASE_URL + src
+    # Full photo set (see extract_photos_bcpea()'s own comment) - `photo`
+    # is kept exactly as before (still the `.head` image, first in the
+    # list) for backward compatibility with every existing reader of that
+    # single field.
+    photos = extract_photos_bcpea(expanded)
+    if photos:
+        listing["photos"] = photos
+        if not listing.get("photo"):
+            listing["photo"] = photos[0]
+
+    # Zero-cost tripwire for a genuine new spec label (see
+    # _KNOWN_BCPEA_LABELS' own comment) - logged once per distinct label
+    # text per run, not per listing, so a real new label surfaces in a
+    # run's logs without spamming them across ~1,300 listings.
+    new_labels = [l for l in unrecognized_labels(expanded) if l not in _seen_unrecognized_labels]
+    if new_labels:
+        _seen_unrecognized_labels.update(new_labels)
+        print(f"DEBUG: unrecognized label__group text on {listing['url']}: {new_labels}", flush=True)
 
     query_parts = [p for p in [district, settlement, "България"] if p]
     if query_parts:
@@ -527,7 +640,15 @@ def save_history(history):
 # useful here", exactly like a fresh lat/lng always being the None
 # placeholder above. No guessing needed - same merge rule already applied
 # to lat/lng applies identically to photo.
-_DETAIL_ONLY_FIELDS = ("description", "detail_checked", "lat", "lng", "photo")
+#
+# "photos" (2026-09-24, added alongside "photo" above) is never set by the
+# grid crawl at all - extract_photos_bcpea() only ever runs from a detail
+# visit - so it's an unconditional detail-only field, same shape as
+# "description"/"detail_checked" above, not the "photo"/lat/lng merge-rule
+# case. update_history()'s generic "missing/falsy in the fresh record"
+# merge rule (an empty list counts as falsy, same as None/"") already
+# handles it correctly without any extra code here.
+_DETAIL_ONLY_FIELDS = ("description", "detail_checked", "lat", "lng", "photo", "photos")
 
 
 def update_history(history, listings):
