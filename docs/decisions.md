@@ -3909,3 +3909,790 @@ change), `data/leads_homes.json` + `data/history_homes.json` +
 `data/history_olx.json` (Fix 3 data remediation), this file and
 `docs/backlog.md` (item 33 corrections and additions). Not self-merged -
 handed back for Missy's re-review per standing process.
+
+### 2026-09-23 - Ready's second assignment: exhaustive category-allocation audit across all 8 portals - 2 classifier root causes fixed (title/url double-counting, УПИ keyword gap, plus 2 small keyword gaps), bazar.bg/imot.bg/olx.bg migrated off the known-bad 4-bucket classifier, 233,053 records recomputed and verified
+
+**Mandate**: user directly instructed "Ready needs to check very carefully
+each listing and ensure the correct allocation and placement" - a full,
+evidenced, all-portal audit, not a narrow re-run of the garage/parking-
+amenity fix (backlog item 32, PR #255, merged). Built in an isolated
+worktree (`ready/exhaustive-category-audit-2026-09-23`, off origin/main)
+per this repo's CLAUDE.md shared-checkout discipline; `git status`
+confirmed clean before starting, and Placy's own concurrent worktree
+(`/tmp/placy-audit`, `placy/full-audit-2026-09-23`) was checked and found
+to be touching only `index.html` at the time, not `geo_utils.py` or any
+scraper this pass touches.
+
+**Step 1 - mapped every portal to its real classification mechanism**
+(read every scraper's own call site, not assumed):
+  - `category_classifier.classify_listing()` (the shared 6-bucket scorer):
+    imoti.net (`scraper.py`), alo.bg (`scraper_alo.py`), imoti.bg
+    (`scraper_imoti_bg.py`) - 118,322 records combined.
+  - `geo_utils.classify_category()` (an older, cruder 4-bucket scorer -
+    land/house/commercial/apartment, first-keyword-anywhere-wins, no
+    weighting, defaults every unmatched title to "apartment"): bazar.bg
+    (`scraper_bazar.py`), imot.bg (`scraper_imot.py`), olx.bg
+    (`scraper_olx.py`) - 114,731 records combined. Also called by
+    `scraper_bcpea.py`, but that portal's raw `category` field is already
+    known-dead (bypassed by `sync_to_supabase.py`'s `bcpea_type_match()`
+    against bcpea's own precise controlled vocabulary - confirmed by
+    reading `type_filter_bucket()`, not touched by this pass).
+  - Portal's own ground-truth search partition, hardcoded `"high"`
+    confidence: homes.bg (`scraper_homes.py`) - 74,012 records. Confirmed
+    genuinely reliable (that module's own docstring: homes.bg has only 4
+    real for-sale property types total, no office/shop/garage/warehouse
+    exists on the portal at all) - not touched, no evidence of a problem.
+  - sales.bcpea.org's own exact controlled-vocabulary type field via
+    `bcpea_type_match()` - 2,246 records, out of this pass's scope per the
+    role's own standing boundary (not this role's classification path).
+
+**Step 2 - found and root-caused two NEW classifier bugs while dry-running
+the bazar/imot/olx migration** (found BEFORE running any migration against
+real data, exactly the "validate before you touch production" discipline
+this repo's CLAUDE.md calls for with live dispatches, applied here to a
+purely-local data recompute instead):
+
+1. **Title/url double-counting produces an outright (non-tied) wrong win,
+   not just a tied one** - the residual gap Ready's first assignment
+   explicitly disclosed but did not fix ("Четиристаен в Свети Влас +
+   паркомясто + склад"). Root cause: a portal's own url is often a
+   transliterated ECHO of its title (not independent taxonomy evidence the
+   way imoti.net's own category-path url segments are), so the same
+   amenity word counted in both title (weight 3) and url (weight 2)
+   outscores a listing's real, title-leading subject (weight 3 alone)
+   outright - no tie ever occurs, so the existing `_resolve_garage_tie`
+   tiebreak never even runs. Confirmed live and newly-quantified while
+   dry-running the olx.bg migration: a real house listing "Продавам
+   двуетажна къща 206РЗП и двор 525кв.м. с гараж в с.Тополово" scored
+   `garage=5` (title+url) outright beating `house=3` (title only - olx.bg's
+   own url spelled "къща" as "kascha", a transliteration
+   `CATEGORY_KEYWORDS["house"]` didn't have), "high" confidence.
+   **Fix**: `_resolve_subject_over_amenity()`/`AMENITY_CATEGORIES`/
+   `SUBJECT_CATEGORIES` in `category_classifier.py` generalizes the exact
+   same "Bulgarian titles are subject-first, amenities-appended" position
+   reasoning the garage tiebreak already established (docs/decisions.md's
+   prior 2026-09-23 "Ready" entry) - applied regardless of whether the raw
+   score happens to land on a tie, and not scoped to "garage" specifically
+   (real evidence found shop/business doing the same thing, e.g. a UPI
+   parcel tied against "business" via a false "фабрика" match inside the
+   place name "Захарна фабрика"). Same "apples-to-apples only" discipline
+   as the original fix: only overrides when the amenity-class winner
+   ALSO has its own match inside the title (never guesses off url/
+   description alone). Checked FIRST in `classify_listing()`, ahead of
+   both the existing tie logic and the single-signal/high-confidence
+   check, since it can override either shape of wrong result.
+
+2. **"упи" (a very common Bulgarian land-listing word - "урегулиран
+   поземлен имот"/"regulated land plot") never matched a title that OPENS
+   with it** - `CATEGORY_KEYWORDS["land"]`'s old entry was a plain
+   substring padded with a leading+trailing space (`" упи "`) specifically
+   to avoid a false match inside an unrelated longer word (e.g. "групи",
+   "принцип") - but that padding requires a character to exist BEFORE
+   "упи" too, which a title leading with "УПИ" (confirmed live to be the
+   single most common real phrasing - olx.bg alone had 154+ genuine land
+   listings hit this, e.g. "УПИ до къщи в Първенец", "УПИ в село Мезек")
+   never has. **Fix**: `_UPI_RE = re.compile(r"\bупи\b", re.IGNORECASE)` -
+   a proper word-boundary regex, confirmed live to still correctly reject
+   "групи"/"принцип" while matching "УПИ" at the start of a string, mid-
+   title, or followed by a comma - handled the same way `_ROOM_COUNT_RE`
+   already is (a dedicated regex, not a plain substring), since Python's
+   `\b` is Cyrillic-aware by default.
+
+3. **Two smaller keyword-list gaps**, found while spot-checking the newly-
+   populated garage/shop/business buckets for false positives: (a)
+   `"земеделски земи"` (plural of "земеделска земя") added to `land`,
+   confirmed live for 8 olx.bg records; (b) `"къщи"`/`"вили"` (plural of
+   "къща"/"вила") added to `house` - most plurals in this list are formed
+   by suffixing the singular (so the singular substring already matches
+   the plural for free, e.g. "апартамент"→"апартаменти"), but these two are
+   feminine nouns that pluralize by replacing the final "-а" with "-и", so
+   the singular substring never matched the plural at all - confirmed live
+   for 191 olx.bg + 14 alo.bg listings ("Две къщи с голям двор за
+   продажба", "продавам 2 къщи в Катуница"), most of which were
+   defaulting to "flat" (the no-match fallback) for want of any match.
+   **Disclosed, not fully solved, residual risk from THIS specific fix**:
+   sampling the fix's own effect on alo.bg surfaced 2 genuine new false
+   positives out of ~205 affected records (~1%) - "Южни къщи"/"Петрови
+   Къщи" are real, BRANDED apartment-complex NAMES (not the property
+   type) that a bare "къщи" substring can't distinguish from a genuine
+   "multiple houses for sale" listing; both landed at pre-existing LOW
+   confidence (`single_signal_only`/`tied_categories`), never a false
+   "high" claim, and the net effect (191+14 real fixes vs. 2 new
+   mistakes) was judged a clear net improvement rather than reverted -
+   flagged here rather than silently accepted, same disclosure standard
+   as the original assignment's 19-tie residual.
+
+All 3 fixes are covered by new, bug-discriminating tests (proven to fail
+against a pre-fix reimplementation, pass against the real fixed code, same
+standard as the original garage-tiebreak test file):
+`tests/test_category_classifier_subject_over_amenity.py` (6 tests),
+`tests/test_category_classifier_upi_keyword.py` (5 tests),
+`tests/test_category_classifier_plural_keywords.py` (3 tests). The
+existing `tests/test_category_classifier_garage_tiebreak.py` needed one
+assertion updated (a reason-string prefix, not category/confidence) since
+the new, more general check now resolves that exact same case first - see
+that file's own updated comment. Full suite: 64 tests / 4 subtests, all
+passing.
+
+**Step 3 - persisted the classifier fixes onto imoti.net/alo.bg/imoti.bg's
+already-committed data** (`backfill_subject_over_amenity_regression.py`,
+modeled on `backfill_garage_tiebreak_regression.py`'s pattern, but a FULL
+recompute rather than scoped to `category=="X" AND confidence=="low"` -
+deliberately, because this fix's own most concerning finding was NOT
+limited to already-low-confidence records):
+- imoti.net: 1 of 27,251 changed (`business`→`flat`, "1 bedroom apartment,
+  76 м 2 Pleven, Hotel Balkan" - "Hotel Balkan" is the building/area name).
+- alo.bg: 503 of 90,159 changed. **87 of those were previously `"high"`
+  confidence - confidently WRONG before this fix** (e.g. "2-стаен, тухлен,
+  Паркомясто, обзаведен" was `garage`/`high`; "Продава 3-СТАЕН с наематели
+  ползващи го като офис" was `business`/`high`) - a
+  `category=="garage" AND confidence=="low"` pre-filter (the shape of the
+  FIRST assignment's own backfill) would have missed every one of these,
+  since they weren't low-confidence at all. The other 416 were already
+  low-confidence, now correctly resolved instead of staying wrong.
+- imoti.bg: 1 of 912 changed (a stale `confidence: None` record,
+  pre-dating the `category_confidence` field, now correctly `high`).
+- Then re-run after adding the 2 plural keywords: 8 more changed (7
+  alo.bg `flat`→`house`, 1 imoti.bg confidence-only fix); a third re-run
+  confirmed 0 further changes (converged/idempotent).
+- **Data-integrity check**: diffed before/after for all 3 portals' full
+  history files field-by-field - confirmed the ONLY fields that changed on
+  any of the 505+8=513 touched records are `category`/
+  `category_confidence`; `snapshots`/`first_seen`/every other field
+  byte-for-byte identical across all 118,322 records these 3 portals'
+  classifier governs.
+
+**Step 4 - migrated bazar.bg, imot.bg, olx.bg off `geo_utils.
+classify_category()`** (`scraper_bazar.py`, `scraper_imot.py`,
+`scraper_olx.py` now call `category_classifier.classify_listing()` -
+`sync_to_supabase.py`'s own `CATEGORY_TO_BUCKET` comment had already
+anticipated this exact migration: "'apartment'/'commercial' are
+classify_category()'s old 4-value output..., still produced by portals
+not yet migrated to the nationwide expansion's category_classifier.py" -
+this pass completes that already-endorsed, already-in-progress migration
+rather than inventing a new one). Root cause this fixes: `geo_utils.
+classify_category()` has NO "garage" or "shop" concept in its own
+`CATEGORY_KEYWORDS` at all (only land/house/commercial/apartment) and
+silently defaults every unmatched title to "apartment" - already flagged
+KNOWN-BAD for sales.bcpea.org in that function's own docstring, but never
+checked for bazar.bg/imot.bg/olx.bg, which used the exact same function
+for their real, live-facing category. Confirmed real and quantified by
+sampling BEFORE migrating (not assumed): imot.bg alone had 342 listings
+literally titled "Продава ГАРАЖ, ..."/"Продава ПАРКОМЯСТО, ..." filed
+under "apartment" for want of any garage bucket to file them under;
+olx.bg had a comparable pattern at larger scale (later measured at 773
+real garage records after migration); bazar.bg (apartments-only scope by
+design - confirmed genuinely 100% apartments via that scraper's own
+docstring - so ALL its listings are genuinely apartments) had 183 genuine
+apartment listings wrongly pulled to "commercial" by an attached-amenity
+or place-name word, dominated by one specific pattern: "АТЕЛИЕ, ТАВАН"
+(132 of 183) - "ателие" is a real Bulgarian synonym for a studio-type
+apartment, already correctly in `category_classifier.py`'s OWN "flat"
+keyword list, but was miscategorized as "commercial" in `geo_utils`'s
+older, narrower keyword list the whole time.
+
+Scraper edits deliberately classify from the raw first scraped title line
+alone (not the fuller stored `title` field, which has ", <area>" appended)
+for imot.bg/olx.bg - matching exactly what `classify_category()` was
+always given there - specifically to avoid a new false-positive class an
+area/district name could introduce (e.g. "Промишлена зона"/"Бизнес хотел"
+are real place names, already a confirmed false-positive source
+elsewhere in this same investigation). The one-time migration backfill
+(`backfill_category_bazar_imot_olx_migration.py`, purely local - title/
+description/url already stored in each portal's `data/history_*.json`,
+same "no live fetch needed" reasoning every prior backfill in this project
+used) could only use the fuller stored `title` (area-appended) since
+that's what's actually on disk - a disclosed, accepted best-effort gap
+matching the exact precedent `backfill_garage_tiebreak_regression.py`
+already set for imoti.bg's own transient-slug case. In practice this
+rarely changes the outcome, since area is always appended AFTER a
+listing's own real subject and `_resolve_subject_over_amenity`'s whole
+point is preferring whichever category leads the text - confirmed by
+sampling that the "Бизнес хотел" area-name pattern resolves correctly
+either way.
+
+**Quantified migration effect** (before/after, all 114,731 bazar.bg +
+imot.bg + olx.bg records; full run output preserved for Missy's review):
+- bazar.bg: 51,677 `"apartment"` → 51,828 `"flat"` (net +151, the "АТЕЛИЕ"/
+  place-name corrections); 173 `"commercial"` → 8 `business`/3 `shop`
+  (163 of the 173 were genuine apartments, corrected to `flat`); new
+  `category_confidence` field populated for all 51,860 records (previously
+  `None` for 100% of them - this portal had NO confidence signal at all
+  before this migration).
+- imot.bg: 342 genuine garage-for-sale listings (`"Продава ГАРАЖ,
+  ..."`/`"Продава ПАРКОМЯСТО, ..."`) moved out of `apartment`/`flat` into
+  the real `garage` bucket (350 total after the plural/УПИ fixes settled);
+  646 genuine shop listings (`"Продава МАГАЗИН, ..."`/`"Продава
+  ЗАВЕДЕНИЕ, ..."`) moved from the too-coarse `commercial` bucket into the
+  real `shop` bucket; 427 genuine office/warehouse/hotel listings
+  (`"Продава ОФИС, ..."`/`"Продава СКЛАД, ..."`) correctly landed in
+  `business`.
+- olx.bg: 756 genuine garage/parking listings moved out of `apartment`
+  into `garage` (773 total after settling); 564/572 moved from
+  `commercial` into the correct `shop`/`business` split; 553 genuine land
+  listings (mostly the УПИ-fix cases) moved out of `apartment` into
+  `land`; 154 genuine multi-house listings (the plural-fix cases) moved
+  into `house`.
+- **Sitewide, all 8 portals combined (309,311 total listings)**:
+  `category_confidence: "low"` count is now 68,680 (22.2%) - a real,
+  substantially more honest number than the 7.8% figure this role's own
+  original brief cited, BECAUSE that 7.8% figure was computed BEFORE this
+  migration, when 114,731 records (37% of the whole site) came from a
+  mechanism that never tracked confidence AT ALL (silently `None`, not
+  counted as low anywhere) rather than 22.2% being a regression - it's the
+  first time this population's real uncertainty has ever been measured.
+  Sitewide bucket totals (excl. bcpea, which uses its own separate,
+  already-reliable `bcpea_type_match()`): flat 251,617, land 27,469, house
+  21,460, business 2,344, shop 2,363, garage 1,811 (down from garage's
+  pre-this-session count, reflecting both this pass's fixes and item 32's
+  already-merged ones - garage's own real population has shrunk twice now
+  as genuine apartment/house/land/shop/business listings keep getting
+  found and removed from it).
+- **Data-integrity check**: same field-by-field diff as step 3, run
+  against all 114,731 bazar.bg/imot.bg/olx.bg records - confirmed the ONLY
+  fields that changed are `category`/`category_confidence`; every other
+  field (snapshots, first_seen, price_eur, url, lat/lng, description,
+  etc.) byte-for-byte identical. `leads_bazar.json`/`leads_imot.json`/
+  `leads_olx.json` regenerated via each portal's own `compute_leads()`
+  (not hand-rolled), so cross-listing aggregates (`area_avg_price_per_sqm`
+  etc.) aren't left computed over the wrong bucket for any corrected
+  record. No changes were needed to `sync_to_supabase.py`'s
+  `CATEGORY_TO_BUCKET`/`type_filter_bucket()` or `index.html`'s matching
+  JS port - both already carry the old 4-value AND new 6-value category
+  names side by side (confirmed by reading `CATEGORY_TO_BUCKET`'s own
+  comment - it was deliberately built to support exactly this "portal-by-
+  portal migration" in progress), so this migration is a pure data/scraper
+  change with zero frontend/sync risk.
+
+**Verification beyond "the script ran"** (same standard as this role's
+first assignment): sampled real titles by hand at every stage - before the
+classifier fixes (to confirm the bugs were real, not assumed), after the
+classifier fixes but before the migration backfill (to confirm the
+double-counting and УПИ fixes actually resolved the specific regressions
+found, e.g. the olx.bg house→garage case), and after the full migration
+(sampled the newly-populated garage/shop/business buckets for both imot.bg
+and olx.bg - 36 titles read by hand across the two portals, ALL confirmed
+genuinely correct, e.g. "Продава ГАРАЖ, Широк център", "Продава МАГАЗИН,
+Център", "Продавам склад/цех 680РЗП с парцел 806кв."). Also spot-checked
+`"high"`-confidence records broadly across all 7 non-bcpea portals (not
+just the ones touched by a fix) per this role's own standing rule ("two
+signals agreeing can still both be wrong") - 42 titles sampled across
+imoti.net/alo.bg/homes.bg/imot.bg/olx.bg/bazar.bg/imoti.bg, all correctly
+classified; no new systemic pattern found beyond the ones already fixed.
+
+**Honest, explicit disclosure of what's still NOT fully certain after this
+pass** (per this role's standing rule and the user's explicit warning
+against "reassurance" over "genuine rigor"):
+- The 19-record alo.bg title-truncation residual and the ~5 genuinely
+  multi-way-ambiguous ties from the FIRST assignment are still open -
+  this pass didn't revisit them (out of scope; still low-confidence, not
+  silently wrong).
+- The 2-record "Южни къщи"/"Петрови Къщи" branded-complex-name false
+  positive class from this pass's own plural-keyword fix (detailed above)
+  is a known, accepted, small residual - not chased further given the
+  much larger net correction the same fix produced.
+- `_resolve_subject_over_amenity` is scoped to AMENITY-class winners
+  (garage/shop/business) vs. a leftmost SUBJECT-class match (flat/house/
+  land) specifically - it does NOT resolve SUBJECT-vs-SUBJECT conflicts
+  (e.g. a flat/house tie where one side's evidence is itself a place name,
+  the exact shape the "Южни къщи" false positive is). This is a real,
+  named gap, not swept under a vague "some records may still be wrong" -
+  flagged for a future pass rather than addressed here, since fixing it
+  would mean auditing every SUBJECT-category pair's real-data behavior
+  the same individual-evidence-per-pair discipline this project has used
+  for every tiebreak decision so far, which this pass didn't have evidence
+  for yet.
+- `tied_categories`/`single_signal_only`/`no_keyword_match` low-confidence
+  records across all 6 classify_listing()-governed portals (68,680 total)
+  were NOT individually re-verified one-by-one in this pass beyond the
+  targeted samples described above - they remain honestly flagged
+  low-confidence, per this role's "never guess a category" rule, not
+  silently asserted correct.
+- bcpea's `bcpea_type_match()` mechanism and homes.bg's ground-truth
+  partition were spot-checked (sampled `"high"` records above) but not
+  exhaustively re-audited from scratch in this pass - no evidence of a
+  problem was found in either.
+
+**Tests**: 64 tests / 4 subtests total in `tests/`, all passing - 3 new
+files (`test_category_classifier_subject_over_amenity.py`,
+`test_category_classifier_upi_keyword.py`,
+`test_category_classifier_plural_keywords.py`) plus one existing file
+(`test_category_classifier_garage_tiebreak.py`) updated for the new,
+more-general check now resolving its first test case (category/confidence
+assertions unchanged; only the reason-string prefix check was widened).
+
+**Not shipped by this session** - per this role's standing rule: built in
+an isolated worktree (`ready/exhaustive-category-audit-2026-09-23`, off
+`origin/main`), locally verified as above, committed to that branch only -
+not merged, not pushed - handed back for routing to Missy's review.
+
+### 2026-09-23 - Missy's review of PR #264 (Ready's exhaustive category-allocation audit) returned BLOCKING on one item - fixed in place, re-sampled properly, handed back
+
+**Missy's finding**: reviewed PR #264 (branch
+`ready/exhaustive-category-audit-2026-09-23`) and independently
+reproduced everything - portal mapping, the subject-over-amenity
+generalization, the УПИ fix, the scraper migration, data integrity, the
+test suite all held up and did NOT need rework. One confirmed, material
+bug: the PR's own "земеделски земи"/"къщи"/"вили" keyword addition claimed
+"2 new false positives out of ~205 affected records, both staying
+low-confidence" - but that sampling only covered the small alo.bg subset
+(7-14 records) when the real affected population was ~198 records (190
+olx.bg + 7 alo.bg + 1 imoti.bg), 93% of which was never actually sampled.
+Recomputing the real before/after effect against every stored record
+found 53 of the olx.bg records land at `"high"` confidence, not `"low"` as
+claimed, and two distinct real bug classes already live in
+`data/leads_olx.json`:
+1. **Substring collision**: "вили" (added with plain `re.escape`
+   substring matching, no word-boundary protection - unlike the same PR's
+   own УПИ fix, which correctly used `\bупи\b` specifically to avoid this
+   exact class of bug) is itself a 4-letter substring of "павилион"
+   (pavilion/kiosk, unrelated to houses). 9 of 13 records mentioning
+   "павилион" across portals were misclassified `house`, 4 at `high`
+   confidence (`olx_a4QA4`, `olx_a3C7D`, `olx_9C5tm`, `olx_9ZUa0`).
+2. **Land-vs-house context**: genuine land/plot listings reclassified
+   `house` at `high` confidence because "houses/villas nearby" is mere
+   location context in the listing, not the subject - e.g. `olx_9GeXh`
+   ("Поземлен имот 3800м2... на 20 метра от къщи" - a land plot 20m from
+   houses) -> wrongly `house`/`high`. More examples: `olx_9n4Jk`,
+   `olx_9aqwf`, `olx_a3vCU`, `olx_9RCOH`.
+
+**Fixed in place on the same branch** (not restarted - everything else in
+the PR confirmed correct and untouched, per Missy's own instruction):
+
+1. `_KASHTI_RE = re.compile(r"\bкъщи\b", re.IGNORECASE)` /
+   `_VILI_RE = re.compile(r"\bвили\b", re.IGNORECASE)` in
+   `category_classifier.py` - the same `\b` word-boundary treatment `_UPI_RE`
+   already has, replacing the plain-substring `CATEGORY_KEYWORDS["house"]`
+   entries for these two plurals. Collision-checked (per Missy's own
+   instruction to check "any other collision risk the same way you'd check
+   any new keyword") by scanning every stored title/description across all
+   8 portals for every substring containing "къщи"/"вили" - confirmed this
+   also catches a second real, live collision the review didn't name:
+   "автокъщи" ("car dealerships", plural) and "вкъщи" ("at home") both
+   contain "къщи" as a bare substring, same as "павилион" contains "вили".
+2. `_demote_context_only_house_signals()` - a new land-vs-house
+   SUBJECT-vs-SUBJECT resolver (this exact gap was already explicitly
+   named as unaddressed in this item's own prior "Honest residual gaps"
+   disclosure: "`_resolve_subject_over_amenity` doesn't yet resolve
+   SUBJECT-vs-SUBJECT conflicts"). Two iterations were needed, both found
+   by this fix's OWN required full-population re-sampling (not by Missy a
+   second time):
+   - First cut (specificity only: demote "къщи"/"вили" whenever no other
+     house keyword also matched the same signal) resolved all 5 of
+     Missy's named examples, but full-population resampling found it
+     wrongly flipped genuine multi-house listings to `land` - e.g. real
+     olx.bg listing "Две къщи с АКТ 14 в общ парцел..." (two actual
+     houses, full room-by-room descriptions, "with a shared parcel"
+     trailing as an attached-land amenity) - because "къщи" was still each
+     listing's ONLY house keyword even when genuinely the real subject.
+   - Second cut added POSITION (title/description word order - the same
+     "subject leads, amenity/context trails" reasoning already established
+     for the garage tiebreak and subject-over-amenity fixes) but applied
+     it generically to ANY house keyword vs. ANY land keyword, per signal.
+     This fixed the multi-house-with-parcel regression (title's own word
+     order protects it: "къщи" leads, "парцел" trails) but full
+     re-sampling found a SECOND new regression: a real, clean
+     two-signal-agreement house-development listing ("Къща град Плевен...")
+     whose long description happens to OPEN by describing its underlying
+     "10 парцела" before getting to the "4-ри редови къщи" actually being
+     sold - generic position wrongly stripped its `"high"` confidence down
+     to `"low"`, because free-text descriptions aren't reliably
+     subject-first the way a short title is.
+   - **Final design**: title/description asymmetric. TITLE uses generic
+     position (any house keyword vs. any land keyword - titles ARE
+     reliably subject-first). DESCRIPTION/URL only ever demote when
+     house's evidence in that ONE signal is PURELY the ambiguous plural
+     context words ("къщи"/"вили") with no other, more specific/definitive
+     house keyword also present in that same text, regardless of word
+     order - never overriding a genuine singular "къща"/"вила" elsewhere
+     in a long description. A signal with no land competitor of its own to
+     compare (so neither variant can settle it directly - e.g. the title
+     in "Имот 630м2... от последните къщи", which never spells out
+     "Поземлен" itself) borrows the verdict from a sibling signal that WAS
+     directly resolved (needed for `olx_9RCOH`, where only the description
+     ever says "Поземлен имот").
+3. Two small `land` keyword vocabulary gaps, closed because without them
+   several of Missy's own named cases had ZERO competing land evidence at
+   all (the position/specificity logic above had nothing to compare
+   against): `"поземлен имот"` (a generic, very common land-plot phrase,
+   distinct from the already-present `"земеделски имот"` which is
+   specifically AGRICULTURAL land) and `_NIVI_RE = re.compile(r"\bниви\b",
+   re.IGNORECASE)` (plural of "нива" - the exact same feminine -а/-и
+   pluralization gap "къщи"/"вили" needed fixing for, just never
+   previously found on the land side; word-boundary-guarded from the
+   start, confirmed live it would otherwise collide with
+   "денивелация"/"денивилация" - a real construction term - and "лениви").
+4. Also fixed a genuine double-counting bug this fix's own first draft
+   introduced (found by its own required verification, before ever
+   reaching Missy): folding "къщи"/"вили" and "ниви" into `_score_signal`'s
+   main per-category `any()` check instead of a separate additive `if`
+   block - a signal matching BOTH "къща" and "къщи" (a real, live pattern:
+   one description, singular AND plural, both genuinely describing the
+   same house) was being counted twice, inflating that signal's weight 2x
+   instead of a clean 1x, which changed several real tie-break outcomes.
+
+**Re-sampled the ACTUAL full affected population this time** (Missy's
+explicit instruction, matching the same "spot-check where the volume
+actually is" gap she separately caught in Placy's parallel audit that
+night) - all 6 `classify_listing()`-governed portals, not just alo.bg
+(`backfill_land_house_context_regression.py`, full recompute, same
+pattern as this item's prior two backfills):
+- imoti.net: 0/27,251 changed. bazar.bg: 0/51,860 changed.
+- alo.bg: 4/90,159 changed (3 `house`->`flat` - "Двустайна къщичка"/
+  "Привилидж Форт Бийч"/"Сън Вилидж", all correctly no longer false
+  `house` matches; 1 confidence-only, `land`/`low`->`land`/`high`,
+  disclosed separately below as a pre-existing, not-fixed-here collision).
+- imoti.bg: 2/912 changed (1 confidence-only fix, 1 category fix -
+  "Търговско помещение, Република" (imotibg_515292) `flat`->`land`).
+  **CORRECTION (Missy's PR #264 THIRD review, 2026-09-23): this record was
+  WRONG, and the justification originally written here for it was
+  factually false.** There was no pre-existing "stray land-keyword match"
+  of any kind - Missy reproduced the classifier as it stood immediately
+  before this round's own "поземлен имот" keyword addition, directly
+  against this exact title/description, and got
+  `('flat', 'low', 'no_keyword_match')`: zero keyword matches anywhere.
+  The real cause: this round's own new "поземлен имот" keyword matched
+  standard Bulgarian cadastral-registry boilerplate in the record's own
+  description ("...построена в поземлен имот с идентификатор №
+  67338.516.1..." - describing the land parcel UNDERNEATH this 460m²
+  commercial food-service space, not the property being sold), which this
+  round's own individual-record verification pass failed to catch despite
+  claiming it had. Fixed in a later commit this same day by guarding
+  "поземлен имот" with a negative lookahead against the immediately-
+  following "с идентификатор" cadastral shape (`_ZEMYA_IMOT_RE`) - see
+  that entry below for the full fix and re-verification against all 15
+  records sitewide matching this phrase.
+- imot.bg: 4/26,285 changed, all confidence-only (`land`/`low`->
+  `land`/`high` - 4 genuine "Продава ПАРЦЕЛ" listings, correct).
+- **olx.bg: 322/36,586 changed, 33 previously `"high"` confidence and
+  confidently WRONG.** Breakdown: 163 `flat`->`land` (titles/descriptions
+  literally opening "Поземлен имот..." that previously had ZERO keyword
+  match at all, defaulting to `flat`); 95 `land`->`land` confidence-only
+  fixes; 36 `house`->`land` (genuine land-plot-with-house-context
+  corrections, including all 5 of Missy's own named examples, ALL 36
+  individually read in full and confirmed correct - e.g. "Парцел с вила",
+  "Дворно място с вила" following the same already-accepted "парцел с
+  къща" land-keyword convention); 11 `house`->`flat` (the "павилион"
+  substring-collision fix - correctly falls to the honest no-match default
+  since no shop/business keyword happens to fit either, rather than a
+  forced guess); 10 `business`->`land`/3 `shop`->`land`/2 `garage`->`land`
+  (further corrections, all 15 individually read and confirmed genuine
+  "Поземлен имот..." listings); 2 `house`->`shop` (the павилион cases that
+  DO have a shop/business keyword match).
+- **Total: 332 of 233,053 records changed** (0 + 0 + 4 + 2 + 4 + 322 across
+  imoti.net/bazar.bg/alo.bg/imoti.bg/imot.bg/olx.bg) - corrected here
+  (Missy's PR #264 THIRD review, 2026-09-23: the original "34" written here
+  was actually just the previously-`"high"`-confidence-wrong subset total,
+  not the total changed-record count, which this per-portal breakdown
+  itself already summed to 332). **34 of those 332 were previously
+  `"high"` confidence and confidently wrong.** Re-ran the backfill a second
+  time: 0 further changes (converged/idempotent).
+- **Data-integrity check** (same standard as every prior backfill in this
+  investigation): diffed every touched history file field-by-field -
+  confirmed the ONLY fields that changed on any touched record are
+  `category`/`category_confidence`. `leads_*.json` regenerated via each
+  portal's own `compute_leads()` so cross-listing aggregates aren't left
+  computed over the wrong bucket for any corrected record; confirmed the
+  record SET is identical before/after (no records added/dropped), only
+  `category`/`category_confidence`/`score`/`days_on_market` (the latter a
+  normal side effect of recomputing leads at a later timestamp, not
+  specific to this fix) differ on the 966 alo.bg leads rows the 4 history
+  changes cascade into.
+- **Sitewide** (309,311 listings, all 8 portals):
+  `category_confidence: "low"` 68,680 -> 68,580 (net -100, essentially
+  flat - this fix moves records between categories/confidence levels in
+  both directions, not a one-way shift of the sitewide low-confidence
+  rate). Bucket totals: house 21,510 -> 21,458 (-52), land 28,895 ->
+  29,110 (+215), flat 251,602 -> 251,452 (-150), shop 2,363 -> 2,362 (-1),
+  business 2,344 -> 2,334 (-10), garage 1,811 -> 1,809 (-2).
+
+**Verification beyond "the script ran"** (same standard as every prior
+pass in this investigation): all 5 of Missy's named land examples and all
+4 named павилион examples individually re-confirmed correct by hand after
+the final fix. Every olx.bg transition group with more than a handful of
+records read in full, not sampled (`house->land` 36/36; `business/shop/
+garage->land` 15/15), plus a random 25-record cross-sample of the full 322
+changed records, plus the original 163-record `flat->land` group spot-
+checked (20 random + several manual full-text reads). Both of this fix's
+OWN two regressions (described above) were found DURING this required
+re-sampling, before ever showing the result to Missy again - fixed, and
+the exact regression titles are now explicit non-regression tests so
+neither can silently return.
+
+**New tests**: `tests/test_category_classifier_plural_keywords.py`
+extended (not forked) with 3 new test classes, 20 new tests -
+`ViliPavilionSubstringCollisionTest` (6: павилион/привилидж/Сън Вилидж/
+past-tense-verb-suffix false matches, plus a standalone-word non-
+regression check), `KashtiAvtokashtaSubstringCollisionTest` (3: the sibling
+автокъщи/вкъщи collisions found during this fix's own collision-check
+diligence), `LandVsHouseContextTest` (8: all 4 of Missy's distinct land
+examples including the cross-signal-corroboration-only `olx_9RCOH` case,
+plus this fix's own 2 real regressions as explicit non-regression checks,
+plus a "no land mention anywhere" untouched-baseline check). Full suite:
+80 tests, all passing (37 across the 4 category-classifier test files).
+
+**One found-but-NOT-fixed issue, honestly disclosed rather than folded
+in**: `терен` (an existing "land" keyword predating this whole PR, not
+something either this fix or the original PR added) is itself a substring
+of several common, unrelated real-estate words - "партерен" (ground
+floor), "сутерен" (basement) - the exact same collision class this fix
+fixed for "вили"/"къщи"/"автокъщи". This fix's own new title-position
+logic (generic, any house/land keyword) surfaced one live case
+(`alo_11423208`, "Партерен етаж на къща разположена на първа линия море" -
+a ground-floor-of-a-house apartment listing) where this PRE-EXISTING
+collision now produces `land`/`"high"` confidence instead of the
+pre-existing `land`/`"low"` - the underlying wrong category already
+existed before this fix touched anything, but this fix made it more
+confidently wrong. Not fixed here - out of the two specific bug classes
+Missy's review scoped this pass to, and `терен` appears inside several
+very common words (unlike the two isolated collisions this pass already
+vetted), so a proper fix needs the same full nationwide collision audit
+"вили"/"къщи" just got - flagged here for a future targeted pass, added to
+`docs/backlog.md` item 34.
+
+**Not self-merged** - fixed in place on the existing branch
+(`ready/exhaustive-category-audit-2026-09-23`), not restarted, per Missy's
+own explicit instruction; handed back for another Missy review before
+merge, same "nothing ships without Missy" standing rule as every prior
+pass.
+
+### 2026-09-23 (later) - Missy's THIRD review of PR #264 returned BLOCKING again, two narrower findings - one a factually wrong justification Ready had written about their own fix - both fixed in place, re-verified
+
+Missy's third pass on this same PR confirmed the round-2 fix held up
+cleanly (all 9 previously-flagged land/павилион IDs, the терен disclosure,
+the 34-of-233,053 backfill's own correctness, 80/80 tests, file scope) but
+found two new, real, narrower bugs - both introduced by round 2's own new
+keyword/logic, not pre-existing.
+
+**Finding A - `поземлен имот` cadastral-boilerplate false positive, with a
+false claim in `docs/decisions.md` about it.** Round 2's own new "поземлен
+имот" keyword (added to fix a real gap - genuine land listings whose title
+literally opens with that phrase) ALSO matches standard Bulgarian
+cadastral-registry boilerplate that appears inside almost any building's
+own listing text: "...построена в поземлен имот с идентификатор №
+67338.516.1..." names the land parcel UNDERNEATH the building, not the
+property being sold. Confirmed live: `imotibg_515292` ("Търговско
+помещение, Република" - a 460m² commercial food-service space) was flipped
+`flat`->`land` over this. Worse: the decisions.md entry above, written
+during round 2's own individual-record verification, claimed this was "a
+commercial space's own listing had a stray land-keyword match previously
+outscored by an unrelated stronger amenity signal now resolved" - Missy
+reproduced the classifier exactly as it stood immediately before round 2's
+own keyword addition, against this exact title/description, and got
+`('flat', 'low', 'no_keyword_match')` - there was no land match of ANY
+kind before round 2, "stray" or otherwise. That claim was simply false,
+not verified the way it was written up as being.
+
+Root cause confirmed: "поземлен имот" + "с идентификатор" is near-
+universal Bulgarian cadastral phrasing that shows up in almost any real-
+estate listing's legal-description boilerplate, describing the underlying
+parcel, regardless of what's actually being sold. Missy searched all 6
+non-bcpea portals for the exact phrase "поземлен имот с идентификатор" and
+found 15 total records: 11 genuinely land, 2 genuinely business, 1
+(`imotibg_515292`) wrong (the fix target, `flat`), and 1 (`olx_9Sr6A`, an
+admin building with garage cells) correctly `garage` - Ready's own initial
+"12 land" count was off by one, having missed that `olx_9Sr6A` is not a
+land record at all; it's independently and correctly resolved to `garage`
+via `CATEGORY_ORDER`'s static tiebreak against land/business/flat, and is
+unaffected by `_ZEMYA_IMOT_RE` either way, so there was never a live bug
+in it.
+
+Fixed with `_ZEMYA_IMOT_RE` in `category_classifier.py` - a negative
+lookahead excluding only "поземлен имот" immediately followed by "с
+идентификатор" (allowing for a comma/whitespace variant confirmed live),
+while still matching every other real phrasing, including genuine land
+listings that cite their own parcel's identifier a different way (no "с" -
+confirmed live, `olx_9Mx3k`, a genuine 5.7-decare agricultural land sale).
+Re-verified against all 15 records in Missy's own sample: all 11 land + 2
+business stay correct (each has its OWN independent land/business keyword
+match beyond the boilerplate phrase - e.g. `olx_a4Xck`'s own title already
+says "Парцел"), `imotibg_515292` is now correctly `flat` again, matching
+Missy's own reproduction of the pre-round-2 classifier exactly, and
+`olx_9Sr6A` stays `garage` throughout (unaffected by this fix, listed here
+only so the count adds up to the full 15). The false decisions.md claim
+above is corrected in place (see its own inline correction), not silently
+left standing.
+
+**Finding B - a third, reproducible failure mode in
+`_demote_context_only_house_signals`'s Part B.** Part B (added in round 2
+to let a title with no land competitor of its own, like "Имот... от...
+къщи", borrow a verdict from its own description) had no check on WHY a
+given signal qualified to be borrowed INTO - it fired for ANY signal whose
+house evidence was purely the ambiguous "къщи"/"вили" plural with no land
+match of its own, including the TITLE, even when the title's own plural
+mention was genuinely, unambiguously the ad's real subject. Missy's
+reproduction: title "Продавам две къщи в село Раковски" ("Selling two
+houses in Rakovski village") alone correctly classifies `house`/
+`single_signal_only`; adding a description that mentions bordering
+agricultural land included in the sale flips the WHOLE listing to `land` -
+even though nothing about the title's own "две къщи" (a numbered, direct
+object of "Продавам") was ever ambiguous. This directly contradicts the
+file's own established design rationale elsewhere that "titles ARE
+reliably subject-first." A full population scan (233K records) found only
+`olx_9RCOH` (the case Part B was actually built to fix, correctly)
+currently exercising Part B's title-borrowing path at all - so this hadn't
+caused a live wrong classification, but was a real, demonstrated gap in
+exactly the function this whole item exists to stress-test.
+
+Fixed by requiring TITLE specifically to show its own internal evidence of
+being a locational/distance reference before it's eligible for Part B
+borrowing: `_HOUSE_PROXIMITY_MARKER_RE` (a small set of real Bulgarian
+proximity markers this whole context-vs-subject problem is already built
+around and documented for elsewhere in the file - "от", "до", "близо до",
+"в близост до", "граничещ...", "съседен...", "покрай") must appear within
+~40 characters before the "къщи"/"вили" match for title borrowing to fire
+at all. `olx_9RCOH`'s title ("...на 100 метра от последните къщи...")
+keeps its "от" marker and stays correctly `land`; Missy's counterexample
+title has no such marker anywhere near "къщи" and now correctly stays
+`house`. Deliberately scoped to the title signal only (Missy's specific
+finding) - url/description eligibility for Part B is unchanged, no live
+regression found there.
+
+**Two non-blocking items fixed alongside A/B:**
+- `docs/decisions.md`'s "Total: 34 of 233,053 records changed" line (round
+  2's own entry, above) was wrong - the per-portal breakdown right next to
+  it (0+0+4+2+4+322) already summed to 332 actually changed; 34 was only
+  the previously-`"high"`-confidence-wrong subset. Corrected in place.
+- Digit-glued `\bкъщи\b`/`\bвили\b`/`\bупи\b`/`\bниви\b` didn't match when
+  glued directly to a preceding digit with no space (e.g. "2къщи") since
+  Python's `\b`/`\w` treat ASCII digits and Cyrillic letters as the same
+  word class - confirmed affecting exactly 1 live record (`olx_9ECK4`,
+  "Продава 2къщи в с.Соволяно общ.Кюстендил" - was wrongly `flat`/`low`).
+  Unlike the `терен`/`партерен` collision (a genuine substring-collision
+  tradeoff, left open, see round-2 entry above), this was cleanly fixable
+  - just the wrong boundary primitive, not a real ambiguity - so it's
+  fixed, not just disclosed. A shared `_letter_bounded()` helper (bounds
+  against letters specifically, not `\w`'s broader digit-inclusive class)
+  replaces all four regexes' `\b` construction at once. `терен`/`партерен`
+  remains open, unrelated bug class, still out of scope for this pass.
+
+**Re-verification, full population, same rigor as every prior round**:
+`backfill_category_review3_fixes.py` (new, modeled directly on
+`backfill_land_house_context_regression.py`'s pattern) re-ran
+`classify_listing()` against all 233,053 records across all 6 governed
+portals. Result: **2 records changed** (`imotibg_515292` `land`->`flat`,
+`olx_9ECK4` `flat`->`house`), **0 previously `"high"` confidence** (both
+were already `"low"`) - a small, precisely-targeted blast radius, as
+expected for two narrowly-scoped bug fixes. Re-ran the backfill a second
+time: 0 further changes (converged/idempotent). Data-integrity check (same
+standard as every prior backfill): diffed every touched `history_*.json` -
+confirmed only `category` changed on the 2 target records, nothing else;
+diffed both regenerated `leads_*.json` files against their prior committed
+state - confirmed the record SET is identical, only `category` changed on
+the 2 target records, `score`/`days_on_market` changed on 61 unrelated
+olx.bg records (the same normal recompute-timestamp side effect already
+disclosed and accepted in the round-2 entry above, re-confirmed here, not
+a new issue).
+
+**New tests**: `tests/test_category_classifier_zemyaimot_cadastral_boilerplate.py`
+(new file, 5 tests - the wrong `imotibg_515292` case plus 4 non-regression
+checks covering every distinct correct shape in Missy's 15-record sample)
+and `tests/test_category_classifier_plural_keywords.py` extended with 4
+more tests (`TitleBorrowingThirdFailureModeTest`: Missy's exact
+reproduction case, the `olx_9RCOH` non-regression, a proximity-marker
+positive case; plus `test_digit_glued_kashti_matches_house` for the
+`olx_9ECK4` fix). Full suite: **89 tests, all passing** (up from 80).
+
+**Not self-merged** - fixed in place on the existing branch
+(`ready/exhaustive-category-audit-2026-09-23`), handed back for another
+Missy review before merge, same standing rule as every prior pass.
+
+### 2026-09-23 (later still) - Missy's FOURTH review of PR #264 returned BLOCKING again, one narrow morphological gap in Ready's own new Part-B gating regex - fixed in place, plus a miscounted breakdown corrected
+
+Rounds A and B from the third review both confirmed fully fixed on
+re-repro (cadastral boilerplate, title-borrowing), no rework needed there.
+One new blocking finding, and one non-blocking count correction.
+
+**Blocking finding: `_HOUSE_PROXIMITY_MARKER_RE`'s "съседен" gap.**
+`съседн\w*` (added in the third-review fix to cover "neighboring" as one
+of the six real-world proximity idioms) requires the literal substring
+"съседн" (д immediately followed by н). Bulgarian's movable-vowel pattern
+means the uncontracted masculine singular indefinite form "съседен"
+(с-ъ-с-е-д-Е-н) does NOT contain that substring - only the contracted
+"съседна"/"съседни"/"съседно"/"съседният" forms did, so this specific
+grammatical form silently fell through the gate even though the code
+comment directly above it claimed full coverage. Confirmed live by Missy:
+`'съседен' -> False`, `'съседна'/'съседни'/'съседният' -> True`. Live
+reproduction, holding everything else identical to a working "до" case,
+swapping only the marker: `title="Имот 630м2 съседен на последните
+къщи"`, `description="Поземлен имот 630м2 на 100 метра от последните
+вили, до ток и вода."` wrongly stayed `('house', 'low',
+'single_signal_only')` instead of correctly borrowing the land verdict via
+Part B like every other marker. The mirror image of round 3's finding B -
+instead of wrongly flipping a house to land, this wrongly left a
+genuine context-only mention as house.
+
+Fixed by widening the stem to `съседе?н\w*` (the `е?` makes the movable
+vowel optional, matching both "съседен" and every contracted form
+identically). Confirmed the fix closes exactly this gap and nothing else:
+`'съседен' -> True` now, `'съседна'/'съседни'/'съседният'` unchanged at
+`True`.
+
+Missy also flagged the test-coverage gap that let this through:
+`TitleBorrowingThirdFailureModeTest` only ever exercised "от" (indirectly,
+via the `olx_9RCOH`-style test) and "до" - the other 4 markers actually
+present in the regex ("близо до", "в близост до", "граничещ...",
+"съседен...") were never individually tested. Added a new
+`HouseProximityMarkerCoverageTest` (7 tests: one per marker - от, до,
+близо до, в близост до, граничещ, съседен (Missy's exact live repro),
+покрай) so this class of per-marker gap can't slip through silently
+again. Confirmed the new `съседен` test actually exercises the bug:
+temporarily reverted the regex to the old `съседн\w*` stem, re-ran just
+that test, confirmed it fails (`'house' != 'land'`), then restored the
+fix and confirmed it passes again.
+
+**Full-population re-verification**: this fix is a pure widening of an
+existing gate (nothing that previously matched stops matching), so
+re-ran `classify_listing()` for both the old and new
+`_HOUSE_PROXIMITY_MARKER_RE`. **Correction (caught by Missy's fifth
+review, same class of counting/scope lapse this entry had just fixed for
+the 15-record breakdown below - flagging plainly rather than restating
+the original wrong numbers):** the correctly governed population is
+**233,053 records across the 6 portals `classify_listing()` actually
+covers** (`data/leads.json` + `leads_alo.json` + `leads_bazar.json` +
+`leads_imot.json` + `leads_imoti_bg.json` + `leads_olx.json` -
+`scraper_bcpea.py` still calls the separate `geo_utils.classify_category()`
+directly, and `scraper_homes.py` never calls `classify_listing()` at all,
+its category comes straight from the portal's own search-typeId), not
+"309,311 records / 7 files" (309,311 is the documented ALL-8-PORTAL
+sitewide total, which wrongly includes both of those ungoverned
+portals). Also, `leads*.json` structurally has no `description` field
+on 4 of those 6 portals, and the whole proximity-marker mechanism this
+fix lives in only ever fires when land evidence comes from `description`
+text - so a check run literally against `leads*.json` alone would show
+0 diffs by construction, not because the fix was exercised. Missy
+independently reran the check properly, against the corresponding
+`history_*.json` files' real description text (78,765/233,053 records
+have one populated - the only source that could actually exercise this
+fix): **still 0 records changed.** So the practical conclusion holds -
+confirmed by an independent, sound methodology - this is a real,
+reproducible defect closed for correctness and future-proofing, not one
+with a live blast radius today, so no backfill script is needed for this
+fix (the classifier + test fix is the complete remediation). Only the
+description of how this was verified was wrong; the conclusion wasn't.
+
+**Non-blocking finding, fixed alongside**: the "15-record" breakdown in
+this file's third-review entry above and in
+`tests/test_category_classifier_zemyaimot_cadastral_boilerplate.py`'s
+module docstring both said "12 genuinely land, 2 genuinely business, 1
+wrong (`imotibg_515292`)" = 15. Missy independently re-derived the same 15
+IDs and found the real breakdown is 11 land + 2 business + 1 flat (the fix
+target) + 1 garage (`olx_9Sr6A`, an admin building with garage cells,
+correctly stored/classified `garage` via `CATEGORY_ORDER`'s static
+tiebreak against land/business/flat - unaffected by `_ZEMYA_IMOT_RE`
+either way, so no live bug there) = 15. The original "12+2+1" count was
+off by one category - `olx_9Sr6A` was wrongly folded into the "land"
+bucket instead of being recognized as its own, separate, already-correct
+`garage` case. Both write-ups (this file's third-review entry above, and
+the test file's module docstring) corrected in place to 11+2+1+1, with
+`olx_9Sr6A` now called out explicitly so a future reader isn't confused
+about why it doesn't fit the land/business/flip framing.
+
+**New tests**: `tests/test_category_classifier_plural_keywords.py`
+extended with `HouseProximityMarkerCoverageTest` (7 new tests - one per
+proximity marker, from-scratch, self-contained). Full suite: **96 tests,
+all passing** (up from 89).
+
+**Not self-merged** - fixed in place on the existing branch
+(`ready/exhaustive-category-audit-2026-09-23`), handed back for another
+Missy review before merge, same standing rule as every prior pass.
