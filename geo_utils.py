@@ -40,6 +40,7 @@ import math
 import re
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -723,6 +724,158 @@ def extract_contact_alo(html):
     return contact or None
 
 
+# imoti.bg detail-page specs/contact extraction, added 2026-09-24. Unlike
+# alo.bg (unverified markup, extracted from screenshots by fixed Bulgarian
+# label text), imoti.bg's fetch_listing_detail() already has PROVEN, live-
+# confirmed access to this page's own <script type="application/ld+json">
+# block(s) - that's exactly how its description extraction already works
+# (see fetch_listing_detail()'s own docstring in scraper_imoti_bg.py). This
+# reuses that same already-successfully-parsed structured data rather than
+# guessing any new CSS selector/tag name against markup this project has
+# never actually seen (this sandbox's network egress to imoti.bg is blocked,
+# same caveat as alo.bg).
+#
+# What's extracted below is deliberately limited to CORE schema.org
+# vocabulary terms with a fixed, documented meaning - not a guess about this
+# specific site's markup:
+#   - floorSize (a standard Accommodation/Place property, {"@type":
+#     "QuantitativeValue", "value": ...}) -> sqm.
+#   - amenityFeature (a standard Accommodation property, an array of
+#     {"@type": "LocationFeatureSpecification", "name": ..., "value": true}
+#     entries) -> features[]/has_elevator/furnished/has_central_heating,
+#     using the same keyword-match approach extract_specs_alo() already
+#     uses for its own (differently-sourced) feature tags.
+#   - @type itself, when it's one of schema.org's own named Accommodation
+#     subtypes (Apartment/House/SingleFamilyResidence/Room/Suite/...) ->
+#     property_type_raw. This is the type schema.org itself defines for
+#     "what kind of accommodation this is" - not a fabricated field.
+#   - seller/offers.seller/provider/author (a standard Organization/Person
+#     shape with "name" and, optionally, "url") -> agency_name/
+#     agency_website, mirroring extract_contact_alo()'s exact same "only a
+#     genuine external site, never the portal's own domain" restraint.
+#
+# What's deliberately NOT attempted here, for lack of any real evidence:
+# construction_type, built_year, completion_status, floor_number, and
+# floor_qualifier - schema.org has no core vocabulary term for any of
+# these (unlike floorSize/amenityFeature/the Accommodation subtypes above,
+# which are real, documented schema.org properties), so filling them in
+# would mean guessing this specific site's own custom field/label names
+# sight-unseen - exactly the "never fabricate a working extraction for
+# something that can't be verified" mistake extract_contact_alo()'s own
+# comment (phone numbers) already warns against. If a future contributor
+# gets live access to a real imoti.bg detail page, the concrete thing to
+# check is what (if anything) is in a candidate's "additionalProperty"
+# array (schema.org's generic name/value escape hatch for exactly this
+# kind of site-specific extra fact) - if these fields are there under some
+# real, observed name, add a real extractor for them then.
+_IMOTI_BG_ACCOMMODATION_TYPES = frozenset([
+    "Apartment", "House", "SingleFamilyResidence", "Room", "Suite",
+    "CampingPitch", "Campground", "Accommodation",
+])
+_IMOTI_BG_FEATURE_ELEVATOR_RE = re.compile(r"асансьор|elevator|lift", re.IGNORECASE)
+_IMOTI_BG_FEATURE_UNFURNISHED_RE = re.compile(r"необзаведен|unfurnished", re.IGNORECASE)
+_IMOTI_BG_FEATURE_FURNISHED_RE = re.compile(r"(?<!не)обзаведен|(?<!un)furnished", re.IGNORECASE)
+_IMOTI_BG_FEATURE_HEATING_RE = re.compile(r"\bтец\b|central heating|отопление", re.IGNORECASE)
+
+
+def _imoti_bg_ld_json_candidates(html):
+    """Every dict-shaped entry across all application/ld+json blocks on the
+    page - the exact same parse fetch_listing_detail()'s own description
+    extraction already does successfully, just returned instead of scanned
+    inline, so the spec/contact extractors below can reuse it without
+    duplicating the try/except-around-json.loads() dance in three places."""
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return []
+    candidates = []
+    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        try:
+            data = json.loads(script.string or "")
+        except (ValueError, TypeError):
+            continue
+        candidates.extend(data if isinstance(data, list) else [data])
+    return [c for c in candidates if isinstance(c, dict)]
+
+
+def _imoti_bg_nested_dicts(candidate):
+    """The candidate itself, plus one level of nesting under "about"/
+    "itemOffered" - the canonical schema.org shape for a RealEstateListing
+    wrapping the actual Accommodation it's advertising (RealEstateListing
+    itself carries no floorSize/amenityFeature/subtype of its own; those
+    live on the Accommodation it points to). Checking both, rather than
+    just the top level, costs nothing when the nesting isn't there (dict.get
+    on a dict that doesn't have it is just None) and covers either shape
+    without assuming which one this specific site actually uses."""
+    nested = [candidate]
+    for key in ("about", "itemOffered", "mainEntity"):
+        inner = candidate.get(key)
+        if isinstance(inner, dict):
+            nested.append(inner)
+    return nested
+
+
+def extract_specs_imoti_bg(html):
+    try:
+        candidates = _imoti_bg_ld_json_candidates(html)
+    except Exception:
+        return None
+    if not candidates:
+        return None
+
+    specs = {}
+    for c in candidates:
+        for node in _imoti_bg_nested_dicts(c):
+            if "sqm" not in specs:
+                floor_size = node.get("floorSize")
+                if isinstance(floor_size, dict):
+                    value = floor_size.get("value")
+                elif isinstance(floor_size, (int, float, str)):
+                    value = floor_size
+                else:
+                    value = None
+                if value is not None:
+                    try:
+                        specs["sqm"] = round(float(str(value).replace(",", ".")))
+                    except (ValueError, TypeError):
+                        pass
+
+            if "property_type_raw" not in specs:
+                type_value = node.get("@type")
+                if isinstance(type_value, str) and type_value in _IMOTI_BG_ACCOMMODATION_TYPES:
+                    specs["property_type_raw"] = type_value
+
+            if "features" not in specs:
+                amenities = node.get("amenityFeature")
+                if isinstance(amenities, list):
+                    names = []
+                    for a in amenities:
+                        if not isinstance(a, dict):
+                            continue
+                        name = a.get("name")
+                        value = a.get("value")
+                        # Only a feature explicitly marked present (true/
+                        # "true"/1) counts as a checked tag - same
+                        # "checked features only" shape extract_specs_alo()
+                        # already applies to its own (differently-shaped)
+                        # feature list.
+                        if isinstance(name, str) and name.strip() and value in (True, "true", "True", 1):
+                            names.append(name.strip())
+                    if names:
+                        specs["features"] = names
+                        feature_text = " ".join(names)
+                        if _IMOTI_BG_FEATURE_ELEVATOR_RE.search(feature_text):
+                            specs["has_elevator"] = True
+                        if _IMOTI_BG_FEATURE_UNFURNISHED_RE.search(feature_text):
+                            specs["furnished"] = False
+                        elif _IMOTI_BG_FEATURE_FURNISHED_RE.search(feature_text):
+                            specs["furnished"] = True
+                        if _IMOTI_BG_FEATURE_HEATING_RE.search(feature_text):
+                            specs["has_central_heating"] = True
+
+    return specs or None
+
+
 # bazar.bg's structured spec table (confirmed via the user's own real
 # screenshots of a live detail page, bazar.bg/obiava-55691101/
 # prodava-2-staen-gr-sofiia-lyulin-1 - this sandbox has no live network
@@ -840,6 +993,55 @@ def extract_specs_bazar(html):
     return specs or None
 
 
+def _imoti_bg_org_candidates(node):
+    """Every plausible "who's behind this listing" object on one ld+json
+    node, in priority order - offers.seller first (the most specific: this
+    exact offer's seller), then the node's own seller/provider/author. Same
+    idea as extract_contact_alo() walking outward to find "whatever box
+    wraps the poster's name" without assuming one fixed shape."""
+    orgs = []
+    offers = node.get("offers")
+    if isinstance(offers, dict):
+        seller = offers.get("seller")
+        if isinstance(seller, dict):
+            orgs.append(seller)
+    for key in ("seller", "provider", "author"):
+        val = node.get(key)
+        if isinstance(val, dict):
+            orgs.append(val)
+    return orgs
+
+
+def extract_contact_imoti_bg(html):
+    try:
+        candidates = _imoti_bg_ld_json_candidates(html)
+    except Exception:
+        return None
+    if not candidates:
+        return None
+
+    contact = {}
+    for c in candidates:
+        for node in _imoti_bg_nested_dicts(c):
+            for org in _imoti_bg_org_candidates(node):
+                name = org.get("name")
+                if "agency_name" not in contact and isinstance(name, str) and name.strip():
+                    contact["agency_name"] = name.strip()
+                url = org.get("url")
+                if "agency_website" not in contact and isinstance(url, str) and url.strip():
+                    # Only a genuine external site, never the portal's own
+                    # domain - same restraint as extract_contact_alo(). A
+                    # real hostname check (not a raw substring test) so a
+                    # genuinely different domain that merely CONTAINS
+                    # "imoti.bg" as a substring (e.g. "imperial-imoti.bg")
+                    # is never mistaken for the portal's own domain.
+                    host = (urlparse(url.strip()).hostname or "").lower()
+                    if host and host != "imoti.bg" and not host.endswith(".imoti.bg"):
+                        contact["agency_website"] = url.strip()
+                if "agency_name" in contact and "agency_website" in contact:
+                    break
+
+    return contact or None
 # bazar.bg's agency contact box (confirmed via the same real screenshots as
 # extract_specs_bazar() - see its own comment for the network-access
 # caveat) shows the agency's name as plain text, followed by a line "Още

@@ -42,6 +42,25 @@ the much larger portals (imoti.net, alo.bg, bazar.bg - tens of thousands
 of listings each) is exactly what the staged rollout is meant to surface
 before committing to it there.
 
+fetch_listing_detail() (extended 2026-09-24) also pulls spec fields (sqm/
+property type/features, incl. has_elevator/furnished/has_central_heating
+derived from those features) and agency contact info (name + real
+external website, never a phone number) out of the SAME application/
+ld+json block its description extraction already successfully parses -
+see its own docstring and geo_utils.extract_specs_imoti_bg()/
+extract_contact_imoti_bg() for exactly which schema.org fields are read
+and why. construction type/built year/completion status/floor number/
+floor qualifier are deliberately NOT extracted: no core schema.org
+vocabulary covers them, so there's no real evidence of where (or
+whether) they'd live in this site's own ld+json - see
+extract_specs_imoti_bg()'s own comment for what a future contributor
+with live access should check first. No new photo or coordinate
+extraction was added alongside these: this page embeds only one photo
+total (already captured as "photo", see fetch_listing_detail()'s own
+docstring) and carries no coordinates of its own anywhere (every listing
+is already geocoded from area/city text at grid-crawl time below) - both
+confirmed dead ends, not gaps this change left open.
+
 imoti.bg genuinely carries no coordinates anywhere in its own pages
 (confirmed by a real headless browser finding no map DOM node/object/
 iframe, and a plain static fetch finding nothing either), so each
@@ -75,7 +94,10 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import Geocoder, compute_motivation_score, listing_city_key, prune_snapshots
+from geo_utils import (
+    Geocoder, compute_motivation_score, extract_contact_imoti_bg, extract_specs_imoti_bg,
+    listing_city_key, prune_snapshots,
+)
 from category_classifier import classify_listing
 
 BASE_URL = "https://imoti.bg"
@@ -160,10 +182,18 @@ def smallest_container_with_price(link_tag, max_levels=9):
 
 
 def fetch_listing_detail(url):
-    """Best-effort description + posted-date from a listing's own page.
-    Returns (description, site_posted_at_iso) - either may be None if not
-    found, never raises (a missing description/date shouldn't drop an
-    otherwise-good listing).
+    """Best-effort description + posted-date + specs + agency contact from a
+    listing's own page. Returns (description, site_posted_at_iso, specs,
+    contact) - description/site_posted_at may be None, specs/contact may be
+    None or a partial dict (whatever fields were actually found), never
+    raises (a missing field shouldn't drop an otherwise-good listing).
+
+    specs/contact (added 2026-09-24) reuse the exact same already-parsed
+    application/ld+json blocks the description extraction below already
+    proves this page carries - see geo_utils.extract_specs_imoti_bg()/
+    extract_contact_imoti_bg()'s own comments for exactly which schema.org
+    fields are read and why (and which fields were deliberately left out
+    for lack of any real evidence of where they'd live on this site).
 
     Does not extract a photo gallery: confirmed live via probe_photos.py/
     probe_photos_round2.py (one land-parcel and one apartment sample) that
@@ -171,10 +201,16 @@ def fetch_listing_detail(url):
     size variants of the same image, both under /assets/offers/) - a
     genuine per-portal limitation, same as imoti.net's missing description
     (see backfill_detail_imoti_net.py's docstring). The single photo it
-    does have is already captured below as "photo"."""
+    does have is already captured below as "photo".
+
+    Also does not add any new coordinate source: fetch_listings_page()
+    already geocodes every listing from its area/city text at grid-crawl
+    time (Geocoder.geocode_cached_only(), see this module's own docstring) -
+    imoti.bg carries no coordinates of its own anywhere on the page, so
+    there's nothing for a detail-page extractor to add here."""
     html = fetch_html(url)
     if html is None:
-        return None, None
+        return None, None, None, None
 
     description = None
     soup = BeautifulSoup(html, "html.parser")
@@ -210,7 +246,10 @@ def fetch_listing_detail(url):
         except ValueError:
             site_posted_at = None
 
-    return description, site_posted_at
+    specs = extract_specs_imoti_bg(html)
+    contact = extract_contact_imoti_bg(html)
+
+    return description, site_posted_at, specs, contact
 
 
 def fetch_listings_page(url, geocoder):
@@ -331,9 +370,34 @@ def fetch_listings():
     low_confidence_reasons = {}
     for l in all_listings.values():
         time.sleep(REQUEST_DELAY_SECONDS)
-        description, site_posted_at = fetch_listing_detail(l["url"])
+        description, site_posted_at, specs, contact = fetch_listing_detail(l["url"])
         l["description"] = description
         l["site_posted_at"] = site_posted_at
+        # sqm is special-cased like scraper_alo.py's own equivalent merge:
+        # the grid crawl's own SQM_RE already sets sqm when a card happens
+        # to show "... кв.м" text, so this only fills it in when that came
+        # up empty, never overwrites a value the grid crawl already found.
+        if specs:
+            if specs.get("sqm") and not l.get("sqm"):
+                l["sqm"] = specs["sqm"]
+            # Only the fields extract_specs_imoti_bg() can actually
+            # produce (see its own comment in geo_utils.py) - unlike
+            # scraper_alo.py's identically-shaped loop, this deliberately
+            # does NOT list construction_type/built_year/completion_status/
+            # floor_number/floor_qualifier: no core schema.org vocabulary
+            # covers them, so extract_specs_imoti_bg() never sets them,
+            # and listing them here would be dead, misleading code -
+            # claiming a copy this scraper never actually performs.
+            for field in ("property_type_raw", "features", "has_elevator", "furnished", "has_central_heating"):
+                if field in specs:
+                    l[field] = specs[field]
+        # Agency name + real external agency website - deliberately no
+        # phone number, see geo_utils.extract_contact_imoti_bg()'s own
+        # comment (mirrors extract_contact_alo()'s reasoning).
+        if contact:
+            for field in ("agency_name", "agency_website"):
+                if field in contact:
+                    l[field] = contact[field]
 
         category, confidence, reason = classify_listing(
             title=l["title"], description=description, url=l["url"] + " " + l.pop("_category_slug")
@@ -367,16 +431,51 @@ def save_history(history):
 # scrapers, fetch_listings() here calls fetch_listing_detail() inline for
 # EVERY listing on EVERY run (not a separate, one-time backfill pass) -
 # but per its own docstring it's best-effort and "never raises... a
-# missing description/date shouldn't drop a listing", so a single
-# transient per-run failure (timeout, a missing meta tag that day, a page
-# render hiccup) legitimately returns (None, None) for a listing that had
-# a real description/site_posted_at on a previous run. update_history()
+# missing field shouldn't drop a listing", so a single transient per-run
+# failure (timeout, a missing meta tag/ld+json block that day, a page
+# render hiccup) legitimately returns (None, None, None, None) for a
+# listing that had real detail-page fields on a previous run. update_history()
 # must merge these in from the previous "latest" rather than let a fresh
 # record's None wipe an already-captured value - docs/backlog.md item 9a
 # (originally fixed in six other scrapers, this one was missed since it
 # has the identical bug but wasn't part of that investigation's "all six
 # scrapers with this function" premise).
-_DETAIL_ONLY_FIELDS = ("description", "site_posted_at")
+#
+# specs/contact fields (added 2026-09-24, same reasoning scraper_alo.py's
+# own equivalent list already documents for its identically-shaped merge):
+# property_type_raw/features/has_elevator/furnished/has_central_heating/
+# agency_name/agency_website are all detail-only (the grid crawl never
+# produces them) and best-effort (not every listing's ld+json carries
+# every field), so they get the same merge-not-replace protection
+# description/site_posted_at already have.
+#
+# "sqm" IS also listed here, matching what scraper_alo.py's own
+# _DETAIL_ONLY_FIELDS actually does (not the opposite - a previous version
+# of this comment wrongly claimed alo.bg excludes it). sqm is normally a
+# GRID field (SQM_RE, set directly from card text), which is why it isn't
+# detail-only in the sense the fields above are - a fresh grid crawl that
+# DOES find real sqm text must still be able to overwrite an old value
+# (real edits happen). But now that fetch_listing_detail() can ALSO fill
+# sqm in (via extract_specs_imoti_bg()'s floorSize, for whatever fraction
+# of listings whose card never showed "... кв.м" text), the same
+# merge-not-replace protection every other detail-only field gets is
+# needed here too - otherwise a later grid-only re-touch that (per this
+# function's own docstring above) hits a transient detail-fetch failure
+# and again finds no sqm text on the card would silently wipe a real sqm
+# value a previous run's detail fetch had already filled in - exactly the
+# bug class this field list exists to prevent, and exactly the scenario
+# this module's own fetch_listing_detail() docstring describes ("a single
+# transient per-run failure... legitimately returns None... for a listing
+# that had real detail-page fields on a previous run"). Being in this list
+# still means "prefer the fresh value when the fresh value is non-empty"
+# (see update_history() below) - so a genuine grid-parsed sqm change still
+# wins; this only stops a grid MISS from clobbering a real detail-page
+# value.
+_DETAIL_ONLY_FIELDS = (
+    "description", "site_posted_at", "sqm",
+    "property_type_raw", "features", "has_elevator", "furnished",
+    "has_central_heating", "agency_name", "agency_website",
+)
 
 
 def update_history(history, listings):
