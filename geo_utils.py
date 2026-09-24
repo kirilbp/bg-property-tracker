@@ -389,7 +389,10 @@ def extract_photos_alo(html):
 # HTML probe) is a fixed sequence of Bulgarian label/value rows:
 # Местоположение (location - not extracted here, already covered by area/
 # city/lat/lng elsewhere), Вид на имота (property type), Квадратура
-# (size), Вид на строителство (construction type), Година на строителство
+# (size), Вид строителство (construction type - no "на", confirmed against
+# the real screenshot and corroborated by the same phrasing already seen in
+# scraped bazar.bg/olx.bg description text elsewhere in this codebase),
+# Година на строителство
 # (built year), Степен на завършеност (completion status), Номер на етажа
 # (floor number), Етаж (floor qualifier - e.g. "Непоследен"/"Последен"/
 # "Партер"), and Особености (feature checkboxes - the screenshot shows
@@ -418,7 +421,7 @@ def extract_photos_alo(html):
 _ALO_SPEC_LABELS = [
     ("Вид на имота", "property_type_raw"),
     ("Квадратура", "_sqm_raw"),
-    ("Вид на строителство", "construction_type"),
+    ("Вид строителство", "construction_type"),
     ("Година на строителство", "_built_year_raw"),
     ("Степен на завършеност", "completion_status"),
     ("Номер на етажа", "_floor_number_raw"),

@@ -45,7 +45,7 @@ REALISTIC_DETAIL_PAGE_TABLE_SHAPE = """
   <a href="/map">(Виж Зона Б19 на картата)</a></td></tr>
 <tr><td>Вид на имота</td><td><strong>Ателие/Студио</strong></td></tr>
 <tr><td>Квадратура</td><td><strong>57 кв.м</strong></td></tr>
-<tr><td>Вид на строителство</td><td><strong>ЕПК/ПК</strong></td></tr>
+<tr><td>Вид строителство</td><td><strong>ЕПК/ПК</strong></td></tr>
 <tr><td>Година на строителство</td><td><strong>1980 г.</strong>
   <span class="hint">(годината може да е ориентировъчна)</span></td></tr>
 <tr><td>Степен на завършеност</td><td><strong>Готов (завършен)</strong></td></tr>
