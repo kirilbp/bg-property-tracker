@@ -156,16 +156,19 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "portal": "sales.bcpea.org", "site_updated_at": "2026-08-01T00:00:00+00:00",
             "category": "apartment", "_settlement": "Sofia",
             "description": "Cadastral identifier 68134.4082.31, real legal description text.",
+            "photos": ["https://sales.bcpea.org/1.jpg", "https://sales.bcpea.org/1b.jpg"],
             "detail_checked": True,
             "lat": 42.68, "lng": 23.31,
         }
         # Grid crawl on its own: area is settlement-only (no district),
         # lat/lng are always the None placeholder (real coords only ever
-        # come from the detail pass), and photo is None whenever this run's
+        # come from the detail pass), photo is None whenever this run's
         # card image happened to be the shared placeholder graphic (see
         # fetch_listings_page(): "photo-placeholder.png" -> photo=None) -
         # simulated here rather than a real thumbnail, to exercise exactly
-        # the case this test guards against.
+        # the case this test guards against - and photos is never set at
+        # all by the grid crawl (extract_photos_bcpea() only ever runs
+        # from a detail visit, see _DETAIL_ONLY_FIELDS' own comment).
         fresh_grid = {
             "id": "bcpea_1", "url": "https://sales.bcpea.org/1", "photo": None,
             "sqm": 70, "area": "Sofia", "title": "Apartment, Sofia",
@@ -175,7 +178,7 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         }
         latest = self._assert_preserved_and_updated(
             scraper_bcpea, "bcpea_1", prior_latest, fresh_grid,
-            ["description", "detail_checked", "lat", "lng", "photo"], new_price=45000,
+            ["description", "detail_checked", "lat", "lng", "photo", "photos"], new_price=45000,
         )
         # Documented, deliberate scope boundary (see scraper_bcpea.py's own
         # comment above _DETAIL_ONLY_FIELDS): "area" is NOT preserved since
