@@ -156,16 +156,19 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "portal": "sales.bcpea.org", "site_updated_at": "2026-08-01T00:00:00+00:00",
             "category": "apartment", "_settlement": "Sofia",
             "description": "Cadastral identifier 68134.4082.31, real legal description text.",
+            "photos": ["https://sales.bcpea.org/1.jpg", "https://sales.bcpea.org/1b.jpg"],
             "detail_checked": True,
             "lat": 42.68, "lng": 23.31,
         }
         # Grid crawl on its own: area is settlement-only (no district),
         # lat/lng are always the None placeholder (real coords only ever
-        # come from the detail pass), and photo is None whenever this run's
+        # come from the detail pass), photo is None whenever this run's
         # card image happened to be the shared placeholder graphic (see
         # fetch_listings_page(): "photo-placeholder.png" -> photo=None) -
         # simulated here rather than a real thumbnail, to exercise exactly
-        # the case this test guards against.
+        # the case this test guards against - and photos is never set at
+        # all by the grid crawl (extract_photos_bcpea() only ever runs
+        # from a detail visit, see _DETAIL_ONLY_FIELDS' own comment).
         fresh_grid = {
             "id": "bcpea_1", "url": "https://sales.bcpea.org/1", "photo": None,
             "sqm": 70, "area": "Sofia", "title": "Apartment, Sofia",
@@ -175,7 +178,7 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         }
         latest = self._assert_preserved_and_updated(
             scraper_bcpea, "bcpea_1", prior_latest, fresh_grid,
-            ["description", "detail_checked", "lat", "lng", "photo"], new_price=45000,
+            ["description", "detail_checked", "lat", "lng", "photo", "photos"], new_price=45000,
         )
         # Documented, deliberate scope boundary (see scraper_bcpea.py's own
         # comment above _DETAIL_ONLY_FIELDS): "area" is NOT preserved since
@@ -329,6 +332,62 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             scraper_bazar, "bazar_1", prior_latest, fresh_grid,
             ["description", "photos", "coords_checked", "lat", "lng"], new_price=39000,
         )
+
+    # -- bazar.bg specs/contact fields (2026-09-24) ------------------------
+    def test_scraper_bazar_preserves_detail_specs_and_contact_and_sqm(self):
+        # Same shape as test_scraper_bazar_preserves_detail_fields above,
+        # but for the new fields wired in from geo_utils.
+        # extract_specs_bazar()/extract_contact_bazar() - see
+        # scraper_bazar.py's _DETAIL_ONLY_FIELDS comment on why "sqm" is
+        # unconditionally detail-only for this portal (unlike alo.bg,
+        # bazar's own grid crawl never sets a real sqm value at all).
+        prior_latest = {
+            "id": "bazar_2", "url": "https://bazar.bg/2", "photo": "https://bazar.bg/2.jpg",
+            "price_eur": 112000, "sqm": 50, "area": "Люлин 1", "city": "София",
+            "title": "Продава 2-СТАЕН, гр. София, Люлин 1", "portal": "bazar.bg",
+            "category": "apartment",
+            "property_type_raw": "2-стаен", "construction_type": "ЕПК", "floor_number": 4,
+            "agency_name": "АГЕНЦИЯ СНТ - ИНТЕРНЕШЪНЪЛ ООД", "agency_website": "https://sntbg.imot.bg",
+            "coords_checked": True, "lat": 42.71, "lng": 23.24,
+        }
+        # bazar's grid parser (fetch_listings_page()) never sets sqm (or
+        # any of the new spec/contact fields) at all - confirmed by reading
+        # the parser directly (see this module's own docstring: "bazar.bg's
+        # listing grid doesn't show square meters").
+        fresh_grid = {
+            "id": "bazar_2", "url": "https://bazar.bg/2", "photo": "https://bazar.bg/2.jpg",
+            "sqm": None, "area": "Люлин 1", "city": "София",
+            "title": "Продава 2-СТАЕН, гр. София, Люлин 1", "portal": "bazar.bg",
+            "lat": None, "lng": None, "category": "apartment",
+        }
+        self._assert_preserved_and_updated(
+            scraper_bazar, "bazar_2", prior_latest, fresh_grid,
+            ["sqm", "property_type_raw", "construction_type", "floor_number",
+             "agency_name", "agency_website"],
+            new_price=109000,
+        )
+
+    def test_scraper_bazar_grid_sqm_still_overwrites_detail_sqm_if_present(self):
+        # The fix must be a merge, not a freeze: if the grid parser were
+        # ever to find a real sqm value (it currently never does - see the
+        # test above), that fresh value must still win, same as alo.bg's
+        # own equivalent test just above.
+        prior_latest = {
+            "id": "bazar_3", "url": "https://bazar.bg/3", "photo": "https://bazar.bg/3.jpg",
+            "price_eur": 60000, "sqm": 50, "area": "Center", "city": "Варна",
+            "title": "Studio", "portal": "bazar.bg", "category": "apartment",
+            "coords_checked": True,
+        }
+        fresh_grid = {
+            "id": "bazar_3", "url": "https://bazar.bg/3", "photo": "https://bazar.bg/3.jpg",
+            "sqm": 55, "area": "Center", "city": "Варна", "title": "Studio",
+            "portal": "bazar.bg", "category": "apartment",
+        }
+        history = self._make_history("bazar_3", prior_latest)
+        fresh = copy.deepcopy(fresh_grid)
+        fresh["price_eur"] = 58000
+        result = scraper_bazar.update_history(history, [fresh])
+        self.assertEqual(result["bazar_3"]["latest"]["sqm"], 55)
 
     # -- imoti.net --------------------------------------------------------
     def test_scraper_imoti_net_preserves_detail_fields(self):
