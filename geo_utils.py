@@ -832,6 +832,79 @@ def prune_snapshots(history):
     return history
 
 
+# --- Relisting chain-storm guard ----------------------------------------
+# 2026-09-24 incident: a 3-consecutive-scrape.yml-run commit/push outage
+# (git push rejected with GH001, data/leads_homes.json and data/
+# history_homes.json at 182.01MB/179.26MB vs GitHub's 100MB hard limit -
+# real numbers off job logs for runs 35883682311/35918395367/35945698190)
+# meant homes.bg's checked-out history kept comparing detect_relistings.py's
+# GONE_AFTER cutoff against an increasingly stale committed baseline. The
+# next run's crawl found huge swaths of its own backlog crossing that
+# cutoff while simultaneously being freshly re-scraped under new listing
+# IDs, and detect_relistings.py's chain logic (see its own module
+# docstring) misread that as 61,862 simultaneous delisted-then-relisted
+# pairs in one run - 83.6% of homes.bg's entire 74,012-listing tracked
+# backlog - injecting that many synthetic snapshots and ballooning both
+# files past the push limit, discarding every portal's real data on every
+# failed atomic push (scrape.yml commits data/ as one commit).
+#
+# Calibrated from real committed history, not a guessed round number.
+# **Correction (Missy's review caught this): the original version of this
+# comment divided bazar.bg's cumulative 1,873 relisting-tagged snapshots
+# by 9 runs to get "~208/run" - that's wrong, because 1,726 of those 1,873
+# were a one-time bulk backfill written by the go-live commit itself
+# (2026-09-20 23:59 UTC), not steady per-run behavior.** Diffing each of
+# the 10 real "Update listings" runs since go-live individually (not the
+# cumulative total) gives bazar.bg's real steady-state per-run injection
+# rate: 6-28 relistings/run, 0.01%-0.06% of its 51,860-listing backlog -
+# never close to the originally-claimed 208/0.4%. That means the real
+# margin under these thresholds is far larger than first estimated
+# (roughly 70-300x the busiest real per-run rate, not ~10x) - the
+# threshold VALUES below don't need to change, they were already safe and
+# are safer than originally believed; only this narrative was wrong. The
+# incident's 61,862-in-one-run/83.6%-of-backlog event remains ~300x even
+# the highest real per-run count on this corrected basis, and two orders
+# of magnitude past its per-run backlog fraction - comfortable headroom
+# for a portal's genuinely busiest real day, with no realistic risk of
+# missing an actual storm.
+RELISTING_GUARD_ABS = 2000
+RELISTING_GUARD_RATIO = 0.05
+
+
+def relisting_chain_guard_tripped(portal, matched_count, total_tracked):
+    """True (and loudly ::error::-logged) when a single run's relisting-
+    chain detector matched an implausibly large slice of a portal's
+    tracked backlog as simultaneous delisted-then-relisted pairs - the
+    signature of stale/broken upstream data (a scraper outage, or a prior
+    run's failed commit leaving GONE_AFTER's cutoff comparing against a
+    stale baseline - see this module's own 2026-09-24 incident comment
+    above) being misread as a mass relisting event, not real relisting
+    behavior. Callers must skip chain-injection entirely for this portal
+    this run when this returns True - per this project's "fail loud,
+    never silent" standing rule, silently injecting the synthetic
+    snapshots anyway is exactly the failure mode this guards against."""
+    if matched_count <= 0:
+        return False
+    ratio = matched_count / total_tracked if total_tracked else 0.0
+    if matched_count >= RELISTING_GUARD_ABS or ratio >= RELISTING_GUARD_RATIO:
+        print(
+            f"::error::relisting chain-storm guard tripped for {portal}: this run's "
+            f"detector matched {matched_count}/{total_tracked} tracked listings "
+            f"({ratio:.1%}) as simultaneous delisted-then-relisted pairs - past both "
+            f"the {RELISTING_GUARD_ABS}-absolute and {RELISTING_GUARD_RATIO:.0%}-of-"
+            f"backlog guard thresholds (calibrated from real per-run history - see "
+            f"RELISTING_GUARD_ABS's own comment in geo_utils.py). This is not real "
+            f"relisting behavior; it is the signature of stale/broken upstream data "
+            f"being misread as a mass relisting event (docs/backlog.md's 2026-09-24 "
+            f"scrape.yml commit-failure incident). Skipping chain-injection for "
+            f"{portal} this run rather than silently injecting {matched_count} "
+            f"synthetic snapshots - investigate why so much of this portal's backlog "
+            f"crossed GONE_AFTER in one pass before the next run."
+        )
+        return True
+    return False
+
+
 # --- City-key derivation - shared by every scraper's own compute_leads()
 # (for area averages) and sync_to_supabase.py's cross-portal merge/city
 # filter. Used to live only in sync_to_supabase.py; moved here so a
