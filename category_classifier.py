@@ -73,11 +73,34 @@ CATEGORY_KEYWORDS = {
     ],
     "land": [
         "парцел", "земеделска земя", "земеделски земи", "земеделски имот", "урегулиран поземлен имот",
-        "имот за строеж", "терен", "нива", "дворно място",
+        "имот за строеж", "терен", "нива", "дворно място", "поземлен имот",
         "парцел с къща", "parcel", "teren", "niva", "plot",
         # "упи" (a common abbreviation for "урегулиран поземлен имот" -
         # "regulated land plot") is handled by _UPI_RE below, not as a plain
         # substring here - see that regex's own comment for why.
+        # "поземлен имот" ("land property/plot") - a very common, generic
+        # Bulgarian land-listing phrase, distinct from the already-present
+        # "земеделски имот" (specifically AGRICULTURAL land). Missing before
+        # (Missy's PR #264 review, 2026-09-23): real land-plot listings
+        # whose title/description literally open with this exact phrase
+        # (e.g. "код 62942. Поземлен имот 3800м2 на 20 метра от къщи...",
+        # "Голям поземлен имот за продажба, с ПУП и проект за шест къщи...")
+        # had NO land keyword match at all, so the listing's own genuine
+        # subject never even entered scoring - "къщи" (mentioned only as
+        # neighboring/planned-development context, never the property being
+        # sold) won by default. A 2-word phrase, so no substring-collision
+        # risk the way single-word additions need checking for.
+        # "ниви" (plural of "нива") - the exact same feminine noun -а/-и
+        # pluralization gap "къщи"/"вили" already needed fixing for below,
+        # just never previously found on the land side: "нива" is a literal
+        # PREFIX-plus-ending-swap of "ниви", so the singular substring never
+        # matches the plural (e.g. "Продавам ниви, граничащи с къщи..." had
+        # no land match at all before this). Handled as its own \b-bounded
+        # regex (_NIVI_RE below), NOT a plain CATEGORY_KEYWORDS substring -
+        # confirmed live it would otherwise be a substring of unrelated
+        # words like "денивелация"/"денивилация" (a real construction term,
+        # "ground leveling") and "лениви" ("lazy") if added without a
+        # word-boundary guard.
         # "agricultural land"/"development land": imoti.net's own English
         # titles for these; "zemedelski" catches its URL slug
         # ("zemedelski-imot") the same way "parcel" already catches
@@ -86,18 +109,13 @@ CATEGORY_KEYWORDS = {
         "agricultural land", "development land", "zemedelski",
     ],
     "house": [
-        "къща", "къщи", "вила", "вили", "етаж от къща", "таунхаус", "еднофамилна къща",
+        "къща", "вила", "етаж от къща", "таунхаус", "еднофамилна къща",
         "жилищна сграда", "къща с двор", "селска къща",
-        # "къщи"/"вили" (plural of "къща"/"вила") - Bulgarian feminine nouns
-        # ending in "-а" often pluralize by replacing the final letter with
-        # "-и" rather than appending a suffix, so (unlike most of this
-        # list's other plurals, e.g. "апартамент"/"апартаменти",
-        # "офис"/"офиси" - already covered for free since the singular is a
-        # literal prefix of the plural) the singular substring alone never
-        # matches the plural form at all. Confirmed live: 191 olx.bg + 14
-        # alo.bg listings ("Две къщи с голям двор за продажба", "продавам 2
-        # къщи в Катуница") were missing this and defaulting to "flat" (the
-        # no-match fallback) or another tied category instead.
+        # "къщи"/"вили" (plural of "къща"/"вила") used to live here as plain
+        # substrings but are now handled by _KASHTI_RE/_VILI_RE below
+        # instead - see those regexes' own comments for why (both a
+        # substring-collision bug and a land-vs-house context bug Missy's
+        # PR #264 review, 2026-09-23, found live in already-committed data).
         "kashta", "kyshta", "vila", "taunhaus", "house", "villa",
     ],
     "flat": [
@@ -131,6 +149,56 @@ _ROOM_COUNT_RE = re.compile(r"\d\s*-?\s*стаен")
 # mid-title, or followed by a comma) fixes this the same way _ROOM_COUNT_RE
 # already handles "flat"'s own similar shape below.
 _UPI_RE = re.compile(r"\bупи\b", re.IGNORECASE)
+
+# "ниви" (plural of "нива" - "field/plot") - see CATEGORY_KEYWORDS["land"]'s
+# own comment above for why this needs its own \b-bounded regex rather than
+# a plain substring (the same feminine -а/-и pluralization gap "къщи"/
+# "вили" needed below, on the land side this time) and why the word
+# boundary specifically matters here (rejects "денивелация"/"денивилация",
+# "лениви" - confirmed live in this project's own stored description text,
+# 2026-09-23).
+_NIVI_RE = re.compile(r"\bниви\b", re.IGNORECASE)
+
+# "къщи"/"вили" (plural of "къща"/"вила" - "house(s)"/"villa(s)") - Missy's
+# PR #264 review (2026-09-23) found two real, live bugs in how these were
+# added as plain CATEGORY_KEYWORDS substrings:
+#
+# 1. SUBSTRING COLLISION: "вили" (4 letters, no word-boundary guard) is
+#    itself a literal substring of "павилион" ("pavilion" - a small
+#    commercial kiosk/structure, completely unrelated to houses) and
+#    several other unrelated Cyrillic words confirmed live in this
+#    project's own stored text - "привилидж"/"цивилизация" (mid-word, the
+#    "-вили-" letters just happen to appear) and any verb ending in
+#    "-вили" ("направили", "предоставили", "подготвили" - a very common
+#    Bulgarian past-tense plural verb suffix). 9 of 13 real "павилион"
+#    listings were reclassified "house" over this, 4 at "high" confidence.
+#    "къщи" had the same latent risk, confirmed live too:
+#    "автокъща"/"автокъщи" ("auto-house" - a real, common Bulgarian term
+#    for a CAR DEALERSHIP, not a house) and "вкъщи" ("at home", an adverb,
+#    not the property type) both contain "къщи" as a bare substring.
+#    Fixed the same way _UPI_RE already fixed this exact class of bug for
+#    "упи" - a proper \b word-boundary regex (Python's \b is Cyrillic-aware
+#    by default), confirmed live to still correctly reject every one of the
+#    above collisions while still matching "къщи"/"вили" as their own
+#    standalone words (start of string, mid-title, followed by a comma).
+#
+# 2. LAND-VS-HOUSE CONTEXT: even where "къщи"/"вили" correctly match their
+#    own word and nothing else, a genuine LAND-plot listing routinely
+#    mentions neighboring or future-planned houses as location CONTEXT, not
+#    as the property actually being sold - e.g. "Поземлен имот 3800м2 на 20
+#    метра от къщи" (a land plot 20m FROM houses), "Парцел 430м2 до вили"
+#    (a plot NEAR villas), "проект за шест къщi" (a land plot with an
+#    approved PROJECT to build six houses on it - still land, not a house,
+#    until built). 190 olx.bg + 7 alo.bg + 1 imoti.bg real records were
+#    affected, 53 of the olx.bg ones at "high" confidence. See
+#    _demote_context_only_house_signals below for the fix - a related but
+#    distinct problem from _resolve_subject_over_amenity (that function
+#    resolves an AMENITY-class winner losing to a SUBJECT-class category
+#    that leads the title; this is two SUBJECT-class categories - land and
+#    house are both real property types a listing can genuinely BE - where
+#    one side's only evidence is an inherently context-prone plural word).
+_KASHTI_RE = re.compile(r"\bкъщи\b", re.IGNORECASE)
+_VILI_RE = re.compile(r"\bвили\b", re.IGNORECASE)
 
 # Tiebreak order only (when two categories score exactly equal) - most
 # specific/least-ambiguous categories first, "flat" last since it's also
@@ -191,6 +259,14 @@ def _title_match_positions(categories, title):
             upi_match = _UPI_RE.search(text)
             if upi_match:
                 idxs.append(upi_match.start())
+            nivi_match = _NIVI_RE.search(text)
+            if nivi_match:
+                idxs.append(nivi_match.start())
+        if cat == "house":
+            for house_re in (_KASHTI_RE, _VILI_RE):
+                house_match = house_re.search(text)
+                if house_match:
+                    idxs.append(house_match.start())
         if idxs:
             positions[cat] = min(idxs)
     return positions
@@ -289,7 +365,30 @@ def _score_signal(signal_name, text, scores, matched_signals):
     text = text.lower()
     weight = SIGNAL_WEIGHTS[signal_name]
     for cat, patterns in _KEYWORD_RE_CACHE.items():
-        if any(p.search(text) for p in patterns):
+        matched = any(p.search(text) for p in patterns)
+        # "къщи"/"вили" (house) and "ниви" (land) are folded into the SAME
+        # per-category match check as their category's other keywords
+        # (rather than each being its own separate additive `if` block, the
+        # way _ROOM_COUNT_RE/_UPI_RE already were before this fix) so that a
+        # signal mentioning BOTH, e.g., "къща" and "къщи" (a real, live
+        # pattern: "Продава се... къща... Всяка къща има собствен парцел...
+        # аналогични двуетажни КЪЩИ в чернова" - one description, singular
+        # AND plural both genuinely describing the same real house listing)
+        # only counts as ONE match for "house" in that signal, not two -
+        # confirmed live this double-counting was otherwise silently
+        # inflating a signal's score by 2x weight instead of a clean 1x,
+        # which changed an actual tie-break outcome for several real
+        # records during this fix's own verification. (_ROOM_COUNT_RE and
+        # _UPI_RE keep their own pre-existing separate-block form below,
+        # unchanged - not touched by this fix, not the bug being fixed
+        # here, and their own combination is always with OTHER land/flat
+        # evidence rather than two forms of the exact same word, so it
+        # doesn't carry the same live-confirmed regression risk.)
+        if cat == "house" and (_KASHTI_RE.search(text) or _VILI_RE.search(text)):
+            matched = True
+        if cat == "land" and _NIVI_RE.search(text):
+            matched = True
+        if matched:
             scores[cat] = scores.get(cat, 0) + weight
             matched_signals.setdefault(cat, set()).add(signal_name)
     if _ROOM_COUNT_RE.search(text):
@@ -298,6 +397,147 @@ def _score_signal(signal_name, text, scores, matched_signals):
     if _UPI_RE.search(text):
         scores["land"] = scores.get("land", 0) + weight
         matched_signals.setdefault("land", set()).add(signal_name)
+
+
+# Second land-vs-house pattern Missy's PR #264 review found (see
+# _KASHTI_RE/_VILI_RE's own comment above, bug class 2) - a genuine LAND
+# listing whose only "house" evidence is the ambiguous "къщи"/"вили" plural
+# CONTEXT words (neighboring/planned houses, never the listing's own
+# subject) can still outscore land outright, since a real land-plot
+# description often repeats "къщи" more than once (both as neighboring
+# context AND, confusingly, sometimes as an approved development's planned
+# unit count - "проект за шест къщи" - still land until built).
+#
+# Unlike _resolve_subject_over_amenity (which compares an AMENITY-class
+# winner against a SUBJECT-class category leading the title), this is a
+# SUBJECT-vs-SUBJECT problem: land and house are both real property types a
+# listing can genuinely BE.
+#
+# First cut of this fix used "specificity" alone (demote къщи/вили whenever
+# no OTHER house keyword also matched the same signal) - live-verified
+# against the ACTUAL full affected population (not just Missy's own
+# examples) and found to be WRONG for a real, sizeable class it hadn't been
+# checked against: genuine multi-house listings that ALSO mention their own
+# attached plot as an amenity, e.g. "Две къщи с АКТ 14 в общ парцел..."
+# (two real houses, full room-by-room descriptions in the body text, "с общ
+# парцел" - "with a shared parcel" - trailing as the attached-land
+# amenity), "Продавам две къщи с парцел" - both wrongly flipped to `land`
+# by the first cut, since "къщи" was still each listing's ONLY house
+# keyword (no singular "къща" also present) even though it was genuinely
+# the listing's own real subject, not context.
+#
+# Fixed by adding POSITION back in, the same "subject leads,
+# amenity/context trails" reasoning this whole file already uses elsewhere
+# - but applied PER SIGNAL (title's own text vs land's own title match,
+# description's own text vs land's own description match) rather than
+# title-only, because the deciding land evidence can legitimately live only
+# in the description (e.g. "Имот 630м2 на 100 метра от последните
+# къщи..." - title alone never says "Поземлен", only the description
+# spells out "Поземлен имот 630м2..." explicitly):
+#   Part A (TITLE only): a title is short and reliably subject-first
+#     (established precedent elsewhere in this file), so a generic position
+#     check there is trustworthy for ANY house keyword, not just the
+#     ambiguous plural ones - if land's own title match precedes house's,
+#     the title itself settles it directly ("Парцел с вила" - land leads,
+#     "вила" singular trails - genuinely land, the same convention the
+#     pre-existing "парцел с къща" keyword phrase already encodes). A
+#     house-leading, land-trailing title ("Две къщи с... парцел") is
+#     explicitly left alone, fixing the regression above.
+#   Part A' (DESCRIPTION/URL): a full free-text description is NOT reliably
+#     subject-first the way a title is - live-confirmed regression sampling
+#     the fix's OWN real effect found a genuine, clean two-signal-agreement
+#     house listing (a 4-row-house development) whose description simply
+#     happens to OPEN by describing its "10 парцела" before getting to the
+#     "4-ри редови къщи" being sold - a naive generic position check there
+#     wrongly stripped a correct "high" confidence down to "low". So
+#     description/url positions only ever settle it when house's ENTIRE
+#     evidence in that one signal is purely the ambiguous "къщи"/"вили"
+#     context words (no other, more specific/definitive house keyword also
+#     present in that same text) AND land precedes there too - never when a
+#     genuine singular "къща"/"вила" (or other definitive house word) is
+#     also present in that same description, regardless of word order.
+#   Part B: a signal whose house evidence is purely "къщи"/"вили" and has NO
+#     land match of its own to compare (so neither Part A nor A' can settle
+#     it directly, e.g. the title in the "Имот... от... къщи" case, which
+#     never says "Поземлен") borrows the verdict from a SIBLING signal that
+#     WAS directly demoted - i.e., only fires when another matched signal
+#     independently confirmed "land leads, house trails" within its own
+#     text, so this is corroboration from the same ad's OTHER text, never a
+#     guess from nothing.
+# Only applies when "land" has independent evidence somewhere at all
+# (scores.get("land", 0) > 0), so a genuine house listing with zero land
+# mentions anywhere is never touched by any part.
+def _demote_context_only_house_signals(scores, matched_signals, title, description, url):
+    """Mutates `scores`/`matched_signals` in place per the rule described
+    above - see that comment for the two real, sampled regressions (one
+    involving singular house words, one involving a long multi-topic
+    description) that shaped the title/description asymmetry here."""
+    if scores.get("land", 0) <= 0 or scores.get("house", 0) <= 0:
+        return
+    house_signals = matched_signals.get("house")
+    if not house_signals:
+        return
+    signal_text = {"title": title, "url": url, "description": description}
+
+    def _earliest(text, cat):
+        idxs = [m.start() for m in (p.search(text) for p in _KEYWORD_RE_CACHE[cat]) if m]
+        if cat == "house":
+            for house_re in (_KASHTI_RE, _VILI_RE):
+                m = house_re.search(text)
+                if m:
+                    idxs.append(m.start())
+        if cat == "land":
+            for land_re in (_UPI_RE, _NIVI_RE):
+                m = land_re.search(text)
+                if m:
+                    idxs.append(m.start())
+        return min(idxs) if idxs else None
+
+    demoted = set()
+    context_only_no_land_competitor = set()
+    for signal_name in list(house_signals):
+        text = signal_text.get(signal_name)
+        if not text:
+            continue
+        text = text.lower()
+        house_pos = _earliest(text, "house")
+        if house_pos is None:
+            continue
+        has_context = bool(_KASHTI_RE.search(text) or _VILI_RE.search(text))
+        has_other = any(p.search(text) for p in _KEYWORD_RE_CACHE["house"])
+        land_pos = _earliest(text, "land")
+        if land_pos is not None:
+            if signal_name == "title":
+                # Part A: title's own word order settles it directly,
+                # regardless of whether the house match was the ambiguous
+                # plural or a definitive singular word.
+                if land_pos < house_pos:
+                    demoted.add(signal_name)
+            elif has_context and not has_other:
+                # Part A': same idea, but restricted to signals whose
+                # house evidence is purely the ambiguous plural context
+                # words - never overrides a genuine singular "къща"/"вила"
+                # elsewhere in the same free-text signal, regardless of
+                # word order (see the "10 парцела... 4-ри редови къщи"
+                # regression this restriction fixes, above).
+                if land_pos < house_pos:
+                    demoted.add(signal_name)
+            continue
+        # Part B candidate: no land competitor in THIS signal - only
+        # eligible for cross-signal corroboration if house's evidence here
+        # is purely the ambiguous plural context words.
+        if has_context and not has_other:
+            context_only_no_land_competitor.add(signal_name)
+
+    if demoted:
+        demoted |= context_only_no_land_competitor
+
+    for signal_name in demoted:
+        scores["house"] -= SIGNAL_WEIGHTS[signal_name]
+        house_signals.discard(signal_name)
+    if scores.get("house", 0) <= 0:
+        scores.pop("house", None)
+        matched_signals.pop("house", None)
 
 
 def classify_listing(title=None, description=None, url=None):
@@ -316,6 +556,7 @@ def classify_listing(title=None, description=None, url=None):
     _score_signal("title", title, scores, matched_signals)
     _score_signal("url", url, scores, matched_signals)
     _score_signal("description", description, scores, matched_signals)
+    _demote_context_only_house_signals(scores, matched_signals, title, description, url)
 
     if not scores:
         return "flat", "low", "no_keyword_match"
