@@ -43,12 +43,18 @@ of listings each) is exactly what the staged rollout is meant to surface
 before committing to it there.
 
 fetch_listing_detail() (extended 2026-09-24) also pulls spec fields (sqm/
-property type/construction type/built year/completion status/floor/
-features) and agency contact info (name + real external website, never a
-phone number) out of the SAME application/ld+json block its description
-extraction already successfully parses - see its own docstring and
-geo_utils.extract_specs_imoti_bg()/extract_contact_imoti_bg() for exactly
-which schema.org fields are read and why. No new photo or coordinate
+property type/features, incl. has_elevator/furnished/has_central_heating
+derived from those features) and agency contact info (name + real
+external website, never a phone number) out of the SAME application/
+ld+json block its description extraction already successfully parses -
+see its own docstring and geo_utils.extract_specs_imoti_bg()/
+extract_contact_imoti_bg() for exactly which schema.org fields are read
+and why. construction type/built year/completion status/floor number/
+floor qualifier are deliberately NOT extracted: no core schema.org
+vocabulary covers them, so there's no real evidence of where (or
+whether) they'd live in this site's own ld+json - see
+extract_specs_imoti_bg()'s own comment for what a future contributor
+with live access should check first. No new photo or coordinate
 extraction was added alongside these: this page embeds only one photo
 total (already captured as "photo", see fetch_listing_detail()'s own
 docstring) and carries no coordinates of its own anywhere (every listing
@@ -374,11 +380,15 @@ def fetch_listings():
         if specs:
             if specs.get("sqm") and not l.get("sqm"):
                 l["sqm"] = specs["sqm"]
-            for field in (
-                "property_type_raw", "construction_type", "built_year", "completion_status",
-                "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
-                "has_central_heating",
-            ):
+            # Only the fields extract_specs_imoti_bg() can actually
+            # produce (see its own comment in geo_utils.py) - unlike
+            # scraper_alo.py's identically-shaped loop, this deliberately
+            # does NOT list construction_type/built_year/completion_status/
+            # floor_number/floor_qualifier: no core schema.org vocabulary
+            # covers them, so extract_specs_imoti_bg() never sets them,
+            # and listing them here would be dead, misleading code -
+            # claiming a copy this scraper never actually performs.
+            for field in ("property_type_raw", "features", "has_elevator", "furnished", "has_central_heating"):
                 if field in specs:
                     l[field] = specs[field]
         # Agency name + real external agency website - deliberately no
@@ -433,23 +443,37 @@ def save_history(history):
 #
 # specs/contact fields (added 2026-09-24, same reasoning scraper_alo.py's
 # own equivalent list already documents for its identically-shaped merge):
-# property_type_raw/construction_type/built_year/completion_status/
-# floor_number/floor_qualifier/features/has_elevator/furnished/
-# has_central_heating/agency_name/agency_website are all detail-only (the
-# grid crawl never produces them) and best-effort (not every listing's
-# ld+json carries every field), so they get the same merge-not-replace
-# protection description/site_posted_at already have. sqm is NOT listed
-# here even though fetch_listing_detail() can now also fill it in - same
-# special case as scraper_alo.py's own list: sqm is normally a GRID field
-# (SQM_RE, set directly from card text) that a genuine edit can still
-# legitimately change, so a fresh grid-parsed sqm must still be able to
-# overwrite an old one; the detail-page fallback only ever fills sqm in
-# when the grid pass came up empty in the first place (see fetch_listings()
-# above), so protecting it here would be redundant, not additionally safe.
+# property_type_raw/features/has_elevator/furnished/has_central_heating/
+# agency_name/agency_website are all detail-only (the grid crawl never
+# produces them) and best-effort (not every listing's ld+json carries
+# every field), so they get the same merge-not-replace protection
+# description/site_posted_at already have.
+#
+# "sqm" IS also listed here, matching what scraper_alo.py's own
+# _DETAIL_ONLY_FIELDS actually does (not the opposite - a previous version
+# of this comment wrongly claimed alo.bg excludes it). sqm is normally a
+# GRID field (SQM_RE, set directly from card text), which is why it isn't
+# detail-only in the sense the fields above are - a fresh grid crawl that
+# DOES find real sqm text must still be able to overwrite an old value
+# (real edits happen). But now that fetch_listing_detail() can ALSO fill
+# sqm in (via extract_specs_imoti_bg()'s floorSize, for whatever fraction
+# of listings whose card never showed "... кв.м" text), the same
+# merge-not-replace protection every other detail-only field gets is
+# needed here too - otherwise a later grid-only re-touch that (per this
+# function's own docstring above) hits a transient detail-fetch failure
+# and again finds no sqm text on the card would silently wipe a real sqm
+# value a previous run's detail fetch had already filled in - exactly the
+# bug class this field list exists to prevent, and exactly the scenario
+# this module's own fetch_listing_detail() docstring describes ("a single
+# transient per-run failure... legitimately returns None... for a listing
+# that had real detail-page fields on a previous run"). Being in this list
+# still means "prefer the fresh value when the fresh value is non-empty"
+# (see update_history() below) - so a genuine grid-parsed sqm change still
+# wins; this only stops a grid MISS from clobbering a real detail-page
+# value.
 _DETAIL_ONLY_FIELDS = (
-    "description", "site_posted_at",
-    "property_type_raw", "construction_type", "built_year", "completion_status",
-    "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
+    "description", "site_posted_at", "sqm",
+    "property_type_raw", "features", "has_elevator", "furnished",
     "has_central_heating", "agency_name", "agency_website",
 )
 

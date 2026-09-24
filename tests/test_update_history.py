@@ -423,10 +423,21 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         # Same shape as test_scraper_alo_preserves_detail_specs_and_contact_
         # and_sqm above, for the equivalent fields wired in from geo_utils.
         # extract_specs_imoti_bg()/extract_contact_imoti_bg() - see
-        # scraper_imoti_bg.py's _DETAIL_ONLY_FIELDS comment. Unlike alo.bg,
-        # sqm here is deliberately NOT one of the asserted-preserved
-        # fields - it's still a grid field for imoti.bg (SQM_RE), same
-        # "not additionally protected" reasoning that comment gives.
+        # scraper_imoti_bg.py's _DETAIL_ONLY_FIELDS comment. sqm IS one of
+        # the asserted-preserved fields here (Missy's 2026-09-24 review
+        # round caught an earlier version of this test hardcoding the same
+        # sqm value into both prior and fresh records, which could never
+        # actually prove preservation vs. overwrite either way) - the grid
+        # card genuinely has no "... кв.м" text this run (sqm: None,
+        # exactly as fetch_listings_page() would really produce for a card
+        # missing that text) and the fresh detail fetch is simulated as a
+        # transient failure too (specs came back None, so fetch_listings()
+        # never set anything from it) - the only sqm value available
+        # anywhere in this scenario is the one a PREVIOUS run's detail
+        # fetch had already filled in via extract_specs_imoti_bg()'s
+        # floorSize, so this proves update_history() actually restores it
+        # instead of letting the grid-miss + detail-failure combination
+        # silently wipe it.
         prior_latest = {
             "id": "imotibg_3", "url": "https://imoti.bg/3", "photo": "https://imoti.bg/3.jpg",
             "price_eur": 95000, "sqm": 76, "area": "Center", "city": "София",
@@ -436,21 +447,47 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "has_elevator": True, "furnished": True, "has_central_heating": True,
             "agency_name": "Империал Имоти", "agency_website": "https://imperial-imoti.bg",
         }
-        # A transient re-fetch failure this run: fetch_listing_detail()
-        # returned (None, None, None, None), so fetch_listings() never set
-        # any of these on the fresh record at all.
+        # Grid card has no sqm text this run (sqm: None, a real grid MISS -
+        # not the same value re-found), and the detail fetch is a
+        # simulated transient failure: fetch_listing_detail() returned
+        # (None, None, None, None), so fetch_listings() never set any of
+        # these (including sqm from specs) on the fresh record at all.
         fresh_grid = {
             "id": "imotibg_3", "url": "https://imoti.bg/3", "photo": "https://imoti.bg/3.jpg",
-            "sqm": 76, "area": "Center", "city": "София", "title": "Тристаен апартамент, Center",
+            "sqm": None, "area": "Center", "city": "София", "title": "Тристаен апартамент, Center",
             "portal": "imoti.bg", "category": "apartment", "category_confidence": "high",
         }
         latest = self._assert_preserved_and_updated(
             scraper_imoti_bg, "imotibg_3", prior_latest, fresh_grid,
-            ["property_type_raw", "features", "has_elevator", "furnished",
+            ["sqm", "property_type_raw", "features", "has_elevator", "furnished",
              "has_central_heating", "agency_name", "agency_website"],
             new_price=93000,
         )
         self.assertIs(latest["furnished"], True)
+
+    def test_scraper_imoti_bg_grid_sqm_still_overwrites_detail_sqm_when_present(self):
+        # The fix must be a merge, not a freeze: if a later grid crawl DOES
+        # find real "... кв.м" text on the card (a genuine edit, or a card
+        # layout that happens to include it this time), that fresh value
+        # must still win over whatever a previous detail fetch filled in -
+        # sqm must not become permanently sticky just because it's now in
+        # _DETAIL_ONLY_FIELDS. Mirrors scraper_alo.py's own equivalent test.
+        prior_latest = {
+            "id": "imotibg_4", "url": "https://imoti.bg/4", "photo": "https://imoti.bg/4.jpg",
+            "price_eur": 90000, "sqm": 57, "area": "Center", "city": "Пловдив",
+            "title": "Студио, Center", "portal": "imoti.bg", "category": "apartment",
+            "category_confidence": "high",
+        }
+        fresh_grid = {
+            "id": "imotibg_4", "url": "https://imoti.bg/4", "photo": "https://imoti.bg/4.jpg",
+            "sqm": 60, "area": "Center", "city": "Пловдив", "title": "Студио, Center",
+            "portal": "imoti.bg", "category": "apartment", "category_confidence": "high",
+        }
+        history = self._make_history("imotibg_4", prior_latest)
+        fresh = copy.deepcopy(fresh_grid)
+        fresh["price_eur"] = 88000
+        result = scraper_imoti_bg.update_history(history, [fresh])
+        self.assertEqual(result["imotibg_4"]["latest"]["sqm"], 60)
 
     # -- new listing (no prior history) still works normally --------------
     def test_new_listing_with_no_prior_history_is_unaffected(self):
