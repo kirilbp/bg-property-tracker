@@ -7956,26 +7956,37 @@ function renderKeywordsPanel(merged, l) {
 // docs/property-filter-spec.md section 5's "Due Diligence"/"Agent"
 // panels). Property type/size/construction type/built year/completion
 // status/floor number+qualifier/feature checkboxes, and agency
-// name/website/phone are a real, named backend gap - checked the full
-// field union across every data/leads_*.json file and confirmed none of
-// these are scraped anywhere today (same gap already flagged for the
-// Agent panel elsewhere on this page - see PROPERTY_TYPE_LABELS'
-// neighboring code and docs/backlog.md item 9). A parallel backend fix
-// is adding real extraction for these; this only lays out where/how
-// they'd render once that lands, using assumed snake_case field names
-// (property_type, construction_type, built_year, completion_status,
-// floor_number, floor_qualifier, features[], agency_name, agency_phone,
-// agency_website) that follow this codebase's existing field-naming
-// convention (lat/lng/sqm/price_eur etc.) - NOT confirmed against
-// whatever the backend fix actually ships, since that schema doesn't
-// exist yet. Whoever wires up the real columns should double check
-// these names line up (a quick rename here if not) rather than assume
-// they're already correct. Every field is read defensively (undefined
-// today, on every real listing) so both panels return '' and render
-// nothing - no empty box, no broken layout - until real data exists.
+// name/website/phone were a real, named backend gap when this was
+// written - checked the full field union across every data/leads_*.json
+// file and confirmed none of these were scraped anywhere at the time
+// (same gap flagged for the Agent panel elsewhere on this page - see
+// PROPERTY_TYPE_LABELS' neighboring code and docs/backlog.md item 9).
+// This originally laid out where/how these fields would render using
+// ASSUMED snake_case field names, not yet confirmed against a real
+// backend schema.
+//
+// The backend fix has since landed for alo.bg (geo_utils.
+// extract_specs_alo()/extract_contact_alo()) and bazar.bg (geo_utils.
+// extract_specs_bazar()/extract_contact_bazar(), narrower - see that
+// function's own comment for exactly which of these fields bazar.bg's
+// real spec table actually has). Its real field name is property_type_
+// RAW, not the property_type this guessed originally - fixed below (a
+// real mismatch: every alo.bg/bazar.bg listing with a real property type
+// was silently rendering nothing in this panel since the day the backend
+// fix shipped, because this read the wrong key). Every other guessed
+// name here (construction_type, built_year, completion_status,
+// floor_number, floor_qualifier, features[], agency_name, agency_website)
+// turned out to match the real field names exactly. agency_phone is
+// still unused by design - see extract_contact_alo()'s/extract_contact_
+// bazar()'s own comments for why phone is deliberately never extracted
+// on either portal - kept here only so a future portal that genuinely can
+// extract a real phone number doesn't need a frontend change too. Every
+// field is still read defensively (undefined on every other portal's
+// listings) so both panels return '' and render nothing - no empty box,
+// no broken layout - wherever the data isn't there yet.
 function renderSpecsPanel(l) {
   const rows = [
-    ['Property type', l.property_type],
+    ['Property type', l.property_type_raw],
     ['Construction type', l.construction_type],
     ['Built year', l.built_year],
     ['Completion status', l.completion_status],

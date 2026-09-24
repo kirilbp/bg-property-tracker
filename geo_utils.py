@@ -650,6 +650,231 @@ def extract_contact_alo(html):
     return contact or None
 
 
+# bazar.bg's structured spec table (confirmed via the user's own real
+# screenshots of a live detail page, bazar.bg/obiava-55691101/
+# prodava-2-staen-gr-sofiia-lyulin-1 - this sandbox has no live network
+# access to bazar.bg either, same as alo.bg - see extract_coords_bazar()'s
+# neighboring comment) is a fixed sequence of Bulgarian label/value rows:
+# Тип сделка (a combined transaction+property-type sentence, e.g. "Продава
+# Апартамент в гр. София" - not extracted here, too generic to be useful
+# and superseded by Тип апартамент below), Тип апартамент (the specific
+# room-count property type, e.g. "2-стаен" - the actually useful value,
+# stored as property_type_raw), Квадратура (size, e.g. "50 кв. м."), Цена
+# на кв.м. (price per sqm, e.g. "2240 €/кв. м." - not extracted; this
+# project already computes price_per_sqm downstream from price/sqm
+# elsewhere, no need to also trust the portal's own pre-computed figure),
+# Вид строителство (construction type, e.g. "ЕПК" - no "на", same
+# phrasing already confirmed for alo.bg's own row of the same name), and
+# Етаж (a bare floor NUMBER on bazar.bg, e.g. "4" - unlike alo.bg, where
+# "Етаж" is a floor QUALIFIER like "Непоследен" and the number lives under
+# a separate "Номер на етажа" row; bazar.bg's own screenshot shows no
+# qualifier row at all, so this maps straight to floor_number).
+#
+# Same reasoning as extract_specs_alo() (see its own comment): rather than
+# guess this table's CSS classes/tag names, this locates each row by its
+# fixed Bulgarian LABEL text and reads whatever text follows it, using
+# BeautifulSoup's get_text("\n", strip=True) to flatten the page into one
+# line per underlying text node - works regardless of whether a row is a
+# <tr><td> pair, a <dl><dt>/<dd> pair, or a pair of <div>s. Every real
+# value in the screenshot is a single short line (unlike alo.bg's built_
+# year row, which had a separate trailing hint span), so the per-row value
+# cap here is deliberately tighter (2 lines, not alo's 4) - just enough
+# margin for a value split across two text nodes without risking Етаж (the
+# last known row, with no confirmed heading/stop-text right after it on
+# this portal) pulling a chunk of the free-text description paragraph
+# underneath it into its own value. floor_number is still safe even if
+# that happens: it's read out with a digit-only regex search that matches
+# the FIRST number in the collected text, which is always the real "4"
+# itself (collected before any description text could be appended), never
+# a number appearing later in that description.
+#
+# Defensive by construction, same as every other extractor in this file:
+# a row whose label isn't found is simply absent from the result, and if
+# NO known label is found at all this returns None outright.
+_BAZAR_SPEC_LABELS = [
+    ("Тип апартамент", "property_type_raw"),
+    ("Квадратура", "_sqm_raw"),
+    ("Вид строителство", "construction_type"),
+    ("Етаж", "_floor_number_raw"),
+]
+# "Тип сделка" and "Цена на кв.м." are recognized labels purely so they
+# correctly terminate whatever row precedes them (same role "Местоположение"
+# plays in _ALO_SPEC_ALL_LABELS) - neither is ever stored, see the comment
+# above.
+_BAZAR_SPEC_ALL_LABELS = frozenset(
+    ["Тип сделка", "Цена на кв.м."] + [label for label, _ in _BAZAR_SPEC_LABELS]
+)
+_BAZAR_SPEC_MAX_VALUE_LINES = 2
+
+_BAZAR_SQM_VALUE_RE = re.compile(r"(\d+(?:[.,]\d+)?)")
+_BAZAR_FLOOR_NUMBER_VALUE_RE = re.compile(r"(\d+)")
+
+
+def _bazar_spec_value(lines, start_idx):
+    """Same "collect until the next known label" shape as _alo_spec_value()
+    - see that function's own comment. Returns "" if the very next line is
+    itself another known label - i.e. this row's value is genuinely absent
+    on this listing, not a parsing failure."""
+    collected = []
+    i = start_idx
+    while i < len(lines) and len(collected) < _BAZAR_SPEC_MAX_VALUE_LINES:
+        line = lines[i]
+        if line in _BAZAR_SPEC_ALL_LABELS:
+            break
+        collected.append(line)
+        i += 1
+    return " ".join(collected).strip()
+
+
+def extract_specs_bazar(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+    text = soup.get_text("\n", strip=True)
+    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+
+    raw = {}
+    for i, line in enumerate(lines):
+        for label, key in _BAZAR_SPEC_LABELS:
+            if line == label and key not in raw:
+                value = _bazar_spec_value(lines, i + 1)
+                if value:
+                    raw[key] = value
+                break
+
+    if not raw:
+        return None
+
+    specs = {}
+    for key in ("property_type_raw", "construction_type"):
+        if raw.get(key):
+            specs[key] = raw[key]
+
+    if raw.get("_sqm_raw"):
+        m = _BAZAR_SQM_VALUE_RE.search(raw["_sqm_raw"])
+        if m:
+            try:
+                specs["sqm"] = round(float(m.group(1).replace(",", ".")))
+            except ValueError:
+                pass
+
+    if raw.get("_floor_number_raw"):
+        m = _BAZAR_FLOOR_NUMBER_VALUE_RE.search(raw["_floor_number_raw"])
+        if m:
+            specs["floor_number"] = int(m.group(1))
+
+    return specs or None
+
+
+# bazar.bg's agency contact box (confirmed via the same real screenshots as
+# extract_specs_bazar() - see its own comment for the network-access
+# caveat) shows the agency's name as plain text, followed by a line "Още
+# оферти на <url>" ("More offers at <url>") linking to what looks like the
+# agency's own storefront/listing page (e.g. "https://sntbg.imot.bg") -
+# plausibly an imot.bg-hosted agency page rather than the agency's own
+# independent domain, but stored as agency_website either way, same "don't
+# over-engineer telling them apart" scope this project already applies to
+# alo.bg's own real-vs-hosted-site distinction (see extract_contact_alo()'s
+# comment) - just with less certainty here about which this actually is.
+#
+# The box also shows a masked phone number, "08XX XXX XXX (покажи)"
+# ("покажи" = "show") behind a click-to-reveal button - the identical
+# anti-scraping pattern already documented at length in
+# extract_contact_alo()'s own comment (alo.bg's "Виж" button). Same
+# conclusion, same reason: DELIBERATELY NOT extracted here either. Never
+# guess a masked number.
+#
+# Same reasoning as extract_contact_alo(): rather than guess this box's CSS
+# classes/tag names (unverifiable without live HTML), this keys off the
+# "Още оферти на" phrase - the one piece of this box confirmed word-for-
+# word in the screenshots - and walks up from wherever that text sits to
+# the smallest ancestor whose own text ALSO holds a plausible agency-name
+# line (not just the offers phrase and/or its URL) - the same "keep
+# climbing until there's real content beyond the label itself" shape
+# extract_description_alo() uses, rather than requiring a real <a href>
+# specifically (unlike extract_contact_alo()'s equivalent search): the
+# name and the "Още оферти на" line could plausibly sit as two different-
+# depth siblings, and the website itself might not be a real anchor at all
+# (the screenshot doesn't show it as a distinguishably-styled link, unlike
+# alo.bg's own contact box) - a bare domain rendered as plain text is
+# handled by the website extraction below regardless of which shape wins.
+_BAZAR_OFFERS_LINK_TEXT = "Още оферти на"
+_BAZAR_PHONE_REVEAL_RE = re.compile(r"покажи", re.IGNORECASE)
+_BAZAR_CONTACT_ANCESTOR_SEARCH_LEVELS = 6
+
+
+def _bazar_contact_name_candidate(lines):
+    """First line that plausibly reads as an agency/poster name - not the
+    offers phrase itself, not the masked-phone reveal line, not a bare
+    phone number, not a bare domain/URL shown as plain text. Same filter
+    shape as extract_contact_alo()'s own name search."""
+    for line in lines:
+        if _BAZAR_OFFERS_LINK_TEXT in line:
+            continue
+        if _BAZAR_PHONE_REVEAL_RE.search(line):
+            continue
+        if re.match(r"^\d", line):
+            continue
+        if "." in line and " " not in line:
+            continue
+        return line
+    return None
+
+
+def extract_contact_bazar(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+
+    label_node = soup.find(string=re.compile(re.escape(_BAZAR_OFFERS_LINK_TEXT)))
+    if label_node is None or label_node.parent is None:
+        return None
+
+    node = label_node.parent
+    container = None
+    name = None
+    for _ in range(_BAZAR_CONTACT_ANCESTOR_SEARCH_LEVELS):
+        if node is None:
+            break
+        lines = [ln.strip() for ln in node.get_text("\n", strip=True).split("\n") if ln.strip()]
+        candidate = _bazar_contact_name_candidate(lines)
+        if candidate:
+            container = node
+            name = candidate
+            break
+        node = node.parent
+    if container is None:
+        # Heading found, but no ancestor within the search depth had a
+        # plausible name line beyond the offers phrase itself - a
+        # structural mismatch, not a genuine empty box. Never guess.
+        return None
+
+    contact = {"agency_name": name}
+
+    website = None
+    for a in container.find_all("a", href=True):
+        href = a["href"].strip()
+        if not href or href.startswith(("mailto:", "tel:", "#")):
+            continue
+        website = href if href.startswith("http") else f"https://{href.lstrip('/')}"
+        break
+    if website is None:
+        # The site may render this as plain text rather than a real
+        # anchor - fall back to whatever token sits right after the "Още
+        # оферти на" phrase in the container's own text.
+        text = container.get_text(" ", strip=True)
+        m = re.search(re.escape(_BAZAR_OFFERS_LINK_TEXT) + r"\s*(\S+)", text)
+        if m and "." in m.group(1):
+            candidate = m.group(1).strip(").,;")
+            website = candidate if candidate.startswith("http") else f"https://{candidate.lstrip('/')}"
+    if website:
+        contact["agency_website"] = website
+
+    return contact
+
+
 # "жк."/"ж.к." (жилищен комплекс - "residential complex") is a common
 # Bulgarian prefix on neighborhood names (e.g. "жк. Лозенец") that, left
 # in the query, made Nominatim return zero results ~95% of the time

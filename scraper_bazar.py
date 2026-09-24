@@ -536,7 +536,23 @@ def save_history(history):
 # must merge these in from the previous "latest" rather than let a fresh
 # grid re-touch wipe them off an already-detail-checked, still-active
 # listing every ~6 hours - docs/backlog.md item 9a.
-_DETAIL_ONLY_FIELDS = ("description", "photos", "coords_checked", "lat", "lng")
+#
+# 2026-09-24: extended with the same spec-table/agency fields alo.bg's own
+# _DETAIL_ONLY_FIELDS list already carries (see scraper_alo.py's own
+# comment on this list for the full reasoning), now that
+# backfill_detail_bazar.py also fills these in via geo_utils.
+# extract_specs_bazar()/extract_contact_bazar(). "sqm" is unconditionally
+# detail-only here (not the "special case" it is for alo.bg) - unlike
+# alo.bg's grid crawl, bazar.bg's own grid crawl (fetch_listings_page())
+# never sets a real sqm value at all, always None (see this module's own
+# docstring: "bazar.bg's listing grid doesn't show square meters"), so
+# there's no competing fresh-grid-value case to preserve a merge-not-
+# replace exception for.
+_DETAIL_ONLY_FIELDS = (
+    "description", "photos", "coords_checked", "lat", "lng", "sqm",
+    "property_type_raw", "construction_type", "floor_number",
+    "agency_name", "agency_website",
+)
 
 
 def update_history(history, listings):

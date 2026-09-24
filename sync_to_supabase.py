@@ -1069,12 +1069,18 @@ def merged_id_for(sources):
 #
 # property_type_raw/construction_type/built_year/completion_status/
 # floor_number/floor_qualifier/features/has_elevator/furnished/
-# has_central_heating/agency_name/agency_website (2026-09-24) are new,
-# currently alo.bg-only fields from geo_utils.extract_specs_alo()/
-# extract_contact_alo() - every other portal's leads_*.json entries simply
-# don't have these keys, so s.get(f) below is already the right "None for
-# every non-alo.bg row" behavior, same as e.g. site_posted_at already
-# being alo.bg/imoti.net-only. Needs the matching `alter table ... add
+# has_central_heating/agency_name/agency_website (2026-09-24) are new
+# fields from geo_utils.extract_specs_alo()/extract_contact_alo()
+# (alo.bg) and, added the same day, geo_utils.extract_specs_bazar()/
+# extract_contact_bazar() (bazar.bg - a narrower subset: only
+# property_type_raw/construction_type/floor_number/agency_name/
+# agency_website, per that portal's own real spec table - see
+# extract_specs_bazar()'s own comment) - every other portal's (and, for
+# the bazar-only-missing subset, bazar.bg's own) leads_*.json entries
+# simply don't have these keys, so s.get(f) below is already the right
+# "None for every row this doesn't apply to" behavior, same as e.g.
+# site_posted_at already being alo.bg/imoti.net-only. Needs the matching
+# `alter table ... add
 # column if not exists` migration in supabase/schema.sql applied by hand
 # in the Supabase SQL editor before these actually land in the live
 # tables - see that file's own comment, and upsert()'s _MISSING_COLUMN_RE
