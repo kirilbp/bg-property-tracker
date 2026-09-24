@@ -52,18 +52,23 @@ def test_guard_trips_on_real_incident_numbers():
 
 
 def test_guard_does_not_trip_on_real_healthy_per_run_rate():
-    # bazar.bg's real cumulative relisting count (1,873, git-log-confirmed)
-    # averaged over the 9 successful scrape.yml runs since detect_
-    # relistings.py went live: ~208/run, ~0.4% of its 51,860-listing
-    # backlog - the busiest real per-run rate seen for any portal. Must
-    # clear the guard with real headroom, not just barely.
+    # bazar.bg's real steady-state per-run injection rate, diffed run-by-run
+    # from git history (not the cumulative-total-divided-by-runs figure an
+    # earlier version of this comment used, which Missy's review caught as
+    # wrong - that conflated a one-time go-live backfill with ongoing
+    # behavior): 6-28 relistings/run, 0.01%-0.06% of its 51,860-listing
+    # backlog. 208 here is a deliberately conservative stand-in - roughly
+    # 7x the real observed maximum (28) - so this test still clears the
+    # guard with real headroom even against a number well above anything
+    # actually seen, not just the true real-world rate.
     assert relisting_chain_guard_tripped("bazar.bg", 208, 51860) is False
 
 
 def test_guard_does_not_trip_at_several_times_busiest_real_rate():
-    # 5x bazar.bg's busiest real per-run rate - still well under both
-    # thresholds, confirming the guard has genuine headroom above a
-    # portal's normal busiest day, not a threshold sitting right on top
+    # 5x the conservative 208 stand-in above (itself already ~7x the real
+    # observed per-run maximum of 28) - still well under both thresholds,
+    # confirming the guard has genuine headroom above anything resembling
+    # a portal's normal busiest day, not a threshold sitting right on top
     # of it.
     assert relisting_chain_guard_tripped("bazar.bg", 1040, 51860) is False
 

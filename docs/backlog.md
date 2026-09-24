@@ -4060,17 +4060,22 @@ standing rule against iterating live on `scrape.yml`):**
    injection entirely for a portal, loudly (`::error::`), when a single
    run's matched relisting pairs exceed `RELISTING_GUARD_ABS` (2000) or
    `RELISTING_GUARD_RATIO` (5% of the portal's tracked backlog).
-   Calibrated from real committed history, not a guessed round number:
-   git log shows 9 successful `scrape.yml` runs since `detect_
-   relistings.py` went live (2026-09-20 23:59 UTC); bazar.bg - the
-   busiest portal for real relistings by a wide margin - has 1,873
-   relisting-tagged snapshots committed today, ~208/run average and
-   never more than ~0.4% of its own 51,860-listing backlog in a single
-   run (imot.bg: 46 total; olx.bg: 2 total; homes.bg/imoti.bg: 0 - this
-   detector had never chained a single real relisting for homes.bg
-   before the incident). Both thresholds sit roughly an order of
-   magnitude above the highest real per-run figure seen for any portal
-   and two orders of magnitude below the incident's real numbers.
+   Calibrated from real committed history, not a guessed round number.
+   **Correction (Missy's review caught this in a follow-up pass): the
+   first version of this bullet divided bazar.bg's cumulative 1,873
+   relisting-tagged snapshots by 9 runs to get "~208/run" - wrong, since
+   1,726 of those 1,873 were a one-time bulk backfill written by the
+   go-live commit itself (2026-09-20 23:59 UTC), not steady per-run
+   behavior.** Diffing each of the 10 real "Update listings" runs since
+   go-live individually gives bazar.bg's real steady-state per-run
+   injection rate: **6-28 relistings/run, 0.01%-0.06%** of its
+   51,860-listing backlog - never close to 208/0.4% (imot.bg: 46 total;
+   olx.bg: 2 total; homes.bg/imoti.bg: 0 - this detector had never
+   chained a single real relisting for homes.bg before the incident).
+   The threshold VALUES (2000/5%) don't need to change - they were
+   already safe and are safer than first believed, with a real margin
+   closer to 70-300x the busiest real per-run rate rather than the
+   originally-claimed ~10x; only this narrative was wrong.
    `detect_relistings.py` now does a two-pass detect-then-inject so the
    guard can check the real matched count before any mutation, and exits
    non-zero when any portal's guard trips (surfaced as a real workflow
