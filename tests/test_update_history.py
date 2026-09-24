@@ -239,6 +239,75 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             new_price=58000,
         )
 
+    # -- alo.bg specs/contact fields (2026-09-24) --------------------------
+    def test_scraper_alo_preserves_detail_specs_and_contact_and_sqm(self):
+        # Same shape as test_scraper_alo_preserves_detail_fields above, but
+        # for the new fields wired in from geo_utils.extract_specs_alo()/
+        # extract_contact_alo() - see scraper_alo.py's _DETAIL_ONLY_FIELDS
+        # comment on why "sqm" specifically needed to join this list once
+        # fetch_update_dates() could also populate it (previously a
+        # grid-only field, sqm before this fix would be silently wiped by
+        # a grid re-touch that (as usual - see docs/backlog.md) found no
+        # "Квадратура:" text on the card).
+        prior_latest = {
+            "id": "alo_2", "url": "https://alo.bg/2", "photo": "https://alo.bg/2.jpg",
+            "price_eur": 110000, "sqm": 57, "area": "Zona B19", "city": "Sofia",
+            "title": "Atelier", "portal": "alo.bg", "category": "apartment",
+            "category_confidence": "high",
+            "property_type_raw": "Ателие/Студио", "construction_type": "ЕПК/ПК",
+            "built_year": 1980, "completion_status": "Готов (завършен)",
+            "floor_number": 12, "floor_qualifier": "Непоследен",
+            "features": ["Асансьор", "Необзаведен", "ТЕЦ"],
+            "has_elevator": True, "furnished": False, "has_central_heating": True,
+            "agency_name": "ENDREVA HAUSES", "agency_website": "https://endreva-houses.com",
+            "_detail_fetched": True, "_photos_checked": True,
+        }
+        # alo's grid parser (fetch_listings_page()) never sets any of the
+        # new spec/contact fields, and here (the overwhelming majority
+        # case - ~99% of real listings per docs/backlog.md) also doesn't
+        # find "Квадратура:" text on the card, so sqm comes back None too.
+        fresh_grid = {
+            "id": "alo_2", "url": "https://alo.bg/2", "photo": "https://alo.bg/2.jpg",
+            "sqm": None, "area": "Zona B19", "city": "Sofia", "title": "Atelier",
+            "portal": "alo.bg", "category": "apartment", "category_confidence": "high",
+        }
+        latest = self._assert_preserved_and_updated(
+            scraper_alo, "alo_2", prior_latest, fresh_grid,
+            ["sqm", "property_type_raw", "construction_type", "built_year", "completion_status",
+             "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
+             "has_central_heating", "agency_name", "agency_website"],
+            new_price=108000,
+        )
+        # furnished=False is a real, meaningful value (not "missing") -
+        # confirm it survives the merge as False, not accidentally coerced
+        # to None/dropped by the "is this falsy" check update_history()
+        # uses to decide whether to restore the prior value.
+        self.assertIs(latest["furnished"], False)
+
+    def test_scraper_alo_grid_sqm_still_overwrites_detail_sqm_when_present(self):
+        # The fix must be a merge, not a freeze: if a later grid crawl DOES
+        # find real "Квадратура:" text on the card (a genuine edit, or a
+        # card layout that happens to include it), that fresh value must
+        # still win over whatever fetch_update_dates() previously filled
+        # in - sqm must not become permanently sticky just because it's
+        # now in _DETAIL_ONLY_FIELDS.
+        prior_latest = {
+            "id": "alo_3", "url": "https://alo.bg/3", "photo": "https://alo.bg/3.jpg",
+            "price_eur": 90000, "sqm": 57, "area": "Center", "city": "Sofia",
+            "title": "Studio", "portal": "alo.bg", "category": "apartment",
+            "category_confidence": "high", "_detail_fetched": True, "_photos_checked": True,
+        }
+        fresh_grid = {
+            "id": "alo_3", "url": "https://alo.bg/3", "photo": "https://alo.bg/3.jpg",
+            "sqm": 60, "area": "Center", "city": "Sofia", "title": "Studio",
+            "portal": "alo.bg", "category": "apartment", "category_confidence": "high",
+        }
+        history = self._make_history("alo_3", prior_latest)
+        fresh = copy.deepcopy(fresh_grid)
+        fresh["price_eur"] = 88000
+        result = scraper_alo.update_history(history, [fresh])
+        self.assertEqual(result["alo_3"]["latest"]["sqm"], 60)
+
     # -- bazar.bg -------------------------------------------------------
     def test_scraper_bazar_preserves_detail_fields(self):
         prior_latest = {

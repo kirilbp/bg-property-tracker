@@ -61,14 +61,27 @@ so it's decoupled the same way homes.bg's/imoti.bg's geocoding was:
 fetch_listings() now only does the fast grid crawl, and
 backfill_detail_alo.py (a separate, resumable, prioritized-by-newest-first
 job) visits listing pages over time to fill in site_updated_at/lat,lng/
-description via fetch_update_dates() (kept here, now unused by the main
-scrape path but still imported and reused by the backfill script).
+description/specs/contact via fetch_update_dates() (kept here, now unused
+by the main scrape path but still imported and reused by the backfill
+script).
+
 description is extracted via geo_utils.extract_description_alo() - as of
-backlog #9 (2026-09-23) this deliberately always returns None rather than
-`.obqva-block` text, which turned out to be a title echo, not a real
-free-text description; see the NOTE above that function in geo_utils.py
-for the full investigation and why finding the real selector is deferred
-pending live alo.bg access.
+backlog #9 (2026-09-23) this deliberately returned None unconditionally
+rather than `.obqva-block` text, which turned out to be a title echo, not
+a real free-text description (see the NOTE above that function in
+geo_utils.py for the full investigation). As of 2026-09-24, that function
+has a real implementation, built from real user-supplied screenshots of a
+live detail page rather than a live HTML probe (this sandbox's network
+egress to alo.bg is still blocked) - see its own comment for the full
+selector strategy. The same screenshots are also the source for two new
+detail-page extractors wired in below: geo_utils.extract_specs_alo()
+(property type/size/construction type/built year/completion status/
+floor/features from the page's structured spec table - sqm from here
+feeds the existing sqm/price_per_sqm fields, which were null for
+essentially every alo.bg listing before this) and geo_utils.
+extract_contact_alo() (agency name + real external agency website -
+deliberately NOT the masked phone number; see that function's own comment
+for why no phone extraction is implemented).
 """
 
 import re
@@ -80,7 +93,10 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from geo_utils import extract_coords_alo, extract_description_alo, extract_photos_alo, compute_motivation_score, listing_city_key, prune_snapshots
+from geo_utils import (
+    extract_coords_alo, extract_description_alo, extract_photos_alo, extract_specs_alo,
+    extract_contact_alo, compute_motivation_score, listing_city_key, prune_snapshots,
+)
 from category_classifier import classify_listing
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -431,6 +447,34 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
         photos = extract_photos_alo(html)
         if photos:
             l["photos"] = photos
+        # Structured specs table (property type/construction type/built
+        # year/completion status/floor/features) - see geo_utils.
+        # extract_specs_alo()'s own comment. sqm feeds straight into the
+        # existing sqm field (and, downstream, price_per_sqm in
+        # compute_leads()) - the grid crawl's own SQM_RE already sets sqm
+        # when a card happens to show "Квадратура: ..." text, so this only
+        # fills it in when the grid pass came up empty (the overwhelming
+        # majority of listings - see docs/backlog.md), never overwrites a
+        # value the grid crawl already found on this same run.
+        specs = extract_specs_alo(html)
+        if specs:
+            if specs.get("sqm") and not l.get("sqm"):
+                l["sqm"] = specs["sqm"]
+            for field in (
+                "property_type_raw", "construction_type", "built_year", "completion_status",
+                "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
+                "has_central_heating",
+            ):
+                if field in specs:
+                    l[field] = specs[field]
+        # Agency name + real external agency website - deliberately no
+        # phone number, see geo_utils.extract_contact_alo()'s own comment
+        # for why.
+        contact = extract_contact_alo(html)
+        if contact:
+            for field in ("agency_name", "agency_website"):
+                if field in contact:
+                    l[field] = contact[field]
         # category is now classified at grid-crawl time (title/url only,
         # no detail-page visit needed - see fetch_listings_page()), so this
         # backfill pass no longer touches it. "_detail_fetched" is the new
@@ -510,9 +554,29 @@ def save_history(history):
 # every ~6 hours - docs/backlog.md item 9a. Same field list
 # merge_history_conflict.py's own module docstring already names for this
 # exact gap.
+#
+# "sqm" is a special case added 2026-09-24: it's normally a GRID field
+# (fetch_listings_page()'s own SQM_RE sets it directly when a card happens
+# to show "Квадратура: ..." text), which is why it isn't detail-only in
+# the sense the other fields below are - a fresh grid crawl that DOES find
+# a real sqm value must still be able to overwrite an old one (real edits
+# happen). But now that fetch_update_dates() can ALSO fill sqm in (via
+# extract_specs_alo(), for the ~99% of listings whose card never showed
+# it), the same merge-not-replace protection every other detail-only field
+# already gets is needed here too - otherwise a later grid-only re-touch
+# that (as usual) finds no "Квадратура:" text on the card would silently
+# wipe a real sqm value this backfill had already filled in, the exact
+# shape of bug this field list exists to prevent. Being in this list still
+# means "prefer the fresh value when the fresh value is non-empty" (see
+# update_history() below) - so a genuine grid-parsed sqm change still
+# wins, this only stops a grid MISS from clobbering a real detail-page
+# value.
 _DETAIL_ONLY_FIELDS = (
     "description", "photos", "site_updated_at", "lat", "lng",
-    "_detail_fetched", "_photos_checked",
+    "_detail_fetched", "_photos_checked", "sqm",
+    "property_type_raw", "construction_type", "built_year", "completion_status",
+    "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
+    "has_central_heating", "agency_name", "agency_website",
 )
 
 
