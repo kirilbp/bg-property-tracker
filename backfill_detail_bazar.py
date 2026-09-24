@@ -21,6 +21,16 @@ established. description is extracted from the page's own ld+json block
 (geo_utils.extract_description_ldjson()) - live-verified to carry the
 real agent/seller-written text, not just an auto-generated summary.
 
+2026-09-24: also fills in the structured spec table (property type/sqm/
+construction type/floor number) and agency contact (name + real website,
+deliberately never phone - see its own comment) via geo_utils.
+extract_specs_bazar()/extract_contact_bazar() - the same real-content gap
+already closed for alo.bg (extract_specs_alo()/extract_contact_alo()),
+now closed here too. Unlike description/photos (ld+json-backed, live-
+verified), these are built from real user-supplied screenshots of a live
+listing rather than a direct HTTP probe - see extract_specs_bazar()'s own
+comment in geo_utils.py for the full evidentiary trail.
+
 A listing is marked "coords_checked" once its detail page has actually
 been visited, regardless of whether that page turned up real coordinates
 or a description - some bazar.bg listings genuinely have neither on their
@@ -52,7 +62,10 @@ import json
 import time
 
 import scraper_bazar as sb
-from geo_utils import extract_coords_bazar, extract_description_ldjson, extract_photos_ldjson
+from geo_utils import (
+    extract_coords_bazar, extract_contact_bazar, extract_description_ldjson,
+    extract_photos_ldjson, extract_specs_bazar,
+)
 
 REQUEST_DELAY_SECONDS = 1.0
 # Caps a single run's detail-page-visit count so this can't itself balloon
@@ -133,6 +146,28 @@ def main():
             photos = extract_photos_ldjson(html)
             if photos:
                 latest["photos"] = photos
+            # Structured specs table - see geo_utils.extract_specs_bazar()'s
+            # own comment. sqm feeds straight into the existing sqm field
+            # (and, downstream, price_per_sqm in compute_leads()) - the
+            # grid crawl never sets a real sqm value at all (see
+            # scraper_bazar.py's own module docstring), so this is
+            # unconditionally the only source of it, unlike alo.bg where a
+            # grid-parsed sqm can occasionally beat the detail pass to it.
+            specs = extract_specs_bazar(html)
+            if specs:
+                if specs.get("sqm") and not latest.get("sqm"):
+                    latest["sqm"] = specs["sqm"]
+                for field in ("property_type_raw", "construction_type", "floor_number"):
+                    if field in specs:
+                        latest[field] = specs[field]
+            # Agency name + real (or plausibly imot.bg-hosted) agency
+            # website - deliberately no phone number, see geo_utils.
+            # extract_contact_bazar()'s own comment for why.
+            contact = extract_contact_bazar(html)
+            if contact:
+                for field in ("agency_name", "agency_website"):
+                    if field in contact:
+                        latest[field] = contact[field]
         if i % 200 == 0:
             print(f"DEBUG: checked {i}/{len(batch)} listings")
         if i % CHECKPOINT_EVERY == 0:
