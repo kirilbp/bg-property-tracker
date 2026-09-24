@@ -2996,49 +2996,44 @@ function renderTypeFilters() {
 // gives the settlement as whatever's left after the matched raw type,
 // independent of whether l.area itself later got overwritten with a more
 // precise district name by the detail-page enrichment pass).
-// Each entry's `photo` is a Wikimedia Commons file title, loaded via
-// commons.wikimedia.org/wiki/Special:FilePath/<title>?width=N (Commons'
-// own stable hotlink-safe redirect). Confidence is high for the larger
-// regional-capital cities; lower for Asenovgrad, Dupnitsa, Svishtov,
-// Montana and Dimitrovgrad (smaller towns/disambiguation-prone names) -
-// renderCityTabs()'s onerror fallback swaps any tile that 404s to a
-// gradient+initial tile, so a bad filename never shows a broken image.
+// Each entry's `photo` is a local relative path to a hand-picked photo
+// under assets/city-photos/, named by the city's `key`. renderCityTabs()'s
+// onerror fallback still swaps any tile whose image fails to load to a
+// gradient+initial tile, so a missing/corrupted asset never shows a
+// broken image icon.
 const BG_CITIES = [
-  { key: 'sofia', label: 'Sofia', name: 'София', photo: 'Sofia montage.jpg' },
-  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив', photo: 'Plovdiv montage.jpg' },
-  { key: 'varna', label: 'Varna', name: 'Варна', photo: 'Varna montage.jpg' },
-  { key: 'burgas', label: 'Burgas', name: 'Бургас', photo: 'Burgas montage.jpg' },
-  { key: 'ruse', label: 'Ruse', name: 'Русе', photo: 'Ruse montage.jpg' },
-  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора', photo: 'Stara Zagora montage.jpg' },
-  { key: 'pleven', label: 'Pleven', name: 'Плевен', photo: 'Pleven montage.jpg' },
-  { key: 'sliven', label: 'Sliven', name: 'Сливен', photo: 'Sliven montage.jpg' },
-  { key: 'dobrich', label: 'Dobrich', name: 'Добрич', photo: 'Dobrich montage.jpg' },
-  { key: 'shumen', label: 'Shumen', name: 'Шумен', photo: 'Shumen montage.jpg' },
-  { key: 'pernik', label: 'Pernik', name: 'Перник', photo: 'Pernik montage.jpg' },
-  { key: 'haskovo', label: 'Haskovo', name: 'Хасково', photo: 'Haskovo montage.jpg' },
-  { key: 'yambol', label: 'Yambol', name: 'Ямбол', photo: 'Yambol montage.jpg' },
-  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик', photo: 'Pazardzhik montage.jpg' },
-  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград', photo: 'Blagoevgrad montage.jpg' },
-  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново', photo: 'Veliko Tarnovo montage.jpg' },
-  { key: 'vratsa', label: 'Vratsa', name: 'Враца', photo: 'Vratsa montage.jpg' },
-  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово', photo: 'Gabrovo montage.jpg' },
-  { key: 'vidin', label: 'Vidin', name: 'Видин', photo: 'Vidin montage.jpg' },
-  { key: 'asenovgrad', label: 'Asenovgrad', name: 'Асеновград', photo: 'Asenovgrad montage.jpg' },
-  { key: 'kazanlak', label: 'Kazanlak', name: 'Казанлък', photo: 'Kazanlak montage.jpg' },
-  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил', photo: 'Kyustendil montage.jpg' },
-  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали', photo: 'Kardzhali montage.jpg' },
-  { key: 'montana', label: 'Montana', name: 'Монтана', photo: 'Montana, Bulgaria montage.jpg' },
-  { key: 'dimitrovgrad', label: 'Dimitrovgrad', name: 'Димитровград', photo: 'Dimitrovgrad, Bulgaria montage.jpg' },
-  { key: 'targovishte', label: 'Targovishte', name: 'Търговище', photo: 'Targovishte montage.jpg' },
-  { key: 'lovech', label: 'Lovech', name: 'Ловеч', photo: 'Lovech montage.jpg' },
-  { key: 'silistra', label: 'Silistra', name: 'Силистра', photo: 'Silistra montage.jpg' },
-  { key: 'dupnitsa', label: 'Dupnitsa', name: 'Дупница', photo: 'Dupnitsa montage.jpg' },
-  { key: 'svishtov', label: 'Svishtov', name: 'Свищов', photo: 'Svishtov montage.jpg' },
+  { key: 'sofia', label: 'Sofia', name: 'София', photo: 'assets/city-photos/sofia.jpg' },
+  { key: 'plovdiv', label: 'Plovdiv', name: 'Пловдив', photo: 'assets/city-photos/plovdiv.jpg' },
+  { key: 'varna', label: 'Varna', name: 'Варна', photo: 'assets/city-photos/varna.webp' },
+  { key: 'burgas', label: 'Burgas', name: 'Бургас', photo: 'assets/city-photos/burgas.webp' },
+  { key: 'ruse', label: 'Ruse', name: 'Русе', photo: 'assets/city-photos/ruse.webp' },
+  { key: 'stara_zagora', label: 'Stara Zagora', name: 'Стара Загора', photo: 'assets/city-photos/stara_zagora.jpg' },
+  { key: 'pleven', label: 'Pleven', name: 'Плевен', photo: 'assets/city-photos/pleven.jpg' },
+  { key: 'sliven', label: 'Sliven', name: 'Сливен', photo: 'assets/city-photos/sliven.jpg' },
+  { key: 'dobrich', label: 'Dobrich', name: 'Добрич', photo: 'assets/city-photos/dobrich.jpg' },
+  { key: 'shumen', label: 'Shumen', name: 'Шумен', photo: 'assets/city-photos/shumen.webp' },
+  { key: 'pernik', label: 'Pernik', name: 'Перник', photo: 'assets/city-photos/pernik.webp' },
+  { key: 'haskovo', label: 'Haskovo', name: 'Хасково', photo: 'assets/city-photos/haskovo.jpg' },
+  { key: 'yambol', label: 'Yambol', name: 'Ямбол', photo: 'assets/city-photos/yambol.webp' },
+  { key: 'pazardzhik', label: 'Pazardzhik', name: 'Пазарджик', photo: 'assets/city-photos/pazardzhik.webp' },
+  { key: 'blagoevgrad', label: 'Blagoevgrad', name: 'Благоевград', photo: 'assets/city-photos/blagoevgrad.webp' },
+  { key: 'veliko_tarnovo', label: 'Veliko Tarnovo', name: 'Велико Търново', photo: 'assets/city-photos/veliko_tarnovo.jpg' },
+  { key: 'vratsa', label: 'Vratsa', name: 'Враца', photo: 'assets/city-photos/vratsa.jpg' },
+  { key: 'gabrovo', label: 'Gabrovo', name: 'Габрово', photo: 'assets/city-photos/gabrovo.webp' },
+  { key: 'vidin', label: 'Vidin', name: 'Видин', photo: 'assets/city-photos/vidin.jpg' },
+  { key: 'asenovgrad', label: 'Asenovgrad', name: 'Асеновград', photo: 'assets/city-photos/asenovgrad.jpg' },
+  { key: 'kazanlak', label: 'Kazanlak', name: 'Казанлък', photo: 'assets/city-photos/kazanlak.jpg' },
+  { key: 'kyustendil', label: 'Kyustendil', name: 'Кюстендил', photo: 'assets/city-photos/kyustendil.jpg' },
+  { key: 'kardzhali', label: 'Kardzhali', name: 'Кърджали', photo: 'assets/city-photos/kardzhali.jpg' },
+  { key: 'montana', label: 'Montana', name: 'Монтана', photo: 'assets/city-photos/montana.jpg' },
+  { key: 'dimitrovgrad', label: 'Dimitrovgrad', name: 'Димитровград', photo: 'assets/city-photos/dimitrovgrad.jpg' },
+  { key: 'targovishte', label: 'Targovishte', name: 'Търговище', photo: 'assets/city-photos/targovishte.jpg' },
+  { key: 'lovech', label: 'Lovech', name: 'Ловеч', photo: 'assets/city-photos/lovech.jpg' },
+  { key: 'silistra', label: 'Silistra', name: 'Силистра', photo: 'assets/city-photos/silistra.webp' },
+  { key: 'dupnitsa', label: 'Dupnitsa', name: 'Дупница', photo: 'assets/city-photos/dupnitsa.jpg' },
+  { key: 'svishtov', label: 'Svishtov', name: 'Свищов', photo: 'assets/city-photos/svishtov.jpg' },
 ];
 const BG_CITY_BY_NAME = Object.fromEntries(BG_CITIES.map(c => [c.name, c.key]));
-function bgCommonsUrl(fileTitle, width) {
-  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileTitle)}?width=${width}`;
-}
 
 function bcpeaSettlementFromTitle(l) {
   if (!l.title) return null;
@@ -3225,18 +3220,19 @@ function renderCityTabs() {
     else othersCount++;
   });
   row.innerHTML = BG_CITIES.map((c, i) => cityTileHtml(c, counts[c.key], activeCityFilter === c.key, i)).join('')
-    + cityTileHtml({ key: 'others', label: 'Others', photo: null }, othersCount, activeCityFilter === 'others', BG_CITIES.length);
+    + cityTileHtml({ key: 'others', label: 'Others', photo: 'assets/city-photos/others.jpg' }, othersCount, activeCityFilter === 'others', BG_CITIES.length);
 }
 
-// Renders one "Browse by city" photo tile. Real cities load a Wikimedia
-// Commons photo; "Others" (a catch-all bucket, not an actual place) and
-// any city whose photo URL 404s fall back to a gradient+initial tile via
-// the img's onerror handler, so a bad filename never shows a broken image.
+// Renders one "Browse by city" photo tile. Real cities load a local
+// hand-picked photo from assets/city-photos/; "Others" (a catch-all
+// bucket, not an actual place) and any city whose photo fails to load
+// fall back to a gradient+initial tile via the img's onerror handler, so
+// a missing/corrupted asset never shows a broken image icon.
 function cityTileHtml(c, count, isActive, gradIndex) {
   const gradClass = 'ph-g' + (gradIndex % 6);
   const fallbackHtml = `<div class="ph-bg ${gradClass}" data-letter="${c.label[0]}"></div>`;
   const photoHtml = c.photo
-    ? `<img src="${bgCommonsUrl(c.photo, 400)}" alt="${c.label}" loading="lazy"
+    ? `<img src="${c.photo}" alt="${c.label}" loading="lazy"
          onerror="const p=this.parentElement,f=this.dataset.fallback; this.remove(); if (p) p.insertAdjacentHTML('afterbegin', f);"
          data-fallback="${fallbackHtml.replace(/"/g, '&quot;')}" />`
     : fallbackHtml;
