@@ -988,11 +988,29 @@ def merged_id_for(sources):
 # entry, confirmed against the real union of keys actually present across
 # all 8 committed files (not guessed from scraper source). "id" and
 # "portal" are handled separately (source_id / portal columns).
+#
+# property_type_raw/construction_type/built_year/completion_status/
+# floor_number/floor_qualifier/features/has_elevator/furnished/
+# has_central_heating/agency_name/agency_website (2026-09-24) are new,
+# currently alo.bg-only fields from geo_utils.extract_specs_alo()/
+# extract_contact_alo() - every other portal's leads_*.json entries simply
+# don't have these keys, so s.get(f) below is already the right "None for
+# every non-alo.bg row" behavior, same as e.g. site_posted_at already
+# being alo.bg/imoti.net-only. Needs the matching `alter table ... add
+# column if not exists` migration in supabase/schema.sql applied by hand
+# in the Supabase SQL editor before these actually land in the live
+# tables - see that file's own comment, and upsert()'s _MISSING_COLUMN_RE
+# handling further down, for why a sync still succeeds even before that
+# migration is applied (the missing column(s) are stripped and retried,
+# not a hard failure).
 SOURCE_FIELDS = [
     "url", "photo", "photos", "price_eur", "sqm", "area", "title", "description",
     "category", "category_confidence", "lat", "lng", "price_per_sqm", "price_history",
     "price_drop_count", "drop_pct", "days_on_market", "score", "source_status", "removed_at",
     "area_avg_price_per_sqm", "pct_vs_area_avg", "site_updated_at", "site_posted_at",
+    "property_type_raw", "construction_type", "built_year", "completion_status",
+    "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
+    "has_central_heating", "agency_name", "agency_website",
 ]
 
 # "First seen" date for a listing/group, precomputed server-side (backlog

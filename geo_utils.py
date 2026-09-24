@@ -158,39 +158,102 @@ def extract_coords_bazar(html):
 # field that looks like a real description but is actually an echo of the
 # title/heading blurb next to it.
 #
-# `.obqva-block` is therefore very likely the wrong element - probably a
-# heading/summary blurb rendered near the title, not alo.bg's actual ad
-# body - but this could not be confirmed live: alo.bg is blocked from this
-# sandbox's network egress (both a plain HTTPS request and the WebFetch
-# tool return a hard EGRESS_BLOCKED/403 for www.alo.bg), so a real probe of
-# a live detail page to find the correct selector (if alo.bg even has a
-# separate free-text ad-body element at all) is **deferred pending live
-# access**, exactly like the still-open homes.bg description gap documented
-# in scraper_homes.py.
+# `.obqva-block` was very likely the wrong element - probably a heading/
+# summary blurb rendered near the title (the site may reuse that CSS class
+# for more than one unrelated box), not alo.bg's actual ad body. This
+# couldn't be confirmed live at the time (alo.bg is blocked from this
+# sandbox's network egress - both a plain HTTPS request and the WebFetch
+# tool return a hard EGRESS_BLOCKED/403 for www.alo.bg), so a class-name
+# fix was deferred pending live access and this function returned None
+# unconditionally in the meantime (a title-echo is actively misleading - it
+# looks like a real description, so a reader trusts it as one - so "no
+# description available" was strictly better than a fake one).
 #
-# Until then, this returns None unconditionally rather than the
-# `.obqva-block` text: a title-echo is actively misleading (it looks like a
-# real description, so a caller/reader trusts it as one), so showing "no
-# description available" is strictly better than showing a fake one - same
-# reasoning as the homes.bg fix. This only stops *new* writes; it does not
-# retroactively clear already-stored title-echo descriptions in
-# data/leads_alo.json / data/history_alo.json (same scope as the homes.bg
-# fix, which also only stopped writing the wrong value going forward).
+# UPDATE (2026-09-24): network access is still blocked, but the user
+# supplied real screenshots of a live detail page (alo_11319466,
+# https://www.alo.bg/prodavam-atelie-v-zona-b-19-11319466). They show the
+# real free-text ad body sitting under a fixed Bulgarian heading,
+# "Допълнителна информация" ("Additional information") - a separate,
+# clearly-labeled section, not the title/heading blurb `.obqva-block` was
+# apparently grabbing. Rather than guess a new CSS class (unverifiable
+# without live HTML, and exactly the mistake that caused the original bug),
+# this targets the fixed heading TEXT instead: find the "Допълнителна
+# информация" label wherever it sits in the DOM, then walk up from it
+# looking for the first ancestor whose own text - once the heading itself
+# is stripped off the front - is long enough to plausibly be real prose
+# (see MIN_ALO_DESCRIPTION_LENGTH below). This is deliberately structure-
+# agnostic: it works whether the heading and body are two sibling elements,
+# or share one common wrapper (like `.obqva-block` might have), since
+# either shape still has *some* ancestor of the heading whose text also
+# contains the body. If the site's markup doesn't match this shape at all
+# (heading missing, or every ancestor's text is still just the heading
+# plus noise), this returns None rather than guess - never re-introduces
+# the title-echo bug by falling back to some other unrelated element.
+_ALO_DESC_HEADING_TEXT = "Допълнителна информация"
 _ALO_DESC_PREFIX_RES = [
-    re.compile(r"^Допълнителна информация\s*"),
+    re.compile(r"^Допълнителна информация\s*[:\-]?\s*"),
     re.compile(r"^За повече информация.*?в alo\.bg\.\s*"),
     re.compile(r"^Референтен номер:\s*\S+(?:\s+\S+)?\s*"),
     re.compile(r"^Отговорен брокер:\s*\S+(?:\s+\S+){0,1}\s*"),
 ]
+# Trailing boilerplate that (per the screenshots) sits in the same visual
+# card as the real description, immediately after it - a "write the first
+# comment" prompt. Stripped from the end so it doesn't get concatenated
+# onto the real ad text. ".*" with DOTALL so it also eats anything alo.bg
+# renders after that prompt (e.g. a comment box placeholder) in the same
+# container.
+_ALO_DESC_TRAILING_RES = [
+    re.compile(r"\s*Напиши(?:\s+първи)?\s+коментар.*$", re.DOTALL),
+    re.compile(r"\s*Подобни обяви.*$", re.DOTALL),
+    re.compile(r"\s*Контакт с подателя на обявата.*$", re.DOTALL),
+]
+# A real ad body is always at least a full short sentence - this rules out
+# an ancestor whose text, after stripping the heading, is just leftover
+# whitespace/punctuation noise (heading found but no real sibling/child
+# content exists at all, e.g. an empty "Допълнителна информация" section)
+# rather than genuine prose. Picked well below the shortest real samples
+# seen in this project's other portals' ld+json descriptions (all >40
+# chars) so this only rejects genuinely-empty matches, not just terse ones.
+MIN_ALO_DESCRIPTION_LENGTH = 20
+_ALO_ANCESTOR_SEARCH_LEVELS = 6
 
 
 def extract_description_alo(html):
-    # Deliberately always returns None - see the NOTE above this function.
-    # `_ALO_DESC_PREFIX_RES` is unused for now but kept in place (not
-    # deleted): the boilerplate-stripping logic it encodes was confirmed
-    # live against a real listing and is still expected to be needed once a
-    # correct selector is found; a bare "not implemented" stub would lose
-    # that already-verified logic.
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+
+    # Find the heading as a plain text node (not a tag lookup) - a tag
+    # lookup by exact get_text() equality would also match every ancestor
+    # that happens to contain ONLY that heading (e.g. a wrapper <div> around
+    # a single <strong>Допълнителна информация</strong>), which is
+    # ambiguous about which level is "the" heading element. A NavigableString
+    # match has no such nesting ambiguity - there's exactly one text node
+    # holding the label, whatever tag(s) wrap it.
+    label_node = soup.find(string=re.compile(r"^\s*" + re.escape(_ALO_DESC_HEADING_TEXT) + r"\s*$"))
+    if label_node is None or label_node.parent is None:
+        return None
+
+    node = label_node.parent
+    for _ in range(_ALO_ANCESTOR_SEARCH_LEVELS):
+        if node is None:
+            break
+        text = node.get_text(" ", strip=True)
+        for pattern in _ALO_DESC_PREFIX_RES:
+            text = pattern.sub("", text, count=1)
+        for pattern in _ALO_DESC_TRAILING_RES:
+            text = pattern.sub("", text)
+        text = text.strip()
+        if len(text) >= MIN_ALO_DESCRIPTION_LENGTH:
+            return text
+        node = node.parent
+
+    # Heading found, but no ancestor within the search depth had enough
+    # real content after stripping it - a structural mismatch (e.g. the
+    # site changed this section's markup), not a genuine empty section.
+    # Returning None here is the same defensive choice as everywhere else
+    # in this function: never guess, never fall back to some other element.
     return None
 
 
@@ -317,6 +380,274 @@ def extract_photos_alo(html):
         if url not in seen:
             seen.append(url)
     return seen
+
+
+# alo.bg's structured spec table (confirmed via real user-supplied
+# screenshots of a live detail page, alo_11319466 - see extract_description_
+# alo()'s own comment for why: this sandbox's network egress to alo.bg is
+# blocked, so this is built from a real rendered page image, not a live
+# HTML probe) is a fixed sequence of Bulgarian label/value rows:
+# Местоположение (location - not extracted here, already covered by area/
+# city/lat/lng elsewhere), Вид на имота (property type), Квадратура
+# (size), Вид строителство (construction type - no "на", confirmed against
+# the real screenshot and corroborated by the same phrasing already seen in
+# scraped bazar.bg/olx.bg description text elsewhere in this codebase),
+# Година на строителство
+# (built year), Степен на завършеност (completion status), Номер на етажа
+# (floor number), Етаж (floor qualifier - e.g. "Непоследен"/"Последен"/
+# "Партер"), and Особености (feature checkboxes - the screenshot shows
+# only the CHECKED features rendered as visible tags at all, e.g.
+# "Асансьор"/"Необзаведен"/"ТЕЦ" - no visible "unchecked" state to parse).
+#
+# Same reasoning as extract_description_alo(): rather than guess this
+# table's CSS classes/tag names (unverifiable without live HTML, and
+# exactly the mistake that produced the `.obqva-block` bug), this locates
+# each row by its fixed Bulgarian LABEL text and reads whatever text
+# follows it, using BeautifulSoup's get_text("\n", strip=True) to flatten
+# the page into one line per underlying text node. That works regardless
+# of whether a row is a <tr><td> pair, a <dl><dt>/<dd> pair, or a pair of
+# <div>s - in every one of those shapes the label and its value are still
+# two separate text nodes next to each other. A value spanning more than
+# one text node (e.g. "1980 г." plus a separate, dimmer "(годината може да
+# е ориентировъчна)" hint span - both visible in the screenshot as one
+# line of rendered text) is handled by joining lines until the next known
+# label or a stop marker is reached, not just taking a single next line.
+#
+# Defensive by construction: a row whose label isn't found is simply
+# absent from the result (never guessed), and if NO known label is found
+# at all this returns None outright - a structural page change should
+# shrink what gets extracted, never produce garbage under a
+# plausible-looking key.
+_ALO_SPEC_LABELS = [
+    ("Вид на имота", "property_type_raw"),
+    ("Квадратура", "_sqm_raw"),
+    ("Вид строителство", "construction_type"),
+    ("Година на строителство", "_built_year_raw"),
+    ("Степен на завършеност", "completion_status"),
+    ("Номер на етажа", "_floor_number_raw"),
+    ("Етаж", "floor_qualifier"),
+    ("Особености", "_features_raw"),
+]
+_ALO_SPEC_ALL_LABELS = frozenset(["Местоположение"] + [label for label, _ in _ALO_SPEC_LABELS])
+# Lines that mark the end of the spec table (or of any one row's value) -
+# whatever text alo.bg renders right after the table in the screenshots
+# ("Актуализирана вчера. Валидна още 51 дни."), plus the later sections
+# further down the same page that must never bleed into a spec value if a
+# row's own value happens to be missing/empty on some listing.
+_ALO_SPEC_STOP_PREFIXES = (
+    "Актуализирана", "Публикувана", "Контакт с подателя", "Допълнителна информация",
+    "Подобни обяви", "Обява №", "Обява от", "Цена",
+)
+# Guards against an unbounded join if stop-marker detection above somehow
+# fails to fire (e.g. a genuinely new section label this list doesn't
+# know about yet) - no real spec value in the screenshots spans more than
+# one or two underlying text nodes.
+_ALO_SPEC_MAX_VALUE_LINES = 4
+
+_ALO_SQM_VALUE_RE = re.compile(r"(\d+(?:[.,]\d+)?)")
+_ALO_YEAR_VALUE_RE = re.compile(r"(\d{4})")
+_ALO_FLOOR_NUMBER_VALUE_RE = re.compile(r"(\d+)")
+_ALO_FEATURE_ELEVATOR_RE = re.compile(r"асансьор", re.IGNORECASE)
+_ALO_FEATURE_UNFURNISHED_RE = re.compile(r"необзаведен", re.IGNORECASE)
+_ALO_FEATURE_FURNISHED_RE = re.compile(r"(?<!не)обзаведен", re.IGNORECASE)
+_ALO_FEATURE_HEATING_RE = re.compile(r"\bтец\b", re.IGNORECASE)
+
+
+def _alo_spec_value(lines, start_idx):
+    """Joins the lines right after a label's own line, up to the next
+    known label or a stop marker (or a hard cap) - the same defensive
+    "collect until something else recognizable starts" shape used
+    elsewhere in this project (e.g. smallest_container_with_price() in
+    scraper_alo.py). Returns "" if the very next line is itself another
+    known label/stop marker - i.e. this row's value is genuinely absent on
+    this listing (not every alo.bg listing carries every field), not a
+    parsing failure."""
+    collected = []
+    i = start_idx
+    while i < len(lines) and len(collected) < _ALO_SPEC_MAX_VALUE_LINES:
+        line = lines[i]
+        if line in _ALO_SPEC_ALL_LABELS:
+            break
+        if any(line.startswith(p) for p in _ALO_SPEC_STOP_PREFIXES):
+            break
+        collected.append(line)
+        i += 1
+    return " ".join(collected).strip()
+
+
+def extract_specs_alo(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+    text = soup.get_text("\n", strip=True)
+    lines = [ln.strip() for ln in text.split("\n") if ln.strip()]
+
+    raw = {}
+    for i, line in enumerate(lines):
+        for label, key in _ALO_SPEC_LABELS:
+            if line == label and key not in raw:
+                value = _alo_spec_value(lines, i + 1)
+                if value:
+                    raw[key] = value
+                break
+
+    if not raw:
+        return None
+
+    specs = {}
+    for key in ("property_type_raw", "construction_type", "completion_status", "floor_qualifier"):
+        if raw.get(key):
+            specs[key] = raw[key]
+
+    if raw.get("_sqm_raw"):
+        m = _ALO_SQM_VALUE_RE.search(raw["_sqm_raw"])
+        if m:
+            try:
+                specs["sqm"] = round(float(m.group(1).replace(",", ".")))
+            except ValueError:
+                pass
+
+    if raw.get("_built_year_raw"):
+        m = _ALO_YEAR_VALUE_RE.search(raw["_built_year_raw"])
+        if m:
+            year = int(m.group(1))
+            # Sanity bound - a matched 4-digit number that isn't plausibly
+            # a construction year (e.g. accidentally grabbed from some
+            # other nearby number) shouldn't be stored as one.
+            if 1800 <= year <= 2100:
+                specs["built_year"] = year
+
+    if raw.get("_floor_number_raw"):
+        m = _ALO_FLOOR_NUMBER_VALUE_RE.search(raw["_floor_number_raw"])
+        if m:
+            specs["floor_number"] = int(m.group(1))
+
+    if raw.get("_features_raw"):
+        # Each collected line under "Особености" is one checked feature
+        # tag (the screenshots show only checked features rendered at
+        # all) - _alo_spec_value() already joined them with " ", so split
+        # back out. A feature label is a short single word or hyphenated
+        # phrase in every real sample seen ("Асансьор", "Необзаведен",
+        # "ТЕЦ"), so splitting on whitespace is safe here even though it
+        # would be wrong for genuinely multi-word values.
+        features = [f for f in raw["_features_raw"].split(" ") if f]
+        if features:
+            specs["features"] = features
+            feature_text = " ".join(features)
+            if _ALO_FEATURE_ELEVATOR_RE.search(feature_text):
+                specs["has_elevator"] = True
+            if _ALO_FEATURE_UNFURNISHED_RE.search(feature_text):
+                specs["furnished"] = False
+            elif _ALO_FEATURE_FURNISHED_RE.search(feature_text):
+                specs["furnished"] = True
+            if _ALO_FEATURE_HEATING_RE.search(feature_text):
+                specs["has_central_heating"] = True
+
+    return specs or None
+
+
+# alo.bg's "Контакт с подателя на обявата" ("Contact the poster") box
+# (confirmed via the same real screenshots as extract_description_alo() -
+# see that function's comment for the network-access caveat) shows the
+# poster's display name/agency name as plain text, followed by one or more
+# links: an alo.bg-hosted storefront page for that poster (e.g.
+# "endrevahouses.alo.bg") and, separately, the agency's own real external
+# website (e.g. "https://endreva-houses.com"). Only the real external site
+# is extracted as agency_website - the alo.bg-hosted one is just an
+# internal profile page on this same portal, not independently useful
+# contact info.
+#
+# The box also shows a partially-masked phone number ("08X XXX XXXX")
+# behind a green "Виж" ("View") button. This is DELIBERATELY NOT extracted
+# here. The masked format plus a click-to-reveal button is the standard
+# shape of a JS/AJAX-revealed number - the real digits are normally
+# fetched from the server only once the button is actually clicked,
+# specifically so a plain page fetch can't harvest them (a common anti-
+# scraping/lead-tracking pattern on Bulgarian classifieds sites) - rather
+# than a value merely hidden by CSS while already sitting in the raw
+# HTML/DOM. This project's network access to alo.bg is blocked in this
+# sandbox (see extract_description_alo()'s own comment), so which of those
+# two this actually is could not be confirmed by inspecting a real masked
+# page's raw HTML. Per this project's own standing rule - never fabricate
+# a working extraction for something that can't be verified - no phone
+# extraction is implemented here rather than guess one that might return
+# nothing (or garbage) against the real page. If a future contributor gets
+# live access, the concrete thing to check is whether the full number (or
+# a `data-phone`/similar attribute holding it) is already present
+# somewhere in the raw HTML/a same-page <script> block for a masked
+# listing; if so, add a real extractor. If the number is genuinely only
+# returned by a follow-up XHR after the click, it can't be obtained from a
+# plain page fetch at all, and this gap is a portal limitation, not a
+# fixable scraper bug.
+_ALO_CONTACT_HEADING_TEXT = "Контакт с подателя на обявата"
+_ALO_CONTACT_SKIP_LINES = frozenset([
+    _ALO_CONTACT_HEADING_TEXT, "Изпрати съобщение",
+    "Вход в сайта", "Регистрация", "Виж", "Вижте",
+])
+_ALO_CONTACT_ANCESTOR_SEARCH_LEVELS = 6
+
+
+def extract_contact_alo(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+
+    label_node = soup.find(string=re.compile(r"^\s*" + re.escape(_ALO_CONTACT_HEADING_TEXT) + r"\s*$"))
+    if label_node is None or label_node.parent is None:
+        return None
+
+    # Walk up from the heading to the first ancestor that actually holds a
+    # real link - the heading itself is normally just a bare label with no
+    # anchor of its own, so this expands outward to whatever box wraps the
+    # poster's name/website/phone-reveal button together, without assuming
+    # a fixed nesting depth or class name.
+    node = label_node.parent
+    container = None
+    for _ in range(_ALO_CONTACT_ANCESTOR_SEARCH_LEVELS):
+        if node is None:
+            break
+        if node.find("a", href=True) is not None:
+            container = node
+            break
+        node = node.parent
+    if container is None:
+        return None
+
+    contact = {}
+
+    website = None
+    for a in container.find_all("a", href=True):
+        href = a["href"].strip()
+        if not href or href.startswith(("mailto:", "tel:", "#")):
+            continue
+        if "alo.bg" in href.lower():
+            # The poster's own storefront page on this portal, not their
+            # real external site - see this function's own comment.
+            continue
+        website = href if href.startswith("http") else f"https://{href.lstrip('/')}"
+        break
+    if website:
+        contact["agency_website"] = website
+
+    lines = [ln.strip() for ln in container.get_text("\n", strip=True).split("\n") if ln.strip()]
+    for line in lines:
+        if line in _ALO_CONTACT_SKIP_LINES:
+            continue
+        if re.match(r"^\d", line):
+            # Phone-number-shaped (or otherwise numeric) line, e.g. the
+            # masked "08X XXX XXXX" - never the poster's name.
+            continue
+        if "." in line and " " not in line:
+            # A bare domain/URL rendered as visible text (e.g.
+            # "endrevahouses.alo.bg") rather than inside a proper href -
+            # not a name either.
+            continue
+        contact["agency_name"] = line
+        break
+
+    return contact or None
 
 
 # "жк."/"ж.к." (жилищен комплекс - "residential complex") is a common

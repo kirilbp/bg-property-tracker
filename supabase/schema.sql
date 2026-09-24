@@ -289,3 +289,40 @@ drop policy if exists "public dismiss" on reminders;
 drop policy if exists "own rows only" on reminders;
 create policy "own rows only" on reminders for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- alo.bg detail-page extraction (2026-09-24): structured specs (geo_utils.
+-- extract_specs_alo()) and agency contact info (geo_utils.
+-- extract_contact_alo()), wired through sync_to_supabase.py's SOURCE_FIELDS
+-- - see that file's own comment on SOURCE_FIELDS for why these are
+-- currently alo.bg-only (every other portal's rows just get null here,
+-- same as site_posted_at already being alo.bg/imoti.net-only). No phone
+-- number column - see extract_contact_alo()'s own comment for why that
+-- extraction isn't implemented at all yet. Until this migration is run by
+-- hand in the Supabase SQL editor, sync_to_supabase.py's own
+-- _MISSING_COLUMN_RE handling keeps every sync working as before, just
+-- without these new fields (see upsert()'s comment).
+alter table listing_sources add column if not exists property_type_raw text;
+alter table listing_sources add column if not exists construction_type text;
+alter table listing_sources add column if not exists built_year integer;
+alter table listing_sources add column if not exists completion_status text;
+alter table listing_sources add column if not exists floor_number integer;
+alter table listing_sources add column if not exists floor_qualifier text;
+alter table listing_sources add column if not exists features jsonb;
+alter table listing_sources add column if not exists has_elevator boolean;
+alter table listing_sources add column if not exists furnished boolean;
+alter table listing_sources add column if not exists has_central_heating boolean;
+alter table listing_sources add column if not exists agency_name text;
+alter table listing_sources add column if not exists agency_website text;
+
+alter table merged_listings add column if not exists property_type_raw text;
+alter table merged_listings add column if not exists construction_type text;
+alter table merged_listings add column if not exists built_year integer;
+alter table merged_listings add column if not exists completion_status text;
+alter table merged_listings add column if not exists floor_number integer;
+alter table merged_listings add column if not exists floor_qualifier text;
+alter table merged_listings add column if not exists features jsonb;
+alter table merged_listings add column if not exists has_elevator boolean;
+alter table merged_listings add column if not exists furnished boolean;
+alter table merged_listings add column if not exists has_central_heating boolean;
+alter table merged_listings add column if not exists agency_name text;
+alter table merged_listings add column if not exists agency_website text;
