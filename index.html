@@ -7962,20 +7962,26 @@ function renderKeywordsPanel(merged, l) {
 // Agent panel elsewhere on this page - see PROPERTY_TYPE_LABELS'
 // neighboring code and docs/backlog.md item 9). A parallel backend fix
 // is adding real extraction for these; this only lays out where/how
-// they'd render once that lands, using assumed snake_case field names
-// (property_type, construction_type, built_year, completion_status,
-// floor_number, floor_qualifier, features[], agency_name, agency_phone,
-// agency_website) that follow this codebase's existing field-naming
-// convention (lat/lng/sqm/price_eur etc.) - NOT confirmed against
-// whatever the backend fix actually ships, since that schema doesn't
-// exist yet. Whoever wires up the real columns should double check
-// these names line up (a quick rename here if not) rather than assume
-// they're already correct. Every field is read defensively (undefined
-// today, on every real listing) so both panels return '' and render
-// nothing - no empty box, no broken layout - until real data exists.
+// they'd render once that lands, using the real snake_case field names
+// the backend actually ships (property_type_raw, construction_type,
+// built_year, completion_status, floor_number, floor_qualifier,
+// features[], agency_name, agency_website - agency_phone is
+// deliberately never populated, see extract_contact_alo()'s own
+// comment on masked/JS-reveal phone numbers). Every field is read
+// defensively (undefined until a portal's extraction fills it in) so
+// both panels return '' and render nothing - no empty box, no broken
+// layout - until real data exists for a given listing.
+//
+// Correction (2026-09-24): this row originally read `l.property_type`,
+// a name assumed before the backend schema shipped. The real column is
+// `property_type_raw` (confirmed in sync_to_supabase.py's SOURCE_FIELDS
+// and geo_utils.py's extract_specs_alo()) - the mismatch meant the
+// Property Type row silently never rendered for any portal, including
+// already-shipped alo.bg data, since this panel first merged. Caught
+// while extending detail-page extraction to olx.bg and fixed here.
 function renderSpecsPanel(l) {
   const rows = [
-    ['Property type', l.property_type],
+    ['Property type', l.property_type_raw],
     ['Construction type', l.construction_type],
     ['Built year', l.built_year],
     ['Completion status', l.completion_status],
