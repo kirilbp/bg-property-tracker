@@ -4192,6 +4192,215 @@ self-merged. Files touched: `geo_utils.py`, `detect_relistings.py`,
 `.github/workflows/scrape.yml`, `check_scrape_freshness.py`,
 `tests/test_relisting_chain_guard.py`, this file.
 
+## 36. Standing-methodology-upgrade audit: 3 real gazetteer bugs (Лозен/Кладница/Рударци/Куртово Конаре) fixed via full free-text gazetteer mining, a recurring imoti.net coordinate-corruption bug re-quantified and re-remediated via cross-portal group agreement (headline count corrected from 885 to the true 998 after Missy's round-1 BLOCKING review found a real 107-record gap - see "Missy round 1" below), one bcpea regression pre-empted - APPROVED BY MISSY (2026-09-24), REBASED ONTO origin/main (2026-09-24, Placy) - PENDING MISSY'S REBASE-SPECIFIC RE-REVIEW
+
+Numbered 36, not 34 - originally written (and reviewed/approved by
+Missy) as item 34 while this branch's base predated PR #264's merge;
+by the time of this PR's rebase onto current `origin/main` (see the
+rebase addendum at the end of this item), items 34 (Ready's exhaustive
+category-allocation audit, PR #264) and 35 (the `scrape.yml`
+commit-failure incident, PR #269) had both already merged and taken
+those numbers, so this item is renumbered to 36 to avoid collision -
+no content changed, only the number and this note. Full methodology,
+every number, and honest disclosure of what wasn't run in the time
+available are in `docs/decisions.md`'s matching 2026-09-24 entry -
+summary:
+
+Dispatched after direct, repeated user criticism that this role's prior
+audits ("checked the largest cluster/sample") weren't finding real
+problems, with a rewritten charter mandating genuinely new detection
+methods each time, not a repeat of the coordinate-vs-city-field approach.
+Four methods actually applied (a fifth, end-to-end Lead Generator
+behavioral verification, was NOT run this session - disclosed, not
+skipped silently):
+
+1. **Full free-text mining of the COMPLETE 4,049-name gazetteer
+   (not just the structured `area` field, not just the ~30-city subset)
+   across title+description+url, full population (309,311 records, all 8
+   portals, any status).** Found and fixed 3 real, previously-undocumented
+   gazetteer bugs: "Лозен" was a genuine 4-way real-settlement-name
+   collision hardcoded to Sofia-grad (WebSearch+ekatte.com confirm 3 more,
+   unrelated real "Лозен" villages in Veliko Tarnovo/Pazardzhik/Haskovo
+   oblasts) - excluded, same "Бяла"/"Средец" treatment; "Кладница" and
+   "Рударци" were simply WRONG (hardcoded Sofia-grad, actually Pernik per
+   ekatte.com) - corrected directly; "Куртово Конаре" was ALSO already
+   wrong before this session (hardcoded Pazardzhik, actually Plovdiv,
+   internally inconsistent with its own municipality's correct Plovdiv
+   entry two lines above it in the same table) - corrected directly.
+   42+35+43 = 120 records nationwide affected; live active-population
+   impact today is small (1 record) because 41 of the 42 Лозен records and
+   all 35 Кладница/Рударци records are on portals (olx.bg/homes.bg) that
+   are currently 100% inactive - see the operational finding below.
+
+2. **Cross-portal group agreement (reused `group_listings()`, not
+   reinvented) - checking whether the SAME real property, independently
+   posted on 2+ portals, agrees on resolved oblast.** Confirmed and
+   re-quantified the already-known, already-disclosed-as-"root cause
+   remains unfixed" `extract_coords_imoti_net()` bug (items 27/28/33) has
+   recurred at meaningfully larger scale since the last remediation pass:
+   **998 active+removed imoti.net records carry a near-duplicate "central
+   Sofia" placeholder coordinate while their own `city` field names a
+   real, different city** (originally, wrongly reported as 885 - see
+   "Missy round 1" below for the correction) - 340 of those were actively
+   resolving the wrong oblast today (233 fixed in this pass, 107 more
+   found and fixed after Missy's round-1 review), the rest silently
+   correct on oblast but still corrupting any lat/lng-based feature (most
+   notably Lead Generator radius/map search). Root cause still not
+   fixable from this sandbox (imoti.net still blocked from network
+   egress, reconfirmed live this session) - scoped remediation applied
+   (null the coordinate, same precedent as before), root cause handed to
+   whoever owns imoti.net scraper health.
+
+3. **Statistical price/m² outliers per oblast, restricted to comparable
+   property type (`type_bucket=="flat"` only - an unrestricted first pass
+   across all types produced meaningless oblast baselines dragged down by
+   farmland).** Found one isolated, confirmed bad imoti.net coordinate
+   (Varna/Neptun resolving to Dobrich, ~30km off) - folded into fix 2's
+   remediation. Everything else flagged was genuine, explainable market
+   variance (premium Sofia/Varna/Burgas neighborhoods), not fixed.
+
+4. **Reviewed (not silently dropped) the ~1,900 full-text-mining
+   candidates NOT fixed** - all match the already-documented "generic
+   neighborhood name coincides with a distant municipality seat" class
+   (Хаджи Димитър, Гоце Делчев) or a newly-noticed-but-not-newly-fixed
+   sibling class this method surfaces: famous-historical-figure names
+   reused as street names nationwide (Александър Стамболийски, Неофит
+   Рилски, Цар Калоян/Самуил, Баба Тонка, Стоян Михайловски) and generic
+   descriptive phrases (Черно море/"Black Sea", Ново село/"new village").
+   One candidate ("Свети Влас", 5 removed olx.bg records) is flagged as
+   genuinely open/unconfirmed, not dismissed and not fixed.
+
+**A narrow, evidence-checked addition to prevent a regression**: finding
+1's "Лозен" exclusion would have silently regressed one currently-active,
+correctly-resolved bcpea record (`bcpea_92319`, a $640k listing) to
+unresolved - its own description explicitly says "Столична община",
+which is now a bcpea-only last-resort signal (checked against all 23 bcpea
+records mentioning that phrase; 22 were already correct and unaffected).
+Net active-population impact of the whole session: unresolved count
+unchanged (671 before/after) - findings 1 and this fallback cancel out
+exactly, confirmed by direct count.
+
+**Out-of-scope but urgent, disclosed to whoever owns scraper health (not
+fixed here):** `data/leads_homes.json` (74,012 records), `leads_imot.json`
+(26,285), and `leads_olx.json` (36,586) are ALL currently 100%
+`source_status="removed"` right now - zero active listings from any of
+these 3 portals, `removed_at` timestamps trailing off gradually since
+2026-08-21. This significantly limits today's "active impact" numbers for
+findings 1/2 above (most of their affected records are on exactly these 3
+portals) - the real impact will likely be much larger the moment these
+portals resume producing active listings.
+
+`python3 -m pytest tests/` - 50 passed, 4 subtests passed, both before and
+after every change. Every touched data file's diff confirmed to only
+touch `lat`/`lng` lines (or, for `geocode_cache.json`, exactly the one
+removed entry) - `git diff -- <file> | grep -v '"lat"\|"lng"'` returns no
+content lines. Full before/after oblast-distribution counts (computed
+against real unmodified `origin/main` vs. this branch, not assumed) are in
+`docs/decisions.md`.
+
+**Missy round 1 (BLOCKING review, addressed on this same branch - not a
+fresh pass): the "885" headline undercounted the true population by
+~11%.** Missy recomputed finding 2's population directly with this
+project's own unmodified `oblast_key_from_latlng()`/`listing_city_key()`/
+`CITY_KEY_TO_OBLAST` and got 998, not 885: 233 fixed above + 658 already
+fixed by PR #262 + **107 (101 active, 6 removed) neither PR touched and
+that were still live-wrong today** - not ambiguous, their own imoti.net
+URLs name the real city outright. Root-caused (full evidence in
+`docs/decisions.md`'s matching entry): ruled out a coordinate-precision
+gap and a stale-snapshot gap with direct evidence; the true cause is that
+the original pass's candidate list came from a one-off, uncommitted
+analysis script that no longer exists to inspect - the structural fix
+going forward is a single deterministic full-file scan calling the real
+production functions directly, never a multi-step/manual candidate list,
+which is what this round's re-scan is and what found/fixed the full 107
+with an exact per-city match to Missy's own numbers. **Fixed**: nulled
+`lat`/`lng` on all 107 (same precedent as the other 891).
+
+**A related, genuinely different, much smaller bug the same broadened
+(now 8-portal) check surfaced, fixed separately, not folded into the 998
+count above:** 4 `homes.bg` records (`city="Шумен"`, all `removed`, zero
+live impact) had the exact same `sofia_grad`-vs-own-city-field
+disagreement shape, but from a different root cause - a stale, poisoned
+bare `"Център, България"` `geocode_cache.json` entry. **Fixed**: nulled
+the 4 records' coordinates, removed the poisoned cache entry - this one
+incident is resolved.
+
+**Correction (post-review): this is not a structural fix for the bug
+class.** An earlier version of this entry implied
+`_bare_name_is_confident()` (`geo_utils.py:730`) would prevent recurrence
+- Missy traced the actual code and found that's not true. That guard only
+runs inside `Geocoder.geocode()`'s `if result and len(parts) >= 3` branch
+(`geo_utils.py:781`), i.e. only for a qualified 3-part `"area, city,
+България"` query being cross-checked against its bare form. The actual
+poisoning path starts from a *blank* city:
+`backfill_geocode_homes.py:98` builds `location = f"{area}, {city}" if
+area and city else area`, which collapses to a bare 2-part query (like
+`"Център, България"`) when `city` is falsy - a 2-part query never
+satisfies `len(parts) >= 3`, so the confidence guard never runs, and the
+bare result caches unguarded, the same mechanism that caused this
+poisoning. Blank city is still reachable today: `scraper_homes.py`'s
+`extract_city()` (line 238) returns `None` when `location` has no comma.
+So only the one poisoned key was removed here; the underlying gap (bare
+2-part geocode queries bypassing the confidence guard) is **not closed**
+and remains a live recurrence risk for any other generic district name in
+the same ambiguity class ("Дружба"/"Изток"/etc., per that guard's own
+docstring). Flagged as an optional follow-up (extend the confidence
+check to bare 2-part queries, or fix the callers to never emit an
+unqualified bare query) - not implemented this round.
+
+Re-verified exhaustively (not just re-checking the specific 107/4 named):
+0 records remain matching the bug's definition across all 8 portals, both
+active and genuinely-removed-only history. Data integrity re-confirmed
+programmatically on the newly-touched 111 records (0 mismatches beyond
+`lat`/`lng`, 0 unexpected changes elsewhere, record counts unchanged).
+`python3 -m pytest tests/` - 68 passed, 4 subtests passed (count grew from
+unrelated PRs merged to `main` meanwhile; no regressions).
+
+**Built in an isolated worktree** (`placy/deep-audit-2026-09-24`, off
+current `origin/main`, explicitly not touching `placy/full-audit-2026-09-23`
+/its rebase or `ready/exhaustive-category-audit-2026-09-23`), not
+self-merged - handed back for Missy's review per standing process.
+
+**Rebase addendum (2026-09-24, same day, after Missy's approval above):**
+this PR (`placy/deep-audit-2026-09-24`, approved at `6a75a15`) went
+stale against `origin/main` after PR #264 (item 34's exhaustive
+category-allocation audit), two manual backfill commits (imoti.bg
+coordinates, bcpea.org details - confirmed to touch only
+`leads_imoti_bg.json`/`leads_bcpea.json`, files this PR never touches,
+so zero field-level overlap risk), and PR #269 (item 35's
+`scrape.yml` incident fix, docs-only) all merged. Rebased using the
+same discipline as PR #264's own rebase incident (never
+`compute_leads()`/full-regeneration): diffed this PR's own tip
+(`6a75a15`) against its own base (`77b71c2`) for the 4 conflicting
+data files (`leads.json`, `history.json`, `leads_olx.json`,
+`history_olx.json`; `geocode_cache.json`/`leads_homes.json`/
+`history_homes.json` merge clean with current `origin/main` and
+needed no action) to isolate the exact record-level change set -
+**382 unique imoti.net/olx.bg listings, lat/lng nulled, nothing
+else** (341 imoti.net ids in `leads.json`/`history.json`, 41 olx.bg
+ids in `leads_olx.json`/`history_olx.json`, 0 overlap between the two
+sets) - then applied ONLY that lat/lng nulling, by record id,
+merge-not-replace, on top of CURRENT `origin/main`'s copies of those
+4 files (which already include PR #264's `category`/
+`category_confidence` migration and both backfill commits' fields
+untouched). `sync_to_supabase.py` (this item's 3 gazetteer bug fixes)
+required no rebase action at all: confirmed byte-identical between
+this PR's base and current `origin/main` (`git diff` empty), so
+main hadn't touched it since - the PR's own version applies cleanly
+as-is. Verified programmatically: a full field-by-field diff of the
+rebased 4 files against current `origin/main` shows changes on
+exactly those 382 ids, exactly `lat`/`lng`, on both sides (`leads_*`
+and `history_*`'s `latest`), zero drift on `category`/
+`category_confidence`/`days_on_market`/`score`/`pct_vs_area_avg`/any
+other field, zero ids added or removed in any file. `python3 -m
+pytest tests/` passed with no regressions. Built in a fresh, isolated
+`git worktree` off `origin/main` per this repo's shared-checkout
+discipline; force-pushed to this same branch (prior approved commits
+preserved in history, not discarded) since only this session has been
+working this branch. Not self-merged - handed back for Missy's
+rebase-specific re-review per standing process, same pattern as PR
+#264's own rebase re-review.
+
 ---
 ---
 
