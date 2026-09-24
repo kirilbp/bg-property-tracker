@@ -625,11 +625,14 @@
      source's free-text description (see extractKeywordTags()). Pure
      keyword/pattern matching on data already scraped, no new data source. */
   .keywords-panel { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--taupe-light); }
-  .keywords-panel .kp-heading {
+  /* .specs-panel/.agency-panel (below) reuse this same heading style for
+     their own "Specs"/"Agency" headings, so the selector list covers all
+     three panels rather than being re-declared per panel. */
+  .keywords-panel .kp-heading, .specs-panel .kp-heading, .agency-panel .kp-heading {
     font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
     text-transform: uppercase; color: var(--ink-soft); margin: 16px 0 8px;
   }
-  .keywords-panel .kp-heading:first-child { margin-top: 0; }
+  .keywords-panel .kp-heading:first-child, .specs-panel .kp-heading:first-child, .agency-panel .kp-heading:first-child { margin-top: 0; }
   .kp-tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .kp-tag {
     display: inline-block; font-family: var(--font-sans); font-size: 12px; font-weight: 500;
@@ -641,6 +644,23 @@
     padding: 5px 14px; margin-bottom: 16px;
   }
   .kp-empty { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 4px 0 0; }
+
+  /* Specs panel + Agency contact card (2026-09-24 display audit) - laid
+     out now, ahead of the backend fix that will populate property type/
+     size/construction/built year/completion status/floor/features and
+     agency name/website/phone (none of which exist in the schema today,
+     see renderSpecsPanel()/renderAgencyPanel()'s own comments). Reuses
+     .keywords-panel's own spacing/divider convention (a hairline
+     border-top + generous top padding) so a third stacked panel here
+     reads as one consistent family, not a one-off style. */
+  .specs-panel, .agency-panel { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--taupe-light); }
+  .specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px 20px; }
+  .specs-row { display: flex; flex-direction: column; gap: 2px; }
+  .specs-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); }
+  .specs-value { font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--ink); }
+  .specs-features { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .agency-name { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
+  .agency-links { display: flex; flex-wrap: wrap; gap: 12px; }
 
   /* Prev/Next paging through the current filtered result set. */
   .detail-pager { display: flex; gap: 16px; align-items: center; margin: 0 0 20px; font-family: var(--font-sans); }
@@ -677,6 +697,15 @@
      circle and comparable pins at a glance. */
   .radius-map { height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
+  /* Matches .radius-map's own height/radius/margin so a listing without
+     coordinates doesn't visibly jump the layout versus one that has a
+     real map - the map's own quiet empty state (see renderRadiusPanel). */
+  .radius-map-empty {
+    height: 200px; border-radius: 4px; margin-top: 10px;
+    background: var(--ivory); border: 1px dashed var(--taupe-light);
+    display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px;
+  }
+  .radius-map-empty p { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 0; }
   /* Backlog item 20 ("Map tab additions"): Street/Satellite/Amenities
      controls above the radius map - same visual language as .radius-btn
      (smaller, since it's a secondary control) rather than a separate class
@@ -4024,11 +4053,24 @@ function renderRadiusPanel(l) {
       <button class="map-layer-btn${detailShowAmenities ? ' active' : ''}" data-map-amenities-toggle="1">Amenities</button>
     </div>
   ` : '';
+  // Display-side audit (2026-09-24, real alo.bg spot-check): the map
+  // itself used to render nothing at all (empty string) whenever a
+  // listing had no lat/lng - not broken exactly (no coordinates really
+  // means no map to draw), but silent in a way that read as "the map is
+  // missing/broken" rather than "this listing has no location data yet."
+  // The radius-comparables panel just above already had its own
+  // "Location data isn't available..." text (resultHtml), but only while
+  // a radius happens to be selected - the map slot itself had no
+  // equivalent message of its own. Sized to roughly match .radius-map's
+  // own height so the layout doesn't visibly jump between a listing that
+  // has coordinates and one that doesn't.
   const mapHtml = (l.lat != null && l.lng != null) ? `
     ${mapControlsHtml}
     <div id="radiusMap" class="radius-map"></div>
     ${detailShowAmenities ? `<p id="amenitiesNote" class="map-amenities-note"></p>` : ''}
-  ` : '';
+  ` : `
+    <div class="radius-map-empty"><p>Location data isn't available for this listing yet.</p></div>
+  `;
 
   return `
     <div class="radius-panel">
@@ -7902,6 +7944,64 @@ function renderKeywordsPanel(merged, l) {
     </div>
   `;
 }
+// Specs table + Agency contact card (2026-09-24 display-side audit,
+// docs/property-filter-spec.md section 5's "Due Diligence"/"Agent"
+// panels). Property type/size/construction type/built year/completion
+// status/floor number+qualifier/feature checkboxes, and agency
+// name/website/phone are a real, named backend gap - checked the full
+// field union across every data/leads_*.json file and confirmed none of
+// these are scraped anywhere today (same gap already flagged for the
+// Agent panel elsewhere on this page - see PROPERTY_TYPE_LABELS'
+// neighboring code and docs/backlog.md item 9). A parallel backend fix
+// is adding real extraction for these; this only lays out where/how
+// they'd render once that lands, using assumed snake_case field names
+// (property_type, construction_type, built_year, completion_status,
+// floor_number, floor_qualifier, features[], agency_name, agency_phone,
+// agency_website) that follow this codebase's existing field-naming
+// convention (lat/lng/sqm/price_eur etc.) - NOT confirmed against
+// whatever the backend fix actually ships, since that schema doesn't
+// exist yet. Whoever wires up the real columns should double check
+// these names line up (a quick rename here if not) rather than assume
+// they're already correct. Every field is read defensively (undefined
+// today, on every real listing) so both panels return '' and render
+// nothing - no empty box, no broken layout - until real data exists.
+function renderSpecsPanel(l) {
+  const rows = [
+    ['Property type', l.property_type],
+    ['Construction type', l.construction_type],
+    ['Built year', l.built_year],
+    ['Completion status', l.completion_status],
+    ['Floor', (l.floor_number != null) ? `${l.floor_number}${l.floor_qualifier ? ' (' + l.floor_qualifier + ')' : ''}` : null],
+  ].filter(([, v]) => v != null && v !== '');
+  const features = Array.isArray(l.features) ? l.features.filter(f => f && (typeof f === 'string')) : [];
+  if (rows.length === 0 && features.length === 0) return '';
+  return `
+    <div class="specs-panel">
+      <p class="kp-heading">Specs</p>
+      ${rows.length > 0 ? `
+        <div class="specs-grid">
+          ${rows.map(([label, value]) => `
+            <div class="specs-row"><span class="specs-label">${escapeHtml(label)}</span><span class="specs-value">${escapeHtml(String(value))}</span></div>
+          `).join('')}
+        </div>
+      ` : ''}
+      ${features.length > 0 ? `<div class="specs-features">${features.map(f => `<span class="kp-tag">${escapeHtml(f)}</span>`).join('')}</div>` : ''}
+    </div>
+  `;
+}
+function renderAgencyPanel(l) {
+  if (!l.agency_name && !l.agency_phone && !l.agency_website) return '';
+  return `
+    <div class="agency-panel">
+      <p class="kp-heading">Agency</p>
+      ${l.agency_name ? `<p class="agency-name">${escapeHtml(l.agency_name)}</p>` : ''}
+      <div class="agency-links">
+        ${l.agency_phone ? `<a class="source-link" href="tel:${escapeHtml(String(l.agency_phone).replace(/\s+/g, ''))}">📞 ${escapeHtml(l.agency_phone)}</a>` : ''}
+        ${l.agency_website ? `<a class="source-link" href="${escapeHtml(l.agency_website)}" target="_blank" rel="noreferrer">🌐 Agency website →</a>` : ''}
+      </div>
+    </div>
+  `;
+}
 const PROPERTY_TYPE_LABELS = {
   flat: 'Flat / Apartment', house: 'House', land: 'Land plot',
   garage: 'Garage', shop: 'Shop', business: 'Commercial property',
@@ -9267,6 +9367,8 @@ function renderListingDetail(merged) {
             <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
           </div>
           ${renderKeywordsPanel(merged, l)}
+          ${renderSpecsPanel(l)}
+          ${renderAgencyPanel(l)}
         </div>
         <div class="detail-tab-content${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab-content="comparables">
           ${renderComparablesTabHtml(l)}
