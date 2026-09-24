@@ -3960,6 +3960,56 @@ breakdown, both fixed:**
 (`ready/exhaustive-category-audit-2026-09-23`), handed back for another
 Missy review before merge.
 
+**REBASE + CORRECTION (2026-09-24): a rebase pass regenerated
+`leads_*.json` via `compute_leads()` instead of patching category fields
+only, silently drifting ~12,000 records' `days_on_market`/`score`/
+`pct_vs_area_avg` beyond this PR's declared scope - fixed with a true
+category-only patch, plus a wrong "731 overlapping records" figure
+corrected to the real 25.** Full account in `docs/decisions.md`'s matching
+2026-09-24 entry; summary:
+- **Blocking finding (Missy)**: the rebase's own commit message claimed
+  "confirmed the ONLY fields that changed... are category/
+  category_confidence" but a real field-by-field diff against the branch's
+  true merge-base found 11,891 records with additional drift in
+  `days_on_market`/`score`/`pct_vs_area_avg` (leads.json 121,
+  leads_imoti_bg.json 3, leads_alo.json 10,332, leads_bazar.json 66,
+  leads_imot.json 0, leads_olx.json 1,369) - e.g. `alo_11102611`'s
+  `days_on_market` moved 31->32 with its category untouched. Root cause:
+  `compute_leads()` recomputes those wall-clock-dependent fields fresh at
+  whenever the rebase happened to run, rather than preserving main's own
+  values. **Fixed**: rebuilt `data/leads_*.json`/`data/history_*.json` by
+  checking out `origin/main`'s exact current content for all 6 governed
+  files, then applying ONLY the `category`/`category_confidence` changes
+  `backfill_category_review3_fixes.py` (this PR's own final, all-4-review-
+  round authoritative script) determines - never calling `compute_leads()`
+  or any other recompute. Re-verified programmatically: a full field-by-
+  field diff between corrected-branch and `origin/main` shows 0 records
+  with any non-category/category_confidence drift, across all 6 files;
+  per-portal changed-record counts reproduce the PR's own already-reviewed
+  figures exactly (imoti.net 1/27,251, imoti.bg 1/912, alo.bg 508/90,159 -
+  87 previously "high" - bazar.bg 51,860/51,860, imot.bg 26,285/26,285,
+  olx.bg 36,586/36,586 = 115,241/233,053 total).
+- **Non-blocking finding (Missy)**: "731 overlapping records" between this
+  PR and PR #262 (already merged) was actually PR #262's own per-file
+  touched-record COUNT (705+1+6+19), not the true intersection of both
+  PRs' touched id sets. **Corrected**: the real intersection, computed by
+  actually intersecting this PR's changed-id set against PR #262's
+  touched-id set per file, is **25** (0 + 0 + 6 + 19 - imoti.net 0/705,
+  alo.bg 0/1, imot.bg 6/6, olx.bg 19/19). The underlying safety conclusion
+  - `category_classifier.classify_listing()` takes only title/description/
+  url, so it structurally cannot be affected by PR #262's lat/lng/
+  city_key changes regardless of overlap size - was independently verified
+  correct by Missy and needed no change; only the "731" figure and its
+  "overlapping records" description were wrong.
+
+`python3 -m pytest tests/`: 114 passed, no regressions (current main's own
+baseline). Spot-checks re-confirmed: `imotibg_515292`->flat,
+`olx_9RCOH`->land, `olx_9ECK4`->house, `olx_9Sr6A`->garage. Built in an
+isolated `git worktree` off `origin/main` per this repo's CLAUDE.md, force-
+pushed to the same branch (`ready/exhaustive-category-audit-2026-09-23`)
+since this corrects an already-pushed commit. Not self-merged - handed
+back for Missy's review.
+
 ---
 ---
 
