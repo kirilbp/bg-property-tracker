@@ -346,12 +346,15 @@
   .city-tab-btn.active { border-color: var(--ink); background: var(--ink); color: var(--ivory); font-weight: 600; }
   .city-tab-count { font-weight: 400; opacity: 0.75; margin-left: 4px; }
 
-  /* Browse-by-city photo tiles (replaces the plain text-pill treatment for
-     this one section only - "Browse by Council" below keeps the pill row).
-     Each button also carries .city-tab-btn so the existing delegated click
-     handler and data-city-filter behavior keep working unchanged; these
-     rules are ordered after .city-tab-btn's so they win the cascade for
-     the properties that need to differ (background/padding/border-radius). */
+  /* Browse-by-city / Browse-by-Council photo tiles (replaces the plain
+     text-pill treatment for both sections). Each button also carries
+     .city-tab-btn so the existing delegated click handlers and
+     data-city-filter/data-oblast-filter behavior keep working unchanged;
+     these rules are ordered after .city-tab-btn's so they win the cascade
+     for the properties that need to differ (background/padding/border-radius).
+     Oblasts never have a photo concept, so their tiles always render the
+     gradient+letter fallback (see oblastTileHtml) - same as any city tile
+     whose photo is missing or fails to load. */
   .city-photo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
@@ -1387,7 +1390,7 @@
         <div class="card">
           <h2>Browse by Council</h2>
           <p class="card-sub">All 28 provinces (oblasts) of Bulgaria, plus "Others" for any listing that couldn't be matched to one. Every listing is allocated by mapping its city to that city's own province, or by matching a province name directly in its listing text when no city matched.</p>
-          <div class="city-tab-row" id="oblastTabRow"></div>
+          <div class="city-photo-grid" id="oblastTabRow"></div>
         </div>
         <div class="card">
           <h2>Browse by property type</h2>
@@ -3739,13 +3742,22 @@ function renderOblastTabs() {
     if (key) counts[key]++;
     else othersCount++;
   });
-  row.innerHTML = BG_OBLASTS.map(o => `
-    <button class="city-tab-btn${activeOblastFilter === o.key ? ' active' : ''}" data-oblast-filter="${o.key}">
-      ${o.label}<span class="city-tab-count">${fmt(counts[o.key])}</span>
-    </button>
-  `).join('') + `
-    <button class="city-tab-btn${activeOblastFilter === 'others' ? ' active' : ''}" data-oblast-filter="others">
-      Others<span class="city-tab-count">${fmt(othersCount)}</span>
+  row.innerHTML = BG_OBLASTS.map((o, i) => oblastTileHtml(o, counts[o.key], activeOblastFilter === o.key, i)).join('')
+    + oblastTileHtml({ key: 'others', label: 'Others' }, othersCount, activeOblastFilter === 'others', BG_OBLASTS.length);
+}
+
+// Renders one "Browse by Council" photo tile. Oblasts (provinces) have no
+// photo concept at all, so every tile always renders the same gradient+
+// initial fallback that city tiles use when their photo is missing/404s.
+function oblastTileHtml(o, count, isActive, gradIndex) {
+  const gradClass = 'ph-g' + (gradIndex % 6);
+  return `
+    <button class="city-tile city-tab-btn${isActive ? ' active' : ''}" data-oblast-filter="${o.key}" aria-label="${o.label}, ${fmt(count)} listings">
+      <div class="ph-bg ${gradClass}" data-letter="${o.label[0]}"></div>
+      <div class="city-tile-scrim">
+        <p class="city-tile-name">${o.label}</p>
+        <span class="city-tile-count">${fmt(count)}</span>
+      </div>
     </button>
   `;
 }
