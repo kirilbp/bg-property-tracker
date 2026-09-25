@@ -123,6 +123,27 @@ REQUEST_DELAY_SECONDS = 1.0
 MAX_CONSECUTIVE_PAGE_FAILURES = 5
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+# Connection-level failures (the TCP handshake itself never completed, or a
+# connection attempt was refused/never resolved - requests.ConnectTimeout,
+# or a plain requests.ConnectionError raised before any response existed)
+# get far fewer attempts and no escalating backoff than a real HTTP-level
+# failure. Live job logs (run 36085734587, backfill-detail-alo.yml,
+# 2026-09-25 02:18-02:55 UTC) showed 55 distinct URLs in one 35-minute
+# backfill_detail_alo.py run that never completed a TCP handshake at all
+# ("Connection to www.alo.bg timed out. (connect timeout=8)"). Under the
+# old MAX_RETRIES=3 with escalating RETRY_BACKOFF_SECONDS backoff, each one
+# cost up to 3*8s (connect timeouts) + 5s + 10s (backoff after attempts 1
+# and 2) = 39s worst case - 55 * 39s =~2,145s, i.e. almost the entire
+# 35-minute TIME_BUDGET_SECONDS budget in backfill_detail_alo.py, spent on
+# URLs that were never going to answer, before a single successful fetch.
+# A dead network path to the same host is very unlikely to start accepting
+# connections again one or two retries later within the same run -
+# especially plausible (though not confirmed here) if this is IP-level
+# rate-limiting/blocking of GitHub Actions runner IP ranges by alo.bg, which
+# no amount of same-run backoff would clear. See fetch_with_retries()'s own
+# comment for the resulting worst-case math under the new limits.
+CONNECT_FAILURE_MAX_RETRIES = 2
+CONNECT_FAILURE_BACKOFF_SECONDS = 0
 
 # Same reasoning as MAX_CONSECUTIVE_PAGE_FAILURES above, applied to
 # fetch_update_dates()'s per-listing detail-page visits: a live production
@@ -221,7 +242,25 @@ def smallest_container_with_price(link_tag, max_levels=6):
 
 
 def fetch_with_retries(url):
-    for attempt in range(1, MAX_RETRIES + 1):
+    # requests.exceptions.ConnectTimeout is a subclass of both
+    # requests.exceptions.ConnectionError and requests.exceptions.Timeout
+    # (verified against the installed requests version, not assumed): it's
+    # raised specifically when the TCP handshake itself never completed
+    # within the connect timeout. A plain requests.exceptions.ConnectionError
+    # (not a ConnectTimeout) covers the sibling case of a connection that
+    # was refused or never resolved at all (e.g. DNS failure) - requests
+    # wraps urllib3's NewConnectionError the same way, also with no response
+    # ever received. Catching ConnectionError (which includes ConnectTimeout)
+    # ahead of the generic RequestException catch-all cleanly separates both
+    # of those "never got a response at all" cases from:
+    #   - requests.exceptions.ReadTimeout, a *sibling* of ConnectionError
+    #     (Timeout, not ConnectionError) - the connection itself succeeded,
+    #     the server was just slow to answer, so a retry has a real chance.
+    #   - requests.HTTPError (handled above) - a real response (e.g. a 5xx)
+    #     came back, so the connection is fine and retrying is worthwhile.
+    # Only the true connection-level case gets the fast-fail treatment.
+    attempt = 1
+    while True:
         try:
             # (connect, read) rather than one 20s timeout for both - live
             # job logs showed backfill_detail_alo.py runs burning most of
@@ -241,14 +280,37 @@ def fetch_with_retries(url):
             if status in (404, 410):
                 print(f"DEBUG: {url} permanently gone ({status}) - not retrying")
                 raise PermanentlyGone(url) from None
-            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
-            if attempt < MAX_RETRIES:
-                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            max_attempts = MAX_RETRIES
+            backoff = RETRY_BACKOFF_SECONDS * attempt
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{max_attempts}): {e}")
+        except requests.exceptions.ConnectionError as e:
+            # Connection-level failure - see the fast-fail comment above and
+            # CONNECT_FAILURE_MAX_RETRIES's own comment for the time-budget
+            # math. Worst case here: CONNECT_FAILURE_MAX_RETRIES * 8s connect
+            # timeout with zero backoff between attempts, e.g. 2*8s = 16s -
+            # versus the old 3*8s+5s+10s = 39s, a ~59% cut per dead URL. For
+            # the 55-dead-URL figure observed in one real run (not a
+            # guaranteed constant, just the best evidence available): old
+            # cost ~=55*39s=2,145s (~35.75 min, i.e. effectively the whole
+            # TIME_BUDGET_SECONDS budget); new cost ~=55*16s=880s (~14.7
+            # min) - freeing roughly 1,265s (~21 minutes) per run for URLs
+            # that actually complete a connection.
+            max_attempts = CONNECT_FAILURE_MAX_RETRIES
+            backoff = CONNECT_FAILURE_BACKOFF_SECONDS
+            print(
+                f"DEBUG: connection-level failure for {url} "
+                f"(attempt {attempt}/{max_attempts}, fast-fail path): {e}"
+            )
         except requests.RequestException as e:
-            print(f"DEBUG: request failed for {url} (attempt {attempt}/{MAX_RETRIES}): {e}")
-            if attempt < MAX_RETRIES:
-                time.sleep(RETRY_BACKOFF_SECONDS * attempt)
-    return None
+            max_attempts = MAX_RETRIES
+            backoff = RETRY_BACKOFF_SECONDS * attempt
+            print(f"DEBUG: request failed for {url} (attempt {attempt}/{max_attempts}): {e}")
+
+        if attempt >= max_attempts:
+            return None
+        if backoff:
+            time.sleep(backoff)
+        attempt += 1
 
 
 def fetch_listings_page(url, seen):
