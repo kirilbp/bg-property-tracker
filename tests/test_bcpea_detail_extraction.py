@@ -5,21 +5,32 @@ set, not just the single `.head` image already captured) and
 unrecognized_labels() (new - a zero-cost tripwire for a genuine new
 property-spec label, should sales.bcpea.org ever start rendering one).
 
+CORRECTED 2026-09-25: this docstring, and extract_photos_bcpea()'s own,
+previously described `.item__expanded`/`.head` as "CONFIRMED real markup".
+A production audit found "photos" at a flat 0% (0/2,246) despite 100%
+detail-page coverage and a 64% success rate for "Описание"/district on
+those SAME pages - conclusive that `.head` inside `.item__expanded` never
+actually matches real sales.bcpea.org markup, so "confirmed" is no longer
+an accurate description of that specific claim (only `.item__expanded`
+itself, and `.label__group`/`.label`/`.info`, remain genuinely confirmed -
+those two fields DO populate in production). See
+extract_photos_bcpea()'s own 2026-09-25 correction in scraper_bcpea.py for
+the full reasoning, and expanded_image_diagnostic() (tested below,
+alongside its capped call site in fetch_listing_detail()) for the
+zero-cost, guess-free tripwire added instead of a blind selector fix -
+this sandbox has no live access to sales.bcpea.org to confirm the real
+fix, and CLAUDE.md rules out finding out via live workflow_dispatch
+iteration.
+
 Unlike tests/test_alo_detail_extraction.py's fixtures (built from real
 user-supplied screenshots, since alo.bg's exact DOM shape was never
-directly confirmed), these fixtures use the CONFIRMED real markup this
-scraper already parses successfully in production: `.item__expanded`,
-`.head`, `.label__group`/`.label`/`.info` (see scraper_bcpea.py's own
-module docstring and fetch_listing_detail()). What's genuinely unverified
-this session (network egress to sales.bcpea.org is blocked here, same as
-every other scraper's own egress-block note, and no second real saved
-page with extra photos/labels was available to check) is only WHETHER a
-real page ever puts more than one real <img> in `.item__expanded` or more
-than the two already-known .label__group labels ("Район"/"Описание") on
-it - not the markup shape itself. These tests exercise both the confirmed
-single-photo/two-label shape (the only shape ever actually seen) and a
-hypothetical richer shape, to prove the extractors handle either without
-guessing or crashing.
+directly confirmed), these fixtures use markup this scraper already
+parses successfully in production for OTHER fields: `.item__expanded`,
+`.label__group`/`.label`/`.info` (see scraper_bcpea.py's own module
+docstring and fetch_listing_detail()). The `.head`-based photo fixtures
+below are kept (extract_photos_bcpea() must still handle that shape
+correctly if it's ever right) but are no longer claimed as confirmed real -
+see the correction above.
 
 Run with: python3 -m unittest tests.test_bcpea_detail_extraction -v
 (no pytest / other test framework is installed in this repo.)
@@ -33,7 +44,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bs4 import BeautifulSoup
 
-from scraper_bcpea import extract_photos_bcpea, unrecognized_labels, label_info, BASE_URL
+from scraper_bcpea import (
+    BASE_URL,
+    expanded_image_diagnostic,
+    extract_photos_bcpea,
+    label_info,
+    unrecognized_labels,
+)
 
 
 # The only shape ever actually confirmed against a real saved page: one
@@ -167,6 +184,75 @@ class LabelInfoStillWorksAlongsideNewHelpersTest(unittest.TestCase):
         expanded = _expanded(REAL_SHAPE_SINGLE_PHOTO_TWO_LABELS)
         self.assertEqual(label_info(expanded, "Район"), "Лозенец")
         self.assertIn("68134.4082.31", label_info(expanded, "Описание"))
+
+
+# --- expanded_image_diagnostic() (added 2026-09-25) ---------------------
+# The zero-cost tripwire fetch_listing_detail() now logs (capped, see
+# tests/test_scraper_bcpea_photo_miss_tripwire.py) whenever
+# extract_photos_bcpea() comes up empty. Modeled on the concrete real-world
+# possibility extract_photos_bcpea()'s own correction names: `.head` living
+# as a SIBLING section above an "expanded details" accordion, rather than
+# nested inside `.item__expanded` as originally assumed.
+
+# `.head` is a sibling of `.item__expanded`, not nested inside it - the
+# hypothesis this diagnostic exists to help confirm or rule out.
+HEAD_OUTSIDE_EXPANDED_SHAPE = """
+<div class="item">
+  <div class="head"><img src="/upload/1/1/real.jpg"></div>
+  <div class="item__expanded">
+    <div class="label__group"><span class="label">Район</span><span class="info">Център</span></div>
+  </div>
+</div>
+"""
+
+# The originally-assumed shape: `.head` nested inside `.item__expanded`.
+HEAD_INSIDE_EXPANDED_SHAPE = REAL_SHAPE_SINGLE_PHOTO_TWO_LABELS
+
+
+def _soup_and_expanded(html):
+    soup = BeautifulSoup(html, "html.parser")
+    return soup, soup.find(class_="item__expanded")
+
+
+class ExpandedImageDiagnosticTest(unittest.TestCase):
+    def test_head_inside_expanded_reported_as_inside(self):
+        soup, expanded = _soup_and_expanded(HEAD_INSIDE_EXPANDED_SHAPE)
+        diag = expanded_image_diagnostic(soup, expanded)
+        self.assertEqual(diag["inside_expanded"], ["(no class)"])
+        self.assertEqual(diag["outside_expanded"], [])
+
+    def test_head_outside_expanded_reported_as_outside(self):
+        soup, expanded = _soup_and_expanded(HEAD_OUTSIDE_EXPANDED_SHAPE)
+        diag = expanded_image_diagnostic(soup, expanded)
+        self.assertEqual(diag["inside_expanded"], [])
+        self.assertEqual(diag["outside_expanded"], ["(no class)"])
+
+    def test_no_images_anywhere_yields_empty_lists(self):
+        soup, expanded = _soup_and_expanded(
+            '<div class="item__expanded"><p>No images here.</p></div>'
+        )
+        diag = expanded_image_diagnostic(soup, expanded)
+        self.assertEqual(diag, {"inside_expanded": [], "outside_expanded": []})
+
+    def test_distinct_class_lists_are_deduped(self):
+        html = """
+        <div class="item__expanded">
+          <img class="thumb" src="/a.jpg">
+          <img class="thumb" src="/b.jpg">
+          <img class="thumb secondary" src="/c.jpg">
+        </div>
+        """
+        soup, expanded = _soup_and_expanded(html)
+        diag = expanded_image_diagnostic(soup, expanded)
+        self.assertEqual(diag["inside_expanded"], ["thumb", "thumb secondary"])
+
+    def test_handles_none_expanded(self):
+        soup = BeautifulSoup(
+            '<div class="head"><img src="/x.jpg"></div>', "html.parser"
+        )
+        diag = expanded_image_diagnostic(soup, None)
+        self.assertEqual(diag["inside_expanded"], [])
+        self.assertEqual(diag["outside_expanded"], ["(no class)"])
 
 
 if __name__ == "__main__":
