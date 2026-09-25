@@ -96,7 +96,7 @@ from bs4 import BeautifulSoup
 
 from geo_utils import (
     Geocoder, compute_motivation_score, extract_contact_imoti_bg, extract_specs_imoti_bg,
-    listing_city_key, prune_snapshots,
+    imoti_bg_ld_json_diagnostic, listing_city_key, prune_snapshots,
 )
 from category_classifier import classify_listing
 
@@ -188,12 +188,21 @@ def fetch_listing_detail(url):
     None or a partial dict (whatever fields were actually found), never
     raises (a missing field shouldn't drop an otherwise-good listing).
 
-    specs/contact (added 2026-09-24) reuse the exact same already-parsed
-    application/ld+json blocks the description extraction below already
-    proves this page carries - see geo_utils.extract_specs_imoti_bg()/
-    extract_contact_imoti_bg()'s own comments for exactly which schema.org
-    fields are read and why (and which fields were deliberately left out
-    for lack of any real evidence of where they'd live on this site).
+    specs/contact (added 2026-09-24, root-caused 2026-09-25 after a
+    production audit found them at 0% - see geo_utils.py's own comment
+    above _imoti_bg_ld_json_candidates() for the full story) call
+    geo_utils.extract_specs_imoti_bg()/extract_contact_imoti_bg(), which
+    parse this page's own application/ld+json block(s) independently of the
+    description extraction below - NOT "the exact same already-parsed
+    block" a previous version of this comment claimed. The description
+    extraction below tries a <meta name="description"> tag FIRST and only
+    ever falls back to ld+json when that tag is missing/short, so its high
+    hit rate is not evidence ld+json parsing itself works here. See
+    geo_utils.extract_specs_imoti_bg()'s own comment for exactly which
+    schema.org fields are read and why (and which fields were deliberately
+    left out for lack of any real evidence of where they'd live on this
+    site), and for what remains genuinely unverified about this page's real
+    ld+json shape.
 
     Does not extract a photo gallery: confirmed live via probe_photos.py/
     probe_photos_round2.py (one land-parcel and one apartment sample) that
@@ -224,10 +233,18 @@ def fetch_listing_detail(url):
             description = content
     if description is None:
         for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+            text = script.string or ""
             try:
-                data = json.loads(script.string or "")
+                data = json.loads(text)
             except (ValueError, TypeError):
-                continue
+                # Same strict=False retry as geo_utils._parse_ld_json_blocks()
+                # (see its own comment) - a raw control character inside a
+                # JSON string is a common real-world JSON-LD quirk, not
+                # necessarily a reason to give up on this block entirely.
+                try:
+                    data = json.loads(text, strict=False)
+                except (ValueError, TypeError):
+                    continue
             candidates = data if isinstance(data, list) else [data]
             for c in candidates:
                 if isinstance(c, dict) and isinstance(c.get("description"), str) and len(c["description"]) > 40:
@@ -249,7 +266,38 @@ def fetch_listing_detail(url):
     specs = extract_specs_imoti_bg(html)
     contact = extract_contact_imoti_bg(html)
 
+    if not specs and not contact:
+        _log_ld_json_miss(url, html)
+
     return description, site_posted_at, specs, contact
+
+
+# Populated by _log_ld_json_miss() below - module-level so it caps/dedupes
+# across every listing in one process run (each scheduled run is a fresh
+# process, so this naturally resets run to run), same pattern
+# scraper_bcpea.py's own _seen_unrecognized_labels tripwire already
+# established for an analogous "confirm a production assumption for real,
+# next time this scraper actually runs" need.
+_LD_JSON_MISS_LOG_CAP = 5
+_ld_json_miss_logged = 0
+
+
+def _log_ld_json_miss(url, html):
+    """Zero-cost visibility into WHY specs/contact came up empty for this
+    listing - logged for at most _LD_JSON_MISS_LOG_CAP listings per run (not
+    every listing; at nationwide scale this would otherwise spam the run's
+    logs for what's very possibly the same root cause every time). See
+    geo_utils.py's own comment above _imoti_bg_ld_json_candidates() for why
+    this diagnostic exists: distinguishing "no ld+json on this page at all"
+    from "ld+json is there but not the shape assumed" from "ld+json is there
+    but fails to parse" is exactly what a future real fix needs, and this
+    sandbox has no live access to find out directly."""
+    global _ld_json_miss_logged
+    if _ld_json_miss_logged >= _LD_JSON_MISS_LOG_CAP:
+        return
+    _ld_json_miss_logged += 1
+    diag = imoti_bg_ld_json_diagnostic(html)
+    print(f"DEBUG: imoti.bg specs/contact empty for {url} - {diag}", flush=True)
 
 
 def fetch_listings_page(url, geocoder):
