@@ -284,25 +284,69 @@ def unrecognized_labels(expanded):
 
 def extract_photos_bcpea(expanded):
     """Every real (non-placeholder, non-logo/icon) <img> src found in
-    `expanded`, with the already-proven `.head` image first (exactly the
-    element fetch_listing_detail() already used for the single `photo`
-    field, so a page with only that one image yields a single-element
-    list - identical behavior to before this function existed) followed by
-    any other distinct <img> elsewhere in `expanded`, in DOM order,
-    deduped by resolved URL.
+    `expanded`, with the `.head` image first (see this function's own
+    2026-09-25 correction below for why "already-proven"/"confirmed real"
+    is no longer an accurate description of that element) followed by any
+    other distinct <img> elsewhere in `expanded`, in DOM order, deduped by
+    resolved URL.
 
-    Whether sales.bcpea.org detail pages ever actually render more than
-    this one photo could not be confirmed this session - network egress to
-    the site is blocked (see this module's docstring) and no second real
-    saved page with extra photos was available to check, unlike the single
-    saved page + saved grid page this scraper was originally built from.
-    This is written as a superset scan of the one already-confirmed-real
-    location (not a guess at some new gallery selector) specifically so it
-    degrades safely either way: if a listing's page genuinely has only the
-    one `.head` image (the confirmed case for every page seen so far),
-    this returns exactly that one URL and nothing more is claimed; if a
-    future page does render additional real photos elsewhere in
-    `expanded`, this captures them without any code change."""
+    CORRECTED 2026-09-25: a production audit found "photos" at a flat 0%
+    (0/2,246) in data/history_bcpea.json - every single detail-checked
+    listing, including the 64% whose "Описание"/district DID extract
+    successfully from this exact same `expanded` object in the exact same
+    fetch_listing_detail() call. That's conclusive that this function's
+    `.head`-inside-`expanded` lookup never actually matches anything on a
+    real sales.bcpea.org page, in production, for any of 2,246 samples -
+    not a coincidence or a "rare shape" gap.
+
+    This function's own prior docstring (and fetch_listing_detail()'s
+    original single-photo extraction it was built to generalize, present
+    since this scraper's very first commit) called `.head` inside
+    `.item__expanded` "the already-proven"/"already-confirmed-real"
+    element, on the strength of "two real saved HTML pages the user
+    provided" during this scraper's initial build. Nothing in this repo's
+    git history or docs/decisions.md actually quotes or otherwise
+    preserves that raw HTML, so that claim can no longer be independently
+    verified - and the flat, unmoved-since-before-this-function-existed
+    "photo" (singular) coverage rate (43.6% pre-dating any detail-page
+    photo work at all, per docs/backlog.md's 2026-09-22 figure; 43.4%
+    (974/2,246) today, after 100% of listings have gone through this exact
+    detail-page extraction unconditionally) is itself evidence AGAINST the
+    claim: if `.head` genuinely matched real markup even some of the time,
+    photo coverage should have moved up from the grid-only baseline, not
+    stayed flat. Same shape of mistake as alo.bg's own photo regression
+    (PR #279) and (per its own similarly-corrected comment) imoti.bg's
+    specs/contact regression - a confident "this is already proven" claim
+    that doesn't survive being traced to what actually produced the number
+    it pointed to.
+
+    This sandbox's network egress to sales.bcpea.org is blocked (confirmed
+    again this session), so which of two real, independent causes this
+    actually is - (a) `.head` genuinely doesn't exist inside
+    `.item__expanded` on a real page (it might be a sibling section
+    instead, e.g. a top-of-page gallery above an "expanded details"
+    accordion, a common real-world layout this shape would produce), or
+    (b) `.head` exists but some other assumption here (an attribute name,
+    a wrapper level) doesn't match - could not be confirmed this session,
+    and CLAUDE.md rules out iterating that check via a live
+    workflow_dispatch. Deliberately NOT widening or changing this
+    function's search scope without that evidence: guessing a new
+    scope/selector here carries a real, different risk (a wrong guess
+    could start attributing another section's images, e.g. a "related
+    listings" strip if one exists, to the wrong listing - silently WRONG
+    data, worse than the current honestly-empty list). See
+    unrecognized_labels()'s own tripwire pattern just above, and this
+    module's `expanded_image_diagnostic()`/its call site in
+    fetch_listing_detail() below (added alongside this correction) for
+    the zero-cost, guess-free way this now surfaces real evidence instead:
+    logging exactly what <img> tags (class lists, not full URLs) actually
+    exist on a real page whenever `expanded` was found (proving the page
+    loaded and parsed fine) but this function still came up empty - the
+    concrete information a future real production run needs to fix the
+    selector for real, in `probe_bcpea_photos.py` (also added alongside
+    this correction, NOT dispatched by this session per CLAUDE.md - for a
+    human with live access, or a future session with real network access,
+    to run once against a couple of real listing URLs)."""
     def is_real(src):
         if not src:
             return False
@@ -328,6 +372,36 @@ def extract_photos_bcpea(expanded):
     for img in expanded.find_all("img"):
         add(img)
     return photos
+
+
+def expanded_image_diagnostic(soup, expanded):
+    """Zero-cost visibility for fetch_listing_detail()'s own tripwire (see
+    its call site below and extract_photos_bcpea()'s own 2026-09-25
+    correction for why this exists): every distinct <img> class attribute
+    found INSIDE `expanded` versus found ANYWHERE ELSE on the whole page
+    (`soup`), counted (not full URLs/src values - just enough to tell a
+    future reader where a real photo/gallery element actually lives without
+    dumping raw HTML into a log). A real page where `.head` genuinely lives
+    inside `.item__expanded` would show `inside_expanded` non-empty; a page
+    where it's a sibling section instead would show it empty while
+    `outside_expanded` has real candidates - exactly the distinction needed
+    to fix extract_photos_bcpea()'s scope for real, without guessing."""
+    def class_signatures(tags):
+        seen = []
+        for img in tags:
+            classes = tuple(img.get("class") or [])
+            if classes not in seen:
+                seen.append(classes)
+        return [" ".join(c) if c else "(no class)" for c in seen]
+
+    expanded_imgs = expanded.find_all("img") if expanded is not None else []
+    all_imgs = soup.find_all("img")
+    expanded_img_ids = {id(t) for t in expanded_imgs}
+    outside_imgs = [t for t in all_imgs if id(t) not in expanded_img_ids]
+    return {
+        "inside_expanded": class_signatures(expanded_imgs),
+        "outside_expanded": class_signatures(outside_imgs),
+    }
 
 
 def debug_html_snippet(html):
@@ -423,6 +497,31 @@ def fetch_listings_page(browser, url):
 # scheduled run is a fresh process, so this naturally resets run to run).
 _seen_unrecognized_labels = set()
 
+# Capped counter for fetch_listing_detail()'s own extract_photos_bcpea()
+# miss tripwire (see its call site) - module-level for the same
+# reset-per-process reason as _seen_unrecognized_labels above.
+_PHOTO_MISS_LOG_CAP = 5
+_photo_miss_logged = 0
+
+
+def _log_photo_miss(url, soup, expanded):
+    """Zero-cost tripwire for extract_photos_bcpea()'s own 2026-09-25
+    correction (see its docstring): logged for at most _PHOTO_MISS_LOG_CAP
+    listings per run (not every miss - at ~1,300 nationwide listings this
+    would otherwise spam the run's logs for what's very possibly the same
+    root cause every time), capturing the real <img> class attributes this
+    specific page actually has inside vs. outside `.item__expanded` - the
+    concrete evidence a future real production run needs to fix this
+    selector for real. Split out from fetch_listing_detail() (which calls
+    this) so it's directly testable without a live Playwright browser -
+    see tests/test_scraper_bcpea_photo_miss_tripwire.py."""
+    global _photo_miss_logged
+    if _photo_miss_logged >= _PHOTO_MISS_LOG_CAP:
+        return
+    _photo_miss_logged += 1
+    diag = expanded_image_diagnostic(soup, expanded)
+    print(f"DEBUG: extract_photos_bcpea() empty for {url} - {diag}", flush=True)
+
 
 def fetch_listing_detail(browser, listing, geocoder):
     # Returns whether the page itself actually loaded - used by
@@ -480,6 +579,8 @@ def fetch_listing_detail(browser, listing, geocoder):
         listing["photos"] = photos
         if not listing.get("photo"):
             listing["photo"] = photos[0]
+    else:
+        _log_photo_miss(listing["url"], soup, expanded)
 
     # Zero-cost tripwire for a genuine new spec label (see
     # _KNOWN_BCPEA_LABELS' own comment) - logged once per distinct label
