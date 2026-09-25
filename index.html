@@ -3797,7 +3797,7 @@ function oblastTileHtml(o, count, isActive, gradIndex) {
   const gradClass = 'ph-g' + (gradIndex % 6);
   const mapPath = OBLAST_MAP_DATA.byKey[o.key];
   const mapHtml = mapPath
-    ? `<svg class="oblast-map-svg" viewBox="${OBLAST_MAP_DATA.viewBox}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    ? `<svg class="oblast-map-svg" viewBox="${OBLAST_MAP_DATA.viewBox}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
          <path class="oblast-map-context" d="${OBLAST_MAP_DATA.context}"/>
          <path class="oblast-map-highlight" d="${mapPath}" fill-rule="evenodd"/>
        </svg>`

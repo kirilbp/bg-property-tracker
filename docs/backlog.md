@@ -4744,6 +4744,35 @@ interpretation; flagging in case a future pass wants per-region zoom for
 better legibility on the smallest oblasts (e.g. Sofia-grad) at very small
 tile sizes.
 
+**Follow-up (2026-09-25, PR #284 review fix)**: Missy's review of PR #284
+caught a real crop bug in the framing above - `preserveAspectRatio="xMidYMid
+slice"` against the tile's own `aspect-ratio: 4/3` CSS crops the visible
+viewBox x-window down to `[20.66, 279.34]` (~20.66 units sliced off both
+edges of every tile, per the SVG slice algorithm applied to a 300x194
+viewBox). Precisely diagnosed with exact bounding-box math: 4 of 28
+oblasts near Bulgaria's west/east extremes had their own highlighted shape
+partly sliced off, not just empty background - vidin (bbox x:[0.0, 33.0])
+down to ~37% visible, pernik ~60%, kyustendil ~65%, dobrich ~69%. Fixed by
+changing `preserveAspectRatio` to `xMidYMid meet` on the single `<svg>`
+template in `oblastTileHtml()` (one attribute, reused for all 28 oblast
+tiles - Missy's own recommended, lowest-risk option) - `meet` always shows
+the full viewBox, so every oblast's
+highlight is fully intact; the trade-off is a top/bottom letterbox margin
+instead of an edge-to-edge crop. Verified this margin is visually seamless
+rather than a regression: `.oblast-map-svg`'s own CSS already sets
+`background: var(--ink)`, the same ink used inside the map for open
+sea/off-oblast space, so the letterboxed margin reads as more of the same
+background, not a visible seam; the bottom name/count scrim is opaque
+enough at the bottom that it's unaffected either way. Re-verified all 28
+oblasts' bounding boxes now fall entirely inside the full `[0,300]x[0,194]`
+viewBox (trivially true under `meet`, confirmed by script), and
+cairosvg-rendered PNGs of the 4 previously-cropped oblasts plus 3
+already-correct ones (sofia_grad, varna, burgas) confirm no regression -
+this sandbox had no working headless-Chromium install either (same
+blocker Missy hit; `playwright install` was blocked by the sandbox's
+network allowlist), so geometric + rendered-PNG verification stood in for
+a live browser screenshot.
+
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
 Explicitly not being built, per Nosy's spec: CT Band (Council Tax Band),

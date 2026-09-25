@@ -5400,3 +5400,40 @@ zoom) rather than cropping/zooming each tile to its own oblast's bounding
 box - a judgment call flagged in `docs/backlog.md` item 37, since the task
 didn't specify framing and this reads as one consistent locator-map family
 across all 29 tiles rather than 29 differently-scaled maps.
+
+### 2026-09-25 - PR #284 review fix: `preserveAspectRatio` "slice" -> "meet" on the Council-tile SVG maps
+
+Missy's PR #284 review found that `xMidYMid slice` against the tile's own
+`aspect-ratio: 4/3` CSS box crops the shared 300x194 viewBox's visible
+x-window to `[20.66, 279.34]` (exact SVG slice-algorithm math), which for
+4 of 28 oblasts near Bulgaria's west/east extremes (vidin ~37% of its own
+shape left visible, pernik ~60%, kyustendil ~65%, dobrich ~69%) crops into
+the oblast's own highlighted shape, not just empty background - directly
+breaking this feature's own "that one oblast's own real boundary filled in
+brass" goal for those 4 tiles.
+
+Took Missy's own recommended, lowest-risk fix: changed `preserveAspectRatio`
+to `xMidYMid meet` on the single `<svg>` template in `oblastTileHtml()`
+(one attribute, reused for all 28 oblast tiles). `meet` always renders the
+full viewBox, so every oblast's highlight is
+guaranteed intact for all 28 oblasts with a one-attribute change and no
+new geometry computation - the trade-off is a top/bottom letterbox margin
+(the 300x194 viewBox is wider than the 4:3 tile) instead of an edge-to-edge
+crop. Checked this margin isn't a visual regression before committing to
+it, rather than assuming: `.oblast-map-svg` already carries
+`background: var(--ink)` in its CSS, the same ink color used inside the map
+itself for open/off-oblast space, so the letterbox margin reads as more of
+the same background rather than a visible seam or empty band; the bottom
+name/count scrim (near-opaque at the bottom of its gradient) is unaffected.
+Rejected the two heavier alternatives Missy also offered (a per-oblast-
+centered viewBox crop, or changing the tile's CSS aspect-ratio to 300:194
+site-wide) as unnecessary once `meet` visually checked out.
+
+This sandbox had no working headless-Chromium install either (same
+blocker noted in Missy's own review; a `playwright install` attempt here
+was refused by the sandbox's outbound network allowlist), so verification
+was geometric (a script confirmed all 28 oblasts' bounding boxes now sit
+entirely inside the full `[0,300]x[0,194]` viewBox, which `meet` always
+shows in full) plus cairosvg-rendered PNGs of the 4 previously-cropped
+oblasts and 3 already-correct ones (sofia_grad, varna, burgas), standing in
+for a live browser screenshot.
