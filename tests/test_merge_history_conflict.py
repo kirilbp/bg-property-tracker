@@ -38,6 +38,7 @@ Run with: python3 -m unittest tests.test_merge_history_conflict -v
 tests/test_update_history.py's own note.)
 """
 
+import json
 import os
 import sys
 import unittest
@@ -298,6 +299,56 @@ class TestLegitimateVolatileFieldBehaviorNotRegressed(unittest.TestCase):
         }
         self.assertEqual(m.merge_record(None, local_only), local_only)
         self.assertEqual(m.merge_record(local_only, None), local_only)
+
+
+class TestMergeHistoryFileLevel(unittest.TestCase):
+    """merge_history() is what resolve() actually calls with each side's
+    whole-file JSON text - covers the file-level "one side doesn't have
+    this listing/portal yet" and "one side's JSON is missing entirely"
+    shapes that merge_record()'s own tests above only exercise as
+    pre-built dicts, not as something merge_history() itself has to
+    discover via set(main_data) | set(local_data)."""
+
+    def _payload(self, lid, seen_at, price):
+        return {
+            lid: {
+                "first_seen": seen_at,
+                "snapshots": [{"seen_at": seen_at, "price_eur": price}],
+                "latest": {"id": lid, "portal": "homes.bg", "price_eur": price},
+            }
+        }
+
+    def test_new_listing_on_only_one_side_is_kept_not_dropped(self):
+        # "portal-not-yet-existing entry": local scraped a genuinely new
+        # listing main has never seen (a brand-new id key, not a value
+        # conflict on a shared key) - the union over both sides' key sets
+        # must still include it.
+        main_json = json.dumps(self._payload("homes_1", "2026-09-20T00:00:00+00:00", 100000))
+        local_json = json.dumps({
+            **self._payload("homes_1", "2026-09-20T00:00:00+00:00", 100000),
+            **self._payload("homes_2", "2026-09-25T00:00:00+00:00", 50000),
+        })
+        merged = m.merge_history(main_json, local_json)
+        self.assertEqual(set(merged), {"homes_1", "homes_2"})
+        self.assertEqual(merged["homes_2"]["latest"]["price_eur"], 50000)
+
+    def test_main_side_json_missing_entirely_keeps_local_data(self):
+        # git_show() returns None when a stage doesn't exist at all (e.g.
+        # a brand-new file only this run's commit added) - resolve()
+        # passes that straight through as main_json=None. merge_history()
+        # must treat it as "no data on that side," not crash on
+        # json.loads(None).
+        local_json = json.dumps(self._payload("homes_3", "2026-09-25T00:00:00+00:00", 70000))
+        merged = m.merge_history(None, local_json)
+        self.assertEqual(set(merged), {"homes_3"})
+
+    def test_local_side_json_missing_entirely_keeps_main_data(self):
+        main_json = json.dumps(self._payload("homes_4", "2026-09-20T00:00:00+00:00", 80000))
+        merged = m.merge_history(main_json, None)
+        self.assertEqual(set(merged), {"homes_4"})
+
+    def test_both_sides_missing_yields_empty_merge(self):
+        self.assertEqual(m.merge_history(None, None), {})
 
 
 if __name__ == "__main__":

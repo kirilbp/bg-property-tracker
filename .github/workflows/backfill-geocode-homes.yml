@@ -79,9 +79,31 @@ jobs:
               git commit -m "Update listings (residual)"
             fi
             if ! git pull --rebase origin main; then
-              echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-              git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-              git diff --name-only --diff-filter=U | xargs -r git add
+              # merge_history_conflict.py actually merges any conflicted
+              # data/history*.json(.gz) (the append-only source of truth
+              # every scraper's own compute_leads() derives from) instead
+              # of discarding one side - see its own docstring for why
+              # checkout --ours here was silently eating this run's real
+              # geocoded data every time it fired. This workflow writes
+              # homes.bg's own data/history_homes.json.gz/leads_homes.
+              # json.gz hourly, concurrently with scrape.yml's own
+              # ~3.5-hour runs - the exact same conflict shape scrape.yml
+              # itself just hit for real (docs/backlog.md item 37
+              # addendum flagged this workflow specifically as having the
+              # identical gap). Anything it doesn't recognize (data/
+              # leads_*.json(.gz) - fully derived, self-heals from
+              # history*.json on this workflow's very next run, see that
+              # script's docstring for why a merger for those isn't
+              # needed) still falls back to the old behavior, now logged
+              # loudly instead of silently.
+              echo "Rebase hit a content conflict - attempting a real merge for data/history*.json(.gz) files"
+              python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
+              remaining=$(git diff --name-only --diff-filter=U)
+              if [ -n "$remaining" ]; then
+                echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
+                echo "$remaining" | xargs -r git checkout --ours --
+                echo "$remaining" | xargs -r git add
+              fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true

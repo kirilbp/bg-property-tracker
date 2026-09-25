@@ -154,10 +154,35 @@ jobs:
       # merged to main during that window, and with no fallback the whole
       # run's freshly-scraped data for every portal was discarded when the
       # rebase failed and the runner was torn down - not just the two
-      # conflicted files. On conflict, keep whatever is already on main
-      # for just the conflicted files (this run's snapshot for those two
-      # portals gets recaptured next cycle regardless) rather than losing
-      # every portal's update over an unrelated conflict.
+      # conflicted files.
+      #
+      # 2026-09-25: the comment that used to be here ("keep whatever is
+      # already on main for just the conflicted files, this run's snapshot
+      # gets recaptured next cycle regardless") was live-disproven by run
+      # 36106917335 - this workflow's own ~3.5h runtime overlaps the
+      # hourly backfill-detail-*.yml workflows (which push to these same
+      # data/history_*.json(.gz)/leads_*.json(.gz) files independently)
+      # often enough that a conflict here is not a rare, self-healing
+      # event: it happened on all 6 of this workflow's own files in that
+      # run, and `checkout --ours` during a rebase keeps *main's* (the
+      # stale) side, not this run's own freshly-scraped one - discarding
+      # 3.5 hours of real scraped data every time it fires, not just
+      # "whichever file happened to conflict." See merge_history_
+      # conflict.py's own module docstring (the identical failure mode,
+      # first found on alo.bg/backfill-detail-alo.yml, docs/backlog.md
+      # item 3) and docs/backlog.md item 37's addendum, which flagged this
+      # exact gap for scrape.yml specifically as "not yet wired in." Now
+      # wired in the same way scrape-large.yml already does it for alo.bg:
+      # a real per-listing merge (union of snapshots, min first_seen,
+      # shallow-merged "latest") for any conflicted data/history*.json(.gz)
+      # file - covers all 6 portals this workflow writes (homes, imot,
+      # olx, bazar, imoti_bg, bcpea) generically by filename pattern, no
+      # per-portal listing needed (see is_history_file()). data/leads_*.json
+      # files are deliberately left on the old checkout --ours fallback,
+      # now logged loudly instead of silently - they're fully derived and
+      # self-heal from history*.json on this workflow's own very next run
+      # (see merge_history_conflict.py's docstring for why a leads*.json
+      # merger isn't needed).
       #
       # if: always() - belt-and-suspenders alongside each scraper step's
       # own continue-on-error: true above; commits whatever's on disk
@@ -208,9 +233,27 @@ jobs:
               git commit -m "Update listings (residual)"
             fi
             if ! git pull --rebase origin main; then
-              echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-              git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-              git diff --name-only --diff-filter=U | xargs -r git add
+              # merge_history_conflict.py actually merges any conflicted
+              # data/history*.json(.gz) (the append-only source of truth
+              # every scraper's own compute_leads() derives from) instead
+              # of discarding one side - see its own docstring for why
+              # checkout --ours here was silently eating this run's real
+              # scraped data every time it fired (live-confirmed root
+              # cause of run 36106917335's data loss across all 6 of this
+              # workflow's portals - docs/backlog.md item 37 addendum).
+              # Anything it doesn't recognize (data/leads_*.json(.gz) -
+              # fully derived, self-heals from history*.json on this
+              # workflow's very next run, see that script's docstring for
+              # why a merger for those isn't needed) still falls back to
+              # the old behavior, now logged loudly instead of silently.
+              echo "Rebase hit a content conflict - attempting a real merge for data/history*.json(.gz) files"
+              python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
+              remaining=$(git diff --name-only --diff-filter=U)
+              if [ -n "$remaining" ]; then
+                echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
+                echo "$remaining" | xargs -r git checkout --ours --
+                echo "$remaining" | xargs -r git add
+              fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true
