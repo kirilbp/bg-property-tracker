@@ -5369,3 +5369,34 @@ it and all prior approved commits are preserved in the branch's history,
 not discarded. Not self-merged - handed back for Missy's rebase-specific
 re-review before merge, the same pattern used for PR #264's own rebase
 re-review.
+
+### 2026-09-25 - "Browse by Council" map tiles: real polygon-derived SVG maps chosen over stock photos, generated offline rather than fetched/computed at runtime
+
+User feedback said "maps", and Council tiles have no photo concept the way
+city tiles do (no single representative photo for a whole province) -
+generic stock/gradient imagery would have re-added the same placeholder
+complaint under a different skin. `data/bg_oblast_boundaries.json` already
+has real, committed oblast boundary geometry (already used server-side by
+`sync_to_supabase.py`'s point-in-polygon oblast classification), so a
+"you are here" province locator map was buildable with zero new data
+sourcing and zero network dependency - directly answers "maps" rather than
+approximating it.
+
+Chose to run the lng/lat-to-SVG-path projection and Ramer-Douglas-Peucker
+simplification as a one-time **build-time** step (a local Python script,
+not committed, not run in the browser) rather than fetching the raw 113KB
+boundaries JSON and doing the projection/simplification client-side on
+every page load. A single ~25KB precomputed `OBLAST_MAP_DATA` JS constant
+embedded directly in `index.html` matches how `BG_CITIES`/`BG_OBLASTS`
+already ship as inline JS literals in this single-file app, costs no extra
+HTTP request, and moves the (trivial, but non-zero across 29 tiles) per-ring
+simplification cost out of every visitor's browser entirely. Verified this
+didn't regress load: `renderOblastTabs()`'s own execution time measured
+unchanged within noise (~9-14ms) before vs. after, 5 runs each, at 1440px
+and 390px.
+
+Kept every tile framed identically (full-Bulgaria context, no per-oblast
+zoom) rather than cropping/zooming each tile to its own oblast's bounding
+box - a judgment call flagged in `docs/backlog.md` item 37, since the task
+didn't specify framing and this reads as one consistent locator-map family
+across all 29 tiles rather than 29 differently-scaled maps.

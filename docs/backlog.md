@@ -4446,6 +4446,73 @@ only the specific sub-feature named, not the whole item it belongs to:
   needs an actual Bulgarian real-estate lawyer's confirmation, not more
   desk research - no formula has been written for this strategy.
 
+## 37. "Browse by Council" tiles had no real map imagery, just a flat gradient+letter placeholder - REAL BOUNDARY-DERIVED MAPS SHIPPED (2026-09-25, Dessy)
+
+Direct user feedback from a screenshot: "Still no council maps" on Home's
+"Browse by Council" section - `oblastTileHtml()`'s own comment admitted
+oblasts "have no photo concept at all, so every tile always renders the
+same gradient+initial fallback" (unlike "Browse by city", which has real
+hand-picked photos per city, see item 21/city-photos work).
+
+**Real per-oblast maps, not stock photos, built entirely offline**: this
+project already has real oblast boundary polygon geometry committed at
+`data/bg_oblast_boundaries.json` (28 features, used by
+`sync_to_supabase.py`'s `oblast_key_from_latlng()` for point-in-polygon
+classification - see that file's own comment for the source/coordinate
+format). A build-time-only Python script (not checked in, run once
+locally) projected every oblast's raw lng/lat rings to a shared ~300x194
+viewBox (equirectangular, cos-latitude corrected so Bulgaria isn't
+horizontally stretched) and simplified each ring with Ramer-Douglas-Peucker
+(7,080 raw points -> 1,027 - plenty of detail at a ~112-150px tile, nowhere
+near needed at survey precision; an earlier pass of this script ran RDP on
+un-projected degrees and silently over-simplified most oblasts to 3-4-point
+triangles before this was caught and fixed). The result - one ~25KB
+`OBLAST_MAP_DATA` JS constant (a shared faint "rest of Bulgaria" context
+path + each oblast's own highlight path, built with the correct
+exterior+holes evenodd fill so the 5 oblasts with real enclave geometry -
+Sliven/Gabrovo/Burgas/Stara Zagora/Pernik - render the enclave properly cut
+out) - is embedded directly in `index.html`, the same pattern `BG_CITIES`/
+`BG_OBLASTS` already use, so there's no runtime fetch of the raw 113KB
+boundaries JSON and no runtime projection/simplification cost on every page
+load.
+
+`oblastTileHtml()` now renders a small inline `<svg>` per oblast: Bulgaria's
+full outline in muted taupe (each oblast's own real internal border faintly
+visible - a real province-map trait, not an artifact) with that one
+oblast's own boundary filled in brass on top - same palette as every other
+"you are here"/active-state accent on the site, deliberately not a
+generic multi-color political map (design-guidelines.md: one accent color,
+no new saturated/blue hues). "Others" (a catch-all bucket with no real
+boundary to draw) keeps the pre-existing gradient+letter fallback
+unchanged, same as before and same as any city tile whose photo fails to
+load. Click handling, `.city-tab-btn`/`data-oblast-filter`, and the scrim/
+name/count markup are all untouched.
+
+**Verified, not just built**: a real Playwright check (Chromium, no
+network available to this sandbox for the external Supabase/CDN scripts,
+so `renderOblastTabs()` was called directly after stubbing just the
+`supabase.createClient` global - the same synchronous top-level script
+that already defines `BG_OBLASTS` etc. regardless of network state)
+confirmed all 28 oblast tiles + Others render with zero JS errors from this
+change, each spot-checked highlighted oblast is visually distinct and
+geographically correct (Sofia-grad: small central-west blob; Sofia
+Province: larger ring around it; Varna: north-east coastal; Burgas:
+south-east coastal - matches real Bulgarian geography), tiles remain
+clickable and still call `applyOblastFilter()`/show the filter banner/
+navigate to the Leads section exactly as before, and `renderOblastTabs()`'s
+own execution time is unchanged within noise (~9-14ms before and after,
+5 runs each) at both 1440px and 390px viewports. `node --check` on the
+page's extracted inline script confirmed no syntax errors.
+
+**Judgment call**: the task didn't specify per-oblast zoom/framing, only
+"the same visual idea as a 'you are here' province map" - every tile uses
+the identical full-Bulgaria framing (not a per-oblast zoomed crop) so the
+29 tiles read as one consistent locator-map family rather than 29
+differently-scaled maps, which seemed like the smaller, more consistent
+interpretation; flagging in case a future pass wants per-region zoom for
+better legibility on the smallest oblasts (e.g. Sofia-grad) at very small
+tile sizes.
+
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
 Explicitly not being built, per Nosy's spec: CT Band (Council Tax Band),
