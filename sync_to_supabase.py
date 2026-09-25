@@ -15,9 +15,12 @@ A merged listing's id is a deterministic hash of its sorted member
 changes and silently breaks bookmarked #/listing/<id> links. A group's id
 only changes when its actual membership changes.
 
-Reads the 8 already-committed data/leads_*.json files - the scrapers
-themselves are unchanged, JSON stays the source of truth and safety net.
-This script only writes to Supabase.
+Reads the 8 already-committed data/leads_*.json files (homes.bg's own is
+gzip-compressed, leads_homes.json.gz, since 2026-09-25 - see geo_utils.py's
+"Compressed on-disk JSON storage" comment; load_all_listings() below is
+transparently gzip-aware via load_json_any()) - the scrapers themselves
+are unchanged, JSON stays the source of truth and safety net. This script
+only writes to Supabase.
 
 Auth: SUPABASE_URL and SUPABASE_SECRET_KEY must be set as environment
 variables (GitHub Actions repo secrets in production). The secret key
@@ -41,15 +44,21 @@ from geo_utils import (
     BG_CITIES, BG_CITY_BY_NAME, LATIN_CITY_TO_KEY,
     bcpea_settlement_from_title, bcpea_type_match, city_key_from_name,
     city_key_from_name_prefix, cyr_city_key_from_text, latin_city_key_from_text,
-    listing_city_key,
+    listing_city_key, load_json_any,
 )
 
 DATA_DIR = Path(__file__).parent / "data"
 
+# homes.bg -> "leads_homes.json.gz", not plain .json - 2026-09-25 addendum
+# to the GH001 incident fix (see geo_utils.py's "Compressed on-disk JSON
+# storage" comment). load_all_listings() below reads it through
+# load_json_any(), which is gzip-aware by extension - the full `photos`
+# array (and every other field) survives this unchanged; only the on-disk
+# bytes shrink. Every other portal is untouched, still plain .json.
 PORTAL_FILES = {
     "imoti.net": "leads.json",
     "alo.bg": "leads_alo.json",
-    "homes.bg": "leads_homes.json",
+    "homes.bg": "leads_homes.json.gz",
     "imot.bg": "leads_imot.json",
     "olx.bg": "leads_olx.json",
     "bazar.bg": "leads_bazar.json",
@@ -1049,7 +1058,7 @@ def load_all_listings():
         if not path.exists():
             print(f"WARNING: {path} not found, skipping {portal}")
             continue
-        listings = json.loads(path.read_text(encoding="utf-8"))
+        listings = load_json_any(path)
         for l in listings:
             l.setdefault("portal", portal)
         all_listings.extend(listings)

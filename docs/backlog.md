@@ -4523,6 +4523,116 @@ Built in an isolated `git worktree` off `origin/main` per this repo's
 shared-checkout discipline. Not self-merged - handed back for review.
 
 ---
+
+### Addendum (same day, 2026-09-25): eviction alone does NOT unblock the next run - root cause found, gzip fix shipped
+
+**The gap:** the eviction fix above correctly evicts 0 records against
+today's real data, but that was mis-read as "nothing more to do" - it
+isn't. Root cause, found by reading git history: dd83178 ("Fix homes.bg
+tracking-ID type collision; split 2 of 3 corrupted IDs", merged
+2026-09-23T11:02 UTC) fixed `build_tracking_id()` to stop dropping
+homes.bg's hs/as/lp/la type prefix. Before that fix, listings of
+DIFFERENT types sharing the same bare numeric id silently collided onto
+one tracking key and overwrote each other on alternating scrapes - many
+real, distinct listings were invisibly suppressed for a long time (only
+one "side" of each collision ever visible at once). Once fixed, every
+collision pair's previously-hidden "other side" appears as a genuinely
+new record the next time it's freshly scraped - a real, wanted,
+one-time correction (dd83178 itself is not the bug), but it means the
+very next real crawl was confirmed, from the failing run's own job-log
+output (`check_scrape_freshness.py`'s leads count), to produce **140,337**
+total homes.bg leads - **~1.90x** today's committed 74,012. Large enough
+on its own to hit GH001 again immediately, independent of anything stale.
+
+**What was checked and rejected first - capping `photos`:** the obvious
+lever (41.6% of `leads_homes.json`'s bytes, field-by-field measured), but
+`sync_to_supabase.py`'s `SOURCE_FIELDS`/`MERGED_FIELDS` copies the FULL
+`photos` array straight from `leads_homes.json` into Supabase's
+`listing_sources`/`merged_listings` columns, and `index.html`'s own
+detail-page gallery (`sourcePhotos`/`mergedPhotos` in `showDetail()`)
+renders every one of them - a real, live call site, not dead weight
+checked only for truthiness/count. Measured directly against homes.bg's
+real 74,012-record `leads_homes.json`: even capping every record to a
+single photo (a severe, real functional loss - no more multi-photo
+gallery for 45-66% of listings depending on the cap chosen) combined with
+compact (no-indent) serialization only reaches **~111.7MB projected at
+140,337 records** - still over the 100MB limit, for a real product
+regression bought and not even enough on its own.
+
+**The actual fix - gzip, not trimming:** these files are enormously
+repetitive (the same ~30 JSON keys and shared URL domains/path prefixes
+across tens of thousands of near-identical records) - exactly what gzip
+is built for, and it has zero data loss (full round-trip fidelity, every
+photo survives byte-identical). Measured on real homes.bg data:
+`leads_homes.json`, 74,012 records, 79.48MB compact-serialized -> **6.41MB
+gzipped** (level 9, 91.9% smaller); `history_homes.json`: 73.97MB compact
+-> **6.08MB gzipped**. Projected at the real 140,337-record scale (linear
+scaling validated against scrape.yml's own real quoted incident numbers -
+182.01MB/179.26MB pretty-printed at that scale, matching this projection
+to within ~1.5%): **~11.6MB (leads) / ~11.0MB (history)** - roughly 8.5x
+headroom under GitHub's 100MB hard limit, not a razor's-edge fix that
+recurs the next time record count ticks up again.
+
+**Shipped:** `geo_utils.load_json_any()`/`save_json_any()` - the one
+read/write path every consumer of these two files (every scraper,
+`sync_to_supabase.py`, `evict_stale_history.py`, `detect_relistings.py`,
+`verify_geocode_qualifiers.py`, `check_scrape_freshness.py`,
+`backfill_split_homes_id_collision.py`, `backfill_geocode_homes.py`,
+`backfill_others_geocode.py`) now goes through, extension-aware (gzip for
+`.json.gz`, unchanged plain/pretty-printed for everything else). Only
+homes.bg's own `HISTORY_FILE`/`LEADS_FILE` were switched to `.json.gz` -
+this incident is homes.bg-specific (dd83178 only touched homes.bg's
+`build_tracking_id()`); every other portal's record count didn't just
+jump, so they stay plain `.json`, unchanged, rather than an unverified
+blanket format change across all 8 portals. `merge_history_conflict.py`
+(the rebase-conflict JSON merger - currently wired into
+`backfill-detail-alo.yml`/`scrape-large.yml` for alo.bg, not yet into
+`scrape.yml`/`backfill-geocode-homes.yml`) was also made gzip-aware
+(`is_history_file()`, `git_show()`, `resolve()`'s write) so a homes.bg
+conflict wouldn't silently fall through to the old, known-lossy
+`checkout --ours` fallback if/when it's ever wired in for homes.bg too -
+checked, not guessed: `git show` returns raw committed blob bytes
+regardless of format, so this was a real, if not yet triggered, gap.
+The real, currently-committed `data/history_homes.json`/
+`data/leads_homes.json` (74,012 records each) were converted to
+`.json.gz` in this same change (byte-for-byte round-trip verified against
+the real data before removing the plain originals): **94.9MB -> 6.08MB**
+(history), **97.3MB -> 6.41MB** (leads).
+
+**Separately flagged, NOT fixed here (out of this addendum's scope):**
+`scrape.yml` and `backfill-geocode-homes.yml` (scheduled hourly, per its
+own workflow comment, and writing to homes.bg's history/leads files
+concurrently with `scrape.yml`) both still use the older
+`checkout --ours` rebase-conflict fallback, not `merge_history_conflict.py`
+- the exact "silently loses one side's fresh data" bug pattern that
+`merge_history_conflict.py`'s own module docstring already documents as
+"the bug this replaces" and that was already fixed for alo.bg
+specifically. This is a pre-existing, separate risk (unrelated to gzip -
+`checkout --ours` operates at the git-blob level and behaves identically
+regardless of file format) that predates this incident and is not
+introduced or worsened by it; flagged here rather than silently expanded
+into, since fixing it means changing two additional workflows' own
+conflict-handling steps, a separately-scoped piece of work.
+
+**Tested:** `tests/test_gzip_json_storage.py` (new) - `load_json_any()`/
+`save_json_any()` round-trip (gzip and plain, unicode-exact, real
+size-reduction check), `merge_history_conflict.py`'s
+`is_history_file()`/`git_show()`/`resolve()` against a mocked gzip git
+blob (confirms a real per-id union merge still happens, not a silent
+"unresolved" fallback), and `sync_to_supabase.py`'s `load_all_listings()`
+reading a real `.json.gz` leads file with the full `photos` array intact.
+`tests/test_evict_stale_history.py`'s homes.bg-specific tests (real-data
+documentation test, `scraper_homes.py`'s `save_history()` wiring test,
+`evict_stale_history.py`'s migration tests) updated to exercise the real
+`.json.gz` path rather than the old plain-`.json` one. Full existing
+suite (`python3 -m pytest tests/`): **227 passed, 4 subtests passed, 0
+regressions** (up from 216 - net +11 new tests after removing the now-
+redundant plain-format duplicates the updated tests replaced).
+
+Still built in the same isolated `git worktree`, still not self-merged -
+handed back for review with this addendum included.
+
+---
 ---
 
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved

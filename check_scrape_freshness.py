@@ -34,12 +34,26 @@ own step, whose continue-on-error is deliberately about isolating one
 scraper's crash from the rest of the run, not about hiding a bad result.
 """
 
-import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from geo_utils import load_json_any
+
 DATA_DIR = Path(__file__).parent / "data"
+
+
+# homes.bg's own history/leads files are .json.gz, not plain .json (2026-09-25
+# addendum to the GH001 incident fix - see geo_utils.py's "Compressed
+# on-disk JSON storage" comment). main() builds each portal's path
+# generically from its suffix, so this falls back to the .gz sibling when
+# the plain path doesn't exist, rather than hardcoding homes.bg as a
+# special case here.
+def _resolve_data_path(plain_path):
+    if plain_path.exists():
+        return plain_path
+    gz_path = plain_path.with_name(plain_path.name + ".gz")
+    return gz_path if gz_path.exists() else plain_path
 
 # Generous slack above this repo's cron cadences (24h for scrape-large.yml,
 # 6h for scrape.yml) so an occasionally slow/delayed run doesn't trip this -
@@ -91,7 +105,7 @@ def check_history_freshness(history_path):
     if not history_path.exists():
         print(f"::error::check_scrape_freshness.py: {history_path} does not exist - nothing to check")
         return False
-    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history = load_json_any(history_path)
     if not history:
         print(f"check_scrape_freshness.py: {history_path} is empty - skipping (nothing tracked yet)")
         return True
@@ -130,7 +144,7 @@ def check_leads_active_ratio(leads_path, min_ratio):
     if not leads_path.exists():
         print(f"::error::check_scrape_freshness.py: {leads_path} does not exist - nothing to check")
         return False
-    leads = json.loads(leads_path.read_text(encoding="utf-8"))
+    leads = load_json_any(leads_path)
     total = len(leads)
     if total < MIN_LISTINGS_FOR_RATIO_CHECK:
         print(f"check_scrape_freshness.py: {leads_path} has only {total} listings - skipping active-ratio check")
@@ -158,8 +172,8 @@ def main():
     ok = True
     for suffix in sys.argv[1:]:
         suffix_part = f"_{suffix}" if suffix else ""
-        history_path = DATA_DIR / f"history{suffix_part}.json"
-        leads_path = DATA_DIR / f"leads{suffix_part}.json"
+        history_path = _resolve_data_path(DATA_DIR / f"history{suffix_part}.json")
+        leads_path = _resolve_data_path(DATA_DIR / f"leads{suffix_part}.json")
         min_ratio = PER_PORTAL_MIN_ACTIVE_RATIO.get(suffix, DEFAULT_MIN_ACTIVE_RATIO)
         ok = check_history_freshness(history_path) and ok
         ok = check_leads_active_ratio(leads_path, min_ratio) and ok

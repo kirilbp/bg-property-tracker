@@ -41,17 +41,23 @@ Usage:
     python evict_stale_history.py homes bazar      # just these portals
     python evict_stale_history.py --dry-run        # report only, no writes
 """
-import json
 import sys
 from pathlib import Path
 
-from geo_utils import evict_stale_records, STALE_RECORD_RETENTION
+from geo_utils import evict_stale_records, STALE_RECORD_RETENTION, load_json_any, save_json_any
 
 DATA_DIR = Path(__file__).parent / "data"
 
-# portal short name -> (history filename, leads filename)
+# portal short name -> (history filename, leads filename). homes.bg's own
+# two files are .json.gz, not plain .json - 2026-09-25 addendum to this
+# same incident fix (see geo_utils.py's "Compressed on-disk JSON storage"
+# comment): eviction alone doesn't unblock the very next scrape.yml run,
+# since dd83178's tracking-ID collision fix means that run's own record
+# count jumps ~1.90x independent of anything stale. migrate_portal() below
+# reads/writes through load_json_any()/save_json_any(), which are
+# extension-aware, so every other portal here is unaffected.
 PORTAL_FILES = {
-    "homes": ("history_homes.json", "leads_homes.json"),
+    "homes": ("history_homes.json.gz", "leads_homes.json.gz"),
     "imot": ("history_imot.json", "leads_imot.json"),
     "olx": ("history_olx.json", "leads_olx.json"),
     "bazar": ("history_bazar.json", "leads_bazar.json"),
@@ -72,7 +78,7 @@ def migrate_portal(portal, dry_run=False):
         return
 
     history_size_before = history_path.stat().st_size
-    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history = load_json_any(history_path)
     count_before = len(history)
 
     evicted_ids = set(history.keys())
@@ -94,7 +100,7 @@ def migrate_portal(portal, dry_run=False):
         return
 
     if evicted:
-        history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(history_path, history)
     history_size_after = history_path.stat().st_size
     print(
         f"  {history_fn}: {history_size_before/1e6:.2f}MB -> {history_size_after/1e6:.2f}MB "
@@ -102,11 +108,11 @@ def migrate_portal(portal, dry_run=False):
     )
 
     if leads_path.exists():
-        leads = json.loads(leads_path.read_text(encoding="utf-8"))
+        leads = load_json_any(leads_path)
         leads_count_before = len(leads)
         if evicted_ids:
             leads = [l for l in leads if l.get("id") not in evicted_ids]
-            leads_path.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_json_any(leads_path, leads)
         leads_count_after = len(leads)
         leads_size_after = leads_path.stat().st_size
         print(

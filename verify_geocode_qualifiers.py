@@ -46,19 +46,23 @@ import json
 import math
 from pathlib import Path
 
-from geo_utils import Geocoder, _haversine_km
+from geo_utils import Geocoder, _haversine_km, load_json_any, save_json_any
 
 DATA_DIR = Path(__file__).parent / "data"
 CACHE_FILE = DATA_DIR / "geocode_cache.json"
 MISMATCH_KM = 30
 
+# homes.bg's own pair is .json.gz, not plain .json - 2026-09-25 addendum
+# to the GH001 incident fix (see geo_utils.py's "Compressed on-disk JSON
+# storage" comment). propagate_fix() below reads/writes through
+# load_json_any()/save_json_any(), which are extension-aware.
 PORTAL_FILES = [
     ("history_imot.json", "leads_imot.json"),
     ("history_imoti_bg.json", "leads_imoti_bg.json"),
     ("history_olx.json", "leads_olx.json"),
     ("history_alo.json", "leads_alo.json"),
     ("history_bazar.json", "leads_bazar.json"),
-    ("history_homes.json", "leads_homes.json"),
+    ("history_homes.json.gz", "leads_homes.json.gz"),
     ("history.json", "leads.json"),
     ("history_bcpea.json", "leads_bcpea.json"),
 ]
@@ -94,7 +98,7 @@ def propagate_fix(old_lat, old_lng, new_lat, new_lng):
         if not history_path.exists() or not leads_path.exists():
             continue
 
-        history = json.loads(history_path.read_text(encoding="utf-8"))
+        history = load_json_any(history_path)
         fixed_ids = []
         for lid, rec in history.items():
             latest = rec.get("latest", {})
@@ -103,14 +107,14 @@ def propagate_fix(old_lat, old_lng, new_lat, new_lng):
                 latest["lng"] = new_lng
                 fixed_ids.append(lid)
         if fixed_ids:
-            history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_json_any(history_path, history)
 
-            leads = json.loads(leads_path.read_text(encoding="utf-8"))
+            leads = load_json_any(leads_path)
             for entry in leads:
                 if entry.get("id") in fixed_ids:
                     entry["lat"] = new_lat
                     entry["lng"] = new_lng
-            leads_path.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_json_any(leads_path, leads)
 
             print(f"    propagated to {len(fixed_ids)} listing(s) in {history_name}: {fixed_ids}")
             fixed_total += len(fixed_ids)

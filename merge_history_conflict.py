@@ -123,6 +123,7 @@ conflicted) for the caller's own existing fallback to handle - this
 script only ever touches the specific files it knows how to merge safely.
 """
 
+import gzip
 import json
 import subprocess
 import sys
@@ -170,20 +171,40 @@ STABLE_LATEST_FIELDS = {"category", "category_confidence", "portal", "city"}
 
 def is_history_file(path):
     name = Path(path).name
-    return name == "history.json" or (name.startswith("history_") and name.endswith(".json"))
+    # .json.gz, not just plain .json - 2026-09-25 addendum to the GH001
+    # incident fix (see geo_utils.py's "Compressed on-disk JSON storage"
+    # comment): homes.bg's own history_homes.json/leads_homes.json are now
+    # gzip-compressed. Without this, a homes.bg rebase conflict would
+    # silently fall through to "unresolved" below and hit the caller's own
+    # checkout --ours fallback - reintroducing exactly the silent-data-loss
+    # bug this whole script exists to prevent (see module docstring), for
+    # the one portal under the most concurrent-writer pressure right now
+    # (scrape.yml + the hourly backfill-geocode-homes.yml both write to
+    # it).
+    return (
+        name in ("history.json", "history.json.gz")
+        or (name.startswith("history_") and (name.endswith(".json") or name.endswith(".json.gz")))
+    )
 
 
 def git_show(rev, path):
     """Returns the conflicted file's content at the given git stage
     ('main' -> :2:, 'local' -> :3:), or None if that stage doesn't exist
-    (e.g. the file was added fresh on only one side)."""
+    (e.g. the file was added fresh on only one side). Transparently
+    gzip-decompresses when `path` ends in `.gz` - `git show` returns the
+    raw committed blob bytes regardless of format, so this is the one
+    place that needs to know about it; every caller still gets back a
+    plain JSON text string exactly as before this change."""
     stage = {"main": ":2:", "local": ":3:"}[rev]
     result = subprocess.run(
-        ["git", "show", f"{stage}{path}"], capture_output=True, text=True
+        ["git", "show", f"{stage}{path}"], capture_output=True
     )
     if result.returncode != 0:
         return None
-    return result.stdout
+    raw = result.stdout
+    if Path(path).name.endswith(".gz"):
+        raw = gzip.decompress(raw)
+    return raw.decode("utf-8")
 
 
 def snapshot_key(s):
@@ -357,9 +378,16 @@ def resolve(path):
     except (json.JSONDecodeError, TypeError) as e:
         print(f"::warning::merge_history_conflict.py: {path} failed to parse for a real merge ({e}) - leaving unresolved for the caller's existing fallback")
         return False
-    Path(path).write_text(
-        json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    if Path(path).name.endswith(".gz"):
+        # Compact separators, not indent=2 - see geo_utils.py's
+        # save_json_any() for why (indent costs real bytes post-gzip for
+        # no benefit on a file that's never hand-read either way).
+        with gzip.open(path, "wt", encoding="utf-8", compresslevel=9) as f:
+            json.dump(merged, f, ensure_ascii=False, separators=(",", ":"))
+    else:
+        Path(path).write_text(
+            json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
     n_main = len(json.loads(main_json)) if main_json else 0
     n_local = len(json.loads(local_json)) if local_json else 0
     print(

@@ -123,7 +123,10 @@ from urllib.parse import urlencode
 
 import requests
 
-from geo_utils import Geocoder, compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION
+from geo_utils import (
+    Geocoder, compute_motivation_score, listing_city_key, prune_snapshots,
+    evict_stale_records, STALE_RECORD_RETENTION, load_json_any, save_json_any,
+)
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 BASE_URL = "https://www.homes.bg"
@@ -154,8 +157,15 @@ MIN_SLICE_WIDTH = 500
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
-HISTORY_FILE = OUT_DIR / "history_homes.json"
-LEADS_FILE = OUT_DIR / "leads_homes.json"
+# .json.gz, not plain .json - 2026-09-25 addendum to the GH001 incident fix
+# (see geo_utils.py's own "Compressed on-disk JSON storage" comment for the
+# real numbers): homes.bg's own record count jumped ~1.90x (dd83178's
+# tracking-ID collision fix unmasking previously-hidden listings), and even
+# aggressive photo-capping couldn't get that back under GitHub's 100MB
+# limit without gzip - every read/write of these two files must go through
+# load_json_any()/save_json_any(), never raw .read_text()/.write_text().
+HISTORY_FILE = OUT_DIR / "history_homes.json.gz"
+LEADS_FILE = OUT_DIR / "leads_homes.json.gz"
 
 BGN_TO_EUR = 1.95583
 
@@ -453,7 +463,7 @@ def fetch_listings():
 
 def load_history():
     if HISTORY_FILE.exists():
-        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+        return load_json_any(HISTORY_FILE)
     return {}
 
 
@@ -469,7 +479,7 @@ def save_history(history):
     if evicted:
         print(f"DEBUG: evicted {evicted} history record(s) not seen in over {STALE_RECORD_RETENTION.days} days")
     prune_snapshots(history)
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(HISTORY_FILE, history)
 
 
 def update_history(history, listings):
@@ -600,7 +610,7 @@ def main():
     history = update_history(history, listings)
     save_history(history)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(LEADS_FILE, leads)
     print(f"Found {len(listings)} listings, {len(leads)} tracked leads")
 
 

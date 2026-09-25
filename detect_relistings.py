@@ -38,13 +38,15 @@ time. Safe to run after every scrape: already-recorded pairs are skipped
 on subsequent runs.
 """
 
-import json
 import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from geo_utils import compute_motivation_score, listing_city_key, relisting_chain_guard_tripped
+from geo_utils import (
+    compute_motivation_score, listing_city_key, relisting_chain_guard_tripped,
+    load_json_any, save_json_any,
+)
 
 DATA_DIR = Path(__file__).parent / "data"
 
@@ -62,10 +64,15 @@ IMOTI_BG_RE = re.compile(r"/(r_[0-9a-f]+_[0-9a-f]+)\.[a-z]+$", re.IGNORECASE)
 # portal -> (history filename, photo-key extractor). Portals whose photo
 # scheme can't support URL-based matching (see module docstring) are
 # simply absent from this dict, not included with a no-op extractor.
+# homes.bg's own filename is .json.gz, not plain .json - 2026-09-25
+# addendum to the GH001 incident fix (see geo_utils.py's "Compressed
+# on-disk JSON storage" comment). detect_portal()/main() below read and
+# write it through load_json_any()/save_json_any(), which are
+# extension-aware, so this is the only line that needed to change here.
 PORTALS = {
     "bazar.bg": ("history_bazar.json", lambda url: _match(FOCUS_RE, url)),
     "imot.bg": ("history_imot.json", lambda url: _match(FOCUS_RE, url)),
-    "homes.bg": ("history_homes.json", lambda url: _match(HOMES_RE, url)),
+    "homes.bg": ("history_homes.json.gz", lambda url: _match(HOMES_RE, url)),
     "olx.bg": ("history_olx.json", lambda url: _match(GENERIC_HASH_RE, url)),
     "imoti.bg": ("history_imoti_bg.json", lambda url: _match(IMOTI_BG_RE, url)),
 }
@@ -82,7 +89,7 @@ def detect_portal(portal, history_filename, photo_key_fn):
     path = DATA_DIR / history_filename
     if not path.exists():
         return 0, False
-    history = json.loads(path.read_text(encoding="utf-8"))
+    history = load_json_any(path)
 
     last_seens = {lid: rec["snapshots"][-1]["seen_at"] for lid, rec in history.items() if rec.get("snapshots")}
     if not last_seens:
@@ -179,7 +186,7 @@ def detect_portal(portal, history_filename, photo_key_fn):
         injected += 1
 
     if injected:
-        path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(path, history)
     return injected, False
 
 
@@ -289,9 +296,9 @@ def main():
         total += injected
         if injected:
             leads_filename = history_filename.replace("history_", "leads_", 1)
-            history = json.loads((DATA_DIR / history_filename).read_text(encoding="utf-8"))
+            history = load_json_any(DATA_DIR / history_filename)
             leads = compute_leads(history)
-            (DATA_DIR / leads_filename).write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_json_any(DATA_DIR / leads_filename, leads)
             print(f"  regenerated {leads_filename} ({len(leads)} leads)")
     print(f"\nTotal relistings chained this run: {total}")
     if any_guard_tripped:

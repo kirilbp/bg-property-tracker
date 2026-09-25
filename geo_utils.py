@@ -35,6 +35,7 @@ element - all present in the plain server-rendered HTML with no
 JavaScript execution required, so a normal requests.get() picks them up.
 """
 
+import gzip
 import json
 import math
 import re
@@ -1466,6 +1467,98 @@ def prune_snapshots(history):
             pruned.append(snapshots[-1])
         rec["snapshots"] = pruned
     return history
+
+
+# --- Compressed on-disk JSON storage --------------------------------------
+# 2026-09-25 addendum to this same incident (see STALE_RECORD_RETENTION's
+# own comment just below): evict_stale_records() alone was found NOT to
+# unblock the very next scrape.yml run. Root cause (found by reading git
+# history, not guessed): dd83178 (2026-09-23, "Fix homes.bg tracking-ID
+# type collision") fixed build_tracking_id() to stop dropping homes.bg's
+# hs/as/lp/la type prefix - before that fix, listings of DIFFERENT types
+# sharing the same bare numeric id silently collided onto one tracking key
+# and overwrote each other on alternating scrapes, so many real, distinct
+# listings were invisibly suppressed for a long time (only one "side" of
+# each collision ever visible at a time). Once fixed, every collision
+# pair's previously-hidden "other side" starts appearing as a genuinely
+# new record the next time it's freshly scraped - a real, wanted, one-time
+# correction (not a bug in dd83178, not stale data), but it means
+# evict_stale_records() evicting 0 records today is not "nothing to fix
+# yet": the very next real crawl was confirmed (real job-log output:
+# check_scrape_freshness.py's own leads count) to produce 140,337 total
+# homes.bg leads, ~1.90x today's committed 74,012 - large enough on its
+# own to blow through the 100MB limit again immediately, independent of
+# long-term eviction.
+#
+# What was checked and rejected first: capping the `photos` array (41.6%
+# of leads_homes.json's bytes, field-by-field measured) looked like the
+# obvious lever, but sync_to_supabase.py's SOURCE_FIELDS/MERGED_FIELDS
+# copies the FULL `photos` list straight from leads_homes.json into
+# Supabase's listing_sources/merged_listings columns, and index.html's own
+# detail-page gallery (`sourcePhotos`/`mergedPhotos` in its `showDetail()`
+# path) renders every one of them - not dead weight checked only for
+# truthiness/count, a real, live call site. Real measurement against
+# homes.bg's actual 74,012-record leads_homes.json: even capping every
+# record to a single photo (a severe, real functional loss - no more
+# multi-photo gallery for 45-66% of listings depending on the cap chosen)
+# combined with compact (no-indent) serialization only reaches ~111.7MB
+# projected at 140,337 records - STILL over the 100MB limit, for a real
+# product regression bought and not even enough on its own.
+#
+# Gzip compression, by contrast, recovers far more with ZERO data loss
+# (full round-trip fidelity - every photo, every field, byte-identical
+# after decompression) because these files are enormously repetitive:
+# the same ~30 JSON keys and shared URL domains/path prefixes repeated
+# across tens of thousands of near-identical records is exactly what
+# gzip is built for. Measured directly on real homes.bg data: leads_
+# homes.json, 74,012 records, 79.48MB compact-serialized -> 6.41MB
+# gzipped (level 9, ~91.9% smaller); history_homes.json: 73.97MB compact
+# -> 6.08MB gzipped. Projected at the real 140,337-record scale (linear
+# scaling validated against scrape.yml's own real quoted incident numbers
+# - 182.01MB/179.26MB pretty-printed at that same scale, matching this
+# module's projection from the 74,012-record baseline to within ~1.5%):
+# ~11.6MB (leads) / ~11.0MB (history) - roughly 8.5x headroom under
+# GitHub's 100MB hard limit, not a razor's-edge fix that recurs the next
+# time record count ticks up again.
+#
+# load_json_any()/save_json_any() below are the single read/write path
+# every history_*.json/leads_*.json consumer (every scraper, sync_to_
+# supabase.py, evict_stale_history.py, detect_relistings.py, verify_
+# geocode_qualifiers.py, check_scrape_freshness.py, backfill_split_homes_
+# id_collision.py) goes through, so a portal's on-disk format (plain vs.
+# gzip) is a pure file-extension choice at that portal's own HISTORY_FILE/
+# LEADS_FILE/PORTAL_FILES constant, not something every call site has to
+# special-case. Only homes.bg's own HISTORY_FILE/LEADS_FILE were switched
+# to `.json.gz` here - this incident is homes.bg-specific (dd83178 only
+# touched homes.bg's build_tracking_id()); every other portal's record
+# count didn't just jump, so they stay plain `.json`, unchanged, rather
+# than an unverified blanket format change across all 8 portals.
+def load_json_any(path):
+    """Reads `path` as UTF-8 JSON, transparently gzip-decompressing when
+    its name ends in `.gz`. See this section's own module-level comment
+    for why."""
+    path = Path(path)
+    if path.name.endswith(".gz"):
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            return json.load(f)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_json_any(path, obj):
+    """Writes `obj` as UTF-8 JSON to `path`. When `path`'s name ends in
+    `.gz`, gzip-compresses (level 9) with compact separators - no
+    indent=2 pretty-printing, which costs ~5% extra post-gzip on real
+    leads_homes.json data for zero readability benefit once compressed
+    (these files were never meant to be hand-read, and gzip'd JSON can't
+    be diffed line-by-line either way). Every other path is written
+    exactly as before this change: plain, pretty-printed (indent=2),
+    unchanged for every non-`.gz` portal file."""
+    path = Path(path)
+    if path.name.endswith(".gz"):
+        with gzip.open(path, "wt", encoding="utf-8", compresslevel=9) as f:
+            json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+    else:
+        path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 # --- Bounded history retention -------------------------------------------

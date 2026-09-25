@@ -25,7 +25,6 @@ Covers three layers:
 Run with: python3 -m pytest tests/test_evict_stale_history.py -v
 """
 import copy
-import json
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -34,7 +33,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import geo_utils
-from geo_utils import evict_stale_records, STALE_RECORD_RETENTION
+from geo_utils import evict_stale_records, STALE_RECORD_RETENTION, load_json_any, save_json_any
 import scraper_homes
 import scraper_alo
 import evict_stale_history
@@ -142,11 +141,14 @@ def test_real_committed_homes_data_has_nothing_old_enough_to_evict_yet():
     # migration reclaiming space that doesn't exist yet - see this repo's
     # PR description/incident report for the full reasoning. Skipped
     # gracefully if the real data file isn't present in this checkout.
-    path = Path(__file__).parent.parent / "data" / "history_homes.json"
+    # .json.gz, not plain .json - 2026-09-25 addendum to this same
+    # incident (see geo_utils.py's "Compressed on-disk JSON storage"
+    # comment): homes.bg's own committed file is now gzip-compressed.
+    path = Path(__file__).parent.parent / "data" / "history_homes.json.gz"
     if not path.exists():
         import pytest
-        pytest.skip("data/history_homes.json not present in this checkout")
-    history = json.loads(path.read_text(encoding="utf-8"))
+        pytest.skip("data/history_homes.json.gz not present in this checkout")
+    history = load_json_any(path)
     copy_for_eviction = copy.deepcopy(history)
     evicted = evict_stale_records(copy_for_eviction, now=datetime(2026, 9, 25, tzinfo=timezone.utc))
     assert evicted == 0
@@ -156,8 +158,12 @@ def test_real_committed_homes_data_has_nothing_old_enough_to_evict_yet():
 # --- Wired into a scraper's own save_history() -----------------------------
 
 def test_scraper_homes_save_history_evicts_and_leads_reflect_it(tmp_path, monkeypatch):
-    history_file = tmp_path / "history_homes.json"
-    leads_file = tmp_path / "leads_homes.json"
+    # .json.gz, not plain .json - real production paths since the
+    # 2026-09-25 addendum (see geo_utils.py's "Compressed on-disk JSON
+    # storage" comment), so this exercises the actual gzip write/read path,
+    # not just the eviction logic in isolation.
+    history_file = tmp_path / "history_homes.json.gz"
+    leads_file = tmp_path / "leads_homes.json.gz"
     monkeypatch.setattr(scraper_homes, "HISTORY_FILE", history_file)
     monkeypatch.setattr(scraper_homes, "LEADS_FILE", leads_file)
 
@@ -201,7 +207,7 @@ def test_scraper_homes_save_history_evicts_and_leads_reflect_it(tmp_path, monkey
     assert "homes_long_gone" not in leads_ids
     assert "homes_still_around" in leads_ids
 
-    on_disk = json.loads(history_file.read_text(encoding="utf-8"))
+    on_disk = load_json_any(history_file)
     assert "homes_long_gone" not in on_disk
     assert "homes_still_around" in on_disk
 
@@ -261,8 +267,12 @@ def _write_synthetic_portal(tmp_data_dir, history_fn, leads_fn, n_old=50, n_rece
         }
         leads.append({"id": lid, "price_eur": 90000, "photos": padding_photos, "source_status": "active"})
 
-    (tmp_data_dir / history_fn).write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
-    (tmp_data_dir / leads_fn).write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    # save_json_any() is extension-aware (gzip for .json.gz, plain
+    # pretty-printed otherwise) - callers pass whichever filename matches
+    # the real portal's own PORTAL_FILES entry, so this transparently
+    # covers both formats.
+    save_json_any(tmp_data_dir / history_fn, history)
+    save_json_any(tmp_data_dir / leads_fn, leads)
     return history, leads
 
 
@@ -278,22 +288,25 @@ def test_migrate_portal_evicts_old_and_keeps_recent(tmp_path, monkeypatch):
 
     monkeypatch.setattr(geo_utils, "datetime", _FrozenDatetime)
 
-    _write_synthetic_portal(data_dir, "history_homes.json", "leads_homes.json", n_old=50, n_recent=20)
-    hist_before = (data_dir / "history_homes.json").stat().st_size
-    leads_before = (data_dir / "leads_homes.json").stat().st_size
+    # .json.gz, not plain .json - matches the real PORTAL_FILES["homes"]
+    # entry (2026-09-25 addendum, see geo_utils.py's "Compressed on-disk
+    # JSON storage" comment), so this exercises the actual gzip path.
+    _write_synthetic_portal(data_dir, "history_homes.json.gz", "leads_homes.json.gz", n_old=50, n_recent=20)
+    hist_before = (data_dir / "history_homes.json.gz").stat().st_size
+    leads_before = (data_dir / "leads_homes.json.gz").stat().st_size
 
     evict_stale_history.migrate_portal("homes")
 
-    history_after = json.loads((data_dir / "history_homes.json").read_text(encoding="utf-8"))
-    leads_after = json.loads((data_dir / "leads_homes.json").read_text(encoding="utf-8"))
+    history_after = load_json_any(data_dir / "history_homes.json.gz")
+    leads_after = load_json_any(data_dir / "leads_homes.json.gz")
 
     assert len(history_after) == 20
     assert all(lid.startswith("recent_") for lid in history_after)
     assert len(leads_after) == 20
     assert all(l["id"].startswith("recent_") for l in leads_after)
 
-    hist_after = (data_dir / "history_homes.json").stat().st_size
-    leads_after_size = (data_dir / "leads_homes.json").stat().st_size
+    hist_after = (data_dir / "history_homes.json.gz").stat().st_size
+    leads_after_size = (data_dir / "leads_homes.json.gz").stat().st_size
     assert hist_after < hist_before
     assert leads_after_size < leads_before
 
@@ -310,14 +323,14 @@ def test_migrate_portal_dry_run_does_not_write(tmp_path, monkeypatch):
 
     monkeypatch.setattr(geo_utils, "datetime", _FrozenDatetime)
 
-    _write_synthetic_portal(data_dir, "history_homes.json", "leads_homes.json", n_old=10, n_recent=5)
-    before_bytes = (data_dir / "history_homes.json").read_bytes()
+    _write_synthetic_portal(data_dir, "history_homes.json.gz", "leads_homes.json.gz", n_old=10, n_recent=5)
+    before_bytes = (data_dir / "history_homes.json.gz").read_bytes()
 
     evict_stale_history.migrate_portal("homes", dry_run=True)
 
-    after_bytes = (data_dir / "history_homes.json").read_bytes()
+    after_bytes = (data_dir / "history_homes.json.gz").read_bytes()
     assert before_bytes == after_bytes
-    history = json.loads(after_bytes.decode("utf-8"))
+    history = load_json_any(data_dir / "history_homes.json.gz")
     assert len(history) == 15  # untouched
 
 
