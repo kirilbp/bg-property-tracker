@@ -22,11 +22,10 @@ by hand (or on a cron, later) until the missing-coordinate count reaches
 zero, same as any other backfill.
 """
 
-import json
 import time
 
 import scraper_homes as sh
-from geo_utils import Geocoder
+from geo_utils import Geocoder, save_json_any
 
 # Stop visiting new listings once a run has spent this much of the
 # workflow's 45-minute timeout - a backstop against the same "fixed count
@@ -67,7 +66,7 @@ def main():
         sh.save_history(history)
         geocoder.save()
         leads = sh.compute_leads(history)
-        sh.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(sh.LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     filled = 0

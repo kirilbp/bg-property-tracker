@@ -35,10 +35,12 @@ element - all present in the plain server-rendered HTML with no
 JavaScript execution required, so a normal requests.get() picks them up.
 """
 
+import gzip
 import json
 import math
 import re
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -1548,6 +1550,182 @@ def prune_snapshots(history):
             pruned.append(snapshots[-1])
         rec["snapshots"] = pruned
     return history
+
+
+# --- Compressed on-disk JSON storage --------------------------------------
+# 2026-09-25 addendum to this same incident (see STALE_RECORD_RETENTION's
+# own comment just below): evict_stale_records() alone was found NOT to
+# unblock the very next scrape.yml run. Root cause (found by reading git
+# history, not guessed): dd83178 (2026-09-23, "Fix homes.bg tracking-ID
+# type collision") fixed build_tracking_id() to stop dropping homes.bg's
+# hs/as/lp/la type prefix - before that fix, listings of DIFFERENT types
+# sharing the same bare numeric id silently collided onto one tracking key
+# and overwrote each other on alternating scrapes, so many real, distinct
+# listings were invisibly suppressed for a long time (only one "side" of
+# each collision ever visible at a time). Once fixed, every collision
+# pair's previously-hidden "other side" starts appearing as a genuinely
+# new record the next time it's freshly scraped - a real, wanted, one-time
+# correction (not a bug in dd83178, not stale data), but it means
+# evict_stale_records() evicting 0 records today is not "nothing to fix
+# yet": the very next real crawl was confirmed (real job-log output:
+# check_scrape_freshness.py's own leads count) to produce 140,337 total
+# homes.bg leads, ~1.90x today's committed 74,012 - large enough on its
+# own to blow through the 100MB limit again immediately, independent of
+# long-term eviction.
+#
+# What was checked and rejected first: capping the `photos` array (41.6%
+# of leads_homes.json's bytes, field-by-field measured) looked like the
+# obvious lever, but sync_to_supabase.py's SOURCE_FIELDS/MERGED_FIELDS
+# copies the FULL `photos` list straight from leads_homes.json into
+# Supabase's listing_sources/merged_listings columns, and index.html's own
+# detail-page gallery (`sourcePhotos`/`mergedPhotos` in its `showDetail()`
+# path) renders every one of them - not dead weight checked only for
+# truthiness/count, a real, live call site. Real measurement against
+# homes.bg's actual 74,012-record leads_homes.json: even capping every
+# record to a single photo (a severe, real functional loss - no more
+# multi-photo gallery for 45-66% of listings depending on the cap chosen)
+# combined with compact (no-indent) serialization only reaches ~111.7MB
+# projected at 140,337 records - STILL over the 100MB limit, for a real
+# product regression bought and not even enough on its own.
+#
+# Gzip compression, by contrast, recovers far more with ZERO data loss
+# (full round-trip fidelity - every photo, every field, byte-identical
+# after decompression) because these files are enormously repetitive:
+# the same ~30 JSON keys and shared URL domains/path prefixes repeated
+# across tens of thousands of near-identical records is exactly what
+# gzip is built for. Measured directly on real homes.bg data: leads_
+# homes.json, 74,012 records, 79.48MB compact-serialized -> 6.41MB
+# gzipped (level 9, ~91.9% smaller); history_homes.json: 73.97MB compact
+# -> 6.08MB gzipped. Projected at the real 140,337-record scale (linear
+# scaling validated against scrape.yml's own real quoted incident numbers
+# - 182.01MB/179.26MB pretty-printed at that same scale, matching this
+# module's projection from the 74,012-record baseline to within ~1.5%):
+# ~11.6MB (leads) / ~11.0MB (history) - roughly 8.5x headroom under
+# GitHub's 100MB hard limit, not a razor's-edge fix that recurs the next
+# time record count ticks up again.
+#
+# load_json_any()/save_json_any() below are the single read/write path
+# every history_*.json/leads_*.json consumer (every scraper, sync_to_
+# supabase.py, evict_stale_history.py, detect_relistings.py, verify_
+# geocode_qualifiers.py, check_scrape_freshness.py, backfill_split_homes_
+# id_collision.py) goes through, so a portal's on-disk format (plain vs.
+# gzip) is a pure file-extension choice at that portal's own HISTORY_FILE/
+# LEADS_FILE/PORTAL_FILES constant, not something every call site has to
+# special-case. Only homes.bg's own HISTORY_FILE/LEADS_FILE were switched
+# to `.json.gz` here - this incident is homes.bg-specific (dd83178 only
+# touched homes.bg's build_tracking_id()); every other portal's record
+# count didn't just jump, so they stay plain `.json`, unchanged, rather
+# than an unverified blanket format change across all 8 portals.
+def load_json_any(path):
+    """Reads `path` as UTF-8 JSON, transparently gzip-decompressing when
+    its name ends in `.gz`. See this section's own module-level comment
+    for why."""
+    path = Path(path)
+    if path.name.endswith(".gz"):
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            return json.load(f)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def save_json_any(path, obj):
+    """Writes `obj` as UTF-8 JSON to `path`. When `path`'s name ends in
+    `.gz`, gzip-compresses (level 9) with compact separators - no
+    indent=2 pretty-printing, which costs ~5% extra post-gzip on real
+    leads_homes.json data for zero readability benefit once compressed
+    (these files were never meant to be hand-read, and gzip'd JSON can't
+    be diffed line-by-line either way). Every other path is written
+    exactly as before this change: plain, pretty-printed (indent=2),
+    unchanged for every non-`.gz` portal file."""
+    path = Path(path)
+    if path.name.endswith(".gz"):
+        with gzip.open(path, "wt", encoding="utf-8", compresslevel=9) as f:
+            json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+    else:
+        path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+# --- Bounded history retention -------------------------------------------
+# 2026-09-25 incident: scrape.yml (homes.bg/imot.bg/olx.bg/bazar.bg/
+# imoti.bg/bcpea.org, committed as one atomic commit) failed its last 7
+# consecutive scheduled runs on a GH001 hard file-size rejection -
+# data/history_homes.json and data/leads_homes.json over GitHub's 100MB
+# push limit. prune_snapshots() above already collapses each listing's
+# snapshot list (that was the 2026-09-24 incident's own, different, root
+# cause - a relisting-detector bug injecting synthetic snapshots into
+# EXISTING records, fixed separately by RELISTING_GUARD_ABS/RATIO below).
+# This incident's driver is different and structural: measured directly
+# against the real committed data (homes.bg, 74,012 tracked records,
+# ~94.9MB/history_homes.json, ~1282 bytes/record average, ~2.0 snapshots/
+# record average post-prune) - per-record payload is roughly constant
+# (dominated by the "photos" array, ~42% of leads_homes.json's bytes per a
+# field-by-field measurement), so record COUNT is what actually drives
+# size, and nothing has ever removed a record once its listing is
+# confirmed sold/delisted: update_history() only ever adds keys via
+# history[lid][...] = ..., across every one of the 8 portal scrapers.
+# Two step-function events compound this: a portal's coverage widening
+# from Sofia-only to nationwide/oblast-level (confirmed real - homes.bg/
+# imot.bg/olx.bg's 2026-08-25 nationwide switch alone added 66,030 new
+# homes.bg records in a single day per real first_seen timestamps; bazar.
+# bg/imot.bg's 2026-09-23 oblast-capital coverage commits landed within
+# the hour of this incident's own first failure) permanently raises the
+# floor, since none of those newly-tracked listings are ever evicted once
+# they eventually sell or get delisted either.
+#
+# Retention window (180 days) chosen from real relisting-gap data, not a
+# guessed round number: detect_relistings.py's detect_portal() (matching
+# a newly-active listing back to a since-removed one by photo/address) has
+# no age cap on its candidate gone_ids, so an eviction window has to stay
+# well clear of any real relisting delay or it starts silently breaking
+# that matching. Measured every real "source": "relisted_from" pair
+# already recorded across every portal's history_*.json (261 real pairs,
+# all portals combined): delisted-to-relisted gap is 0.2-31.7 days, median
+# 10.7, mean 12.8, 96% (250/261) within 30 days, none past 32 days - but
+# this dataset has only been tracking any listings since 2026-08-21 (~35
+# days as of this writing), so that 31.7-day max is itself left-censored;
+# a real relisting after a longer real-world gap simply hasn't had time to
+# be observed yet. 180 days gives ~5.6x headroom over the longest gap
+# actually observed and leaves substantial room for longer gaps this young
+# a dataset can't yet rule out, while still bounding growth to a fixed
+# multiple of steady-state daily volume instead of forever. Evicted
+# records are dropped outright rather than kept as a lighter-weight trace
+# for relisting matching past this cutoff: the single largest per-record
+# cost (the photos array, needed for exactly that matching) is what a
+# "lightweight" archive would still have to keep to remain useful for it,
+# so a partial archive wouldn't meaningfully help the size problem this
+# exists to fix, and a relisting matched only after 180+ days off-market
+# is both unobserved in this data so far and low-value to catch even when
+# it happens. index.html's frontend reads Supabase, not these JSON files,
+# and sync_to_supabase.py's own stale-row cleanup (MIN_PORTAL_RATIO=0.5,
+# MIN_PORTAL_ABSOLUTE=10) already treats a portal's mirrored Supabase rows
+# as tied to what's in the current leads_*.json, not a permanent archive -
+# nothing downstream needs these long-gone records kept around forever.
+STALE_RECORD_RETENTION = timedelta(days=180)
+
+
+def evict_stale_records(history, retention=STALE_RECORD_RETENTION, now=None):
+    """Removes (in place) every history record whose most recent snapshot
+    is older than `retention` - a listing that has not been seen in any
+    scrape for that long is treated as permanently gone (sold/delisted),
+    not just temporarily off the current commit due to e.g. a scrape.yml
+    outage (this project's worst real outage to date, this same incident,
+    was ~40 hours - three orders of magnitude below the default retention,
+    so there is no realistic false-eviction risk from an ordinary commit-
+    pipeline gap). Call this before prune_snapshots()/save() in every
+    scraper's own save_history() so history_*.json (and, via the same
+    `history` object, that run's own compute_leads()-derived leads_*.json)
+    stay bounded to a fixed multiple of steady-state daily volume instead
+    of growing forever - see this section's own module-level comment for
+    the real measurements and the 180-day retention's reasoning. Returns
+    the number of records evicted."""
+    now = now or datetime.now(timezone.utc)
+    stale_ids = [
+        lid
+        for lid, rec in history.items()
+        if rec.get("snapshots") and now - datetime.fromisoformat(rec["snapshots"][-1]["seen_at"]) > retention
+    ]
+    for lid in stale_ids:
+        del history[lid]
+    return len(stale_ids)
 
 
 # --- Relisting chain-storm guard ----------------------------------------

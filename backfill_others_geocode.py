@@ -33,10 +33,8 @@ has for these).
 Not scheduled - a one-time correction, run by hand once, its job done.
 """
 
-import json
-
 import sync_to_supabase as sts
-from geo_utils import Geocoder
+from geo_utils import Geocoder, save_json_any
 
 import scraper_olx as s_olx
 import scraper_bcpea as s_bcpea
@@ -125,7 +123,7 @@ def main():
                 geocoder.save()
                 module.save_history(history)
                 leads = module.compute_leads(history)
-                module.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+                save_json_any(module.LEADS_FILE, leads)
 
         print(f"{portal_name}: resolved {resolved_this_portal} of {checked_this_portal} checked "
               f"({len(history)} total listings)")
@@ -133,7 +131,7 @@ def main():
         if changed:
             module.save_history(history)
             leads = module.compute_leads(history)
-            module.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_json_any(module.LEADS_FILE, leads)
 
     geocoder.save()
     print(f"\nDone: {total_resolved} of {total_checked} checked listings resolved to a real province "
