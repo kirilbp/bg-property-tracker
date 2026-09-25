@@ -3,20 +3,30 @@ Regression/proof tests for the imoti.bg detail-page spec/contact extraction
 functions added 2026-09-24: geo_utils.extract_specs_imoti_bg() and
 geo_utils.extract_contact_imoti_bg().
 
-Unlike alo.bg's own detail-page extractors (built from screenshots, since
-alo.bg's real markup was never directly observed), imoti.bg's detail-page
-description extraction (scraper_imoti_bg.fetch_listing_detail()) is
-ALREADY proven, live-confirmed working code: it successfully parses a real
-<script type="application/ld+json"> block off imoti.bg's own detail pages
-today. What's genuinely unverified here is only whether that same ld+json
-data ALSO carries the extra schema.org fields these two functions look for
-(floorSize, amenityFeature, seller/provider/author, and Accommodation
-subtype names as @type) - this sandbox's network egress to imoti.bg is
-blocked (same caveat as alo.bg), so these fixtures are synthetic ld+json
+CORRECTED 2026-09-25: this docstring previously claimed imoti.bg's
+detail-page description extraction (scraper_imoti_bg.fetch_listing_detail())
+"is ALREADY proven, live-confirmed working code: it successfully parses a
+real <script type="application/ld+json"> block off imoti.bg's own detail
+pages today." A production audit found that claim doesn't actually hold:
+fetch_listing_detail() reads description from a <meta name="description">
+tag FIRST and only falls back to ld+json when that's missing, so its 94%+
+hit rate is explained by the meta tag alone and proves nothing about
+whether ld+json parsing itself ever succeeds on a real page. Root cause
+and full reasoning in geo_utils.py's own comment above
+_imoti_bg_ld_json_candidates(). What's genuinely unverified here remains
+the same as before (whether real imoti.bg ld+json, if it exists at all,
+carries floorSize/amenityFeature/seller-provider-author/Accommodation
+subtype @type) - this sandbox's network egress to imoti.bg is blocked
+(confirmed again 2026-09-25), so these fixtures stay synthetic ld+json
 blocks built from real, documented schema.org vocabulary (not a guess
 about imoti.bg's specific CSS/tag names), modeled on the two shapes a
 RealEstateListing's structured data commonly takes: the Accommodation
 nested under "about", or a single flat object carrying everything itself.
+A third set of fixtures added 2026-09-25 covers a second, independently
+plausible cause of the same 0% symptom: a common real-world JSON-LD quirk
+(a raw, unescaped control character inside a string value) that trips
+strict json.loads() regardless of the page's actual schema - a generic
+parser-hardening concern, not a site-specific guess.
 
 Run with: python3 -m unittest tests.test_imoti_bg_detail_extraction -v
 (no pytest / other test framework is installed in this repo.)
@@ -29,7 +39,11 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from geo_utils import extract_contact_imoti_bg, extract_specs_imoti_bg
+from geo_utils import (
+    extract_contact_imoti_bg,
+    extract_specs_imoti_bg,
+    imoti_bg_ld_json_diagnostic,
+)
 
 
 def _page_with_ld_json(*blocks):
@@ -196,6 +210,101 @@ class ExtractContactImotiBgTest(unittest.TestCase):
         self.assertNotIn("phone", contact)
         self.assertNotIn("telephone", contact)
         self.assertNotIn("+359888123456", str(contact.values()))
+
+
+# A raw, unescaped control character (a literal newline) inside a JSON
+# string value - deliberately NOT built via json.dumps (which would escape
+# it correctly), since the whole point is to reproduce a block that fails
+# strict json.loads() the way a real site's own template might generate one
+# from an unescaped multi-line source string. This is a documented, common
+# real-world JSON-LD quirk (see geo_utils.py's own comment above
+# _imoti_bg_ld_json_candidates()), not a guess about imoti.bg's markup.
+RAW_CONTROL_CHAR_LD_JSON_PAGE = (
+    '<html><head><script type="application/ld+json">'
+    '{"@context": "https://schema.org", "@type": "Apartment", '
+    '"description": "Real listing text with a raw\nunescaped newline right '
+    'in the middle of it.", '
+    '"floorSize": {"@type": "QuantitativeValue", "value": "60"}, '
+    '"amenityFeature": [{"name": "Асансьор", "value": true}], '
+    '"offers": {"@type": "Offer", "seller": {"@type": "Organization", '
+    '"name": "Raw Newline Agency", "url": "https://raw-newline-agency.bg"}}}'
+    "</script></head><body></body></html>"
+)
+
+# Same control-character quirk, but genuinely unparseable even with the
+# strict=False retry (truncated JSON) - must degrade to None/0 like any
+# other unparseable block, never raise.
+TRULY_BROKEN_LD_JSON_PAGE = (
+    '<html><head><script type="application/ld+json">'
+    '{"@type": "Apartment", "floorSize": {"value": "60"'
+    "</script></head><body></body></html>"
+)
+
+
+class MalformedLdJsonControlCharacterTest(unittest.TestCase):
+    """A real-world JSON-LD quirk (see this module's own docstring): a raw
+    control character inside a string value trips Python's default strict
+    json.loads() regardless of whether the surrounding schema is otherwise
+    exactly the shape these extractors expect. Both extractors must still
+    recover the real data via the strict=False retry, not silently return
+    None just because one block had this quirk."""
+
+    def test_specs_recovered_despite_raw_control_character(self):
+        specs = extract_specs_imoti_bg(RAW_CONTROL_CHAR_LD_JSON_PAGE)
+        self.assertIsNotNone(specs)
+        self.assertEqual(specs["sqm"], 60)
+        self.assertEqual(specs["property_type_raw"], "Apartment")
+        self.assertTrue(specs["has_elevator"])
+
+    def test_contact_recovered_despite_raw_control_character(self):
+        contact = extract_contact_imoti_bg(RAW_CONTROL_CHAR_LD_JSON_PAGE)
+        self.assertIsNotNone(contact)
+        self.assertEqual(contact["agency_name"], "Raw Newline Agency")
+        self.assertEqual(contact["agency_website"], "https://raw-newline-agency.bg")
+
+    def test_truly_unparseable_block_still_degrades_to_none(self):
+        self.assertIsNone(extract_specs_imoti_bg(TRULY_BROKEN_LD_JSON_PAGE))
+        self.assertIsNone(extract_contact_imoti_bg(TRULY_BROKEN_LD_JSON_PAGE))
+
+
+class ImotiBgLdJsonDiagnosticTest(unittest.TestCase):
+    """imoti_bg_ld_json_diagnostic() - the zero-cost visibility helper
+    scraper_imoti_bg.py logs when specs/contact both come up empty, meant to
+    tell "no ld+json on the page" apart from "ld+json is there but not the
+    assumed shape" apart from "ld+json is there but fails to parse" the next
+    time this scraper actually runs against production."""
+
+    def test_no_script_tags_at_all(self):
+        diag = imoti_bg_ld_json_diagnostic(NO_LD_JSON_PAGE)
+        self.assertEqual(diag["script_tags"], 0)
+        self.assertEqual(diag["parsed"], 0)
+        self.assertEqual(diag["failed_to_parse"], 0)
+        self.assertEqual(diag["types_seen"], [])
+
+    def test_script_tags_present_but_unrecognized_shape(self):
+        diag = imoti_bg_ld_json_diagnostic(LD_JSON_WITH_NO_EXTRA_FIELDS)
+        self.assertEqual(diag["script_tags"], 1)
+        self.assertEqual(diag["parsed"], 1)
+        self.assertEqual(diag["failed_to_parse"], 0)
+        self.assertEqual(diag["types_seen"], ["Product"])
+
+    def test_recovered_via_strict_false_retry_still_counts_as_parsed(self):
+        diag = imoti_bg_ld_json_diagnostic(RAW_CONTROL_CHAR_LD_JSON_PAGE)
+        self.assertEqual(diag["script_tags"], 1)
+        self.assertEqual(diag["parsed"], 1)
+        self.assertEqual(diag["failed_to_parse"], 0)
+        self.assertEqual(diag["types_seen"], ["Apartment"])
+
+    def test_truly_broken_block_counted_as_failed_not_parsed(self):
+        diag = imoti_bg_ld_json_diagnostic(TRULY_BROKEN_LD_JSON_PAGE)
+        self.assertEqual(diag["script_tags"], 1)
+        self.assertEqual(diag["parsed"], 0)
+        self.assertEqual(diag["failed_to_parse"], 1)
+        self.assertEqual(diag["types_seen"], [])
+
+    def test_never_raises_on_garbage_html(self):
+        diag = imoti_bg_ld_json_diagnostic("<<<not even html")
+        self.assertEqual(diag["script_tags"], 0)
 
 
 if __name__ == "__main__":
