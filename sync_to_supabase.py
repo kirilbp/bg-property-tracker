@@ -1213,6 +1213,30 @@ BATCH_SIZE = 500
 MAX_HTTP_RETRIES = 4
 RETRY_BACKOFF_SECONDS = 5
 
+# 2026-09-25: run 36106917335 hit a bare requests.exceptions.ReadTimeout
+# (60s) on the very last upsert() request of that run, after successfully
+# processing hundreds of thousands of rows over ~37 minutes with no other
+# failures - a real, not-permanently-broken call that just needed a bit
+# more patience under whatever tail load Supabase was under at that
+# moment, the exact same "bad luck once" shape MAX_HTTP_RETRIES/
+# RETRY_BACKOFF_SECONDS above already exist to absorb for a Postgres
+# statement timeout. It still exhausted all MAX_HTTP_RETRIES attempts and
+# raised, because every attempt used the same fixed 60s per-request
+# timeout with no extra headroom for a request that specifically times
+# out (as opposed to a fast 4xx/5xx failure, which a longer per-request
+# wait can't help). Two independent, low-risk changes, not a rewrite of
+# the retry logic: a longer per-request timeout (REQUEST_TIMEOUT_SECONDS,
+# raised from the old 60-second literal every call site used to hardcode,
+# to 120) gives a genuinely slow-but-alive request more room to finish
+# before giving up on it at all, and one extra retry attempt specifically for a
+# Timeout/ReadTimeout (TIMEOUT_EXTRA_RETRIES) - never for other
+# RequestException subclasses, which are already adequately covered by
+# MAX_HTTP_RETRIES and shouldn't get quietly more lenient - covers
+# exactly the "one more chance for the thing that actually timed out"
+# case this incident was.
+REQUEST_TIMEOUT_SECONDS = 120
+TIMEOUT_EXTRA_RETRIES = 1
+
 
 def request_with_retries(method, url, **kwargs):
     # A live production sync failed outright on a single Postgres error
@@ -1228,9 +1252,20 @@ def request_with_retries(method, url, **kwargs):
     # Every Supabase HTTP call in this file goes through this now, not just
     # upsert() - the same failure mode applies equally to the GET/DELETE
     # calls the cleanup functions make.
-    for attempt in range(1, MAX_HTTP_RETRIES + 1):
+    max_attempts = MAX_HTTP_RETRIES + TIMEOUT_EXTRA_RETRIES
+    for attempt in range(1, max_attempts + 1):
         try:
             resp = requests.request(method, url, **kwargs)
+        except requests.exceptions.Timeout as e:
+            # See REQUEST_TIMEOUT_SECONDS/TIMEOUT_EXTRA_RETRIES above -
+            # a Timeout specifically gets TIMEOUT_EXTRA_RETRIES beyond the
+            # normal budget, since it's the one failure mode a longer wait
+            # can plausibly fix on its own.
+            if attempt == max_attempts:
+                raise
+            print(f"  request timed out (attempt {attempt}/{max_attempts}): {e} - retrying {url}")
+            time.sleep(RETRY_BACKOFF_SECONDS * attempt)
+            continue
         except requests.RequestException as e:
             if attempt == MAX_HTTP_RETRIES:
                 raise
@@ -1272,7 +1307,7 @@ def upsert(base_url, headers, table, rows, on_conflict):
             f"{base_url}/rest/v1/{table}?on_conflict={on_conflict}",
             headers={**headers, "Prefer": "resolution=merge-duplicates,return=minimal"},
             json=batch,
-            timeout=60,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
         if not resp.ok:
             match = _MISSING_COLUMN_RE.search(resp.text)
@@ -1321,7 +1356,7 @@ def _fetch_stored_source_ids(base_url, headers, portal):
         if cursor is not None:
             query_params["source_id"] = f"gt.{cursor}"
         resp = request_with_retries(
-            "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=60
+            "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=REQUEST_TIMEOUT_SECONDS
         )
         resp.raise_for_status()
         rows = resp.json()
@@ -1399,7 +1434,7 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
         if cursor is not None:
             query_params["id"] = f"gt.{cursor}"
         resp = request_with_retries(
-            "GET", f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=60
+            "GET", f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=REQUEST_TIMEOUT_SECONDS
         )
         resp.raise_for_status()
         rows = resp.json()
@@ -1420,7 +1455,7 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
             f"{base_url}/rest/v1/merged_listings",
             headers=headers,
             params={"id": "in.(" + ",".join(batch) + ")"},
-            timeout=60,
+            timeout=REQUEST_TIMEOUT_SECONDS,
         )
         if not resp.ok:
             print(f"ERROR deleting stale merged_listings (batch starting at {i}): {resp.status_code} {resp.text[:500]}")
@@ -1455,7 +1490,7 @@ def delete_stale_listing_sources(base_url, headers, current_by_portal, stored_by
                 f"{base_url}/rest/v1/listing_sources",
                 headers=headers,
                 params={"portal": f"eq.{portal}", "source_id": "in.(" + ",".join(batch) + ")"},
-                timeout=60,
+                timeout=REQUEST_TIMEOUT_SECONDS,
             )
             if not resp.ok:
                 print(f"ERROR deleting stale listing_sources for {portal} (batch starting at {i}): "

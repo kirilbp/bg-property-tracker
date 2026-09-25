@@ -160,6 +160,83 @@ def test_resolve_writes_a_real_gzip_file_and_git_adds_it(tmp_path, monkeypatch):
     assert set(on_disk) == {"a", "b"}  # real per-id union, neither side discarded
 
 
+def _fake_git_run_one_side_missing(missing_stage, present_payload):
+    """Builds a fake subprocess.run() for resolve()'s git_show() calls
+    where ONE stage genuinely doesn't exist (git show exits non-zero for
+    that stage - the real signature of an "add/add" conflict, e.g. this
+    exact path was newly created independently on both sides, or one side
+    never touched it at all) while the other stage has real content."""
+    def fake_run(cmd, **kwargs):
+        class _R:
+            pass
+        r = _R()
+        if cmd[:2] == ["git", "show"]:
+            stage_path = cmd[2]
+            stage = ":2:" if stage_path.startswith(":2:") else ":3:" if stage_path.startswith(":3:") else None
+            if stage == missing_stage or stage is None:
+                r.returncode = 128
+                r.stdout = b""
+            else:
+                r.returncode = 0
+                r.stdout = gzip.compress(json.dumps(present_payload).encode("utf-8"))
+            return r
+        r.returncode = 0
+        r.stdout = b""
+        return r
+    return fake_run
+
+
+def test_resolve_handles_newly_created_file_missing_on_main(tmp_path, monkeypatch):
+    # scrape.yml's own scenario for a brand-new/first-ever history file on
+    # a portal, or a genuine "add/add" conflict: this run's own commit
+    # (local, stage :3:) has real content, but `git show :2:<path>`
+    # (main) fails - main never had this path at the point of conflict.
+    # merge_history_conflict.py must not discard local's data just
+    # because the "other side" doesn't exist - a newly-created file is
+    # exactly the case a blind checkout --ours would handle worst (main
+    # has nothing to check out `--ours` FROM, so a naive script could
+    # either crash or silently produce an empty file).
+    local_payload = {"homes_1": {"first_seen": "2026-09-25T00:00:00+00:00", "snapshots": [{"seen_at": "2026-09-25T00:00:00+00:00", "price_eur": 70000}], "latest": {"portal": "homes.bg"}}}
+    path = tmp_path / "history_homes.json.gz"
+    monkeypatch.setattr(subprocess, "run", _fake_git_run_one_side_missing(":2:", local_payload))
+    ok = m.resolve(str(path))
+    assert ok is True
+    on_disk = load_json_any(path)
+    # local's own freshly-scraped record survives untouched - nothing to
+    # merge it against, so it passes straight through.
+    assert on_disk == local_payload
+
+
+def test_resolve_handles_file_missing_on_local(tmp_path, monkeypatch):
+    # The mirror image: this run's own commit never touched this path
+    # (stage :3: missing) but main has real content (stage :2: present) -
+    # main's data must be kept, not wiped out to an empty file.
+    main_payload = {"homes_2": {"first_seen": "2026-09-20T00:00:00+00:00", "snapshots": [{"seen_at": "2026-09-20T00:00:00+00:00", "price_eur": 60000}], "latest": {"portal": "homes.bg"}}}
+    path = tmp_path / "history_homes.json.gz"
+    monkeypatch.setattr(subprocess, "run", _fake_git_run_one_side_missing(":3:", main_payload))
+    ok = m.resolve(str(path))
+    assert ok is True
+    on_disk = load_json_any(path)
+    assert on_disk == main_payload
+
+
+def test_resolve_returns_false_when_neither_stage_exists(tmp_path, monkeypatch):
+    # Degenerate case (shouldn't happen in a real conflict, since a
+    # conflicted path must exist on at least one side) - resolve() must
+    # not crash or silently write an empty file; it leaves the path
+    # unresolved for the caller's own checkout --ours fallback.
+    path = tmp_path / "history_homes.json.gz"
+
+    class _MissingResult:
+        returncode = 128
+        stdout = b""
+
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: _MissingResult())
+    ok = m.resolve(str(path))
+    assert ok is False
+    assert not path.exists()
+
+
 # --- sync_to_supabase.py: reads homes.bg's real .json.gz leads file --------
 
 def test_load_all_listings_reads_gz_leads_file_for_homes(tmp_path, monkeypatch):

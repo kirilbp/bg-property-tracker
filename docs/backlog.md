@@ -4633,6 +4633,102 @@ Still built in the same isolated `git worktree`, still not self-merged -
 handed back for review with this addendum included.
 
 ---
+
+### Second addendum (2026-09-25): the flagged gap above was live-confirmed as an active incident, not a theoretical one - `scrape.yml`/`backfill-geocode-homes.yml` now wired to `merge_history_conflict.py`
+
+**Live-confirmed, not theoretical:** a manually-triggered `scrape.yml` run
+(id 36106917335, 2026-09-25 07:17-10:43 UTC) hit real content conflicts on
+all 6 of `data/history_*.json(.gz)`/`data/leads_*.json(.gz)` files this
+workflow writes (homes, imot, olx, bazar, imoti_bg, bcpea) against other
+concurrently-running `backfill-detail-*.yml` workflows that push to the
+same files hourly, independently. `checkout --ours` during a rebase keeps
+`origin/main`'s (the stale) side, not this run's own - so all 6 files got
+silently reverted to their pre-run state. Confirmed directly:
+`data/history_homes.json.gz` was still exactly 74,012 records post-run,
+identical to before - this run's freshly-scraped data (which should have
+reflected homes.bg's now-legitimate ~140,337-record count, per the first
+addendum above) never landed. `check_scrape_freshness.py` correctly fired
+0%-active alarms for bazar.bg/imot.bg/olx.bg and a 55.9h-stale alarm for
+homes.bg - real diagnostics of real data loss.
+
+**Fix:** `scrape.yml`'s and `backfill-geocode-homes.yml`'s own
+conflict-fallback steps now call `merge_history_conflict.py` on the
+conflicted paths first, exactly the same invocation `scrape-large.yml`
+already uses for alo.bg -
+`python merge_history_conflict.py $(git diff --name-only --diff-filter=U)`
+- falling back to the old `checkout --ours` (now logged loudly via
+`::warning::`, not silently) only for whatever it doesn't recognize
+(`data/leads_*.json(.gz)`, which self-heal from `history*.json` on the
+very next run). `merge_history_conflict.py` itself needed no change to
+recognize any of the 6 files - `is_history_file()` already matches
+`history_*.json(.gz)` generically by filename pattern, not a hardcoded
+per-portal list.
+
+**Sanity-checked for new risk of its own:** confirmed `merge_history_
+conflict.py` already handles a conflict where one side's JSON is missing
+entirely (a newly-created/add-add file, or one side never touched this
+path) - `git_show()` returns `None` for a missing git stage, and
+`merge_history()`/`resolve()` already treat a `None` side as "no data
+there," not a crash - but this exact shape had no test coverage before
+now. Closed the gap: `tests/test_merge_history_conflict.py` gained
+`TestMergeHistoryFileLevel` (a brand-new listing id present on only one
+side of an otherwise-shared file; a whole side's JSON missing entirely,
+both directions; both sides missing), and `tests/test_gzip_json_storage.py`
+gained 3 `resolve()`-level tests against a mocked `.json.gz` git blob for
+the same missing-stage shapes (main missing, local missing, both
+missing - the last one correctly returns unresolved rather than writing
+an empty file).
+
+**Tested end-to-end, not just unit-level, per this project's standing
+anti-live-dispatch rule:** built a real sandboxed git repo (a bare
+"origin" + a working checkout, not a mock) that reproduces the actual
+incident shape - a `data/history_homes.json.gz` base commit, an
+independent concurrent "hourly backfill" commit on `main` (new lat/lng on
+an existing listing), and a separate "this run's own scrape" branch (a
+new snapshot + price change on one listing, plus a brand-new listing).
+Running `git pull --rebase origin main` on the scrape branch produced a
+real `CONFLICT (content): Merge conflict in data/history_homes.json.gz`
+(confirmed git treats this as a genuine binary conflict, not something
+that silently auto-resolves), then ran the exact fallback shell block now
+in the workflow files against it. Result: rebase completed cleanly, and
+the merged file verifiably contained the union of both sides - this run's
+own fresher price/snapshot, main's concurrent lat/lng enrichment, AND the
+brand-new listing - nothing from either side discarded, unlike the old
+`checkout --ours` fallback which would have kept only main's version and
+lost the entire run.
+
+Also fixed in this same pass, lower priority: `sync_to_supabase.py`'s
+`request_with_retries()` hit a bare `requests.exceptions.ReadTimeout` on
+the very last upsert request of the same 36106917335 run, after
+successfully processing hundreds of thousands of rows over ~37 minutes -
+exhausted all `MAX_HTTP_RETRIES` attempts (all at the same fixed 60s
+per-request timeout) and raised. `REQUEST_TIMEOUT_SECONDS` (60 -> 120,
+used at every Supabase call site) plus `TIMEOUT_EXTRA_RETRIES` (one extra
+attempt, specifically for `requests.exceptions.Timeout`, not other
+`RequestException` subclasses) give a genuinely slow-but-alive tail
+request more room without loosening retry behavior for a hard failure.
+New `tests/test_supabase_retry_timeout.py` (4 tests): a `Timeout` that
+succeeds within the extra allowance, one that never does (still bounded,
+not infinite retries), a non-`Timeout` `RequestException` confirming it
+is NOT given the extra allowance, and a source-level check that no call
+site still hardcodes the old `60`-second literal.
+
+**Not dispatched live** - per this project's own standing rule against
+iterating on `scrape.yml` via repeated `workflow_dispatch` runs, this was
+validated entirely via the sandboxed rebase simulation above and the
+existing/new automated test suite, never by re-triggering the actual
+workflow.
+
+**Tested:** full suite (`python3 -m pytest tests/`): **258 passed, 4
+subtests passed, 0 regressions** (up from 247 - net +11 new tests: 3
+`resolve()`-level missing-stage tests, 4 `merge_history()`-level
+file-shape tests, and 4 for the Supabase timeout hardening).
+
+Built in the same isolated `git worktree` discipline as the rest of this
+file's entries, off `origin/main`. Not self-merged - handed back for
+review.
+
+---
 ---
 
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
