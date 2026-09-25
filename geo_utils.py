@@ -39,6 +39,7 @@ import json
 import math
 import re
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -1465,6 +1466,90 @@ def prune_snapshots(history):
             pruned.append(snapshots[-1])
         rec["snapshots"] = pruned
     return history
+
+
+# --- Bounded history retention -------------------------------------------
+# 2026-09-25 incident: scrape.yml (homes.bg/imot.bg/olx.bg/bazar.bg/
+# imoti.bg/bcpea.org, committed as one atomic commit) failed its last 7
+# consecutive scheduled runs on a GH001 hard file-size rejection -
+# data/history_homes.json and data/leads_homes.json over GitHub's 100MB
+# push limit. prune_snapshots() above already collapses each listing's
+# snapshot list (that was the 2026-09-24 incident's own, different, root
+# cause - a relisting-detector bug injecting synthetic snapshots into
+# EXISTING records, fixed separately by RELISTING_GUARD_ABS/RATIO below).
+# This incident's driver is different and structural: measured directly
+# against the real committed data (homes.bg, 74,012 tracked records,
+# ~94.9MB/history_homes.json, ~1282 bytes/record average, ~2.0 snapshots/
+# record average post-prune) - per-record payload is roughly constant
+# (dominated by the "photos" array, ~42% of leads_homes.json's bytes per a
+# field-by-field measurement), so record COUNT is what actually drives
+# size, and nothing has ever removed a record once its listing is
+# confirmed sold/delisted: update_history() only ever adds keys via
+# history[lid][...] = ..., across every one of the 8 portal scrapers.
+# Two step-function events compound this: a portal's coverage widening
+# from Sofia-only to nationwide/oblast-level (confirmed real - homes.bg/
+# imot.bg/olx.bg's 2026-08-25 nationwide switch alone added 66,030 new
+# homes.bg records in a single day per real first_seen timestamps; bazar.
+# bg/imot.bg's 2026-09-23 oblast-capital coverage commits landed within
+# the hour of this incident's own first failure) permanently raises the
+# floor, since none of those newly-tracked listings are ever evicted once
+# they eventually sell or get delisted either.
+#
+# Retention window (180 days) chosen from real relisting-gap data, not a
+# guessed round number: detect_relistings.py's detect_portal() (matching
+# a newly-active listing back to a since-removed one by photo/address) has
+# no age cap on its candidate gone_ids, so an eviction window has to stay
+# well clear of any real relisting delay or it starts silently breaking
+# that matching. Measured every real "source": "relisted_from" pair
+# already recorded across every portal's history_*.json (261 real pairs,
+# all portals combined): delisted-to-relisted gap is 0.2-31.7 days, median
+# 10.7, mean 12.8, 96% (250/261) within 30 days, none past 32 days - but
+# this dataset has only been tracking any listings since 2026-08-21 (~35
+# days as of this writing), so that 31.7-day max is itself left-censored;
+# a real relisting after a longer real-world gap simply hasn't had time to
+# be observed yet. 180 days gives ~5.6x headroom over the longest gap
+# actually observed and leaves substantial room for longer gaps this young
+# a dataset can't yet rule out, while still bounding growth to a fixed
+# multiple of steady-state daily volume instead of forever. Evicted
+# records are dropped outright rather than kept as a lighter-weight trace
+# for relisting matching past this cutoff: the single largest per-record
+# cost (the photos array, needed for exactly that matching) is what a
+# "lightweight" archive would still have to keep to remain useful for it,
+# so a partial archive wouldn't meaningfully help the size problem this
+# exists to fix, and a relisting matched only after 180+ days off-market
+# is both unobserved in this data so far and low-value to catch even when
+# it happens. index.html's frontend reads Supabase, not these JSON files,
+# and sync_to_supabase.py's own stale-row cleanup (MIN_PORTAL_RATIO=0.5,
+# MIN_PORTAL_ABSOLUTE=10) already treats a portal's mirrored Supabase rows
+# as tied to what's in the current leads_*.json, not a permanent archive -
+# nothing downstream needs these long-gone records kept around forever.
+STALE_RECORD_RETENTION = timedelta(days=180)
+
+
+def evict_stale_records(history, retention=STALE_RECORD_RETENTION, now=None):
+    """Removes (in place) every history record whose most recent snapshot
+    is older than `retention` - a listing that has not been seen in any
+    scrape for that long is treated as permanently gone (sold/delisted),
+    not just temporarily off the current commit due to e.g. a scrape.yml
+    outage (this project's worst real outage to date, this same incident,
+    was ~40 hours - three orders of magnitude below the default retention,
+    so there is no realistic false-eviction risk from an ordinary commit-
+    pipeline gap). Call this before prune_snapshots()/save() in every
+    scraper's own save_history() so history_*.json (and, via the same
+    `history` object, that run's own compute_leads()-derived leads_*.json)
+    stay bounded to a fixed multiple of steady-state daily volume instead
+    of growing forever - see this section's own module-level comment for
+    the real measurements and the 180-day retention's reasoning. Returns
+    the number of records evicted."""
+    now = now or datetime.now(timezone.utc)
+    stale_ids = [
+        lid
+        for lid, rec in history.items()
+        if rec.get("snapshots") and now - datetime.fromisoformat(rec["snapshots"][-1]["seen_at"]) > retention
+    ]
+    for lid in stale_ids:
+        del history[lid]
+    return len(stale_ids)
 
 
 # --- Relisting chain-storm guard ----------------------------------------

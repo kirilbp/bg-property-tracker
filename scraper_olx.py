@@ -77,7 +77,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
 from category_classifier import classify_listing
-from geo_utils import Geocoder, extract_description_ldjson, extract_photos_ldjson, extract_sqm_ldjson, compute_motivation_score, listing_city_key, prune_snapshots
+from geo_utils import Geocoder, extract_description_ldjson, extract_photos_ldjson, extract_sqm_ldjson, compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION
 
 BASE_URL = "https://www.olx.bg"
 SEARCH_BASE = "https://www.olx.bg/nedvizhimi-imoti/prodazhbi"
@@ -558,6 +558,16 @@ def load_history():
 
 
 def save_history(history):
+    # evict_stale_records() before prune_snapshots() - see its own
+    # docstring/geo_utils.py's STALE_RECORD_RETENTION comment (2026-09-25
+    # incident: unbounded history/leads growth from never removing
+    # long-gone listings). Runs every save, not just as a one-off
+    # migration, so history_*.json/leads_*.json (leads via this same
+    # `history` object feeding this run's own compute_leads() call right
+    # after) stay bounded going forward instead of recurring.
+    evicted = evict_stale_records(history)
+    if evicted:
+        print(f"DEBUG: evicted {evicted} history record(s) not seen in over {STALE_RECORD_RETENTION.days} days")
     prune_snapshots(history)
     HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
