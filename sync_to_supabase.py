@@ -1272,7 +1272,7 @@ def request_with_retries(method, url, **kwargs):
             print(f"  request exception (attempt {attempt}/{MAX_HTTP_RETRIES}): {e} - retrying {url}")
             time.sleep(RETRY_BACKOFF_SECONDS * attempt)
             continue
-        if resp.ok or attempt == MAX_HTTP_RETRIES:
+        if resp.ok or attempt == max_attempts:
             return resp
         print(f"  request failed (attempt {attempt}/{MAX_HTTP_RETRIES}): "
               f"{resp.status_code} {resp.text[:300]} - retrying {url}")

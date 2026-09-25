@@ -21,6 +21,19 @@ Covers:
      used at every Supabase HTTP call site in this file - a regression
      here would silently mean the "longer timeout" half of this fix
      doesn't actually apply to the call that hit it.
+  5. The bonus attempt granted by TIMEOUT_EXTRA_RETRIES (attempt
+     max_attempts, i.e. MAX_HTTP_RETRIES + TIMEOUT_EXTRA_RETRIES) must
+     still be able to return a live, non-ok response instead of falling
+     through the loop with an implicit `return None`. This was a real bug
+     found in review: the "are we done" check used to compare `attempt ==
+     MAX_HTTP_RETRIES` (the *old* loop bound) instead of `max_attempts`
+     (the *actual*, decoupled loop bound), so a live non-ok response on
+     the timeout bonus attempt (attempt 5) never matched and the function
+     fell off the end of the for loop, implicitly returning None. Every
+     caller (upsert(), _fetch_stored_source_ids(),
+     delete_stale_merged_listings(), delete_stale_listing_sources()) then
+     crashes with an uncaught AttributeError on `None.ok` /
+     `None.raise_for_status()` instead of a clean, diagnosable HTTP error.
 
 Run with: python3 -m pytest tests/test_supabase_retry_timeout.py -v
 """
@@ -94,6 +107,45 @@ def test_non_timeout_request_exception_not_given_extra_retries(monkeypatch):
     # Unchanged from before this fix - only MAX_HTTP_RETRIES attempts, no
     # TIMEOUT_EXTRA_RETRIES bonus for a non-timeout failure.
     assert calls["n"] == sts.MAX_HTTP_RETRIES
+
+
+class _FakeErrorResponse:
+    ok = False
+    status_code = 500
+    text = "simulated live server error"
+
+
+def test_live_non_ok_response_on_timeout_bonus_attempt_is_returned_not_none(monkeypatch):
+    # Reproduces the confirmed regression: MAX_HTTP_RETRIES (4) simulated
+    # ReadTimeouts, retried via the TIMEOUT_EXTRA_RETRIES allowance, then a
+    # live (non-exception) non-ok response on the final/bonus attempt
+    # (attempt 5 == max_attempts). Before the fix, the "are we done" check
+    # only matched attempt == MAX_HTTP_RETRIES (4), so this case fell
+    # through the bottom of the loop and request_with_retries() returned
+    # None instead of the response - crashing every caller with an
+    # AttributeError on None.ok / None.raise_for_status().
+    calls = {"n": 0}
+
+    def fake_request(method, url, **kwargs):
+        calls["n"] += 1
+        if calls["n"] <= sts.MAX_HTTP_RETRIES:
+            raise requests.exceptions.ReadTimeout("simulated read timeout")
+        return _FakeErrorResponse()
+
+    monkeypatch.setattr(requests, "request", fake_request)
+    monkeypatch.setattr(sts.time, "sleep", lambda s: None)
+
+    resp = sts.request_with_retries("POST", "https://example.invalid/rest/v1/x")
+
+    assert resp is not None, (
+        "request_with_retries() returned None instead of the live non-ok "
+        "response on the timeout bonus attempt - this is the exact bug "
+        "Missy's review found: callers do resp.ok/resp.raise_for_status() "
+        "on this and crash with an uncaught AttributeError"
+    )
+    assert resp.status_code == 500
+    assert resp.ok is False
+    assert calls["n"] == sts.MAX_HTTP_RETRIES + sts.TIMEOUT_EXTRA_RETRIES
 
 
 def test_request_timeout_constant_used_at_every_call_site():
