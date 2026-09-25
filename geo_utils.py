@@ -861,16 +861,47 @@ def extract_contact_alo(html):
     return None
 
 
-# imoti.bg detail-page specs/contact extraction, added 2026-09-24. Unlike
-# alo.bg (unverified markup, extracted from screenshots by fixed Bulgarian
-# label text), imoti.bg's fetch_listing_detail() already has PROVEN, live-
-# confirmed access to this page's own <script type="application/ld+json">
-# block(s) - that's exactly how its description extraction already works
-# (see fetch_listing_detail()'s own docstring in scraper_imoti_bg.py). This
-# reuses that same already-successfully-parsed structured data rather than
-# guessing any new CSS selector/tag name against markup this project has
-# never actually seen (this sandbox's network egress to imoti.bg is blocked,
-# same caveat as alo.bg).
+# imoti.bg detail-page specs/contact extraction, added 2026-09-24, corrected
+# 2026-09-25 after a production audit found property_type_raw/agency_name/
+# agency_website at a flat 0% (0/912) despite every listing having gone
+# through fetch_listing_detail(). The comment this replaced claimed
+# fetch_listing_detail() "already has PROVEN, live-confirmed access to this
+# page's own <script type="application/ld+json"> block(s) - that's exactly
+# how its description extraction already works." That claim does not
+# actually hold up: fetch_listing_detail() tries a <meta name="description">
+# (or og:description) tag FIRST, and only falls back to scanning ld+json for
+# a "description" field when that meta tag is missing/too short - see its
+# own code in scraper_imoti_bg.py. Production's 94%+ description hit rate is
+# perfectly explained by the meta-tag path alone (present on essentially
+# every generic webpage) and is not evidence the ld+json fallback, let alone
+# ld+json parsing in general, has EVER actually succeeded on a real imoti.bg
+# page. This was the same shape of mistake as alo.bg's own regression
+# (PR #279): a confident "this is already proven" claim that wasn't actually
+# checked against what really drives the number it points to.
+#
+# Two real, independent failure modes could produce exactly this 0% pattern,
+# and this sandbox's network egress to imoti.bg is blocked (confirmed again
+# this session, same as every other scraper's own egress-block note), so
+# live re-verification wasn't possible and CLAUDE.md rules out finding out
+# via a live workflow_dispatch:
+#   1. imoti.bg's real ld+json (if it carries any at all) simply doesn't use
+#      the RealEstateListing/Accommodation/Organization schema.org shape
+#      assumed below - genuinely unverifiable without live access.
+#   2. A common, well-documented real-world JSON-LD quirk: many sites
+#      generate a script's JSON text from a raw user-submitted description
+#      containing literal newline/control characters without escaping them,
+#      which trips Python's DEFAULT strict `json.loads()` (control characters
+#      are illegal inside a JSON string under strict mode) - silently
+#      swallowed here by the bare `except (ValueError, TypeError): continue`,
+#      exactly like it would be in fetch_listing_detail()'s own ld+json
+#      fallback for description. This is not a guess about imoti.bg's
+#      specific markup - it's a generic, well-known parser fragility this
+#      code can safely harden against regardless of which (if either) cause
+#      is the real one, so _imoti_bg_ld_json_candidates() below now retries
+#      with `strict=False` before giving up on a block. It also now tracks
+#      basic counts so a future run's logs (scraper_imoti_bg.py's own
+#      diagnostic print, gated on real access to production) can tell these
+#      two failure modes apart for real instead of guessing further here.
 #
 # What's extracted below is deliberately limited to CORE schema.org
 # vocabulary terms with a fixed, documented meaning - not a guess about this
@@ -915,24 +946,76 @@ _IMOTI_BG_FEATURE_FURNISHED_RE = re.compile(r"(?<!не)обзаведен|(?<!un
 _IMOTI_BG_FEATURE_HEATING_RE = re.compile(r"\bтец\b|central heating|отопление", re.IGNORECASE)
 
 
-def _imoti_bg_ld_json_candidates(html):
+def _parse_ld_json_blocks(html):
     """Every dict-shaped entry across all application/ld+json blocks on the
-    page - the exact same parse fetch_listing_detail()'s own description
-    extraction already does successfully, just returned instead of scanned
-    inline, so the spec/contact extractors below can reuse it without
-    duplicating the try/except-around-json.loads() dance in three places."""
+    page, plus the raw counts (script tags found, blocks that failed to
+    parse even with the strict=False retry) that let a caller tell "no
+    ld+json on this page at all" apart from "ld+json is there but broken/
+    unrecognized" - see this module's own comment above
+    _imoti_bg_ld_json_candidates() for why that distinction matters here.
+
+    Tries a normal strict `json.loads()` first, then retries with
+    `strict=False` (the standard library's own documented way to allow
+    literal control characters inside a JSON string) before giving up on a
+    block - a generic hardening against a common real-world JSON-LD quirk
+    (an unescaped newline from a raw user-submitted description), not a
+    guess about this specific site's markup."""
     try:
         soup = BeautifulSoup(html, "html.parser")
     except Exception:
-        return []
+        return [], 0, 0
     candidates = []
-    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+    scripts = soup.find_all("script", attrs={"type": "application/ld+json"})
+    failed = 0
+    for script in scripts:
+        text = script.string or ""
+        data = None
         try:
-            data = json.loads(script.string or "")
+            data = json.loads(text)
         except (ValueError, TypeError):
-            continue
+            try:
+                data = json.loads(text, strict=False)
+            except (ValueError, TypeError):
+                failed += 1
+                continue
         candidates.extend(data if isinstance(data, list) else [data])
-    return [c for c in candidates if isinstance(c, dict)]
+    return [c for c in candidates if isinstance(c, dict)], len(scripts), failed
+
+
+def _imoti_bg_ld_json_candidates(html):
+    """Every dict-shaped entry across all application/ld+json blocks on the
+    page - see _parse_ld_json_blocks() above for the actual parse. Kept as
+    a thin wrapper (just the candidates, no counts) since this is the
+    signature extract_specs_imoti_bg()/extract_contact_imoti_bg() already
+    call and test against."""
+    candidates, _, _ = _parse_ld_json_blocks(html)
+    return candidates
+
+
+def imoti_bg_ld_json_diagnostic(html):
+    """Zero-cost visibility for scraper_imoti_bg.py to log (see its own
+    call site) when specs/contact extraction comes up empty: how many
+    application/ld+json script tags the page actually had, how many failed
+    to parse even with the strict=False retry, and - for whatever parsed
+    fine - the distinct top-level "@type" values seen (a real page's own
+    words for what a candidate IS, the single most useful thing to log for
+    telling "no ld+json here" apart from "ld+json is here but not the
+    Accommodation/Organization shape this file assumes"), all without
+    dumping raw HTML/JSON into a log. Never raises."""
+    try:
+        candidates, script_count, failed = _parse_ld_json_blocks(html)
+    except Exception:
+        return {"script_tags": 0, "parsed": 0, "failed_to_parse": 0, "types_seen": []}
+    types_seen = sorted({
+        c["@type"] for c in candidates
+        if isinstance(c.get("@type"), str)
+    })
+    return {
+        "script_tags": script_count,
+        "parsed": len(candidates),
+        "failed_to_parse": failed,
+        "types_seen": types_seen,
+    }
 
 
 def _imoti_bg_nested_dicts(candidate):

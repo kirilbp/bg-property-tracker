@@ -1,0 +1,45 @@
+# Temporary diagnostic workflow: data/history_bcpea.json's "photos" field
+# is at a flat 0% (0/2,246) in production despite 100% detail-page coverage
+# - see probe_bcpea_photos.py's own docstring and extract_photos_bcpea()'s
+# 2026-09-25 correction in scraper_bcpea.py for the full investigation.
+# Fetches a handful of real bcpea listing pages to find out why, before
+# guessing a fix to the real scraper. Read-only, no commit step, touches no
+# data file. Delete once the question is answered (same lifecycle as this
+# repo's other probe-*.yml workflows).
+#
+# NOT dispatched as part of the investigation that added this file - see
+# CLAUDE.md's standing rule against iterating via live workflow_dispatch.
+# Meant to be run ONCE, manually, by whoever has live access to review and
+# act on its output.
+name: Probe bcpea.org photo extraction (0% production hit rate)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install beautifulsoup4 playwright
+
+      - run: |
+          for attempt in 1 2 3; do
+            if playwright install --with-deps chromium; then
+              exit 0
+            fi
+            echo "playwright install failed (attempt $attempt/3), retrying"
+            sleep $((attempt * 10))
+          done
+          echo "::error::playwright install --with-deps chromium failed after 3 attempts"
+          exit 1
+
+      - run: python probe_bcpea_photos.py
