@@ -22,15 +22,20 @@ whole dataset, which would also shift every other listing's now-relative
 fields like days_on_market/source_status/score for reasons unrelated to
 this bug).
 """
-import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from geo_utils import compute_motivation_score
+from geo_utils import compute_motivation_score, load_json_any, save_json_any
 
 DATA_DIR = Path(__file__).parent / "data"
-LEADS_FILE = DATA_DIR / "leads_homes.json"
-HISTORY_FILE = DATA_DIR / "history_homes.json"
+# .json.gz, not plain .json - 2026-09-25 addendum to the GH001 incident fix
+# (see geo_utils.py's "Compressed on-disk JSON storage" comment). This is a
+# completed, one-time migration (already applied via dd83178) kept here for
+# its own documentation value; these paths are updated only so a future
+# accidental re-run doesn't silently read/write the wrong (nonexistent
+# plain-.json) files.
+LEADS_FILE = DATA_DIR / "leads_homes.json.gz"
+HISTORY_FILE = DATA_DIR / "history_homes.json.gz"
 GONE_AFTER = timedelta(hours=20)
 NOW = datetime.now(timezone.utc)
 
@@ -267,8 +272,8 @@ def build_split_lead(new_id, price_value, fields, full_snapshots):
 
 
 def main():
-    leads = json.loads(LEADS_FILE.read_text(encoding="utf-8"))
-    history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+    leads = load_json_any(LEADS_FILE)
+    history = load_json_any(HISTORY_FILE)
 
     leads_by_id = {l["id"]: i for i, l in enumerate(leads)}
 
@@ -320,8 +325,8 @@ def main():
               f"deduped price_history: {[len(l['price_history']) for l in new_leads]}, "
               f"{covered}/{len(full_snapshots)} snapshots accounted for)")
 
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(LEADS_FILE, leads)
+    save_json_any(HISTORY_FILE, history)
 
 
 if __name__ == "__main__":

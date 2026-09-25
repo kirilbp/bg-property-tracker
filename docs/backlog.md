@@ -4404,6 +4404,237 @@ rebase-specific re-review per standing process, same pattern as PR
 ---
 ---
 
+## 37. `scrape.yml` commit/push failed 7 consecutive scheduled runs on a hard GitHub file-size rejection (GH001) again, ~40h - unbounded `history_*.json`/`leads_*.json` growth, not the item 35 relisting-chain bug - ROOT CAUSE FIXED, HANDED BACK FOR REVIEW (2026-09-25)
+
+**Not a repeat of item 35's own root cause.** Confirmed directly: the
+relisting chain-storm guard (item 35) is present on `main` and currently
+injects **zero** `relisted_from` snapshots into `history_homes.json` - the
+guard is doing its job. This incident's failures started 2026-09-23
+15:43 UTC, and `git log` shows bazar.bg/imot.bg's own oblast-capital/
+nationwide coverage-widening commits landing within the same hour
+(15:28-16:11 UTC) - a plausible proximate trigger (a real, one-time
+crawl-footprint jump, same shape as the 2026-08-25 nationwide switch that
+added 66,030 homes.bg records in a single day), but the actual failing
+run's own oversized local file (real quoted numbers: `data/history_homes.
+json` 163.45MB, `data/leads_homes.json` 172.02MB) was never committed
+anywhere and no longer exists to inspect - GitHub Actions runners are
+ephemeral and every one of these 7 runs' local state was discarded on
+push failure, so that specific number can't be fully reconstructed after
+the fact. This is disclosed here rather than papered over.
+
+**The real, structural driver - measured directly against real committed
+data, not guessed:** `data/history_homes.json` currently on `main` has
+**74,012 records, 94.9MB, ~1282 bytes/record average** (~2.0 snapshots/
+record post-`prune_snapshots()` - that function is working correctly,
+this is a different problem). Per-record payload is roughly constant
+(dominated by the `photos` array - measured at **41.6%** of
+`leads_homes.json`'s total bytes, field-by-field). Record **count** is
+what's actually unbounded: `update_history()` only ever adds keys
+(`history[lid][...] = ...`) across all 8 portal scrapers - nothing has
+ever removed one once its listing sells or gets delisted. alo.bg was
+separately flagged and measured: `data/leads_alo.json` is **already at
+96.18 MiB** (100,848,121 bytes) against GitHub's real 100 MiB
+(104,857,600-byte) hard limit - a `du -sh`/field-size check found it
+growing ~1,000-1,400 records/day, giving it roughly **2.5-3.5 days of
+runway** before it hits the same wall on its own separate workflow
+(`scrape-large.yml`) if untouched.
+
+**Fix shipped this session, verified locally against real and synthetic
+data (per this project's standing rule against iterating live on
+`scrape.yml`):**
+
+1. **`geo_utils.evict_stale_records()`** (new) - removes, in place, any
+   history record whose most recent snapshot is older than
+   `STALE_RECORD_RETENTION` (180 days). Wired into all 8 scrapers' own
+   `save_history()` (homes, imot, olx, bazar, bcpea, imoti_bg, alo,
+   imoti.net/`scraper.py`) - not just the 6 `scrape.yml` commits
+   atomically. Runs on the same `history` object each scraper's own
+   `compute_leads()` call reads right after, so `leads_*.json` reflects
+   the eviction automatically too, every run, going forward.
+2. **180-day retention, justified from real data, not a round number:**
+   `detect_relistings.py`'s `detect_portal()` has no age cap on candidate
+   `gone_ids`, so the window has to clear any real relisting delay.
+   Measured every real `"source": "relisted_from"` pair already recorded
+   across every portal (261 pairs, all portals): gap is **0.2-31.7 days,
+   median 10.7, mean 12.8, 96% (250/261) within 30 days**, none past 32 -
+   left-censored, since this dataset has only tracked listings since
+   2026-08-21 (~35 days). 180 days gives ~5.6x headroom over the longest
+   gap actually observed. Evicted records are dropped outright, not kept
+   as a lighter trace: the biggest per-record cost (`photos`) is exactly
+   what relisting-matching would still need, so a partial archive
+   wouldn't meaningfully help size either way, and a match past 180 days
+   off-market is both unobserved so far and low-value to catch.
+3. **`evict_stale_history.py`** (new, standalone, dependency-free -
+   deliberately does not import any `scraper_*.py` module, several of
+   which pull in `playwright` at module level - same reasoning as
+   `backfill_wayback_prices.py`'s own comment) - the one-off/on-demand
+   migration half. `python evict_stale_history.py [portal ...]
+   [--dry-run]`. Run against this repo's real, currently-committed data
+   it evicts **zero** records for every one of the 8 portals - honestly
+   reported, not hidden: nothing tracked so far is old enough yet to
+   cross 180 days gone. That means this migration gives **zero immediate
+   byte reduction to today's committed files** (which, as committed, are
+   already under 100MB/MiB regardless - see above on why the actually-
+   failing run's own bigger local file can't be reproduced). What it (and
+   the now-automatic per-run mechanism) actually fixes is convergence:
+   verified at realistic scale against a synthetic 164,012-record/212.6
+   MiB projection (today's real 74,012 plus 90,000 records aged past 180
+   days, using a real sample record's own field shapes so per-record
+   byte sizes are representative) - eviction correctly reclaimed exactly
+   the 90,000 stale records in 0.07s, back to 74,012/90.5 MiB, **122.1
+   MiB (57.4%) freed**. Bounds every portal's file to a fixed multiple of
+   steady-state daily volume over a 180-day window instead of growing
+   forever, which is what actually prevents this recurring - not a claim
+   that today's specific files needed shrinking (they didn't, as
+   committed).
+4. **alo.bg** (~2.5-3.5 days of runway) gets the same `save_history()`
+   wiring as the other 7 (low-risk, identical mechanism, and its own
+   near-term risk is real and imminent) but is **not** otherwise
+   redesigned in this fix - it will very likely hit GH001 again within
+   days regardless, since its own data is also too young for 180-day
+   eviction to help yet. Flagged, not solved here: needs its own,
+   separately-scoped look (possibly a shorter portal-specific window, or
+   addressing why its daily new-record volume is so spiky - 88 to 3,154
+   in single days seen in real data - before picking one).
+
+**Checked what reads these files before evicting anything:**
+`sync_to_supabase.py` reads only `leads_*.json` (never `history_*.json`
+directly) and already has its own stale-row cleanup
+(`delete_stale_merged_listings`/`delete_stale_listing_sources`) guarded
+by `MIN_PORTAL_RATIO`=0.5/`MIN_PORTAL_ABSOLUTE`=10 - a 180-day-gone
+eviction is nowhere near that 50%-drop guard threshold, and
+`index.html`'s frontend reads Supabase, not these JSON files at all, so
+nothing downstream needs long-gone records kept in these files forever.
+
+**Tested:** `tests/test_evict_stale_history.py` (16 tests, new) - unit
+tests on `evict_stale_records()` (retention boundary exactly-at/one-
+second-past, custom retention, empty-snapshots safety, eviction keyed off
+last snapshot not `first_seen`), its wiring into `scraper_homes.py`'s/
+`scraper_alo.py`'s own `save_history()` (confirms both the rewritten
+history file AND that same run's `compute_leads()` output exclude the
+evicted record), a documentation test against this repo's real committed
+`data/history_homes.json` (asserts 0 evictions today, so the "no
+immediate byte reduction" finding above stays true if that data changes),
+and `evict_stale_history.py`'s own migrate/dry-run/missing-file/unknown-
+portal behavior. Full existing suite (`python3 -m pytest tests/`): **216
+passed, 4 subtests passed, 0 regressions.**
+
+Built in an isolated `git worktree` off `origin/main` per this repo's
+shared-checkout discipline. Not self-merged - handed back for review.
+
+---
+
+### Addendum (same day, 2026-09-25): eviction alone does NOT unblock the next run - root cause found, gzip fix shipped
+
+**The gap:** the eviction fix above correctly evicts 0 records against
+today's real data, but that was mis-read as "nothing more to do" - it
+isn't. Root cause, found by reading git history: dd83178 ("Fix homes.bg
+tracking-ID type collision; split 2 of 3 corrupted IDs", merged
+2026-09-23T11:02 UTC) fixed `build_tracking_id()` to stop dropping
+homes.bg's hs/as/lp/la type prefix. Before that fix, listings of
+DIFFERENT types sharing the same bare numeric id silently collided onto
+one tracking key and overwrote each other on alternating scrapes - many
+real, distinct listings were invisibly suppressed for a long time (only
+one "side" of each collision ever visible at once). Once fixed, every
+collision pair's previously-hidden "other side" appears as a genuinely
+new record the next time it's freshly scraped - a real, wanted,
+one-time correction (dd83178 itself is not the bug), but it means the
+very next real crawl was confirmed, from the failing run's own job-log
+output (`check_scrape_freshness.py`'s leads count), to produce **140,337**
+total homes.bg leads - **~1.90x** today's committed 74,012. Large enough
+on its own to hit GH001 again immediately, independent of anything stale.
+
+**What was checked and rejected first - capping `photos`:** the obvious
+lever (41.6% of `leads_homes.json`'s bytes, field-by-field measured), but
+`sync_to_supabase.py`'s `SOURCE_FIELDS`/`MERGED_FIELDS` copies the FULL
+`photos` array straight from `leads_homes.json` into Supabase's
+`listing_sources`/`merged_listings` columns, and `index.html`'s own
+detail-page gallery (`sourcePhotos`/`mergedPhotos` in `showDetail()`)
+renders every one of them - a real, live call site, not dead weight
+checked only for truthiness/count. Measured directly against homes.bg's
+real 74,012-record `leads_homes.json`: even capping every record to a
+single photo (a severe, real functional loss - no more multi-photo
+gallery for 45-66% of listings depending on the cap chosen) combined with
+compact (no-indent) serialization only reaches **~111.7MB projected at
+140,337 records** - still over the 100MB limit, for a real product
+regression bought and not even enough on its own.
+
+**The actual fix - gzip, not trimming:** these files are enormously
+repetitive (the same ~30 JSON keys and shared URL domains/path prefixes
+across tens of thousands of near-identical records) - exactly what gzip
+is built for, and it has zero data loss (full round-trip fidelity, every
+photo survives byte-identical). Measured on real homes.bg data:
+`leads_homes.json`, 74,012 records, 79.48MB compact-serialized -> **6.41MB
+gzipped** (level 9, 91.9% smaller); `history_homes.json`: 73.97MB compact
+-> **6.08MB gzipped**. Projected at the real 140,337-record scale (linear
+scaling validated against scrape.yml's own real quoted incident numbers -
+182.01MB/179.26MB pretty-printed at that scale, matching this projection
+to within ~1.5%): **~11.6MB (leads) / ~11.0MB (history)** - roughly 8.5x
+headroom under GitHub's 100MB hard limit, not a razor's-edge fix that
+recurs the next time record count ticks up again.
+
+**Shipped:** `geo_utils.load_json_any()`/`save_json_any()` - the one
+read/write path every consumer of these two files (every scraper,
+`sync_to_supabase.py`, `evict_stale_history.py`, `detect_relistings.py`,
+`verify_geocode_qualifiers.py`, `check_scrape_freshness.py`,
+`backfill_split_homes_id_collision.py`, `backfill_geocode_homes.py`,
+`backfill_others_geocode.py`) now goes through, extension-aware (gzip for
+`.json.gz`, unchanged plain/pretty-printed for everything else). Only
+homes.bg's own `HISTORY_FILE`/`LEADS_FILE` were switched to `.json.gz` -
+this incident is homes.bg-specific (dd83178 only touched homes.bg's
+`build_tracking_id()`); every other portal's record count didn't just
+jump, so they stay plain `.json`, unchanged, rather than an unverified
+blanket format change across all 8 portals. `merge_history_conflict.py`
+(the rebase-conflict JSON merger - currently wired into
+`backfill-detail-alo.yml`/`scrape-large.yml` for alo.bg, not yet into
+`scrape.yml`/`backfill-geocode-homes.yml`) was also made gzip-aware
+(`is_history_file()`, `git_show()`, `resolve()`'s write) so a homes.bg
+conflict wouldn't silently fall through to the old, known-lossy
+`checkout --ours` fallback if/when it's ever wired in for homes.bg too -
+checked, not guessed: `git show` returns raw committed blob bytes
+regardless of format, so this was a real, if not yet triggered, gap.
+The real, currently-committed `data/history_homes.json`/
+`data/leads_homes.json` (74,012 records each) were converted to
+`.json.gz` in this same change (byte-for-byte round-trip verified against
+the real data before removing the plain originals): **94.9MB -> 6.08MB**
+(history), **97.3MB -> 6.41MB** (leads).
+
+**Separately flagged, NOT fixed here (out of this addendum's scope):**
+`scrape.yml` and `backfill-geocode-homes.yml` (scheduled hourly, per its
+own workflow comment, and writing to homes.bg's history/leads files
+concurrently with `scrape.yml`) both still use the older
+`checkout --ours` rebase-conflict fallback, not `merge_history_conflict.py`
+- the exact "silently loses one side's fresh data" bug pattern that
+`merge_history_conflict.py`'s own module docstring already documents as
+"the bug this replaces" and that was already fixed for alo.bg
+specifically. This is a pre-existing, separate risk (unrelated to gzip -
+`checkout --ours` operates at the git-blob level and behaves identically
+regardless of file format) that predates this incident and is not
+introduced or worsened by it; flagged here rather than silently expanded
+into, since fixing it means changing two additional workflows' own
+conflict-handling steps, a separately-scoped piece of work.
+
+**Tested:** `tests/test_gzip_json_storage.py` (new) - `load_json_any()`/
+`save_json_any()` round-trip (gzip and plain, unicode-exact, real
+size-reduction check), `merge_history_conflict.py`'s
+`is_history_file()`/`git_show()`/`resolve()` against a mocked gzip git
+blob (confirms a real per-id union merge still happens, not a silent
+"unresolved" fallback), and `sync_to_supabase.py`'s `load_all_listings()`
+reading a real `.json.gz` leads file with the full `photos` array intact.
+`tests/test_evict_stale_history.py`'s homes.bg-specific tests (real-data
+documentation test, `scraper_homes.py`'s `save_history()` wiring test,
+`evict_stale_history.py`'s migration tests) updated to exercise the real
+`.json.gz` path rather than the old plain-`.json` one. Full existing
+suite (`python3 -m pytest tests/`): **227 passed, 4 subtests passed, 0
+regressions** (up from 216 - net +11 new tests after removing the now-
+redundant plain-format duplicates the updated tests replaced).
+
+Still built in the same isolated `git worktree`, still not self-merged -
+handed back for review with this addendum included.
+
+---
+---
+
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
 
 Flagged by Nosy as genuinely open, not confirmed either way. Each blocks
