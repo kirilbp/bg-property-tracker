@@ -74,6 +74,7 @@ listing pages over time to fill in site_posted_at/lat,lng.
 import re
 import json
 import time
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -186,7 +187,24 @@ def fetch_with_retries(url):
     return None
 
 
-def fetch_listings_page(url, seen, city_name):
+def fetch_listings_page(url, seen, city_name, skip_stats=None):
+    # skip_stats (optional): a collections.Counter (or any dict-like with
+    # __getitem__/__setitem__ defaulting missing keys to 0, i.e. an actual
+    # Counter) that this function increments once per raw <a> match that
+    # does NOT become a saved listing, keyed by which check rejected it -
+    # see fetch_listings()'s own per-city yield summary for why this
+    # exists (2026-09-26 imoti.net active-ratio collapse investigation,
+    # docs/backlog.md item 57): every rejection below was previously a
+    # bare, unlogged `continue`, so a real drop in how many of a page's
+    # genuine listing cards actually survive this extraction pipeline -
+    # confirmed live: ~30/page on 2026-09-22 vs. ~5/page on 2026-09-24
+    # onward, with the raw per-page <a>-tag count unchanged - was
+    # completely invisible in this scraper's own logs. This doesn't fix
+    # that regression (its real cause needs live imoti.net HTML this
+    # sandbox's egress proxy blocks, see the docstring note above), it
+    # only makes the NEXT occurrence immediately diagnosable instead of
+    # requiring the same kind of after-the-fact GitHub Actions log
+    # archaeology this investigation needed.
     html = fetch_with_retries(url)
     if html is None:
         return None
@@ -199,10 +217,14 @@ def fetch_listings_page(url, seen, city_name):
         match = LISTING_LINK_RE.search(a["href"])
         listing_id = match.group(1)
         if listing_id in seen:
+            if skip_stats is not None:
+                skip_stats["duplicate"] += 1
             continue
 
         container = smallest_container_with_price(a)
         if container is None:
+            if skip_stats is not None:
+                skip_stats["no_container"] += 1
             continue
 
         text = container.get_text(" ", strip=True)
@@ -211,10 +233,14 @@ def fetch_listings_page(url, seen, city_name):
         sqm_match = SQM_RE.search(text)
         desc_match = DESC_RE.search(text)
         if not bgn_match:
+            if skip_stats is not None:
+                skip_stats["no_bgn_match"] += 1
             continue
 
         price_bgn = int(re.sub(r"\D", "", bgn_match.group(1)))
         if price_bgn < 1000:
+            if skip_stats is not None:
+                skip_stats["price_under_1000"] += 1
             continue
         price_eur = round(price_bgn / BGN_TO_EUR)
         sqm = int(sqm_match.group(1)) if sqm_match else None
@@ -229,6 +255,8 @@ def fetch_listings_page(url, seen, city_name):
         full_url = a["href"] if a["href"].startswith("http") else "https://www.imoti.net" + a["href"]
         title = desc_match.group(1).strip() if desc_match else None
         if not title:
+            if skip_stats is not None:
+                skip_stats["no_title_match"] += 1
             continue
 
         # Real bug, confirmed against live committed data (docs/backlog.md
@@ -264,6 +292,8 @@ def fetch_listings_page(url, seen, city_name):
             "category": category,
             "category_confidence": category_confidence,
         }
+        if skip_stats is not None:
+            skip_stats["added"] += 1
     return len(matching_links)
 
 
@@ -340,21 +370,28 @@ PAGE_SIZE = 30
 
 def fetch_listings():
     seen = {}
+    # Nationwide-total counterpart to each city's own skip_stats below -
+    # see fetch_listings_page()'s own comment for why this exists.
+    nationwide_stats = Counter()
+    nationwide_raw_links = 0
     for city_slug, city_name in CITY_SLUGS:
         search_url = f"{BASE_URL}/{city_slug}"
         city_start_count = len(seen)
         last_link_count = 0
+        city_raw_links = 0
+        city_stats = Counter()
         for page_num in range(1, MAX_PAGES + 1):
             if page_num > 1:
                 time.sleep(REQUEST_DELAY_SECONDS)
             url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
-            link_count = fetch_listings_page(url, seen, city_name)
+            link_count = fetch_listings_page(url, seen, city_name, skip_stats=city_stats)
             if link_count is None:
                 print(f"DEBUG: {city_name} page {page_num} fetch failed (likely the page-200 "
                       f"block) - stopping this city here, {len(seen) - city_start_count} listings collected")
                 last_link_count = None
                 break
             print(f"DEBUG: {city_name} page {page_num} links = {link_count}")
+            city_raw_links += link_count
             last_link_count = link_count
             if not link_count:
                 break
@@ -362,8 +399,34 @@ def fetch_listings():
             print(f"DEBUG: WARNING - {city_name} may be truncated (last page was still full or "
                   f"a fetch failed) - real total could be higher than the "
                   f"{len(seen) - city_start_count} listings collected")
+        # Per-city extraction-yield summary: what fraction of this city's
+        # raw <a>-tag matches actually became a saved listing, broken down
+        # by which check rejected the rest. A healthy run's yield should
+        # track roughly 1/(anchors per listing card) - a sustained drop
+        # here with an UNCHANGED raw link count is the signature of an
+        # imoti.net card-markup change breaking smallest_container_with_
+        # price()/BGN_RE/DESC_RE, not of fewer real listings being on the
+        # page (docs/backlog.md item 57).
+        added = city_stats["added"]
+        yield_pct = (added / city_raw_links * 100) if city_raw_links else 0.0
+        print(f"DEBUG: {city_name} yield - {added}/{city_raw_links} raw links became listings "
+              f"({yield_pct:.1f}%) - skipped: no_container={city_stats['no_container']}, "
+              f"no_bgn_match={city_stats['no_bgn_match']}, "
+              f"price_under_1000={city_stats['price_under_1000']}, "
+              f"no_title_match={city_stats['no_title_match']}, "
+              f"duplicate={city_stats['duplicate']}")
         print(f"DEBUG: finished {city_name}, {len(seen) - city_start_count} listings, "
               f"{len(seen)} total so far")
+        nationwide_stats.update(city_stats)
+        nationwide_raw_links += city_raw_links
+    added = nationwide_stats["added"]
+    yield_pct = (added / nationwide_raw_links * 100) if nationwide_raw_links else 0.0
+    print(f"DEBUG: nationwide yield - {added}/{nationwide_raw_links} raw links became listings "
+          f"({yield_pct:.1f}%) - skipped: no_container={nationwide_stats['no_container']}, "
+          f"no_bgn_match={nationwide_stats['no_bgn_match']}, "
+          f"price_under_1000={nationwide_stats['price_under_1000']}, "
+          f"no_title_match={nationwide_stats['no_title_match']}, "
+          f"duplicate={nationwide_stats['duplicate']}")
     return list(seen.values())
 
 
