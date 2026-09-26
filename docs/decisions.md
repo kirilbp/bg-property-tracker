@@ -6028,3 +6028,117 @@ dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
+
+## 2026-09-26: Accessibility audit + fixes (backlog item 40) - real contrast ratios, modal focus-trap gaps, icon-button ARIA labels
+
+User approved a batch of design/UX ideas and said "Execute"; this session
+covers the "technical/accessibility" slice specifically - real, evidenced
+fixes only, explicitly not a cosmetic/performative pass. Full findings
+and the fix for each are in `docs/backlog.md` item 40; this entry records
+the reasoning behind the specific choices made and the exact
+before/after numbers.
+
+**Contrast: measured, not eyeballed, and only for combinations actually
+in use.** Computed real WCAG relative-luminance contrast for every
+palette pair first (`(L_light + 0.05) / (L_dark + 0.05)`), then, rather
+than "fixing" every pair that happened to fail in the abstract, checked
+which of those pairs are actually used as text-on-background anywhere in
+`index.html` and on which real background (`.card`'s `--ivory`, or the
+page's own `--ivory-deep`, or a badge's own alpha-blended tint over
+either). This mattered: `--brass` (used only for borders/active-state
+fills with `--ink` text on top, itself already passing at 4.56:1) would
+have looked like it needed fixing from a naive pairwise table but never
+actually renders as small text anywhere, so was correctly left alone.
+
+Three tokens were real, confirmed failures:
+
+| Token | Old hex | On `--ivory` | On `--ivory-deep` | Worst real-world case |
+|---|---|---|---|---|
+| `--taupe` | `#8c8378` | 3.40:1 | 3.08:1 | `.subtitle`/`.card-sub`/filter labels/`.count` etc., all 4.5:1-requiring normal text |
+| `--sage` | `#7a8b6f` | 3.33:1 | 3.02:1 | as low as 2.89:1 against its own `rgba(sage,0.12)` badge background |
+| `--brass-deep` | `#8a6a24` | 4.59:1 (passes) | 4.17:1 (fails) | as low as 3.57:1 against its own `rgba(brass,0.16)` badge background |
+
+**Decision: darken each token in place via a uniform per-channel scale**
+(e.g. `--sage` at 0.65×) rather than introduce a new `--taupe-deep`-style
+variable and hunt down every one of the dozens of call sites individually
+- same hue, no new color added to the system (matching the explicit "stay
+within the palette" instruction), and it fixes every current and future
+usage of that token in one place instead of requiring the next feature
+that reaches for `--taupe` to remember it needs the special darker
+variant. New values: `--taupe` `#685f55`, `--sage` `#4f5a48`,
+`--brass-deep` `#755a1e`. Deliberately targeted a real margin above
+4.5:1 (5.17-6.62:1 depending on token/background) rather than the bare
+minimum, since these tokens are reused across many future contexts this
+session can't enumerate exhaustively, and 4.50-4.55:1 leaves zero room
+for a slightly-off rendering engine or a future slightly-lighter
+background variant to tip back under the line.
+
+**Decision: fix the two mouse-only interactions found, not just add
+labels.** The keyboard walkthrough surfaced two real interaction gaps,
+not just missing attributes: none of the 4 modals trapped focus or closed
+on Escape (confirmed live - Tab walked out of the open Lead Generator
+modal after ~14 presses before the fix), and the detail-page photo
+thumbnails were `<img>` elements with only a `click` listener, completely
+unreachable by keyboard. Both are "can't operate this feature with a
+keyboard at all" bugs, a materially worse class of problem than a missing
+label, so both got real interaction fixes (a shared focus-trap/Escape/
+return-focus mechanism for the modals; `role="button"` + `tabindex="0"` +
+a `keydown` handler for the thumbnails) rather than being logged as
+follow-up items.
+
+**Decision: centralize the modal fix via `MutationObserver` on each
+overlay's `open` class, instead of editing the 4 separate open()/close()
+function pairs.** The 4 modals (`leadgenModalOverlay`, `plConfigModalOverlay`,
+`reminderModalOverlay`, `dealCalcModalOverlay`) each already toggle a
+plain `.open` CSS class from independent, differently-named functions
+with no shared code path. Editing all 8 functions individually would work
+for today's 4 modals but silently miss any modal added later unless its
+author remembered to copy the same boilerplate. Watching the DOM
+attribute directly means the fix applies uniformly now and automatically
+to anything built on the same `.modal-overlay`/`.modal-panel` markup
+later, at the cost of one small shared script block instead of eight
+small edits.
+
+**Decision: `alt=""` on the "Browse by city" tile photos, not a
+descriptive string, despite the brief asking for "real, descriptive alt
+text."** These images sit directly inside a `<button aria-label="{city},
+{N} listings">` - the accessible-name algorithm already gives the button
+a full, correct name from that `aria-label`, and a screen reader would
+announce the image's own alt text as a second, redundant name
+immediately after it ("Sofia. Sofia, 1,234 listings" or similar,
+depending on the AT). Reasoned through the accessible-name-computation
+order rather than assuming "more text is always safer" - a wrong or
+redundant label is exactly the failure mode the brief's "no performative
+attribute pass" instruction warned against.
+
+**Verification environment note**: this sandbox's egress policy blocks
+every CDN host `index.html` actually loads from (`cdnjs.cloudflare.com`,
+`cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com` - all confirmed
+403'd by the proxy's own `__agentproxy/status` endpoint), the same
+constraint item 39's own Playwright harness ran into. Rather than
+`npm pack`-vendoring the real libraries the way item 39 did, used
+Playwright's `page.route()` to serve small local generic Proxy-based
+stub scripts for `supabase-js`/Leaflet/Leaflet-draw/Chart.js (any
+property access or method call returns a further-chainable stub; awaiting
+one resolves to an empty, error-free `{data: [], error: null}`) - enough
+for the real, unmodified `index.html` to boot end-to-end with zero
+console/JS errors and for its real render functions
+(`createListingCard`, `renderPipelineTableView`,
+`renderPipelineConfigLists`, the modal open/close functions) to be
+exercised directly, without needing real map/chart rendering, which
+these particular checks don't depend on. Also found and worked around one
+sandbox-chromium-specific issue undocumented elsewhere in this repo: the
+Leaflet `<script>`/`<link>` tags carry Subresource Integrity hashes
+(`integrity="sha256-..."`) pinned to the real unpkg-hosted files, which
+made Chromium reject the locally-stubbed content as a hash mismatch until
+the test harness's own document-route stripped those two `integrity`
+attributes for the stub run only - `index.html` itself was not changed
+for this, since the SRI hashes are correct and should stay for the real,
+unmodified file in production.
+
+Built in an isolated `git worktree` off a freshly-fetched `origin/main`
+(`a11y-technical-fixes` branch), per this repo's shared-checkout
+discipline. No live GitHub Actions dispatch of anything - this change has
+no workflow/script surface at all, only `index.html` and these two docs
+files. Not self-merged - opened as a PR for Missy's review per the
+repo's standing rule.
