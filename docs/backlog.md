@@ -5713,7 +5713,7 @@ needed for anything in this pass - the photos-only filter's data
 (`photo` field, placeholder-URL detection) already existed; everything
 else was pure CSS/layout.
 
-## 40. "Polish that reads as luxurious fast" - skeleton loading, toasts, branded no-photo placeholder, icon audit, photo lightbox - BUILT, PENDING REVIEW (2026-09-26, Dessy)
+## 40. "Polish that reads as luxurious fast" - skeleton loading, toasts, branded no-photo placeholder, icon audit, photo lightbox - APPROVED BY MISSY, MERGED (2026-09-26, Dessy)
 
 Five-item dispatch from Bossy (user-approved backlog of design/UX ideas,
 "Execute"), all additive polish over `docs/design-guidelines.md`'s
@@ -5859,8 +5859,299 @@ five items are pure frontend/markup/CSS/client-JS. Not self-merged - built
 in an isolated `git worktree` off a fresh `origin/main`
 (`dessy/luxury-polish-5-items` branch) and opened as a PR for Missy's
 review, per this repo's standing rules.
+## 41. Data trust & investor edge: per-listing freshness badge, cross-portal price-divergence flag, filtered-grid CSV export - user directive ("Execute"), all 3 built - APPROVED BY MISSY, MERGED (2026-09-26)
 
-## 41. Discovery & engagement batch: similar-listings strip, saved filter presets, national map marker clustering, Dashboard "what changed" digest - BUILT, PENDING MISSY REVIEW (2026-09-26, Dessy)
+Scope was the 3 items in that dispatch, all frontend-only (`index.html`),
+no new backend field for any of them - each one specifically required
+investigating what real, already-synced data actually supports the ask
+before building anything, not assuming the obvious-sounding field name
+was the right one.
+
+**1. Data-freshness badge ("Verified X ago" / "First tracked X ago").**
+Real finding worth flagging before the design: `merged_listings`'/
+`listing_sources`' own `updated_at` column - the field whose name most
+directly suggests "last synced" - is NOT a usable freshness signal despite
+being `not null default now()` in `supabase/schema.sql`. `sync_to_
+supabase.py`'s `upsert()` never includes `"updated_at"` in `SOURCE_FIELDS`/
+`MERGED_FIELDS`, and PostgREST's `Prefer: resolution=merge-duplicates`
+only adds columns present in the request body to its `ON CONFLICT DO
+UPDATE SET` clause - so `updated_at` is set once, by its own column
+default, at this row's original `INSERT`, and is never touched again by
+any later sync run despite every run re-sending the row's full payload. It
+freezes at "whenever this row first landed in Supabase," not "last
+confirmed by a sync run." Using it would have silently mislabeled every
+long-tracked, still-actively-rechecked listing as stale - confirmed by
+inspection of every call site (`grep -n "updated_at" sync_to_supabase.py`
+finds it nowhere outside the `SOURCE_FIELDS` comment block), not assumed.
+
+Used instead, in priority order, both already synced to
+`merged_listings`/`listing_sources` and already in `MERGED_LISTINGS_BULK_
+COLUMNS` (no new fetch needed for the grid):
+  - `site_updated_at` - the portal's own stated last-updated/renewed date.
+    Genuinely portal-confirmed, so labeled **"Verified"**. Real coverage
+    gap, confirmed by grepping every `scraper_*.py`: only alo.bg,
+    sales.bcpea.org and olx.bg ever populate it - bazar.bg/homes.bg/
+    imot.bg/imoti.bg/imoti.net never do.
+  - `first_seen_at` - precomputed server-side by `sync_to_supabase.py`'s
+    `first_seen_at_for()`, available for virtually every listing but a
+    static origin date, not a recheck date (it doesn't move just because
+    a later scrape reconfirms an unchanged listing is still live - that
+    per-run confirmation, `scraper.py`'s own `last_seen`/`seen_at`, is
+    never synced to Supabase at all). Labeled **"First tracked"**, not
+    "Verified," specifically so it never overstates recency - and,
+    correspondingly, a listing's "stale" visual treatment is driven ONLY
+    by `site_updated_at`'s own age, never by how long ago `first_seen_at`
+    was (a perfectly healthy, still-rechecked listing's `first_seen_at`
+    only grows the longer it stays on the market - using its age as a
+    staleness signal would flag most of the catalog as "stale" for no
+    real reason).
+  - Neither present (rare - confirmed against the fixture) → no badge at
+    all, rather than a fabricated one.
+
+Threshold for the "stale" visual weight: 3 days (`FRESHNESS_STALE_AFTER_
+MS`), chosen against this project's own real cadence (`scrape.yml` 6h,
+`scrape-large.yml` 24h, `GONE_AFTER` 48h, all per `check_scrape_
+freshness.py`'s own comments) - comfortably above every normal gap
+between two scrape runs, so a `site_updated_at` this old is a genuine
+signal, not routine cron jitter. Styled per `docs/design-guidelines.md`
+section 4: no alarm color, just a shift to the ink-soft/bold treatment
+(`.is-stale`), same restraint the badges/status-label system already
+uses elsewhere.
+
+**2. Cross-portal price-divergence flag - real data confirmed available,
+shipped for real.** Investigated whether per-source prices survive
+`sync_to_supabase.py`'s merge (the exact question the dispatch asked):
+yes - `listing_sources` keeps its own `price_eur`/`price_per_sqm` per
+`(portal, source_id)` row even after `group_listings()` merges matching
+sources into one `merged_listings` record, and the frontend already
+lazily fetches exactly this table (`sb.from('listing_sources').select('*')
+.eq('merged_id', merged.id)`) once a cross-posted listing's detail page is
+opened - the same data the existing per-portal price-switcher badge row
+already displays. No new data needed, no blocked feature to document here
+(unlike a genuinely-missing-data case, this one had real data all along -
+it just wasn't being surfaced proactively). Added `priceDivergenceInfo()`/
+`priceDivergenceHtml()`: compares the currently-viewed source's price
+against every other active (non-`removed`) source, and - only past a
+noise floor of 3% AND €1,000 (`PRICE_DIVERGENCE_MIN_PCT`/`PRICE_
+DIVERGENCE_MIN_EUR`, so a trivial rounding-level gap doesn't read as
+significant) - surfaces "Also listed on X for €Y less/more," linking
+straight to that portal's own listing. A genuinely cheaper alternative
+(the actionable, buyer-favorable case) is preferred over a pricier one
+when both exist, and styled in the sage signal color per design-
+guidelines.md section 4 ("price moved in the buyer's favor"); a pricier-
+only alternative is shown in plain neutral taupe text instead, never
+sage. No callout at all when sources agree closely (verified in Playwright
+against a same-price-everywhere fixture listing - the banner element is
+genuinely absent from the DOM, not just hidden).
+
+**3. CSV export of the filtered/sorted Leads grid.** Added an "Export CSV"
+button to the Leads filter card, next to the existing filter controls.
+`getCurrentFilteredSortedListings()` reuses `render()`'s own `readFilter
+State()`/`matchesAllFilters()`/`sortComparator()` exactly as-is (not a
+second, separately-maintained filter pass), so "what's on screen" and
+"what gets exported" can't drift apart. Pure client-side `Blob` + `<a
+download>`, no new library, no server round-trip (all data's already in
+`MERGED_LISTINGS`, backlog item 6). Columns: Title, Price (EUR), Sqm,
+Price per sqm (EUR), Rooms, City, Area, Portal (with a "(+N more)" suffix
+for cross-posted listings), Status, Days on market, Motivation score, URL.
+UTF-8 BOM prepended (Excel mis-detects encoding and mangles Cyrillic - all
+of this app's real title/area text - without it) and `\r\n` line endings
+per RFC 4180. Disabled with an inline message (not a silent no-op) before
+`BULK_READY` - exporting during the fast/server-paginated first-paint
+window would only ever capture one partial page, not the true filtered
+set.
+
+**Verification**: a Playwright harness (throwaway, not committed -
+`/tmp/claude-0/.../scratchpad/verify` this session, following the same
+CDN-vendoring pattern prior sessions' harnesses used, since this sandbox's
+egress proxy still blocks cdnjs/jsdelivr/unpkg/fonts.googleapis.com) with
+a hand-built fixture covering every real freshness case (fresh
+`site_updated_at`, stale `site_updated_at`, recent-only `first_seen_at`,
+old-only `first_seen_at`, neither field, and both a genuinely-divergent
+and a near-identical cross-posted listing with a matching `listing_
+sources` fixture), routed in via `page.route('**/rest/v1/**')`. All
+checks pass: freshness text/stale-class correct per fixture row across
+both the grid and the detail page; the divergence callout fires with the
+exact right portal/€ amount on the divergent fixture and is verifiably
+absent on the near-identical one; CSV export triggers a real download,
+whose row count matches `getCurrentFilteredSortedListings().length` under
+an active price filter, whose header matches the 12 documented columns
+exactly, and whose every row genuinely respects that filter (verified with
+a real RFC-4180-aware line parser, not a naive `split(',')`, which
+misparses titles containing commas). Checked at 1440px and 390px.
+
+**Console/JS errors**: confirmed zero *new* errors. This sandbox's proxy
+blocks every external host this page's map/photos/fonts use regardless of
+this change (OSM tiles, the fixture's own placeholder photo URLs, Google
+Fonts), and a pre-existing Leaflet `_leaflet_pos` exception appears when a
+detail page's radius map initializes - a `baseline_check.js` run against
+unmodified `origin/main`'s own `index.html`, same fixture, same sandbox,
+reproduces the identical 404/`ERR_TUNNEL_CONNECTION_FAILED` noise and the
+identical `_leaflet_pos` exception with zero code from this change
+involved, confirming both are pre-existing/environmental, not introduced
+here.
+
+**Files touched**: `index.html` only. No scraper/sync/schema/workflow
+files touched - all 3 items are read-only against already-synced data.
+
+**Not done / explicitly out of scope**: the `updated_at` freeze-at-insert
+gap found for item 1 was not "fixed" in `sync_to_supabase.py` - that's a
+live-Supabase-write-behavior change with its own blast radius (every
+`merged_listings`/`listing_sources` row, every future sync run) and
+deserves its own dispatch and review, not a drive-by inside a frontend-
+only, no-new-backend-field ask. Flagging it here in case a future item
+wants to pick it up: fixing it would mean either adding `"updated_at":
+now_iso` to every row `build_rows()` emits (so it's part of the `ON
+CONFLICT DO UPDATE SET` payload every run), or adding a Postgres trigger -
+the former is simpler and doesn't need a Supabase-SQL-editor manual step.
+## 43. Accessibility audit + fixes: real WCAG contrast measurement, missing alt text, keyboard-trap gaps in all 4 modals, icon-only-button ARIA labels, lazy-loading gaps - APPROVED BY MISSY (2 rounds - a hover-contrast regression from the PR's own --brass-deep darkening was found and fixed), MERGED (2026-09-26)
+
+User-approved design/UX backlog, "technical/accessibility" group. A
+genuine audit against real numbers, not a guess or a performative
+attribute-sprinkling pass - see `docs/decisions.md` for the full
+before/after contrast table and the reasoning behind each fix.
+
+**Color contrast (WCAG AA: 4.5:1 normal text, 3:1 large text/UI)**:
+computed real relative-luminance contrast ratios for every actually-used
+text-on-background combination in the brass/ivory/ink/sage palette (not
+just the raw pairwise combinations - checked what each token is really
+used for and on what background, e.g. `.card`'s `--ivory` background vs.
+the page's own `--ivory-deep`). Found three real, systemic failures:
+`--taupe` (used for `.subtitle`, `.card-sub`, filter labels, `.count`,
+`.listing-persqm`, pagination `.page-info`, and more - dozens of small/
+normal-text usages) measured 3.40:1 on `--ivory` and 3.08:1 on
+`--ivory-deep`, both well under the 4.5:1 floor; `--sage` (badge text,
+`.pl-status-line`, `.btl-pass-line.pass`) measured 3.33:1 / 3.02:1 direct
+and as low as 2.89:1 against its own tinted badge background; `--brass-
+deep` (link/label text used throughout) passed on `--ivory` (4.59:1) but
+failed on `--ivory-deep` (4.17:1) and on its own tinted badge backgrounds
+(as low as 3.57:1). Fixed by darkening all three tokens in place (a
+uniform per-channel scale - same hue, no new color introduced, per the
+"stay within the palette" instruction): `--taupe` `#8c8378`→`#685f55`,
+`--sage` `#7a8b6f`→`#4f5a48`, `--brass-deep` `#8a6a24`→`#755a1e`. Verified
+live post-fix via a Playwright page evaluating the actual computed CSS
+custom properties: `--taupe` now 5.70:1 (ivory) / 5.17:1 (ivory-deep),
+`--sage` 6.62:1 / 6.01:1, `--brass-deep` 5.91:1 / 5.36:1 - all clear 4.5:1
+with margin, everywhere they're actually used. `--brass`, `--ink`,
+`--ink-soft`, `--ivory`, `--ivory-deep`, `--taupe-light`, `--error` were
+all already passing and left untouched.
+
+**Alt text**: grepped every `<img>` tag and every listing-photo render
+site (6 total). Two had no `alt` attribute at all - `.pl-table-photo`
+(Pipeline table view's thumbnail column) and `.detail-thumb` (listing
+detail page's photo-strip thumbnails) - both fixed with real descriptive
+text (listing title + portal for the table photo; "View photo N of M -
+{title}" for the thumbnails, since they're also now interactive). The two
+main listing-grid card renders (`createListingCard`, `createPipelineCard`)
+already had `alt="${title}"` but were upgraded to title + portal per the
+brief's own example. The listing-detail main photo's alt was unescaped
+raw `l.title` (a real, if minor, HTML-injection/attribute-breaking risk
+for any listing title containing a quote) - fixed to `escapeHtml()` +
+portal. The one already-correct case, oddly, needed the opposite fix: the
+"Browse by city" home-page tiles had `alt="${city}"` on an `<img>` that
+sits inside a `<button>` whose own `aria-label` already states the full
+"{city}, {N} listings" - a screen reader would announce the city name
+twice. Set that one `alt=""` (decorative) since the parent already
+carries the accessible name - verified against how the accessible-name
+computation actually treats a labelled parent, not fixed on a guess.
+
+**Keyboard navigation**: real Playwright keyboard-only walkthroughs (Tab/
+Shift+Tab/Enter/Escape), not DOM reading. Found two real, confirmed gaps:
+(1) **none of the site's 4 modals** (Lead Generator config, Pipeline
+stages/tags config, Reminder, Deal Calculator) **trapped focus, closed on
+Escape, or returned focus to the triggering element** - Tab could walk
+straight through to the page behind an open modal, confirmed live by
+tabbing 40 times inside the Lead Generator modal before the fix (escaped
+after ~14 tabs) and by the total absence of any Escape/focus-management
+code for all 4 (only the mobile sidebar had one). Fixed with a single
+shared, centralized mechanism (`index.html`, near the sidebar's own
+Escape handler) - a `MutationObserver` per overlay watching its `open`
+class, rather than editing each open()/close() function individually, so
+it also covers any future modal built on the same markup. Re-verified
+live post-fix: 40 Tab presses inside the Lead Generator modal never left
+`.modal-panel` (`focus_escaped_modal_during_tab: false`), Shift+Tab from
+the first focusable element correctly wrapped to the last ("Save"),
+Escape closed it, and focus correctly returned to the "+ Add New Lead
+Generator" button that opened it. Also added `role="dialog"`,
+`aria-modal="true"`, and `aria-labelledby` (pointing at each modal's own
+heading) to all 4 `.modal-panel`s, which had none of the three. (2) the
+listing-detail **photo thumbnail strip was mouse-only** - `<img
+class="detail-thumb">` elements had a `click` listener and nothing else,
+so they were entirely unreachable by keyboard (no `tabindex`, no
+`role`, no `keydown` handling). Fixed: `role="button"`, `tabindex="0"`,
+a real `aria-label`, and a `keydown` handler for Enter/Space (with
+`preventDefault` so Space doesn't also scroll the page) wired alongside
+the existing click listener.
+
+**ARIA labels on icon-only buttons**: audited all 149 `<button>`s for
+ones with no visible text label (an emoji/symbol only). Buttons that
+already have a visible text label (e.g. "★ Saved to Dashboard", "⬇
+Export", "← Previous") were left alone - a redundant `aria-label` there
+would just duplicate the existing accessible name, which is the kind of
+performative attribute the brief explicitly warned against. Real gaps
+found and fixed, all with dynamic, context-specific text (not a generic
+"Edit"/"Delete" repeated identically down a list of otherwise-identical
+rows): the 4 modal close buttons (`✕`, previously not even carrying a
+`title`); the Lead Generator card's edit/duplicate/share/delete icon row
+(`aria-label="Edit {generator name}"` etc.); the Pipeline card's tags/
+remove icon buttons and the Pipeline table's row-remove button (listing
+title in the label); the stage/tag config rows' icon/name/color inputs
+and their remove buttons (previously had no accessible name at all - not
+just missing on the button, the plain-text icon/name inputs too); and the
+save-to-Dashboard (★/☆) and add-to-Pipeline (✓/＋) toggle buttons, whose
+existing `title` already stated the current state correctly but had no
+`aria-label`, now made dynamic and per-listing. Explicitly did **not**
+touch already-correct cases: the sidebar's hamburger toggle already had
+`aria-label`/`aria-expanded`/`aria-controls`; the detail page's photo
+prev/next arrows already had `aria-label`; every `.nav-item` already
+pairs its icon with visible text.
+
+**Lazy-loading**: the two main listing-grid card renders
+(`createListingCard`, `createPipelineCard`) and the comparables-panel
+photo render already used native `loading="lazy"` - confirmed this is
+correct as-is (native lazy-loading defers only images actually outside
+the viewport; it doesn't need hand-rolled "first N cards" exemption
+logic). Added it to the two images that were missing it entirely
+(`.pl-table-photo`, `.detail-thumb`) as part of the same fix that added
+their `alt` text. Left the listing-detail page's main hero photo
+(`#detailMainPhoto`) un-lazy, correctly - it's the one listing-photo
+element actually in the first viewport on that page. Verified the
+existing "no photo" placeholder logic still works identically after these
+changes: a real Playwright test that calls `createListingCard()` with a
+synthetic listing pointing at a broken photo URL and dispatches a real
+`error` event on the resulting `<img>` confirms `handlePhotoError()`
+still replaces it with the `.listing-photo-placeholder` exactly as
+before.
+
+**Verification**: this sandbox blocks every real CDN the page loads from
+(`cdnjs.cloudflare.com`, `cdn.jsdelivr.net`, `unpkg.com`, Google Fonts -
+confirmed via the proxy's own status endpoint, all rejected 403 by
+policy, matching item 39's own note about this). Used Playwright's
+`page.route()` to serve small local stand-ins for Supabase-js/Leaflet/
+Leaflet-draw/Chart.js (generic Proxy-based chainable/thenable/no-op
+stubs - not real map/chart rendering, irrelevant to these specific
+checks) so the real, unmodified `index.html` runs end to end against
+them. Confirmed **zero console/JS errors** at both 1440px and 390px with
+this harness. Contrast ratios above were read from the page's own live
+computed `--taupe`/`--sage`/`--brass-deep` CSS custom properties, not
+recomputed by hand only. Full keyboard walkthrough covered the sidebar
+nav, the Lead Generators page's filter/sort controls, and the Lead
+Generator config modal (focus trap, Shift+Tab wrap, Escape, focus
+return). `renderPipelineConfigLists()` and `renderPipelineTableView()`
+were also exercised directly with synthetic stage/tag/listing data to
+confirm their new ARIA labels and alt/lazy attributes render correctly
+end to end, not just as static markup.
+
+**Files touched**: `index.html` only (`:root` palette values; `alt`/
+`loading`/`aria-label`/`role`/`tabindex` attributes on the affected
+`<img>`/`<button>`/`<input>` templates; the new shared modal focus-trap/
+Escape/return-focus script; `role="dialog"`/`aria-modal`/
+`aria-labelledby` on the 4 modal panels). No scraper/sync/schema/workflow
+files touched. No auth/PII surface.
+
+## 45. Discovery & engagement batch: similar-listings strip, saved filter presets, national map marker clustering, Dashboard "what changed" digest - APPROVED BY MISSY, MERGED (2026-09-26, Dessy)
+
+**Missy's review flagged two non-blocking follow-ups, not fixed in this PR:** (1) the Comparables map's clustering fallback path (when `L.markerClusterGroup` isn't available, e.g. CDN blocked) still renders up to 2,000 raw ungrouped markers instead of re-applying a safe cap near the old 300 - a real UX/performance regression on CDN failure, not a crash or data loss. (2) `computeDashboardDigest()`'s `if (price drop) ... else if (went sold)` means a listing that both dropped in price and sold in the same window only ever surfaces as "Price drop," silently masking the more important "Sold" status. Both worth a small follow-up dispatch.
 
 Four items from the user-approved "discovery & engagement" batch, dispatched together by Bossy. All four are frontend/client-JS only - no scraper, sync, schema, or workflow file touched, and no backend/data-pipeline change was needed for any of them (confirmed before starting, not just assumed).
 
@@ -5909,7 +6200,7 @@ Due-Diligence chevron panel were all requested but not supplied. None of
 these block starting items 13-21; revisit if/when they turn out to matter
 for a specific item.
 
-## 40. Browser back button jumped straight to Home instead of one step back - direct user feedback ("the back button brings me to home screen. Needs to be one step back from previous action") - FIXED
+## 42. Browser back button jumped straight to Home instead of one step back - direct user feedback ("the back button brings me to home screen. Needs to be one step back from previous action") - FIXED, MERGED (#299)
 
 Direct, verbatim user feedback: "Also the back button brings me to home
 screen. Needs to be one step back from previous action."
@@ -6018,3 +6309,200 @@ this is entirely client-side navigation state.
   properties) - not enough for reliable yield. Revisit only if imoti.net's
   or imot.bg's real listing counts become readable (their rental sections
   exist but the count couldn't be extracted last time).
+## 44. Investor-facing features: user-curated listing comparison, print/PDF export, "Recently viewed" strip - APPROVED BY MISSY (2 rounds - detail-page compare button state fix), MERGED (2026-09-26); saved-search digest - SCOPED, NOT BUILT (see below)
+
+
+User approved a batch of design/UX ideas and said "Execute" - this item
+covers the "investor-facing features" group of that batch. Built in an
+isolated `git worktree` off a fresh `origin/main`
+(`feat/investor-facing-features` branch), per this repo's shared-checkout
+discipline (other agents were confirmed to be touching `index.html`
+concurrently - a design-polish pass and a data-file fix - via
+`git worktree list`/`git status` before starting). No live GitHub Actions
+workflow touched, so the standing rule against iterating via live
+`workflow_dispatch` doesn't apply here. Verified with a real headless-
+browser (Playwright) harness before opening the PR, not just read-through -
+see "Verification" below. Not self-merged - opened as a PR for Missy's
+review per the repo's standing rule.
+
+**1. Side-by-side comparison table for 2-3 listings** (`compareListingIds`
+localStorage key, `COMPARE_MAX = 3`). Deliberately kept distinct from the
+existing radius-based Comparables tab/page (`findComparables()` et al.,
+item 15) - that surface answers "what's the nearby market average around
+this one listing"; this one answers "how do these specific listings I
+picked stack up against each other," a different question with a
+different (small, manual, cross-page) selection model. No "select
+multiple" UI pattern already existed anywhere in the app (grid, Lead
+Generators, or Pipeline all checked first) to extend, so a new, minimal
+one was built:
+- A ⚖ toggle button on every listing card in the main Leads grid
+  (`createListingCard()`) and on every Pipeline card
+  (`createPipelineCard()`, as a `pl-icon-btn` variant since the absolutely-
+  positioned corner-button style used on grid cards doesn't fit Pipeline's
+  card footer layout) - both wired through one delegated
+  `document` click handler on `[data-compare-id]`, so adding it to a
+  future third surface (e.g. the Dashboard's saved-listings grid) needs no
+  new listener, just the button markup.
+- A floating bottom compare bar (`#compareBar`, always in the DOM, shown/
+  hidden by `renderCompareBar()`) showing thumbnails of the current
+  selection with per-item remove, a Clear action, and a brass "⇄ Compare"
+  CTA (disabled below 2 selected).
+- A wide modal (`#compareModalOverlay`, reusing the existing
+  `.compare-modal` width modifier already shared by the Pipeline
+  stages/tags config and Deal Calculator wizard modals) rendering the
+  actual side-by-side table: photo, title, area, price, size, price/m²,
+  rooms, days on market, motivation score, portal, and the same badge set
+  `buildBadgesHtml()` already renders on cards - no separate badge logic
+  to maintain.
+- Persisted to `localStorage` on every change (`compareListingIds`),
+  following the app's existing no-login pattern (`savedListingIds`/
+  `pipelineDeals`/`sitePreferences`) - survives a reload, confirmed via a
+  real `page.reload()` in the verification harness, not just re-reading
+  the same page instance.
+
+**2. Export a listing or Deal Calculator result as PDF** - shipped via
+`window.print()` + a dedicated print stylesheet, not a vendored PDF
+library. Reasoning: this codebase already has a documented "no new
+libraries unless necessary" pattern, and the two vendored libraries it
+does carry (Chart.js, Leaflet) are both large interactive libraries doing
+things CSS fundamentally can't (canvas charting, tile-based maps) - a
+static, single-page investor hand-out has no interactive requirement
+`window.print()` + `@media print` can't already satisfy. A vendored PDF
+library (e.g. jsPDF/pdf-lib) would add real weight (jsPDF alone is
+~200KB+ minified) for a feature `window.print()` covers natively in every
+browser, including "Save as PDF" as a first-class option in every major
+browser's own print dialog - genuinely insufficient only if pixel-perfect
+layout control independent of the browser's print engine were required,
+which a clean investor summary page doesn't need.
+- Mechanism: a single hidden `#printRoot` div plus `body.print-active`
+  toggled by a shared `runPrint(html)` helper - the `@media print` rule
+  hides the entire live app (`.app`) and shows only `#printRoot`, so the
+  printed/PDF'd page is never the live UI with chrome hidden piecemeal
+  (which tends to leave gaps), always a purpose-built fragment.
+  `runPrint()` restores normal state on the browser's own `afterprint`
+  event, so cancelling the print dialog leaves the app exactly as it was.
+- **Listing print view** (`buildPrintListingHtml()`, "🖨 Print / Export
+  PDF" button on the listing detail page): photo, title, address, price,
+  price/m², rooms/days-on-market/motivation-score/area-avg stat tiles,
+  full description, and a footer with the original listing URL and a
+  standard "not a verified valuation, confirm against the original
+  listing and the land registry" caveat (same tone the app already uses
+  elsewhere for relisting/unverified-price disclaimers).
+- **Deal Calculator print view** (`buildPrintDealCalcHtml()`, "🖨 Print /
+  Export PDF" button on every Deal Calculator template card, alongside the
+  existing Edit/Duplicate/Delete actions): full input table (every field
+  the BTL or FLIP wizard collected, human-labeled) + full results table,
+  computed via the exact same `computeDealCalcResultFor()` the on-screen
+  card already uses - never a separate print-only recomputation, so the
+  printed numbers can't drift from what's shown on screen.
+- Ink-on-white print styling (`.print-*` classes), explicit `background:
+  #fff` under `@media print` (the live app's warm-ivory background would
+  otherwise print if the browser has "background graphics" enabled) -
+  verified via Playwright's `page.emulate_media(media='print')`, which
+  confirmed `.app` fully hidden and `#printRoot` the only visible content
+  in the print-media render.
+
+**3. "Recently viewed" strip** (`recentlyViewedListingIds` localStorage
+key, last 8, most-recent-first). Tracked on every real listing open via
+`showListingDetail()` (`trackRecentlyViewed()`), not just navigation from
+the strip itself, so it reflects opens from anywhere - the grid, Pipeline,
+Dashboard, a direct `#/listing/...` link. Shown as a new "Recently viewed"
+card on the Home page (`renderRecentlyViewedStrip()`, called from
+`renderHome()` and from `showSection('home')` so it's current whether Home
+was already loaded or navigated back to), placed right after the Search
+card and hidden entirely (`display:none`) until there's at least one
+entry, so it never shows an empty strip to a first-time visitor. Persisted
+to `localStorage`, same no-login pattern as items 1 and elsewhere -
+survives a reload (verified the same way as item 1's compare set, in the
+same harness run).
+
+**4. Saved-search digest - documented only, per the dispatch's own
+instruction not to build it.** This needs real infrastructure the app
+doesn't have and can't fake convincingly:
+- **A way to run on a schedule server-side.** Every existing "automatic"
+  behavior in this app (the scrape/sync GitHub Actions workflows) runs
+  against this repo's own data pipeline, not per-user - there's no
+  existing job runner that could iterate "for each saved search, check
+  what's new, send a digest" against arbitrary users' `localStorage`-only
+  Lead Generators, because that data structurally never leaves the user's
+  own browser today. This would need a genuinely new lightweight backend
+  job (e.g. a small scheduled function/worker with its own datastore),
+  not an extension of the existing scrapers.
+- **A way to identify "the same browser/user" across visits without full
+  auth.** Lead Generators are `localStorage`-keyed today, with no login
+  anywhere in the app (a per-user Supabase Auth version existed briefly
+  and was deliberately removed - see this file's login-removal history).
+  A digest needs *something* durable to send to, which means either (a) a
+  real login system (a bigger, separately-scoped decision this dispatch
+  explicitly isn't making) or (b) a lighter-weight anonymous-device-id +
+  email-opt-in model (e.g. a signed token stored in `localStorage`,
+  associated server-side with an email address and that browser's saved
+  searches, synced up on save rather than kept purely local) - itself a
+  real design decision (what happens if `localStorage` is cleared? what
+  happens on a second device?) that needs to be made deliberately, not
+  implied by a checkbox nobody thought through.
+- **An email-sending capability.** No email service (transactional email
+  provider, sending domain/DNS setup, unsubscribe-compliance handling) is
+  wired into this app anywhere today. This is a real, non-trivial
+  integration on its own, independent of the scheduling/identity pieces
+  above.
+- **What "new" means for a digest**, concretely: new listings matching
+  the saved search's filters since last sent, price drops on already-
+  matched listings, or both - a product decision this dispatch doesn't
+  make, deliberately left for whoever picks this item up to decide
+  alongside the send cadence (daily/weekly) and what a "no new matches"
+  digest should do (skip sending, or send a quiet confirmation).
+- Per the dispatch's explicit instruction, no fake/inert settings UI was
+  added anywhere (no "Email me when..." checkbox that silently does
+  nothing) - the Preferences page is unchanged by this item.
+
+**Verification**: real Playwright screenshots at 1440px and 390px
+(desktop/mobile) against a local static server, using the same
+stub-`window.supabase`-and-inject-fixture-data harness pattern as prior
+sessions' scratchpad checks (`check_page.py`), extended with a generic
+`Proxy`-based chainable Supabase stub (robust to every `.select()/.eq()/
+.in()/.order()/.limit()/.maybeSingle()` call shape `loadData()`/
+`showListingDetail()` use, not a hand-picked method list) and a minimal
+`Chart` constructor stub (Chart.js itself is CDN-hosted and unreachable in
+this sandbox - a pre-existing, environment-only gap, unrelated to this
+change; Leaflet-dependent map code already guards `typeof L === 'undefined'`
+everywhere and needed no stub). Confirmed via 3 fake listings injected
+into `MERGED_LISTINGS`:
+- Compare: toggled 2 listings' ⚖ buttons on the real grid cards, opened
+  the real compare bar and modal, confirmed the table renders the right
+  8 rows for both columns, confirmed `localStorage.compareListingIds`
+  holds `["fake1","fake2"]` **after a real `page.reload()`** (not just a
+  fresh page load with an empty profile, which would prove nothing about
+  persistence) - both desktop and mobile viewports.
+- Recently viewed: opened a listing via `showListingDetail()`, navigated
+  home, confirmed the strip shows it and `localStorage
+  .recentlyViewedListingIds` holds `["fake3"]`, again reconfirmed after a
+  real `page.reload()` - both viewports.
+- Print: emulated `print` media (`page.emulate_media()`), confirmed
+  `.app`'s computed `display` is `none` and `#printRoot`'s is `block`
+  while active, for both the listing print view and the Deal Calculator
+  print view, both viewports.
+- **Zero new console/JS errors** across every run (0 `pageerror`s, 0
+  `console.error`s once "Failed to load resource" network-only noise from
+  this sandbox's unreachable CDNs/fake photo URLs is excluded - that
+  category can't hide a real thrown error, which is never phrased that
+  way).
+
+**Files touched**: `index.html` only (new CSS rules for `.compare-*`/
+`.rv-*`/`.print-*`, new HTML for the compare bar/modal, the Home page's
+Recently Viewed card, and `#printRoot`; new JS: `loadCompareListings()`/
+`persistCompareListings()`/`isInCompare()`/`toggleCompareListing()`/
+`updateCompareButtonsFor()`/`findListingByIdAnywhere()`/
+`renderCompareBar()`/`clearCompareListings()`/`openCompareModal()`/
+`closeCompareModal()`/`renderCompareModal()`/`compareMotivationLabel()`,
+`loadRecentlyViewed()`/`persistRecentlyViewed()`/`trackRecentlyViewed()`/
+`renderRecentlyViewedStrip()`, `runPrint()`/`printedOnLine()`/
+`buildPrintListingHtml()`/`printListingDetail()`/`buildPrintDealCalcHtml()`/
+`printDealCalcTemplate()`; small additions to `createListingCard()`,
+`createPipelineCard()`, `renderListingDetail()`,
+`renderDealCalcTemplateCard()`/`wireDealCalcTemplateCardEvents()`,
+`renderHome()`, `showSection()`, `showListingDetail()`, and the init-time
+`load*()` call sequence). No scraper/sync/schema/workflow files touched;
+no backend/data change of any kind, matching the dispatch's "no auth/PII
+surface" instruction.
+

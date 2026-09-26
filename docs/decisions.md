@@ -6027,7 +6027,150 @@ consistent with this repo's standing rule against iterating via live
 dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
+### 2026-09-26 - Data trust & investor edge (backlog item 40): freshness badge, cross-portal price divergence, filtered-grid CSV export
+
+User directive ("Execute") covering 3 items: a per-listing data-freshness
+badge, a cross-portal price-divergence flag, and a CSV export of the
+filtered Leads grid. Full reasoning and what was actually shipped is in
+`docs/backlog.md` item 40 - this entry covers the two investigation
+findings worth a decisions-log entry on their own, plus process notes.
+
+**Finding worth flagging on its own: `merged_listings`'/`listing_sources`'
+`updated_at` column does not mean what its name suggests.** The task brief
+named it as a candidate freshness field to check - grepped for every use
+of `"updated_at"` in `sync_to_supabase.py` and found exactly one: the
+`SOURCE_FIELDS` list's own explanatory comment block, never the field
+itself. It is never included in the row dicts `build_rows()` constructs,
+so it's never part of the JSON `upsert()` sends. Since Postgres/PostgREST
+`Prefer: resolution=merge-duplicates` builds its `ON CONFLICT DO UPDATE
+SET` clause only from columns present in the request body, `updated_at`
+is set exactly once - by its own `not null default now()` at the row's
+original `INSERT` - and never touched again, despite every subsequent
+sync run re-sending that row's full current data. Confirmed this isn't
+just a hunch: it follows directly from reading `upsert()` and `build_
+rows()` together, and matches the observable fact that `SOURCE_FIELDS`/
+`MERGED_FIELDS` (the two lists that determine upsert payload contents) both
+deliberately exclude it. Practical effect if it had been used as the
+freshness signal: every long-tracked, still-actively-rechecked listing
+would show as "stale" from the day after it was first synced onward, for
+the rest of its life on the site - the opposite of an honest freshness
+signal. Not fixed here (would touch live Supabase write behavior for
+every row, not a frontend-only "no new backend field" ask) - documented
+plainly in `docs/backlog.md` item 40 as a follow-up any future item could
+pick up, with the two concrete ways to fix it.
+
+**Finding worth flagging on its own: cross-portal per-source prices ARE
+retained after merge, unlike a hypothetical version of this app that
+discarded them.** This was the open question the dispatch itself posed
+("investigate whether source-level price data is actually available").
+Traced `sync_to_supabase.py`'s `group_listings()`/`build_rows()`: a merged
+listing's individual sources go into `listing_sources` (one row per
+`(portal, source_id)`, each keeping its own real `price_eur`/`price_per_
+sqm`), while `merged_listings` gets one row built from the single
+highest-`score` source (`sorted_sources[0]`) plus `member_count`/`member_
+portals`. Nothing about the merge drops or averages the per-source prices
+- they're simply not repeated in the merged row's own columns, which is
+why the frontend already has to fetch `listing_sources` separately (lazily,
+once a cross-posted listing's detail page opens) to build the existing
+per-portal price-switcher badges. That fetch already had every price
+needed for a divergence check; item 2 just had to compare them
+proactively instead of leaving the user to click through each portal
+badge to notice a difference themselves.
+
+**Verification**: real Playwright harness (this session's own scratchpad,
+not committed), fixture-driven, covering every real freshness-data shape
+(fresh/stale `site_updated_at`, recent/old-only `first_seen_at`, neither
+field present) plus a genuinely-divergent and a near-identical
+cross-posted listing with matching `listing_sources` fixture rows, at
+1440px and 390px. All checks passed, including a real triggered CSV
+download whose row count/columns/filter-compliance were checked
+programmatically (RFC-4180-aware parsing, not a naive comma split, so a
+title containing a comma didn't produce a false failure). Console/JS-error
+check is diffed against a `baseline_check.js` run of unmodified `origin/
+main`'s own `index.html` against the same fixture/sandbox, which
+reproduces the identical pre-existing 404/`ERR_TUNNEL_CONNECTION_FAILED`
+network noise (this sandbox's proxy blocks the map tile/photo/font hosts
+this page uses, regardless of this change) and the identical pre-existing
+Leaflet `_leaflet_pos` exception - confirming both are environmental, not
+introduced by this change, rather than just asserting so.
+
+**Process**: built in an isolated `git worktree` off a fresh `origin/
+main` (`feat/data-trust-investor-edge` branch) - `git worktree list`
+showed 6 other worktrees/checkouts active on this repo at dispatch time
+(a design-polish pass, investor features, an accessibility pass, a
+back-button fix, a gzip migration, and Dessy's own two), confirming the
+real collision risk the dispatch warned about; kept every change small
+and additive (new CSS classes, new standalone JS functions, single-point
+HTML insertions at existing element boundaries) rather than touching any
+shared function body other agents were also likely editing (`render()`,
+`createListingCard()`, `renderListingDetail()` were read but not
+restructured - only single-line insertions at their existing template
+boundaries). No live GitHub Actions dispatch involved - nothing here
+touches a workflow or a script Actions runs. Not self-merged - opened as
+a PR for Missy's review per the repo's standing rule.
+
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
+
+### 2026-09-26 - Deal Calculator PDF export: `window.print()`, not a vendored PDF library
+
+For backlog item 40's "export a listing or Deal Calculator result as
+PDF," chose `window.print()` + a dedicated `@media print` stylesheet over
+vendoring a client-side PDF library (e.g. jsPDF/pdf-lib). This codebase
+already has an established "no new libraries unless necessary" pattern -
+the two it does vendor (Chart.js, Leaflet) both do something CSS
+fundamentally cannot (canvas charting, tile-based interactive maps).
+Exporting a static, single-page investor summary isn't in that category:
+`window.print()` already gives every browser's own "Save as PDF" option
+in its print dialog, at zero added page weight, versus jsPDF alone
+running ~200KB+ minified for a capability the browser already has
+natively. Would only have been insufficient if pixel-exact layout control
+independent of the browser's own print/PDF engine were required (e.g.
+matching a fixed corporate letterhead template precisely) - not the bar
+for a clean, readable investor hand-out. Built as a single shared
+`#printRoot` + `body.print-active` mechanism (the whole live app is
+hidden and only a purpose-built fragment shown, rather than hiding the
+live UI's chrome piecemeal) so the same approach covers both the listing
+detail page and the Deal Calculator template card without two separate
+print code paths.
+
+### 2026-09-26 - Listing comparison kept separate from the existing Comparables tab, not merged into it
+
+Backlog item 40's user-curated "compare 2-3 listings side by side" table
+was deliberately NOT folded into the existing radius-based Comparables
+tab/page (item 15, `findComparables()`). They answer different questions:
+the existing tool asks "what's the nearby market average around this one
+listing" (automatic, radius-driven, many results); the new one asks "how
+do these specific listings I hand-picked compare" (manual, cross-page
+selection, 2-3 results, no radius or location logic at all). Sharing one
+UI for both would have forced an artificial choice between two selection
+models (an implicit radius vs. an explicit pick-list) that don't map onto
+each other - kept as two small, clearly-named surfaces instead (the
+existing tab keeps its name; the new one is labeled "Compare listings" in
+its own modal, distinct from the existing "⇄ Compare nearby" button's
+copy, which was left untouched).
+
+### 2026-09-26 - PR #295 fix: detail-page compare button now updates its own visual state
+
+Missy's review of PR #295 (`feat/investor-facing-features`) found the ⚖
+compare toggle button on the listing detail page never refreshed its own
+text/style after being clicked. Root cause: it was rendered with only
+`detail-secondary-btn` (plus a conditional `active`) - no compare-specific
+class - so `updateCompareButtonsFor()`, which every toggle click runs to
+refresh button visuals, only queried `.compare-listing-btn,
+.compare-listing-btn-inline` and silently skipped it. The click still
+worked functionally (the global delegated `[data-compare-id]` handler
+fires `toggleCompareListing()` off the attribute regardless of class, so
+localStorage and the floating compare bar updated correctly) but the
+button itself showed stale text/style until the whole view re-rendered.
+Missy's finding pointed at the exact right precedent already solved
+correctly for the analogous Save button: `updateSaveButtonsFor()` has a
+third selector, `.save-detail-btn`, specifically for its own
+differently-styled detail-page instance. Mirrored that shape here: added
+a `.compare-listing-btn-detail` class to the detail-page button alongside
+its existing `detail-secondary-btn`/`active` classes, added that selector
+to `updateCompareButtonsFor()`'s query, and added a branch there that
+sets the detail button's full-text label (`⚖ In comparison` / `⚖ Add to
+compare`) rather than reusing the grid button's single-glyph swap.
 
 ### 2026-09-26 - alo.bg/bazar.bg hit the same GH001 wall homes.bg already hit (item 37) - gzip migration extended to alo.bg, bazar.bg, olx.bg, imot.bg
 
@@ -6040,6 +6183,7 @@ repo's standing rule, even though it's docs-only.
 **Not dispatched live** - per this repo's standing rule against iterating on production workflows via `workflow_dispatch` (the exact rule this session's own CLAUDE.md was written to enforce, after 5 failed live runs of one diagnostic script in an earlier session). Every change was validated locally instead: `python3 -m py_compile` on every changed file, the full test suite (270 passed, 4 subtests, 0 regressions), each of the 4 migrated scrapers' own `load_history()`/`compute_leads()` run end-to-end against the real migrated `.gz` data, `check_scrape_freshness.py`/`sync_to_supabase.py`/`merge_history_conflict.py`/`evict_stale_history.py --dry-run` all run against the real post-migration files and confirmed working.
 
 Built in an isolated `git worktree` off a fresh `origin/main`, per this repo's shared-checkout discipline (confirmed via `git status`/`git log` on the shared checkout before starting: it was mid-way through unrelated work on a different branch, left untouched). Not self-merged - opened as a PR for Missy's review, flagged time-sensitive given active, ongoing production data loss on every `backfill-detail-alo.yml` run until this merges.
+
 ## 2026-09-26: Browser back button fix (backlog item 40) - history.pushState()/popstate added; none existed before
 
 **Root cause.** Direct user feedback: "the back button brings me to home
@@ -6238,6 +6382,186 @@ PR's branch point and merge was lost: `leads_imot.json.gz` 47,283 records
 (87,246,113 -> 15,520,975 bytes), `history_olx.json.gz` 38,412 records
 (85,724,499 -> 15,594,787 bytes). `data/geocode_cache.json` and the
 homes.bg `.gz` files had no conflicting changes and merged automatically.
+## 2026-09-26: Accessibility audit + fixes (backlog item 40) - real contrast ratios, modal focus-trap gaps, icon-button ARIA labels
+
+User approved a batch of design/UX ideas and said "Execute"; this session
+covers the "technical/accessibility" slice specifically - real, evidenced
+fixes only, explicitly not a cosmetic/performative pass. Full findings
+and the fix for each are in `docs/backlog.md` item 40; this entry records
+the reasoning behind the specific choices made and the exact
+before/after numbers.
+
+**Contrast: measured, not eyeballed, and only for combinations actually
+in use.** Computed real WCAG relative-luminance contrast for every
+palette pair first (`(L_light + 0.05) / (L_dark + 0.05)`), then, rather
+than "fixing" every pair that happened to fail in the abstract, checked
+which of those pairs are actually used as text-on-background anywhere in
+`index.html` and on which real background (`.card`'s `--ivory`, or the
+page's own `--ivory-deep`, or a badge's own alpha-blended tint over
+either). This mattered: `--brass` (used only for borders/active-state
+fills with `--ink` text on top, itself already passing at 4.56:1) would
+have looked like it needed fixing from a naive pairwise table but never
+actually renders as small text anywhere, so was correctly left alone.
+
+Three tokens were real, confirmed failures:
+
+| Token | Old hex | On `--ivory` | On `--ivory-deep` | Worst real-world case |
+|---|---|---|---|---|
+| `--taupe` | `#8c8378` | 3.40:1 | 3.08:1 | `.subtitle`/`.card-sub`/filter labels/`.count` etc., all 4.5:1-requiring normal text |
+| `--sage` | `#7a8b6f` | 3.33:1 | 3.02:1 | as low as 2.89:1 against its own `rgba(sage,0.12)` badge background |
+| `--brass-deep` | `#8a6a24` | 4.59:1 (passes) | 4.17:1 (fails) | as low as 3.57:1 against its own `rgba(brass,0.16)` badge background |
+
+**Decision: darken each token in place via a uniform per-channel scale**
+(e.g. `--sage` at 0.65×) rather than introduce a new `--taupe-deep`-style
+variable and hunt down every one of the dozens of call sites individually
+- same hue, no new color added to the system (matching the explicit "stay
+within the palette" instruction), and it fixes every current and future
+usage of that token in one place instead of requiring the next feature
+that reaches for `--taupe` to remember it needs the special darker
+variant. New values: `--taupe` `#685f55`, `--sage` `#4f5a48`,
+`--brass-deep` `#755a1e`. Deliberately targeted a real margin above
+4.5:1 (5.17-6.62:1 depending on token/background) rather than the bare
+minimum, since these tokens are reused across many future contexts this
+session can't enumerate exhaustively, and 4.50-4.55:1 leaves zero room
+for a slightly-off rendering engine or a future slightly-lighter
+background variant to tip back under the line.
+
+**Decision: fix the two mouse-only interactions found, not just add
+labels.** The keyboard walkthrough surfaced two real interaction gaps,
+not just missing attributes: none of the 4 modals trapped focus or closed
+on Escape (confirmed live - Tab walked out of the open Lead Generator
+modal after ~14 presses before the fix), and the detail-page photo
+thumbnails were `<img>` elements with only a `click` listener, completely
+unreachable by keyboard. Both are "can't operate this feature with a
+keyboard at all" bugs, a materially worse class of problem than a missing
+label, so both got real interaction fixes (a shared focus-trap/Escape/
+return-focus mechanism for the modals; `role="button"` + `tabindex="0"` +
+a `keydown` handler for the thumbnails) rather than being logged as
+follow-up items.
+
+**Decision: centralize the modal fix via `MutationObserver` on each
+overlay's `open` class, instead of editing the 4 separate open()/close()
+function pairs.** The 4 modals (`leadgenModalOverlay`, `plConfigModalOverlay`,
+`reminderModalOverlay`, `dealCalcModalOverlay`) each already toggle a
+plain `.open` CSS class from independent, differently-named functions
+with no shared code path. Editing all 8 functions individually would work
+for today's 4 modals but silently miss any modal added later unless its
+author remembered to copy the same boilerplate. Watching the DOM
+attribute directly means the fix applies uniformly now and automatically
+to anything built on the same `.modal-overlay`/`.modal-panel` markup
+later, at the cost of one small shared script block instead of eight
+small edits.
+
+**Decision: `alt=""` on the "Browse by city" tile photos, not a
+descriptive string, despite the brief asking for "real, descriptive alt
+text."** These images sit directly inside a `<button aria-label="{city},
+{N} listings">` - the accessible-name algorithm already gives the button
+a full, correct name from that `aria-label`, and a screen reader would
+announce the image's own alt text as a second, redundant name
+immediately after it ("Sofia. Sofia, 1,234 listings" or similar,
+depending on the AT). Reasoned through the accessible-name-computation
+order rather than assuming "more text is always safer" - a wrong or
+redundant label is exactly the failure mode the brief's "no performative
+attribute pass" instruction warned against.
+
+**Verification environment note**: this sandbox's egress policy blocks
+every CDN host `index.html` actually loads from (`cdnjs.cloudflare.com`,
+`cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com` - all confirmed
+403'd by the proxy's own `__agentproxy/status` endpoint), the same
+constraint item 39's own Playwright harness ran into. Rather than
+`npm pack`-vendoring the real libraries the way item 39 did, used
+Playwright's `page.route()` to serve small local generic Proxy-based
+stub scripts for `supabase-js`/Leaflet/Leaflet-draw/Chart.js (any
+property access or method call returns a further-chainable stub; awaiting
+one resolves to an empty, error-free `{data: [], error: null}`) - enough
+for the real, unmodified `index.html` to boot end-to-end with zero
+console/JS errors and for its real render functions
+(`createListingCard`, `renderPipelineTableView`,
+`renderPipelineConfigLists`, the modal open/close functions) to be
+exercised directly, without needing real map/chart rendering, which
+these particular checks don't depend on. Also found and worked around one
+sandbox-chromium-specific issue undocumented elsewhere in this repo: the
+Leaflet `<script>`/`<link>` tags carry Subresource Integrity hashes
+(`integrity="sha256-..."`) pinned to the real unpkg-hosted files, which
+made Chromium reject the locally-stubbed content as a hash mismatch until
+the test harness's own document-route stripped those two `integrity`
+attributes for the stub run only - `index.html` itself was not changed
+for this, since the SRI hashes are correct and should stay for the real,
+unmodified file in production.
+
+Built in an isolated `git worktree` off a freshly-fetched `origin/main`
+(`a11y-technical-fixes` branch), per this repo's shared-checkout
+discipline. No live GitHub Actions dispatch of anything - this change has
+no workflow/script surface at all, only `index.html` and these two docs
+files. Not self-merged - opened as a PR for Missy's review per the
+repo's standing rule.
+
+### 2026-09-26 - Correction (Missy's PR #297 re-review): darkening `--brass-deep` for its text use fixed one failure and silently introduced a worse one for its background use
+
+The entry above darkened `--brass-deep` from `#8a6a24` to `#755a1e`
+purely against its use as **text** (badge text, links, stat values) -
+that swap was checked (4.59:1 -> higher on `--ivory`, 4.17:1 -> passing
+on `--ivory-deep`). What it missed: `--brass-deep` is also used as the
+**background** in 5 button `:hover` states, each of which sets
+`color: var(--ink)` only in the base rule and switches just the
+`background`/`border-color` to `--brass-deep` on hover with no `color`
+override - `.cta-btn:hover`, `.save-detail-btn:hover`,
+`.leadgen-check-btn:hover`, `.modal-btn-primary:hover`, `.brass-btn:hover`.
+Darkening a background that dark (`--ink`) text sits on top of always
+*reduces* contrast, so this made an already-failing state materially
+worse:
+
+| Case | Contrast | Result |
+|---|---|---|
+| `--ink` on OLD `--brass-deep` (`#8a6a24`) | 3.24:1 | already failed AA 4.5:1 before this PR (missed by the original audit, which only checked brass-deep as text) |
+| `--ink` on NEW `--brass-deep` (`#755a1e`) | 2.52:1 | made worse by this PR's own darkening |
+
+Real WCAG relative-luminance math (`(L_light + 0.05) / (L_dark + 0.05)`),
+same method as the rest of this audit - not re-litigated, verified
+independently against Missy's numbers.
+
+**Fix: add an explicit `color: var(--ivory)` override to each of the 5
+hover rules**, rather than introduce a separate hover-background
+variable. `--brass-deep` already has to stay dark enough to work as text
+elsewhere in the palette; asking it to *also* stay light enough for dark
+text to read on it as a background is two incompatible constraints on
+one token. Switching the hover text color to `--ivory` (already an
+existing palette token, not a new hue) resolves it directly and matches
+the existing inverse pattern already used by `.save-listing-btn:hover`
+(`background: var(--ivory); color: var(--brass-deep)`) elsewhere in this
+same file. Real contrast after the fix, all comfortably clear of 4.5:1:
+
+| Hover state | Text/background | Contrast |
+|---|---|---|
+| `.cta-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.save-detail-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.leadgen-check-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.modal-btn-primary:hover` (14px/600 - not "large text", strict 4.5:1 applies) | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.brass-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+
+**Verified no other `--brass-deep` usage has the same undetected issue.**
+Grepped every `--brass-deep` occurrence in `index.html` after the fix.
+All other usages are either (a) `--brass-deep` as text color on a light
+surface - the case the original audit already covered and which now
+passes at 4.60-6.49:1 across `--ivory`, `--ivory-deep`, white, and every
+tinted badge background in use (composited over `--ivory-deep`: 4.60:1
+at 0.16 alpha up to 4.90:1 at 0.10 alpha), or (b) non-text uses with no
+readable content on top (a map-highlight stroke, a map-pin background
+behind an icon glyph, decorative photo-placeholder gradients under a
+low-opacity blended letter, a progress-bar fill). None of these needed
+changes. Confirmed the badge-text fix this PR was originally shipping is
+still intact - the `color: var(--ivory)` hover override only touches the
+5 button states above, `--brass-deep`'s value and its text-color usages
+are unchanged by this correction.
+
+Verified visually with real Playwright screenshots of each of the 5
+hover states (normal + `:hover`, rendered from the real `.cta-btn`/
+`.save-detail-btn`/`.leadgen-check-btn`/`.modal-btn-primary`/`.brass-btn`
+CSS extracted unmodified from `index.html`) - all 5 read clearly, ivory
+text on the darker brass, no new hue introduced. Built in the same
+isolated-worktree-off-the-PR-branch pattern as the rest of this repo's
+process; not self-merged - pushed to the existing `a11y-technical-fixes`
+branch for Missy's re-review.
 
 ## 2026-09-26: Discovery & engagement batch (backlog item 41) - clustering library choice, preset scope vs. Lead Generators, digest baseline timing
 
