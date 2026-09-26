@@ -2159,9 +2159,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 58,
+    "source_status": "removed",
+    "removed_at": "2026-09-25T10:01:57.552701+00:00",
+    "days_on_market": 57,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": -28.1,
     "score": 17
@@ -2673,7 +2673,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": -43.7,
     "score": 15
@@ -2993,7 +2993,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": -33.2,
     "score": 15
@@ -4089,7 +4089,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -22.2,
     "score": 12
@@ -5108,7 +5108,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 67,
+    "days_on_market": 68,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": -95.5,
     "score": 9
@@ -5202,7 +5202,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": -15.4,
     "score": 9
@@ -5298,7 +5298,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 37,
+    "days_on_market": 38,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": -12.7,
     "score": 9
@@ -7474,7 +7474,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 58,
+    "days_on_market": 59,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 8
@@ -7814,6 +7814,38 @@
     "source_status": "removed",
     "removed_at": "2026-08-24T21:39:00.972816+00:00",
     "days_on_market": 55,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 7
+  },
+  {
+    "id": "bcpea_91021",
+    "url": "https://sales.bcpea.org/properties/91021",
+    "photo": "https://sales.bcpea.org/upload/91021/454424/1.jpg?w=270&h=270",
+    "price_eur": 5192,
+    "sqm": 611,
+    "area": "Елешница",
+    "title": "Парцел, Елешница",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-07T09:45:00+00:00",
+    "category": "land",
+    "_settlement": "Елешница",
+    "lat": 41.3685301,
+    "lng": 23.1421201,
+    "description": "Предмет на публичната продан е Поземлен имот с идентификатор 27293.501.539 по кадастралната карта и кадастралните регистри на с. Елешница, одобрени със Заповед РД-18-335/13.09.2017 год. на Изпълнителния директор на АГКК, последно изменение на кадастралната карта и кадастрални регистри, засягащо поземления имот: няма извършено изменение на КККР със заповед, адрес на поземления имот: с. Елешница, п.к. 2782, ул. „Васил Бельов\" № 13, с площ от 611 кв.м. /шестстотин и единадесет квадратни метра/, трайно предназначение на територията: урбанизирана, начин на трайно ползване: ниско застрояване /до 10 м/, предишен идентификатор: няма, номер от предходен план: 402, 403, квартал:43, парцел: X съседи: 27293.501.540, 27293.501.537, 27293.501.538, 27293.501.632, 27293.30.299, 27293.30.298, който имот съгласно нотариален акт за покупко - продажба на недвижим имот № 5, том I, per. № 78, дело №5 от 2005г. на нотариус Снежана Колевичина с район на действие PC - Разлог, per. № 505 по РНК, вписан в Служба по вписванията Вх. Per. № 165 от 18.01.2006 г., акт № 139, том I, дело № 142/2006 г., партидна книга: том 18496, стр. 5334, представлява УПИ X - десети, планоснимачен номер 402 – четиристотин и втори и 403 – четиристотин и трети в квартал 43 – четиридесет и трети по плана на с. Елешница, с площ от 588 – петстотин осемдесет и осем кв. м., при съседи: н-ци на Йордана Толина, н-ци на Илия Прегьов, Кръстьо Политов, баир и улица. Оценяваният имот се намира в северозападната  част на село Елешница, общ. Разлог, ул. Васил Бельов №13, вид собств. Частна, вид територия Урбанизирана, НТП Ниско застрояване (до 10 m), площ 611 кв. м, стар номер 402,403, квартал 43, парцел X. Привлекателност на района: добра; Тенденции за развитие на района:  добри; Тенденции на развитите на пазарните цени на имотите: стабилни Пазарно предлагане на собственост от оценявания вид: стабилно Пазарно търсене на собственост от оценявания вид: умерено; Търсене и предлагане на имоти от оценявания тип:  равновесие. Инженерната инфраструктура на района: подхода към имота е по черен път, като на 150 м от имота има асфалтиран път. Водопровод                  ■ Да Електрификация           ■ Да Приблизителни координати: 41°51'57.8\"N 23°36'58.3\"E; 41.866077, 23.6161759 Имотът се намира на около 150 м от асфалтирана улица в близост до църквата „Св.Атанасий“, както и на около 600 м от центъра на населеното място. Достъпът е по черен и асфалтиран път. Имотът е неограден, с тревиста растителност, със силно наклонен характер в ЮИ-посока, като в ЮИ-ъгъл на поземления имот има построена 2-ет. жилищна сграда със ЗП от 92 кв.м. Задатък в размер на 10 % върху началната цена на продаваемия имот, съгласно чл. 489 ал.1 ГПК за участие в проданта, се внася предварително по сметка на Частния съдебен изпълнител. Всеки наддавач посочва предложената от него цена с цифри и думи и подава предложението си с квитанция за внесен задатък в запечатан плик. Предложенията се подават в Районен съд гр. Разлог, което се отразява във входящия регистър / чл. 489 ал.4  ГПК /.",
+    "detail_checked": true,
+    "price_per_sqm": 8,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 5192
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 50,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 7
@@ -10431,7 +10463,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 45,
+    "days_on_market": 46,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 6
@@ -10649,7 +10681,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 46,
+    "days_on_market": 47,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 6
@@ -10992,6 +11024,38 @@
     "score": 6
   },
   {
+    "id": "bcpea_91769",
+    "url": "https://sales.bcpea.org/properties/91769",
+    "photo": null,
+    "price_eur": 120921,
+    "sqm": 65,
+    "area": "Варна",
+    "title": "Тристаен апартамент, Варна",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-08-31T08:49:00+00:00",
+    "category": "apartment",
+    "_settlement": "Варна",
+    "lat": 43.2073873,
+    "lng": 27.9166653,
+    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА  с идентификатор 10135.2556.6.2.23 , находящ се в  гр. Варна, общ. Варна, обл. Варна, район Приморски, ул. \"ЧАВДАР ВОЙВОДА\", бл. 2, вх. 4, ет. 6, ап. 137,  който  се намира на етаж 6 в сграда с идентификатор 10135.2556.6.2 с предназначение: Жилищна сграда - многофамилна, брой етажи: 9,  разположена в поземлен имот с идентификатор 10135.2556.6. Предназначение на самостоятелния обект: Жилище - апартамент,  състоящ се от: антре, дневна, кухня, спалня, баня - тоалет, тераса със задтроена площ от 65.41 кв.м., ведно с избено помещение № 137 с площ от 2.78 кв.м., както и 0.5647 % ид.ч. от общите часи на сградата  и правото на строеж върху поземления имот, при граници:  Съседни самостоятелни обекти в сградата: На същия етаж: 10135.2556.6.2.24, 10135.2556.6.2.22. Под обекта: 10135.2556.6.2.19. Над обекта: 10135.2556.6.2.27.",
+    "detail_checked": true,
+    "price_per_sqm": 1860,
+    "price_history": [
+      {
+        "date": "2026-09-05T14:50:25.396351+00:00",
+        "price_eur": 120921
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 26,
+    "area_avg_price_per_sqm": 2001,
+    "pct_vs_area_avg": -7.1,
+    "score": 6
+  },
+  {
     "id": "bcpea_90779",
     "url": "https://sales.bcpea.org/properties/90779",
     "photo": "https://sales.bcpea.org/upload/90779/453967/1.jpg?w=270&h=270",
@@ -11145,38 +11209,6 @@
     "score": 6
   },
   {
-    "id": "bcpea_91021",
-    "url": "https://sales.bcpea.org/properties/91021",
-    "photo": "https://sales.bcpea.org/upload/91021/454424/1.jpg?w=270&h=270",
-    "price_eur": 5192,
-    "sqm": 611,
-    "area": "Елешница",
-    "title": "Парцел, Елешница",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-07T09:45:00+00:00",
-    "category": "land",
-    "_settlement": "Елешница",
-    "lat": 41.3685301,
-    "lng": 23.1421201,
-    "description": "Предмет на публичната продан е Поземлен имот с идентификатор 27293.501.539 по кадастралната карта и кадастралните регистри на с. Елешница, одобрени със Заповед РД-18-335/13.09.2017 год. на Изпълнителния директор на АГКК, последно изменение на кадастралната карта и кадастрални регистри, засягащо поземления имот: няма извършено изменение на КККР със заповед, адрес на поземления имот: с. Елешница, п.к. 2782, ул. „Васил Бельов\" № 13, с площ от 611 кв.м. /шестстотин и единадесет квадратни метра/, трайно предназначение на територията: урбанизирана, начин на трайно ползване: ниско застрояване /до 10 м/, предишен идентификатор: няма, номер от предходен план: 402, 403, квартал:43, парцел: X съседи: 27293.501.540, 27293.501.537, 27293.501.538, 27293.501.632, 27293.30.299, 27293.30.298, който имот съгласно нотариален акт за покупко - продажба на недвижим имот № 5, том I, per. № 78, дело №5 от 2005г. на нотариус Снежана Колевичина с район на действие PC - Разлог, per. № 505 по РНК, вписан в Служба по вписванията Вх. Per. № 165 от 18.01.2006 г., акт № 139, том I, дело № 142/2006 г., партидна книга: том 18496, стр. 5334, представлява УПИ X - десети, планоснимачен номер 402 – четиристотин и втори и 403 – четиристотин и трети в квартал 43 – четиридесет и трети по плана на с. Елешница, с площ от 588 – петстотин осемдесет и осем кв. м., при съседи: н-ци на Йордана Толина, н-ци на Илия Прегьов, Кръстьо Политов, баир и улица. Оценяваният имот се намира в северозападната  част на село Елешница, общ. Разлог, ул. Васил Бельов №13, вид собств. Частна, вид територия Урбанизирана, НТП Ниско застрояване (до 10 m), площ 611 кв. м, стар номер 402,403, квартал 43, парцел X. Привлекателност на района: добра; Тенденции за развитие на района:  добри; Тенденции на развитите на пазарните цени на имотите: стабилни Пазарно предлагане на собственост от оценявания вид: стабилно Пазарно търсене на собственост от оценявания вид: умерено; Търсене и предлагане на имоти от оценявания тип:  равновесие. Инженерната инфраструктура на района: подхода към имота е по черен път, като на 150 м от имота има асфалтиран път. Водопровод                  ■ Да Електрификация           ■ Да Приблизителни координати: 41°51'57.8\"N 23°36'58.3\"E; 41.866077, 23.6161759 Имотът се намира на около 150 м от асфалтирана улица в близост до църквата „Св.Атанасий“, както и на около 600 м от центъра на населеното място. Достъпът е по черен и асфалтиран път. Имотът е неограден, с тревиста растителност, със силно наклонен характер в ЮИ-посока, като в ЮИ-ъгъл на поземления имот има построена 2-ет. жилищна сграда със ЗП от 92 кв.м. Задатък в размер на 10 % върху началната цена на продаваемия имот, съгласно чл. 489 ал.1 ГПК за участие в проданта, се внася предварително по сметка на Частния съдебен изпълнител. Всеки наддавач посочва предложената от него цена с цифри и думи и подава предложението си с квитанция за внесен задатък в запечатан плик. Предложенията се подават в Районен съд гр. Разлог, което се отразява във входящия регистър / чл. 489 ал.4  ГПК /.",
-    "detail_checked": true,
-    "price_per_sqm": 8,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 5192
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 49,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 6
-  },
-  {
     "id": "bcpea_91080",
     "url": "https://sales.bcpea.org/properties/91080",
     "photo": "https://sales.bcpea.org/upload/91080/454671/IMG_5034.JPG?w=270&h=270",
@@ -11326,7 +11358,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 44,
+    "days_on_market": 45,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 6
@@ -15848,7 +15880,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 44,
+    "days_on_market": 45,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 6
@@ -17087,7 +17119,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -18216,38 +18248,6 @@
     "score": 5
   },
   {
-    "id": "bcpea_91769",
-    "url": "https://sales.bcpea.org/properties/91769",
-    "photo": null,
-    "price_eur": 120921,
-    "sqm": 65,
-    "area": "Варна",
-    "title": "Тристаен апартамент, Варна",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-08-31T08:49:00+00:00",
-    "category": "apartment",
-    "_settlement": "Варна",
-    "lat": 43.2073873,
-    "lng": 27.9166653,
-    "description": "САМОСТОЯТЕЛЕН ОБЕКТ В СГРАДА  с идентификатор 10135.2556.6.2.23 , находящ се в  гр. Варна, общ. Варна, обл. Варна, район Приморски, ул. \"ЧАВДАР ВОЙВОДА\", бл. 2, вх. 4, ет. 6, ап. 137,  който  се намира на етаж 6 в сграда с идентификатор 10135.2556.6.2 с предназначение: Жилищна сграда - многофамилна, брой етажи: 9,  разположена в поземлен имот с идентификатор 10135.2556.6. Предназначение на самостоятелния обект: Жилище - апартамент,  състоящ се от: антре, дневна, кухня, спалня, баня - тоалет, тераса със задтроена площ от 65.41 кв.м., ведно с избено помещение № 137 с площ от 2.78 кв.м., както и 0.5647 % ид.ч. от общите часи на сградата  и правото на строеж върху поземления имот, при граници:  Съседни самостоятелни обекти в сградата: На същия етаж: 10135.2556.6.2.24, 10135.2556.6.2.22. Под обекта: 10135.2556.6.2.19. Над обекта: 10135.2556.6.2.27.",
-    "detail_checked": true,
-    "price_per_sqm": 1860,
-    "price_history": [
-      {
-        "date": "2026-09-05T14:50:25.396351+00:00",
-        "price_eur": 120921
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 25,
-    "area_avg_price_per_sqm": 2001,
-    "pct_vs_area_avg": -7.1,
-    "score": 5
-  },
-  {
     "id": "bcpea_90885",
     "url": "https://sales.bcpea.org/properties/90885",
     "photo": null,
@@ -19288,7 +19288,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 37,
+    "days_on_market": 38,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -19836,7 +19836,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -20173,7 +20173,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -70.3,
     "score": 5
@@ -20420,7 +20420,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -21341,7 +21341,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -21770,7 +21770,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -24735,7 +24735,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -25443,7 +25443,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 37,
+    "days_on_market": 38,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -26333,7 +26333,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -26818,7 +26818,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 37,
+    "days_on_market": 38,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -27549,7 +27549,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -61.5,
     "score": 5
@@ -28033,7 +28033,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -28095,7 +28095,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 36,
+    "days_on_market": 37,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -29999,7 +29999,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 39,
+    "days_on_market": 40,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 5
@@ -31194,7 +31194,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -31411,7 +31411,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -31628,7 +31628,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -31783,7 +31783,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -31815,7 +31815,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -32246,7 +32246,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -32310,7 +32310,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -33912,7 +33912,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -34277,7 +34277,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -34371,7 +34371,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -34433,7 +34433,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -34620,7 +34620,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -34836,7 +34836,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -35270,7 +35270,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -35978,7 +35978,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 31,
+    "days_on_market": 32,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -36436,7 +36436,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -37357,7 +37357,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -37634,7 +37634,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -37728,7 +37728,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -38375,7 +38375,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -38652,7 +38652,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -39119,7 +39119,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -39151,7 +39151,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -40747,7 +40747,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -41458,7 +41458,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -41983,7 +41983,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 31,
+    "days_on_market": 32,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -42853,7 +42853,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -42885,7 +42885,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -42981,7 +42981,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -44212,7 +44212,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -44395,7 +44395,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -44582,7 +44582,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -44737,7 +44737,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": 3.5,
     "score": 4
@@ -45508,7 +45508,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -45723,7 +45723,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -46402,7 +46402,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 30,
+    "days_on_market": 31,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -46586,7 +46586,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 37,
+    "days_on_market": 38,
     "area_avg_price_per_sqm": 2249,
     "pct_vs_area_avg": 12.4,
     "score": 4
@@ -46618,7 +46618,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -46840,7 +46840,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -46872,7 +46872,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47160,7 +47160,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47288,7 +47288,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47320,7 +47320,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47384,7 +47384,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47448,7 +47448,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47512,7 +47512,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47608,7 +47608,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47672,7 +47672,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47863,7 +47863,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -47895,7 +47895,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -83.1,
     "score": 3
@@ -47959,7 +47959,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48055,7 +48055,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48119,7 +48119,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48151,7 +48151,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48215,7 +48215,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48374,7 +48374,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48534,7 +48534,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48566,7 +48566,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": 81.6,
     "score": 3
@@ -48694,7 +48694,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48854,7 +48854,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48950,7 +48950,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -48982,7 +48982,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49014,7 +49014,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49268,7 +49268,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49364,7 +49364,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49396,7 +49396,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49428,7 +49428,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": 144.4,
     "score": 3
@@ -49714,7 +49714,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49809,7 +49809,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49841,7 +49841,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": 97.0,
     "score": 3
@@ -49873,7 +49873,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -49969,7 +49969,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50128,7 +50128,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50288,7 +50288,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50352,7 +50352,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50384,7 +50384,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50544,7 +50544,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50608,7 +50608,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50640,7 +50640,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50768,7 +50768,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50864,7 +50864,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -50926,7 +50926,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51022,7 +51022,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51150,7 +51150,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51276,7 +51276,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51308,7 +51308,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51468,7 +51468,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51500,7 +51500,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": 480,
     "pct_vs_area_avg": 26.2,
     "score": 3
@@ -51628,7 +51628,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -51852,7 +51852,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": 632,
     "pct_vs_area_avg": -5.8,
     "score": 3
@@ -51916,7 +51916,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52044,7 +52044,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52140,7 +52140,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52172,7 +52172,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52300,7 +52300,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": 48.3,
     "score": 3
@@ -52491,7 +52491,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52742,7 +52742,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52774,7 +52774,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52806,7 +52806,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -52870,7 +52870,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53029,7 +53029,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "area_avg_price_per_sqm": 314,
     "pct_vs_area_avg": 88.4,
     "score": 3
@@ -53061,7 +53061,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53189,7 +53189,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53252,7 +53252,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53506,7 +53506,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53666,7 +53666,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53858,7 +53858,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -53922,7 +53922,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54018,7 +54018,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54050,7 +54050,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54146,7 +54146,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54370,7 +54370,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54718,7 +54718,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54782,7 +54782,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54878,7 +54878,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -54910,7 +54910,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -65.3,
     "score": 3
@@ -55163,7 +55163,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -55355,7 +55355,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -55515,7 +55515,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -55803,7 +55803,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -55931,7 +55931,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -55963,7 +55963,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 25,
+    "days_on_market": 26,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -56063,6 +56063,37 @@
     "score": 2
   },
   {
+    "id": "bcpea_92272",
+    "url": "https://sales.bcpea.org/properties/92272",
+    "photo": null,
+    "price_eur": 6792,
+    "sqm": 358,
+    "area": "Попица",
+    "title": "Земеделски имот, Попица",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:12:00+00:00",
+    "category": "apartment",
+    "_settlement": "Попица",
+    "lat": 43.4296475,
+    "lng": 23.9492558,
+    "detail_checked": true,
+    "price_per_sqm": 19,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 6792
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
     "id": "bcpea_92239",
     "url": "https://sales.bcpea.org/properties/92239",
     "photo": null,
@@ -56087,9 +56118,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 14,
+    "source_status": "removed",
+    "removed_at": "2026-09-25T10:01:57.552701+00:00",
+    "days_on_market": 13,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56121,7 +56152,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56217,7 +56248,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56250,6 +56281,37 @@
     "source_status": "active",
     "removed_at": null,
     "days_on_market": 17,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
+    "id": "bcpea_92273",
+    "url": "https://sales.bcpea.org/properties/92273",
+    "photo": null,
+    "price_eur": 552,
+    "sqm": 800,
+    "area": "Селановци",
+    "title": "Земеделска земя, Селановци",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:14:00+00:00",
+    "category": "land",
+    "_settlement": "Селановци",
+    "lat": 43.6749726,
+    "lng": 24.0074899,
+    "detail_checked": true,
+    "price_per_sqm": 1,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 552
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56409,7 +56471,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56633,7 +56695,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56728,7 +56790,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56856,7 +56918,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -56888,7 +56950,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": 7048,
     "pct_vs_area_avg": -96.0,
     "score": 2
@@ -57048,7 +57110,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -57208,7 +57270,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -57272,7 +57334,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -57368,7 +57430,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -57400,7 +57462,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": -65.2,
     "score": 2
@@ -58037,7 +58099,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -58419,7 +58481,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -58546,7 +58608,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -58801,7 +58863,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -58833,7 +58895,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -58929,7 +58991,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59185,7 +59247,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": 2001,
     "pct_vs_area_avg": -96.7,
     "score": 2
@@ -59217,7 +59279,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59279,9 +59341,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 14,
+    "source_status": "removed",
+    "removed_at": "2026-09-25T10:01:57.552701+00:00",
+    "days_on_market": 13,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59312,7 +59374,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59471,7 +59533,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59853,7 +59915,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -59885,7 +59947,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "area_avg_price_per_sqm": 2087,
     "pct_vs_area_avg": 129.3,
     "score": 2
@@ -59987,6 +60049,37 @@
     "score": 2
   },
   {
+    "id": "bcpea_92275",
+    "url": "https://sales.bcpea.org/properties/92275",
+    "photo": null,
+    "price_eur": 1667,
+    "sqm": 303,
+    "area": "Селановци",
+    "title": "Земеделска земя, Селановци",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:17:00+00:00",
+    "category": "land",
+    "_settlement": "Селановци",
+    "lat": 43.6749726,
+    "lng": 24.0074899,
+    "detail_checked": true,
+    "price_per_sqm": 6,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 1667
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
     "id": "bcpea_92192",
     "url": "https://sales.bcpea.org/properties/92192",
     "photo": "https://sales.bcpea.org/upload/92192/459279/Picture 959.jpg?w=270&h=270",
@@ -60044,7 +60137,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -60139,7 +60232,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -60935,7 +61028,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -60967,7 +61060,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -60999,7 +61092,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": -85.1,
     "score": 2
@@ -61222,7 +61315,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": -84.7,
     "score": 2
@@ -61382,7 +61475,39 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 14,
+    "days_on_market": 15,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
+    "id": "bcpea_92276",
+    "url": "https://sales.bcpea.org/properties/92276",
+    "photo": "https://sales.bcpea.org/upload/92276/459710/качване 2.jpg?w=270&h=270",
+    "price_eur": 20303,
+    "sqm": 556,
+    "area": "Тетевен",
+    "title": "Производствен имот, Тетевен",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:17:00+00:00",
+    "category": "apartment",
+    "_settlement": "Тетевен",
+    "lat": 42.9178262,
+    "lng": 24.2651138,
+    "description": "СГРАДА с идентификатор: 72343.500.8289.1 , находяща се в ПОЗЕМЛЕН ИМОТ с идентификатор: 72343.500.8289 , по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-16/06.03.2009 г., на изпълнителен Директор на АГКК, последно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот със Заповед № 18-8704/02.08.2023 г., на Началника на СГКК – Ловеч, находящ се в гр. Тетевен, общ. Тетевен, обл. Ловеч, ул. „Вършец“ /без посочен номер/, с площ 48174 кв. м., Трайно предназначение на територията: Урбанизирана, Начин на трайно ползване: За друг вид производствен, складов обект , Предишен идентификатор: 72343.500.3023, номер по предходен план: квартал: 2, парцел: XI, при граници и съседи с идентификатор: 72343.500.8287, 72343.500.8308, 72343.500.8288, 72343.500.3079, 72343.500.3083, 72343.500.8170, 72343.500.8286, 72343.500.3027, 72343.500.8290 със застроена площ: 556 кв. м., брой етажи: 1 /един/, Предназначение: Промишлена сграда, предишен идентификатор: 72343.500.3023.23 , ведно с 903.12 кв. м., легално определен за прилежащ терен към сградата дадено в § 1, т. 6 от Допълнителните Разпоредби на ЗДДС. Допълнителна информация можете да намерите в прикаченото обявление по изп. дело № 20258790400503 Лице за контакт в кантората – Преслав Попов, тел. 068 699 460 вътрешен 118; 0876 659 119 e-mail: popov_p@velislavpetrov.com",
+    "detail_checked": true,
+    "price_per_sqm": 37,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 20303
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -61414,7 +61539,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": -75.8,
     "score": 2
@@ -61606,7 +61731,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -61926,7 +62051,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -61990,7 +62115,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -62022,7 +62147,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -62116,9 +62241,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 14,
+    "source_status": "removed",
+    "removed_at": "2026-09-25T10:01:57.552701+00:00",
+    "days_on_market": 13,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -62183,6 +62308,37 @@
     "source_status": "active",
     "removed_at": null,
     "days_on_market": 17,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
+    "id": "bcpea_92271",
+    "url": "https://sales.bcpea.org/properties/92271",
+    "photo": null,
+    "price_eur": 8528,
+    "sqm": 500,
+    "area": "Крушовица",
+    "title": "Парцел с къща, Крушовица",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:10:00+00:00",
+    "category": "land",
+    "_settlement": "Крушовица",
+    "lat": 42.5616298,
+    "lng": 23.6380606,
+    "detail_checked": true,
+    "price_per_sqm": 17,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 8528
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -62412,6 +62568,37 @@
     "score": 2
   },
   {
+    "id": "bcpea_92274",
+    "url": "https://sales.bcpea.org/properties/92274",
+    "photo": null,
+    "price_eur": 1842,
+    "sqm": 497,
+    "area": "Селановци",
+    "title": "Земеделска земя, Селановци",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-14T10:16:00+00:00",
+    "category": "land",
+    "_settlement": "Селановци",
+    "lat": 43.6749726,
+    "lng": 24.0074899,
+    "detail_checked": true,
+    "price_per_sqm": 4,
+    "price_history": [
+      {
+        "date": "2026-09-14T08:21:49.857445+00:00",
+        "price_eur": 1842
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 12,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 2
+  },
+  {
     "id": "bcpea_92246",
     "url": "https://sales.bcpea.org/properties/92246",
     "photo": null,
@@ -62528,37 +62715,6 @@
       {
         "date": "2026-09-14T14:21:30.906108+00:00",
         "price_eur": 4761
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 1
-  },
-  {
-    "id": "bcpea_92272",
-    "url": "https://sales.bcpea.org/properties/92272",
-    "photo": null,
-    "price_eur": 6792,
-    "sqm": 358,
-    "area": "Попица",
-    "title": "Земеделски имот, Попица",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:12:00+00:00",
-    "category": "apartment",
-    "_settlement": "Попица",
-    "lat": 43.4296475,
-    "lng": 23.9492558,
-    "detail_checked": true,
-    "price_per_sqm": 19,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 6792
       }
     ],
     "price_drop_count": 0,
@@ -62858,37 +63014,6 @@
     "score": 1
   },
   {
-    "id": "bcpea_92273",
-    "url": "https://sales.bcpea.org/properties/92273",
-    "photo": null,
-    "price_eur": 552,
-    "sqm": 800,
-    "area": "Селановци",
-    "title": "Земеделска земя, Селановци",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:14:00+00:00",
-    "category": "land",
-    "_settlement": "Селановци",
-    "lat": 43.6749726,
-    "lng": 24.0074899,
-    "detail_checked": true,
-    "price_per_sqm": 1,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 552
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 1
-  },
-  {
     "id": "bcpea_92292",
     "url": "https://sales.bcpea.org/properties/92292",
     "photo": "https://sales.bcpea.org/upload/92292/459901/качване 11.jpg?w=270&h=270",
@@ -63043,7 +63168,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -63171,7 +63296,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -63426,7 +63551,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -63839,7 +63964,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -64287,7 +64412,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -64445,7 +64570,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -64637,7 +64762,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -64892,7 +65017,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": 17.6,
     "score": 1
@@ -65243,7 +65368,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": 107.0,
     "score": 1
@@ -65658,7 +65783,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -65754,7 +65879,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -65944,7 +66069,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "area_avg_price_per_sqm": 484,
     "pct_vs_area_avg": 26.8,
     "score": 1
@@ -66293,7 +66418,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -66414,37 +66539,6 @@
       {
         "date": "2026-09-14T14:21:30.906108+00:00",
         "price_eur": 2168
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 1
-  },
-  {
-    "id": "bcpea_92275",
-    "url": "https://sales.bcpea.org/properties/92275",
-    "photo": null,
-    "price_eur": 1667,
-    "sqm": 303,
-    "area": "Селановци",
-    "title": "Земеделска земя, Селановци",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:17:00+00:00",
-    "category": "land",
-    "_settlement": "Селановци",
-    "lat": 43.6749726,
-    "lng": 24.0074899,
-    "detail_checked": true,
-    "price_per_sqm": 6,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 1667
       }
     ],
     "price_drop_count": 0,
@@ -66801,7 +66895,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -67217,7 +67311,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": 2249,
     "pct_vs_area_avg": -82.1,
     "score": 1
@@ -67311,7 +67405,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -67569,38 +67663,6 @@
     "days_on_market": 8,
     "area_avg_price_per_sqm": 9714,
     "pct_vs_area_avg": -92.9,
-    "score": 1
-  },
-  {
-    "id": "bcpea_92276",
-    "url": "https://sales.bcpea.org/properties/92276",
-    "photo": "https://sales.bcpea.org/upload/92276/459710/качване 2.jpg?w=270&h=270",
-    "price_eur": 20303,
-    "sqm": 556,
-    "area": "Тетевен",
-    "title": "Производствен имот, Тетевен",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:17:00+00:00",
-    "category": "apartment",
-    "_settlement": "Тетевен",
-    "lat": 42.9178262,
-    "lng": 24.2651138,
-    "description": "СГРАДА с идентификатор: 72343.500.8289.1 , находяща се в ПОЗЕМЛЕН ИМОТ с идентификатор: 72343.500.8289 , по кадастралната карта и кадастралните регистри, одобрени със Заповед РД-18-16/06.03.2009 г., на изпълнителен Директор на АГКК, последно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот със Заповед № 18-8704/02.08.2023 г., на Началника на СГКК – Ловеч, находящ се в гр. Тетевен, общ. Тетевен, обл. Ловеч, ул. „Вършец“ /без посочен номер/, с площ 48174 кв. м., Трайно предназначение на територията: Урбанизирана, Начин на трайно ползване: За друг вид производствен, складов обект , Предишен идентификатор: 72343.500.3023, номер по предходен план: квартал: 2, парцел: XI, при граници и съседи с идентификатор: 72343.500.8287, 72343.500.8308, 72343.500.8288, 72343.500.3079, 72343.500.3083, 72343.500.8170, 72343.500.8286, 72343.500.3027, 72343.500.8290 със застроена площ: 556 кв. м., брой етажи: 1 /един/, Предназначение: Промишлена сграда, предишен идентификатор: 72343.500.3023.23 , ведно с 903.12 кв. м., легално определен за прилежащ терен към сградата дадено в § 1, т. 6 от Допълнителните Разпоредби на ЗДДС. Допълнителна информация можете да намерите в прикаченото обявление по изп. дело № 20258790400503 Лице за контакт в кантората – Преслав Попов, тел. 068 699 460 вътрешен 118; 0876 659 119 e-mail: popov_p@velislavpetrov.com",
-    "detail_checked": true,
-    "price_per_sqm": 37,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 20303
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
     "score": 1
   },
   {
@@ -68141,7 +68203,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68461,7 +68523,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68525,7 +68587,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 10,
+    "days_on_market": 11,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68684,7 +68746,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68710,37 +68772,6 @@
       {
         "date": "2026-09-14T08:21:49.857445+00:00",
         "price_eur": 41730
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 1
-  },
-  {
-    "id": "bcpea_92271",
-    "url": "https://sales.bcpea.org/properties/92271",
-    "photo": null,
-    "price_eur": 8528,
-    "sqm": 500,
-    "area": "Крушовица",
-    "title": "Парцел с къща, Крушовица",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:10:00+00:00",
-    "category": "land",
-    "_settlement": "Крушовица",
-    "lat": 42.5616298,
-    "lng": 23.6380606,
-    "detail_checked": true,
-    "price_per_sqm": 17,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 8528
       }
     ],
     "price_drop_count": 0,
@@ -68779,7 +68810,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68875,7 +68906,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68907,7 +68938,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -68977,37 +69008,6 @@
     "score": 1
   },
   {
-    "id": "bcpea_92274",
-    "url": "https://sales.bcpea.org/properties/92274",
-    "photo": null,
-    "price_eur": 1842,
-    "sqm": 497,
-    "area": "Селановци",
-    "title": "Земеделска земя, Селановци",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-14T10:16:00+00:00",
-    "category": "land",
-    "_settlement": "Селановци",
-    "lat": 43.6749726,
-    "lng": 24.0074899,
-    "detail_checked": true,
-    "price_per_sqm": 4,
-    "price_history": [
-      {
-        "date": "2026-09-14T08:21:49.857445+00:00",
-        "price_eur": 1842
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 11,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 1
-  },
-  {
     "id": "bcpea_92294",
     "url": "https://sales.bcpea.org/properties/92294",
     "photo": "https://sales.bcpea.org/upload/92294/459908/IMG_9746.jpg?w=270&h=270",
@@ -69070,7 +69070,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": -72.1,
     "score": 0
@@ -69102,7 +69102,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69285,7 +69285,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69351,7 +69351,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69452,7 +69452,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69515,7 +69515,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69550,7 +69550,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69622,7 +69622,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69718,7 +69718,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -69799,7 +69799,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": 239,
     "pct_vs_area_avg": 146.8,
     "score": 0
@@ -69834,7 +69834,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70000,7 +70000,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70134,7 +70134,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70187,7 +70187,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": 13.9,
     "score": 0
@@ -70392,7 +70392,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70470,7 +70470,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70567,7 +70567,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70605,7 +70605,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": -71.9,
     "score": 0
@@ -70742,7 +70742,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70790,7 +70790,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -70893,7 +70893,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": 1093,
     "pct_vs_area_avg": -70.1,
     "score": 0
@@ -70960,7 +70960,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71204,7 +71204,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71449,7 +71449,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71609,7 +71609,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71641,7 +71641,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71708,7 +71708,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71845,7 +71845,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71912,7 +71912,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -71944,7 +71944,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72154,7 +72154,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72186,7 +72186,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72221,7 +72221,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72360,7 +72360,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72487,7 +72487,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72554,7 +72554,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
@@ -72589,7 +72589,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
