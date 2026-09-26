@@ -6747,3 +6747,46 @@ surface" instruction.
 ## 54. Follow-up (non-blocking, flagged by Missy during item 51's review): 2 more raw-EUR spots that predate the currency toggle - NOT YET FIXED
 
 `formatMoney()` (item 51, EUR/BGN display toggle) covers every price-display call site that item 51 itself touched, but two spots from an earlier, separately-merged PR (item 44's investor-facing comparison modal/Recently Viewed strip) still hardcode `€${fmt(...)}` and were never in item 51's own scope: the Comparables-modal `COMPARE_TABLE_ROWS` price/price-per-m² rows, and the Recently Viewed card's price line. With BGN-only selected, these two surfaces still show € while the rest of the site correctly shows лв. Small fix - switch both to `formatMoney()`, same pattern as every other already-migrated call site.
+
+## 55. `git checkout --ours` fallback in 16 workflows' conflict recovery could crash on a modify/delete conflict - FIXED, PENDING MISSY REVIEW (2026-09-26)
+
+Real production incident: `scrape.yml` run #195 (GitHub Actions run
+36251508414) hit a `git pull --rebase origin main` conflict after a
+concurrent PR deleted `data/leads_bazar.json`/`leads_imot.json`/
+`leads_olx.json` (gzip migration) while the 4-hour run was still in
+flight. `merge_history_conflict.py` correctly real-merged the
+`history_*.json(.gz)` files, but the remaining-files fallback -
+`... | xargs -r git checkout --ours --` - assumes the conflicted path
+still exists on "our" (main's) side. It doesn't when the conflict is a
+modify/delete conflict during a rebase (main deleted the file): `git
+checkout --ours -- data/leads_bazar.json` failed with `error: path
+'data/leads_bazar.json' does not have our version`, `xargs` returned exit
+123, and the leads-file commit/push step failed for the whole run (no
+scraped data was actually lost - `leads_*.json` files are fully derived
+and self-heal on the very next run - but it's a needless run failure +
+owner-facing failure email, and the same crash will recur for any future
+data-file deletion/rename that lands mid-flight under a long-running
+scheduled workflow).
+
+**Fixed** in all 16 workflows that contained the pattern
+(`.github/workflows/backfill-detail-alo.yml`, `-bazar.yml`, `-bcpea.yml`,
+`-imot.yml`, `-imoti-net.yml`, `-olx.yml`, `backfill-geocode-homes.yml`,
+`-imot.yml`, `-imoti-bg.yml`, `-olx.yml`,
+`backfill-others-alo-detail.yml`, `backfill-others-geocode.yml`,
+`backfill-wayback-prices.yml`, `scrape-large.yml`, `scrape.yml`,
+`verify-geocode-qualifiers.yml`): each conflicted path is now checked
+with `git cat-file -e "HEAD:$f"` before `git checkout --ours -- "$f"` is
+attempted; when the path doesn't exist on our side (main deleted/renamed
+it), `git rm -f "$f"` is used instead, with a `::warning::` explaining
+why, so main's actual deletion is respected instead of the step crashing
+trying to resurrect a file that no longer belongs on either side of the
+merge. Full incident writeup and the exact verification performed is in
+`docs/decisions.md`'s 2026-09-26 entry for this item; kept purely
+mechanical here per this repo's CLAUDE.md instruction not to refactor
+anything else while in these files - no live `workflow_dispatch` was used
+to validate this, per the repo's standing rule against iterating that
+way; validated instead via `actionlint`/`shellcheck` (zero new findings)
+and YAML parsing on all 16 changed files, plus a clean `python3 -m pytest
+-q` (270 passed, 4 subtests, no regression). Built in an isolated
+worktree off fresh `origin/main`; PR opened for Missy's review, not
+self-merged.

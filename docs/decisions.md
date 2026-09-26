@@ -6720,3 +6720,73 @@ correct against the 1.95583 peg; `python3 -m pytest -q` - 270 passed, 4
 subtests passed, no regression. Pushed directly to the existing
 `claude/content-seo-friction-removers` branch (no new PR) for Missy to
 re-review; not self-merged.
+
+## 2026-09-26: modify/delete conflict crashed scrape.yml's "keep main's version" fallback mid-run (run 36251508414) - fixed across all 16 affected workflows, backlog item 55
+
+Real incident, not a hypothetical: `scrape.yml` run #195 (GitHub Actions
+run 36251508414) started at 15:19 UTC on an old commit and ran for 4
+hours. While it was running, a separate, unrelated PR merged to main that
+deleted `data/leads_bazar.json`/`data/leads_imot.json`/
+`data/leads_olx.json` in favor of `.json.gz` equivalents (a gzip
+migration). When run #195 finished and tried to commit+push its own
+freshly-scraped (old-format) `data/leads_bazar.json` etc., its `git pull
+--rebase origin main` hit a conflict. The conflict-recovery step correctly
+ran `merge_history_conflict.py` for the `history_*.json(.gz)` files (real
+merge, no data lost) but then fell back, for the `leads_*.json` files that
+script deliberately doesn't handle (they're fully-derived and self-heal
+next run), to a blind `... | xargs -r git checkout --ours --`. That
+assumes `git checkout --ours -- <path>` always succeeds - it doesn't when
+the conflict is a modify/delete conflict where "ours" (main's side, mid-
+`git rebase`) is the DELETE, i.e. the path doesn't exist in `HEAD` at that
+point in the rebase at all. That's exactly what happened:
+`data/leads_bazar.json` no longer existed on main's side, so `git
+checkout --ours -- data/leads_bazar.json` failed with `error: path
+'data/leads_bazar.json' does not have our version`, `xargs` propagated
+that as exit 123, and the commit/push step failed. No scraped data was
+actually lost - only that run's own leads-file commit didn't land, which
+is harmless since those files self-heal on the next run - but the failure
+is a real, general, reproducible latent bug: it will recur any time a
+future PR deletes/renames a data file while one of these long-running
+scheduled workflows has it mid-flight, and it needlessly emails the repo
+owner a run-failure notice each time.
+
+**Fix**: replaced the blind `xargs -r git checkout --ours --` fallback,
+in every one of the 16 workflow files that contained it, with a per-file
+loop that checks `git cat-file -e "HEAD:$f"` before trying to check the
+file out - if the path exists on our (main's) side, `git checkout --ours
+--`/`git add` it as before; if it doesn't (main deleted or renamed it),
+`git rm -f` it instead of crashing trying to resurrect a stale copy that
+no longer belongs on either side. Two variants of the surrounding code
+existed and were each adapted mechanically rather than forced into one
+shape: `scrape.yml`/`scrape-large.yml`/`backfill-detail-alo.yml`/
+`backfill-geocode-homes.yml` already computed a `remaining=$(git diff
+--name-only --diff-filter=U)` variable and guarded the fallback with `if
+[ -n "$remaining" ]` (only for whatever `merge_history_conflict.py` left
+unresolved) - those four got the loop dropped straight into that existing
+`if` block, unchanged otherwise. The other 12 (`backfill-detail-bazar`/
+`-bcpea`/`-imot`/`-imoti-net`/`-olx`, `backfill-geocode-imot`/
+`-imoti-bg`/`-olx`, `backfill-others-alo-detail`/`-others-geocode`,
+`backfill-wayback-prices`, `verify-geocode-qualifiers`) never called
+`merge_history_conflict.py` at all and applied `--ours` unconditionally to
+every conflicted file with no guard variable - for these, the same
+`remaining=$(...)`/loop was introduced fresh, replacing the two direct
+`git diff ... | xargs -r ...` pipes, with no other behavior change.
+
+**Verification**: no live `workflow_dispatch` per this repo's standing
+CLAUDE.md rule against iterating that way - validated structurally
+instead. `actionlint` (built fresh via `go install
+github.com/rhysd/actionlint/cmd/actionlint@latest`, plus `shellcheck`
+installed for its embedded-script checks) against all 16 changed files:
+zero new findings introduced by this change (the one pre-existing SC2046
+warning on each of the 4 `merge_history_conflict.py $(git diff ...)`
+lines was confirmed present on `origin/main` before this change too, via
+a side-by-side `actionlint` run against the unmodified file - unrelated
+to this fix, left untouched per "keep the diff minimal and mechanical").
+`python3 -c "import yaml; yaml.safe_load(...)"` on all 16 files - all
+parse clean. `python3 -m pytest -q` - 270 passed, 4 subtests passed, no
+regression (expected: this is a CI-script-only change, no application
+code touched). Built in an isolated worktree
+(`bg-property-tracker-worktree-fix-checkout-ours`, branch
+`fix/workflow-checkout-ours-modify-delete`) off a fresh `origin/main`
+fetch, per this repo's CLAUDE.md rule about the shared working directory;
+not self-merged - opened as a PR for Missy's review per standing process.
