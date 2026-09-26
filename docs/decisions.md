@@ -6090,6 +6090,18 @@ to `updateCompareButtonsFor()`'s query, and added a branch there that
 sets the detail button's full-text label (`⚖ In comparison` / `⚖ Add to
 compare`) rather than reusing the grid button's single-glyph swap.
 
+### 2026-09-26 - alo.bg/bazar.bg hit the same GH001 wall homes.bg already hit (item 37) - gzip migration extended to alo.bg, bazar.bg, olx.bg, imot.bg
+
+**Confirmed live before touching anything, not assumed from the incident report alone:** independently re-verified via `git cat-file -s` against a freshly-fetched `origin/main` (not trusting the reported numbers blind) - `data/leads_alo.json` 104,292,257 bytes, `data/history_alo.json` 101,950,671 bytes, `data/leads_bazar.json` 100,191,086 bytes, `data/history_bazar.json` 98,734,614 bytes, all already over/at GitHub's 100MB (100,000,000-byte, decimal) hard push limit. Cross-checked against GitHub Actions' own real job logs (`backfill-detail-alo.yml` runs 558/559, the two most recent scheduled runs, both `conclusion: failure`) - the exact quoted `GH001` rejection text matches these byte counts precisely, and no open PR or in-progress branch was already addressing this (checked `list_pull_requests` and `git branch -r` before starting, per this repo's shared-checkout discipline).
+
+**Fix: item 37's own homes.bg gzip mechanism (`geo_utils.load_json_any()`/`save_json_any()`), extended to alo.bg/bazar.bg (both actively failing) and, proactively, olx.bg/imot.bg (same unbounded-growth trajectory, not yet over the wall) - not a new mechanism.** Full detail, exact before/after sizes per file, and the alo.bg spiky-growth investigation are in `docs/backlog.md` item 37's third addendum, not duplicated here.
+
+**One real bug found along the way, worth calling out here too:** several backfill scripts wrote `MODULE.LEADS_FILE.write_text(json.dumps(...))` directly, bypassing `save_json_any()` - harmless while `LEADS_FILE` was plain `.json`, but would have silently corrupted the newly-`.gz` leads files for alo.bg/bazar.bg/olx.bg/imot.bg the very next time any of those hourly backfills ran (writing plain JSON text into a file whose name claims to be gzip, breaking the next `load_json_any()` read). Found by grepping every reference to these filenames across the repo before writing any code, per this task's own explicit instruction - not found by trial and error. 16 call sites across 13 scripts fixed to go through `save_json_any()`/`load_json_any()` instead; verified this is a byte-identical no-op for every portal that stays plain (imoti.net/imoti.bg/bcpea.org).
+
+**Not dispatched live** - per this repo's standing rule against iterating on production workflows via `workflow_dispatch` (the exact rule this session's own CLAUDE.md was written to enforce, after 5 failed live runs of one diagnostic script in an earlier session). Every change was validated locally instead: `python3 -m py_compile` on every changed file, the full test suite (270 passed, 4 subtests, 0 regressions), each of the 4 migrated scrapers' own `load_history()`/`compute_leads()` run end-to-end against the real migrated `.gz` data, `check_scrape_freshness.py`/`sync_to_supabase.py`/`merge_history_conflict.py`/`evict_stale_history.py --dry-run` all run against the real post-migration files and confirmed working.
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this repo's shared-checkout discipline (confirmed via `git status`/`git log` on the shared checkout before starting: it was mid-way through unrelated work on a different branch, left untouched). Not self-merged - opened as a PR for Missy's review, flagged time-sensitive given active, ongoing production data loss on every `backfill-detail-alo.yml` run until this merges.
+
 ## 2026-09-26: Browser back button fix (backlog item 40) - history.pushState()/popstate added; none existed before
 
 **Root cause.** Direct user feedback: "the back button brings me to home
@@ -6272,3 +6284,19 @@ Fixed by adding an explicit `width: 60px;` to the override rule at
 was unaffected (the bug was width-only) and no other placeholder usage
 (grid card, pipeline card view, detail hero) was affected, since those all
 want `width: 100%` anyway.
+
+**2026-09-26 addendum (rebase note, pre-merge)**: rebasing this PR onto a
+newer `main` (which had since merged PRs #296/#298-unrelated scraper runs)
+surfaced a real modify/delete conflict on `data/{leads,history}_{imot,olx}.json`
+- `main`'s scheduled scrapers had written newer plain-JSON data to those
+files (still on the old path) after this PR branched but before it merged.
+Resolved by re-running the same gzip migration in this doc's item 37/this
+PR's own mechanism against `main`'s newer plain files (not the PR's own
+older snapshot), verifying each round-trips byte-for-byte as a Python
+object before deleting the plain original, so no scraped data between this
+PR's branch point and merge was lost: `leads_imot.json.gz` 47,283 records
+(72,244,732 -> 12,029,759 bytes), `history_imot.json.gz` 47,283 records
+(71,543,072 -> 12,468,507 bytes), `leads_olx.json.gz` 38,412 records
+(87,246,113 -> 15,520,975 bytes), `history_olx.json.gz` 38,412 records
+(85,724,499 -> 15,594,787 bytes). `data/geocode_cache.json` and the
+homes.bg `.gz` files had no conflicting changes and merged automatically.

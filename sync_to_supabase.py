@@ -49,19 +49,21 @@ from geo_utils import (
 
 DATA_DIR = Path(__file__).parent / "data"
 
-# homes.bg -> "leads_homes.json.gz", not plain .json - 2026-09-25 addendum
-# to the GH001 incident fix (see geo_utils.py's "Compressed on-disk JSON
-# storage" comment). load_all_listings() below reads it through
+# homes.bg -> "leads_homes.json.gz" (2026-09-25 addendum), alo.bg/imot.bg/
+# olx.bg/bazar.bg -> "leads_*.json.gz" (2026-09-26, same GH001 wall hit/
+# about to hit - see geo_utils.py's "Compressed on-disk JSON storage"
+# comment). load_all_listings() below reads every portal through
 # load_json_any(), which is gzip-aware by extension - the full `photos`
 # array (and every other field) survives this unchanged; only the on-disk
-# bytes shrink. Every other portal is untouched, still plain .json.
+# bytes shrink. imoti.net/imoti.bg/bcpea.org are untouched, still plain
+# .json - their record counts haven't jumped the same way.
 PORTAL_FILES = {
     "imoti.net": "leads.json",
-    "alo.bg": "leads_alo.json",
+    "alo.bg": "leads_alo.json.gz",
     "homes.bg": "leads_homes.json.gz",
-    "imot.bg": "leads_imot.json",
-    "olx.bg": "leads_olx.json",
-    "bazar.bg": "leads_bazar.json",
+    "imot.bg": "leads_imot.json.gz",
+    "olx.bg": "leads_olx.json.gz",
+    "bazar.bg": "leads_bazar.json.gz",
     "imoti.bg": "leads_imoti_bg.json",
     "sales.bcpea.org": "leads_bcpea.json",
 }

@@ -30,13 +30,14 @@ Only run once per portal's available captures - Wayback doesn't crawl more
 often by re-running this, so there's nothing to gain from scheduling it.
 """
 
-import json
 import re
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
+
+from geo_utils import load_json_any, save_json_any
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
 ARCHIVE_UA = "bg-property-tracker/1.0 (personal deal-tracking tool, non-commercial)"
@@ -52,7 +53,7 @@ PORTALS = [
     (
         "imot.bg",
         "https://www.imot.bg/obiavi/prodazhbi/grad-sofiya",
-        "history_imot.json",
+        "history_imot.json.gz",
         "imot_",
         # Deliberately looser than scraper_imot.py's own LISTING_LINK_RE
         # (which requires a trailing "-" right after the ID): a first
@@ -69,7 +70,7 @@ PORTALS = [
     (
         "bazar.bg",
         "https://bazar.bg/obiavi/prodazhba-apartamenti/sofia",
-        "history_bazar.json",
+        "history_bazar.json.gz",
         "bazar_",
         re.compile(r"obiava-(\d+)"),
         None,  # bazar.bg's price line is a bare "€" marker on the line AFTER the digits; handled specially
@@ -242,7 +243,7 @@ def backfill_portal(portal, url, history_filename, id_prefix, id_re, price_re):
     if not history_path.exists():
         print(f"  {history_filename} not found, skipping")
         return 0
-    history = json.loads(history_path.read_text(encoding="utf-8"))
+    history = load_json_any(history_path)
 
     print("  fetching capture list...")
     timestamps = cdx_all_captures(url)
@@ -289,7 +290,7 @@ def backfill_portal(portal, url, history_filename, id_prefix, id_re, price_re):
         print(f"  snapshot {ts}: {len(prices)} listings parsed, {matched} injected as real pre-tracking history")
 
     if injected:
-        history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(history_path, history)
         print(f"  wrote {injected} injected snapshots to {history_filename}")
     else:
         print("  nothing to inject, history file unchanged")
@@ -391,16 +392,16 @@ def main():
         return
 
     if total_injected.get("imot.bg"):
-        history = json.loads((DATA_DIR / "history_imot.json").read_text(encoding="utf-8"))
+        history = load_json_any(DATA_DIR / "history_imot.json.gz")
         leads = compute_leads(history)
-        (DATA_DIR / "leads_imot.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"regenerated leads_imot.json ({len(leads)} leads)")
+        save_json_any(DATA_DIR / "leads_imot.json.gz", leads)
+        print(f"regenerated leads_imot.json.gz ({len(leads)} leads)")
 
     if total_injected.get("bazar.bg"):
-        history = json.loads((DATA_DIR / "history_bazar.json").read_text(encoding="utf-8"))
+        history = load_json_any(DATA_DIR / "history_bazar.json.gz")
         leads = compute_leads(history)
-        (DATA_DIR / "leads_bazar.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"regenerated leads_bazar.json ({len(leads)} leads)")
+        save_json_any(DATA_DIR / "leads_bazar.json.gz", leads)
+        print(f"regenerated leads_bazar.json.gz ({len(leads)} leads)")
 
 
 if __name__ == "__main__":
