@@ -41,12 +41,14 @@ import time
 
 import scraper_alo as sa
 
-# ~1,000 listings/run at ~1.0-1.5s each (REQUEST_DELAY_SECONDS plus network
-# round-trip) is roughly 17-25 minutes - comfortably inside the hourly
+# ~1,200 listings/run at ~1.0-1.5s each (REQUEST_DELAY_SECONDS plus network
+# round-trip) is roughly 20-30 minutes - comfortably inside the hourly
 # cadence this runs on, with real margin before the next run would start.
 # Kept generous since the internal time budget below (not this count) is
-# what actually decides when a run stops.
-MAX_LOOKUPS_PER_RUN = 1000
+# what actually decides when a run stops. Raised from 1,000 on 2026-09-26
+# to make room for the new DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR below
+# without shrinking never_fetched's own guaranteed share.
+MAX_LOOKUPS_PER_RUN = 1200
 
 # Guaranteed floor for the _photos_checked recheck tier (see below),
 # placed FIRST in this run's processing order rather than just included
@@ -74,6 +76,20 @@ PHOTOS_RECHECK_FLOOR = 250
 # still real throughput, in line with this file's own "roughly a week"
 # estimate above.
 GALLERY_SPECS_RECHECK_FLOOR = 400
+
+# Guaranteed floor for the NEW "_description_title_echo_rechecked" tier (see
+# below) - same starvation fix again, one level deeper: a 2026-09-26
+# production sample found 77.7% of already-"rechecked" descriptions are
+# still title echoes (see geo_utils.extract_description_alo()'s
+# _looks_like_title_echo() comment). Its real backlog is currently much
+# smaller than gallery_specs_recheck's own (1,777 vs 30,041, measured
+# directly against data/history_alo.json on 2026-09-26 - gallery_specs_
+# recheck itself hasn't cleared anywhere near as fast as originally
+# estimated, since new listings keep entering it from never_fetched/
+# photos_recheck faster than its own floor clears them), so this floor is
+# kept modest rather than matched to GALLERY_SPECS_RECHECK_FLOOR - no need
+# to compete as hard for budget against a tier with an 17x larger backlog.
+DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR = 150
 
 # Stop visiting new listings once a run has spent this much of the
 # workflow's 45-minute timeout - real headroom for whatever page is in
@@ -126,9 +142,19 @@ def select_batch(history):
     # found" - just that a check was attempted - so it can't double as "was
     # checked under a working extractor" the way it's tempting to assume.
     # Listings missing _gallery_specs_rechecked get their own one-time
-    # re-visit (tier 2) - lowest priority of the three, sorted newest-first
-    # within its own tier same as the others, since these listings at least
-    # already have a description/coordinates/site_updated_at from their
+    # re-visit (tier 2).
+    #
+    # "_description_title_echo_rechecked" is a FOURTH, separate marker added
+    # 2026-09-26 for the same reason yet again: every listing already marked
+    # _gallery_specs_rechecked: True had still only ever run
+    # extract_description_alo() without its new title-echo guard - a
+    # 2026-09-26 production sample found 233/300 (77.7%) of its non-empty
+    # descriptions are still exact title echoes (see geo_utils.py's own
+    # comment on the fix). Listings missing
+    # _description_title_echo_rechecked get their own one-time re-visit
+    # (tier 3) - lowest priority of the four, sorted newest-first within its
+    # own tier same as the others, since these listings at least already
+    # have a description/photos/coordinates/site_updated_at from their
     # prior visit, unlike tier 0's.
     never_fetched = [
         (lid, rec) for lid, rec in history.items()
@@ -143,28 +169,41 @@ def select_batch(history):
         if rec.get("latest", {}).get("_photos_checked")
         and not rec.get("latest", {}).get("_gallery_specs_rechecked")
     ]
+    description_title_echo_recheck = [
+        (lid, rec) for lid, rec in history.items()
+        if rec.get("latest", {}).get("_gallery_specs_rechecked")
+        and not rec.get("latest", {}).get("_description_title_echo_rechecked")
+    ]
     never_fetched.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
     photos_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
     gallery_specs_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
+    description_title_echo_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
     print(f"DEBUG: {len(never_fetched)} never detail-fetched, "
           f"{len(photos_recheck)} detail-fetched but not yet photo-checked, "
           f"{len(gallery_specs_recheck)} photo-checked but not yet rechecked under "
-          f"the fixed gallery/specs/contact extractors, {len(history)} total")
+          f"the fixed gallery/specs/contact extractors, "
+          f"{len(description_title_echo_recheck)} gallery-rechecked but not yet "
+          f"rechecked under the title-echo-aware description extractor, {len(history)} total")
 
-    # Both recheck tiers' guaranteed floors go FIRST in processing order
-    # (not just included somewhere in the pool) so they get first claim on
-    # this run's actual time budget too, not only a slot in the candidate
-    # list - see PHOTOS_RECHECK_FLOOR's/GALLERY_SPECS_RECHECK_FLOOR's own
-    # comments for the starvation bug this avoids.
+    # All three recheck tiers' guaranteed floors go FIRST in processing
+    # order (not just included somewhere in the pool) so they get first
+    # claim on this run's actual time budget too, not only a slot in the
+    # candidate list - see PHOTOS_RECHECK_FLOOR's/GALLERY_SPECS_RECHECK_
+    # FLOOR's/DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR's own comments for the
+    # starvation bug this avoids.
     photos_recheck_slice = photos_recheck[:PHOTOS_RECHECK_FLOOR]
     gallery_specs_recheck_slice = gallery_specs_recheck[:GALLERY_SPECS_RECHECK_FLOOR]
-    remaining_cap = MAX_LOOKUPS_PER_RUN - len(photos_recheck_slice) - len(gallery_specs_recheck_slice)
+    description_title_echo_recheck_slice = description_title_echo_recheck[:DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR]
+    remaining_cap = (
+        MAX_LOOKUPS_PER_RUN - len(photos_recheck_slice) - len(gallery_specs_recheck_slice)
+        - len(description_title_echo_recheck_slice)
+    )
     never_fetched_slice = never_fetched[:remaining_cap]
     # If never-fetched itself is smaller than its share of the cap (a
     # near-empty backlog), spend the leftover room on more of the recheck
     # tiers instead of leaving it unused - photos_recheck first (it's the
-    # smaller, older backlog, closer to fully clearing), then
-    # gallery_specs_recheck.
+    # smallest, oldest backlog, closest to fully clearing), then
+    # gallery_specs_recheck, then description_title_echo_recheck.
     leftover_cap = remaining_cap - len(never_fetched_slice)
     extra_photos_recheck_slice = (
         photos_recheck[PHOTOS_RECHECK_FLOOR:PHOTOS_RECHECK_FLOOR + leftover_cap] if leftover_cap > 0 else []
@@ -174,9 +213,16 @@ def select_batch(history):
         gallery_specs_recheck[GALLERY_SPECS_RECHECK_FLOOR:GALLERY_SPECS_RECHECK_FLOOR + leftover_cap]
         if leftover_cap > 0 else []
     )
+    leftover_cap -= len(extra_gallery_specs_recheck_slice)
+    extra_description_title_echo_recheck_slice = (
+        description_title_echo_recheck[
+            DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR:DESCRIPTION_TITLE_ECHO_RECHECK_FLOOR + leftover_cap
+        ] if leftover_cap > 0 else []
+    )
     return (
-        photos_recheck_slice + gallery_specs_recheck_slice + never_fetched_slice
-        + extra_photos_recheck_slice + extra_gallery_specs_recheck_slice
+        photos_recheck_slice + gallery_specs_recheck_slice + description_title_echo_recheck_slice
+        + never_fetched_slice + extra_photos_recheck_slice + extra_gallery_specs_recheck_slice
+        + extra_description_title_echo_recheck_slice
     )
 
 
@@ -197,17 +243,17 @@ def main():
 
     checkpoint()
 
-    # "_gallery_specs_rechecked" (not "_detail_fetched" or "_photos_checked")
-    # is the right signal for "actually visited this run" - a recheck-tier
-    # listing already had _detail_fetched=True (and, for gallery_specs_
-    # recheck, _photos_checked=True too) before this run started (that's the
-    # whole reason it's in this batch), so checking either of those flags
-    # here would count every recheck listing as "processed" whether or not
-    # fetch_update_dates() actually got to it before the time budget ran
-    # out. All three flags are set together on every real visit now, so
-    # _gallery_specs_rechecked (the last one set) is accurate for
-    # freshly-visited listings across all three tiers.
-    processed = sum(1 for l in to_enrich.values() if l.get("_gallery_specs_rechecked"))
+    # "_description_title_echo_rechecked" (not any of its three older
+    # siblings) is the right signal for "actually visited this run" - a
+    # recheck-tier listing already had some subset of these flags True
+    # before this run started (that's the whole reason it's in this batch),
+    # so checking an earlier one here would count every recheck listing as
+    # "processed" whether or not fetch_update_dates() actually got to it
+    # before the time budget ran out. All four flags are set together on
+    # every real visit now, so _description_title_echo_rechecked (the last
+    # one set) is accurate for freshly-visited listings across all four
+    # tiers.
+    processed = sum(1 for l in to_enrich.values() if l.get("_description_title_echo_rechecked"))
     print(f"DEBUG: detail-enriched {processed} listings this run "
           f"({len(missing) - processed} still queued for a future run)")
 

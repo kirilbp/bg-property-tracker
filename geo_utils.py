@@ -221,7 +221,35 @@ MIN_ALO_DESCRIPTION_LENGTH = 20
 _ALO_ANCESTOR_SEARCH_LEVELS = 6
 
 
-def extract_description_alo(html):
+def _normalize_for_echo_compare(text):
+    return re.sub(r"\s+", " ", text).strip().casefold()
+
+
+def _looks_like_title_echo(text, title):
+    # Production re-audit (2026-09-26) of the heading-based extractor above
+    # found it still reproduces the exact bug it was meant to fix: sampling
+    # 300 real non-empty descriptions produced by this function against
+    # data/leads_alo.json, 233/300 (77.7%) are exact substrings of that same
+    # listing's own grid-crawl title - down from the old `.obqva-block`
+    # selector's 88.3%, but the same failure mode, not a different one. The
+    # shared shape (extracted text is always a strict SUBSTRING of the
+    # title, never unrelated to it) points at the ancestor walk climbing
+    # past the real "Допълнителна информация" body and into a shared
+    # container that also holds the page's own heading text - impossible to
+    # confirm without live HTML (still blocked - see this function's other
+    # comments), but confirmed wrong often enough in production that
+    # propagating it is worse than returning None. This mirrors, rather than
+    # replaces, the ancestor-walk's own MIN_ALO_DESCRIPTION_LENGTH guard: an
+    # extra acceptance check using a signal (the listing's own known title)
+    # this function didn't previously have, not a new guessed selector.
+    if not title:
+        return False
+    norm_text = _normalize_for_echo_compare(text)
+    norm_title = _normalize_for_echo_compare(title)
+    return bool(norm_text) and norm_text in norm_title
+
+
+def extract_description_alo(html, title=None):
     try:
         soup = BeautifulSoup(html, "html.parser")
     except Exception:
@@ -248,15 +276,17 @@ def extract_description_alo(html):
         for pattern in _ALO_DESC_TRAILING_RES:
             text = pattern.sub("", text)
         text = text.strip()
-        if len(text) >= MIN_ALO_DESCRIPTION_LENGTH:
+        if len(text) >= MIN_ALO_DESCRIPTION_LENGTH and not _looks_like_title_echo(text, title):
             return text
         node = node.parent
 
     # Heading found, but no ancestor within the search depth had enough
-    # real content after stripping it - a structural mismatch (e.g. the
-    # site changed this section's markup), not a genuine empty section.
-    # Returning None here is the same defensive choice as everywhere else
-    # in this function: never guess, never fall back to some other element.
+    # real content after stripping it (or every candidate was a title-echo
+    # rejected by _looks_like_title_echo above) - a structural mismatch
+    # (e.g. the site changed this section's markup), not a genuine empty
+    # section. Returning None here is the same defensive choice as
+    # everywhere else in this function: never guess, never fall back to
+    # some other element.
     return None
 
 
