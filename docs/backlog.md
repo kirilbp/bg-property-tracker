@@ -6151,7 +6151,7 @@ files touched. No auth/PII surface.
 
 ## 45. Discovery & engagement batch: similar-listings strip, saved filter presets, national map marker clustering, Dashboard "what changed" digest - APPROVED BY MISSY, MERGED (2026-09-26, Dessy)
 
-**Missy's review flagged two non-blocking follow-ups, not fixed in this PR:** (1) the Comparables map's clustering fallback path (when `L.markerClusterGroup` isn't available, e.g. CDN blocked) still renders up to 2,000 raw ungrouped markers instead of re-applying a safe cap near the old 300 - a real UX/performance regression on CDN failure, not a crash or data loss. (2) `computeDashboardDigest()`'s `if (price drop) ... else if (went sold)` means a listing that both dropped in price and sold in the same window only ever surfaces as "Price drop," silently masking the more important "Sold" status. Both worth a small follow-up dispatch.
+**Missy's review flagged two non-blocking follow-ups, not fixed in this PR:** (1) ~~the Comparables map's clustering fallback path (when `L.markerClusterGroup` isn't available, e.g. CDN blocked) still renders up to 2,000 raw ungrouped markers instead of re-applying a safe cap near the old 300 - a real UX/performance regression on CDN failure, not a crash or data loss.~~ **FIXED (2026-09-26, Dessy)** - `renderCmpMapView()` now checks `typeof L.markerClusterGroup === 'function'` itself before slicing and uses a 300-marker cap when that's false (no real clustering available), keeping the 2,000 cap only for the actual clustering-available case. (2) `computeDashboardDigest()`'s `if (price drop) ... else if (went sold)` means a listing that both dropped in price and sold in the same window only ever surfaces as "Price drop," silently masking the more important "Sold" status. Still not fixed - worth its own follow-up dispatch.
 
 Four items from the user-approved "discovery & engagement" batch, dispatched together by Bossy. All four are frontend/client-JS only - no scraper, sync, schema, or workflow file touched, and no backend/data-pipeline change was needed for any of them (confirmed before starting, not just assumed).
 
@@ -6744,11 +6744,13 @@ Recently Viewed card, and `#printRoot`; new JS: `loadCompareListings()`/
 no backend/data change of any kind, matching the dispatch's "no auth/PII
 surface" instruction.
 
-## 54. Follow-up (non-blocking, flagged by Missy during item 51's review): 2 more raw-EUR spots that predate the currency toggle - NOT YET FIXED
+## 54. Follow-up (non-blocking, flagged by Missy during item 51's review): 2 more raw-EUR spots that predate the currency toggle - FIXED (2026-09-26, Dessy)
 
-`formatMoney()` (item 51, EUR/BGN display toggle) covers every price-display call site that item 51 itself touched, but two spots from an earlier, separately-merged PR (item 44's investor-facing comparison modal/Recently Viewed strip) still hardcode `€${fmt(...)}` and were never in item 51's own scope: the Comparables-modal `COMPARE_TABLE_ROWS` price/price-per-m² rows, and the Recently Viewed card's price line. With BGN-only selected, these two surfaces still show € while the rest of the site correctly shows лв. Small fix - switch both to `formatMoney()`, same pattern as every other already-migrated call site.
+`formatMoney()` (item 51, EUR/BGN display toggle) covers every price-display call site that item 51 itself touched, but two spots from an earlier, separately-merged PR (item 44's investor-facing comparison modal/Recently Viewed strip) still hardcode `€${fmt(...)}` and were never in item 51's own scope: the Comparables-modal `COMPARE_TABLE_ROWS` price/price-per-m² rows, and the Recently Viewed card's price line. With BGN-only selected, these two surfaces still show € while the rest of the site correctly shows лв.
 
-## 55. `git checkout --ours` fallback in 16 workflows' conflict recovery could crash on a modify/delete conflict - FIXED, PENDING MISSY REVIEW (2026-09-26)
+**Fixed**: both `COMPARE_TABLE_ROWS` rows and the Recently Viewed card's price paragraph now call `formatMoney(...)`, matching the calling convention used at every other migrated call site. Verified against the real `formatMoney()` implementation across all three display-currency modes (eur/bgn/both) against the actual 1.95583 BGN peg - see `docs/decisions.md` addendum dated 2026-09-26 for the full verification writeup.
+
+## 55. `git checkout --ours` fallback in 16 workflows' conflict recovery could crash on a modify/delete conflict - APPROVED BY MISSY (reproduced both the original crash and the fix independently), MERGED (2026-09-26)
 
 Real production incident: `scrape.yml` run #195 (GitHub Actions run
 36251508414) hit a `git pull --rebase origin main` conflict after a
@@ -6790,3 +6792,7 @@ and YAML parsing on all 16 changed files, plus a clean `python3 -m pytest
 -q` (270 passed, 4 subtests, no regression). Built in an isolated
 worktree off fresh `origin/main`; PR opened for Missy's review, not
 self-merged.
+
+## 56. Follow-up (non-blocking, flagged by Missy during item 54's re-review): a third raw-EUR spot predating the currency toggle - NOT YET FIXED
+
+While re-reviewing PR #304 (item 54's fix), Missy grepped the whole file for any remaining `€${fmt(...)}` pattern and found one more genuine, unmigrated spot beyond the two item 54 fixed: the Dashboard "what changed" digest's price-drop detail line (`€${fmt(d.from)} → €${fmt(d.to)}`, backlog item 45's discovery-and-engagement feature). Not part of item 51's or item 54's claimed scope, so not a broken promise - just a small, real, remaining gap. Same fix pattern as items 51/54: switch to `formatMoney()`.
