@@ -6129,3 +6129,85 @@ other agents' worktrees already touching `index.html` concurrently
 session start, so a rebase before merge was expected from the outset, per
 this repo's shared-checkout discipline. Not self-merged - opened as a PR
 for Missy's review per the repo's standing rule.
+## 2026-09-26: "Polish that reads as luxurious fast" - skeleton loading, toasts, no-photo placeholder, icon audit, photo lightbox (backlog item 40)
+
+User approved a batch of design/UX ideas and said "Execute" - Bossy routed
+the "polish that reads as luxurious fast" group of five to Dessy. All five
+are additive UI polish over the existing brass/ivory/ink/sage system from
+`docs/design-guidelines.md`; none needed a scraper/sync/schema/workflow
+change, so all of it stayed in `index.html` alone.
+
+**Decision: reuse the prior session's own Playwright harness (`/tmp/dessy-
+test/`) rather than build a new one.** It already vendors Chart.js/
+Leaflet/Leaflet.draw locally and carries a 6,000-row `merged_listings`
+fixture, routed into an unmodified `index.html` via `page.route()` - the
+exact setup this dispatch's own instructions asked for. Copied the
+worktree's current `index.html` into it and patched its CDN `<script src>`
+tags to the same `vendor/*.js` paths the harness's own prior copy already
+used (the working `index.html` on `main` references real CDN URLs
+directly, which this sandbox's proxy blocks) - a copy-and-patch step, not
+a change to anything actually shipped.
+
+**Decision: for item 4 (icon audit), document rather than replace.** The
+dispatch explicitly said not to do a wall-to-wall icon replacement if the
+existing usage is already consistent and intentional. Found exactly that:
+every emoji use site-wide (nav, section headers, badges, buttons, pipeline
+stages/tags) follows one consistent pattern - a small glyph next to a text
+label, never icon-only navigation - and the only custom icon construct in
+the codebase (`brassPinIcon()`) is a Leaflet map-marker icon, an unrelated
+UI category, not a competing general icon system. No icons were changed.
+Flagged one real, unresolved tension instead of picking a side unilaterally:
+full-color emoji render in whatever multi-hue style the OS/browser ships,
+outside the site's own CSS color control, which sits in tension with
+design-guidelines.md's "one accent color" restraint principle in a way the
+monochrome unicode symbols used elsewhere (✓ ✕ ★ ☆) don't - worth a
+design-direction call from Nosy/Missy if it's ever worth a dedicated pass,
+not something to resolve as a side effect of a five-item polish dispatch.
+
+**Decision: skeleton loading only covers the primary results grid, not
+every section.** The dispatch's own pointer (`render()`/`renderFastPage()`)
+scopes this to the listings grid specifically; Home/Dashboard/Lead
+Generators/Pipeline all have their own render functions and their own
+(unaudited, out of scope here) loading behavior. Extending skeleton
+treatment there would be a reasonable follow-up but wasn't asked for and
+wasn't built.
+
+**Decision: reminder *creation* doesn't get a toast, only dismissal.** The
+dispatch's own action list named "dismissing a reminder," not creating
+one - and creating one already has its own visible confirmation (the modal
+closing). Added the toast only where named rather than assuming symmetry
+implied the reverse action too.
+
+**Verification**: real Playwright screenshots at 1440px and 390px for all
+five items (`/tmp/dessy-test/shots_polish/`), including a dedicated
+slow-network variant (every mocked REST response delayed 1.8s) that proves
+the skeleton actually appears mid-flight rather than existing as unused
+CSS, and a mocked multi-photo listing (inline data-URI SVGs, since the
+fixture's real photo URLs point at external CDNs this sandbox can't reach)
+to exercise the lightbox's open/next/Escape/click-outside/touch-swipe
+behavior end to end. Zero new `pageerror`s in any run - the one console
+message seen (`ERR_CERT_AUTHORITY_INVALID` on a real fixture listing's own
+external photo URL) is this sandbox's own lack of internet egress for
+image CDNs, not a regression, and is exactly the case the new no-photo
+placeholder is designed to handle gracefully (confirmed live: it did).
+
+Built in an isolated `git worktree` off a fresh `origin/main`
+(`dessy/luxury-polish-5-items` branch), per this repo's shared-checkout
+discipline - checked `git worktree list`/`git status` on the shared
+checkout first and left the two other concurrently-active Dessy worktrees
+(`dessy-detail-page-consolidation`, `dessy-send-letters`) untouched. Not
+self-merged - opened as a PR for Missy's review per the repo's standing
+rule.
+
+**2026-09-26 addendum (post-Missy-review fix)**: Missy's review of PR #296
+found one real, minor cascade bug: the pipeline table's no-photo placeholder
+(`div.no-photo-placeholder.pl-table-photo`) didn't actually stay pinned to
+the claimed fixed 60x45px box, because `.no-photo-placeholder`'s own
+`width: 100%` rule is declared later in the stylesheet and wins the cascade
+at equal specificity - verified empirically by Missy via a rendered
+Playwright test showing 80.95px/102.31px actual widths instead of 60px.
+Fixed by adding an explicit `width: 60px;` to the override rule at
+`index.html`'s `div.no-photo-placeholder.pl-table-photo` selector. Height
+was unaffected (the bug was width-only) and no other placeholder usage
+(grid card, pipeline card view, detail hero) was affected, since those all
+want `width: 100%` anyway.
