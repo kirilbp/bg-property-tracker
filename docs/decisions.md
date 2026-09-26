@@ -5551,3 +5551,108 @@ Built in an isolated `git worktree` off a fresh `origin/main`, per this
 repo's shared-checkout discipline (the shared checkout at
 `/home/user/bg-property-tracker` was left untouched). Not self-merged -
 opened as a PR for Missy's review per the repo's standing rule.
+
+### 2026-09-26 - Backlog item 9 full re-audit: "MOSTLY DONE" was wrong, alo.bg's 2026-09-24 fix doesn't actually work, homes.bg is a new 0%-coverage gap
+
+User repeated the same complaint ("Description on the listings still
+missing") after item 9 had been marked "MOSTLY DONE" on 2026-09-23. Rather
+than trust that status, re-derived every number directly against the
+current committed `data/leads_*.json`/`data/leads_homes.json.gz` files,
+restricted to ACTIVE listings (`source_status == "active"`) since that's
+what the user actually sees - the 2026-09-23 write-up had computed
+percentages against ALL listings including long-removed ones, which
+inflates portals whose old data is frozen in place. Full per-portal table
+and reasoning in `docs/backlog.md` item 9; summary of what changed and why:
+
+**Site-wide, real coverage is ~22.8% (52,878/232,377 active listings)** -
+not something the 2026-09-23 write-up ever computed this way, but it's the
+number that actually explains the recurring complaint.
+
+**alo.bg - the real finding of this session.** The 2026-09-23 backlog text
+still described alo.bg's description fix as "genuinely open, deferred
+pending live access" - but a *different* session had already shipped a
+real implementation on 2026-09-24 (commit `bd510274`, built from real
+user-supplied screenshots rather than live HTML, since alo.bg was and
+still is blocked from this sandbox), and the backlog was never updated to
+reflect that it had shipped. Took nothing on faith: re-sampled 300 real
+alo.bg descriptions against current production data and found 233/300
+(77.7%) are still exact substrings of their own listing's title - the
+identical title-echo bug the 2026-09-24 fix was supposed to have fixed,
+just reached through a different DOM path (a heading-based ancestor walk
+that evidently often climbs into a container that also holds the page's
+title text). The lesson generalized here: a screenshot-based, live-
+unverified fix shipping and passing its own unit tests is not the same as
+it working in production, and this codebase's standing "don't guess, don't
+trust an unverified claim" rule needs to apply to re-checking a *shipped*
+fix's real-world results, not just to writing the fix in the first place.
+
+Chose a defensive fix over either doing nothing or guessing a new
+selector: `extract_description_alo()` now also takes the listing's own
+known title and rejects a candidate that's a literal substring of it,
+continuing the ancestor walk instead of accepting the bad match. This
+isn't a new guessed CSS selector (which would repeat the actual mistake
+that caused both this bug and its predecessor) - it's a stricter
+acceptance filter on the already-shipped selector, justified directly by
+this session's own production sampling. Added a fourth one-time recheck
+tier (`_description_title_echo_rechecked`) to `backfill_detail_alo.py`,
+mirroring the exact two-tier precedent (`_photos_checked`,
+`_gallery_specs_rechecked`) this same file already established twice for
+this exact "flag says checked, extractor didn't actually work" failure
+shape - raised `MAX_LOOKUPS_PER_RUN` from 1,000 to 1,200 so the new tier's
+floor doesn't shrink `never_fetched`'s own guaranteed share. Sized the new
+floor (150, well below `GALLERY_SPECS_RECHECK_FLOOR`'s 400) off the real
+measured backlog size (1,777 vs. 30,041, read directly from
+`data/history_alo.json`) rather than copying the sibling tier's floor by
+assumption. This fix is going-forward only, same scope limit every prior
+fix in this item has taken - it does not retroactively scrub the 233/300-
+shaped bad descriptions already stored.
+
+Re-attempted live `alo.bg`/`imoti.net`/`homes.bg` access this session, as
+asked, rather than assuming the prior sessions' "blocked" conclusion still
+held: all three are still genuinely blocked (`curl` CONNECT 403 and
+WebFetch `EGRESS_BLOCKED`, confirmed via the agent proxy's own status
+endpoint as a host-level `connect_rejected`/"organization policy" denial,
+not a path-specific block) - also specifically re-tried imoti.net's
+Bulgarian-language (non-`/en/`) path, the one angle 2026-09-23 flagged as
+untried; same host-level block, ruling that theory out rather than leaving
+it open.
+
+**homes.bg - a new finding, not previously scoped into this item.** The
+2026-09-23 fix (PR #217) correctly stopped writing homes.bg's construction-
+material tags as `description`, but nothing was ever built to replace it -
+`scraper_homes.py` never visits a detail page at all, and unlike every
+other coverage-gap portal, no `backfill_detail_homes.py` exists. Every one
+of homes.bg's 67,935 active listings (the single largest portal, ~29% of
+all active listings site-wide) now honestly shows 0% description coverage.
+This alone is a large, plausible contributor to the user's repeated
+complaint, and was not visible in the 2026-09-23 write-up because that
+audit computed percentages against ALL listings (where old, pre-fix junk
+descriptions on now-removed listings still inflated the number to 47.5%).
+Flagged as a new task in `docs/backlog.md`, not attempted here - homes.bg
+is also blocked from this sandbox, so a real detail-page scraper couldn't
+be verified live any more than alo.bg's could.
+
+**bcpea.org - the one piece of item 9 explicitly flagged as unverified
+("no post-9a grid-crawl has landed yet") is now confirmed closed.** Used
+the GitHub Actions API directly (`actions_list`/`list_workflow_jobs`) to
+check real run history rather than re-deriving it from guesswork: 14+
+`scrape.yml` runs (each including a real `scraper_bcpea.py` grid-crawl
+step) have landed since 9a merged, every one of that step's own job logs
+shows success, and `data/leads_bcpea.json`'s active-listing description
+coverage climbed from 23.8% (2026-09-23) to 95.9% today - a real,
+confirmed recovery, not another reset. (Separately noticed: `scrape.yml`'s
+overall run *conclusion* has shown "failure" on most runs since 2026-09-23
+because of `check_scrape_freshness.py`, a later, unrelated step - out of
+this item's scope, not touched, but worth someone's attention since it's
+generating a failure-conclusion on nearly every scheduled run.)
+
+Full test suite: 220/220 passing (`python3 -m unittest discover -s tests`,
+this repo's documented runner). Built in an isolated `git worktree` off a
+fresh `origin/main`. No live `alo.bg`/`imoti.net`/`homes.bg` workflow was
+dispatched to test this - per this repo's standing rule against iterating
+on production Actions, and because none of these fixes could be verified
+by a live dispatch anyway (the sandbox's own egress block is unrelated to
+what a GitHub-hosted Action would see, so dispatching wouldn't have proven
+anything the unit tests and production-data sampling didn't already show).
+Not self-merged - opened as a PR for Missy's review per the repo's
+standing rule.
