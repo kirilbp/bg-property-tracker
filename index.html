@@ -3605,9 +3605,9 @@ function compareMotivationLabel(l) {
 }
 
 const COMPARE_TABLE_ROWS = [
-  { label: 'Price', render: l => `€${fmt(l.price_eur)}` },
+  { label: 'Price', render: l => formatMoney(l.price_eur) },
   { label: 'Size', render: l => l.sqm ? `${l.sqm} m²` : '–' },
-  { label: 'Price / m²', render: l => l.price_per_sqm ? `€${fmt(l.price_per_sqm)}` : '–' },
+  { label: 'Price / m²', render: l => l.price_per_sqm ? formatMoney(l.price_per_sqm) : '–' },
   { label: 'Rooms', render: l => l.rooms ?? '–' },
   { label: 'Days on market', render: l => l.days_on_market ?? '–' },
   { label: 'Motivation score', render: l => compareMotivationLabel(l) },
@@ -3708,7 +3708,7 @@ function renderRecentlyViewedStrip() {
         : '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo</span></div>'}
       <div class="rv-card-body">
         <p class="rv-card-title">${escapeHtml(l.title)}</p>
-        <p class="rv-card-price">€${fmt(l.price_eur)}</p>
+        <p class="rv-card-price">${formatMoney(l.price_eur)}</p>
       </div>
     </a>
   `).join('');
@@ -6948,7 +6948,15 @@ function renderCmpMapView() {
   // as tight a limit, so this is raised substantially rather than kept -
   // still capped, not unbounded, since a pathological all-listings query
   // shouldn't ever have to construct tens of thousands of DOM markers.
-  const markers = addClusteredListingMarkers(cmpMap, located.slice(0, 2000), l =>
+  // If real clustering isn't actually available (e.g. the
+  // Leaflet.markercluster CDN script failed to load - addClusteredListingMarkers()
+  // falls back to a plain, ungrouped L.layerGroup() in that case), the raised
+  // 2,000 cap would just mean up to 2,000 raw overlapping dots with no
+  // grouping at all, so fall back to the old, deliberately-conservative
+  // 300-marker cap instead (backlog item 45 addendum).
+  const cmpMapCanCluster = typeof L.markerClusterGroup === 'function';
+  const cmpMapMarkerCap = cmpMapCanCluster ? 2000 : 300;
+  const markers = addClusteredListingMarkers(cmpMap, located.slice(0, cmpMapMarkerCap), l =>
     `<strong>${escapeHtml(l.title)}</strong><br>${formatMoney(l.price_eur)}${l.price_per_sqm ? ' · ' + formatMoney(l.price_per_sqm, '/m²') : ''}`
   );
   cmpMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });

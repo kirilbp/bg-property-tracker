@@ -6720,3 +6720,61 @@ correct against the 1.95583 peg; `python3 -m pytest -q` - 270 passed, 4
 subtests passed, no regression. Pushed directly to the existing
 `claude/content-seo-friction-removers` branch (no new PR) for Missy to
 re-review; not self-merged.
+
+## 2026-09-26 (addendum): Two follow-up fixes from Missy's earlier reviews - Comparables map clustering-fallback cap (backlog item 45 addendum) and the last 2 raw-EUR spots (backlog item 54)
+
+Both were already fully diagnosed in `docs/backlog.md` (item 45's addendum
+and item 54) - this pass just implements the fix each one already
+specified, nothing re-litigated.
+
+**Comparables map clustering fallback (item 45 addendum).**
+`addClusteredListingMarkers()` already detects whether
+`L.markerClusterGroup` is actually available (`useCluster`) and falls back
+to a plain `L.layerGroup()` (no real grouping, just individual markers) if
+not - e.g. the Leaflet.markercluster CDN script is blocked or fails to
+load. The bug was one level up: `renderCmpMapView()` fed it
+`located.slice(0, 2000)` unconditionally, regardless of which path
+`addClusteredListingMarkers()` was about to take, so the fallback
+(no-clustering) case still rendered up to 2,000 raw ungrouped markers - a
+real regression from the old, deliberately-conservative 300-marker cap
+that existed specifically for this "no clustering available" case.
+
+Fix: `renderCmpMapView()` now runs the identical `typeof
+L.markerClusterGroup === 'function'` check itself, synchronously, right
+before calling `addClusteredListingMarkers()`, and picks the slice cap
+from that: 2,000 when clustering is actually available (unchanged from
+before), 300 when it isn't. This duplicates one boolean check rather than
+changing `addClusteredListingMarkers()`'s own signature to report back
+which path it took - simpler, and since both checks run in the same tick
+against the same global `L` object they can't ever disagree with each
+other in practice. Verified with a standalone Node harness stubbing `L`
+(no real Leaflet needed to prove this particular piece of logic): with
+`L.markerClusterGroup` present, 2,500 fake located listings still produce
+exactly 2,000 rendered markers (the normal case, unchanged); with it
+absent, the same input produces exactly 300 (the fixed fallback case).
+
+**Two more raw-EUR spots (item 54).** The Comparables-modal
+`COMPARE_TABLE_ROWS` Price and Price/m² rows, and the Recently Viewed
+card's price line, both predate the EUR/BGN currency toggle (item 51) -
+they were added by the earlier, separately-merged item 44 investor-facing
+batch and were out of item 51's own grep/scope at the time. Switched all
+three (`COMPARE_TABLE_ROWS`'s two rows, plus the Recently Viewed card
+price paragraph) from raw `€${fmt(...)}` to `formatMoney(...)`, matching
+the exact calling convention already used at every other migrated call
+site (bare `formatMoney(eur)` for a plain price, `formatMoney(v, '/m²')`
+only where a per-unit suffix belongs inside the value itself - not
+needed for `COMPARE_TABLE_ROWS`'s "Price / m²" row since the "/m²" is
+already the row's own label, matching how the neighboring Area Data
+histograms with the same label shape already call it). Verified against
+the real `formatMoney()` implementation (extracted verbatim, not
+reimplemented) in a Node script covering all three display-currency
+modes (eur/bgn/both) for both a plain price and a price/m² value, against
+the real 1.95583 BGN-per-EUR peg - correct symbol/suffix and rounding in
+every mode, no `€` leaking through in `bgn` mode.
+
+**Also verified:** `node --check` on the extracted inline `<script>`
+block (clean); `python3 -m pytest -q` - 270 passed, 4 subtests passed, no
+regression. Built in an isolated worktree off a fresh `origin/main`
+fetch, opened as a new PR (not pushed to any other agent's in-progress
+branch, not self-merged) for Missy's review, per this repo's standing
+rule that nothing ships without her review.
