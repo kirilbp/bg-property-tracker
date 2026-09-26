@@ -5547,6 +5547,108 @@ Due-Diligence chevron panel were all requested but not supplied. None of
 these block starting items 13-21; revisit if/when they turn out to matter
 for a specific item.
 
+## 40. Browser back button jumped straight to Home instead of one step back - direct user feedback ("the back button brings me to home screen. Needs to be one step back from previous action") - FIXED
+
+Direct, verbatim user feedback: "Also the back button brings me to home
+screen. Needs to be one step back from previous action."
+
+**Root cause (two separate bugs, both contributing):**
+
+1. `showSection()` never pushed its own `history` entry - it only cleared
+   a leftover listing hash (via `history.pushState('', document.title,
+   ...)`) when one happened to be present, and otherwise did nothing at
+   all. So switching between sections (Home, Leads, Pipeline, Comparables,
+   Dashboard, etc.) left the browser with nothing but the single
+   initial-page-load entry to go back to. `showListingDetail()` did put
+   each listing on its own entry (by assigning `location.hash`, which
+   itself creates a history entry), but nothing anywhere listened for the
+   `popstate` event - the one listener that reacted at all to a hash
+   change was a `hashchange` listener that only handled navigating BACK
+   INTO a listing (re-opening it, always reset to its default "Details"
+   tab), never back OUT of one. Net effect: however many sections/listings
+   a user actually visited, the back button surfaced at most one real step
+   before landing on whatever the initial entry happened to be - Home, in
+   practice, almost every time.
+2. Separately, the in-page "← Back to listings" button on the listing
+   detail page (`#backBtn`) was hardcoded to `showSection('leads')` no
+   matter which section the listing had actually been opened from -
+   Pipeline, a Lead Generator's results, Comparables, Dashboard's saved
+   listings, etc. all funneled back to the same fixed section.
+
+**What was built:** real `history.pushState()`/`popstate`-based navigation
+(index.html only, no library - the app has none and doesn't need one for
+this):
+- `showSection(name, {push})`, `showListingDetail(id, {push, tab})`, and
+  `switchDetailTab(tab, l, {push})` each now push a `{type, ...}` history
+  state (`{type:'section', name}`, `{type:'listing', id, tab}`) and a
+  matching URL (`#/section/<name>`, `#/listing/<id>` - unchanged from
+  before, so no existing deep link breaks) whenever they run as a genuine
+  user-facing navigation (`push: true`, the default).
+- One `popstate` listener (`applyHistoryState()`/`restoreListingState()`)
+  now restores whichever state was popped back to by re-driving the same
+  render functions a normal click would (`push: false`, so restoring
+  doesn't itself push a new entry) - a tab switch on the listing already
+  on screen is done in place (`switchDetailTab()`) rather than by fully
+  re-opening the listing and losing its radius/map-layer/BTL inputs. Falls
+  back to parsing the URL hash for any history entry that has no usable
+  state object (a pre-existing entry from before this fix, or a hand-
+  edited hash), rather than defaulting straight to Home.
+- The page's very first history entry gets a matching state object up
+  front (`history.replaceState()`, keyed off the URL - a listing deep
+  link, a `#/section/<name>` link, or Home), so restoring back to it is
+  never a guess.
+- `#backBtn` now returns to `lastSectionBeforeListing` (the real section
+  that was on screen right before the listing was opened, tracked in
+  `showListingDetail()`) instead of a hardcoded section - fixes bug 2
+  above directly, and matches what the browser back button now does too.
+- The old listing-only `hashchange` listener was removed - `popstate` now
+  covers everything it did (plus tabs and sections), and leaving both
+  active would have double-handled every real back/forward navigation
+  (hash changes fire `hashchange` in addition to `popstate` during
+  traversal), reopening the correct listing and then immediately
+  re-clobbering it back to the "Details" tab.
+
+**Verification, since this sandbox blocks both this app's live Supabase
+project and every CDN it loads from (cdnjs.cloudflare.com, cdn.jsdelivr.net,
+unpkg.com - confirmed dead via this sandbox's own proxy status, not
+assumed)**: a real Playwright browser, not a code read-through, driven
+against the actual, unmodified `index.html` served locally
+(`python -m http.server`), with Chart.js/Supabase/Leaflet's three CDN
+`<script>` tags intercepted via `page.route()` and swapped for small local
+stand-ins - a real query-builder-shaped Supabase fake (`.eq()`/`.in()`
+filtering included) backed by 6 synthetic `merged_listings` rows, and
+generic infinitely-chainable Proxy stand-ins for `Chart`/`L` (Leaflet) that
+no-op every call rather than throw, since no chart/map actually needs to
+render for a navigation test. This exercises the real client-side
+history/DOM logic in a real browser, not a mock of it - the CDN
+stand-ins are the only thing not real.
+
+Ran, at both 1440px and 390px: Home -> Leads -> open a listing -> switch to
+Comparables tab -> open a second listing from a Comparables-tab "compare"
+link -> back x3 -> forward x3, asserting the exact section/listing/tab at
+every step (not just "something changed"). Result at both widths: back x3
+correctly retraced comparables-tab-on-listing-1 -> details-tab-on-listing-1
+-> Leads (never Home); forward x3 retraced the same steps in reverse.
+Also separately verified: (a) a longer Home -> Pipeline -> Comparables ->
+Dashboard -> back x3 chain, confirming every section is independently a
+back-button step, not just Leads; (b) `#backBtn` clicked from a listing
+opened out of Pipeline returns to Pipeline, not a hardcoded section; (c) a
+direct/deep link straight to `#/listing/<id>` (no prior in-app navigation)
+loads correctly and back from it returns to that same listing's own prior
+tab rather than skipping past it. Confirmed via an instrumented Supabase
+stub that the entire back/forward sequence triggers zero additional
+`merged_listings` bulk fetches beyond the two the page load itself already
+does (the fast first-paint query and the real bulk load) - popstate
+restores from in-memory state, it doesn't refetch. Console/`pageerror`
+count was identical before and after the fix (re-ran the same harness
+against unmodified `origin/main`'s `index.html`): the only console noise
+both times is this sandbox's own blocked CSS/web-font/tile requests and a
+Leaflet `integrity`-attribute mismatch against the local stand-in, all
+pre-existing artifacts of testing offline, not caused by this change.
+
+**Files touched**: `index.html` only. No backend/schema/workflow change -
+this is entirely client-side navigation state.
+
 ## Parked - do not start
 
 - **Rental scraping.** Investigated: under 400 usable listings nationwide

@@ -6028,3 +6028,104 @@ dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
+
+## 2026-09-26: Browser back button fix (backlog item 40) - history.pushState()/popstate added; none existed before
+
+**Root cause.** Direct user feedback: "the back button brings me to home
+screen. Needs to be one step back from previous action." Grepped for
+every routing mechanism this SPA might have (`showSection()`,
+`switchDetailTab()`, `history.pushState`/`replaceState`, `popstate`,
+`location.hash`) before touching anything, per this file's own standing
+practice of reading before guessing. Found: `showSection()` (switches
+between Home/Leads/Pipeline/Comparables/Dashboard/etc.) never pushed a
+history entry of its own - the one `history.pushState()` call inside it
+only cleared a leftover `#/listing/<id>` hash, and only when one was
+already present. `showListingDetail()` did put each listing on its own
+entry (assigning `location.hash` creates one), but there was no
+`popstate` listener anywhere in the file - the only listener reacting to
+a hash change at all was a `hashchange` handler that exclusively handled
+navigating back INTO a listing (and always reset it to the "Details" tab,
+losing whatever tab/radius/map-layer state the user had), never back out
+of one to the section underneath. So the browser had, in effect, one real
+back-button step (out of a listing, sort of) and otherwise nothing -
+every section switch was invisible to `history`, so back always surfaced
+whatever the single initial entry held, which in practice was almost
+always Home. A second, smaller bug compounded this: the in-page "← Back
+to listings" button (`#backBtn`) was hardcoded to `showSection('leads')`
+regardless of which section the listing had actually been opened from.
+
+**Design decision - state shape.** Two history-state types only,
+`{type:'section', name}` and `{type:'listing', id, tab}` - no separate
+"tab switch" state type, even though a tab switch is its own back-button
+step. A tab switch pushes the same `{type:'listing', id, tab}` shape a
+fresh listing-open does; the shared `restoreListingState()` popstate
+handler tells them apart at restore time by checking whether that same
+listing is already the one on screen (`currentDetailListingId`) - if so,
+it moves the tab in place (`switchDetailTab(..., {push:false})`, cheap,
+keeps radius/map-layer/BTL-inputs state); if not, it does a full
+`showListingDetail()`. This was simpler and less error-prone than adding
+a third state type, and produces identical observable behavior.
+
+**Why the old listing-only `hashchange` listener was removed outright,
+not just left alongside the new `popstate` listener.** During real
+back/forward traversal, the browser fires `hashchange` in addition to
+`popstate` whenever the hash differs between entries (which it always
+does when leaving or entering a listing). Leaving the old listener in
+place would have double-handled every such navigation: `popstate` restores
+the correct tab first, then the old `hashchange` handler immediately
+re-invokes `showListingDetail()` with its hardcoded default tab,
+silently clobbering the restore that just happened. Verified this failure
+mode by testing with both listeners active before removing the old one -
+back-into-a-listing landed on "Details" every time regardless of which
+tab history said it should be, exactly the kind of regression this PR
+exists to prevent introducing.
+
+**Verification.** This sandbox's network policy blocks both the app's
+live Supabase project and every CDN it loads libraries from (confirmed
+via the sandbox's own `/__agentproxy/status`, not assumed from a prior
+session) - so live-browser testing meant standing up an offline
+equivalent, not skipping it. Served the real, unmodified `index.html`
+locally and used Playwright's `page.route()` to swap its three CDN
+`<script>` tags for local stand-ins: a hand-written Supabase
+`createClient()` fake that actually implements `.eq()`/`.in()` filtering
+against a small fixed `merged_listings` fixture (so per-listing lazy
+fetches resolve the right row, not an arbitrary one), and generic
+infinitely-chainable/constructable Proxy stand-ins for `Chart` and `L`
+(Leaflet) - every call on them just returns another one of themselves
+instead of throwing, since no chart or map actually needs to render to
+test navigation. This is real client-side history/DOM logic running in a
+real Chromium, exercised through real `page.goBack()`/`page.goForward()`
+calls - only the two CDN payloads and the backing data are faked, not the
+mechanism under test.
+
+Ran the task's own prescribed sequence (Home -> Leads -> open a listing ->
+switch to Comparables tab -> open a second listing from a Comparables
+"compare" link -> back x3 -> forward x3) at 1440px and 390px, asserting
+the exact section/hash/active-tab/listing-title at every single step, not
+just that something changed. Back x3 landed, in order,
+comparables-tab-on-listing-1 -> details-tab-on-listing-1 -> Leads (never
+Home); forward x3 retraced it exactly. Three further scenarios: a longer
+Home -> Pipeline -> Comparables -> Dashboard -> back x3 chain (every
+section its own step, not just Leads); `#backBtn` clicked from a listing
+opened out of Pipeline returns to Pipeline (fixes the hardcoded-`'leads'`
+bug directly); and a direct `#/listing/<id>` deep link with no prior
+in-app navigation, which loads correctly and returns to that same
+listing (not Home, not a blank page) on a single back press after
+switching tabs. Instrumented the Supabase stub to count bulk
+(unfiltered) `merged_listings` calls across the whole sequence: exactly 2
+(the page's own fast-first-paint query and its real bulk load), 0
+additional ones triggered by any back/forward press - popstate restores
+from state already in memory, per the task's own requirement not to
+refetch. Console/`pageerror` output was diffed against the same harness
+run against unmodified `origin/main`: identical both times (this
+sandbox's own blocked CSS/web-font/map-tile requests plus one Leaflet
+`integrity`-attribute mismatch against the local stand-in - pre-existing
+artifacts of testing offline, not introduced by this change).
+
+Built in an isolated `git worktree` off a fresh `origin/main`
+(`fix/back-button-navigation` branch) - `git worktree list` showed three
+other agents' worktrees already touching `index.html` concurrently
+(design polish, investor-facing features, an accessibility pass) at
+session start, so a rebase before merge was expected from the outset, per
+this repo's shared-checkout discipline. Not self-merged - opened as a PR
+for Missy's review per the repo's standing rule.

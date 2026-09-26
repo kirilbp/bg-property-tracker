@@ -2941,6 +2941,18 @@ let currentPage = 1;
 let detailSourceIndex = 0;
 let detailChart = null;
 let detailActiveTab = 'details';
+// --- Back-button / history navigation state ------------------------------
+// The id of the listing currently shown on the detail page, or null when
+// section-listing isn't active. Used to tell "switch tab on the listing
+// already open" (in place, cheap) apart from "open a (possibly different)
+// listing fresh" (full showListingDetail()) when restoring a history entry
+// on popstate - see restoreListingState() below.
+let currentDetailListingId = null;
+// Whichever real section (Leads, Pipeline, Comparables results, etc.) was
+// on screen right before a listing detail page was opened - so the
+// "← Back to listings" button on that page returns there instead of always
+// going to a hardcoded section. Updated in showListingDetail().
+let lastSectionBeforeListing = 'leads';
 let detailRadiusM = null;
 // Backlog item 20 ("Map tab additions"): base layer + POI overlay state for
 // the listing detail radius map. Kept separate from detailRadiusM so
@@ -5318,8 +5330,15 @@ async function loadData() {
     renderDashboard();
     render();
 
+    // Direct/deep link to a listing (e.g. '#/listing/abc' opened fresh,
+    // possibly shared) - MERGED_LISTINGS wasn't populated yet when the
+    // initial history entry was set up further down, so it's resolved here
+    // instead, once loading finishes. `push: false` because this is the
+    // page's very first navigation, not a new one on top of it - the
+    // initial history.replaceState() call already gave this entry the
+    // matching {type:'listing', ...} state, tab included.
     const m = location.hash.match(/^#\/listing\/(.+)$/);
-    if (m) showListingDetail(decodeURIComponent(m[1]));
+    if (m) showListingDetail(decodeURIComponent(m[1]), { push: false, tab: (history.state && history.state.type === 'listing' && history.state.tab) || 'details' });
   } catch (e) {
     document.getElementById('subtitle').textContent = 'Could not load listings data.';
     console.error(e);
@@ -8003,10 +8022,17 @@ function renderPriceHistoryChart(priceHistory, statusInfo) {
 // tab system now (always visible, rendered once per renderListingDetail()
 // call below - see the unconditional renderPriceHistoryChart() call near
 // the bottom of that function), so it no longer needs a case here.
-function switchDetailTab(tab, l) {
+function switchDetailTab(tab, l, { push = true } = {}) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
+  // Its own back-button step: a tab switch reuses the listing's own
+  // '#/listing/<id>' URL (only detailActiveTab differs, not the hash) - see
+  // restoreListingState(), which tells this apart from opening a listing
+  // fresh by checking whether that same listing is already on screen.
+  if (push && currentDetailListingId) {
+    history.pushState({ type: 'listing', id: currentDetailListingId, tab }, '', window.location.pathname + window.location.search + '#/listing/' + currentDetailListingId);
+  }
   if (tab === 'comparables' && l) {
     // A Leaflet map can't size itself correctly while its container is
     // display:none, so the Map sub-view (if selected) needs a fresh init
@@ -9829,11 +9855,20 @@ function currentResultPosition(id) {
     nextId: idx < CURRENT_RESULT_IDS.length - 1 ? CURRENT_RESULT_IDS[idx + 1] : null };
 }
 
-function showListingDetail(id) {
+function showListingDetail(id, { push = true, tab = 'details' } = {}) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
+  // Remember whichever real section was on screen before this (Leads,
+  // Pipeline, a Lead Generator's results, Comparables, Dashboard...) so the
+  // in-page "← Back to listings" button can return there instead of a
+  // hardcoded section - see backBtn's click handler below. Only updated
+  // when coming from an actual section, not when already viewing another
+  // listing (prev/next paging, a "compare" goto link, etc.), so that case
+  // still remembers the true originating section.
+  const activeSectionEl = document.querySelector('.page.active:not(#section-listing)');
+  if (activeSectionEl) lastSectionBeforeListing = activeSectionEl.id.replace('section-', '');
   detailSourceIndex = 0;
-  detailActiveTab = 'details';
+  detailActiveTab = tab;
   // Backlog item 8: this used to reset to null on every listing open, so
   // both the radius panel above the tabs AND the Comparables tab (which
   // shares this same value) opened empty - just a "pick a radius" hint,
@@ -9867,11 +9902,20 @@ function showListingDetail(id) {
       .sort((a, b) => new Date(a.remind_at) - new Date(b.remind_at));
   }
 
+  currentDetailListingId = id;
   renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  if (location.hash !== '#/listing/' + id) location.hash = '#/listing/' + id;
+  // Opening a listing is its own back-button step, distinct from whatever
+  // section/listing it was opened from (docs/decisions.md - back button
+  // fix). `push: false` is used when this call is itself restoring a
+  // history entry (popstate) or the initial page's own deep link, where
+  // the browser has already navigated and pushing again would create a
+  // duplicate, unreachable-by-back entry.
+  if (push) {
+    history.pushState({ type: 'listing', id, tab: detailActiveTab }, '', window.location.pathname + window.location.search + '#/listing/' + id);
+  }
   window.scrollTo({ top: 0, behavior: 'instant' });
 
   if ((merged.member_count || 1) > 1 && merged._sourcesFetched !== true) {
@@ -9913,11 +9957,22 @@ function showListingDetail(id) {
   }
 }
 
-function showSection(name) {
+function showSection(name, { push = true } = {}) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
-  if (location.hash) history.pushState('', document.title, window.location.pathname + window.location.search);
+  // Leaving the listing detail page (showSection is never called with
+  // name === 'listing' - that page is only reached via showListingDetail()).
+  currentDetailListingId = null;
+  // Each section switch is its own back-button step (docs/decisions.md -
+  // back button fix), so the browser's back button retraces the sections a
+  // user actually visited instead of jumping straight to Home. `push: false`
+  // is used only when this call is itself restoring a history entry
+  // (popstate), where the browser already navigated there.
+  if (push) {
+    const hash = name === 'home' ? '' : ('#/section/' + name);
+    history.pushState({ type: 'section', name }, '', window.location.pathname + window.location.search + hash);
+  }
   if (name === 'market') {
     if (!marketHubInitialized) { initMarketDataHub(); marketHubInitialized = true; }
     else { renderActiveMarketTab(); }
@@ -9975,7 +10030,13 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) closeSide
 
 document.getElementById('goToLeadsBtn').addEventListener('click', () => showSection('leads'));
 document.getElementById('goToLeadsBtn2').addEventListener('click', () => showSection('leads'));
-document.getElementById('backBtn').addEventListener('click', () => showSection('leads'));
+// Used to always jump to 'leads' no matter where the listing was opened
+// from (Pipeline, a Lead Generator's results, Comparables, Dashboard...) -
+// the exact bug reported ("the back button brings me to home screen. Needs
+// to be one step back from previous action"). Returns to whichever section
+// was actually on screen before this listing was opened instead - see
+// lastSectionBeforeListing, set in showListingDetail().
+document.getElementById('backBtn').addEventListener('click', () => showSection(lastSectionBeforeListing));
 
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.listing-link[data-listing-id]');
@@ -9987,10 +10048,60 @@ document.addEventListener('click', (e) => {
   if (btn) toggleSavedListing(btn.dataset.saveId);
 });
 
-window.addEventListener('hashchange', () => {
-  const m = location.hash.match(/^#\/listing\/(.+)$/);
-  if (m) showListingDetail(decodeURIComponent(m[1]));
-});
+// --- Browser back/forward button support ---------------------------------
+// Root cause (docs/decisions.md): showSection() never pushed a history
+// entry of its own (only cleared a leftover listing hash, via pushState,
+// when one existed), so switching sections left the browser with nothing
+// but the single initial page-load entry to go back to. showListingDetail()
+// did put each listing on its own hash-driven entry, but nothing ever
+// listened for 'popstate' - the one listener that did react to a hash
+// change (below, now removed) only handled navigating BACK INTO a listing,
+// re-opening it at its default 'details' tab and losing whatever tab/radius/
+// map-layer state the user had; navigating back OUT of a listing to an
+// earlier section did nothing at all, so the section shown underneath was
+// whatever the very first pushState above happened to leave in place -
+// which in practice was almost always Home. Net effect: back always ended
+// up at Home after at most one useful step, regardless of how many
+// sections/listings were actually visited.
+//
+// Fix: every section switch, listing open, and tab switch now pushes its
+// own {type, ...} state via history.pushState() (see showSection(),
+// showListingDetail(), switchDetailTab()), and this one popstate listener
+// restores whichever of those was popped back to, from the URL/state - not
+// by refetching data, just by re-driving the same render functions that a
+// normal click would.
+function restoreListingState(id, tab) {
+  const merged = MERGED_LISTINGS.find(x => x.id === id);
+  if (!merged) { showSection('leads', { push: false }); return; }
+  if (currentDetailListingId === id && document.getElementById('section-listing').classList.contains('active')) {
+    // Same listing already on screen - just move the tab, in place, rather
+    // than re-running showListingDetail() and losing radius/map-layer/BTL
+    // inputs the user had set for it.
+    switchDetailTab(tab, merged.sources[detailSourceIndex] || merged.sources[0], { push: false });
+  } else {
+    showListingDetail(id, { push: false, tab });
+  }
+}
+
+function applyHistoryState(state) {
+  if (state && typeof state === 'object' && state.type === 'listing' && state.id) {
+    restoreListingState(state.id, state.tab || 'details');
+    return;
+  }
+  if (state && typeof state === 'object' && state.type === 'section' && state.name && document.getElementById('section-' + state.name)) {
+    showSection(state.name, { push: false });
+    return;
+  }
+  // No usable state object - e.g. a history entry left over from before
+  // this fix, or the hash was edited by hand. Infer from the URL instead of
+  // defaulting straight to Home.
+  const lm = location.hash.match(/^#\/listing\/(.+)$/);
+  if (lm) { restoreListingState(decodeURIComponent(lm[1]), 'details'); return; }
+  const sm = location.hash.match(/^#\/section\/([a-z]+)$/);
+  if (sm && document.getElementById('section-' + sm[1])) { showSection(sm[1], { push: false }); return; }
+  showSection('home', { push: false });
+}
+window.addEventListener('popstate', (e) => applyHistoryState(e.state));
 
 // Left/right arrow keys cycle the listing detail page's photo gallery
 // (mirrors the on-photo prev/next buttons - see setDetailPhoto()). Only
@@ -10716,6 +10827,27 @@ loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
 loadDealCalcTemplates();
+
+// Give the page's very first history entry a real {type, ...} state object
+// up front (replaceState, not pushState - this is the entry the browser
+// already created for the page load itself, not a new one), matching
+// whatever the URL says: a listing deep link, a direct '#/section/<name>'
+// link, or plain Home. Without this, popstate back to this first entry
+// would arrive with state === null, and every state pushed after it
+// (showSection()/showListingDetail() below) would rest on that unlabeled
+// base entry instead of a real one applyHistoryState() can restore from.
+(function initHistoryState() {
+  const lm = location.hash.match(/^#\/listing\/(.+)$/);
+  const sm = location.hash.match(/^#\/section\/([a-z]+)$/);
+  if (lm) {
+    history.replaceState({ type: 'listing', id: decodeURIComponent(lm[1]), tab: 'details' }, '', window.location.href);
+  } else if (sm && document.getElementById('section-' + sm[1])) {
+    history.replaceState({ type: 'section', name: sm[1] }, '', window.location.href);
+  } else {
+    history.replaceState({ type: 'section', name: 'home' }, '', window.location.pathname + window.location.search);
+  }
+})();
+
 maybeImportSharedLeadGenerator();
 
 // Kicked off in parallel with loadData()'s much larger bulk fetch below,
