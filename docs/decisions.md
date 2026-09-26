@@ -6562,3 +6562,84 @@ text on the darker brass, no new hue introduced. Built in the same
 isolated-worktree-off-the-PR-branch pattern as the rest of this repo's
 process; not self-merged - pushed to the existing `a11y-technical-fixes`
 branch for Missy's re-review.
+## 2026-09-26: Content/SEO + friction-remover dispatch (backlog items 49-53)
+
+User approved a batch of content/SEO + small friction-remover ideas from
+a prior planning pass and said "Execute." Five items, explicitly
+prioritized: build items 49-51 (sticky Leads filter bar, consistent empty
+states, EUR/BGN display toggle) fully; attempt 52-53 (neighborhood/area
+guide pages, weekly market-pulse summary) if time allowed, otherwise
+scope them honestly as follow-ups rather than half-build something that
+looks finished but isn't. See `docs/backlog.md` items 49-53 for the full
+per-item detail (what was built, what was deliberately left out and why,
+verification results) - this entry covers the cross-cutting decisions.
+
+**Built in an isolated `git worktree` off a fresh `origin/main`**
+(`claude/content-seo-friction-removers` branch), per this repo's shared-
+checkout discipline. `git worktree list` at the start showed six other
+worktrees active (`dessy-detail-page-consolidation`,
+`dessy-send-letters`, `a11y-fixes`, `back-button-nav`,
+`dessy-luxury-polish`, `gzip-migration`, `investor-facing`) and, over the
+course of this session, several other agents' processes visibly running
+against the *same shared scratchpad directory* this session's own
+Playwright harness lives in (concurrent `node`/`http-server`/
+`python3 -m http.server` processes from other worktrees' own test runs) -
+exactly the collision risk this repo's process notes warn about. No
+collision with this PR's own actual work: the shared checkout at
+`/home/user/bg-property-tracker` was never touched, and this session's
+own scratchpad test script/output files used unique names. One minor
+casualty of the shared scratchpad: an intermediate log file this session
+wrote there was deleted mid-run by something else operating in that same
+directory (not this session) - re-ran the verification and captured the
+final result directly rather than relying on that shared directory's
+persistence a second time.
+
+**Why the EUR/BGN toggle (item 51) touches so many call sites.** The
+brief said "purely-cosmetic display toggle" and named `price_eur`
+specifically - once the decision was made to cover a currency the user
+actually flips through Preferences, showing it in EUR on the main grid
+but silently leaving it in EUR everywhere else (Pipeline, Comparables,
+Market Data, the listing detail page) would read as broken/inconsistent
+rather than cosmetic, so the fix was to centralize the conversion in one
+`formatMoney()` helper and switch every price-display call site to it,
+rather than adding the toggle only to the one or two most visible spots.
+CSV exports were the one deliberate exception - they already write the
+raw numeric `price_eur` field, and that's correct to leave alone: this is
+a **display** preference, and silently changing exported numbers based on
+a UI setting would be a real behavior change to data a spreadsheet
+formula downstream might depend on, not a cosmetic tweak.
+
+**Why items 52/53 were scoped as follow-ups instead of built, even
+partially.** Both items' own briefs explicitly named the honest fallback
+if time-constrained, and both would have needed either fabricated content
+(item 52's original "schools/transit/amenities" framing - not sourceable
+in this sandbox, and inventing it would be presenting fiction as fact on
+a site people make real property decisions from) or a new page/section
+built and verified under real time pressure after already spending the
+bulk of this session's effort getting items 49-51 right and thoroughly
+tested. Rather than ship a shaky, undertested new page just to say
+something was "attempted," both were investigated far enough to identify
+the genuinely honest, buildable v1 (own-data area aggregates for item 52,
+reusing `marketAggregateRows()`; a client-side "This week" Market Data
+hub card for item 53's numbers, with a real scheduled workflow flagged as
+only needed for a truly shareable snapshot link) and written up as
+concretely scoped follow-ups in `docs/backlog.md` rather than left vague.
+
+**Verification.** A real Playwright harness (reusing the vendored-CDN +
+fixture-backed-Supabase-REST-intercept pattern already established by
+this repo's own `verify_preferences.js`/item 39 harness, against the
+real, unmodified `index.html` and the same 304-row `fixture_merged.json`)
+covered items 49-51 together in one script, at 1440px and 390px: the
+sticky filter bar's stuck/un-stuck and collapse/expand transitions, no
+visual collision with the sidebar or mobile nav toggle; every named empty
+state renders with the new icon+title+message treatment; the currency
+toggle's EUR/BGN/Both math (verified against the fixed 1.95583 peg to the
+exact digit) and its persistence across a full reload. 46/46 checks
+passed, zero console/page errors across the whole run. `node --check` on
+the page's extracted inline script confirmed no syntax errors after each
+batch of edits.
+
+Not self-merged - opened as a PR for Missy's review per the repo's
+standing rule. No live GitHub Actions dispatch involved anywhere in this
+work (pure `index.html` + docs changes, no scraper/workflow files
+touched).
