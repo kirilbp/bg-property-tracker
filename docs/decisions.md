@@ -6066,3 +6066,26 @@ each other - kept as two small, clearly-named surfaces instead (the
 existing tab keeps its name; the new one is labeled "Compare listings" in
 its own modal, distinct from the existing "⇄ Compare nearby" button's
 copy, which was left untouched).
+
+### 2026-09-26 - PR #295 fix: detail-page compare button now updates its own visual state
+
+Missy's review of PR #295 (`feat/investor-facing-features`) found the ⚖
+compare toggle button on the listing detail page never refreshed its own
+text/style after being clicked. Root cause: it was rendered with only
+`detail-secondary-btn` (plus a conditional `active`) - no compare-specific
+class - so `updateCompareButtonsFor()`, which every toggle click runs to
+refresh button visuals, only queried `.compare-listing-btn,
+.compare-listing-btn-inline` and silently skipped it. The click still
+worked functionally (the global delegated `[data-compare-id]` handler
+fires `toggleCompareListing()` off the attribute regardless of class, so
+localStorage and the floating compare bar updated correctly) but the
+button itself showed stale text/style until the whole view re-rendered.
+Missy's finding pointed at the exact right precedent already solved
+correctly for the analogous Save button: `updateSaveButtonsFor()` has a
+third selector, `.save-detail-btn`, specifically for its own
+differently-styled detail-page instance. Mirrored that shape here: added
+a `.compare-listing-btn-detail` class to the detail-page button alongside
+its existing `detail-secondary-btn`/`active` classes, added that selector
+to `updateCompareButtonsFor()`'s query, and added a branch there that
+sets the detail button's full-text label (`⚖ In comparison` / `⚖ Add to
+compare`) rather than reusing the grid button's single-glyph swap.

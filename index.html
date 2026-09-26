@@ -2904,17 +2904,23 @@ function toggleCompareListing(id) {
 
 // Same id-filter approach as updateSaveButtonsFor() above, not a CSS
 // attribute-selector string - listing ids aren't guaranteed selector-safe.
-// Matches both the absolutely-positioned grid/card button (.compare-listing-btn,
-// ⚖/⚖✓ glyph) and the inline pl-icon-btn variant used on Pipeline cards
+// Matches the absolutely-positioned grid/card button (.compare-listing-btn,
+// ⚖/⚖✓ glyph), the inline pl-icon-btn variant used on Pipeline cards
 // (.compare-listing-btn-inline, always a plain ⚖ - active state shown via
-// the shared .active border/color treatment instead of a glyph change there).
+// the shared .active border/color treatment instead of a glyph change there),
+// and the detail page's own instance (.compare-listing-btn-detail, full-text
+// label) - mirrors updateSaveButtonsFor()'s .save-detail-btn handling above.
 function updateCompareButtonsFor(id) {
   const active = isInCompare(id);
-  document.querySelectorAll('.compare-listing-btn, .compare-listing-btn-inline').forEach(btn => {
+  document.querySelectorAll('.compare-listing-btn, .compare-listing-btn-inline, .compare-listing-btn-detail').forEach(btn => {
     if (btn.dataset.compareId !== id) return;
     btn.classList.toggle('active', active);
     btn.title = active ? 'Remove from comparison' : 'Add to comparison';
-    if (btn.classList.contains('compare-listing-btn')) btn.textContent = active ? '⚖✓' : '⚖';
+    if (btn.classList.contains('compare-listing-btn')) {
+      btn.textContent = active ? '⚖✓' : '⚖';
+    } else if (btn.classList.contains('compare-listing-btn-detail')) {
+      btn.textContent = active ? '⚖ In comparison' : '⚖ Add to compare';
+    }
   });
 }
 
@@ -10039,7 +10045,7 @@ function renderListingDetail(merged) {
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
           <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
-          <button class="detail-secondary-btn${isInCompare(merged.id) ? ' active' : ''}" data-compare-id="${merged.id}" title="${isInCompare(merged.id) ? 'Remove from comparison' : 'Add to comparison'}">${isInCompare(merged.id) ? '⚖ In comparison' : '⚖ Add to compare'}</button>
+          <button class="detail-secondary-btn compare-listing-btn-detail${isInCompare(merged.id) ? ' active' : ''}" data-compare-id="${merged.id}" title="${isInCompare(merged.id) ? 'Remove from comparison' : 'Add to comparison'}">${isInCompare(merged.id) ? '⚖ In comparison' : '⚖ Add to compare'}</button>
           <button class="detail-secondary-btn" id="printListingBtn">🖨 Print / Export PDF</button>
           <button class="detail-secondary-btn" id="reminderBtn">🔔 Remind me</button>
           ${isInPipeline(merged.id) ? `
