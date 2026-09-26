@@ -6098,3 +6098,16 @@ checkout first and left the two other concurrently-active Dessy worktrees
 (`dessy-detail-page-consolidation`, `dessy-send-letters`) untouched. Not
 self-merged - opened as a PR for Missy's review per the repo's standing
 rule.
+
+**2026-09-26 addendum (post-Missy-review fix)**: Missy's review of PR #296
+found one real, minor cascade bug: the pipeline table's no-photo placeholder
+(`div.no-photo-placeholder.pl-table-photo`) didn't actually stay pinned to
+the claimed fixed 60x45px box, because `.no-photo-placeholder`'s own
+`width: 100%` rule is declared later in the stylesheet and wins the cascade
+at equal specificity - verified empirically by Missy via a rendered
+Playwright test showing 80.95px/102.31px actual widths instead of 60px.
+Fixed by adding an explicit `width: 60px;` to the override rule at
+`index.html`'s `div.no-photo-placeholder.pl-table-photo` selector. Height
+was unaffected (the bug was width-only) and no other placeholder usage
+(grid card, pipeline card view, detail hero) was affected, since those all
+want `width: 100%` anyway.
