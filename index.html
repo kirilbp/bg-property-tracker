@@ -186,6 +186,14 @@
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
+  /* Export toolbar (docs/backlog.md, "data trust" item) - a single quiet
+     secondary action next to the filter panel, not a competing primary CTA
+     (design-guidelines.md section 6: one full-weight primary action per
+     view). Reuses .detail-secondary-btn's outline style rather than a new
+     button treatment. */
+  .leads-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .leads-toolbar .detail-secondary-btn { margin-top: 0; }
+  .leads-toolbar-note { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
   .count { font-size: 13px; color: var(--taupe); margin: 16px 0; }
   /* Radius/polygon Lead Generator coordinate-coverage caveat (see
      leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
@@ -290,6 +298,14 @@
   .listing-price-row { display: flex; justify-content: space-between; align-items: baseline; }
   .listing-price { font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--ink); }
   .listing-persqm { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
+  /* Data-freshness badge (docs/backlog.md, "data trust" item) - deliberately
+     as quiet as .listing-persqm above it, not a badge/pill: this is
+     supporting context, not a signal worth competing with the price for
+     attention. .is-stale (unusually long since last portal-confirmed
+     update - see listingFreshnessInfo()) shifts to the ink-soft family
+     rather than an alarm color, per design-guidelines.md section 4. */
+  .listing-freshness { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin: 2px 0 0; }
+  .listing-freshness.is-stale { color: var(--ink-soft); font-weight: 600; }
   /* min-height: one badge row's worth - so a 0- or 1-badge card doesn't
      let its title/price sit noticeably higher than a multi-badge card's
      right next to it (a 2+ row wrap for listings with many badges is left
@@ -526,7 +542,7 @@
   .back-btn:hover { color: var(--brass-deep); }
   .detail-grid { display: grid; grid-template-columns: minmax(280px, 460px) 1fr; gap: 40px; align-items: start; }
   @media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
-  .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; background: var(--ivory-deep); display: block; }
+  .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; background: var(--ivory-deep); display: block; cursor: zoom-in; }
   .detail-photo-wrap { position: relative; }
   .detail-photo-nav {
     position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px;
@@ -548,6 +564,16 @@
   .detail-price-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
   .detail-price { font-family: var(--font-serif); font-weight: 400; font-size: 34px; color: var(--ink); }
   .detail-persqm { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); }
+  /* Freshness + cross-portal price divergence - see listingFreshnessInfo()/
+     priceDivergenceInfo() for what real, already-synced data each reads. */
+  .detail-freshness { font-family: var(--font-sans); font-size: 12.5px; color: var(--taupe); margin: -16px 0 16px; }
+  .detail-freshness.is-stale { color: var(--ink-soft); font-weight: 600; }
+  .detail-price-divergence {
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em;
+    margin: -14px 0 16px; color: var(--sage);
+  }
+  .detail-price-divergence a { color: inherit; }
+  .detail-price-divergence.neutral { color: var(--taupe); font-weight: 500; }
   /* Fixed-length stat rows (4 items here, 3 in the Price History panel
      below), not an open-ended list - auto-fit/minmax used to pick
      whatever column count happened to fit the available width, and any
@@ -1169,6 +1195,10 @@
   .pl-table th, .pl-table td { padding: 10px; border-bottom: 1px solid var(--taupe-light); text-align: left; white-space: nowrap; }
   .pl-table th { color: var(--taupe); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; }
   .pl-table-photo { width: 60px; height: 45px; object-fit: cover; border-radius: 4px; background: var(--ivory-deep); }
+  /* No-photo placeholder reused at the pipeline table's fixed 60x45 thumbnail
+     size (overrides .no-photo-placeholder's own aspect-ratio sizing) - see
+     handlePipelineTablePhotoError() in JS. */
+  div.no-photo-placeholder.pl-table-photo { aspect-ratio: unset; border-radius: 4px; width: 60px; }
   .pl-table .listing-link { cursor: pointer; color: var(--ink); }
   .pl-table .listing-link:hover { color: var(--brass-deep); }
 
@@ -1508,6 +1538,101 @@
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 12px 16px; margin: 0 0 16px;
   }
   .market-evo-chart-wrap { height: 280px; margin-top: 8px; }
+
+  /* Skeleton loading state (backlog "polish" pass) - a soft brass/ivory
+     shimmer standing in for the listing grid while either the fast-path
+     page query or the initial bulk load is in flight (see
+     renderSkeletonGrid()/renderFastPage() in JS), so the page never shows
+     raw blank space between navigating to Results and the first real card
+     painting. Shape mirrors .listing exactly (same border/radius/photo
+     ratio) so the swap-in of real cards doesn't jump the layout. Motion is
+     a slow, linear sweep - not a pulse/bounce - per design-guidelines.md
+     section 8's "quiet skeleton/shimmer" loading-state rule. */
+  @keyframes skeleton-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .skeleton-card { pointer-events: none; }
+  .skeleton-photo, .skeleton-line {
+    background-image: linear-gradient(90deg, var(--ivory-deep) 25%, var(--taupe-light) 37%, var(--ivory-deep) 63%);
+    background-size: 800px 100%;
+    animation: skeleton-shimmer 1.6s linear infinite;
+  }
+  .skeleton-photo { width: 100%; aspect-ratio: 4/3; display: block; }
+  .skeleton-line { height: 12px; border-radius: 3px; }
+  .skeleton-line.skeleton-title { width: 85%; height: 14px; margin-bottom: 8px; }
+  .skeleton-line.skeleton-title-short { width: 55%; height: 14px; margin-bottom: 14px; }
+  .skeleton-line.skeleton-price { width: 45%; height: 18px; margin-bottom: 10px; }
+  .skeleton-line.skeleton-meta { width: 70%; }
+
+  /* Toast/snackbar confirmations - a single quiet, auto-dismissing surface
+     for actions that otherwise change state with no feedback (save/unsave,
+     pipeline add/remove, lead generator save/delete, deal calc template
+     save, reminder dismiss - see showToast() in JS). Bottom-corner,
+     brass-on-ink per docs/design-guidelines.md's restrained one-accent
+     rule; simple fade+rise, no bounce, ~220ms - section 8's motion rules. */
+  #toastContainer {
+    position: fixed; bottom: 24px; right: 24px; z-index: 4000;
+    display: flex; flex-direction: column-reverse; gap: 10px;
+    pointer-events: none;
+  }
+  @media (max-width: 560px) { #toastContainer { left: 16px; right: 16px; bottom: 16px; } }
+  .toast {
+    background: var(--ink); color: var(--ivory); font-family: var(--font-sans);
+    font-size: 13px; font-weight: 500; padding: 12px 18px; border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(36,31,26,0.28); border-left: 3px solid var(--brass);
+    opacity: 0; transform: translateY(8px); transition: opacity 220ms ease-out, transform 220ms ease-out;
+    max-width: 320px;
+  }
+  @media (max-width: 560px) { .toast { max-width: none; } }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Branded "no photo" placeholder - one consistent brass/ivory glyph
+     (a simple stylized house-key mark, CSS/SVG only, no image asset)
+     everywhere a listing has no real photo, replacing the old generic
+     🖼️-emoji-plus-text box. Used by the card grid, listing detail hero,
+     comparables, and pipeline table - see noPhotoPlaceholderHtml() in JS. */
+  .no-photo-placeholder {
+    width: 100%; aspect-ratio: 4/3; background: var(--ivory-deep);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; color: var(--taupe);
+  }
+  .no-photo-placeholder svg { width: 34px; height: 34px; }
+  .no-photo-placeholder span { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+  .no-photo-placeholder.small { gap: 3px; }
+  .no-photo-placeholder.small svg { width: 20px; height: 20px; }
+  .no-photo-placeholder.small span { display: none; }
+
+  /* Photo gallery lightbox (listing detail page) - full-screen overlay,
+     vanilla JS, no new dependency (see openLightbox() and friends in JS).
+     Fade-only transition per section 8; brass nav controls, ink scrim. */
+  #lightboxOverlay {
+    position: fixed; inset: 0; z-index: 5000; background: rgba(24,20,16,0.94);
+    display: none; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 200ms ease-out;
+  }
+  #lightboxOverlay.open { display: flex; opacity: 1; }
+  .lightbox-img { max-width: 90vw; max-height: 86vh; object-fit: contain; border-radius: 4px; user-select: none; }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%;
+    border: none; background: rgba(247,244,238,0.12); color: var(--ivory); font-size: 22px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 200ms ease-out;
+  }
+  .lightbox-close:hover { background: rgba(247,244,238,0.22); }
+  .lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%;
+    border: none; background: rgba(247,244,238,0.12); color: var(--ivory); font-size: 24px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 200ms ease-out;
+  }
+  .lightbox-nav:hover { background: rgba(247,244,238,0.22); }
+  .lightbox-nav.prev { left: 16px; }
+  .lightbox-nav.next { right: 16px; }
+  .lightbox-count {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    color: var(--ivory); font-family: var(--font-sans); font-size: 12px; letter-spacing: 0.03em;
+    background: rgba(24,20,16,0.55); padding: 4px 12px; border-radius: 999px;
+  }
+  @media (max-width: 560px) {
+    .lightbox-nav { width: 38px; height: 38px; font-size: 20px; }
+    .lightbox-close { width: 34px; height: 34px; font-size: 18px; top: 12px; right: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -1694,6 +1819,10 @@
                 <option value="score-desc">Motivation score</option>
               </select>
             </div>
+          </div>
+          <div class="leads-toolbar">
+            <span class="leads-toolbar-note" id="exportCsvNote"></span>
+            <button class="detail-secondary-btn" id="exportCsvBtn" type="button" title="Downloads the currently filtered and sorted listings as a CSV file">⬇ Export CSV</button>
           </div>
         </div>
 
@@ -2482,6 +2611,21 @@
   </div>
 </div>
 
+<!-- Toast/snackbar container - see showToast() in JS. Empty by default;
+     populated/cleared entirely from JS, never server-rendered. -->
+<div id="toastContainer" aria-live="polite"></div>
+
+<!-- Photo gallery lightbox (listing detail page) - see openLightbox() and
+     friends in JS. One shared overlay reused for every listing rather than
+     rebuilt per open, since only one can ever be open at a time. -->
+<div id="lightboxOverlay">
+  <button type="button" class="lightbox-close" id="lightboxCloseBtn" aria-label="Close">✕</button>
+  <button type="button" class="lightbox-nav prev" id="lightboxPrevBtn" aria-label="Previous photo">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+  <button type="button" class="lightbox-nav next" id="lightboxNextBtn" aria-label="Next photo">›</button>
+  <span class="lightbox-count" id="lightboxCount"></span>
+</div>
+
 <script>
 // The publishable/anon key is meant to be public - listing_sources/
 // merged_listings are protected by Row Level Security down to read-only
@@ -2504,6 +2648,167 @@ const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
 // unescaped could break the surrounding markup (not just look wrong).
 const escapeHtml = s => (s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const REGISTRY_URL = 'https://portal.registryagency.bg/';
+
+// --- Toast/snackbar confirmations ---------------------------------------
+// A small, quiet, auto-dismissing confirmation for actions that otherwise
+// change state (localStorage) with no feedback at all - save/unsave a
+// listing, add/remove a pipeline deal, save/delete a Lead Generator, save a
+// Deal Calculator template, dismiss a reminder. One shared container
+// (#toastContainer in the HTML), stacked bottom-corner, oldest at top so a
+// second toast never displaces a still-visible one upward past view.
+function showToast(message) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = message;
+  container.appendChild(el);
+  // Next frame, not the same one, so the opacity/transform transition
+  // actually animates in rather than snapping straight to .show's end state.
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => {
+    el.classList.remove('show');
+    el.addEventListener('transitionend', () => el.remove(), { once: true });
+    // Fallback in case transitionend never fires (e.g. element removed from
+    // a hidden/backgrounded tab where transitions don't run) - never leaves
+    // a dead toast node behind indefinitely.
+    setTimeout(() => el.remove(), 400);
+  }, 2400);
+}
+
+// --- Skeleton loading state (primary results grid) ----------------------
+// Soft brass/ivory shimmer cards, same shape as a real .listing card,
+// standing in for the grid while a fast-path page query (renderFastPage())
+// is in flight - see the .skeleton-* CSS. Never left in the DOM once real
+// content (or the empty-state message) is ready; every call site that
+// shows this also calls grid.innerHTML = '' itself once it has something
+// real to paint.
+function renderSkeletonGrid(container, count = 12) {
+  if (!container) return;
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    html += `
+      <div class="listing skeleton-card">
+        <div class="skeleton-photo"></div>
+        <div class="listing-body">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-title-short"></div>
+          <div class="skeleton-line skeleton-price"></div>
+          <div class="skeleton-line skeleton-meta"></div>
+        </div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+// --- Branded "no photo" placeholder --------------------------------------
+// One consistent brass/ivory glyph (a simple stylized house-and-key mark)
+// used everywhere a listing has no real photo or its photo URL 404s/errors
+// out - the grid, listing detail hero, comparables mini-cards, and the
+// pipeline table - replacing the old generic 🖼️-emoji-plus-text box.
+// `small` drops the caption text and shrinks the glyph for the pipeline
+// table's small thumbnail cell, where the caption would just wrap/overflow.
+function noPhotoPlaceholderHtml(opts) {
+  const { variant, id, extraClass } = opts || {};
+  const small = variant === 'small';
+  return `<div class="no-photo-placeholder${small ? ' small' : ''}${extraClass ? ' ' + extraClass : ''}"${id ? ` id="${id}"` : ''}>
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path d="M24 4 4 18v26h13V30h14v14h13V18L24 4Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="24" cy="21" r="3.4" stroke="currentColor" stroke-width="2"/>
+      <path d="M24 24.4V29" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>No photo available</span>
+  </div>`;
+}
+
+// On a broken photo URL, swap the <img> for the same branded placeholder
+// rather than leaving a bare, src-less <img> (the old behavior just showed
+// an empty ivory box with no messaging). Keeps the same id so setDetailPhoto()'s
+// `document.getElementById('detailMainPhoto')` lookup still finds *something*
+// after an error (assigning .src to a <div> is a harmless no-op, not a
+// crash) - a subsequent prev/next click still won't visually recover a
+// permanently-broken URL, but it also won't throw.
+function handleDetailPhotoError(img) {
+  img.outerHTML = noPhotoPlaceholderHtml({ id: 'detailMainPhoto' });
+}
+
+// Pipeline table view's small (60x45) thumbnail cell - `small` drops the
+// caption and shrinks the glyph, `pl-table-photo` (the img's own original
+// class, reused on the placeholder div) supplies the fixed 60x45 box size
+// so the table's column width doesn't shift when a photo is missing/broken.
+function handlePipelineTablePhotoError(img) {
+  img.outerHTML = noPhotoPlaceholderHtml({ variant: 'small', extraClass: 'pl-table-photo' });
+}
+
+// --- Photo gallery lightbox (listing detail page) ------------------------
+// Full-screen click-to-zoom for the detail page's photo gallery: opens on
+// clicking the main photo or a thumbnail, navigates with the same on-screen
+// arrows/keyboard as the inline gallery, closes on click-outside/Escape,
+// and supports a touch swipe on mobile. Reuses `detailPhotos`/
+// `detailPhotoIndex` (the inline gallery's own state - see setDetailPhoto())
+// rather than tracking a second, separate index that could drift out of
+// sync with the page behind it.
+let lightboxTouchStartX = null;
+
+function openLightbox(index) {
+  if (!detailPhotos || detailPhotos.length === 0) return;
+  setDetailPhoto(index);
+  renderLightboxImage();
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+}
+
+function renderLightboxImage() {
+  const img = document.getElementById('lightboxImg');
+  img.src = detailPhotos[detailPhotoIndex] || '';
+  img.alt = '';
+  const countEl = document.getElementById('lightboxCount');
+  const multi = detailPhotos.length > 1;
+  document.getElementById('lightboxPrevBtn').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxNextBtn').style.display = multi ? 'flex' : 'none';
+  countEl.textContent = multi ? `${detailPhotoIndex + 1} / ${detailPhotos.length}` : '';
+  countEl.style.display = multi ? 'block' : 'none';
+}
+
+function lightboxStep(delta) {
+  setDetailPhoto(detailPhotoIndex + delta);
+  renderLightboxImage();
+}
+
+document.getElementById('lightboxCloseBtn').addEventListener('click', closeLightbox);
+document.getElementById('lightboxPrevBtn').addEventListener('click', () => lightboxStep(-1));
+document.getElementById('lightboxNextBtn').addEventListener('click', () => lightboxStep(1));
+// Click-outside: the overlay itself is the scrim - only closes when the
+// click lands directly on it (not bubbled up from the image/buttons).
+document.getElementById('lightboxOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'lightboxOverlay') closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightboxOverlay').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft') lightboxStep(-1);
+  else if (e.key === 'ArrowRight') lightboxStep(1);
+});
+// Touch swipe (mobile) - a simple horizontal-delta threshold on the image
+// itself, not a full gesture library; consistent with the rest of this
+// codebase's dependency-light approach.
+const lightboxImgEl = document.getElementById('lightboxImg');
+lightboxImgEl.addEventListener('touchstart', (e) => {
+  lightboxTouchStartX = e.touches[0].clientX;
+}, { passive: true });
+lightboxImgEl.addEventListener('touchend', (e) => {
+  if (lightboxTouchStartX == null) return;
+  const dx = e.changedTouches[0].clientX - lightboxTouchStartX;
+  lightboxTouchStartX = null;
+  const SWIPE_THRESHOLD = 40;
+  if (dx > SWIPE_THRESHOLD) lightboxStep(-1);
+  else if (dx < -SWIPE_THRESHOLD) lightboxStep(1);
+});
+
 // A listing's price/m² this far off its area average (computed per source
 // portal, in each scraper's compute_leads()) is more likely a data glitch
 // than a real deal - e.g. a price accidentally parsed as a monthly rent, or
@@ -2683,6 +2988,7 @@ function toggleSavedListing(id) {
   SAVED_LISTING_IDS = wasSaved ? SAVED_LISTING_IDS.filter(x => x !== id) : [...SAVED_LISTING_IDS, id];
   persistSavedListings();
   rerenderSavedListingUi(id);
+  showToast(wasSaved ? 'Removed from Dashboard' : 'Saved to Dashboard');
 }
 
 // The Dashboard's Saved listings grid needs a full re-render (a card must
@@ -2908,12 +3214,14 @@ function addToPipeline(listingId, stageId, leadGenId) {
   PIPELINE_DEALS[listingId] = deal;
   savePipelineDeals();
   refreshPipelineListingsCacheAndRerender();
+  showToast('Added to Pipeline');
 }
 
 function removeFromPipeline(listingId) {
   delete PIPELINE_DEALS[listingId];
   savePipelineDeals();
   refreshPipelineListingsCacheAndRerender();
+  showToast('Removed from Pipeline');
 }
 
 function setDealStage(listingId, stageId) {
@@ -2957,6 +3265,18 @@ let currentPage = 1;
 let detailSourceIndex = 0;
 let detailChart = null;
 let detailActiveTab = 'details';
+// --- Back-button / history navigation state ------------------------------
+// The id of the listing currently shown on the detail page, or null when
+// section-listing isn't active. Used to tell "switch tab on the listing
+// already open" (in place, cheap) apart from "open a (possibly different)
+// listing fresh" (full showListingDetail()) when restoring a history entry
+// on popstate - see restoreListingState() below.
+let currentDetailListingId = null;
+// Whichever real section (Leads, Pipeline, Comparables results, etc.) was
+// on screen right before a listing detail page was opened - so the
+// "← Back to listings" button on that page returns there instead of always
+// going to a hardcoded section. Updated in showListingDetail().
+let lastSectionBeforeListing = 'leads';
 let detailRadiusM = null;
 // Backlog item 20 ("Map tab additions"): base layer + POI overlay state for
 // the listing detail radius map. Kept separate from detailRadiusM so
@@ -4456,6 +4776,7 @@ function dismissReminder(id) {
     const merged = MERGED_LISTINGS.find(x => x.id === decodeURIComponent(listingMatch[1]));
     if (merged) renderListingDetail(merged);
   }
+  showToast('Reminder dismissed');
 }
 
 document.addEventListener('click', (e) => {
@@ -5334,8 +5655,15 @@ async function loadData() {
     renderDashboard();
     render();
 
+    // Direct/deep link to a listing (e.g. '#/listing/abc' opened fresh,
+    // possibly shared) - MERGED_LISTINGS wasn't populated yet when the
+    // initial history entry was set up further down, so it's resolved here
+    // instead, once loading finishes. `push: false` because this is the
+    // page's very first navigation, not a new one on top of it - the
+    // initial history.replaceState() call already gave this entry the
+    // matching {type:'listing', ...} state, tab included.
     const m = location.hash.match(/^#\/listing\/(.+)$/);
-    if (m) showListingDetail(decodeURIComponent(m[1]));
+    if (m) showListingDetail(decodeURIComponent(m[1]), { push: false, tab: (history.state && history.state.type === 'listing' && history.state.tab) || 'details' });
   } catch (e) {
     document.getElementById('subtitle').textContent = 'Could not load listings data.';
     console.error(e);
@@ -6546,6 +6874,7 @@ function saveLeadGenFromModal() {
     saleType,
   };
 
+  const wasEditing = !!editingLeadGeneratorId;
   if (editingLeadGeneratorId) {
     const idx = LEAD_GENERATORS.findIndex(g => g.id === editingLeadGeneratorId);
     if (idx !== -1) LEAD_GENERATORS[idx] = gen;
@@ -6555,6 +6884,7 @@ function saveLeadGenFromModal() {
   upsertLeadGenerator(gen);
   renderLeadGenGallery();
   closeLeadGenModal();
+  showToast(wasEditing ? 'Lead Generator updated' : 'Lead Generator added');
 }
 
 function duplicateLeadGenerator(genId) {
@@ -6586,6 +6916,7 @@ function deleteLeadGenerator(genId) {
   removeLeadGenerator(genId);
   renderLeadGenGallery();
   if (activeLeadGenerator && activeLeadGenerator.id === genId) clearActiveLeadGenerator();
+  showToast('Lead Generator deleted');
 }
 
 function checkLeads(genId) {
@@ -6787,7 +7118,7 @@ function createPipelineCard(listing, deal) {
   const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
   const photoHtml = l.photo
     ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePhotoError(this)" />`
-    : '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo available</span></div>';
+    : noPhotoPlaceholderHtml();
   const listedLabel = listingFirstSeenDate(l) ? shortDateLabel(listingFirstSeenDate(l)) : null;
   const priceChange = pipelinePriceChangeLabel(l);
   return `
@@ -6877,7 +7208,9 @@ function renderPipelineTableView(rows) {
           const listedLabel = listingFirstSeenDate(l) ? shortDateLabel(listingFirstSeenDate(l)) : '–';
           return `<tr>
             <td>${stage ? (stage.icon || '') + ' ' + escapeHtml(stage.name) : '–'}</td>
-            <td><img class="pl-table-photo" src="${l.photo || ''}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="this.style.visibility='hidden'" /></td>
+            <td>${l.photo
+              ? `<img class="pl-table-photo" src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePipelineTablePhotoError(this)" />`
+              : noPhotoPlaceholderHtml({ variant: 'small', extraClass: 'pl-table-photo' })}</td>
             <td class="listing-link" data-listing-id="${l.id}">${escapeHtml(l.title)}</td>
             <td>€${fmt(l.price_eur)}</td>
             <td>${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) : '–'}</td>
@@ -7273,10 +7606,7 @@ function buildBadgesHtml(l) {
 }
 
 function handlePhotoError(img) {
-  const placeholder = document.createElement('div');
-  placeholder.className = 'listing-photo-placeholder';
-  placeholder.innerHTML = '<span class="icon">🖼️</span><span>No photo available</span>';
-  img.replaceWith(placeholder);
+  img.outerHTML = noPhotoPlaceholderHtml();
 }
 
 function createListingCard(l) {
@@ -7295,10 +7625,9 @@ function createListingCard(l) {
     });
   }
 
-  const photoPlaceholderHtml = '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo available</span></div>';
   const photoHtml = l.photo
     ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePhotoError(this)" />`
-    : photoPlaceholderHtml;
+    : noPhotoPlaceholderHtml();
 
   const saved = isListingSaved(l.id);
   const inPipeline = isInPipeline(l.id);
@@ -7315,6 +7644,7 @@ function createListingCard(l) {
           <span class="listing-price">€${fmt(l.price_eur)}</span>
           <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
+        ${freshnessBadgeHtml(l, 'listing-freshness')}
       </div>
     </div>
     <div class="listing-body" style="padding-top:0;">
@@ -7491,6 +7821,85 @@ function matchesAllFilters(l, filters) {
     matchesCityFilter(l, filters.city) &&
     matchesOblastFilter(l, filters.oblast)
   );
+}
+
+// --- CSV export of the currently filtered/sorted Leads grid --------------
+// Reuses render()'s own readFilterState()/matchesAllFilters()/
+// sortComparator() exactly as-is, rather than a second, separately-
+// maintained filtering pass - so "what's on screen" and "what gets
+// exported" can never quietly drift apart from each other. All client-
+// side, on data already loaded into MERGED_LISTINGS (backlog item 6) - no
+// server round-trip.
+function getCurrentFilteredSortedListings() {
+  const filters = readFilterState();
+  const filtered = MERGED_LISTINGS.filter(l => matchesAllFilters(l, filters));
+  filtered.sort(sortComparator(filters.sortBy));
+  return filtered;
+}
+
+// Columns an investor doing their own analysis would actually want (per
+// the feature ask) - each a small function over one listing row rather
+// than a template string, so a later column addition/reorder only touches
+// this one array.
+const CSV_EXPORT_COLUMNS = [
+  { header: 'Title', value: l => l.title || '' },
+  { header: 'Price (EUR)', value: l => l.price_eur ?? '' },
+  { header: 'Sqm', value: l => l.sqm ?? '' },
+  { header: 'Price per sqm (EUR)', value: l => l.price_per_sqm ?? '' },
+  { header: 'Rooms', value: l => l.rooms ?? '' },
+  { header: 'City', value: l => {
+      const c = BG_CITIES.find(c => c.key === (l.city_key || listingCityKey(l)));
+      return c ? c.label : '';
+    } },
+  { header: 'Area', value: l => l.area || '' },
+  { header: 'Portal', value: l => (l.member_portals && l.member_portals.length > 1)
+      ? `${l.portal} (+${l.member_portals.length - 1} more)`
+      : (l.portal || '') },
+  { header: 'Status', value: l => l.status === 'sold' ? 'Sold' : 'Available' },
+  { header: 'Days on market', value: l => l.days_on_market ?? '' },
+  { header: 'Motivation score', value: l => l.score ?? '' },
+  { header: 'URL', value: l => l.url || '' },
+];
+
+function csvEscapeField(value) {
+  const s = String(value ?? '');
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function buildListingsCsv(listings) {
+  const lines = [CSV_EXPORT_COLUMNS.map(c => csvEscapeField(c.header)).join(',')];
+  listings.forEach(l => lines.push(CSV_EXPORT_COLUMNS.map(c => csvEscapeField(c.value(l))).join(',')));
+  // Leading UTF-8 BOM: Excel (unlike most CSV consumers) mis-detects
+  // encoding and mangles Cyrillic text without it - a real issue for this
+  // app's actual data (every BG title/area string), not a hypothetical
+  // edge case. \r\n per RFC 4180.
+  return '﻿' + lines.join('\r\n');
+}
+
+// Client-side Blob + <a download> - no server round trip, no new library.
+function exportFilteredListingsCsv() {
+  const note = document.getElementById('exportCsvNote');
+  if (!BULK_READY) {
+    if (note) note.textContent = 'Still loading the full dataset - try again in a moment.';
+    return;
+  }
+  const listings = getCurrentFilteredSortedListings();
+  if (listings.length === 0) {
+    if (note) note.textContent = 'No listings match the current filters.';
+    return;
+  }
+  const csv = buildListingsCsv(listings);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+  a.href = url;
+  a.download = `imotenradar-listings-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  if (note) note.textContent = `Exported ${fmt(listings.length)} listing${listings.length === 1 ? '' : 's'}.`;
 }
 
 function render() {
@@ -7738,11 +8147,20 @@ async function renderFastPage(filters) {
     cursor = null;
   }
 
+  // Skeleton loading state (backlog "polish" pass): the grid can't paint
+  // anything real until this fetch resolves - show shimmer placeholder
+  // cards instead of leaving it however it was (blank on first page load,
+  // or the previous page's now-stale cards on a pagination click) while it's
+  // in flight. Cleared below the moment a real result (or the empty state)
+  // is ready to paint, same as the rest of this function already does via
+  // grid.innerHTML.
+  const grid = document.getElementById('grid');
+  renderSkeletonGrid(grid);
+
   const token = ++fastRequestToken;
   const result = await fetchFastListingsPage(filters, cursor);
   if (token !== fastRequestToken) return; // superseded by a newer render() call - drop this response
 
-  const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
   const countEl = document.getElementById('count');
 
@@ -8019,10 +8437,17 @@ function renderPriceHistoryChart(priceHistory, statusInfo) {
 // tab system now (always visible, rendered once per renderListingDetail()
 // call below - see the unconditional renderPriceHistoryChart() call near
 // the bottom of that function), so it no longer needs a case here.
-function switchDetailTab(tab, l) {
+function switchDetailTab(tab, l, { push = true } = {}) {
   detailActiveTab = tab;
   document.querySelectorAll('.detail-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === tab));
+  // Its own back-button step: a tab switch reuses the listing's own
+  // '#/listing/<id>' URL (only detailActiveTab differs, not the hash) - see
+  // restoreListingState(), which tells this apart from opening a listing
+  // fresh by checking whether that same listing is already on screen.
+  if (push && currentDetailListingId) {
+    history.pushState({ type: 'listing', id: currentDetailListingId, tab }, '', window.location.pathname + window.location.search + '#/listing/' + currentDetailListingId);
+  }
   if (tab === 'comparables' && l) {
     // A Leaflet map can't size itself correctly while its container is
     // display:none, so the Map sub-view (if selected) needs a fresh init
@@ -8064,6 +8489,155 @@ function sourceListedMetaHtml(s) {
     lines.push('Removed');
   }
   return lines.join(' · ');
+}
+
+// --- Data-freshness badge ("Verified X ago") ----------------------------
+// Built entirely from fields sync_to_supabase.py already syncs to
+// merged_listings/listing_sources (MERGED_LISTINGS_BULK_COLUMNS already
+// includes site_updated_at/first_seen_at, so the grid needs no extra
+// fetch) - no new backend field. Two real signals exist, each with the
+// exact same real coverage gap sourceListedMetaHtml() above already works
+// around for "Listed", and for the same underlying reason (only some
+// portals' scrapers expose the relevant date):
+//   - site_updated_at: the portal's OWN stated last-updated/renewed date -
+//     only scraper_alo.py, scraper_bcpea.py and scraper_olx.py populate
+//     this (confirmed by grepping every scraper_*.py for the field: the
+//     other five - bazar/homes/imot/imoti_bg/imoti_net - never set it).
+//     When present, this is a genuine portal-confirmed recency signal, so
+//     it's labeled "Verified".
+//   - first_seen_at: precomputed server-side by sync_to_supabase.py's
+//     first_seen_at_for() from this listing's earliest tracked snapshot -
+//     available for virtually every listing, but it is a static origin
+//     date, not a recheck date: it does NOT move just because a later
+//     scrape re-confirms an unchanged listing is still live. The per-run
+//     "still there, still live" confirmation genuinely exists (scraper.py's
+//     compute_leads() derives it as `last_seen`, from history's own
+//     snapshots[-1].seen_at) but is never synced to Supabase - only
+//     leads_*.json-derived fields are (see SOURCE_FIELDS/MERGED_FIELDS in
+//     sync_to_supabase.py). Labeled "First tracked", not "Verified", for
+//     exactly that reason - it would otherwise overstate how recently this
+//     listing's data was actually rechecked.
+//
+// Deliberately does NOT use merged_listings'/listing_sources' own
+// `updated_at` column, despite the name suggesting it would fit: upsert()
+// never includes "updated_at" in the SOURCE_FIELDS/MERGED_FIELDS list it
+// sends, and PostgREST's `Prefer: resolution=merge-duplicates` only adds
+// columns actually present in the request body to its ON CONFLICT DO
+// UPDATE SET clause - so `updated_at` is set once, by its own `default
+// now()`, on this row's original INSERT, and is never touched by any
+// later sync run despite every run re-sending this row's full payload.
+// It freezes at "whenever this row first landed in Supabase," not "last
+// confirmed by a sync run" as the column name implies. Using it here would
+// silently mislabel every long-tracked, still-actively-rechecked listing
+// as "stale" - the opposite of the honest signal this feature is meant to
+// be. See docs/decisions.md's entry for this feature for the full
+// reasoning (and why this wasn't just quietly "fixed" in sync_to_supabase.
+// py instead - out of scope for a frontend-only, no-new-backend-field ask,
+// and a live-Supabase-behavior change deserves its own review).
+function formatRelativeTime(d) {
+  const ms = Date.now() - d.getTime();
+  const sec = Math.round(ms / 1000);
+  if (sec < 60) return 'just now';
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.round(hr / 24);
+  if (day < 7) return `${day} day${day === 1 ? '' : 's'} ago`;
+  const week = Math.round(day / 7);
+  if (week < 5) return `${week} week${week === 1 ? '' : 's'} ago`;
+  const month = Math.round(day / 30);
+  if (month < 12) return `${month} month${month === 1 ? '' : 's'} ago`;
+  const year = Math.round(day / 365);
+  return `${year} year${year === 1 ? '' : 's'} ago`;
+}
+
+// Worth a visibly different (still calm, non-alarm) visual weight once a
+// listing's best available recency signal is this old - see the big
+// comment above. 3 days is comfortably above every real scrape cadence
+// this project runs (scrape.yml every 6h, scrape-large.yml every 24h, per
+// check_scrape_freshness.py's own MAX_FRESHEST_SNAPSHOT_AGE_HOURS=30
+// comment) and above GONE_AFTER's 48h remove-detection window, so a
+// site_updated_at this old genuinely means the portal itself hasn't
+// touched the ad in an unusually long time - not just "a normal gap
+// between two scrape runs."
+const FRESHNESS_STALE_AFTER_MS = 1000 * 60 * 60 * 24 * 3;
+
+function listingFreshnessInfo(l) {
+  const verified = l.site_updated_at || null;
+  const iso = verified || l.first_seen_at || null;
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return {
+    verb: verified ? 'Verified' : 'First tracked',
+    relative: formatRelativeTime(d),
+    // Only the genuine portal-confirmed signal drives the "stale" visual -
+    // see the "First tracked" branch's own comment above for why
+    // first_seen_at's age alone isn't a meaningful staleness signal (a
+    // perfectly healthy, still-being-rechecked listing's first_seen_at
+    // only grows the longer it stays on the market).
+    stale: !!verified && (Date.now() - d.getTime()) >= FRESHNESS_STALE_AFTER_MS,
+  };
+}
+
+function freshnessBadgeHtml(l, cssClass) {
+  const info = listingFreshnessInfo(l);
+  if (!info) return '';
+  return `<p class="${cssClass}${info.stale ? ' is-stale' : ''}">${info.verb} ${info.relative}</p>`;
+}
+
+// --- Cross-portal price divergence ---------------------------------------
+// Real, already-retained per-source price data: listing_sources keeps its
+// own price_eur for each (portal, source_id) row even after sync_to_
+// supabase.py's group_listings() merges matching sources into one
+// merged_listings record for display - merged.sources (lazily fetched from
+// listing_sources once a listing's detail page is opened - see
+// loadListingDetail()) is exactly that per-source data, the same rows the
+// portal-badge switcher above already reads each source's own price_eur
+// from. No new data needed here: this only adds a proactive callout when
+// those already-fetched prices genuinely diverge, instead of leaving the
+// user to notice it themselves by clicking through each portal badge.
+const PRICE_DIVERGENCE_MIN_PCT = 0.03; // 3%...
+const PRICE_DIVERGENCE_MIN_EUR = 1000; // ...and at least this much in euro
+// terms, so a trivial rounding/currency-conversion-level difference on a
+// cheap listing doesn't trigger a callout that reads as more significant
+// than it really is.
+
+function priceDivergenceInfo(merged, currentSource) {
+  const sources = (merged.sources || []).filter(s =>
+    s.source_status !== 'removed' && typeof s.price_eur === 'number' && s.price_eur > 0
+  );
+  if (sources.length < 2) return null;
+  const current = currentSource || sources[0];
+  const others = sources.filter(s => s.portal !== current.portal);
+  if (others.length === 0) return null;
+  const cheapest = others.reduce((min, s) => (s.price_eur < min.price_eur ? s : min), others[0]);
+  const priciest = others.reduce((max, s) => (s.price_eur > max.price_eur ? s : max), others[0]);
+  const isMeaningful = (other) => {
+    const diff = Math.abs(current.price_eur - other.price_eur);
+    return diff >= PRICE_DIVERGENCE_MIN_EUR && diff / current.price_eur >= PRICE_DIVERGENCE_MIN_PCT;
+  };
+  // Prefer surfacing a cheaper alternative (directly actionable for an
+  // investor - a real arbitrage/negotiation signal) over a pricier one.
+  if (cheapest.price_eur < current.price_eur && isMeaningful(cheapest)) {
+    return { other: cheapest, diff: current.price_eur - cheapest.price_eur, direction: 'less' };
+  }
+  if (priciest.price_eur > current.price_eur && isMeaningful(priciest)) {
+    return { other: priciest, diff: priciest.price_eur - current.price_eur, direction: 'more' };
+  }
+  return null;
+}
+
+function priceDivergenceHtml(merged, currentSource) {
+  const info = priceDivergenceInfo(merged, currentSource);
+  if (!info) return '';
+  // "less" (a genuinely cheaper alternative) is the buyer-favorable case -
+  // design-guidelines.md section 4 reserves the sage signal color for
+  // exactly this ("price moved in the buyer's favor"); "more" is a neutral
+  // fact, styled with the plain taupe secondary-text color instead.
+  const cls = info.direction === 'less' ? 'detail-price-divergence' : 'detail-price-divergence neutral';
+  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for €${fmt(info.diff)} ${info.direction}</p>`;
 }
 
 // --- Property Details & Keywords panel ----------------------------------
@@ -9249,9 +9823,11 @@ function saveDealCalcTemplateFromWizard() {
   }
   saveDealCalcTemplatesToStorage();
   const linkedListingId = dcWizardListingId;
+  const wasEditing = !!dcWizardEditingId;
   closeDealCalcModal();
   renderDealCalcSection();
   refreshOpenListingDealCalcTabIfLinkedTo(linkedListingId);
+  showToast(wasEditing ? 'Deal Calculator template updated' : 'Deal Calculator template saved');
 }
 
 function duplicateDealCalcTemplate(templateId) {
@@ -9500,19 +10076,23 @@ function renderListingDetail(merged) {
     <div class="detail-grid">
       <div>
         <div class="detail-photo-wrap">
-          <!-- On a broken photo URL, keep this element in the DOM (its id is
-               read by setDetailPhoto() for the prev/next/thumbnail gallery)
-               and just drop the src/alt rather than hiding it outright -
-               display:none used to collapse .detail-photo-wrap to zero
-               height (aspect-ratio only sizes a rendered box), stranding
-               the prev/next arrow buttons below - which are positioned
-               absolute within that wrapper - floating over empty page
-               background with no visual anchor (found live in a design
-               audit). Removing just the src leaves the element's own
-               aspect-ratio: 4/3 box (and its existing ivory-deep
-               background) intact, so the arrows stay correctly placed
-               over a properly-sized, blank photo area instead. -->
-          <img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" onerror="this.removeAttribute('src'); this.alt='';" />
+          <!-- On a broken photo URL, swap in the same branded no-photo
+               placeholder used elsewhere (handleDetailPhotoError()) rather
+               than hiding the element outright - display:none used to
+               collapse .detail-photo-wrap to zero height (aspect-ratio only
+               sizes a rendered box), stranding the prev/next arrow buttons
+               below - which are positioned absolute within this wrapper -
+               floating over empty page background with no visual anchor
+               (found live in a design audit). The placeholder keeps the
+               same aspect-ratio: 4/3 box, so the arrows stay correctly
+               placed over it either way. No photos at all (mainPhoto === '')
+               renders the placeholder directly instead of an empty <img>.
+               Clicking a real photo opens the full-screen lightbox
+               (openLightbox()) - cursor: zoom-in on .detail-photo signals
+               that. -->
+          ${mainPhoto
+            ? `<img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" onerror="handleDetailPhotoError(this)" />`
+            : noPhotoPlaceholderHtml({ id: 'detailMainPhoto' })}
           ${photos.length > 1 ? `
             <button type="button" class="detail-photo-nav prev" aria-label="Previous photo">‹</button>
             <button type="button" class="detail-photo-nav next" aria-label="Next photo">›</button>
@@ -9524,10 +10104,12 @@ function renderListingDetail(merged) {
         <div class="badges">${badges}</div>
         <h1 class="detail-title">${l.title}</h1>
         <p class="detail-area">📍 ${l.area}${cityLabel ? ', ' + cityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        ${freshnessBadgeHtml(l, 'detail-freshness')}
         <div class="detail-price-row">
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
+        ${priceDivergenceHtml(merged, l)}
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
           <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
@@ -9630,6 +10212,13 @@ function renderListingDetail(merged) {
   const nextPhotoBtn = document.querySelector('#listingDetailBody .detail-photo-nav.next');
   if (prevPhotoBtn) prevPhotoBtn.addEventListener('click', () => setDetailPhoto(detailPhotoIndex - 1));
   if (nextPhotoBtn) nextPhotoBtn.addEventListener('click', () => setDetailPhoto(detailPhotoIndex + 1));
+
+  // Lightbox: click the main hero photo to open full-screen (no-op if this
+  // listing has no real photos - the placeholder div has no click handler).
+  const mainPhotoEl = document.getElementById('detailMainPhoto');
+  if (mainPhotoEl && mainPhotoEl.tagName === 'IMG') {
+    mainPhotoEl.addEventListener('click', () => openLightbox(detailPhotoIndex));
+  }
 
   document.getElementById('listingDetailBody').querySelectorAll('.portal-badge').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -9855,11 +10444,20 @@ function currentResultPosition(id) {
     nextId: idx < CURRENT_RESULT_IDS.length - 1 ? CURRENT_RESULT_IDS[idx + 1] : null };
 }
 
-function showListingDetail(id) {
+function showListingDetail(id, { push = true, tab = 'details' } = {}) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
+  // Remember whichever real section was on screen before this (Leads,
+  // Pipeline, a Lead Generator's results, Comparables, Dashboard...) so the
+  // in-page "← Back to listings" button can return there instead of a
+  // hardcoded section - see backBtn's click handler below. Only updated
+  // when coming from an actual section, not when already viewing another
+  // listing (prev/next paging, a "compare" goto link, etc.), so that case
+  // still remembers the true originating section.
+  const activeSectionEl = document.querySelector('.page.active:not(#section-listing)');
+  if (activeSectionEl) lastSectionBeforeListing = activeSectionEl.id.replace('section-', '');
   detailSourceIndex = 0;
-  detailActiveTab = 'details';
+  detailActiveTab = tab;
   // Backlog item 8: this used to reset to null on every listing open, so
   // both the radius panel above the tabs AND the Comparables tab (which
   // shares this same value) opened empty - just a "pick a radius" hint,
@@ -9893,11 +10491,20 @@ function showListingDetail(id) {
       .sort((a, b) => new Date(a.remind_at) - new Date(b.remind_at));
   }
 
+  currentDetailListingId = id;
   renderListingDetail(merged);
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  if (location.hash !== '#/listing/' + id) location.hash = '#/listing/' + id;
+  // Opening a listing is its own back-button step, distinct from whatever
+  // section/listing it was opened from (docs/decisions.md - back button
+  // fix). `push: false` is used when this call is itself restoring a
+  // history entry (popstate) or the initial page's own deep link, where
+  // the browser has already navigated and pushing again would create a
+  // duplicate, unreachable-by-back entry.
+  if (push) {
+    history.pushState({ type: 'listing', id, tab: detailActiveTab }, '', window.location.pathname + window.location.search + '#/listing/' + id);
+  }
   window.scrollTo({ top: 0, behavior: 'instant' });
 
   if ((merged.member_count || 1) > 1 && merged._sourcesFetched !== true) {
@@ -9939,11 +10546,22 @@ function showListingDetail(id) {
   }
 }
 
-function showSection(name) {
+function showSection(name, { push = true } = {}) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
-  if (location.hash) history.pushState('', document.title, window.location.pathname + window.location.search);
+  // Leaving the listing detail page (showSection is never called with
+  // name === 'listing' - that page is only reached via showListingDetail()).
+  currentDetailListingId = null;
+  // Each section switch is its own back-button step (docs/decisions.md -
+  // back button fix), so the browser's back button retraces the sections a
+  // user actually visited instead of jumping straight to Home. `push: false`
+  // is used only when this call is itself restoring a history entry
+  // (popstate), where the browser already navigated there.
+  if (push) {
+    const hash = name === 'home' ? '' : ('#/section/' + name);
+    history.pushState({ type: 'section', name }, '', window.location.pathname + window.location.search + hash);
+  }
   if (name === 'market') {
     if (!marketHubInitialized) { initMarketDataHub(); marketHubInitialized = true; }
     else { renderActiveMarketTab(); }
@@ -10078,7 +10696,13 @@ document.addEventListener('keydown', (e) => {
 
 document.getElementById('goToLeadsBtn').addEventListener('click', () => showSection('leads'));
 document.getElementById('goToLeadsBtn2').addEventListener('click', () => showSection('leads'));
-document.getElementById('backBtn').addEventListener('click', () => showSection('leads'));
+// Used to always jump to 'leads' no matter where the listing was opened
+// from (Pipeline, a Lead Generator's results, Comparables, Dashboard...) -
+// the exact bug reported ("the back button brings me to home screen. Needs
+// to be one step back from previous action"). Returns to whichever section
+// was actually on screen before this listing was opened instead - see
+// lastSectionBeforeListing, set in showListingDetail().
+document.getElementById('backBtn').addEventListener('click', () => showSection(lastSectionBeforeListing));
 
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.listing-link[data-listing-id]');
@@ -10090,19 +10714,73 @@ document.addEventListener('click', (e) => {
   if (btn) toggleSavedListing(btn.dataset.saveId);
 });
 
-window.addEventListener('hashchange', () => {
-  const m = location.hash.match(/^#\/listing\/(.+)$/);
-  if (m) showListingDetail(decodeURIComponent(m[1]));
-});
+// --- Browser back/forward button support ---------------------------------
+// Root cause (docs/decisions.md): showSection() never pushed a history
+// entry of its own (only cleared a leftover listing hash, via pushState,
+// when one existed), so switching sections left the browser with nothing
+// but the single initial page-load entry to go back to. showListingDetail()
+// did put each listing on its own hash-driven entry, but nothing ever
+// listened for 'popstate' - the one listener that did react to a hash
+// change (below, now removed) only handled navigating BACK INTO a listing,
+// re-opening it at its default 'details' tab and losing whatever tab/radius/
+// map-layer state the user had; navigating back OUT of a listing to an
+// earlier section did nothing at all, so the section shown underneath was
+// whatever the very first pushState above happened to leave in place -
+// which in practice was almost always Home. Net effect: back always ended
+// up at Home after at most one useful step, regardless of how many
+// sections/listings were actually visited.
+//
+// Fix: every section switch, listing open, and tab switch now pushes its
+// own {type, ...} state via history.pushState() (see showSection(),
+// showListingDetail(), switchDetailTab()), and this one popstate listener
+// restores whichever of those was popped back to, from the URL/state - not
+// by refetching data, just by re-driving the same render functions that a
+// normal click would.
+function restoreListingState(id, tab) {
+  const merged = MERGED_LISTINGS.find(x => x.id === id);
+  if (!merged) { showSection('leads', { push: false }); return; }
+  if (currentDetailListingId === id && document.getElementById('section-listing').classList.contains('active')) {
+    // Same listing already on screen - just move the tab, in place, rather
+    // than re-running showListingDetail() and losing radius/map-layer/BTL
+    // inputs the user had set for it.
+    switchDetailTab(tab, merged.sources[detailSourceIndex] || merged.sources[0], { push: false });
+  } else {
+    showListingDetail(id, { push: false, tab });
+  }
+}
+
+function applyHistoryState(state) {
+  if (state && typeof state === 'object' && state.type === 'listing' && state.id) {
+    restoreListingState(state.id, state.tab || 'details');
+    return;
+  }
+  if (state && typeof state === 'object' && state.type === 'section' && state.name && document.getElementById('section-' + state.name)) {
+    showSection(state.name, { push: false });
+    return;
+  }
+  // No usable state object - e.g. a history entry left over from before
+  // this fix, or the hash was edited by hand. Infer from the URL instead of
+  // defaulting straight to Home.
+  const lm = location.hash.match(/^#\/listing\/(.+)$/);
+  if (lm) { restoreListingState(decodeURIComponent(lm[1]), 'details'); return; }
+  const sm = location.hash.match(/^#\/section\/([a-z]+)$/);
+  if (sm && document.getElementById('section-' + sm[1])) { showSection(sm[1], { push: false }); return; }
+  showSection('home', { push: false });
+}
+window.addEventListener('popstate', (e) => applyHistoryState(e.state));
 
 // Left/right arrow keys cycle the listing detail page's photo gallery
 // (mirrors the on-photo prev/next buttons - see setDetailPhoto()). Only
 // while that page is actually open, and never while the user is typing
 // in a text field (a search box, a lead-generator name input, etc. could
-// otherwise have its own left/right cursor movement hijacked).
+// otherwise have its own left/right cursor movement hijacked). Skipped
+// entirely while the lightbox is open - its own keydown listener
+// (openLightbox() and friends, above) already handles Left/Right in that
+// case, and both firing on the same keypress would double-step the photo.
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   if (!document.getElementById('section-listing').classList.contains('active')) return;
+  if (document.getElementById('lightboxOverlay').classList.contains('open')) return;
   const tag = document.activeElement ? document.activeElement.tagName : '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   if (detailPhotos.length <= 1) return;
@@ -10121,6 +10799,7 @@ document.getElementById('minTimesReduced').addEventListener('input', renderFromS
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
 document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
+document.getElementById('exportCsvBtn').addEventListener('click', exportFilteredListingsCsv);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
@@ -10819,6 +11498,27 @@ loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
 loadDealCalcTemplates();
+
+// Give the page's very first history entry a real {type, ...} state object
+// up front (replaceState, not pushState - this is the entry the browser
+// already created for the page load itself, not a new one), matching
+// whatever the URL says: a listing deep link, a direct '#/section/<name>'
+// link, or plain Home. Without this, popstate back to this first entry
+// would arrive with state === null, and every state pushed after it
+// (showSection()/showListingDetail() below) would rest on that unlabeled
+// base entry instead of a real one applyHistoryState() can restore from.
+(function initHistoryState() {
+  const lm = location.hash.match(/^#\/listing\/(.+)$/);
+  const sm = location.hash.match(/^#\/section\/([a-z]+)$/);
+  if (lm) {
+    history.replaceState({ type: 'listing', id: decodeURIComponent(lm[1]), tab: 'details' }, '', window.location.href);
+  } else if (sm && document.getElementById('section-' + sm[1])) {
+    history.replaceState({ type: 'section', name: sm[1] }, '', window.location.href);
+  } else {
+    history.replaceState({ type: 'section', name: 'home' }, '', window.location.pathname + window.location.search);
+  }
+})();
+
 maybeImportSharedLeadGenerator();
 
 // Kicked off in parallel with loadData()'s much larger bulk fetch below,

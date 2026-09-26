@@ -6027,8 +6027,299 @@ consistent with this repo's standing rule against iterating via live
 dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
+### 2026-09-26 - Data trust & investor edge (backlog item 40): freshness badge, cross-portal price divergence, filtered-grid CSV export
+
+User directive ("Execute") covering 3 items: a per-listing data-freshness
+badge, a cross-portal price-divergence flag, and a CSV export of the
+filtered Leads grid. Full reasoning and what was actually shipped is in
+`docs/backlog.md` item 40 - this entry covers the two investigation
+findings worth a decisions-log entry on their own, plus process notes.
+
+**Finding worth flagging on its own: `merged_listings`'/`listing_sources`'
+`updated_at` column does not mean what its name suggests.** The task brief
+named it as a candidate freshness field to check - grepped for every use
+of `"updated_at"` in `sync_to_supabase.py` and found exactly one: the
+`SOURCE_FIELDS` list's own explanatory comment block, never the field
+itself. It is never included in the row dicts `build_rows()` constructs,
+so it's never part of the JSON `upsert()` sends. Since Postgres/PostgREST
+`Prefer: resolution=merge-duplicates` builds its `ON CONFLICT DO UPDATE
+SET` clause only from columns present in the request body, `updated_at`
+is set exactly once - by its own `not null default now()` at the row's
+original `INSERT` - and never touched again, despite every subsequent
+sync run re-sending that row's full current data. Confirmed this isn't
+just a hunch: it follows directly from reading `upsert()` and `build_
+rows()` together, and matches the observable fact that `SOURCE_FIELDS`/
+`MERGED_FIELDS` (the two lists that determine upsert payload contents) both
+deliberately exclude it. Practical effect if it had been used as the
+freshness signal: every long-tracked, still-actively-rechecked listing
+would show as "stale" from the day after it was first synced onward, for
+the rest of its life on the site - the opposite of an honest freshness
+signal. Not fixed here (would touch live Supabase write behavior for
+every row, not a frontend-only "no new backend field" ask) - documented
+plainly in `docs/backlog.md` item 40 as a follow-up any future item could
+pick up, with the two concrete ways to fix it.
+
+**Finding worth flagging on its own: cross-portal per-source prices ARE
+retained after merge, unlike a hypothetical version of this app that
+discarded them.** This was the open question the dispatch itself posed
+("investigate whether source-level price data is actually available").
+Traced `sync_to_supabase.py`'s `group_listings()`/`build_rows()`: a merged
+listing's individual sources go into `listing_sources` (one row per
+`(portal, source_id)`, each keeping its own real `price_eur`/`price_per_
+sqm`), while `merged_listings` gets one row built from the single
+highest-`score` source (`sorted_sources[0]`) plus `member_count`/`member_
+portals`. Nothing about the merge drops or averages the per-source prices
+- they're simply not repeated in the merged row's own columns, which is
+why the frontend already has to fetch `listing_sources` separately (lazily,
+once a cross-posted listing's detail page opens) to build the existing
+per-portal price-switcher badges. That fetch already had every price
+needed for a divergence check; item 2 just had to compare them
+proactively instead of leaving the user to click through each portal
+badge to notice a difference themselves.
+
+**Verification**: real Playwright harness (this session's own scratchpad,
+not committed), fixture-driven, covering every real freshness-data shape
+(fresh/stale `site_updated_at`, recent/old-only `first_seen_at`, neither
+field present) plus a genuinely-divergent and a near-identical
+cross-posted listing with matching `listing_sources` fixture rows, at
+1440px and 390px. All checks passed, including a real triggered CSV
+download whose row count/columns/filter-compliance were checked
+programmatically (RFC-4180-aware parsing, not a naive comma split, so a
+title containing a comma didn't produce a false failure). Console/JS-error
+check is diffed against a `baseline_check.js` run of unmodified `origin/
+main`'s own `index.html` against the same fixture/sandbox, which
+reproduces the identical pre-existing 404/`ERR_TUNNEL_CONNECTION_FAILED`
+network noise (this sandbox's proxy blocks the map tile/photo/font hosts
+this page uses, regardless of this change) and the identical pre-existing
+Leaflet `_leaflet_pos` exception - confirming both are environmental, not
+introduced by this change, rather than just asserting so.
+
+**Process**: built in an isolated `git worktree` off a fresh `origin/
+main` (`feat/data-trust-investor-edge` branch) - `git worktree list`
+showed 6 other worktrees/checkouts active on this repo at dispatch time
+(a design-polish pass, investor features, an accessibility pass, a
+back-button fix, a gzip migration, and Dessy's own two), confirming the
+real collision risk the dispatch warned about; kept every change small
+and additive (new CSS classes, new standalone JS functions, single-point
+HTML insertions at existing element boundaries) rather than touching any
+shared function body other agents were also likely editing (`render()`,
+`createListingCard()`, `renderListingDetail()` were read but not
+restructured - only single-line insertions at their existing template
+boundaries). No live GitHub Actions dispatch involved - nothing here
+touches a workflow or a script Actions runs. Not self-merged - opened as
+a PR for Missy's review per the repo's standing rule.
+
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
 
+### 2026-09-26 - alo.bg/bazar.bg hit the same GH001 wall homes.bg already hit (item 37) - gzip migration extended to alo.bg, bazar.bg, olx.bg, imot.bg
+
+**Confirmed live before touching anything, not assumed from the incident report alone:** independently re-verified via `git cat-file -s` against a freshly-fetched `origin/main` (not trusting the reported numbers blind) - `data/leads_alo.json` 104,292,257 bytes, `data/history_alo.json` 101,950,671 bytes, `data/leads_bazar.json` 100,191,086 bytes, `data/history_bazar.json` 98,734,614 bytes, all already over/at GitHub's 100MB (100,000,000-byte, decimal) hard push limit. Cross-checked against GitHub Actions' own real job logs (`backfill-detail-alo.yml` runs 558/559, the two most recent scheduled runs, both `conclusion: failure`) - the exact quoted `GH001` rejection text matches these byte counts precisely, and no open PR or in-progress branch was already addressing this (checked `list_pull_requests` and `git branch -r` before starting, per this repo's shared-checkout discipline).
+
+**Fix: item 37's own homes.bg gzip mechanism (`geo_utils.load_json_any()`/`save_json_any()`), extended to alo.bg/bazar.bg (both actively failing) and, proactively, olx.bg/imot.bg (same unbounded-growth trajectory, not yet over the wall) - not a new mechanism.** Full detail, exact before/after sizes per file, and the alo.bg spiky-growth investigation are in `docs/backlog.md` item 37's third addendum, not duplicated here.
+
+**One real bug found along the way, worth calling out here too:** several backfill scripts wrote `MODULE.LEADS_FILE.write_text(json.dumps(...))` directly, bypassing `save_json_any()` - harmless while `LEADS_FILE` was plain `.json`, but would have silently corrupted the newly-`.gz` leads files for alo.bg/bazar.bg/olx.bg/imot.bg the very next time any of those hourly backfills ran (writing plain JSON text into a file whose name claims to be gzip, breaking the next `load_json_any()` read). Found by grepping every reference to these filenames across the repo before writing any code, per this task's own explicit instruction - not found by trial and error. 16 call sites across 13 scripts fixed to go through `save_json_any()`/`load_json_any()` instead; verified this is a byte-identical no-op for every portal that stays plain (imoti.net/imoti.bg/bcpea.org).
+
+**Not dispatched live** - per this repo's standing rule against iterating on production workflows via `workflow_dispatch` (the exact rule this session's own CLAUDE.md was written to enforce, after 5 failed live runs of one diagnostic script in an earlier session). Every change was validated locally instead: `python3 -m py_compile` on every changed file, the full test suite (270 passed, 4 subtests, 0 regressions), each of the 4 migrated scrapers' own `load_history()`/`compute_leads()` run end-to-end against the real migrated `.gz` data, `check_scrape_freshness.py`/`sync_to_supabase.py`/`merge_history_conflict.py`/`evict_stale_history.py --dry-run` all run against the real post-migration files and confirmed working.
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this repo's shared-checkout discipline (confirmed via `git status`/`git log` on the shared checkout before starting: it was mid-way through unrelated work on a different branch, left untouched). Not self-merged - opened as a PR for Missy's review, flagged time-sensitive given active, ongoing production data loss on every `backfill-detail-alo.yml` run until this merges.
+## 2026-09-26: Browser back button fix (backlog item 40) - history.pushState()/popstate added; none existed before
+
+**Root cause.** Direct user feedback: "the back button brings me to home
+screen. Needs to be one step back from previous action." Grepped for
+every routing mechanism this SPA might have (`showSection()`,
+`switchDetailTab()`, `history.pushState`/`replaceState`, `popstate`,
+`location.hash`) before touching anything, per this file's own standing
+practice of reading before guessing. Found: `showSection()` (switches
+between Home/Leads/Pipeline/Comparables/Dashboard/etc.) never pushed a
+history entry of its own - the one `history.pushState()` call inside it
+only cleared a leftover `#/listing/<id>` hash, and only when one was
+already present. `showListingDetail()` did put each listing on its own
+entry (assigning `location.hash` creates one), but there was no
+`popstate` listener anywhere in the file - the only listener reacting to
+a hash change at all was a `hashchange` handler that exclusively handled
+navigating back INTO a listing (and always reset it to the "Details" tab,
+losing whatever tab/radius/map-layer state the user had), never back out
+of one to the section underneath. So the browser had, in effect, one real
+back-button step (out of a listing, sort of) and otherwise nothing -
+every section switch was invisible to `history`, so back always surfaced
+whatever the single initial entry held, which in practice was almost
+always Home. A second, smaller bug compounded this: the in-page "← Back
+to listings" button (`#backBtn`) was hardcoded to `showSection('leads')`
+regardless of which section the listing had actually been opened from.
+
+**Design decision - state shape.** Two history-state types only,
+`{type:'section', name}` and `{type:'listing', id, tab}` - no separate
+"tab switch" state type, even though a tab switch is its own back-button
+step. A tab switch pushes the same `{type:'listing', id, tab}` shape a
+fresh listing-open does; the shared `restoreListingState()` popstate
+handler tells them apart at restore time by checking whether that same
+listing is already the one on screen (`currentDetailListingId`) - if so,
+it moves the tab in place (`switchDetailTab(..., {push:false})`, cheap,
+keeps radius/map-layer/BTL-inputs state); if not, it does a full
+`showListingDetail()`. This was simpler and less error-prone than adding
+a third state type, and produces identical observable behavior.
+
+**Why the old listing-only `hashchange` listener was removed outright,
+not just left alongside the new `popstate` listener.** During real
+back/forward traversal, the browser fires `hashchange` in addition to
+`popstate` whenever the hash differs between entries (which it always
+does when leaving or entering a listing). Leaving the old listener in
+place would have double-handled every such navigation: `popstate` restores
+the correct tab first, then the old `hashchange` handler immediately
+re-invokes `showListingDetail()` with its hardcoded default tab,
+silently clobbering the restore that just happened. Verified this failure
+mode by testing with both listeners active before removing the old one -
+back-into-a-listing landed on "Details" every time regardless of which
+tab history said it should be, exactly the kind of regression this PR
+exists to prevent introducing.
+
+**Verification.** This sandbox's network policy blocks both the app's
+live Supabase project and every CDN it loads libraries from (confirmed
+via the sandbox's own `/__agentproxy/status`, not assumed from a prior
+session) - so live-browser testing meant standing up an offline
+equivalent, not skipping it. Served the real, unmodified `index.html`
+locally and used Playwright's `page.route()` to swap its three CDN
+`<script>` tags for local stand-ins: a hand-written Supabase
+`createClient()` fake that actually implements `.eq()`/`.in()` filtering
+against a small fixed `merged_listings` fixture (so per-listing lazy
+fetches resolve the right row, not an arbitrary one), and generic
+infinitely-chainable/constructable Proxy stand-ins for `Chart` and `L`
+(Leaflet) - every call on them just returns another one of themselves
+instead of throwing, since no chart or map actually needs to render to
+test navigation. This is real client-side history/DOM logic running in a
+real Chromium, exercised through real `page.goBack()`/`page.goForward()`
+calls - only the two CDN payloads and the backing data are faked, not the
+mechanism under test.
+
+Ran the task's own prescribed sequence (Home -> Leads -> open a listing ->
+switch to Comparables tab -> open a second listing from a Comparables
+"compare" link -> back x3 -> forward x3) at 1440px and 390px, asserting
+the exact section/hash/active-tab/listing-title at every single step, not
+just that something changed. Back x3 landed, in order,
+comparables-tab-on-listing-1 -> details-tab-on-listing-1 -> Leads (never
+Home); forward x3 retraced it exactly. Three further scenarios: a longer
+Home -> Pipeline -> Comparables -> Dashboard -> back x3 chain (every
+section its own step, not just Leads); `#backBtn` clicked from a listing
+opened out of Pipeline returns to Pipeline (fixes the hardcoded-`'leads'`
+bug directly); and a direct `#/listing/<id>` deep link with no prior
+in-app navigation, which loads correctly and returns to that same
+listing (not Home, not a blank page) on a single back press after
+switching tabs. Instrumented the Supabase stub to count bulk
+(unfiltered) `merged_listings` calls across the whole sequence: exactly 2
+(the page's own fast-first-paint query and its real bulk load), 0
+additional ones triggered by any back/forward press - popstate restores
+from state already in memory, per the task's own requirement not to
+refetch. Console/`pageerror` output was diffed against the same harness
+run against unmodified `origin/main`: identical both times (this
+sandbox's own blocked CSS/web-font/map-tile requests plus one Leaflet
+`integrity`-attribute mismatch against the local stand-in - pre-existing
+artifacts of testing offline, not introduced by this change).
+
+Built in an isolated `git worktree` off a fresh `origin/main`
+(`fix/back-button-navigation` branch) - `git worktree list` showed three
+other agents' worktrees already touching `index.html` concurrently
+(design polish, investor-facing features, an accessibility pass) at
+session start, so a rebase before merge was expected from the outset, per
+this repo's shared-checkout discipline. Not self-merged - opened as a PR
+for Missy's review per the repo's standing rule.
+## 2026-09-26: "Polish that reads as luxurious fast" - skeleton loading, toasts, no-photo placeholder, icon audit, photo lightbox (backlog item 40)
+
+User approved a batch of design/UX ideas and said "Execute" - Bossy routed
+the "polish that reads as luxurious fast" group of five to Dessy. All five
+are additive UI polish over the existing brass/ivory/ink/sage system from
+`docs/design-guidelines.md`; none needed a scraper/sync/schema/workflow
+change, so all of it stayed in `index.html` alone.
+
+**Decision: reuse the prior session's own Playwright harness (`/tmp/dessy-
+test/`) rather than build a new one.** It already vendors Chart.js/
+Leaflet/Leaflet.draw locally and carries a 6,000-row `merged_listings`
+fixture, routed into an unmodified `index.html` via `page.route()` - the
+exact setup this dispatch's own instructions asked for. Copied the
+worktree's current `index.html` into it and patched its CDN `<script src>`
+tags to the same `vendor/*.js` paths the harness's own prior copy already
+used (the working `index.html` on `main` references real CDN URLs
+directly, which this sandbox's proxy blocks) - a copy-and-patch step, not
+a change to anything actually shipped.
+
+**Decision: for item 4 (icon audit), document rather than replace.** The
+dispatch explicitly said not to do a wall-to-wall icon replacement if the
+existing usage is already consistent and intentional. Found exactly that:
+every emoji use site-wide (nav, section headers, badges, buttons, pipeline
+stages/tags) follows one consistent pattern - a small glyph next to a text
+label, never icon-only navigation - and the only custom icon construct in
+the codebase (`brassPinIcon()`) is a Leaflet map-marker icon, an unrelated
+UI category, not a competing general icon system. No icons were changed.
+Flagged one real, unresolved tension instead of picking a side unilaterally:
+full-color emoji render in whatever multi-hue style the OS/browser ships,
+outside the site's own CSS color control, which sits in tension with
+design-guidelines.md's "one accent color" restraint principle in a way the
+monochrome unicode symbols used elsewhere (✓ ✕ ★ ☆) don't - worth a
+design-direction call from Nosy/Missy if it's ever worth a dedicated pass,
+not something to resolve as a side effect of a five-item polish dispatch.
+
+**Decision: skeleton loading only covers the primary results grid, not
+every section.** The dispatch's own pointer (`render()`/`renderFastPage()`)
+scopes this to the listings grid specifically; Home/Dashboard/Lead
+Generators/Pipeline all have their own render functions and their own
+(unaudited, out of scope here) loading behavior. Extending skeleton
+treatment there would be a reasonable follow-up but wasn't asked for and
+wasn't built.
+
+**Decision: reminder *creation* doesn't get a toast, only dismissal.** The
+dispatch's own action list named "dismissing a reminder," not creating
+one - and creating one already has its own visible confirmation (the modal
+closing). Added the toast only where named rather than assuming symmetry
+implied the reverse action too.
+
+**Verification**: real Playwright screenshots at 1440px and 390px for all
+five items (`/tmp/dessy-test/shots_polish/`), including a dedicated
+slow-network variant (every mocked REST response delayed 1.8s) that proves
+the skeleton actually appears mid-flight rather than existing as unused
+CSS, and a mocked multi-photo listing (inline data-URI SVGs, since the
+fixture's real photo URLs point at external CDNs this sandbox can't reach)
+to exercise the lightbox's open/next/Escape/click-outside/touch-swipe
+behavior end to end. Zero new `pageerror`s in any run - the one console
+message seen (`ERR_CERT_AUTHORITY_INVALID` on a real fixture listing's own
+external photo URL) is this sandbox's own lack of internet egress for
+image CDNs, not a regression, and is exactly the case the new no-photo
+placeholder is designed to handle gracefully (confirmed live: it did).
+
+Built in an isolated `git worktree` off a fresh `origin/main`
+(`dessy/luxury-polish-5-items` branch), per this repo's shared-checkout
+discipline - checked `git worktree list`/`git status` on the shared
+checkout first and left the two other concurrently-active Dessy worktrees
+(`dessy-detail-page-consolidation`, `dessy-send-letters`) untouched. Not
+self-merged - opened as a PR for Missy's review per the repo's standing
+rule.
+
+**2026-09-26 addendum (post-Missy-review fix)**: Missy's review of PR #296
+found one real, minor cascade bug: the pipeline table's no-photo placeholder
+(`div.no-photo-placeholder.pl-table-photo`) didn't actually stay pinned to
+the claimed fixed 60x45px box, because `.no-photo-placeholder`'s own
+`width: 100%` rule is declared later in the stylesheet and wins the cascade
+at equal specificity - verified empirically by Missy via a rendered
+Playwright test showing 80.95px/102.31px actual widths instead of 60px.
+Fixed by adding an explicit `width: 60px;` to the override rule at
+`index.html`'s `div.no-photo-placeholder.pl-table-photo` selector. Height
+was unaffected (the bug was width-only) and no other placeholder usage
+(grid card, pipeline card view, detail hero) was affected, since those all
+want `width: 100%` anyway.
+
+**2026-09-26 addendum (rebase note, pre-merge)**: rebasing this PR onto a
+newer `main` (which had since merged PRs #296/#298-unrelated scraper runs)
+surfaced a real modify/delete conflict on `data/{leads,history}_{imot,olx}.json`
+- `main`'s scheduled scrapers had written newer plain-JSON data to those
+files (still on the old path) after this PR branched but before it merged.
+Resolved by re-running the same gzip migration in this doc's item 37/this
+PR's own mechanism against `main`'s newer plain files (not the PR's own
+older snapshot), verifying each round-trips byte-for-byte as a Python
+object before deleting the plain original, so no scraped data between this
+PR's branch point and merge was lost: `leads_imot.json.gz` 47,283 records
+(72,244,732 -> 12,029,759 bytes), `history_imot.json.gz` 47,283 records
+(71,543,072 -> 12,468,507 bytes), `leads_olx.json.gz` 38,412 records
+(87,246,113 -> 15,520,975 bytes), `history_olx.json.gz` 38,412 records
+(85,724,499 -> 15,594,787 bytes). `data/geocode_cache.json` and the
+homes.bg `.gz` files had no conflicting changes and merged automatically.
 ## 2026-09-26: Accessibility audit + fixes (backlog item 40) - real contrast ratios, modal focus-trap gaps, icon-button ARIA labels
 
 User approved a batch of design/UX ideas and said "Execute"; this session

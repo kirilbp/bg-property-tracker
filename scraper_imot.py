@@ -166,7 +166,11 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
 from category_classifier import classify_listing
-from geo_utils import Geocoder, extract_description_imot, extract_photos_imot, compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION
+from geo_utils import (
+    Geocoder, extract_description_imot, extract_photos_imot, compute_motivation_score,
+    listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION,
+    load_json_any, save_json_any,
+)
 
 BASE_URL = "https://www.imot.bg"
 SEARCH_BASE = "https://www.imot.bg/obiavi/prodazhbi"
@@ -242,8 +246,14 @@ OBLAST_SLUGS = [
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
-HISTORY_FILE = OUT_DIR / "history_imot.json"
-LEADS_FILE = OUT_DIR / "leads_imot.json"
+# .json.gz, not plain .json - 2026-09-26: imot.bg was trending toward the
+# same GH001 wall alo.bg/bazar.bg already hit (~68MB/~68MB) - migrated
+# proactively in the same pass rather than firefighting it later. Same
+# proven fix as homes.bg (2026-09-25 addendum)/alo.bg/bazar.bg/olx.bg -
+# see geo_utils.py's "Compressed on-disk JSON storage" comment.
+# load_json_any()/save_json_any() are extension-aware.
+HISTORY_FILE = OUT_DIR / "history_imot.json.gz"
+LEADS_FILE = OUT_DIR / "leads_imot.json.gz"
 # Persists only which OBLAST_SLUGS index the oblast-level phase of the grid
 # crawl should resume from next run - same tiny-file, loop-position-only
 # pattern as scraper_olx.py's own GRID_STATE_FILE/olx_grid_state.json (see
@@ -648,7 +658,7 @@ def fetch_listings(deadline=None, on_checkpoint=None):
 
 def load_history():
     if HISTORY_FILE.exists():
-        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+        return load_json_any(HISTORY_FILE)
     return {}
 
 
@@ -664,7 +674,7 @@ def save_history(history):
     if evicted:
         print(f"DEBUG: evicted {evicted} history record(s) not seen in over {STALE_RECORD_RETENTION.days} days")
     prune_snapshots(history)
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(HISTORY_FILE, history)
 
 
 # Fields fetch_listing_detail() adds on top of what the grid crawl
@@ -822,7 +832,7 @@ def main():
         recorded_ids.update(l["id"] for l in new_listings)
         save_history(history)
         leads = compute_leads(history)
-        LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(LEADS_FILE, leads)
 
     def checkpoint(listings_so_far, geocoder):
         record_new(listings_so_far)

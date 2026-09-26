@@ -5004,6 +5004,200 @@ file's entries, off `origin/main`. Not self-merged - handed back for
 review.
 
 ---
+
+### Third addendum (2026-09-26): the flagged alo.bg risk came true, bazar.bg hit the same wall on the same timeline - gzip extended to alo.bg/bazar.bg/olx.bg/imot.bg
+
+**Confirmed live, not theoretical - this addendum's own opening flag came
+true exactly as written.** `backfill-detail-alo.yml`'s last 2 scheduled
+runs (558, 559; run 36251462993, 2026-09-26 15:56-15:58 UTC) both failed
+with a hard `GH001` push rejection, real quoted job-log text: `File
+data/leads_alo.json is 101.60 MB; this exceeds GitHub's file size limit
+of 100.00 MB` / `File data/history_alo.json is 99.41 MB; this is larger
+than GitHub's recommended maximum file size of 50.00 MB` - all 5 rebase-
+retry attempts hit the identical rejection (`git pull --rebase` succeeds
+fine each time; the push itself is what GitHub refuses), then `Failed to
+push after 5 attempts - giving up`. Real committed blob sizes on `main`
+at the time (`git cat-file -s`, decimal MB matching GitHub's own push-limit
+convention): `data/leads_alo.json` **104,292,257 bytes (104.29MB)**,
+`data/history_alo.json` **101,950,671 bytes (101.95MB)** - both already
+over the 100MB hard limit, so every future scheduled run keeps failing
+identically and discarding that run's real scraped data, exactly as this
+addendum predicted. `data/leads_bazar.json` (**100,191,086 bytes,
+100.19MB**) and `data/history_bazar.json` (**98,734,614 bytes,
+98.73MB**) are at/over the same wall on the same timeline, confirming
+this addendum's "bazar.bg too" prediction as well. `data/leads_olx.json`/
+`data/history_olx.json` (87,241,310 / 85,722,857 bytes, ~87MB/~86MB) and
+`data/leads_imot.json`/`data/history_imot.json` (70,962,705 /
+71,543,403 bytes, ~71MB/~72MB) were trending toward the same wall under
+the same unbounded-growth dynamics (record count, not per-record payload,
+is the driver - see this item's own main entry above) but hadn't crossed
+it yet.
+
+**Fix: the exact same gzip migration already proven for homes.bg above,
+applied to all 4 remaining large portals in one coordinated pass** rather
+than firefighting each one individually as it crosses the threshold -
+alo.bg/bazar.bg because they're actively failing/at the wall right now,
+olx.bg/imot.bg proactively since they're on the same trajectory.
+`scraper_alo.py`/`scraper_bazar.py`/`scraper_olx.py`/`scraper_imot.py`'s
+own `HISTORY_FILE`/`LEADS_FILE` constants now point at `.json.gz`, and
+their `load_history()`/`save_history()`/`main()` now go through
+`geo_utils.load_json_any()`/`save_json_any()` (already shipped in this
+item's first addendum) instead of raw `read_text()`/`write_text()` -
+exactly homes.bg's own established pattern, not a new mechanism.
+
+**A real, would-have-been-silent bug this pass found and fixed, not just
+the 4 scrapers' own constants:** every scraper's `save_history()` already
+routes through `save_json_any()` for `HISTORY_FILE`, but a separate set of
+16 call sites across 13 scripts (`backfill_detail_alo.py`,
+`backfill_detail_bazar.py`, `backfill_detail_imot.py`,
+`backfill_detail_olx.py`, `backfill_geocode_olx.py`,
+`backfill_geocode_imot.py`, `backfill_others_alo_detail.py`,
+`backfill_category_review3_fixes.py`, `backfill_category_leads_leak_fix.py`
+(also had a matching direct-read bug), `backfill_land_house_context_regression.py`,
+`backfill_garage_tiebreak_regression.py`,
+`backfill_subject_over_amenity_regression.py`,
+`backfill_category_bazar_imot_olx_migration.py`) wrote each portal's own
+`LEADS_FILE` directly via `MODULE.LEADS_FILE.write_text(json.dumps(...))`,
+bypassing `save_json_any()` entirely. Once alo.bg/bazar.bg/olx.bg/imot.bg's
+`LEADS_FILE` constants became `.json.gz`, every one of those call sites
+would have silently written **plain, uncompressed JSON text into a file
+named `.json.gz`** the next time any of these hourly-scheduled backfills
+ran - not caught by any test, not caught until the very next
+`load_json_any()` call on that file tried `gzip.open()` and failed with
+"not a gzipped file," corrupting that portal's leads data in production.
+Exactly the "miss one and it'll break silently" failure mode this
+migration was explicitly warned to avoid. All 16 call sites (plus the
+1 matching direct read) now go through `save_json_any()`/`load_json_any()`
+instead - a pure drop-in replacement, byte-identical output for every
+portal that stays plain (`imoti.net`/`imoti.bg`/`bcpea.org`, left
+untouched), and now-correct for the 4 migrated portals.
+`detect_relistings.py`'s `PORTALS` dict and `detect_relistings_by_photo.py`'s
+alo.bg entry (the latter also converted its own direct
+`json.loads`/`write_text` calls to `load_json_any()`/`save_json_any()`,
+since its `detect_portal()`/`main()` are shared with imoti.net's still-
+plain `history.json`), `evict_stale_history.py`'s `PORTAL_FILES`,
+`sync_to_supabase.py`'s `PORTAL_FILES`, and `verify_geocode_qualifiers.py`'s
+`PORTAL_FILES` were all updated to the new `.json.gz` filenames (all
+already read/write through the extension-aware helpers, so only the
+filename strings needed to change there).
+
+**The actual data migration:** a new, standalone, dependency-free script
+(`migrate_data_files_to_gzip.py`, following `evict_stale_history.py`'s own
+precedent - imports only `geo_utils.load_json_any()`/`save_json_any()`,
+no `scraper_*.py` module, no `playwright`) reads each portal's real
+committed plain `.json` file, writes the compressed `.json.gz`, decompresses
+it back and asserts the round-tripped Python object is **exactly** equal
+to the original (not just same byte length or same record count) before
+removing the plain original - if verification fails, the `.gz` file is
+deleted and the plain original is left untouched. Run against this
+repo's real, currently-committed data (all 8 files, all verified
+byte-for-byte identical after round-trip, record counts unchanged):
+
+| file | records | before | after | reduction |
+|---|---|---|---|---|
+| `history_alo.json.gz` | 91,817 | 101,950,671 | 13,673,570 | 86.6% |
+| `leads_alo.json.gz` | 91,817 | 104,292,257 | 12,780,891 | 87.7% |
+| `history_bazar.json.gz` | 57,226 | 98,734,614 | 11,613,014 | 88.2% |
+| `leads_bazar.json.gz` | 57,226 | 100,191,086 | 10,715,845 | 89.3% |
+| `history_olx.json.gz` | 38,412 | 85,722,857 | 15,593,282 | 81.8% |
+| `leads_olx.json.gz` | 38,412 | 87,241,310 | 15,517,985 | 82.2% |
+| `history_imot.json.gz` | 47,283 | 71,543,403 | 12,468,348 | 82.6% |
+| `leads_imot.json.gz` | 47,180 | 70,962,705 | 11,705,759 | 83.5% |
+
+alo.bg goes from 104.29MB (already over the limit) to 12.78MB - roughly
+**7.8x headroom** under GitHub's 100MB hard limit; bazar.bg similarly to
+roughly **9.3x** headroom. Both comfortably clear of the wall they were
+either past or sitting on.
+
+**alo.bg's spiky daily-growth root cause (this item's first entry above
+explicitly flagged this as needing its own look) - investigated, not
+guessed:** grouping `history_alo.json.gz`'s real 91,817 records by
+`first_seen` date gives a clean answer, not a mystery. 2026-08-22 through
+2026-08-26 show 597 / 9,295 / 5,064 / **62,296** / 2,150 new records/day -
+this is alo.bg's nationwide grid-crawl go-live (the exact same shape as
+homes.bg's own real, already-documented 2026-08-25 nationwide-conversion
+jump of 66,030 records in a single day, per this item's main entry above)
+- a one-time step function, not ongoing volatility. **Excluding that
+one-time rollout window**, the real steady-state daily volume across the
+12 remaining tracked days (2026-08-29 through 2026-09-26) is: 233, 1060,
+3154, 88, 211, 1047, 2766, 2180, 763, 477, 418 new records/day - mean
+~1,213/day, matching this item's own earlier "1,000-1,400 records/day"
+estimate, and directly reproducing the "88 to 3,154 in a single day"
+swing this item flagged. bazar.bg shows the same shape at a smaller
+scale (steady-state daily new-record counts from 147 up to 5,063 over its
+own last 10 tracked days), confirming this isn't alo.bg-specific
+volatility either - it's the same real-world "how many listings a portal's
+sellers post on a given day" variance every portal shows, just more
+visible on alo.bg because it's the largest and youngest-tracked dataset.
+
+**Decision: gzip alone is sufficient for now; a shorter alo.bg-specific
+retention window is NOT implemented in this pass, documented as a
+fast-follow instead.** Reasoning, quantified rather than assumed: at
+alo.bg's own measured compressed size (~139 bytes/record post-gzip,
+12,780,891 bytes / 91,817 records), reaching the 100MB limit again would
+take roughly 719,000 total tracked records - at even the single busiest
+day observed (3,154/day) that's ~228 days of sustained peak growth away,
+and at the real ~1,213/day mean, ~593 days. This is the same reasoning
+that already justified NOT shrinking homes.bg's retention window when its
+own gzip fix shipped (this item's first addendum above) - gzip's ~8x
+compression ratio buys headroom an order of magnitude larger than the
+180-day retention window's own eviction would reclaim today (0 records,
+confirmed below), and the existing 180-day window is justified by real
+cross-portal relisting-gap data (0.2-31.7 days observed, 96% within 30
+days - see this item's main entry above), not a portal-specific guess -
+shortening it for alo.bg alone without new relisting-gap evidence for
+alo.bg specifically would risk breaking `detect_relistings_by_photo.py`'s
+own alo.bg matching for no measured benefit. Flagged here, as asked, as a
+fast-follow to revisit if alo.bg's real growth rate ever meaningfully
+exceeds this projection - not guessed away, not implemented on a hunch.
+
+**Checked for new risk, not assumed clean:** `evict_stale_history.py
+alo bazar olx imot --dry-run` against the real post-migration data
+confirms **0 evictions for all 4 portals today** (nothing tracked is old
+enough yet to cross 180 days gone - same honest finding this item's main
+entry already documented for the original 8-portal wiring), so this
+migration itself doesn't change any record's presence, only its on-disk
+encoding. `merge_history_conflict.py`'s `is_history_file()` correctly
+recognizes all 4 new `history_*.json.gz` filenames (verified directly,
+not assumed from the existing pattern-match logic) and correctly excludes
+the matching `leads_*.json.gz` files (self-heal from history on the next
+run, same as every other portal). `sync_to_supabase.py`'s
+`load_all_listings()` was run end-to-end against the real post-migration
+data across all 8 portals (407,637 total listings loaded, no errors) -
+confirms the mixed plain/gzip `PORTAL_FILES` mapping works, not just each
+portal in isolation. `check_scrape_freshness.py` was run against all 4
+newly-migrated portals' real `.gz` files and reports OK for both the
+freshness and active-ratio checks on every one (no code change was needed
+here - `_resolve_data_path()` already auto-detects a `.gz` sibling, the
+same generic mechanism that already covered homes.bg).
+
+**Not dispatched live** - per this project's standing rule against
+iterating on production workflows via repeated `workflow_dispatch`, and
+directly instructed here given the last 5 consecutive live failures this
+exact anti-pattern already caused this session: every change was
+validated locally - `python3 -m py_compile` on every changed file, the
+full test suite, `scraper_alo.py`/`scraper_bazar.py`/`scraper_olx.py`/
+`scraper_imot.py`'s own `load_history()`/`compute_leads()` run end-to-end
+against the real migrated `.gz` data (91,817 / 57,226 / 38,412 / 47,283
+records respectively, all loaded and recomputed with no errors), plus the
+checks in the paragraph above.
+
+**Tested:** full suite (`python3 -m pytest tests/`): **270 passed, 4
+subtests passed, 0 regressions** (up from 258 - the existing gzip-storage
+and eviction tests already covered `load_json_any()`/`save_json_any()`
+generically by extension, so no new test file was needed for this
+extension of the same mechanism to 4 more portals; the existing suite's
+assertions on `PORTAL_FILES`/`evict_stale_history.PORTAL_FILES` keys
+rather than values were unaffected by the filename changes, confirming
+those tests were already written generically enough not to need updating).
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this
+repo's shared-checkout discipline. Not self-merged - handed back for
+review, flagged time-sensitive given every `backfill-detail-alo.yml` run
+is failing and discarding real scraped data on every scheduled run until
+this merges.
+
+---
 ---
 
 ## 38. `check_scrape_freshness.py`'s homes.bg active-ratio floor (0.55) was itself stale, failing every scheduled run for ~20h - FALSE ALARM, not a live crawl bug - RECALIBRATED (2026-09-26)
@@ -5519,7 +5713,298 @@ needed for anything in this pass - the photos-only filter's data
 (`photo` field, placeholder-URL detection) already existed; everything
 else was pure CSS/layout.
 
-## 40. Accessibility audit + fixes: real WCAG contrast measurement, missing alt text, keyboard-trap gaps in all 4 modals, icon-only-button ARIA labels, lazy-loading gaps - AUDITED AND FIXED (2026-09-26)
+## 40. "Polish that reads as luxurious fast" - skeleton loading, toasts, branded no-photo placeholder, icon audit, photo lightbox - APPROVED BY MISSY, MERGED (2026-09-26, Dessy)
+
+Five-item dispatch from Bossy (user-approved backlog of design/UX ideas,
+"Execute"), all additive polish over `docs/design-guidelines.md`'s
+existing brass/ivory/ink/sage palette - no redesign, no scraper/backend
+changes needed for any of the five.
+
+**1. Skeleton loading states.** The primary results grid (`#grid`) had no
+loading state at all between page load and the first real paint while
+either `renderFastPage()`'s own small server query or the initial cold
+`loadData()` bulk fetch was in flight - just whatever the grid last held
+(blank on first load, stale cards on a filter/pagination change). Added
+`renderSkeletonGrid()` (12 shimmer cards, same `.listing` shape/border/
+radius as a real card - photo block + title/price/meta lines) called at
+the top of `renderFastPage()` right before its `await
+fetchFastListingsPage()`, cleared the same way real content already is
+(`grid.innerHTML = ''`). Shimmer is a slow (1.6s), linear, brass/ivory
+`background-position` sweep - no pulse/bounce, per design-guidelines.md
+section 8's "quiet skeleton/shimmer" rule. Verified with a Playwright
+harness that delays the mocked `merged_listings`/`listing_sources`
+responses by 1.8s: skeleton cards are on screen and captured mid-flight
+at both 1440px and 390px, then confirmed cleared once the delayed
+response resolves.
+
+**2. Toast/snackbar confirmations.** Added one shared `#toastContainer`
+(bottom-right desktop, full-width bottom mobile) and a `showToast(message)`
+function - ink background, brass left-border, fade+rise in over 220ms,
+auto-dismiss after 2.4s. Grepped for the actual state-changing handlers
+rather than guessing at names, and wired all six named in the dispatch:
+`toggleSavedListing()` ("Saved to Dashboard" / "Removed from Dashboard"),
+`addToPipeline()`/`removeFromPipeline()` ("Added to Pipeline" / "Removed
+from Pipeline" - covers both the quick-add card button and the detail
+page's own Add/Remove button, since the toast lives in the shared
+function, not a specific click handler), `saveLeadGenFromModal()`/
+`deleteLeadGenerator()` ("Lead Generator added"/"updated"/"deleted"),
+`saveDealCalcTemplateFromWizard()` ("Deal Calculator template
+saved"/"updated"), and `dismissReminder()` ("Reminder dismissed"). Did
+NOT add one to `saveReminderFromModal()` (creating a reminder) - the
+dispatch's own list named only "dismissing," and that action already has
+its own visible confirmation (the modal closing) - flagging the
+distinction rather than silently expanding scope. Verified live: clicking
+save/pipeline-add fired a real toast with the right text, screenshotted at
+both viewports.
+
+**3. Branded "no photo" placeholder.** Grepped every place a listing photo
+renders: grid cards (`createListingCard()`), the old `handlePhotoError()`
+inline-emoji-plus-text fallback, the Pipeline card view and (previously
+un-handled - a missing photo there just left an invisible broken `<img>`
+with no message at all) the Pipeline table view's 60x45 thumbnail cell,
+and the listing detail hero. Comparables reuses `createListingCard()`
+directly, so it's covered without separate changes. Replaced all of them
+with one `noPhotoPlaceholderHtml()` - a CSS/SVG stylized house-and-key
+glyph in brass/taupe on ivory, no new image asset - with a `small` variant
+(icon only, no caption) for the pipeline table's fixed-size cell. The
+detail hero's old "just drop the src, leave a blank ivory box" fallback
+(kept deliberately blank before, per its own comment, to avoid stranding
+the prev/next arrows) now shows the same branded placeholder instead,
+still inside the same aspect-ratio box so the arrows stay correctly
+positioned either way. Verified live: a real fixture listing with no
+`photo` field renders the placeholder in the grid and on its own detail
+page at both viewports; a broken photo URL (confirmed live via the test
+harness's own sandboxed lack of internet access to real photo CDNs)
+correctly triggers the same placeholder via `onerror` rather than a
+browser broken-image icon, with zero JS errors.
+
+**4. Icon consistency audit - documented, no changes made.** Grepped the
+whole file for every emoji/unicode-symbol UI icon (nav items, section
+headers, badges, pipeline stage/tag icons, property-type icons, action
+buttons - dozens of call sites) and for any competing custom icon system.
+Found exactly one custom icon construct in the codebase, `brassPinIcon()`
+- a Leaflet map-marker `DivIcon`, a different UI category entirely (a
+geographic pin on a map), not a general-purpose icon language competing
+with the emoji usage for nav/buttons/badges. Every emoji use site-wide
+follows the same single, consistent pattern already: a small supporting
+glyph immediately next to a text label, never icon-only navigation -
+which is exactly what design-guidelines.md section 9's anti-pattern #7
+asks for ("icons are fine as small supporting elements next to text
+labels... avoid icon-only navigation"). Per the dispatch's own explicit
+instruction not to do a wall-to-wall replacement where the existing usage
+is actually consistent and intentional, no icons were changed. **One real
+tension worth flagging for a design-direction call, not decided
+unilaterally here**: full-color emoji glyphs (🏠🎯🔥📍 etc.) render in
+whatever multi-hue style the OS/browser ships (Apple's gradient set vs.
+Windows' flatter set vs. a Linux "tofu" fallback with no emoji font
+installed) and are outside the site's own CSS color control entirely -
+in tension with design-guidelines.md section 4's "one accent color, not
+four" restraint principle, in a way the monochrome CSS-colored unicode
+symbols used elsewhere (✓ ✕ ★ ☆) aren't. Not fixed here since it would be
+a genuine wall-to-wall icon-language replacement (dozens of call sites,
+a real design decision about what replaces each glyph) well beyond this
+polish pass's scope - flagging for Nosy/Missy to weigh in on rather than
+picking a direction solo.
+
+**5. Photo gallery lightbox + swipe.** The listing detail page already had
+an inline prev/next photo gallery (`setDetailPhoto()`) but no way to view
+a photo full-screen. Added `#lightboxOverlay` (full-screen ink scrim,
+brass-accented nav/close controls, fade-only transition) reusing the
+existing `detailPhotos`/`detailPhotoIndex` state rather than tracking a
+second index that could drift out of sync. Opens on clicking the main
+hero photo (`cursor: zoom-in` signals it; no-op on the no-photo
+placeholder, which has no click handler); closes on the close button,
+clicking the scrim itself (not the image/buttons), or Escape; navigates
+with on-screen arrows or Left/Right arrow keys (the pre-existing inline-
+gallery keyboard listener now explicitly skips while the lightbox is open,
+so a single keypress can't double-step the photo by firing both
+listeners); supports a touch swipe on the image via a plain
+touchstart/touchend clientX-delta check, no gesture library. Vanilla JS
+throughout, consistent with the rest of the codebase's dependency-light
+approach. Verified live end-to-end with a mocked multi-photo listing
+(inline data-URI SVGs, since the fixture's real photo URLs point at
+external CDNs this sandbox can't reach): open via click, Next arrow
+advances (1/3 → 2/3), Escape closes, click-outside closes, and a
+simulated left swipe on a touch-enabled mobile viewport advances the
+photo exactly like the Next arrow - all screenshotted at 1440px and
+390px, zero JS `pageerror`s (one unrelated, expected console resource-load
+message from a real fixture listing's own external, unreachable photo URL
+elsewhere in the same run - not a regression, and exactly the case item 3
+above is designed to handle gracefully).
+
+**Verification setup**: reused a prior session's own Playwright harness
+(`/tmp/dessy-test/` - vendored Chart.js 4.4.0, Leaflet 1.9.4 + Leaflet.draw
+1.0.4, and a `merged_listings` fixture of 6,000 rows, all routed in via
+`page.route()` so the real, unmodified `index.html` runs against it
+unchanged) rather than building a new one from scratch. Screenshots taken
+at 1440px and 390px for all five items; a dedicated slow-network variant
+delays every mocked REST response by 1.8s specifically to prove the
+skeleton actually appears rather than existing as unused CSS. Zero new
+`pageerror`s across every run.
+
+**Files touched**: `index.html` only (new CSS: `.skeleton-*`,
+`#toastContainer`/`.toast`, `.no-photo-placeholder`, `#lightboxOverlay`
+and its children; new JS: `showToast()`, `renderSkeletonGrid()`,
+`noPhotoPlaceholderHtml()`, `handleDetailPhotoError()`,
+`handlePipelineTablePhotoError()`, `openLightbox()`/`closeLightbox()`/
+`renderLightboxImage()`/`lightboxStep()` and their event listeners; small
+edits to `handlePhotoError()`, `createListingCard()`,
+`createPipelineCard()`, `renderPipelineTableView()`, `renderListingDetail()`,
+`toggleSavedListing()`, `addToPipeline()`/`removeFromPipeline()`,
+`saveDealCalcTemplateFromWizard()`, `dismissReminder()`,
+`saveLeadGenFromModal()`/`deleteLeadGenerator()`, and the existing
+Left/Right-arrow-key listener). No scraper/sync/schema/workflow files
+touched - nothing in this pass needed a backend or data-shape change; all
+five items are pure frontend/markup/CSS/client-JS. Not self-merged - built
+in an isolated `git worktree` off a fresh `origin/main`
+(`dessy/luxury-polish-5-items` branch) and opened as a PR for Missy's
+review, per this repo's standing rules.
+## 41. Data trust & investor edge: per-listing freshness badge, cross-portal price-divergence flag, filtered-grid CSV export - user directive ("Execute"), all 3 built - APPROVED BY MISSY, MERGED (2026-09-26)
+
+Scope was the 3 items in that dispatch, all frontend-only (`index.html`),
+no new backend field for any of them - each one specifically required
+investigating what real, already-synced data actually supports the ask
+before building anything, not assuming the obvious-sounding field name
+was the right one.
+
+**1. Data-freshness badge ("Verified X ago" / "First tracked X ago").**
+Real finding worth flagging before the design: `merged_listings`'/
+`listing_sources`' own `updated_at` column - the field whose name most
+directly suggests "last synced" - is NOT a usable freshness signal despite
+being `not null default now()` in `supabase/schema.sql`. `sync_to_
+supabase.py`'s `upsert()` never includes `"updated_at"` in `SOURCE_FIELDS`/
+`MERGED_FIELDS`, and PostgREST's `Prefer: resolution=merge-duplicates`
+only adds columns present in the request body to its `ON CONFLICT DO
+UPDATE SET` clause - so `updated_at` is set once, by its own column
+default, at this row's original `INSERT`, and is never touched again by
+any later sync run despite every run re-sending the row's full payload. It
+freezes at "whenever this row first landed in Supabase," not "last
+confirmed by a sync run." Using it would have silently mislabeled every
+long-tracked, still-actively-rechecked listing as stale - confirmed by
+inspection of every call site (`grep -n "updated_at" sync_to_supabase.py`
+finds it nowhere outside the `SOURCE_FIELDS` comment block), not assumed.
+
+Used instead, in priority order, both already synced to
+`merged_listings`/`listing_sources` and already in `MERGED_LISTINGS_BULK_
+COLUMNS` (no new fetch needed for the grid):
+  - `site_updated_at` - the portal's own stated last-updated/renewed date.
+    Genuinely portal-confirmed, so labeled **"Verified"**. Real coverage
+    gap, confirmed by grepping every `scraper_*.py`: only alo.bg,
+    sales.bcpea.org and olx.bg ever populate it - bazar.bg/homes.bg/
+    imot.bg/imoti.bg/imoti.net never do.
+  - `first_seen_at` - precomputed server-side by `sync_to_supabase.py`'s
+    `first_seen_at_for()`, available for virtually every listing but a
+    static origin date, not a recheck date (it doesn't move just because
+    a later scrape reconfirms an unchanged listing is still live - that
+    per-run confirmation, `scraper.py`'s own `last_seen`/`seen_at`, is
+    never synced to Supabase at all). Labeled **"First tracked"**, not
+    "Verified," specifically so it never overstates recency - and,
+    correspondingly, a listing's "stale" visual treatment is driven ONLY
+    by `site_updated_at`'s own age, never by how long ago `first_seen_at`
+    was (a perfectly healthy, still-rechecked listing's `first_seen_at`
+    only grows the longer it stays on the market - using its age as a
+    staleness signal would flag most of the catalog as "stale" for no
+    real reason).
+  - Neither present (rare - confirmed against the fixture) → no badge at
+    all, rather than a fabricated one.
+
+Threshold for the "stale" visual weight: 3 days (`FRESHNESS_STALE_AFTER_
+MS`), chosen against this project's own real cadence (`scrape.yml` 6h,
+`scrape-large.yml` 24h, `GONE_AFTER` 48h, all per `check_scrape_
+freshness.py`'s own comments) - comfortably above every normal gap
+between two scrape runs, so a `site_updated_at` this old is a genuine
+signal, not routine cron jitter. Styled per `docs/design-guidelines.md`
+section 4: no alarm color, just a shift to the ink-soft/bold treatment
+(`.is-stale`), same restraint the badges/status-label system already
+uses elsewhere.
+
+**2. Cross-portal price-divergence flag - real data confirmed available,
+shipped for real.** Investigated whether per-source prices survive
+`sync_to_supabase.py`'s merge (the exact question the dispatch asked):
+yes - `listing_sources` keeps its own `price_eur`/`price_per_sqm` per
+`(portal, source_id)` row even after `group_listings()` merges matching
+sources into one `merged_listings` record, and the frontend already
+lazily fetches exactly this table (`sb.from('listing_sources').select('*')
+.eq('merged_id', merged.id)`) once a cross-posted listing's detail page is
+opened - the same data the existing per-portal price-switcher badge row
+already displays. No new data needed, no blocked feature to document here
+(unlike a genuinely-missing-data case, this one had real data all along -
+it just wasn't being surfaced proactively). Added `priceDivergenceInfo()`/
+`priceDivergenceHtml()`: compares the currently-viewed source's price
+against every other active (non-`removed`) source, and - only past a
+noise floor of 3% AND €1,000 (`PRICE_DIVERGENCE_MIN_PCT`/`PRICE_
+DIVERGENCE_MIN_EUR`, so a trivial rounding-level gap doesn't read as
+significant) - surfaces "Also listed on X for €Y less/more," linking
+straight to that portal's own listing. A genuinely cheaper alternative
+(the actionable, buyer-favorable case) is preferred over a pricier one
+when both exist, and styled in the sage signal color per design-
+guidelines.md section 4 ("price moved in the buyer's favor"); a pricier-
+only alternative is shown in plain neutral taupe text instead, never
+sage. No callout at all when sources agree closely (verified in Playwright
+against a same-price-everywhere fixture listing - the banner element is
+genuinely absent from the DOM, not just hidden).
+
+**3. CSV export of the filtered/sorted Leads grid.** Added an "Export CSV"
+button to the Leads filter card, next to the existing filter controls.
+`getCurrentFilteredSortedListings()` reuses `render()`'s own `readFilter
+State()`/`matchesAllFilters()`/`sortComparator()` exactly as-is (not a
+second, separately-maintained filter pass), so "what's on screen" and
+"what gets exported" can't drift apart. Pure client-side `Blob` + `<a
+download>`, no new library, no server round-trip (all data's already in
+`MERGED_LISTINGS`, backlog item 6). Columns: Title, Price (EUR), Sqm,
+Price per sqm (EUR), Rooms, City, Area, Portal (with a "(+N more)" suffix
+for cross-posted listings), Status, Days on market, Motivation score, URL.
+UTF-8 BOM prepended (Excel mis-detects encoding and mangles Cyrillic - all
+of this app's real title/area text - without it) and `\r\n` line endings
+per RFC 4180. Disabled with an inline message (not a silent no-op) before
+`BULK_READY` - exporting during the fast/server-paginated first-paint
+window would only ever capture one partial page, not the true filtered
+set.
+
+**Verification**: a Playwright harness (throwaway, not committed -
+`/tmp/claude-0/.../scratchpad/verify` this session, following the same
+CDN-vendoring pattern prior sessions' harnesses used, since this sandbox's
+egress proxy still blocks cdnjs/jsdelivr/unpkg/fonts.googleapis.com) with
+a hand-built fixture covering every real freshness case (fresh
+`site_updated_at`, stale `site_updated_at`, recent-only `first_seen_at`,
+old-only `first_seen_at`, neither field, and both a genuinely-divergent
+and a near-identical cross-posted listing with a matching `listing_
+sources` fixture), routed in via `page.route('**/rest/v1/**')`. All
+checks pass: freshness text/stale-class correct per fixture row across
+both the grid and the detail page; the divergence callout fires with the
+exact right portal/€ amount on the divergent fixture and is verifiably
+absent on the near-identical one; CSV export triggers a real download,
+whose row count matches `getCurrentFilteredSortedListings().length` under
+an active price filter, whose header matches the 12 documented columns
+exactly, and whose every row genuinely respects that filter (verified with
+a real RFC-4180-aware line parser, not a naive `split(',')`, which
+misparses titles containing commas). Checked at 1440px and 390px.
+
+**Console/JS errors**: confirmed zero *new* errors. This sandbox's proxy
+blocks every external host this page's map/photos/fonts use regardless of
+this change (OSM tiles, the fixture's own placeholder photo URLs, Google
+Fonts), and a pre-existing Leaflet `_leaflet_pos` exception appears when a
+detail page's radius map initializes - a `baseline_check.js` run against
+unmodified `origin/main`'s own `index.html`, same fixture, same sandbox,
+reproduces the identical 404/`ERR_TUNNEL_CONNECTION_FAILED` noise and the
+identical `_leaflet_pos` exception with zero code from this change
+involved, confirming both are pre-existing/environmental, not introduced
+here.
+
+**Files touched**: `index.html` only. No scraper/sync/schema/workflow
+files touched - all 3 items are read-only against already-synced data.
+
+**Not done / explicitly out of scope**: the `updated_at` freeze-at-insert
+gap found for item 1 was not "fixed" in `sync_to_supabase.py` - that's a
+live-Supabase-write-behavior change with its own blast radius (every
+`merged_listings`/`listing_sources` row, every future sync run) and
+deserves its own dispatch and review, not a drive-by inside a frontend-
+only, no-new-backend-field ask. Flagging it here in case a future item
+wants to pick it up: fixing it would mean either adding `"updated_at":
+now_iso` to every row `build_rows()` emits (so it's part of the `ON
+CONFLICT DO UPDATE SET` payload every run), or adding a Postgres trigger -
+the former is simpler and doesn't need a Supabase-SQL-editor manual step.
+## 43. Accessibility audit + fixes: real WCAG contrast measurement, missing alt text, keyboard-trap gaps in all 4 modals, icon-only-button ARIA labels, lazy-loading gaps - APPROVED BY MISSY (2 rounds - a hover-contrast regression from the PR's own --brass-deep darkening was found and fixed), MERGED (2026-09-26)
 
 User-approved design/UX backlog, "technical/accessibility" group. A
 genuine audit against real numbers, not a guess or a performative
@@ -5691,6 +6176,108 @@ error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
 these block starting items 13-21; revisit if/when they turn out to matter
 for a specific item.
+
+## 42. Browser back button jumped straight to Home instead of one step back - direct user feedback ("the back button brings me to home screen. Needs to be one step back from previous action") - FIXED, MERGED (#299)
+
+Direct, verbatim user feedback: "Also the back button brings me to home
+screen. Needs to be one step back from previous action."
+
+**Root cause (two separate bugs, both contributing):**
+
+1. `showSection()` never pushed its own `history` entry - it only cleared
+   a leftover listing hash (via `history.pushState('', document.title,
+   ...)`) when one happened to be present, and otherwise did nothing at
+   all. So switching between sections (Home, Leads, Pipeline, Comparables,
+   Dashboard, etc.) left the browser with nothing but the single
+   initial-page-load entry to go back to. `showListingDetail()` did put
+   each listing on its own entry (by assigning `location.hash`, which
+   itself creates a history entry), but nothing anywhere listened for the
+   `popstate` event - the one listener that reacted at all to a hash
+   change was a `hashchange` listener that only handled navigating BACK
+   INTO a listing (re-opening it, always reset to its default "Details"
+   tab), never back OUT of one. Net effect: however many sections/listings
+   a user actually visited, the back button surfaced at most one real step
+   before landing on whatever the initial entry happened to be - Home, in
+   practice, almost every time.
+2. Separately, the in-page "← Back to listings" button on the listing
+   detail page (`#backBtn`) was hardcoded to `showSection('leads')` no
+   matter which section the listing had actually been opened from -
+   Pipeline, a Lead Generator's results, Comparables, Dashboard's saved
+   listings, etc. all funneled back to the same fixed section.
+
+**What was built:** real `history.pushState()`/`popstate`-based navigation
+(index.html only, no library - the app has none and doesn't need one for
+this):
+- `showSection(name, {push})`, `showListingDetail(id, {push, tab})`, and
+  `switchDetailTab(tab, l, {push})` each now push a `{type, ...}` history
+  state (`{type:'section', name}`, `{type:'listing', id, tab}`) and a
+  matching URL (`#/section/<name>`, `#/listing/<id>` - unchanged from
+  before, so no existing deep link breaks) whenever they run as a genuine
+  user-facing navigation (`push: true`, the default).
+- One `popstate` listener (`applyHistoryState()`/`restoreListingState()`)
+  now restores whichever state was popped back to by re-driving the same
+  render functions a normal click would (`push: false`, so restoring
+  doesn't itself push a new entry) - a tab switch on the listing already
+  on screen is done in place (`switchDetailTab()`) rather than by fully
+  re-opening the listing and losing its radius/map-layer/BTL inputs. Falls
+  back to parsing the URL hash for any history entry that has no usable
+  state object (a pre-existing entry from before this fix, or a hand-
+  edited hash), rather than defaulting straight to Home.
+- The page's very first history entry gets a matching state object up
+  front (`history.replaceState()`, keyed off the URL - a listing deep
+  link, a `#/section/<name>` link, or Home), so restoring back to it is
+  never a guess.
+- `#backBtn` now returns to `lastSectionBeforeListing` (the real section
+  that was on screen right before the listing was opened, tracked in
+  `showListingDetail()`) instead of a hardcoded section - fixes bug 2
+  above directly, and matches what the browser back button now does too.
+- The old listing-only `hashchange` listener was removed - `popstate` now
+  covers everything it did (plus tabs and sections), and leaving both
+  active would have double-handled every real back/forward navigation
+  (hash changes fire `hashchange` in addition to `popstate` during
+  traversal), reopening the correct listing and then immediately
+  re-clobbering it back to the "Details" tab.
+
+**Verification, since this sandbox blocks both this app's live Supabase
+project and every CDN it loads from (cdnjs.cloudflare.com, cdn.jsdelivr.net,
+unpkg.com - confirmed dead via this sandbox's own proxy status, not
+assumed)**: a real Playwright browser, not a code read-through, driven
+against the actual, unmodified `index.html` served locally
+(`python -m http.server`), with Chart.js/Supabase/Leaflet's three CDN
+`<script>` tags intercepted via `page.route()` and swapped for small local
+stand-ins - a real query-builder-shaped Supabase fake (`.eq()`/`.in()`
+filtering included) backed by 6 synthetic `merged_listings` rows, and
+generic infinitely-chainable Proxy stand-ins for `Chart`/`L` (Leaflet) that
+no-op every call rather than throw, since no chart/map actually needs to
+render for a navigation test. This exercises the real client-side
+history/DOM logic in a real browser, not a mock of it - the CDN
+stand-ins are the only thing not real.
+
+Ran, at both 1440px and 390px: Home -> Leads -> open a listing -> switch to
+Comparables tab -> open a second listing from a Comparables-tab "compare"
+link -> back x3 -> forward x3, asserting the exact section/listing/tab at
+every step (not just "something changed"). Result at both widths: back x3
+correctly retraced comparables-tab-on-listing-1 -> details-tab-on-listing-1
+-> Leads (never Home); forward x3 retraced the same steps in reverse.
+Also separately verified: (a) a longer Home -> Pipeline -> Comparables ->
+Dashboard -> back x3 chain, confirming every section is independently a
+back-button step, not just Leads; (b) `#backBtn` clicked from a listing
+opened out of Pipeline returns to Pipeline, not a hardcoded section; (c) a
+direct/deep link straight to `#/listing/<id>` (no prior in-app navigation)
+loads correctly and back from it returns to that same listing's own prior
+tab rather than skipping past it. Confirmed via an instrumented Supabase
+stub that the entire back/forward sequence triggers zero additional
+`merged_listings` bulk fetches beyond the two the page load itself already
+does (the fast first-paint query and the real bulk load) - popstate
+restores from in-memory state, it doesn't refetch. Console/`pageerror`
+count was identical before and after the fix (re-ran the same harness
+against unmodified `origin/main`'s `index.html`): the only console noise
+both times is this sandbox's own blocked CSS/web-font/tile requests and a
+Leaflet `integrity`-attribute mismatch against the local stand-in, all
+pre-existing artifacts of testing offline, not caused by this change.
+
+**Files touched**: `index.html` only. No backend/schema/workflow change -
+this is entirely client-side navigation state.
 
 ## Parked - do not start
 

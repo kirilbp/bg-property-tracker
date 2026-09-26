@@ -28,13 +28,14 @@ currently a small number of delisted candidates.
 """
 
 import io
-import json
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import requests
 from PIL import Image
+
+from geo_utils import load_json_any, save_json_any
 
 DATA_DIR = Path(__file__).parent / "data"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -103,7 +104,13 @@ def find_candidates_alo(history, gone_id, active_ids):
 
 PORTALS = {
     "imoti.net": ("history.json", find_candidates_imoti_net),
-    "alo.bg": ("history_alo.json", find_candidates_alo),
+    # .json.gz, not plain .json - 2026-09-26 GH001 incident (alo.bg's own
+    # leads/history files hit GitHub's 100MB hard limit). See
+    # geo_utils.py's "Compressed on-disk JSON storage" comment.
+    # detect_portal()/main() below read/write through load_json_any()/
+    # save_json_any(), which are extension-aware, so imoti.net's own
+    # plain history.json is unaffected.
+    "alo.bg": ("history_alo.json.gz", find_candidates_alo),
 }
 
 
@@ -111,7 +118,7 @@ def detect_portal(portal, history_filename, find_candidates_fn):
     path = DATA_DIR / history_filename
     if not path.exists():
         return 0
-    history = json.loads(path.read_text(encoding="utf-8"))
+    history = load_json_any(path)
 
     last_seens = {lid: rec["snapshots"][-1]["seen_at"] for lid, rec in history.items() if rec.get("snapshots")}
     if not last_seens:
@@ -190,7 +197,7 @@ def detect_portal(portal, history_filename, find_candidates_fn):
     print(f"  {total_candidates_checked} candidate pairs locally narrowed and checked, {injected} confirmed relistings")
 
     if injected:
-        path.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(path, history)
     return injected
 
 
@@ -210,19 +217,19 @@ def main():
     total += injected_imoti
     if injected_imoti:
         import scraper
-        history = json.loads((DATA_DIR / "history.json").read_text(encoding="utf-8"))
+        history = load_json_any(DATA_DIR / "history.json")
         leads = scraper.compute_leads(history)
-        (DATA_DIR / "leads.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(DATA_DIR / "leads.json", leads)
         print(f"regenerated leads.json ({len(leads)} leads)")
 
-    injected_alo = detect_portal("alo.bg", "history_alo.json", find_candidates_alo)
+    injected_alo = detect_portal("alo.bg", "history_alo.json.gz", find_candidates_alo)
     total += injected_alo
     if injected_alo:
         import scraper_alo
-        history = json.loads((DATA_DIR / "history_alo.json").read_text(encoding="utf-8"))
+        history = load_json_any(DATA_DIR / "history_alo.json.gz")
         leads = scraper_alo.compute_leads(history)
-        (DATA_DIR / "leads_alo.json").write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"regenerated leads_alo.json ({len(leads)} leads)")
+        save_json_any(DATA_DIR / "leads_alo.json.gz", leads)
+        print(f"regenerated leads_alo.json.gz ({len(leads)} leads)")
 
     print(f"\nTotal relistings chained this run: {total}")
 

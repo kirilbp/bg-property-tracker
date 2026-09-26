@@ -58,12 +58,12 @@ DATA_DIR = Path(__file__).parent / "data"
 # extension-aware, so every other portal here is unaffected.
 PORTAL_FILES = {
     "homes": ("history_homes.json.gz", "leads_homes.json.gz"),
-    "imot": ("history_imot.json", "leads_imot.json"),
-    "olx": ("history_olx.json", "leads_olx.json"),
-    "bazar": ("history_bazar.json", "leads_bazar.json"),
+    "imot": ("history_imot.json.gz", "leads_imot.json.gz"),
+    "olx": ("history_olx.json.gz", "leads_olx.json.gz"),
+    "bazar": ("history_bazar.json.gz", "leads_bazar.json.gz"),
     "imoti_bg": ("history_imoti_bg.json", "leads_imoti_bg.json"),
     "bcpea": ("history_bcpea.json", "leads_bcpea.json"),
-    "alo": ("history_alo.json", "leads_alo.json"),
+    "alo": ("history_alo.json.gz", "leads_alo.json.gz"),
     "imoti_net": ("history.json", "leads.json"),
 }
 
