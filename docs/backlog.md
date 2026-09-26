@@ -6171,6 +6171,244 @@ Four items from the user-approved "discovery & engagement" batch, dispatched tog
 - Zero console/`pageerror`s across all four features at both viewports, after broadening the test harness's own image-route fallback to cover the fixture's full variety of real external photo URL shapes (extensionless OLX CDN paths, `.svg`/`.pic` placeholders) - a test-harness fix, not an app change; the app's own `handlePhotoError()` already degrades a failed photo load gracefully regardless.
 
 **Files touched**: `index.html` only (markup, CSS, and client-side JS - `findSimilarListings()`/similar-listings section in `renderListingDetail()`; `filterPresets` storage + `applyFilterPreset()`/`saveCurrentFilterPreset()`/UI wiring; `brassDotIcon()`/`brassClusterIcon()`/`addClusteredListingMarkers()` + the new `<link>`/`<script>` CDN tags for Leaflet.markercluster + `renderCmpMapView()` update; `dashboardDigestSnapshot` storage + `computeDashboardDigest()`/`renderDashboardDigest()`/`markDashboardVisited()` + Dashboard markup/`showSection()` hook). No scraper/sync/schema/workflow files touched.
+## 49. Sticky filter bar on the Leads grid - APPROVED BY MISSY (found one stale code comment, fixed), MERGED (2026-09-26)
+
+User approved a batch of content/SEO + friction-remover ideas and said
+"Execute" (dispatch covering items 49-53). This one: on a long Leads grid,
+the filter panel scrolled away, forcing a scroll back to the top to adjust
+a filter.
+
+**Built**: the existing filter `.card` (search box + the 10-field filter
+grid) is now `position: sticky; top: 0` (plain CSS, no library). Once it
+pins to the top of the viewport on scroll, it auto-condenses to just the
+search box + a "Filters" toggle button (with an active-filter-count
+badge) - the "condensed version" this item's brief explicitly allows,
+since the full 10-field grid pinned open would otherwise dominate a short
+(390px) viewport for the entire scroll. Collapsing only hides the filter
+grid's container (`display:none`); it never clears or duplicates any
+input, so every field keeps its live value across collapse/expand. A
+manual click on the toggle re-expands the panel while stuck (e.g. to
+change another filter mid-scroll) and is honored until the next stuck/
+un-stuck transition; scrolling back to the top always resets to the
+normal, fully-expanded resting state, so the un-scrolled page looks
+identical to before this change. z-index kept under the mobile off-canvas
+sidebar (200) and its backdrop (199), and under the shared modal backdrop
+(1000), so neither collides with it.
+
+**Verification**: real Playwright checks (harness pattern reused from
+`docs/backlog.md` item 39/`verify_preferences.js` - vendored CDN assets +
+fixture-backed Supabase REST intercepts against the real, unmodified
+`index.html`, 304-row fixture data) at 1440px and 390px: filter card uses
+`position: sticky`; starts un-stuck and fully expanded at the top of the
+page (no regression on initial load, either width); becomes stuck and
+auto-condenses on scroll; pins flush to the viewport top; does not
+visually overlap the sidebar column (1440px) or the mobile nav toggle
+(390px, confirmed already scrolled out of view by the time the card
+sticks); a manual re-expand while stuck preserves an already-typed filter
+value and the active-filter badge count; scrolling back to the top
+restores the normal expanded state. Zero console/page errors during the
+whole run (see item 51's verification below for the shared run - all
+three items 49-51 were checked in one script/session).
+
+**Files touched**: `index.html` only (`.leads-filter-card`/
+`.leads-filter-header`/`.leads-filter-toggle*` CSS, the `leadsFilterCard`/
+`leadsFilterToggle`/`leadsFiltersPanel` markup, and
+`updateLeadsFilterBadge()`/`initLeadsFilterToggle()`). No backend/schema/
+workflow change.
+
+## 50. Consistent, actionable empty states site-wide - APPROVED BY MISSY, MERGED (2026-09-26)
+
+Same dispatch as item 49. Grepped every "no results"/empty-state message
+across the app rather than fixing one instance: the Leads grid (`#empty`),
+Saved listings (`#savedEmpty`), Pipeline (`#plEmpty`), Comparables
+(`#cmpEmptyState`, both its "not searched yet" and "no matches" states),
+Lead Generators (zero generators created yet, and zero matching a sale-
+type tab), the Area Data tab (no usable area / not enough tracked
+listings), and the Market Data hub's three tabs (Area Performance, Heat
+Map, Evolution - all reuse the same `.cmp-empty-state` class already, so
+one shared fix covers all three).
+
+**Built**: a single shared `emptyStateHtml(title, message)` JS helper and
+`.empty-state`/`.empty-state-icon`/`.empty-state-title`/
+`.empty-state-message` CSS block, used at every empty state listed above
+- deliberately the *same* small brass-circle icon (a simple line-art
+magnifying glass, inline SVG, no new image asset) and the same title +
+supporting-message layout everywhere, per this item's "keep this
+consistent, not just one instance" brief, rather than a different
+treatment per page. Where the existing message was already just a flat
+sentence ("No listings match these filters."), it's now split into a
+short bold title plus more specific, actionable guidance (e.g. "No
+listings match these filters" / "Try widening your price range,
+increasing the minimum size, or clearing a filter to see more results.").
+Where the existing message was already specific and actionable (the
+radius/polygon Lead Generator zero-match explanation, the Area/Market
+Data "not enough tracked listings (X found, Y needed)" messages), that
+wording is kept as the supporting message under the new title/icon
+treatment rather than rewritten - it was already good, specific copy.
+Also added a small friendly message ("No lead generators yet - create one
+to get notified automatically...") above the "+ Add New Lead Generator"
+tile for the zero-generators-created state, which previously showed no
+text at all.
+
+**Deliberately not touched** (a defensible scoping line, not an
+oversight): the small inline micro-hints inside already-labeled compact
+panels - Pipeline's tag-manager "No tags yet.", the Dashboard's "No
+reminders set yet.", "No pipeline stages configured." A 44px icon +
+title + message block would be visually heavy in those tight spaces, and
+they're administrative micro-copy rather than the "no results" empty
+states this item's brief names (Leads grid, Lead Generators, Comparables,
+Pipeline, saved listings). The transient "still loading" placeholder text
+in the Leads grid's fast-pagination path ("Loading full results for this
+view…", "No matches on this page yet - keep going or wait for the full
+results to load.") is also left as plain text, since it asserts "still
+loading," not a confirmed empty result - upgrading it to the same
+confident empty-state treatment would misrepresent what's actually
+happening.
+
+**Verification**: same Playwright run as item 49 - confirmed the Leads
+grid, Saved listings, Pipeline, Comparables, and Lead Generators empty
+states all render with the icon + title present (and the Leads grid's
+message text specifically matches the new actionable copy), at 1440px
+and 390px, zero console/page errors.
+
+**Files touched**: `index.html` only (`emptyStateHtml()`, the
+`.empty-state*` CSS, and the HTML/JS at each of the empty-state sites
+listed above). No backend/schema/workflow change.
+
+## 51. EUR/BGN display toggle - APPROVED BY MISSY (2 rounds - priceDivergenceHtml() and 2 print-export paths were missing formatMoney(), fixed; 2 more pre-existing gaps in an earlier PR's Comparables-modal/Recently-Viewed surfaces flagged as a non-blocking follow-up), MERGED (2026-09-26)
+
+Same dispatch as items 49-50. Bulgaria adopted the euro on 2026-01-01 at
+a fixed peg (1.95583 BGN = 1 EUR; the lev stopped being legal tender a
+month later) - already researched and cited in
+`docs/deal-calculator-formulas.md` section 0. Every price in the app is
+already stored as `price_eur`/`price_per_sqm`; this item adds a purely
+cosmetic display conversion, not a data model change.
+
+**Built**: Preferences > Display > "Price currency" - three radio options
+(EUR only [default], BGN only, Both, e.g. "€150,000 (293,375 лв.)"),
+following the exact same pattern as the existing "Listing card density"
+setting on the same tab (same `PREFERENCES.display` object, same
+localStorage-backed `sitePreferences` key, same "commit on change, re-
+render immediately" wiring). A single `formatMoney(eur, unitSuffix)`
+helper (next to the existing `fmt()` number formatter) is the only thing
+that reads the preference; every place in the app that displayed a price
+was switched to call it instead of hand-rolling `'€' + fmt(x)` - the main
+results grid, Saved listings, Hottest deals and Pipeline cards (all share
+`createListingCard()`/`createPipelineCard()`), the Pipeline table and map
+popups, the listing detail page (main price, per-portal badges, area
+average, first-tracked/current price stats, the relisting history
+narrative, the price-history chart's tooltip and axis), Comparables (card/
+table/map views and its summary stats), the Area Data tab (summary stats
+and its two histogram charts), the Deal Calculator's BTL/Flip forms and
+templates, the BTL Stress Test tab's outputs, and the Market Data hub
+(performance table, heat map, live map). Static column-header/label text
+that literally spelled out "€/m²" (e.g. "Avg €/m²", table `<th>€/m²</th>`)
+was reworded to the currency-neutral "price/m²" so a label never
+contradicts a value shown in BGN underneath it. CSV exports (Comparables/
+Pipeline) were deliberately left untouched - they write the raw numeric
+`price_eur`/`price_per_sqm` fields already, which this item's "purely
+cosmetic **display**" scope doesn't cover; converting exported data would
+be a real (and arguably unwanted - it'd silently change what a spreadsheet
+formula downstream expects) behavior change, not a display tweak.
+
+**Verification**: same Playwright run as items 49-50, against the real
+304-row fixture data, at 1440px and 390px: EUR-only is the default;
+switching to "Both" shows both figures on a real listing card
+(`€243,000 (475,267 лв.)` - matches `243000 × 1.95583` exactly);
+switching to "BGN only" hides the € figure and shows only the correct
+BGN conversion, on both the grid card and the listing detail page's main
+price; the preference round-trips through `localStorage` and is still
+applied after a full page reload (bulk data reload included); "Both"
+mode also renders correctly at 390px. All 46 checks (items 49-51
+combined) passed, including zero console/page errors across the whole
+run.
+
+**Files touched**: `index.html` only (`BGN_PER_EUR`/`eurToBgn()`/
+`formatMoney()`, `DEFAULT_PREFERENCES.display.currency`, the Preferences
+> Display radio markup + wiring, and every price-display call site listed
+above). No backend/schema/workflow change - `price_eur` itself is
+untouched everywhere.
+
+## 52. Neighborhood/area guide pages - NOT BUILT, SCOPED AS A FOLLOW-UP (2026-09-26)
+
+Same dispatch as items 49-51, explicitly flagged as larger scope and
+time-constrained. Investigated rather than built, and documented honestly
+per this item's own brief rather than shipping something half-real.
+
+**Why not the originally-imagined version**: real, verified neighborhood
+facts (schools, transit, notable amenities) would need actual external
+research this sandbox cannot do (no live network access to research real
+Bulgarian neighborhood facts, per this session's own environment
+constraints - the same blocker `docs/design-guidelines.md` hit
+researching reference sites). Inventing plausible-sounding placeholder
+text and presenting it as fact would be actively harmful on a site
+real users make real property decisions from - explicitly against this
+item's own instruction ("if you can't source real, verified content,
+don't invent placeholder text presented as fact").
+
+**The more honest v1, scoped but not built this pass**: this item's own
+brief suggests the better-fit alternative - aggregate imotenradar's OWN
+already-tracked data per city/oblast (average price, listing count,
+price trend) rather than external facts. This is genuinely buildable
+without new data sourcing: `marketAggregateRows()` (Market Data hub) and
+`comparablesSummary()` (Comparables/Area Data tab) already compute
+exactly this shape of aggregate for a given city/oblast + property type,
+and the "Browse by city"/"Browse by Council" tiles (`renderCityTile()`/
+`renderOblastTile()`) already carry each area's key and listing count.
+A real v1 would be: a new `#section-area-guide` page (or a lightweight
+in-place expansion under each tile), taking a city/oblast key from the
+tile click instead of (or in addition to) immediately filtering the
+Leads grid, and rendering that area's own avg price, avg €/m² (or price/
+m² in BGN/both, per item 51), listing count, and a simple price-history
+trend chart (same Chart.js pattern `renderAreaDataTabCharts()` already
+uses) - all from data the app already has, honestly labeled as
+imotenradar's own tracked-listing statistics rather than presented as
+general neighborhood facts.
+
+**Not started this pass** given items 49-51 were prioritized to be done
+fully first and this item's own brief flagged 52/53 as attempt-if-time.
+No `index.html`/backend changes for this item in this PR.
+
+## 53. Auto-generated weekly market-pulse summary - NOT BUILT, SCOPED AS A FOLLOW-UP (2026-09-26)
+
+Same dispatch as items 49-52, also explicitly flagged as larger scope.
+Investigated, not built, for the same reason as item 52: time-boxed
+after prioritizing items 49-51 fully, per this dispatch's own explicit
+"do the first 3 fully; the last 2 are larger, scope them honestly if
+time-constrained" instruction.
+
+**Investigation - which of the two shapes this item asked to choose
+between actually fits**: the brief asked whether this is (a) a new
+section within the existing Market Data hub, computed live client-side
+from already-loaded data (same aggregation the hub's own tabs already
+run), or (b) something needing real scheduled generation (a new GitHub
+Actions workflow) to be honestly "automated" rather than something that
+merely "looks automated." On inspection, it's genuinely (a) for the
+numbers themselves: `marketAggregateRows()` already has everything
+needed to compute "average price/m² change per oblast over the past
+week" and "hottest deals" (biggest recent price drops) purely from
+`MERGED_LISTINGS`' own `price_history`, entirely client-side, with no new
+scraping and no new workflow - a "This week" card added to the Market
+Data hub next to its existing tabs is the honest, buildable v1. Where
+(b) would actually become necessary is a genuinely *shareable* link
+(e.g. a static, dateable snapshot URL someone could post or email) -
+that does need something to actually run and freeze the numbers on a
+schedule (a small new GitHub Actions workflow writing a dated JSON/HTML
+snapshot), not client-side computation re-run on every visit, or "share"
+would be misleading (the "shared" link would just silently show today's
+live numbers to whoever opens it later, not the week it was shared).
+
+**Not started this pass**, per the same time-boxing as item 52. No
+`index.html`/backend/workflow changes for this item in this PR. A real
+follow-up should build the client-side "This week" card in the Market
+Data hub first (cheap, no new infra, reuses existing aggregation), and
+only add the scheduled-snapshot workflow if/when an actually-shareable,
+point-in-time link is wanted badly enough to justify a new Action - per
+this repo's own standing rule against dispatching new/changed live
+workflow scripts without first reading them end-to-end and validating
+locally, that workflow would need its own careful, separate pass, not a
+rushed addition to this one.
+
 
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
@@ -6506,3 +6744,6 @@ Recently Viewed card, and `#printRoot`; new JS: `loadCompareListings()`/
 no backend/data change of any kind, matching the dispatch's "no auth/PII
 surface" instruction.
 
+## 54. Follow-up (non-blocking, flagged by Missy during item 51's review): 2 more raw-EUR spots that predate the currency toggle - NOT YET FIXED
+
+`formatMoney()` (item 51, EUR/BGN display toggle) covers every price-display call site that item 51 itself touched, but two spots from an earlier, separately-merged PR (item 44's investor-facing comparison modal/Recently Viewed strip) still hardcode `€${fmt(...)}` and were never in item 51's own scope: the Comparables-modal `COMPARE_TABLE_ROWS` price/price-per-m² rows, and the Recently Viewed card's price line. With BGN-only selected, these two surfaces still show € while the rest of the site correctly shows лв. Small fix - switch both to `formatMoney()`, same pattern as every other already-migrated call site.

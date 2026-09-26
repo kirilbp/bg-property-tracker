@@ -256,6 +256,36 @@
   .leads-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
   .leads-toolbar .detail-secondary-btn { margin-top: 0; }
   .leads-toolbar-note { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
+  /* Sticky Leads filter bar (docs/backlog.md item 49) - plain CSS
+     position:sticky, no library. Pins to the very top of the viewport once
+     the page scrolls the card's normal flow position past y:0, so the
+     filters stay reachable while scrolling a long results grid instead of
+     requiring a scroll back to the top to change them. z-index kept well
+     under the mobile off-canvas sidebar (200) and its backdrop (199) so an
+     opened mobile nav still draws over it, and under the shared modal
+     backdrop (1000). is-stuck (toggled by a scroll listener - see
+     initLeadsFilterToggle()) only adds a shadow to mark it's now floating
+     over the grid; the sticky positioning itself needs no JS. */
+  .leads-filter-card { position: sticky; top: 0; z-index: 40; transition: box-shadow 160ms ease-out; }
+  .leads-filter-card.is-stuck { box-shadow: 0 6px 18px rgba(36,31,26,0.14); }
+  .leads-filter-header { display: flex; align-items: flex-start; gap: 12px; }
+  .leads-filter-header .search-row { flex: 1; margin-bottom: 0; }
+  .leads-filter-toggle {
+    display: flex; align-items: center; gap: 7px; flex-shrink: 0; white-space: nowrap;
+    height: 44px; padding: 0 16px; margin-top: 0; border: 1px solid var(--taupe-light); border-radius: 4px;
+    background: white; color: var(--ink-soft); font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: border-color 160ms ease-out;
+  }
+  .leads-filter-toggle:hover { border-color: var(--brass); }
+  .leads-filter-toggle-count {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px;
+    padding: 0 5px; border-radius: 999px; background: rgba(169,129,46,0.16); color: var(--brass-deep);
+    font-size: 11px; font-weight: 700;
+  }
+  .leads-filter-toggle-chevron { font-size: 10px; color: var(--taupe); transition: transform 160ms ease-out; }
+  .leads-filter-card.filters-collapsed .leads-filter-toggle-chevron { transform: rotate(-90deg); }
+  #leadsFiltersPanel { margin-top: 14px; }
+  .leads-filter-card.filters-collapsed #leadsFiltersPanel { display: none; }
   .count { font-size: 13px; color: var(--taupe); margin: 16px 0; }
   /* Radius/polygon Lead Generator coordinate-coverage caveat (see
      leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
@@ -403,6 +433,18 @@
   }
   .registry-link:hover { color: var(--brass-deep); }
   .empty { text-align: center; color: var(--taupe); padding: 60px 20px; font-family: var(--font-sans); }
+  /* Shared empty-state icon/title/message block (docs/backlog.md item 50) -
+     the actual content wrapped by .empty/.cmp-empty-state/.leadgen-empty
+     below (their own padding/centering is unchanged, this just styles what
+     now goes inside them). See emptyStateHtml() for the JS side. */
+  .empty-state { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .empty-state-icon {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(169,129,46,0.10); color: var(--brass-deep);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
+  }
+  .empty-state-title { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0; }
+  .empty-state-message { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 0; max-width: 400px; line-height: 1.55; }
   #homeChartWrap { height: 130px; margin: 4px 0 10px; }
 
   /* Home page. Always exactly 3 tiles (Total listings/Hot deals/Portals
@@ -1078,6 +1120,10 @@
   .leadgen-add-tile:hover { border-color: var(--brass); color: var(--brass-deep); }
   .leadgen-add-tile .plus-icon { font-size: 28px; font-weight: 300; }
   .leadgen-empty { text-align: center; color: var(--taupe); padding: 60px 20px; font-family: var(--font-sans); font-size: 14px; }
+  /* When paired with the "＋ Add New Lead Generator" tile (zero generators
+     created yet), the message sits above it as a full-width banner rather
+     than squeezing into one auto-fill grid column next to the tile. */
+  .leadgen-grid > .leadgen-empty { grid-column: 1 / -1; padding: 32px 20px 12px; }
   .leadgen-banner {
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
     background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 14px 18px; margin-bottom: 16px;
@@ -1989,12 +2035,32 @@
           <span>Showing <strong id="oblastFilterBannerName"></strong></span>
           <button id="oblastFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
-        <div class="card">
+        <div class="card leads-filter-card" id="leadsFilterCard">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:var(--brass-deep); text-decoration:none;">← Back to Lead Generators</a>
-          <div class="search-row">
-            <input type="text" id="searchQuery" placeholder="Search by address, area, or keyword…" />
+          <div class="leads-filter-header">
+            <div class="search-row">
+              <input type="text" id="searchQuery" placeholder="Search by address, area, or keyword…" />
+            </div>
+            <!-- Sticky filter bar (docs/backlog.md item 49) - once this card
+                 pins to the top of the viewport on scroll (see the
+                 position:sticky rule below), the full 10-field grid would
+                 otherwise dominate the screen, especially at phone widths.
+                 This toggle collapses it to just the search box + this
+                 button - a "condensed version" of the same panel, not a
+                 second copy of it, so every field keeps its live value
+                 either way (collapsing only hides #leadsFiltersPanel, never
+                 clears or duplicates its inputs). Always starts fully
+                 expanded on load, regardless of viewport width - it only
+                 condenses once scroll makes the card stick to the top of
+                 the viewport (and re-expands once it un-sticks); see the
+                 initLeadsFilterToggle() call near the other init code. -->
+            <button type="button" class="leads-filter-toggle" id="leadsFilterToggle" aria-expanded="true" aria-controls="leadsFiltersPanel">
+              <span>Filters</span>
+              <span class="leads-filter-toggle-count" id="leadsFilterActiveCount" style="display:none;"></span>
+              <span class="leads-filter-toggle-chevron">▾</span>
+            </button>
           </div>
-          <div class="filters">
+          <div class="filters" id="leadsFiltersPanel">
             <div>
               <label>Min price (€)</label>
               <input type="number" id="minPrice" placeholder="0" />
@@ -2051,7 +2117,7 @@
                 <option value="price-desc">Price (high to low)</option>
                 <option value="size-desc">Size (large to small)</option>
                 <option value="size-asc">Size (small to large)</option>
-                <option value="persqm-asc">€/m² (low to high)</option>
+                <option value="persqm-asc">Price/m² (low to high)</option>
                 <option value="reduction-desc">Biggest price cut</option>
                 <option value="recent-drop-desc">Most recently reduced</option>
                 <option value="drops-desc">Most price drops</option>
@@ -2090,7 +2156,7 @@
         <p class="count-caveat" id="countCaveat" style="display:none;"></p>
         <div class="pagination" id="paginationTop" style="display:none;"></div>
         <div class="grid" id="grid"></div>
-        <div class="empty" id="empty" style="display:none;">No listings match these filters.</div>
+        <div class="empty" id="empty" style="display:none;"></div>
         <div class="pagination" id="paginationBottom" style="display:none;"></div>
       </section>
 
@@ -2123,7 +2189,13 @@
           <div id="plCardView" class="pl-card-grid"></div>
           <div id="plTableView" class="pl-table-wrap" style="display:none;"></div>
           <div id="plMapView" class="pl-map" style="display:none;"></div>
-          <p class="empty" id="plEmpty" style="display:none;">No deals in the pipeline yet — open any listing and click "+ Add to Pipeline", or use the ＋ button on a listing card.</p>
+          <div class="empty" id="plEmpty" style="display:none;">
+            <div class="empty-state">
+              <div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"></line></svg></div>
+              <p class="empty-state-title">No deals in the pipeline yet</p>
+              <p class="empty-state-message">Open any listing and click "+ Add to Pipeline", or use the ＋ button on a listing card.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -2209,7 +2281,13 @@
             <div id="cmpTableView" class="pl-table-wrap" style="display:none;"></div>
             <div id="cmpMapView" class="pl-map" style="display:none;"></div>
           </div>
-          <p class="cmp-empty-state" id="cmpEmptyState">Pick a city (and, optionally, a quarter), then run a search to see comparable listings.</p>
+          <div class="cmp-empty-state" id="cmpEmptyState">
+            <div class="empty-state">
+              <div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"></line></svg></div>
+              <p class="empty-state-title">Search for comparables</p>
+              <p class="empty-state-message">Pick a city (and, optionally, a quarter), then run a search to see comparable listings.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -2301,7 +2379,7 @@
                 <option value="price-desc">Price (high to low)</option>
                 <option value="size-desc">Size (large to small)</option>
                 <option value="size-asc">Size (small to large)</option>
-                <option value="persqm-asc">€/m² (low to high)</option>
+                <option value="persqm-asc">Price/m² (low to high)</option>
                 <option value="reduction-desc">Biggest price cut</option>
                 <option value="recent-drop-desc">Most recently reduced</option>
                 <option value="drops-desc">Most price drops</option>
@@ -2311,7 +2389,13 @@
             </div>
           </div>
           <div class="grid" id="savedGrid"></div>
-          <p class="empty" id="savedEmpty" style="display:none;">No saved listings yet — click ☆ on any listing to save it here.</p>
+          <div class="empty" id="savedEmpty" style="display:none;">
+            <div class="empty-state">
+              <div class="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"></line></svg></div>
+              <p class="empty-state-title">No saved listings yet</p>
+              <p class="empty-state-message">Click the ☆ on any listing to save it here for quick access later.</p>
+            </div>
+          </div>
         </div>
         <div class="card">
           <h2>🔥 Hottest deals right now</h2>
@@ -2410,7 +2494,7 @@
           </div>
 
           <div class="pref-tab-content active" data-pref-tab-content="display">
-            <p class="pl-sub" style="margin-top:16px;">Bulgaria already uses metric units natively (m², km) for surface area and distance, so imotenradar doesn't need the mile/km or ft²/m² unit toggle Property Filter's UK build has to support - one less setting to carry. The one genuinely useful display preference left is how much room each listing card gets in the results grid.</p>
+            <p class="pl-sub" style="margin-top:16px;">Bulgaria already uses metric units natively (m², km) for surface area and distance, so imotenradar doesn't need the mile/km or ft²/m² unit toggle Property Filter's UK build has to support - one less setting to carry.</p>
             <div class="modal-field">
               <label>Listing card density</label>
               <div class="pref-density-options">
@@ -2419,6 +2503,22 @@
                 <label class="pref-density-option"><input type="radio" name="prefDensity" value="compact" /> Compact <span class="pref-density-hint">More cards per row, less whitespace</span></label>
               </div>
               <p class="modal-hint">Applies to the main results grid, Saved listings, and Hottest deals. Card content is unchanged - only how many fit per row.</p>
+            </div>
+            <!-- Price currency (docs/backlog.md item 51) - Bulgaria adopted
+                 the euro on 2026-01-01 (the lev stopped being legal tender a
+                 month later), and every price in this app is already stored
+                 as price_eur - see BGN_PER_EUR/formatMoney() above. This is
+                 a display-only conversion at the fixed peg rate, not a data
+                 model change: nothing is re-stored, re-fetched, or sent
+                 anywhere differently depending on this setting. -->
+            <div class="modal-field" style="margin-top:20px;">
+              <label>Price currency</label>
+              <div class="pref-density-options">
+                <label class="pref-density-option"><input type="radio" name="prefCurrency" value="eur" /> EUR only <span class="pref-density-hint">The default - matches every price as tracked</span></label>
+                <label class="pref-density-option"><input type="radio" name="prefCurrency" value="bgn" /> BGN only <span class="pref-density-hint">Converted at the fixed euro-adoption peg</span></label>
+                <label class="pref-density-option"><input type="radio" name="prefCurrency" value="both" /> Both <span class="pref-density-hint">e.g. €150,000 (293,375 лв.)</span></label>
+              </div>
+              <p class="modal-hint">Purely cosmetic - a fixed 1.95583 BGN = 1 EUR conversion applied for display only, everywhere a price is shown (results grid, listing detail, Pipeline, Comparables, Market Data). imotenradar's own data is unaffected either way.</p>
             </div>
           </div>
 
@@ -2942,6 +3042,52 @@ const SUPABASE_ANON_KEY = 'sb_publishable_8m7t7ejFdAr9wWqxz26fcw_LUWURIcL';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const fmt = n => new Intl.NumberFormat('en-GB').format(Math.round(n));
+// Bulgaria adopted the euro on 2026-01-01 at this fixed conversion peg (the
+// lev ceased to be legal tender on 2026-02-01) - see docs/deal-calculator-
+// formulas.md section 0 for the sourcing. Preferences > Display > "Price
+// currency" (docs/backlog.md item 51) uses this to show a purely cosmetic
+// BGN-converted figure alongside/instead of the EUR figures already stored
+// in every listing's `price_eur`/`price_per_sqm` - no data model change, no
+// new stored field, nothing sent anywhere: this is display-only math run at
+// render time.
+const BGN_PER_EUR = 1.95583;
+const eurToBgn = eur => eur * BGN_PER_EUR;
+// Central formatter for every EUR money value shown in the app - respects
+// PREFERENCES.display.currency ('eur' default | 'bgn' | 'both'). `unitSuffix`
+// (e.g. '/m²') is appended to each currency figure individually so a per-m²
+// value reads correctly in every mode. Returns null for a missing/invalid
+// value so call sites can keep their existing "–" placeholder handling.
+function formatMoney(eur, unitSuffix) {
+  if (eur == null || isNaN(eur)) return null;
+  unitSuffix = unitSuffix || '';
+  const mode = (PREFERENCES && PREFERENCES.display && PREFERENCES.display.currency) || 'eur';
+  const eurStr = '€' + fmt(eur) + unitSuffix;
+  if (mode === 'eur') return eurStr;
+  const bgnStr = fmt(eurToBgn(eur)) + ' лв.' + unitSuffix;
+  if (mode === 'bgn') return bgnStr;
+  return `${eurStr} (${bgnStr})`;
+}
+// Shared "nothing to show" visual treatment (docs/backlog.md item 50) - one
+// small brass icon + a short bold headline + the specific, already-written
+// explanatory sentence as supporting text, used everywhere a grid/list/tab
+// can come up genuinely empty (Leads grid, Lead Generators, Comparables,
+// Pipeline, Saved listings, Area/Market Data). Deliberately one shared icon
+// and structure across all of them, per the "keep this consistent, not just
+// one instance" brief - only the title/message text differs per context.
+// `message` is developer-authored copy already safe to inject (matches how
+// these call sites already built this text before this change), not
+// escaped here so the few call sites that need a literal em dash/quote
+// don't need special-casing.
+const EMPTY_STATE_ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"></line></svg>';
+function emptyStateHtml(title, message) {
+  return `
+    <div class="empty-state">
+      <div class="empty-state-icon">${EMPTY_STATE_ICON}</div>
+      <p class="empty-state-title">${escapeHtml(title)}</p>
+      <p class="empty-state-message">${message}</p>
+    </div>
+  `;
+}
 // Descriptions are long free-text pulled straight from source portals - unlike
 // the short scraped fields elsewhere on this page, they're likely enough to
 // contain a stray quote or angle bracket that inserting them into innerHTML
@@ -3150,7 +3296,10 @@ let BULK_READY = false;
 // full scoping note.
 const PREFERENCES_KEY = 'sitePreferences';
 const DEFAULT_PREFERENCES = {
-  display: { cardDensity: 'standard' }, // 'comfortable' | 'standard' | 'compact'
+  // currency: 'eur' (default, matches every price already stored) | 'bgn'
+  // (converted at the fixed peg, see BGN_PER_EUR above) | 'both'. Purely a
+  // display preference - formatMoney() is the only thing that reads it.
+  display: { cardDensity: 'standard', currency: 'eur' }, // 'comfortable' | 'standard' | 'compact'
   searchResults: { hotThreshold: 40, warmThreshold: 15 },
   leadGenerator: { defaultSort: 'matches-desc', defaultCity: 'Sofia', defaultSaleType: 'sale', defaultRadiusM: 500 },
   notifications: { showNewBadges: true },
@@ -3236,6 +3385,7 @@ function refreshAfterPreferenceChange() {
 
 function renderPreferencesPage() {
   document.querySelectorAll('input[name="prefDensity"]').forEach(r => { r.checked = r.value === PREFERENCES.display.cardDensity; });
+  document.querySelectorAll('input[name="prefCurrency"]').forEach(r => { r.checked = r.value === PREFERENCES.display.currency; });
   document.getElementById('prefHotThreshold').value = PREFERENCES.searchResults.hotThreshold;
   document.getElementById('prefWarmThreshold').value = PREFERENCES.searchResults.warmThreshold;
   document.getElementById('prefLgSort').value = PREFERENCES.leadGenerator.defaultSort;
@@ -3605,14 +3755,14 @@ function buildPrintListingHtml(merged, l) {
       <h1 class="print-title">${escapeHtml(l.title || '')}</h1>
       <p class="print-sub">📍 ${escapeHtml(l.area || '')}${cityLabel ? ', ' + escapeHtml(cityLabel) : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''} · Listed on ${escapeHtml(l.portal || '')}</p>
       <div class="print-price-row">
-        <span class="print-price">€${fmt(l.price_eur)}</span>
-        ${l.price_per_sqm ? `<span class="print-persqm">€${fmt(l.price_per_sqm)}/m²</span>` : ''}
+        <span class="print-price">${formatMoney(l.price_eur)}</span>
+        ${l.price_per_sqm ? `<span class="print-persqm">${formatMoney(l.price_per_sqm, '/m²')}</span>` : ''}
       </div>
       <div class="print-stats">
         <div class="print-stat"><p class="print-stat-label">Rooms</p><p class="print-stat-value">${l.rooms ?? '–'}</p></div>
         <div class="print-stat"><p class="print-stat-label">Days on market</p><p class="print-stat-value">${l.days_on_market ?? '–'}</p></div>
         <div class="print-stat"><p class="print-stat-label">Motivation score</p><p class="print-stat-value">${l.score ?? '–'}</p></div>
-        <div class="print-stat"><p class="print-stat-label">Area avg €/m²</p><p class="print-stat-value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
+        <div class="print-stat"><p class="print-stat-label">Area avg price/m²</p><p class="print-stat-value">${l.area_avg_price_per_sqm ? formatMoney(l.area_avg_price_per_sqm) : '–'}</p></div>
       </div>
       ${l.description ? `<p class="print-section-title">Description</p><p class="print-desc">${escapeHtml(l.description)}</p>` : ''}
       <p class="print-footer">Original listing: ${escapeHtml(l.url || '–')} — data tracked by imotenradar.com, not a verified valuation. Always confirm details against the original listing and the land registry before acting.</p>
@@ -3631,7 +3781,7 @@ function printListingDetail(merged, l) {
 function buildPrintDealCalcHtml(t) {
   const def = DEAL_CALC_STRATEGIES.find(s => s.id === t.strategy);
   const result = computeDealCalcResultFor(t);
-  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : formatMoney(Math.round(v));
   const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
   const fmtNum = (v) => (v == null || isNaN(v)) ? '–' : fmt(v);
 
@@ -5190,7 +5340,7 @@ function updateRadiusMap(l) {
         fillOpacity: 0.75,
         weight: 1,
       }).addTo(detailMap).bindPopup(
-        `${escapeHtml(s.title || s.portal)}<br>€${fmt(s.price_eur)}${s.price_per_sqm ? ' · €' + fmt(s.price_per_sqm) + '/m²' : ''}`
+        `${escapeHtml(s.title || s.portal)}<br>${formatMoney(s.price_eur)}${s.price_per_sqm ? ' · ' + formatMoney(s.price_per_sqm, '/m²') : ''}`
       );
     });
 
@@ -5291,9 +5441,9 @@ function renderRadiusPanel(l) {
     } else {
       resultHtml = `
         <div class="radius-result">
-          <div><p class="label">Avg asking price</p><p class="value">€${fmt(r.avgPrice)}</p></div>
+          <div><p class="label">Avg asking price</p><p class="value">${formatMoney(r.avgPrice)}</p></div>
           <div><p class="label">Avg surface area</p><p class="value">${r.avgSqm ? r.avgSqm + ' m²' : '–'}</p></div>
-          <div><p class="label">Avg €/m²</p><p class="value">${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</p></div>
+          <div><p class="label">Avg price/m²</p><p class="value">${r.avgPerSqm ? formatMoney(r.avgPerSqm) : '–'}</p></div>
           <div><p class="label">Comparables</p><p class="value">${r.count} ${l.category || 'apartment'}${r.count === 1 ? '' : 's'}</p></div>
         </div>
       `;
@@ -5356,9 +5506,9 @@ function comparableTableRowHtml(s, isSubject) {
   return `
     <tr${isSubject ? ' class="compare-subject-row-highlight"' : ''}>
       <td class="compare-title">${isSubject ? escapeHtml(s.title) : `<a href="#" data-compare-goto="${s.id}">${escapeHtml(s.title)}</a>`}<br><span style="color:var(--taupe);font-weight:400;">${s.portal}</span></td>
-      <td>€${fmt(s.price_eur)}</td>
+      <td>${formatMoney(s.price_eur)}</td>
       <td>${s.sqm ? s.sqm + ' m²' : '–'}</td>
-      <td>${s.price_per_sqm ? '€' + fmt(s.price_per_sqm) : '–'}</td>
+      <td>${s.price_per_sqm ? formatMoney(s.price_per_sqm) : '–'}</td>
       <td>${s.days_on_market ?? '–'}</td>
       <td>${s.drop_pct > 0 ? '↓' + s.drop_pct + '%' : '–'}</td>
       <td>${isSubject ? '(this listing)' : (s._distanceKm != null ? Math.round(s._distanceKm * 1000) + 'm' : '–')}</td>
@@ -6695,13 +6845,13 @@ function renderComparablesResults() {
   if (!cmpSearched) {
     wrap.style.display = 'none';
     emptyState.style.display = 'block';
-    emptyState.textContent = 'Pick a city (and, optionally, a quarter), then run a search to see comparable listings.';
+    emptyState.innerHTML = emptyStateHtml('Search for comparables', 'Pick a city (and, optionally, a quarter), then run a search to see comparable listings.');
     return;
   }
   if (CMP_RESULTS.length === 0) {
     wrap.style.display = 'none';
     emptyState.style.display = 'block';
-    emptyState.textContent = "No listings match this search yet - try widening the radius, clearing a filter, or picking a different area. imotenradar's own coverage still varies a lot by city (see Help).";
+    emptyState.innerHTML = emptyStateHtml('No listings match this search', "Try widening the radius, clearing a filter, or picking a different area. imotenradar's own coverage still varies a lot by city (see Help).");
     teardownCmpMap();
     return;
   }
@@ -6710,9 +6860,9 @@ function renderComparablesResults() {
 
   const s = comparablesSummary(CMP_RESULTS);
   document.getElementById('cmpSummaryBar').innerHTML = `
-    <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? '€' + fmt(s.avgPrice) : '–'}</p></div>
+    <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? formatMoney(s.avgPrice) : '–'}</p></div>
     <div><p class="label">Avg surface area</p><p class="value">${s.avgSqm ? s.avgSqm + ' m²' : '–'}</p></div>
-    <div><p class="label">Avg €/m²</p><p class="value">${s.avgPerSqm ? '€' + fmt(s.avgPerSqm) : '–'}</p></div>
+    <div><p class="label">Avg price/m²</p><p class="value">${s.avgPerSqm ? formatMoney(s.avgPerSqm) : '–'}</p></div>
     <div><p class="label">Matches</p><p class="value">${fmt(s.count)}</p></div>
   `;
   const hasDistance = CMP_RESULTS.some(l => l._distanceKm != null);
@@ -6756,7 +6906,7 @@ function renderCmpTableView() {
   document.getElementById('cmpTableView').innerHTML = `
     <table class="pl-table">
       <thead>
-        <tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
+        <tr><th>Listing</th><th>Price</th><th>Size</th><th>Price/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr>
       </thead>
       <tbody>
         ${shown.map(l => comparableTableRowHtml(l, false)).join('')}
@@ -6799,7 +6949,7 @@ function renderCmpMapView() {
   // still capped, not unbounded, since a pathological all-listings query
   // shouldn't ever have to construct tens of thousands of DOM markers.
   const markers = addClusteredListingMarkers(cmpMap, located.slice(0, 2000), l =>
-    `<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}${l.price_per_sqm ? ' · €' + fmt(l.price_per_sqm) + '/m²' : ''}`
+    `<strong>${escapeHtml(l.title)}</strong><br>${formatMoney(l.price_eur)}${l.price_per_sqm ? ' · ' + formatMoney(l.price_per_sqm, '/m²') : ''}`
   );
   cmpMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
 }
@@ -7195,8 +7345,8 @@ function describeLeadGenerator(gen) {
   const lines = [];
   const f = gen.filters;
   const priceParts = [];
-  if (f.minPrice) priceParts.push(`€${fmt(f.minPrice)}+`);
-  if (f.maxPrice) priceParts.push(`up to €${fmt(f.maxPrice)}`);
+  if (f.minPrice) priceParts.push(`${formatMoney(f.minPrice)}+`);
+  if (f.maxPrice) priceParts.push(`up to ${formatMoney(f.maxPrice)}`);
   lines.push(priceParts.length ? priceParts.join(' · ') : 'Any price');
   const sizeParts = [];
   if (f.minSqm) sizeParts.push(`${f.minSqm}m²+`);
@@ -7315,6 +7465,7 @@ function renderLeadGenGallery() {
 
   if (LEAD_GENERATORS.length === 0) {
     grid.innerHTML = `
+      <div class="leadgen-empty">${emptyStateHtml('No lead generators yet', 'Create one to get notified automatically whenever a new listing matches your saved criteria.')}</div>
       <button class="leadgen-add-tile" id="leadgenAddTile"><span class="plus-icon">+</span> Add New Lead Generator</button>
     `;
     document.getElementById('leadgenAddTile').addEventListener('click', () => openLeadGenModal(null));
@@ -7324,7 +7475,10 @@ function renderLeadGenGallery() {
   const rows = sortedFilteredLeadGenerators();
 
   if (rows.length === 0) {
-    grid.innerHTML = `<p class="leadgen-empty">No lead generators match this tab yet.${leadgenSaleTypeTab === 'rent' ? ' Rental listings aren’t scraped yet (see the backlog’s Parked section), so a "To Rent" generator won’t find any matches until that changes.' : ''}</p>`;
+    grid.innerHTML = `<div class="leadgen-empty">${emptyStateHtml(
+      'No lead generators match this tab',
+      `No lead generators match this tab yet.${leadgenSaleTypeTab === 'rent' ? ' Rental listings aren’t scraped yet (see the backlog’s Parked section), so a "To Rent" generator won’t find any matches until that changes.' : ' Switch tabs, or create a new one for this sale type.'}`
+    )}</div>`;
     return;
   }
 
@@ -8008,8 +8162,8 @@ function createPipelineCard(listing, deal) {
           <p class="listing-title pl-card-title">${escapeHtml(l.title)}</p>
           <p class="listing-area">📍 ${escapeHtml(l.area || '')}</p>
           <div class="listing-price-row">
-            <span class="listing-price">€${fmt(l.price_eur)}</span>
-            <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+            <span class="listing-price">${formatMoney(l.price_eur)}</span>
+            <span class="listing-persqm">${l.price_per_sqm ? formatMoney(l.price_per_sqm, '/m²') : ''}</span>
           </div>
           <p class="pl-fact-line">${[
             l.rooms ? `${l.rooms} room${l.rooms === 1 ? '' : 's'}` : null,
@@ -8078,7 +8232,7 @@ function renderPipelineTableView(rows) {
   el.innerHTML = `
     <table class="pl-table">
       <thead><tr>
-        <th>Stage</th><th>Photo</th><th>Title</th><th>Price</th><th>€/m²</th>
+        <th>Stage</th><th>Photo</th><th>Title</th><th>Price</th><th>Price/m²</th>
         <th>Rooms</th><th>m²</th><th>Listed</th><th>Tags</th><th></th>
       </tr></thead>
       <tbody>
@@ -8091,8 +8245,8 @@ function renderPipelineTableView(rows) {
               ? `<img class="pl-table-photo" src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePipelineTablePhotoError(this)" />`
               : noPhotoPlaceholderHtml({ variant: 'small', extraClass: 'pl-table-photo' })}</td>
             <td class="listing-link" data-listing-id="${l.id}">${escapeHtml(l.title)}</td>
-            <td>€${fmt(l.price_eur)}</td>
-            <td>${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) : '–'}</td>
+            <td>${formatMoney(l.price_eur)}</td>
+            <td>${l.price_per_sqm ? formatMoney(l.price_per_sqm) : '–'}</td>
             <td>${l.rooms ?? '–'}</td>
             <td>${l.sqm ?? '–'}</td>
             <td>${listedLabel}</td>
@@ -8131,7 +8285,7 @@ function renderPipelineMapView(rows) {
   const markers = located.map(({ listing: l, deal }) => {
     const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
     return L.circleMarker([l.lat, l.lng], { radius: 7, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.85, weight: 2 })
-      .bindPopup(`<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}<br>${stage ? escapeHtml(stage.name) : ''}`)
+      .bindPopup(`<strong>${escapeHtml(l.title)}</strong><br>${formatMoney(l.price_eur)}<br>${stage ? escapeHtml(stage.name) : ''}`)
       .addTo(pipelineMap);
   });
   pipelineMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
@@ -8655,8 +8809,8 @@ function createListingCard(l) {
         <p class="listing-title">${l.title}</p>
         <p class="listing-area">📍 ${l.area}${cardCityLabel ? ', ' + cardCityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
         <div class="listing-price-row">
-          <span class="listing-price">€${fmt(l.price_eur)}</span>
-          <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+          <span class="listing-price">${formatMoney(l.price_eur)}</span>
+          <span class="listing-persqm">${l.price_per_sqm ? formatMoney(l.price_per_sqm, '/m²') : ''}</span>
         </div>
         ${freshnessBadgeHtml(l, 'listing-freshness')}
       </div>
@@ -8983,12 +9137,13 @@ function render() {
     if (areaMode === 'radius' || areaMode === 'polygon') {
       const withCoords = MERGED_LISTINGS.filter(l => l.lat != null && l.lng != null).length;
       const pct = Math.round(100 * withCoords / MERGED_LISTINGS.length);
-      empty.textContent = `0 listings matched this location. This can mean there's genuinely nothing listed nearby, `
+      empty.innerHTML = emptyStateHtml('No listings found near this location',
+        `This can mean there's genuinely nothing listed nearby, `
         + `but it can also mean nearby listings just don't have exact coordinates yet - only ${pct}% of all `
         + `${fmt(MERGED_LISTINGS.length)} listings do right now (coverage varies a lot by portal and is still being `
-        + `filled in). Try Browse by City or Browse by Council instead, which don't need coordinates.`;
+        + `filled in). Try Browse by City or Browse by Council instead, which don't need coordinates.`);
     } else {
-      empty.textContent = 'No listings match these filters.';
+      empty.innerHTML = emptyStateHtml('No listings match these filters', 'Try widening your price range, increasing the minimum size, or clearing a filter to see more results.');
     }
     empty.style.display = 'block';
     setPaginationHtml('');
@@ -9045,6 +9200,7 @@ function handlePaginationClick(e) {
 
 function renderFromStart() {
   currentPage = 1;
+  updateLeadsFilterBadge();
   render();
 }
 
@@ -9406,13 +9562,13 @@ function renderPriceHistoryChart(priceHistory, statusInfo) {
               ? 'Today'
               : new Date(c[0].parsed.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
             label: c => points[c.dataIndex].source === 'relisted_from'
-              ? '€' + fmt(c.parsed.y) + ' — price it left the market at (relisted later)'
-              : '€' + fmt(c.parsed.y),
+              ? formatMoney(c.parsed.y) + ' — price it left the market at (relisted later)'
+              : formatMoney(c.parsed.y),
           }
         }
       },
       scales: {
-        y: { ticks: { callback: v => '€' + fmt(v) } },
+        y: { ticks: { callback: v => formatMoney(v) } },
         x: {
           type: 'linear',
           min: firstTs,
@@ -9651,7 +9807,7 @@ function priceDivergenceHtml(merged, currentSource) {
   // exactly this ("price moved in the buyer's favor"); "more" is a neutral
   // fact, styled with the plain taupe secondary-text color instead.
   const cls = info.direction === 'less' ? 'detail-price-divergence' : 'detail-price-divergence neutral';
-  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for €${fmt(info.diff)} ${info.direction}</p>`;
+  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for ${formatMoney(info.diff)} ${info.direction}</p>`;
 }
 
 // --- Property Details & Keywords panel ----------------------------------
@@ -9887,7 +10043,7 @@ function renderDetailCompMap(l, comparables) {
     markers.push(
       L.circleMarker([s.lat, s.lng], { radius: 6, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.75, weight: 1 })
         .addTo(detailCompMap)
-        .bindPopup(`${escapeHtml(s.title || s.portal)}<br>€${fmt(s.price_eur)}${s.price_per_sqm ? ' · €' + fmt(s.price_per_sqm) + '/m²' : ''}`)
+        .bindPopup(`${escapeHtml(s.title || s.portal)}<br>${formatMoney(s.price_eur)}${s.price_per_sqm ? ' · ' + formatMoney(s.price_per_sqm, '/m²') : ''}`)
     );
   });
   detailCompMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [16, 16] });
@@ -9918,7 +10074,7 @@ function refreshDetailComparablesViews(l) {
     const shown = comparables.slice(0, DETAIL_COMP_MAX_ROWS);
     tableEl.innerHTML = `
       <table class="pl-table">
-        <thead><tr><th>Listing</th><th>Price</th><th>Size</th><th>€/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr></thead>
+        <thead><tr><th>Listing</th><th>Price</th><th>Size</th><th>Price/m²</th><th>Days on market</th><th>Price change</th><th>Distance</th></tr></thead>
         <tbody>
           ${comparableTableRowHtml(l, true)}
           ${shown.map(s => comparableTableRowHtml(s, false)).join('')}
@@ -10152,14 +10308,14 @@ async function loadAreaTrendChart(l, sameAreaListings) {
     data: {
       labels: months,
       datasets: [{
-        label: 'Avg €/m²',
+        label: 'Avg price/m²',
         data: months.map(m => Math.round(monthly.get(m).sum / monthly.get(m).count)),
         borderColor: '#a9812e', backgroundColor: 'rgba(169,129,46,0.12)', fill: true, tension: 0.25, pointRadius: 3,
       }],
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '€' + fmt(ctx.parsed.y) + '/m²' } } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatMoney(ctx.parsed.y, '/m²') } } },
       scales: { y: { beginAtZero: false } },
     },
   });
@@ -10168,7 +10324,7 @@ async function loadAreaTrendChart(l, sameAreaListings) {
 function renderAreaDataTabHtml(l) {
   const areaKey = listingAreaKey(l);
   if (!areaKey) {
-    return `<p class="cmp-empty-state">This listing doesn't have a usable area/quarter value yet, so area-level stats can't be computed for it.</p>`;
+    return `<div class="cmp-empty-state">${emptyStateHtml('Area data not available', "This listing doesn't have a usable area/quarter value yet, so area-level stats can't be computed for it.")}</div>`;
   }
   const matches = areaDataMatches(l);
   const gapNote = `
@@ -10186,7 +10342,7 @@ function renderAreaDataTabHtml(l) {
   if (matches.length < AREA_DATA_MIN_SAMPLE) {
     return `
       ${gapNote}
-      <p class="cmp-empty-state">Not enough tracked ${l.category || 'apartment'} listings in this area yet (${matches.length} found, ${AREA_DATA_MIN_SAMPLE} needed) to show reliable area stats. This fills in as imotenradar tracks more of this area.</p>
+      <div class="cmp-empty-state">${emptyStateHtml('Not enough data yet', `Not enough tracked ${l.category || 'apartment'} listings in this area yet (${matches.length} found, ${AREA_DATA_MIN_SAMPLE} needed) to show reliable area stats. This fills in as imotenradar tracks more of this area.`)}</div>
     `;
   }
 
@@ -10200,8 +10356,8 @@ function renderAreaDataTabHtml(l) {
       <p class="cmp-panel-title">Market Live Data</p>
       <p class="cmp-panel-sub">${fmt(matches.length)} other ${l.category || 'apartment'} listing${matches.length === 1 ? '' : 's'} tracked in this area right now.</p>
       <div class="cmp-summary-bar">
-        <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? '€' + fmt(s.avgPrice) : '–'}</p></div>
-        <div><p class="label">Avg €/m²</p><p class="value">${s.avgPerSqm ? '€' + fmt(s.avgPerSqm) : '–'}</p></div>
+        <div><p class="label">Avg asking price</p><p class="value">${s.avgPrice ? formatMoney(s.avgPrice) : '–'}</p></div>
+        <div><p class="label">Avg price/m²</p><p class="value">${s.avgPerSqm ? formatMoney(s.avgPerSqm) : '–'}</p></div>
         <div><p class="label">Avg days on market</p><p class="value">${avgDays ?? '–'}</p></div>
         <div><p class="label">Sample size</p><p class="value">${fmt(matches.length)}</p></div>
       </div>
@@ -10217,11 +10373,11 @@ function renderAreaDataTabHtml(l) {
       <div class="cmp-hist-grid">
         <div>
           <div class="cmp-hist-chart-wrap"><canvas id="areaHistPrice"></canvas></div>
-          <p class="cmp-hist-caption">Price (€)</p>
+          <p class="cmp-hist-caption">Price</p>
         </div>
         <div>
           <div class="cmp-hist-chart-wrap"><canvas id="areaHistPerSqm"></canvas></div>
-          <p class="cmp-hist-caption">€/m²</p>
+          <p class="cmp-hist-caption">Price/m²</p>
         </div>
         <div>
           <div class="cmp-hist-chart-wrap"><canvas id="areaHistSqm"></canvas></div>
@@ -10236,8 +10392,8 @@ function renderAreaDataTabCharts(l) {
   teardownAreaDataCharts();
   const matches = areaDataMatches(l);
   if (!matches || matches.length < AREA_DATA_MIN_SAMPLE) return;
-  renderHistogramChart('areaHistPrice', 'price', matches.map(m => m.price_eur), l.price_eur, v => '€' + fmt(Math.round(v)));
-  renderHistogramChart('areaHistPerSqm', 'persqm', matches.map(m => m.price_per_sqm), l.price_per_sqm, v => '€' + fmt(Math.round(v)));
+  renderHistogramChart('areaHistPrice', 'price', matches.map(m => m.price_eur), l.price_eur, v => formatMoney(Math.round(v)));
+  renderHistogramChart('areaHistPerSqm', 'persqm', matches.map(m => m.price_per_sqm), l.price_per_sqm, v => formatMoney(Math.round(v)));
   renderHistogramChart('areaHistSqm', 'sqm', matches.map(m => m.sqm), l.sqm, v => fmt(Math.round(v)) + 'm²');
   loadAreaTrendChart(l, matches); // async, fire-and-forget - fills in once it resolves
 }
@@ -10329,15 +10485,15 @@ function renderBtlTabHtml(l) {
       <div class="btl-outputs">
         <div class="btl-output-row">
           <p class="btl-output-label">Minimum rental income per month to pass</p>
-          <p class="btl-output-value">€${fmt(Math.round(result.minRentToPass))}</p>
+          <p class="btl-output-value">${formatMoney(Math.round(result.minRentToPass))}</p>
         </div>
         <div class="btl-output-row">
           <p class="btl-output-label">Maximum price offer to pass, at your rent estimate</p>
-          <p class="btl-output-value">${result.maxPriceToPass != null ? '€' + fmt(Math.round(result.maxPriceToPass)) : '– (enter a rent estimate)'}</p>
+          <p class="btl-output-value">${result.maxPriceToPass != null ? formatMoney(Math.round(result.maxPriceToPass)) : '– (enter a rent estimate)'}</p>
         </div>
         <div class="btl-output-row">
           <p class="btl-output-label">Loan amount / interest-only payment</p>
-          <p class="btl-output-value" style="font-size:16px;">€${fmt(Math.round(result.loanAmount))} / €${fmt(Math.round(result.monthlyInterestOnly))} per month</p>
+          <p class="btl-output-value" style="font-size:16px;">${formatMoney(Math.round(result.loanAmount))} / ${formatMoney(Math.round(result.monthlyInterestOnly))} per month</p>
         </div>
         ${result.passes != null ? `
           <p class="btl-pass-line ${result.passes ? 'pass' : 'fail'}">${result.passes ? '✓ Passes at your entered rent estimate.' : '✗ Does not pass at your entered rent estimate.'}</p>
@@ -10649,7 +10805,7 @@ function renderDealCalcBtlFormHtml() {
   const inp = dcWizardInputs;
   const result = computeDealCalcBtl(inp);
   const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
-  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : formatMoney(Math.round(v));
   return `
     <div class="btl-grid">
       <div>
@@ -10755,7 +10911,7 @@ function renderDealCalcBtlFormHtml() {
 function renderDealCalcFlipFormHtml() {
   const inp = dcWizardInputs;
   const result = computeDealCalcFlip(inp);
-  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : formatMoney(Math.round(v));
   const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
   return `
     <div class="btl-grid">
@@ -10917,7 +11073,7 @@ function refreshOpenListingDealCalcTabIfLinkedTo(listingId) {
 function renderDealCalcTemplateCard(t) {
   const def = DEAL_CALC_STRATEGIES.find(s => s.id === t.strategy);
   const result = computeDealCalcResultFor(t);
-  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : formatMoney(Math.round(v));
   const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
   const metricsHtml = t.strategy === 'btl' ? `
     <div class="dc-template-metrics">
@@ -11061,16 +11217,16 @@ function renderListingDetail(merged) {
         if (ev.priceAfter == null) {
           priceChangeHtml = 'the price it came back at isn\'t recorded';
         } else if (ev.priceAfter < ev.priceBefore) {
-          priceChangeHtml = `came back at <strong>€${fmt(ev.priceAfter)}</strong> — ${Math.round((1 - ev.priceAfter / ev.priceBefore) * 100)}% below where it left`;
+          priceChangeHtml = `came back at <strong>${formatMoney(ev.priceAfter)}</strong> — ${Math.round((1 - ev.priceAfter / ev.priceBefore) * 100)}% below where it left`;
         } else if (ev.priceAfter > ev.priceBefore) {
-          priceChangeHtml = `came back at <strong>€${fmt(ev.priceAfter)}</strong> — ${Math.round((ev.priceAfter / ev.priceBefore - 1) * 100)}% above where it left`;
+          priceChangeHtml = `came back at <strong>${formatMoney(ev.priceAfter)}</strong> — ${Math.round((ev.priceAfter / ev.priceBefore - 1) * 100)}% above where it left`;
         } else {
-          priceChangeHtml = `came back at the same price, <strong>€${fmt(ev.priceAfter)}</strong>`;
+          priceChangeHtml = `came back at the same price, <strong>${formatMoney(ev.priceAfter)}</strong>`;
         }
         const approxNote = ev.approximate
           ? ` <span class="relisting-approx" title="This detection predates precise relist-date tracking - these numbers are approximated from the next recorded price change, which may be later than the actual relist date.">(approx.)</span>`
           : '';
-        return `<p class="relisting-event">🔁 Off market for ${offLabel}${cameBackDate ? ' (back on ' + cameBackDate + ')' : ''} — left at €${fmt(ev.priceBefore)}, ${priceChangeHtml}${approxNote}</p>`;
+        return `<p class="relisting-event">🔁 Off market for ${offLabel}${cameBackDate ? ' (back on ' + cameBackDate + ')' : ''} — left at ${formatMoney(ev.priceBefore)}, ${priceChangeHtml}${approxNote}</p>`;
       }).join('')}
       <p class="relisting-caveat">We can't tell from listing data alone whether this means the property sold and a new owner relisted it, or the same listing failed to sell and was reposted — only that it was off every tracked portal for a period, then came back. Now factored into the motivation score above as an ambiguous "came back on market" signal (especially if it came back cheaper) — never as a confirmed "failed sale" flag.</p>
     </div>
@@ -11093,7 +11249,7 @@ function renderListingDetail(merged) {
       ${merged.sources.map((s, i) => `
         <button class="portal-badge${i === detailSourceIndex ? ' active' : ''}${s.source_status === 'removed' ? ' is-removed' : ''}" data-source-index="${i}">
           <span class="portal-badge-name">${escapeHtml(s.portal)}</span>
-          <span class="portal-badge-price">€${fmt(s.price_eur)}</span>
+          <span class="portal-badge-price">${formatMoney(s.price_eur)}</span>
           <span class="portal-badge-meta">${sourceListedMetaHtml(s)}</span>
         </button>
       `).join('')}
@@ -11157,8 +11313,8 @@ function renderListingDetail(merged) {
         <p class="detail-area">📍 ${l.area}${cityLabel ? ', ' + cityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
         ${freshnessBadgeHtml(l, 'detail-freshness')}
         <div class="detail-price-row">
-          <span class="detail-price">€${fmt(l.price_eur)}</span>
-          <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
+          <span class="detail-price">${formatMoney(l.price_eur)}</span>
+          <span class="detail-persqm">${l.price_per_sqm ? formatMoney(l.price_per_sqm, '/m²') : ''}</span>
         </div>
         ${priceDivergenceHtml(merged, l)}
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
@@ -11180,7 +11336,7 @@ function renderListingDetail(merged) {
         <div class="detail-stats">
           <div class="detail-stat" title="0-100 across 5 signals: relisting (esp. cheaper), distinct price cuts, size of drop, days on market, and below-area-average price. Doesn't yet account for multi-portal listing, and can't tell a genuine sale-then-relist apart from a failed-sale repost. See Help for the full formula."><p class="label">Motivation score ⓘ</p><p class="value">${l.score ?? '–'}</p></div>
           <div class="detail-stat"><p class="label">Days on market</p><p class="value">${l.days_on_market ?? '–'}</p></div>
-          <div class="detail-stat"><p class="label">Area avg €/m²</p><p class="value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
+          <div class="detail-stat"><p class="label">Area avg price/m²</p><p class="value">${l.area_avg_price_per_sqm ? formatMoney(l.area_avg_price_per_sqm) : '–'}</p></div>
           <div class="detail-stat"><p class="label">Source</p><p class="value">${l.portal}</p></div>
         </div>
         <!-- Item 7 (docs/backlog.md): the price-history chart used to only
@@ -11195,8 +11351,8 @@ function renderListingDetail(merged) {
             <p class="label">Price history${priceDropCount > 0 ? ` · ${priceDropCount} ${priceDropCount === 1 ? 'drop' : 'drops'}` : ''}</p>
             <div class="detail-stats" style="margin-top:0;">
               <div class="detail-stat"><p class="label">Price reductions</p><p class="value">${priceDropCount}</p></div>
-              <div class="detail-stat"><p class="label">First tracked price</p><p class="value">€${fmt(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
-              <div class="detail-stat"><p class="label">Current price</p><p class="value">€${fmt(l.price_eur)}</p></div>
+              <div class="detail-stat"><p class="label">First tracked price</p><p class="value">${formatMoney(priceHistory[0] ? priceHistory[0].price_eur : l.price_eur)}</p></div>
+              <div class="detail-stat"><p class="label">Current price</p><p class="value">${formatMoney(l.price_eur)}</p></div>
             </div>
             <div class="price-history-chart-wrap"><canvas id="detailPriceChart"></canvas></div>
             <div class="price-history-legend">
@@ -11908,6 +12064,76 @@ document.getElementById('savedSortBy').addEventListener('change', renderDashboar
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
 
+// --- Leads grid sticky filter bar (docs/backlog.md item 49) -------------
+// Active-filter count badge on the collapse toggle - purely a display
+// helper, reads the same fields renderFromStart() already reacts to.
+// excludeSold counts as "active" only when turned OFF (default is ON), the
+// same "differs from default" logic as every other field here.
+function updateLeadsFilterBadge() {
+  const badge = document.getElementById('leadsFilterActiveCount');
+  if (!badge) return;
+  let n = 0;
+  if (document.getElementById('minPrice').value) n++;
+  if (document.getElementById('maxPrice').value) n++;
+  if (document.getElementById('minSqm').value) n++;
+  if (document.getElementById('areaFilter').value) n++;
+  if (document.getElementById('roomsFilter').value) n++;
+  if (document.getElementById('minDaysOnMarket').value) n++;
+  if (document.getElementById('minTimesReduced').value) n++;
+  if (!document.getElementById('excludeSold').checked) n++;
+  if (document.getElementById('onlyWithPhotos').checked) n++;
+  badge.textContent = String(n);
+  badge.style.display = n > 0 ? 'inline-flex' : 'none';
+}
+
+function initLeadsFilterToggle() {
+  const card = document.getElementById('leadsFilterCard');
+  const toggle = document.getElementById('leadsFilterToggle');
+  if (!card || !toggle) return;
+
+  // null = follow the automatic stuck/unstuck behavior below; true/false =
+  // the user's own explicit choice made while the card is stuck, honored
+  // until the next stuck/unstuck transition resets it.
+  let userOverride = null;
+  const setCollapsed = (collapsed) => {
+    card.classList.toggle('filters-collapsed', collapsed);
+    toggle.setAttribute('aria-expanded', String(!collapsed));
+  };
+  toggle.addEventListener('click', () => {
+    const next = !card.classList.contains('filters-collapsed');
+    userOverride = next;
+    setCollapsed(next);
+  });
+  updateLeadsFilterBadge();
+
+  // Starts fully expanded, identical to the page's look before this
+  // change. Auto-condenses to just the search box + this toggle only once
+  // the card actually pins to the top of the viewport on scroll (is-stuck)
+  // - the "condensed version" the backlog item calls for - and auto-
+  // expands back (clearing any manual override) the moment it scrolls back
+  // to its normal resting position, so the un-scrolled page never looks
+  // different from before. Passive scroll listener, throttled via
+  // requestAnimationFrame; the collapse/expand logic itself only runs on
+  // an actual stuck/unstuck transition, not on every scroll tick.
+  let wasStuck = false;
+  let stuckTicking = false;
+  const updateStuck = () => {
+    stuckTicking = false;
+    const stuck = card.getBoundingClientRect().top <= 0;
+    card.classList.toggle('is-stuck', stuck);
+    if (stuck === wasStuck) return;
+    wasStuck = stuck;
+    if (stuck) setCollapsed(userOverride !== null ? userOverride : true);
+    else { userOverride = null; setCollapsed(false); }
+  };
+  window.addEventListener('scroll', () => {
+    if (stuckTicking) return;
+    stuckTicking = true;
+    requestAnimationFrame(updateStuck);
+  }, { passive: true });
+}
+initLeadsFilterToggle();
+
 document.getElementById('savePresetBtn').addEventListener('click', () => {
   const form = document.getElementById('filterPresetsForm');
   const input = document.getElementById('filterPresetNameInput');
@@ -12095,6 +12321,20 @@ document.querySelectorAll('input[name="prefDensity"]').forEach(r => {
     PREFERENCES.display.cardDensity = r.value;
     persistPreferences();
     applyPreferencesToState();
+  });
+});
+
+document.querySelectorAll('input[name="prefCurrency"]').forEach(r => {
+  r.addEventListener('change', () => {
+    if (!r.checked) return;
+    PREFERENCES.display.currency = r.value;
+    persistPreferences();
+    // No applyPreferencesToState() needed - formatMoney() reads
+    // PREFERENCES.display.currency live, nothing to push into other state.
+    // refreshAfterPreferenceChange() re-renders the grid/Home/Dashboard/
+    // open listing detail now, immediately; Pipeline/Comparables/Market
+    // Data already re-render fresh every time their section is opened.
+    refreshAfterPreferenceChange();
   });
 });
 
@@ -12317,7 +12557,7 @@ function renderMarketPerformanceTab(cityKey, typeKey) {
   const wrap = document.getElementById('marketPerformanceTab');
   const rows = marketAggregateRows(cityKey, typeKey).sort((a, b) => b.count - a.count);
   if (rows.length === 0) {
-    wrap.innerHTML = `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to show area performance (each row needs at least ${MARKET_MIN_SAMPLE} listings).</p>`;
+    wrap.innerHTML = `<div class="cmp-empty-state">${emptyStateHtml('Not enough data yet', `Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to show area performance (each row needs at least ${MARKET_MIN_SAMPLE} listings).`)}</div>`;
     return;
   }
   wrap.innerHTML = `
@@ -12326,7 +12566,7 @@ function renderMarketPerformanceTab(cityKey, typeKey) {
       <table class="pl-table">
         <thead><tr>
           <th>${cityKey ? 'Quarter' : 'City'}</th><th>Listings</th><th>Active</th><th>Sold</th>
-          <th>Avg price</th><th>Avg €/m²</th><th>Avg days on market</th><th>% with a price drop</th>
+          <th>Avg price</th><th>Avg price/m²</th><th>Avg days on market</th><th>% with a price drop</th>
         </tr></thead>
         <tbody>
           ${rows.map(r => `
@@ -12335,8 +12575,8 @@ function renderMarketPerformanceTab(cityKey, typeKey) {
               <td>${fmt(r.count)}</td>
               <td>${fmt(r.activeCount)}</td>
               <td>${fmt(r.soldCount)}</td>
-              <td>${r.avgPrice ? '€' + fmt(r.avgPrice) : '–'}</td>
-              <td>${r.avgPerSqm ? '€' + fmt(r.avgPerSqm) : '–'}</td>
+              <td>${r.avgPrice ? formatMoney(r.avgPrice) : '–'}</td>
+              <td>${r.avgPerSqm ? formatMoney(r.avgPerSqm) : '–'}</td>
               <td>${r.avgDays ?? '–'}</td>
               <td>${r.dropSharePct}%</td>
             </tr>
@@ -12356,7 +12596,7 @@ function renderMarketPerformanceTab(cityKey, typeKey) {
 const MARKET_HEAT_METRICS = [
   { key: 'dropshare', label: 'Motivated-seller share (% with a price drop)', get: r => r.dropSharePct, format: v => v + '%' },
   { key: 'days', label: 'Avg days on market (liquidity)', get: r => r.avgDays, format: v => fmt(v) + 'd' },
-  { key: 'persqm', label: 'Avg €/m² (pricing)', get: r => r.avgPerSqm, format: v => '€' + fmt(v) },
+  { key: 'persqm', label: 'Avg price/m² (pricing)', get: r => r.avgPerSqm, format: v => formatMoney(v) },
 ];
 
 function renderMarketHeatMapTab(cityKey, typeKey) {
@@ -12374,7 +12614,7 @@ function renderMarketHeatMapTab(cityKey, typeKey) {
     <p class="cmp-note" style="margin-bottom:16px;">Shown as intensity of a single accent color, not a red/yellow/green scale. "Yield"-based heat isn't offered: imotenradar has no Bulgarian rental dataset to compute it from (same gap the Area Data tab's Est. Yield note documents).</p>
   `;
   if (scored.length === 0) {
-    wrap.innerHTML = controls + `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to build a heat map.</p>`;
+    wrap.innerHTML = controls + `<div class="cmp-empty-state">${emptyStateHtml('Not enough data yet', `Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to build a heat map.`)}</div>`;
     wireMarketHeatControls();
     return;
   }
@@ -12399,7 +12639,7 @@ function wireMarketHeatControls() {
 
 // --- Tab 3: Market Live Map -------------------------------------------
 const MARKET_LIVE_METRICS = [
-  { key: 'persqm', label: 'Asking price (€/m²)', get: r => r.avgPerSqm, format: v => '€' + fmt(v) + '/m²' },
+  { key: 'persqm', label: 'Asking price/m²', get: r => r.avgPerSqm, format: v => formatMoney(v, '/m²') },
   { key: 'days', label: 'Time on market (avg days)', get: r => r.avgDays, format: v => fmt(v) + ' days' },
   { key: 'demand', label: 'Demand (tracked listings)', get: r => r.count, format: v => fmt(v) + ' listings' },
 ];
@@ -12466,7 +12706,7 @@ async function renderMarketEvolutionTab(cityKey, typeKey) {
     (!cityKey || (l.city_key || listingCityKey(l)) === cityKey) &&
     (!typeKey || typeFilterBucket(l) === typeKey));
   if (listings.length < MARKET_MIN_SAMPLE) {
-    wrap.innerHTML = `<p class="cmp-empty-state">Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to chart stock changes over time.</p>`;
+    wrap.innerHTML = `<div class="cmp-empty-state">${emptyStateHtml('Not enough data yet', `Not enough tracked listings yet${cityKey ? ' for this city/type' : ''} to chart stock changes over time.`)}</div>`;
     return;
   }
   const requestToken = (renderMarketEvolutionTab._token = (renderMarketEvolutionTab._token || 0) + 1);
