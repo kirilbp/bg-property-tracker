@@ -5551,3 +5551,74 @@ Built in an isolated `git worktree` off a fresh `origin/main`, per this
 repo's shared-checkout discipline (the shared checkout at
 `/home/user/bg-property-tracker` was left untouched). Not self-merged -
 opened as a PR for Missy's review per the repo's standing rule.
+
+## 2026-09-26: Design polish pass (backlog item 39) - equal-height panels via CSS flex/grid stretch instead of fixed pixel heights
+
+Direct user feedback via Bossy flagged items 10/21 (both marked DONE) as
+not having fully landed: visible misaligned cards/sections, and two
+concrete named bugs (photos-only filter placement, map/price-chart size
+mismatch). Investigated all three before writing any code.
+
+**Photos-only filter turned out to already be fully shipped** - checked
+via grep before assuming it needed building, found `onlyWithPhotos`
+wired end-to-end (checkbox, `matchesAllFilters()`, server-side query
+translation) and functionally re-verified live. Decision: do not touch
+it - flagged in the backlog entry that "move it into the sort-by
+`<select>` itself" would be a different, narrower, and functionally worse
+request (a native `<select>` can't hold an independent boolean alongside
+a sort choice) that would need explicit confirmation before building,
+rather than guessing at which reading was meant.
+
+**Map/price-history panel sizing and the listing-card footer-alignment
+bug were both real**, confirmed live via a local Playwright screenshot
+harness (see backlog item 39 for the full harness description - vendored
+Chart.js/Leaflet/Leaflet.draw + a hand-written supabase-js shim backed by
+a prior session's real fixture data, since this sandbox blocks every real
+CDN/API the page uses). Both were the same underlying shape of bug: two
+sibling boxes meant to look like a matched pair, sized independently off
+their own variable-length content instead of off each other.
+
+**Decision: fix both with CSS grid `align-items: stretch` + flexbox
+`flex: 1` on the one "absorbing" element per box, not fixed pixel
+heights.** Considered hand-tuning fixed heights (e.g. bumping the map to
+240px to match the chart) and rejected it: the actual gap wasn't a fixed
+20px, 40px, or any other constant - it varies per listing depending on
+how much chrome each panel happens to have that render (radius panel's
+optional map-layer-toggle row and result-stats-vs-hint-text branch;
+price-history panel's optional legend/relisting-events rows), so a fixed
+number would only be correct for the specific listing it was tuned
+against and drift wrong again the next time either panel's content shape
+changed - the exact failure mode that let this bug ship in the first
+place despite item 7's own care. `align-items: stretch` (equalizing the
+box heights) plus `flex: 1` on the map/chart graphic (letting whichever
+panel has less chrome grow its own graphic to fill the difference) makes
+the two boxes match automatically for any content shape, permanently,
+rather than needing to be re-verified and re-tuned every time either
+panel's markup changes again. Applied the identical technique to the
+listing-card footer-link/price-row alignment bug for the same reason.
+
+**Decision: also proactively re-checked (not blindly re-fixed) the
+site's other fixed-small-item-count grids for the same bug class**, since
+finding this pattern once made it a well-founded suspicion elsewhere, not
+a one-off. Found and fixed a third live instance (home page's 3-stat row,
+stranding "Portals tracked" alone at 390px) matching two already-fixed
+instances documented in the CSS's own comments (`.detail-stats`,
+`.type-filter-grid`). Checked two more suspects (`.cmp-summary-bar`,
+`.radius-result`) precisely because they share the same fixed-4-item
+shape - measured `.cmp-summary-bar` across a full width sweep and found
+it genuinely isn't broken at any real width for its specific
+padding/gap numbers, so left it alone; drafted a fix for `.radius-result`
+but could not drive it into its populated (4-tile) render state against
+this session's fixture data, and explicitly reverted that fix rather than
+ship it unverified - flagged as a real, still-open follow-up in the
+backlog entry instead of guessing.
+
+**Verification**: Playwright screenshots at 1440px/1366px/390px across
+every major page/section, zero console/JS errors at any viewport (only
+harness-expected Google Fonts `preconnect` failures, not app errors).
+`index.html` is the only file changed - CSS-only, no scraper/sync/schema/
+workflow files touched, no backend/data-source change needed.
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this
+repo's shared-checkout discipline. Not self-merged - opened as a PR for
+Missy's review per the repo's standing rule.

@@ -4957,6 +4957,172 @@ blocker Missy hit; `playwright install` was blocked by the sandbox's
 network allowlist), so geometric + rendered-PNG verification stood in for
 a live browser screenshot.
 
+## 39. Design polish pass: site-wide alignment/symmetry audit, photos-only filter, map/price-chart equal sizing - direct user feedback ("still misaligned sections, windows and cells") - AUDITED AND PARTIALLY FIXED (2026-09-26, Dessy)
+
+Direct, verbatim user feedback (routed via Bossy): "There are still
+missaligned sections, windows and cells... Everything across the whole
+website and all listings must be pleasing for the eye and look symmetrical
+and luxurious... The only photos filter needs to be included in sort by
+drop menu filters. The map section and the price graph sections on each
+listing must be the same size." This is a follow-up to items 10/21 (both
+already marked DONE), taken as genuine evidence those passes didn't fully
+land, not disputed.
+
+**Verification setup, since this sandbox blocks every real CDN/API this
+page uses**: a local Playwright screenshot harness (`.qa/` in the working
+tree, NOT committed - throwaway tooling, not shipped product code) vendors
+Chart.js 4.4.0, Leaflet 1.9.4 + Leaflet.draw 1.0.4 (`npm pack`'d from the
+real registry, which this sandbox's proxy does allow, unlike the CDN hosts
+themselves) and a small hand-written `supabase-js` createClient() shim
+backed by a real prior session's own captured `merged_listings`/
+`listing_sources` fixture data (304 rows), routed in via Playwright's
+`page.route()` interception so the actual, unmodified `index.html` runs
+against it unchanged. Screenshots taken at 1440px, 1366px, and 390px
+across Home, Leads+filters, listing detail (two fixture listings - one
+with real geo+photo+multi-point price history, one with neither
+geo nor a normal price history), Lead Generators, Pipeline, Comparables,
+Dashboard, Market Data, Deal Calculator, Preferences, and Help. Zero
+console/JS errors at any viewport (the only console noise is Google
+Fonts' `preconnect` failing, which the harness deliberately blocks - not
+an app bug).
+
+**1. "Only with photos" filter - already fully shipped, not missing.**
+Grepped for it before building anything: `onlyWithPhotos` already exists
+end-to-end - the checkbox sits directly in the results filter panel, in
+the same grid row as "Sort by" (`id="onlyWithPhotos"`, next to
+`id="sortBy"`), wired into `readFilterState()`/`matchesAllFilters()`
+(shared client-side predicate, `hasRealPhoto()` correctly excludes both
+`null` and each portal's known static "no image" placeholder URL per
+`PHOTO_PLACEHOLDER_URLS`) and into `buildFastListingsQuery()`'s
+server-side translation. Functionally re-verified live: toggling the
+checkbox correctly shrank the result count and hid the "No photo
+available" placeholder cards, no console errors. Nothing to build here -
+flagging in case the user's complaint was about not having noticed it
+rather than it being absent; if the ask was literally "move it inside the
+`<select id="sortBy">` dropdown as an option" rather than "in the same
+filter panel as sort-by," that's a different (and functionally awkward -
+a `<select>` can't represent an independent boolean alongside a sort
+choice) interpretation that would need explicit confirmation before
+building, since it would be a real regression from the current, working,
+independently-toggleable checkbox.
+
+**2. Map/price-history panel sizing - real bug, fixed.** Confirmed live
+via screenshot at 1440/1366px: the radius-map panel and the price-history
+panel (paired side by side since item 7) were visibly different heights -
+up to ~150px apart - because `.detail-history-row` used `align-items:
+start` (each panel sized to its own content) and each panel's own map/
+chart element had a fixed pixel height (200px / 240px) unrelated to the
+other panel's actual chrome (header/hint/layer-toggle rows on the map
+side; stat-tiles/legend/relisting-events rows on the price-history side,
+none of which appear in fixed, matching quantities). Fixed by switching
+`.detail-history-row` to `align-items: stretch` (both panels now always
+match the row's own max content height) and giving each panel's own
+graphic element (`.radius-map`/`.radius-map-empty`/
+`.price-history-chart-wrap`) `flex: 1 1 <old-height>` instead of a fixed
+height, so whichever panel has less surrounding chrome grows its own
+map/chart to absorb the exact difference - the two outer boxes are now
+pixel-identical in height automatically, for any listing, at any
+breakpoint, rather than needing a magic number re-tuned every time either
+panel's content shape changes again. Verified at 1440px and 1366px on
+both a listing with a real populated map and one with the "location data
+isn't available" empty state - both cases now end at the identical y
+position. At 390px the two panels stack (one per row, as before item 7
+intended) so "same size" doesn't apply there in the same way; left
+unchanged.
+
+**3. Site-wide alignment audit - one real symmetry bug found and fixed,
+plus a smaller one from item 21's own precedent.** Two concrete issues
+found, both fixed:
+
+- **Listing cards** (the single most-repeated component site-wide,
+  design-guidelines.md's own top priority): within a row of otherwise
+  equal-height cards, the "Check land registry" footer link and the price
+  row above it landed at a different vertical position on every card,
+  because the amount of badge/title text above them varied per listing
+  and `.listing-link` was a plain block with no way to absorb that
+  difference. Fixed with the same shape of fix as #2 above:
+  `.listing`/`.listing-link` now flex, with `.listing-link` set to
+  `flex: 1 1 auto` so the footer link is always pinned flush to the
+  card's already-equal-height bottom edge; additionally gave
+  `.listing-title` a fixed 2-line reservation (`-webkit-line-clamp: 2` +
+  `min-height`) and `.listing-area` a single-line ellipsis truncation, so
+  a short one-line title and a long two-line title no longer leave the
+  price row itself at two different heights either - this was the bigger
+  and more visible half of the fix, not just the footer link. `.badges`
+  got a `min-height` for the same reason (a 0/1-badge card no longer sits
+  noticeably higher than a 3-badge card next to it); genuinely
+  multi-badge listings that wrap to 2 rows are left alone on purpose, per
+  design-guidelines.md's "simplify without removing features" - this is a
+  spacing fix, not a content cut. Verified across the Leads grid, the
+  Dashboard's "Hottest deals" rail, and Market Data - all now show
+  consistent price/footer positions within a row at 1440/1366/390px.
+- **Home page's 3-stat row** (`Total listings`/`Hot deals`/`Portals
+  tracked`): confirmed live at 390px - `auto-fit`/`minmax(160px,1fr)`
+  computed 2 columns at that width, stranding the 3rd tile alone on a
+  full-width row. This is the exact same bug class the codebase's own
+  comments already document having found and fixed twice before, in two
+  different places (`.detail-stats`, `.type-filter-grid`) - same fix
+  applied here: explicit `repeat(3, 1fr)` down to a `max-width: 700px`
+  breakpoint that drops straight to `repeat(1, 1fr)`, so it's never
+  divided into the one column count (2) that would strand a tile. This
+  wasn't hunted blind - once the first two instances of this exact
+  pattern were visible in the CSS's own comments, checking the third
+  known fixed-tiny-count grid (the home stats) for the same bug was an
+  obvious next step and it was, in fact, live-broken.
+
+**Checked, not found broken (left alone rather than guessed at)**:
+`.cmp-summary-bar` (Comparables' 4-item summary bar) - same
+fixed-4-item-count shape as the two already-fixed instances above, so
+worth checking on suspicion alone; measured its actual computed column
+count across every width from 420px to 1440px via a live `getComputedStyle`
+sweep and it happens to transition cleanly from 2x2 to 4-across with no
+width landing on an odd 3+1 split, given this component's specific
+container-padding/gap numbers - not touched, since it isn't actually
+broken and this pass is about fixing real, confirmed problems, not
+defensively rewriting every visually-similar CSS rule on suspicion alone.
+`.radius-result` (the radius-panel's own 4-item avg-price/surface/€/m²/
+comparables-count grid) has the same theoretical shape of risk but
+couldn't be driven into its populated (non-empty, 4-tile) state against
+this session's small fixture dataset (needs a listing with several other
+geocoded comparables within the selected radius, which the 90-geocoded-
+row fixture didn't reliably produce) - a speculative fix was drafted,
+then deliberately reverted rather than shipped unverified, per this
+agent's own "don't ship un-viewed changes" rule. **Flagged as a real,
+open follow-up**: worth a targeted check (either with fuller production
+data, or by directly asserting `renderRadiusPanel()`'s returned HTML
+against a hand-built `computeRadiusAverage()` result with count ≥ 4) next
+time someone is in this file, but not fixed here since it couldn't be
+seen.
+
+Also noted, not fixed this pass (native-browser behavior, not really a
+"misaligned cell", and not one of the named tasks): the Comparables page's
+"Quarter / area" `<select>` shows its selected placeholder option text
+truncated at typical widths ("Any area (pick a city t…") - this is a
+native `<select>`'s own default rendering of an option string longer than
+the control's width, not a CSS/layout bug; would need either a shorter
+placeholder string or a custom (non-native) dropdown to fix, both a
+bigger change than this pass's scope.
+
+**Not attempted - would need real production data or a bigger change,
+not something to guess at**: a handful of screens (Lead Generators,
+Pipeline, Dashboard's saved/reminders panels) render pure empty states in
+this harness since Lead Generators/Pipeline/Saved/Reminders are all
+`localStorage`-only with nothing seeded - their layout logic was read and
+looks consistent with the rest of the site, but a populated-state visual
+check (real saved searches, real pipeline cards in several stages at
+once) is a real gap worth a follow-up pass with either seeded
+`localStorage` fixture data or a live user session, not something to
+fabricate confidently here.
+
+**Files touched**: `index.html` only (CSS-only changes - `.listing`/
+`.listing-link`/`.listing-title`/`.listing-area`/`.badges`,
+`.stat-row`, `.detail-history-row`/`.radius-panel`/`.price-history-panel`/
+`.radius-map`/`.radius-map-empty`/`.price-history-chart-wrap`). No
+scraper/sync/schema/workflow files touched. No backend/data change
+needed for anything in this pass - the photos-only filter's data
+(`photo` field, placeholder-URL detection) already existed; everything
+else was pure CSS/layout.
+
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
 Explicitly not being built, per Nosy's spec: CT Band (Council Tax Band),
