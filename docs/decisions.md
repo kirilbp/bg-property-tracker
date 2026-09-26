@@ -6028,3 +6028,41 @@ dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
+
+### 2026-09-26 - Deal Calculator PDF export: `window.print()`, not a vendored PDF library
+
+For backlog item 40's "export a listing or Deal Calculator result as
+PDF," chose `window.print()` + a dedicated `@media print` stylesheet over
+vendoring a client-side PDF library (e.g. jsPDF/pdf-lib). This codebase
+already has an established "no new libraries unless necessary" pattern -
+the two it does vendor (Chart.js, Leaflet) both do something CSS
+fundamentally cannot (canvas charting, tile-based interactive maps).
+Exporting a static, single-page investor summary isn't in that category:
+`window.print()` already gives every browser's own "Save as PDF" option
+in its print dialog, at zero added page weight, versus jsPDF alone
+running ~200KB+ minified for a capability the browser already has
+natively. Would only have been insufficient if pixel-exact layout control
+independent of the browser's own print/PDF engine were required (e.g.
+matching a fixed corporate letterhead template precisely) - not the bar
+for a clean, readable investor hand-out. Built as a single shared
+`#printRoot` + `body.print-active` mechanism (the whole live app is
+hidden and only a purpose-built fragment shown, rather than hiding the
+live UI's chrome piecemeal) so the same approach covers both the listing
+detail page and the Deal Calculator template card without two separate
+print code paths.
+
+### 2026-09-26 - Listing comparison kept separate from the existing Comparables tab, not merged into it
+
+Backlog item 40's user-curated "compare 2-3 listings side by side" table
+was deliberately NOT folded into the existing radius-based Comparables
+tab/page (item 15, `findComparables()`). They answer different questions:
+the existing tool asks "what's the nearby market average around this one
+listing" (automatic, radius-driven, many results); the new one asks "how
+do these specific listings I hand-picked compare" (manual, cross-page
+selection, 2-3 results, no radius or location logic at all). Sharing one
+UI for both would have forced an artificial choice between two selection
+models (an implicit radius vs. an explicit pick-list) that don't map onto
+each other - kept as two small, clearly-named surfaces instead (the
+existing tab keeps its name; the new one is labeled "Compare listings" in
+its own modal, distinct from the existing "⇄ Compare nearby" button's
+copy, which was left untouched).
