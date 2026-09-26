@@ -5728,3 +5728,100 @@ off a fresh `origin/main`, shared checkout at
 per the repo's standing rule even though it's docs-only, consistent with
 how item 6 slice 2's docs-only follow-up (PR #228) was still routed
 through review.
+
+### 2026-09-26 - homes.bg description backfill (backlog 9d): confirmed still blocked, documented as ready-to-build rather than guessing a selector
+
+Dispatched to build `backfill_detail_homes.py` after a fresh audit found
+homes.bg - the site's single largest portal - at a flat, confirmed 0%
+real-description coverage, and that PR #217 (2026-09-23) had only ever
+stopped the wrong-field write, never built a real replacement (unlike
+every other large portal, which has its own `backfill_detail_*.py`).
+Independently re-verified the audit's own numbers against current
+`data/leads_homes.json.gz` rather than trusting them as given, per this
+repo's standing practice: 67,935 active listings (30.1% of 225,635 active
+listings tracked site-wide across all 8 portals - close to, consistent
+with, the audit's cited ~29%), 0/67,935 with a non-empty `description`.
+
+Read the established pattern first (`backfill_detail_imot.py` -
+structurally the closest match to homes.bg's own "grid crawl never visits
+the detail page" shape - and `backfill_detail_alo.py` for the
+checkpointing/time-budget conventions) before touching anything else, and
+read `scraper_homes.py`'s `update_history()`/`parse_offer()` end to end,
+per this repo's own `update_history()` merge-not-replace discipline
+(CLAUDE.md flags this explicitly after a prior incident this session-
+history involved scrapers losing data by not using it correctly). That
+read surfaced a real, previously-undocumented finding, independent of
+whether live access is ever restored: `scraper_homes.py`'s
+`update_history()` is the only one of the eight scrapers with this
+function that still does an unconditional `history[lid]["latest"] = l`
+full replace, with no `_DETAIL_ONLY_FIELDS` merge-preservation at all -
+9a/9c gave the other seven this treatment; homes.bg was *correctly*
+excluded by 9c's own investigation at the time (no detail-only field
+existed yet to lose), but that reasoning silently expires the moment a
+real `description`/`detail_checked` field starts landing on `latest`.
+Shipping a homes.bg backfill without also fixing `update_history()` first
+would reproduce 9a's exact bug for this portal specifically: every real
+description written would be silently wiped by the very next `scrape.yml`
+run, for every still-active listing, forever. Documented as a required
+corequisite of the backfill itself (same PR, not a separate follow-up) in
+backlog item 9d rather than shipped speculatively now, since there is no
+real description field yet for it to protect - fixing `update_history()`
+alone, ahead of any real backfill, would be unverifiable, untested-in-
+anger scope creep for its own sake.
+
+**Live access genuinely re-tried today, not assumed stale from a prior
+session's finding** (this repo's CLAUDE.md explicitly warns that proxy
+conditions can change session to session):
+- Plain `curl` through this sandbox's egress proxy against a real listing
+  URL sampled from `data/leads_homes.json.gz` failed at the proxy itself
+  (`CONNECT tunnel failed, response 403`, `connect_rejected` per
+  `/__agentproxy/status` - an organization-policy denial, not a site-side
+  block or a timeout).
+- `WebFetch` against the same URL returned an explicit `EGRESS_BLOCKED`
+  error naming `www.homes.bg` by name.
+- Retried against `homes.bg` (bare apex), `m.homes.bg`, `api.homes.bg`,
+  `cdn.homes.bg` in case only one host was policy-blocked - all four
+  failed identically, confirming this is a domain-level block, not a
+  single-path one, so no alternate homes.bg URL structure would route
+  around it.
+- Checked for a Bulgarian-language-mirror-style alternate (the same class
+  of check that's still open for imoti.net elsewhere in this backlog) -
+  not applicable here: homes.bg's listing pages are already
+  Bulgarian-language by default with no known separate locale path, and
+  the block is on the whole domain, not a language path.
+- Tried the Wayback Machine (`web.archive.org`) as a fallback, the same
+  technique `backfill_wayback_prices.py` already uses successfully for
+  imot.bg/bazar.bg from GitHub Actions' own runners - blocked from this
+  sandbox specifically (`curl`: `CONNECT tunnel failed, response 403`;
+  `WebFetch`: refused the domain outright), which says more about this
+  sandbox's proxy being stricter than production Actions here than about
+  whether Wayback has homes.bg captures - genuinely unresolved either
+  way, worth a real try from an environment with Wayback access before
+  concluding there's nothing archived.
+
+**Outcome: genuinely blocked, same as every prior session's confirmation
+referenced in this repo's process notes - no selector could be verified
+live, so none was guessed.** Per this repo's explicit standing rule
+(already applied to alo.bg's and imoti.net's own still-open pieces of
+item 9), writing an extraction selector that can't be verified against
+real HTML would risk reintroducing exactly the bug PR #217 fixed - a
+wrong guess here is worse than the current honest 0%, since it could
+silently write garbage descriptions again. Documented backlog item 9d
+with the exact ready-to-build spec (selector-finding steps, the
+`update_history()` corequisite fix, the workflow file, and the review/
+test bar) instead, so whoever next has live homes.bg access can implement
+it without re-deriving any of this. Ran the existing test suite as a
+baseline (265 passed, 4 subtests, 0 regressions) - expected, since this
+change touches only `docs/backlog.md` and this file, no code.
+
+Built in an isolated `git worktree` off a fresh `origin/main`
+(`backfill-detail-homes` branch), per this repo's shared-checkout
+discipline - the shared checkout at `/home/user/bg-property-tracker` was
+left untouched (confirmed via `git status`/`git log` before starting:
+it was mid-way through unrelated work on a different branch). No live
+`workflow_dispatch` of anything was made - there is no new script to run,
+consistent with this repo's standing rule against iterating via live
+dispatch. Not self-merged - opened as a PR for Missy's review per the
+repo's standing rule, even though it's docs-only.
+
+**Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
