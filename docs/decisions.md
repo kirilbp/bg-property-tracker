@@ -6027,4 +6027,86 @@ consistent with this repo's standing rule against iterating via live
 dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
 
+### 2026-09-26 - Data trust & investor edge (backlog item 40): freshness badge, cross-portal price divergence, filtered-grid CSV export
+
+User directive ("Execute") covering 3 items: a per-listing data-freshness
+badge, a cross-portal price-divergence flag, and a CSV export of the
+filtered Leads grid. Full reasoning and what was actually shipped is in
+`docs/backlog.md` item 40 - this entry covers the two investigation
+findings worth a decisions-log entry on their own, plus process notes.
+
+**Finding worth flagging on its own: `merged_listings`'/`listing_sources`'
+`updated_at` column does not mean what its name suggests.** The task brief
+named it as a candidate freshness field to check - grepped for every use
+of `"updated_at"` in `sync_to_supabase.py` and found exactly one: the
+`SOURCE_FIELDS` list's own explanatory comment block, never the field
+itself. It is never included in the row dicts `build_rows()` constructs,
+so it's never part of the JSON `upsert()` sends. Since Postgres/PostgREST
+`Prefer: resolution=merge-duplicates` builds its `ON CONFLICT DO UPDATE
+SET` clause only from columns present in the request body, `updated_at`
+is set exactly once - by its own `not null default now()` at the row's
+original `INSERT` - and never touched again, despite every subsequent
+sync run re-sending that row's full current data. Confirmed this isn't
+just a hunch: it follows directly from reading `upsert()` and `build_
+rows()` together, and matches the observable fact that `SOURCE_FIELDS`/
+`MERGED_FIELDS` (the two lists that determine upsert payload contents) both
+deliberately exclude it. Practical effect if it had been used as the
+freshness signal: every long-tracked, still-actively-rechecked listing
+would show as "stale" from the day after it was first synced onward, for
+the rest of its life on the site - the opposite of an honest freshness
+signal. Not fixed here (would touch live Supabase write behavior for
+every row, not a frontend-only "no new backend field" ask) - documented
+plainly in `docs/backlog.md` item 40 as a follow-up any future item could
+pick up, with the two concrete ways to fix it.
+
+**Finding worth flagging on its own: cross-portal per-source prices ARE
+retained after merge, unlike a hypothetical version of this app that
+discarded them.** This was the open question the dispatch itself posed
+("investigate whether source-level price data is actually available").
+Traced `sync_to_supabase.py`'s `group_listings()`/`build_rows()`: a merged
+listing's individual sources go into `listing_sources` (one row per
+`(portal, source_id)`, each keeping its own real `price_eur`/`price_per_
+sqm`), while `merged_listings` gets one row built from the single
+highest-`score` source (`sorted_sources[0]`) plus `member_count`/`member_
+portals`. Nothing about the merge drops or averages the per-source prices
+- they're simply not repeated in the merged row's own columns, which is
+why the frontend already has to fetch `listing_sources` separately (lazily,
+once a cross-posted listing's detail page opens) to build the existing
+per-portal price-switcher badges. That fetch already had every price
+needed for a divergence check; item 2 just had to compare them
+proactively instead of leaving the user to click through each portal
+badge to notice a difference themselves.
+
+**Verification**: real Playwright harness (this session's own scratchpad,
+not committed), fixture-driven, covering every real freshness-data shape
+(fresh/stale `site_updated_at`, recent/old-only `first_seen_at`, neither
+field present) plus a genuinely-divergent and a near-identical
+cross-posted listing with matching `listing_sources` fixture rows, at
+1440px and 390px. All checks passed, including a real triggered CSV
+download whose row count/columns/filter-compliance were checked
+programmatically (RFC-4180-aware parsing, not a naive comma split, so a
+title containing a comma didn't produce a false failure). Console/JS-error
+check is diffed against a `baseline_check.js` run of unmodified `origin/
+main`'s own `index.html` against the same fixture/sandbox, which
+reproduces the identical pre-existing 404/`ERR_TUNNEL_CONNECTION_FAILED`
+network noise (this sandbox's proxy blocks the map tile/photo/font hosts
+this page uses, regardless of this change) and the identical pre-existing
+Leaflet `_leaflet_pos` exception - confirming both are environmental, not
+introduced by this change, rather than just asserting so.
+
+**Process**: built in an isolated `git worktree` off a fresh `origin/
+main` (`feat/data-trust-investor-edge` branch) - `git worktree list`
+showed 6 other worktrees/checkouts active on this repo at dispatch time
+(a design-polish pass, investor features, an accessibility pass, a
+back-button fix, a gzip migration, and Dessy's own two), confirming the
+real collision risk the dispatch warned about; kept every change small
+and additive (new CSS classes, new standalone JS functions, single-point
+HTML insertions at existing element boundaries) rather than touching any
+shared function body other agents were also likely editing (`render()`,
+`createListingCard()`, `renderListingDetail()` were read but not
+restructured - only single-line insertions at their existing template
+boundaries). No live GitHub Actions dispatch involved - nothing here
+touches a workflow or a script Actions runs. Not self-merged - opened as
+a PR for Missy's review per the repo's standing rule.
+
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.

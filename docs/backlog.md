@@ -5519,6 +5519,152 @@ needed for anything in this pass - the photos-only filter's data
 (`photo` field, placeholder-URL detection) already existed; everything
 else was pure CSS/layout.
 
+## 40. Data trust & investor edge: per-listing freshness badge, cross-portal price-divergence flag, filtered-grid CSV export - user directive ("Execute"), all 3 built - HANDED BACK FOR MISSY'S REVIEW (2026-09-26)
+
+Scope was the 3 items in that dispatch, all frontend-only (`index.html`),
+no new backend field for any of them - each one specifically required
+investigating what real, already-synced data actually supports the ask
+before building anything, not assuming the obvious-sounding field name
+was the right one.
+
+**1. Data-freshness badge ("Verified X ago" / "First tracked X ago").**
+Real finding worth flagging before the design: `merged_listings`'/
+`listing_sources`' own `updated_at` column - the field whose name most
+directly suggests "last synced" - is NOT a usable freshness signal despite
+being `not null default now()` in `supabase/schema.sql`. `sync_to_
+supabase.py`'s `upsert()` never includes `"updated_at"` in `SOURCE_FIELDS`/
+`MERGED_FIELDS`, and PostgREST's `Prefer: resolution=merge-duplicates`
+only adds columns present in the request body to its `ON CONFLICT DO
+UPDATE SET` clause - so `updated_at` is set once, by its own column
+default, at this row's original `INSERT`, and is never touched again by
+any later sync run despite every run re-sending the row's full payload. It
+freezes at "whenever this row first landed in Supabase," not "last
+confirmed by a sync run." Using it would have silently mislabeled every
+long-tracked, still-actively-rechecked listing as stale - confirmed by
+inspection of every call site (`grep -n "updated_at" sync_to_supabase.py`
+finds it nowhere outside the `SOURCE_FIELDS` comment block), not assumed.
+
+Used instead, in priority order, both already synced to
+`merged_listings`/`listing_sources` and already in `MERGED_LISTINGS_BULK_
+COLUMNS` (no new fetch needed for the grid):
+  - `site_updated_at` - the portal's own stated last-updated/renewed date.
+    Genuinely portal-confirmed, so labeled **"Verified"**. Real coverage
+    gap, confirmed by grepping every `scraper_*.py`: only alo.bg,
+    sales.bcpea.org and olx.bg ever populate it - bazar.bg/homes.bg/
+    imot.bg/imoti.bg/imoti.net never do.
+  - `first_seen_at` - precomputed server-side by `sync_to_supabase.py`'s
+    `first_seen_at_for()`, available for virtually every listing but a
+    static origin date, not a recheck date (it doesn't move just because
+    a later scrape reconfirms an unchanged listing is still live - that
+    per-run confirmation, `scraper.py`'s own `last_seen`/`seen_at`, is
+    never synced to Supabase at all). Labeled **"First tracked"**, not
+    "Verified," specifically so it never overstates recency - and,
+    correspondingly, a listing's "stale" visual treatment is driven ONLY
+    by `site_updated_at`'s own age, never by how long ago `first_seen_at`
+    was (a perfectly healthy, still-rechecked listing's `first_seen_at`
+    only grows the longer it stays on the market - using its age as a
+    staleness signal would flag most of the catalog as "stale" for no
+    real reason).
+  - Neither present (rare - confirmed against the fixture) → no badge at
+    all, rather than a fabricated one.
+
+Threshold for the "stale" visual weight: 3 days (`FRESHNESS_STALE_AFTER_
+MS`), chosen against this project's own real cadence (`scrape.yml` 6h,
+`scrape-large.yml` 24h, `GONE_AFTER` 48h, all per `check_scrape_
+freshness.py`'s own comments) - comfortably above every normal gap
+between two scrape runs, so a `site_updated_at` this old is a genuine
+signal, not routine cron jitter. Styled per `docs/design-guidelines.md`
+section 4: no alarm color, just a shift to the ink-soft/bold treatment
+(`.is-stale`), same restraint the badges/status-label system already
+uses elsewhere.
+
+**2. Cross-portal price-divergence flag - real data confirmed available,
+shipped for real.** Investigated whether per-source prices survive
+`sync_to_supabase.py`'s merge (the exact question the dispatch asked):
+yes - `listing_sources` keeps its own `price_eur`/`price_per_sqm` per
+`(portal, source_id)` row even after `group_listings()` merges matching
+sources into one `merged_listings` record, and the frontend already
+lazily fetches exactly this table (`sb.from('listing_sources').select('*')
+.eq('merged_id', merged.id)`) once a cross-posted listing's detail page is
+opened - the same data the existing per-portal price-switcher badge row
+already displays. No new data needed, no blocked feature to document here
+(unlike a genuinely-missing-data case, this one had real data all along -
+it just wasn't being surfaced proactively). Added `priceDivergenceInfo()`/
+`priceDivergenceHtml()`: compares the currently-viewed source's price
+against every other active (non-`removed`) source, and - only past a
+noise floor of 3% AND €1,000 (`PRICE_DIVERGENCE_MIN_PCT`/`PRICE_
+DIVERGENCE_MIN_EUR`, so a trivial rounding-level gap doesn't read as
+significant) - surfaces "Also listed on X for €Y less/more," linking
+straight to that portal's own listing. A genuinely cheaper alternative
+(the actionable, buyer-favorable case) is preferred over a pricier one
+when both exist, and styled in the sage signal color per design-
+guidelines.md section 4 ("price moved in the buyer's favor"); a pricier-
+only alternative is shown in plain neutral taupe text instead, never
+sage. No callout at all when sources agree closely (verified in Playwright
+against a same-price-everywhere fixture listing - the banner element is
+genuinely absent from the DOM, not just hidden).
+
+**3. CSV export of the filtered/sorted Leads grid.** Added an "Export CSV"
+button to the Leads filter card, next to the existing filter controls.
+`getCurrentFilteredSortedListings()` reuses `render()`'s own `readFilter
+State()`/`matchesAllFilters()`/`sortComparator()` exactly as-is (not a
+second, separately-maintained filter pass), so "what's on screen" and
+"what gets exported" can't drift apart. Pure client-side `Blob` + `<a
+download>`, no new library, no server round-trip (all data's already in
+`MERGED_LISTINGS`, backlog item 6). Columns: Title, Price (EUR), Sqm,
+Price per sqm (EUR), Rooms, City, Area, Portal (with a "(+N more)" suffix
+for cross-posted listings), Status, Days on market, Motivation score, URL.
+UTF-8 BOM prepended (Excel mis-detects encoding and mangles Cyrillic - all
+of this app's real title/area text - without it) and `\r\n` line endings
+per RFC 4180. Disabled with an inline message (not a silent no-op) before
+`BULK_READY` - exporting during the fast/server-paginated first-paint
+window would only ever capture one partial page, not the true filtered
+set.
+
+**Verification**: a Playwright harness (throwaway, not committed -
+`/tmp/claude-0/.../scratchpad/verify` this session, following the same
+CDN-vendoring pattern prior sessions' harnesses used, since this sandbox's
+egress proxy still blocks cdnjs/jsdelivr/unpkg/fonts.googleapis.com) with
+a hand-built fixture covering every real freshness case (fresh
+`site_updated_at`, stale `site_updated_at`, recent-only `first_seen_at`,
+old-only `first_seen_at`, neither field, and both a genuinely-divergent
+and a near-identical cross-posted listing with a matching `listing_
+sources` fixture), routed in via `page.route('**/rest/v1/**')`. All
+checks pass: freshness text/stale-class correct per fixture row across
+both the grid and the detail page; the divergence callout fires with the
+exact right portal/€ amount on the divergent fixture and is verifiably
+absent on the near-identical one; CSV export triggers a real download,
+whose row count matches `getCurrentFilteredSortedListings().length` under
+an active price filter, whose header matches the 12 documented columns
+exactly, and whose every row genuinely respects that filter (verified with
+a real RFC-4180-aware line parser, not a naive `split(',')`, which
+misparses titles containing commas). Checked at 1440px and 390px.
+
+**Console/JS errors**: confirmed zero *new* errors. This sandbox's proxy
+blocks every external host this page's map/photos/fonts use regardless of
+this change (OSM tiles, the fixture's own placeholder photo URLs, Google
+Fonts), and a pre-existing Leaflet `_leaflet_pos` exception appears when a
+detail page's radius map initializes - a `baseline_check.js` run against
+unmodified `origin/main`'s own `index.html`, same fixture, same sandbox,
+reproduces the identical 404/`ERR_TUNNEL_CONNECTION_FAILED` noise and the
+identical `_leaflet_pos` exception with zero code from this change
+involved, confirming both are pre-existing/environmental, not introduced
+here.
+
+**Files touched**: `index.html` only. No scraper/sync/schema/workflow
+files touched - all 3 items are read-only against already-synced data.
+
+**Not done / explicitly out of scope**: the `updated_at` freeze-at-insert
+gap found for item 1 was not "fixed" in `sync_to_supabase.py` - that's a
+live-Supabase-write-behavior change with its own blast radius (every
+`merged_listings`/`listing_sources` row, every future sync run) and
+deserves its own dispatch and review, not a drive-by inside a frontend-
+only, no-new-backend-field ask. Flagging it here in case a future item
+wants to pick it up: fixing it would mean either adding `"updated_at":
+now_iso` to every row `build_rows()` emits (so it's part of the `ON
+CONFLICT DO UPDATE SET` payload every run), or adding a Postgres trigger -
+the former is simpler and doesn't need a Supabase-SQL-editor manual step.
+
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
 Explicitly not being built, per Nosy's spec: CT Band (Council Tax Band),
