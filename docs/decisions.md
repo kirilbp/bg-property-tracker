@@ -6142,3 +6142,70 @@ discipline. No live GitHub Actions dispatch of anything - this change has
 no workflow/script surface at all, only `index.html` and these two docs
 files. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule.
+
+### 2026-09-26 - Correction (Missy's PR #297 re-review): darkening `--brass-deep` for its text use fixed one failure and silently introduced a worse one for its background use
+
+The entry above darkened `--brass-deep` from `#8a6a24` to `#755a1e`
+purely against its use as **text** (badge text, links, stat values) -
+that swap was checked (4.59:1 -> higher on `--ivory`, 4.17:1 -> passing
+on `--ivory-deep`). What it missed: `--brass-deep` is also used as the
+**background** in 5 button `:hover` states, each of which sets
+`color: var(--ink)` only in the base rule and switches just the
+`background`/`border-color` to `--brass-deep` on hover with no `color`
+override - `.cta-btn:hover`, `.save-detail-btn:hover`,
+`.leadgen-check-btn:hover`, `.modal-btn-primary:hover`, `.brass-btn:hover`.
+Darkening a background that dark (`--ink`) text sits on top of always
+*reduces* contrast, so this made an already-failing state materially
+worse:
+
+| Case | Contrast | Result |
+|---|---|---|
+| `--ink` on OLD `--brass-deep` (`#8a6a24`) | 3.24:1 | already failed AA 4.5:1 before this PR (missed by the original audit, which only checked brass-deep as text) |
+| `--ink` on NEW `--brass-deep` (`#755a1e`) | 2.52:1 | made worse by this PR's own darkening |
+
+Real WCAG relative-luminance math (`(L_light + 0.05) / (L_dark + 0.05)`),
+same method as the rest of this audit - not re-litigated, verified
+independently against Missy's numbers.
+
+**Fix: add an explicit `color: var(--ivory)` override to each of the 5
+hover rules**, rather than introduce a separate hover-background
+variable. `--brass-deep` already has to stay dark enough to work as text
+elsewhere in the palette; asking it to *also* stay light enough for dark
+text to read on it as a background is two incompatible constraints on
+one token. Switching the hover text color to `--ivory` (already an
+existing palette token, not a new hue) resolves it directly and matches
+the existing inverse pattern already used by `.save-listing-btn:hover`
+(`background: var(--ivory); color: var(--brass-deep)`) elsewhere in this
+same file. Real contrast after the fix, all comfortably clear of 4.5:1:
+
+| Hover state | Text/background | Contrast |
+|---|---|---|
+| `.cta-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.save-detail-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.leadgen-check-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.modal-btn-primary:hover` (14px/600 - not "large text", strict 4.5:1 applies) | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.brass-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+
+**Verified no other `--brass-deep` usage has the same undetected issue.**
+Grepped every `--brass-deep` occurrence in `index.html` after the fix.
+All other usages are either (a) `--brass-deep` as text color on a light
+surface - the case the original audit already covered and which now
+passes at 4.60-6.49:1 across `--ivory`, `--ivory-deep`, white, and every
+tinted badge background in use (composited over `--ivory-deep`: 4.60:1
+at 0.16 alpha up to 4.90:1 at 0.10 alpha), or (b) non-text uses with no
+readable content on top (a map-highlight stroke, a map-pin background
+behind an icon glyph, decorative photo-placeholder gradients under a
+low-opacity blended letter, a progress-bar fill). None of these needed
+changes. Confirmed the badge-text fix this PR was originally shipping is
+still intact - the `color: var(--ivory)` hover override only touches the
+5 button states above, `--brass-deep`'s value and its text-color usages
+are unchanged by this correction.
+
+Verified visually with real Playwright screenshots of each of the 5
+hover states (normal + `:hover`, rendered from the real `.cta-btn`/
+`.save-detail-btn`/`.leadgen-check-btn`/`.modal-btn-primary`/`.brass-btn`
+CSS extracted unmodified from `index.html`) - all 5 read clearly, ivory
+text on the darker brass, no new hue introduced. Built in the same
+isolated-worktree-off-the-PR-branch pattern as the rest of this repo's
+process; not self-merged - pushed to the existing `a11y-technical-fixes`
+branch for Missy's re-review.
