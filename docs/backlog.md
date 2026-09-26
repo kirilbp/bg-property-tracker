@@ -901,7 +901,7 @@ state whether reached via the button or clicked directly. Full detail in
 already shipped"). No further action needed unless a regression turns
 up.
 
-## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23 - MOSTLY DONE (2026-09-23): homes.bg/9a/9b/9c/alo.bg all shipped and merged, imot.bg/olx.bg/bcpea.org investigation complete (no further code needed), imoti.net's `description` gap confirmed a genuine per-portal limitation. Only genuinely open pieces: alo.bg's real selector and imoti.net's untried Bulgarian-language page, both deferred pending live network access; bcpea.org's post-9a grid-crawl recovery worth a final re-check once that run lands.
+## 9. Listing descriptions missing or wrong on most listings across most portals - confirmed backend/scraper data bug, not frontend - user feedback 2026-09-23 - PARTIALLY DONE: 9a/9b/9c/alo.bg shipped and merged, imot.bg/olx.bg/bcpea.org investigation complete (no further code needed), imoti.net's `description` gap confirmed a genuine per-portal limitation. **9d (NEW, 2026-09-26): homes.bg - task 2's "DONE" below only ever meant "stopped writing wrong data" (PR #217) - a real backfill was never built, and a fresh audit found homes.bg (the site's single LARGEST portal by active listings) sitting at a flat, confirmed 0% real-description coverage. Genuinely open, CONFIRMED-BLOCKED-BUT-READY-TO-BUILD - see 9d below for the exact spec.** Other genuinely open pieces unchanged: alo.bg's real selector and imoti.net's untried Bulgarian-language page, both deferred pending live network access; bcpea.org's post-9a grid-crawl recovery worth a final re-check once that run lands.
 
 User's direct words: *"the description is missing. There are just a few
 words on most listings."* Independently re-verified directly against the
@@ -949,14 +949,21 @@ since the picture is more varied than a single "coverage gap" pattern
 across 5 portals):**
 1. `scraper.py` (imoti.net): add a `description` field, scraped from the
    listing detail page, written the same way the other scrapers do.
-2. **`scraper_homes.py`: DONE (2026-09-23).** Fixed the wrong-field/
-   selector bug - homes.bg's construction-material/furnishing tag line was
-   landing in `offer["description"]` instead of real free text. Shipped in
+2. **`scraper_homes.py`: half-done (2026-09-23), the other half is 9d
+   below.** Fixed the wrong-field/selector bug - homes.bg's construction-
+   material/furnishing tag line was landing in `offer["description"]`
+   instead of real free text. Shipped in
    [PR #217](https://github.com/kirilbp/bg-property-tracker/pull/217),
    merged to `main` as commit `7ad475a` (merge of `675b451`, "Stop showing
    homes.bg construction-material tags as listing descriptions"). Reviewed
    and approved by Missy - she independently re-verified the root cause,
    tested the fix, and confirmed no regressions before it shipped.
+   **This only ever stopped the wrong data from being written
+   (`description` set to `None` going forward) - it never built a
+   replacement backfill to write REAL descriptions in place of the
+   removed garbage, unlike every other large portal.** That gap sat
+   undiscovered for three days until a fresh audit (2026-09-26) explicitly
+   went looking for it - see 9d below.
 3. `scraper_imot.py`, `scraper_olx.py`, `scraper_bcpea.py`: investigate
    the detail-page-fetch coverage gap (53-93% of listings never got a
    description despite fetched ones being substantial).
@@ -1212,6 +1219,179 @@ whoever next has imoti.net network access, same "deferred pending live
 access" framing as the alo.bg selector search above. No auth/session/
 personal-data surface either way - Revy's review not expected to be
 needed for this task.
+
+**9d. homes.bg: zero real description coverage across the site's LARGEST
+portal - NEW, HIGH PRIORITY - CONFIRMED-BLOCKED-BUT-READY-TO-BUILD
+(2026-09-26).**
+
+A fresh audit found homes.bg is the single largest portal by active
+listings (independently re-verified directly against the current
+committed `data/leads_homes.json.gz`, not just repeating the audit's own
+numbers, per this repo's standing rule: **67,935 active listings**, 30.1%
+of the 225,635 active listings tracked site-wide across all 7 portals -
+close to, and consistent with, the audit's cited ~29%, the small
+difference explained by normal data drift between the audit and this
+re-check) and sits at a flat **0/67,935 (0.0%) non-empty `description`**
+- confirmed by direct count, not sampled.
+
+Root cause (already on record, see task 2 above): PR #217 (2026-09-23)
+correctly stopped `scraper_homes.py` writing homes.bg's construction-
+material/furnishing tag line as if it were a real description, but
+nothing was ever built to backfill real descriptions in its place - every
+other large portal (alo.bg, imot.bg, olx.bg, bazar.bg, bcpea.org,
+imoti.bg) has its own `backfill_detail_*.py` doing exactly that; homes.bg
+never got one. This is a distinct, larger-in-scope gap from what task 2's
+"DONE" status implied, and went unnoticed for three days until this audit
+specifically checked real coverage numbers instead of trusting the
+"DONE" label.
+
+**Live network access re-checked today (2026-09-26), genuinely tried, not
+assumed stale from a prior session's finding:**
+- Plain `curl` through this sandbox's egress proxy against a real listing
+  URL (`https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-78m2-
+  sofiya-kv.-vitosha/as1697613`, sampled from `data/leads_homes.json.gz`)
+  fails at the proxy itself: `CONNECT tunnel failed, response 403`
+  (`connect_rejected` / organization policy), confirmed via the proxy's
+  own `/__agentproxy/status` endpoint.
+- `WebFetch` against the same URL returns an explicit
+  `EGRESS_BLOCKED` error naming `www.homes.bg` specifically as blocked by
+  network egress policy - not a generic timeout or a site-side block.
+- Retried against `homes.bg` (bare apex), `m.homes.bg`, `api.homes.bg`,
+  and `cdn.homes.bg` in case only one specific host was policy-blocked -
+  all four fail identically (`connect_rejected` via curl; `homes.bg` also
+  explicitly `EGRESS_BLOCKED` via `WebFetch`). This is a domain-level
+  block, not a single-path block, so no alternate URL structure on
+  homes.bg itself would route around it.
+- Checked for a Bulgarian-language-mirror-style alternate, the same class
+  of workaround that helped elsewhere in this backlog (imoti.net's
+  untried `/bg` path, still open) - **not applicable here**: unlike
+  imoti.net (which serves an English-language `/en/` path by default and
+  has a separate, unprobed Bulgarian path), homes.bg's listings pages
+  (`www.homes.bg/offer/...`) are already Bulgarian-language with no known
+  separate locale/mirror path to try; the block is on the domain itself,
+  not tied to a specific language path.
+- Tried the Wayback Machine (`web.archive.org`) as a fallback path to at
+  least see one real archived homes.bg listing page's HTML structure
+  without touching homes.bg directly - same technique
+  `backfill_wayback_prices.py` already uses successfully for imot.bg/
+  bazar.bg price history, and it runs fine from GitHub Actions' own
+  runners. Blocked from *this sandbox* specifically though: plain `curl`
+  to `web.archive.org` fails the same way (`CONNECT tunnel failed,
+  response 403`), and `WebFetch` refuses the domain outright ("unable to
+  fetch from web.archive.org"). So this sandbox's proxy is more
+  restrictive than the production Actions runtime here, not that Wayback
+  itself lacks homes.bg captures - genuinely unverified either way from
+  here, but worth trying again from an environment with real Wayback
+  access before concluding archived pages don't exist for homes.bg
+  listings.
+- **Conclusion: homes.bg remains fully blocked from this sandbox today**,
+  consistent with every prior session's confirmation referenced in this
+  repo's process notes. Per this backlog's own standing rule (see alo.bg
+  and imoti.net above), not guessing at a selector that can't be verified
+  live - a wrong guess here would silently reintroduce exactly the bug
+  PR #217 fixed, just with different garbage text instead of the
+  construction-material tags.
+
+**Exact ready-to-build spec, for whoever next has live homes.bg access**
+(follow this precisely - it's written to be implementable without
+further investigation):
+
+1. **Find the real selector first, live, before writing any extraction
+   code.** Fetch a real listing detail page (e.g.
+   `https://www.homes.bg/offer/apartament-za-prodazhba/dvustaen-78m2-
+   sofiya-kv.-vitosha/as1697613`, or any current URL from
+   `data/leads_homes.json.gz`) and inspect the actual page structure for:
+   - a labeled free-text description block (the page is rendered from a
+     `window.__PRELOADED_STATE__` JSON blob per `scraper_homes.py`'s own
+     module docstring - the search-page version of that blob's
+     `"description"` key is confirmed NOT real prose (see task 2 above),
+     but the **detail page's own** `__PRELOADED_STATE__` may carry a
+     different, richer offer object with a genuine free-text field under
+     a different key - check this first, since it may mean no HTML
+     scraping is needed at all, mirroring how the search page itself
+     already avoids HTML/regex scraping);
+   - failing that, a labeled HTML block (Bulgarian real-estate sites
+     commonly use a heading like "Описание" - confirmed as the working
+     pattern on imot.bg's `<div class="moreInfo">`, see
+     `backfill_detail_imot.py`'s own docstring - but homes.bg's actual
+     markup must be read directly, not assumed to match);
+   - meta tags (`og:description`, `<meta name="description">`) and any
+     `ld+json` block, in case the real description lives there instead
+     (bazar.bg's healthy description coverage comes via exactly this
+     `ld+json` route - see task 4's bazar.bg findings above).
+   Verify against several real listings (different property types -
+   apartment/house/land - since homes.bg's own JSON shape already differs
+   by type prefix, see `build_tracking_id()`), not just one, before
+   trusting the selector.
+2. **Build `backfill_detail_homes.py`**, following the established
+   6-portal pattern exactly (`backfill_detail_imot.py` is the closest
+   structural match - same "grid crawl never visits the detail page"
+   shape as homes.bg, and its own docstring/code is a clean, short
+   reference):
+   - A `fetch_listing_detail(s)`-style function added to `scraper_homes.py`
+     itself (not a new scraping stack) that visits `offer["url"]`, extracts
+     the real description via the selector verified in step 1, and sets
+     it only when found (`if description:`, never unconditionally - see
+     9c's own reasoning on why an unconditional overwrite on a transient
+     per-listing failure is the same bug class as 9a).
+   - A `detail_checked` (or `_detail_fetched`, matching this file's own
+     `_detail_fetched`/`_photos_checked` naming already used elsewhere in
+     `scraper_homes.py`-adjacent code, e.g. `backfill_detail_alo.py`) flag
+     set unconditionally once a listing's detail page has actually been
+     visited, regardless of whether a description was found - same
+     reasoning as every other portal's backfill: without it, listings
+     with a genuinely absent description get needlessly re-visited every
+     run forever.
+   - Checkpointed (`CHECKPOINT_EVERY`), rate-limited, and time-budgeted
+     (`TIME_BUDGET_SECONDS` under the workflow's own timeout, `MAX_
+     LOOKUPS_PER_RUN` as a generous outer cap) - copy `backfill_detail_
+     imot.py`'s or `backfill_detail_alo.py`'s exact shape, prioritized
+     newest-first by `first_seen` same as every other backfill here.
+   - Uses `scraper_homes.py`'s own `load_history()`/`save_history()`/
+     `compute_leads()` - never hand-rolls JSON I/O, and never touches
+     `data/history_homes.json.gz`/`data/leads_homes.json.gz` except
+     through those functions (both are gzip-compressed - see
+     `HISTORY_FILE`'s own comment on why raw `.read_text()`/`.write_text()`
+     must never be used against them).
+3. **Critical corequisite fix, in the SAME PR as the backfill script, not
+   separately - do this or the fix will silently self-defeat**:
+   `scraper_homes.py`'s `update_history()` currently does
+   `history[lid]["latest"] = l` as an unconditional full replace, with no
+   `_DETAIL_ONLY_FIELDS` merge-preservation at all - unlike all six other
+   scrapers that already got this treatment in 9a/9c. This was
+   *correctly* left alone at the time (9c's own investigation explicitly
+   found homes.bg "genuinely NOT at risk, no action needed" - true then,
+   because there was no detail-only field on homes.bg's `latest` record
+   to lose: photos come straight off the grid JSON every run, and lat/lng
+   self-heal via the shared geocode cache). **That reasoning stops being
+   true the moment this backfill ships**: `description`/`detail_checked`
+   will be real detail-only fields on `latest` that the grid crawl
+   (`parse_offer()`) never produces (it always sets `"description": None`
+   - see its own comment), and `scrape.yml` re-touches every still-active
+   listing every 6 hours. Shipping the backfill without also fixing
+   `update_history()` reproduces 9a's exact bug for homes.bg specifically:
+   every real description this backfill writes gets silently wiped the
+   next time `scrape.yml` runs, for every still-active listing, forever -
+   the identical failure mode 9a/9b/9c already fixed for the other six
+   scrapers. Add `_DETAIL_ONLY_FIELDS = ("description", "detail_checked")`
+   (name matching whatever flag step 2 above actually uses) to
+   `scraper_homes.py` and give `update_history()` the identical
+   merge-not-replace logic already present in `scraper_imot.py`/
+   `scraper_alo.py`/etc. Add the same kind of regression test 9a required:
+   proving a grid-only re-touch no longer clears a previously-backfilled
+   `description`.
+4. **Add the matching workflow** (`.github/workflows/backfill-detail-
+   homes.yml`), modeled on `backfill-detail-imot.yml`/`backfill-detail-
+   alo.yml` - hourly or similar cadence, same timeout/budget shape.
+5. **Test against a real sample of listings before considering this
+   done** - same standard every other portal's backfill was held to.
+6. No auth/session/personal-data surface (public listing descriptions
+   only, same as task 2/9a/9b/9c) - Revy's review not expected to be
+   needed. Missy's review required before merge, as always.
+
+Not attempted here per this backlog's own standing rule against shipping
+an unverified/guessed selector - see the live-access findings above.
+Docs-only change for this entry; no code touched.
 
 ## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority - DONE (2026-09-23)
 
