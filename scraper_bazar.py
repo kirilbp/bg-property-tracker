@@ -147,7 +147,10 @@ import requests
 from bs4 import BeautifulSoup
 
 from category_classifier import classify_listing
-from geo_utils import compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION
+from geo_utils import (
+    compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records,
+    STALE_RECORD_RETENTION, load_json_any, save_json_any,
+)
 
 BASE_URL = "https://bazar.bg"
 SEARCH_BASE = "https://bazar.bg/obiavi/prodazhba-apartamenti"
@@ -217,8 +220,14 @@ CITY_SLUGS = [
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
-HISTORY_FILE = OUT_DIR / "history_bazar.json"
-LEADS_FILE = OUT_DIR / "leads_bazar.json"
+# .json.gz, not plain .json - 2026-09-26: bazar.bg hit the same GH001 wall
+# as alo.bg (leads_bazar.json 100.19MB/history_bazar.json 98.73MB, at/over
+# GitHub's 100MB hard limit). Same proven fix as homes.bg (2026-09-25
+# addendum)/alo.bg (this same change) - see geo_utils.py's "Compressed
+# on-disk JSON storage" comment. load_json_any()/save_json_any() are
+# extension-aware.
+HISTORY_FILE = OUT_DIR / "history_bazar.json.gz"
+LEADS_FILE = OUT_DIR / "leads_bazar.json.gz"
 # Persists only which CITY_SLUGS index the grid crawl should start from
 # next run - the same tiny-file rotation-state pattern scraper_olx.py's
 # GRID_STATE_FILE (data/olx_grid_state.json) already established for
@@ -518,7 +527,7 @@ def fetch_listings(deadline=None, on_checkpoint=None):
 
 def load_history():
     if HISTORY_FILE.exists():
-        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+        return load_json_any(HISTORY_FILE)
     return {}
 
 
@@ -534,7 +543,7 @@ def save_history(history):
     if evicted:
         print(f"DEBUG: evicted {evicted} history record(s) not seen in over {STALE_RECORD_RETENTION.days} days")
     prune_snapshots(history)
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(HISTORY_FILE, history)
 
 
 # Fields backfill_detail_bazar.py's own detail-page pass adds on top of
@@ -708,7 +717,7 @@ def main():
         recorded_ids.update(l["id"] for l in new_listings)
         save_history(history)
         leads = compute_leads(history)
-        LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     listings = fetch_listings(deadline=deadline, on_checkpoint=record_new)

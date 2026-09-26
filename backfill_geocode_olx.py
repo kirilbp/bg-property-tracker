@@ -19,11 +19,10 @@ by hand (or on a cron, later) until the missing-coordinate count reaches
 zero, same as any other backfill.
 """
 
-import json
 import time
 
 import scraper_olx as so
-from geo_utils import Geocoder
+from geo_utils import Geocoder, save_json_any
 
 # See backfill_geocode_homes.py's own comment for the full reasoning -
 # same backstop against occasional Nominatim slowness pushing a run past
@@ -55,7 +54,7 @@ def main():
         so.save_history(history)
         geocoder.save()
         leads = so.compute_leads(history)
-        so.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(so.LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     filled = 0

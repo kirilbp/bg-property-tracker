@@ -26,10 +26,9 @@ reached by chance.
 Not scheduled - a one-time correction, run by hand once, its job done.
 """
 
-import json
-
 import sync_to_supabase as sts
 import scraper_alo as sa
+from geo_utils import save_json_any
 
 
 def main():
@@ -65,7 +64,7 @@ def main():
 
         sa.save_history(history)
         leads = sa.compute_leads(history)
-        sa.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(sa.LEADS_FILE, leads)
         print(f"DEBUG: checked {min(i + CHUNK_SIZE, len(items))}/{len(items)}, "
               f"resolved {resolved} so far")
 

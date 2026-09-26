@@ -36,10 +36,10 @@ hours. Same fix as backfill_detail_imoti_net.py's own timeout problem
 instead of a run of permanently-gone (404/410) listings there.
 """
 
-import json
 import time
 
 import scraper_alo as sa
+from geo_utils import save_json_any
 
 # ~1,200 listings/run at ~1.0-1.5s each (REQUEST_DELAY_SECONDS plus network
 # round-trip) is roughly 20-30 minutes - comfortably inside the hourly
@@ -236,7 +236,7 @@ def main():
     def checkpoint():
         sa.save_history(history)
         leads = sa.compute_leads(history)
-        sa.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(sa.LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     sa.fetch_update_dates(to_enrich, on_checkpoint=checkpoint, checkpoint_every=CHECKPOINT_EVERY, deadline=deadline)

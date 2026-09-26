@@ -5004,6 +5004,200 @@ file's entries, off `origin/main`. Not self-merged - handed back for
 review.
 
 ---
+
+### Third addendum (2026-09-26): the flagged alo.bg risk came true, bazar.bg hit the same wall on the same timeline - gzip extended to alo.bg/bazar.bg/olx.bg/imot.bg
+
+**Confirmed live, not theoretical - this addendum's own opening flag came
+true exactly as written.** `backfill-detail-alo.yml`'s last 2 scheduled
+runs (558, 559; run 36251462993, 2026-09-26 15:56-15:58 UTC) both failed
+with a hard `GH001` push rejection, real quoted job-log text: `File
+data/leads_alo.json is 101.60 MB; this exceeds GitHub's file size limit
+of 100.00 MB` / `File data/history_alo.json is 99.41 MB; this is larger
+than GitHub's recommended maximum file size of 50.00 MB` - all 5 rebase-
+retry attempts hit the identical rejection (`git pull --rebase` succeeds
+fine each time; the push itself is what GitHub refuses), then `Failed to
+push after 5 attempts - giving up`. Real committed blob sizes on `main`
+at the time (`git cat-file -s`, decimal MB matching GitHub's own push-limit
+convention): `data/leads_alo.json` **104,292,257 bytes (104.29MB)**,
+`data/history_alo.json` **101,950,671 bytes (101.95MB)** - both already
+over the 100MB hard limit, so every future scheduled run keeps failing
+identically and discarding that run's real scraped data, exactly as this
+addendum predicted. `data/leads_bazar.json` (**100,191,086 bytes,
+100.19MB**) and `data/history_bazar.json` (**98,734,614 bytes,
+98.73MB**) are at/over the same wall on the same timeline, confirming
+this addendum's "bazar.bg too" prediction as well. `data/leads_olx.json`/
+`data/history_olx.json` (87,241,310 / 85,722,857 bytes, ~87MB/~86MB) and
+`data/leads_imot.json`/`data/history_imot.json` (70,962,705 /
+71,543,403 bytes, ~71MB/~72MB) were trending toward the same wall under
+the same unbounded-growth dynamics (record count, not per-record payload,
+is the driver - see this item's own main entry above) but hadn't crossed
+it yet.
+
+**Fix: the exact same gzip migration already proven for homes.bg above,
+applied to all 4 remaining large portals in one coordinated pass** rather
+than firefighting each one individually as it crosses the threshold -
+alo.bg/bazar.bg because they're actively failing/at the wall right now,
+olx.bg/imot.bg proactively since they're on the same trajectory.
+`scraper_alo.py`/`scraper_bazar.py`/`scraper_olx.py`/`scraper_imot.py`'s
+own `HISTORY_FILE`/`LEADS_FILE` constants now point at `.json.gz`, and
+their `load_history()`/`save_history()`/`main()` now go through
+`geo_utils.load_json_any()`/`save_json_any()` (already shipped in this
+item's first addendum) instead of raw `read_text()`/`write_text()` -
+exactly homes.bg's own established pattern, not a new mechanism.
+
+**A real, would-have-been-silent bug this pass found and fixed, not just
+the 4 scrapers' own constants:** every scraper's `save_history()` already
+routes through `save_json_any()` for `HISTORY_FILE`, but a separate set of
+16 call sites across 13 scripts (`backfill_detail_alo.py`,
+`backfill_detail_bazar.py`, `backfill_detail_imot.py`,
+`backfill_detail_olx.py`, `backfill_geocode_olx.py`,
+`backfill_geocode_imot.py`, `backfill_others_alo_detail.py`,
+`backfill_category_review3_fixes.py`, `backfill_category_leads_leak_fix.py`
+(also had a matching direct-read bug), `backfill_land_house_context_regression.py`,
+`backfill_garage_tiebreak_regression.py`,
+`backfill_subject_over_amenity_regression.py`,
+`backfill_category_bazar_imot_olx_migration.py`) wrote each portal's own
+`LEADS_FILE` directly via `MODULE.LEADS_FILE.write_text(json.dumps(...))`,
+bypassing `save_json_any()` entirely. Once alo.bg/bazar.bg/olx.bg/imot.bg's
+`LEADS_FILE` constants became `.json.gz`, every one of those call sites
+would have silently written **plain, uncompressed JSON text into a file
+named `.json.gz`** the next time any of these hourly-scheduled backfills
+ran - not caught by any test, not caught until the very next
+`load_json_any()` call on that file tried `gzip.open()` and failed with
+"not a gzipped file," corrupting that portal's leads data in production.
+Exactly the "miss one and it'll break silently" failure mode this
+migration was explicitly warned to avoid. All 16 call sites (plus the
+1 matching direct read) now go through `save_json_any()`/`load_json_any()`
+instead - a pure drop-in replacement, byte-identical output for every
+portal that stays plain (`imoti.net`/`imoti.bg`/`bcpea.org`, left
+untouched), and now-correct for the 4 migrated portals.
+`detect_relistings.py`'s `PORTALS` dict and `detect_relistings_by_photo.py`'s
+alo.bg entry (the latter also converted its own direct
+`json.loads`/`write_text` calls to `load_json_any()`/`save_json_any()`,
+since its `detect_portal()`/`main()` are shared with imoti.net's still-
+plain `history.json`), `evict_stale_history.py`'s `PORTAL_FILES`,
+`sync_to_supabase.py`'s `PORTAL_FILES`, and `verify_geocode_qualifiers.py`'s
+`PORTAL_FILES` were all updated to the new `.json.gz` filenames (all
+already read/write through the extension-aware helpers, so only the
+filename strings needed to change there).
+
+**The actual data migration:** a new, standalone, dependency-free script
+(`migrate_data_files_to_gzip.py`, following `evict_stale_history.py`'s own
+precedent - imports only `geo_utils.load_json_any()`/`save_json_any()`,
+no `scraper_*.py` module, no `playwright`) reads each portal's real
+committed plain `.json` file, writes the compressed `.json.gz`, decompresses
+it back and asserts the round-tripped Python object is **exactly** equal
+to the original (not just same byte length or same record count) before
+removing the plain original - if verification fails, the `.gz` file is
+deleted and the plain original is left untouched. Run against this
+repo's real, currently-committed data (all 8 files, all verified
+byte-for-byte identical after round-trip, record counts unchanged):
+
+| file | records | before | after | reduction |
+|---|---|---|---|---|
+| `history_alo.json.gz` | 91,817 | 101,950,671 | 13,673,570 | 86.6% |
+| `leads_alo.json.gz` | 91,817 | 104,292,257 | 12,780,891 | 87.7% |
+| `history_bazar.json.gz` | 57,226 | 98,734,614 | 11,613,014 | 88.2% |
+| `leads_bazar.json.gz` | 57,226 | 100,191,086 | 10,715,845 | 89.3% |
+| `history_olx.json.gz` | 38,412 | 85,722,857 | 15,593,282 | 81.8% |
+| `leads_olx.json.gz` | 38,412 | 87,241,310 | 15,517,985 | 82.2% |
+| `history_imot.json.gz` | 47,283 | 71,543,403 | 12,468,348 | 82.6% |
+| `leads_imot.json.gz` | 47,180 | 70,962,705 | 11,705,759 | 83.5% |
+
+alo.bg goes from 104.29MB (already over the limit) to 12.78MB - roughly
+**7.8x headroom** under GitHub's 100MB hard limit; bazar.bg similarly to
+roughly **9.3x** headroom. Both comfortably clear of the wall they were
+either past or sitting on.
+
+**alo.bg's spiky daily-growth root cause (this item's first entry above
+explicitly flagged this as needing its own look) - investigated, not
+guessed:** grouping `history_alo.json.gz`'s real 91,817 records by
+`first_seen` date gives a clean answer, not a mystery. 2026-08-22 through
+2026-08-26 show 597 / 9,295 / 5,064 / **62,296** / 2,150 new records/day -
+this is alo.bg's nationwide grid-crawl go-live (the exact same shape as
+homes.bg's own real, already-documented 2026-08-25 nationwide-conversion
+jump of 66,030 records in a single day, per this item's main entry above)
+- a one-time step function, not ongoing volatility. **Excluding that
+one-time rollout window**, the real steady-state daily volume across the
+12 remaining tracked days (2026-08-29 through 2026-09-26) is: 233, 1060,
+3154, 88, 211, 1047, 2766, 2180, 763, 477, 418 new records/day - mean
+~1,213/day, matching this item's own earlier "1,000-1,400 records/day"
+estimate, and directly reproducing the "88 to 3,154 in a single day"
+swing this item flagged. bazar.bg shows the same shape at a smaller
+scale (steady-state daily new-record counts from 147 up to 5,063 over its
+own last 10 tracked days), confirming this isn't alo.bg-specific
+volatility either - it's the same real-world "how many listings a portal's
+sellers post on a given day" variance every portal shows, just more
+visible on alo.bg because it's the largest and youngest-tracked dataset.
+
+**Decision: gzip alone is sufficient for now; a shorter alo.bg-specific
+retention window is NOT implemented in this pass, documented as a
+fast-follow instead.** Reasoning, quantified rather than assumed: at
+alo.bg's own measured compressed size (~139 bytes/record post-gzip,
+12,780,891 bytes / 91,817 records), reaching the 100MB limit again would
+take roughly 719,000 total tracked records - at even the single busiest
+day observed (3,154/day) that's ~228 days of sustained peak growth away,
+and at the real ~1,213/day mean, ~593 days. This is the same reasoning
+that already justified NOT shrinking homes.bg's retention window when its
+own gzip fix shipped (this item's first addendum above) - gzip's ~8x
+compression ratio buys headroom an order of magnitude larger than the
+180-day retention window's own eviction would reclaim today (0 records,
+confirmed below), and the existing 180-day window is justified by real
+cross-portal relisting-gap data (0.2-31.7 days observed, 96% within 30
+days - see this item's main entry above), not a portal-specific guess -
+shortening it for alo.bg alone without new relisting-gap evidence for
+alo.bg specifically would risk breaking `detect_relistings_by_photo.py`'s
+own alo.bg matching for no measured benefit. Flagged here, as asked, as a
+fast-follow to revisit if alo.bg's real growth rate ever meaningfully
+exceeds this projection - not guessed away, not implemented on a hunch.
+
+**Checked for new risk, not assumed clean:** `evict_stale_history.py
+alo bazar olx imot --dry-run` against the real post-migration data
+confirms **0 evictions for all 4 portals today** (nothing tracked is old
+enough yet to cross 180 days gone - same honest finding this item's main
+entry already documented for the original 8-portal wiring), so this
+migration itself doesn't change any record's presence, only its on-disk
+encoding. `merge_history_conflict.py`'s `is_history_file()` correctly
+recognizes all 4 new `history_*.json.gz` filenames (verified directly,
+not assumed from the existing pattern-match logic) and correctly excludes
+the matching `leads_*.json.gz` files (self-heal from history on the next
+run, same as every other portal). `sync_to_supabase.py`'s
+`load_all_listings()` was run end-to-end against the real post-migration
+data across all 8 portals (407,637 total listings loaded, no errors) -
+confirms the mixed plain/gzip `PORTAL_FILES` mapping works, not just each
+portal in isolation. `check_scrape_freshness.py` was run against all 4
+newly-migrated portals' real `.gz` files and reports OK for both the
+freshness and active-ratio checks on every one (no code change was needed
+here - `_resolve_data_path()` already auto-detects a `.gz` sibling, the
+same generic mechanism that already covered homes.bg).
+
+**Not dispatched live** - per this project's standing rule against
+iterating on production workflows via repeated `workflow_dispatch`, and
+directly instructed here given the last 5 consecutive live failures this
+exact anti-pattern already caused this session: every change was
+validated locally - `python3 -m py_compile` on every changed file, the
+full test suite, `scraper_alo.py`/`scraper_bazar.py`/`scraper_olx.py`/
+`scraper_imot.py`'s own `load_history()`/`compute_leads()` run end-to-end
+against the real migrated `.gz` data (91,817 / 57,226 / 38,412 / 47,283
+records respectively, all loaded and recomputed with no errors), plus the
+checks in the paragraph above.
+
+**Tested:** full suite (`python3 -m pytest tests/`): **270 passed, 4
+subtests passed, 0 regressions** (up from 258 - the existing gzip-storage
+and eviction tests already covered `load_json_any()`/`save_json_any()`
+generically by extension, so no new test file was needed for this
+extension of the same mechanism to 4 more portals; the existing suite's
+assertions on `PORTAL_FILES`/`evict_stale_history.PORTAL_FILES` keys
+rather than values were unaffected by the filename changes, confirming
+those tests were already written generically enough not to need updating).
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this
+repo's shared-checkout discipline. Not self-merged - handed back for
+review, flagged time-sensitive given every `backfill-detail-alo.yml` run
+is failing and discarding real scraped data on every scheduled run until
+this merges.
+
+---
 ---
 
 ## 38. `check_scrape_freshness.py`'s homes.bg active-ratio floor (0.55) was itself stale, failing every scheduled run for ~20h - FALSE ALARM, not a live crawl bug - RECALIBRATED (2026-09-26)

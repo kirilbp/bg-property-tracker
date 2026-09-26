@@ -100,7 +100,8 @@ from bs4 import BeautifulSoup
 
 from geo_utils import (
     extract_coords_alo, extract_description_alo, extract_photos_alo, extract_specs_alo,
-    extract_contact_alo, compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records, STALE_RECORD_RETENTION,
+    extract_contact_alo, compute_motivation_score, listing_city_key, prune_snapshots, evict_stale_records,
+    STALE_RECORD_RETENTION, load_json_any, save_json_any,
 )
 from category_classifier import classify_listing
 
@@ -110,8 +111,14 @@ BASE_URL = "https://www.alo.bg"
 
 OUT_DIR = Path(__file__).parent / "data"
 OUT_DIR.mkdir(exist_ok=True)
-HISTORY_FILE = OUT_DIR / "history_alo.json"
-LEADS_FILE = OUT_DIR / "leads_alo.json"
+# .json.gz, not plain .json - 2026-09-26 GH001 incident (backfill-detail-
+# alo.yml's push rejected: leads_alo.json 104.29MB/history_alo.json
+# 101.95MB, both over GitHub's 100MB hard limit). Same fix already proven
+# for homes.bg (2026-09-25 addendum) - gzip these enormously repetitive
+# files instead of trimming data. Every reader/writer goes through
+# load_json_any()/save_json_any(), which are extension-aware.
+HISTORY_FILE = OUT_DIR / "history_alo.json.gz"
+LEADS_FILE = OUT_DIR / "leads_alo.json.gz"
 
 MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
@@ -642,7 +649,7 @@ def fetch_listings():
 
 def load_history():
     if HISTORY_FILE.exists():
-        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+        return load_json_any(HISTORY_FILE)
     return {}
 
 
@@ -658,7 +665,7 @@ def save_history(history):
     if evicted:
         print(f"DEBUG: evicted {evicted} history record(s) not seen in over {STALE_RECORD_RETENTION.days} days")
     prune_snapshots(history)
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(HISTORY_FILE, history)
 
 
 # Fields fetch_update_dates() (run separately via backfill_detail_alo.py -
@@ -841,7 +848,7 @@ def main():
     history = update_history(history, listings)
     save_history(history)
     leads = compute_leads(history)
-    LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_json_any(LEADS_FILE, leads)
     print("Found " + str(len(listings)) + " listings, " + str(len(leads)) + " tracked leads")
 
 
