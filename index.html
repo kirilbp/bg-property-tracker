@@ -32,13 +32,29 @@
        the old blue-SaaS palette. */
     --ink: #241f1a;
     --ink-soft: #4a433c;
-    --taupe: #8c8378;
+    /* --taupe, --brass-deep and --sage below are darkened from this file's
+       earlier values (#8c8378, #8a6a24, #7a8b6f) per the 2026-09-26
+       accessibility audit (docs/decisions.md, backlog item - see
+       docs/backlog.md). Measured with a real WCAG relative-luminance
+       contrast calculation, not eyeballed: at the old values, --taupe used
+       as small/normal text on --ivory/--ivory-deep (subtitle, card-sub,
+       market-stat label, filters label, count, listing-persqm, etc.) only
+       reached 3.40:1 / 3.08:1 - both fail the 4.5:1 AA text minimum. --sage
+       used the same way (badge text, pl-status-line, btl-pass-line.pass)
+       reached 3.33:1 / 3.02:1 direct, and as low as 2.89:1 against its own
+       tinted badge background - also failing. --brass-deep passed on
+       --ivory (4.59:1) but failed on --ivory-deep (4.17:1) and on its own
+       tinted badge backgrounds (as low as 3.57:1). Each is darkened here by
+       a uniform per-channel scale (same hue, no new color introduced) just
+       far enough that every real on-page usage clears 4.5:1 with a safety
+       margin - see docs/decisions.md for the full before/after ratio table. */
+    --taupe: #685f55;
     --taupe-light: #ded6c8;
     --ivory: #f7f4ee;
     --ivory-deep: #efe9dc;
     --brass: #a9812e;
-    --brass-deep: #8a6a24;
-    --sage: #7a8b6f;
+    --brass-deep: #755a1e;
+    --sage: #4f5a48;
     /* Not one of the 9 core palette colors above - design-guidelines.md
        section 6 ("Forms and filter panels") explicitly carves out an
        exception for validation/error text specifically: "reserving any
@@ -360,7 +376,7 @@
     font-weight: 600; letter-spacing: 0.02em; border: 1px solid var(--brass); cursor: pointer;
     transition: background 200ms ease-out, border-color 200ms ease-out;
   }
-  .cta-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .cta-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); color: var(--ivory); }
   /* One-primary-action-per-view (docs/backlog.md item 10 / design-
      guidelines.md section 5/6): the Home page's "Ready to browse?" card
      used to carry a second solid button, equal weight to the search bar's
@@ -724,7 +740,7 @@
     background: var(--brass); border: 1px solid var(--brass); padding: 10px 18px; border-radius: 4px; cursor: pointer;
     margin-top: 12px; transition: background 200ms ease-out, box-shadow 200ms ease-out;
   }
-  .save-detail-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .save-detail-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); color: var(--ivory); }
   .save-detail-btn.saved { background: var(--ivory-deep); border-color: var(--taupe-light); color: var(--ink-soft); }
   .detail-secondary-btn {
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
@@ -945,7 +961,7 @@
     display: block; width: 100%; text-align: center; background: var(--brass); color: var(--ink); border: 1px solid var(--brass);
     padding: 11px; border-radius: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; margin-top: 16px;
   }
-  .leadgen-check-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .leadgen-check-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); color: var(--ivory); }
   .leadgen-icon-row { display: flex; gap: 8px; margin-top: 10px; }
   .leadgen-icon-btn {
     flex: 1; padding: 7px; border: 1px solid var(--taupe-light); border-radius: 4px; background: white;
@@ -1089,7 +1105,7 @@
     font-family: var(--font-sans); padding: 9px 16px; border-radius: 4px; font-size: 14px;
     font-weight: 600; letter-spacing: 0.02em; cursor: pointer; transition: background 200ms ease-out, border-color 200ms ease-out;
   }
-  .modal-btn-primary:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .modal-btn-primary:hover { background: var(--brass-deep); border-color: var(--brass-deep); color: var(--ivory); }
   /* Functional error state (design-guidelines.md "Forms": text only, never
      a filled/saturated background) - kept as text-only red, the one place
      the palette allows a stronger color since it's a genuine error, not a
@@ -1273,7 +1289,7 @@
     background: var(--brass); border: 1px solid var(--brass); padding: 10px 20px; border-radius: 4px; cursor: pointer;
     transition: background 200ms ease-out;
   }
-  .brass-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .brass-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); color: var(--ivory); }
   /* Fixed set of exactly 4 tiles (Avg asking price/Avg surface area/Avg
      €/m²/Matches), not an open-ended list - same bug class already fixed
      three times elsewhere (.stat-row, .detail-stats, .type-filter-grid;
@@ -2394,10 +2410,10 @@
 </div>
 
 <div class="modal-overlay" id="leadgenModalOverlay">
-  <div class="modal-panel">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="leadgenModalTitle">
     <div class="modal-header">
       <h2 id="leadgenModalTitle">Add New Lead Generator</h2>
-      <button class="modal-close-btn" id="leadgenModalCloseBtn">✕</button>
+      <button class="modal-close-btn" id="leadgenModalCloseBtn" aria-label="Close">✕</button>
     </div>
     <p class="modal-error" id="leadgenModalError"></p>
 
@@ -2528,10 +2544,10 @@
 <!-- Pipeline stages + tags configuration (property-filter-spec.md section 9:
      both are arbitrary-length and fully user-editable, not a fixed set). -->
 <div class="modal-overlay compare-modal" id="plConfigModalOverlay">
-  <div class="modal-panel">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="plConfigModalTitle">
     <div class="modal-header">
-      <h2>Manage stages &amp; tags</h2>
-      <button class="modal-close-btn" id="plConfigModalCloseBtn">✕</button>
+      <h2 id="plConfigModalTitle">Manage stages &amp; tags</h2>
+      <button class="modal-close-btn" id="plConfigModalCloseBtn" aria-label="Close">✕</button>
     </div>
 
     <div class="modal-field">
@@ -2555,10 +2571,10 @@
 </div>
 
 <div class="modal-overlay" id="reminderModalOverlay">
-  <div class="modal-panel">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="reminderModalTitle">
     <div class="modal-header">
-      <h2>Set a reminder</h2>
-      <button class="modal-close-btn" id="reminderModalCloseBtn">✕</button>
+      <h2 id="reminderModalTitle">Set a reminder</h2>
+      <button class="modal-close-btn" id="reminderModalCloseBtn" aria-label="Close">✕</button>
     </div>
     <p class="modal-error" id="reminderModalError"></p>
     <div class="modal-field">
@@ -2582,10 +2598,10 @@
      picker) - toggled by renderDealCalcModal(). Wide (.compare-modal) to fit
      the strategy grid and the two-column input/output layout comfortably. -->
 <div class="modal-overlay compare-modal" id="dealCalcModalOverlay">
-  <div class="modal-panel">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="dealCalcModalTitle">
     <div class="modal-header">
       <h2 id="dealCalcModalTitle">New Deal Calculation</h2>
-      <button class="modal-close-btn" id="dealCalcModalCloseBtn">✕</button>
+      <button class="modal-close-btn" id="dealCalcModalCloseBtn" aria-label="Close">✕</button>
     </div>
     <div id="dealCalcModalBody"></div>
     <div class="modal-footer" id="dealCalcModalFooter" style="display:none;">
@@ -3710,7 +3726,7 @@ function cityTileHtml(c, count, isActive, gradIndex) {
   const gradClass = 'ph-g' + (gradIndex % 6);
   const fallbackHtml = `<div class="ph-bg ${gradClass}" data-letter="${c.label[0]}"></div>`;
   const photoHtml = c.photo
-    ? `<img src="${c.photo}" alt="${c.label}" loading="lazy"
+    ? `<img src="${c.photo}" alt="" loading="lazy"
          onerror="const p=this.parentElement,f=this.dataset.fallback; this.remove(); if (p) p.insertAdjacentHTML('afterbegin', f);"
          data-fallback="${fallbackHtml.replace(/"/g, '&quot;')}" />`
     : fallbackHtml;
@@ -6461,10 +6477,10 @@ function renderLeadGenGallery() {
         </div>
         <button class="leadgen-check-btn" data-check-id="${gen.id}">Check Leads</button>
         <div class="leadgen-icon-row">
-          <button class="leadgen-icon-btn" data-edit-id="${gen.id}" title="Edit">✏️</button>
-          <button class="leadgen-icon-btn" data-dup-id="${gen.id}" title="Duplicate">⧉</button>
-          <button class="leadgen-icon-btn" data-share-id="${gen.id}" title="Share">🔗</button>
-          <button class="leadgen-icon-btn danger" data-del-id="${gen.id}" title="Delete">🗑</button>
+          <button class="leadgen-icon-btn" data-edit-id="${gen.id}" title="Edit" aria-label="Edit ${escapeHtml(gen.name)}">✏️</button>
+          <button class="leadgen-icon-btn" data-dup-id="${gen.id}" title="Duplicate" aria-label="Duplicate ${escapeHtml(gen.name)}">⧉</button>
+          <button class="leadgen-icon-btn" data-share-id="${gen.id}" title="Share" aria-label="Share ${escapeHtml(gen.name)}">🔗</button>
+          <button class="leadgen-icon-btn danger" data-del-id="${gen.id}" title="Delete" aria-label="Delete ${escapeHtml(gen.name)}">🗑</button>
         </div>
       </div>
     `;
@@ -7101,7 +7117,7 @@ function createPipelineCard(listing, deal) {
   const distanceLabel = pipelineDistanceLabel(l, deal);
   const stage = PIPELINE_STAGES.find(s => s.id === deal.stageId);
   const photoHtml = l.photo
-    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
+    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePhotoError(this)" />`
     : noPhotoPlaceholderHtml();
   const listedLabel = listingFirstSeenDate(l) ? shortDateLabel(listingFirstSeenDate(l)) : null;
   const priceChange = pipelinePriceChangeLabel(l);
@@ -7130,8 +7146,8 @@ function createPipelineCard(listing, deal) {
           <select class="pl-stage-select" data-listing-id="${l.id}">
             ${PIPELINE_STAGES.map(s => `<option value="${s.id}" ${s.id === deal.stageId ? 'selected' : ''}>${s.icon || ''} ${escapeHtml(s.name)}</option>`).join('')}
           </select>
-          <button type="button" class="pl-icon-btn" data-pl-tags-id="${l.id}" title="Tags">🏷</button>
-          <button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove from Pipeline">🗑</button>
+          <button type="button" class="pl-icon-btn" data-pl-tags-id="${l.id}" title="Tags" aria-label="Edit tags for ${escapeHtml(l.title)}">🏷</button>
+          <button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove from Pipeline" aria-label="Remove ${escapeHtml(l.title)} from Pipeline">🗑</button>
         </div>
       </div>
     </div>
@@ -7193,7 +7209,7 @@ function renderPipelineTableView(rows) {
           return `<tr>
             <td>${stage ? (stage.icon || '') + ' ' + escapeHtml(stage.name) : '–'}</td>
             <td>${l.photo
-              ? `<img class="pl-table-photo" src="${l.photo}" onerror="handlePipelineTablePhotoError(this)" />`
+              ? `<img class="pl-table-photo" src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePipelineTablePhotoError(this)" />`
               : noPhotoPlaceholderHtml({ variant: 'small', extraClass: 'pl-table-photo' })}</td>
             <td class="listing-link" data-listing-id="${l.id}">${escapeHtml(l.title)}</td>
             <td>€${fmt(l.price_eur)}</td>
@@ -7202,7 +7218,7 @@ function renderPipelineTableView(rows) {
             <td>${l.sqm ?? '–'}</td>
             <td>${listedLabel}</td>
             <td>${(deal.tagIds || []).map(tid => { const t = PIPELINE_TAGS.find(x => x.id === tid); return t ? (t.icon || '') : ''; }).join(' ')}</td>
-            <td><button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove">🗑</button></td>
+            <td><button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove" aria-label="Remove ${escapeHtml(l.title)} from Pipeline">🗑</button></td>
           </tr>`;
         }).join('')}
       </tbody>
@@ -7304,9 +7320,9 @@ function renderPipelineConfigLists() {
   const stagesEl = document.getElementById('plStagesConfigList');
   stagesEl.innerHTML = PIPELINE_STAGES.map((s, i) => `
     <div class="pl-config-row" data-stage-row="${s.id}">
-      <input type="text" class="pl-config-icon" value="${escapeHtml(s.icon || '')}" maxlength="2" data-stage-icon="${s.id}" />
-      <input type="text" class="pl-config-name" value="${escapeHtml(s.name)}" data-stage-name="${s.id}" />
-      <button type="button" class="pl-icon-btn danger" data-remove-stage="${s.id}" title="Remove stage" ${PIPELINE_STAGES.length <= 1 ? 'disabled' : ''}>🗑</button>
+      <input type="text" class="pl-config-icon" value="${escapeHtml(s.icon || '')}" maxlength="2" data-stage-icon="${s.id}" aria-label="Icon for stage ${escapeHtml(s.name)}" />
+      <input type="text" class="pl-config-name" value="${escapeHtml(s.name)}" data-stage-name="${s.id}" aria-label="Name for stage ${escapeHtml(s.name)}" />
+      <button type="button" class="pl-icon-btn danger" data-remove-stage="${s.id}" title="Remove stage" aria-label="Remove stage ${escapeHtml(s.name)}" ${PIPELINE_STAGES.length <= 1 ? 'disabled' : ''}>🗑</button>
     </div>
   `).join('');
   stagesEl.querySelectorAll('[data-stage-icon]').forEach(inp => inp.addEventListener('input', () => {
@@ -7320,10 +7336,10 @@ function renderPipelineConfigLists() {
   const tagsEl = document.getElementById('plTagsConfigList');
   tagsEl.innerHTML = PIPELINE_TAGS.map(t => `
     <div class="pl-config-row" data-tag-row="${t.id}">
-      <input type="text" class="pl-config-icon" value="${escapeHtml(t.icon || '')}" maxlength="2" data-tag-icon="${t.id}" />
-      <input type="text" class="pl-config-name" value="${escapeHtml(t.name)}" data-tag-name="${t.id}" />
-      <input type="color" class="pl-config-color" value="${t.color || '#efe9dc'}" data-tag-color="${t.id}" />
-      <button type="button" class="pl-icon-btn danger" data-remove-tag="${t.id}" title="Remove tag">🗑</button>
+      <input type="text" class="pl-config-icon" value="${escapeHtml(t.icon || '')}" maxlength="2" data-tag-icon="${t.id}" aria-label="Icon for tag ${escapeHtml(t.name)}" />
+      <input type="text" class="pl-config-name" value="${escapeHtml(t.name)}" data-tag-name="${t.id}" aria-label="Name for tag ${escapeHtml(t.name)}" />
+      <input type="color" class="pl-config-color" value="${t.color || '#efe9dc'}" data-tag-color="${t.id}" aria-label="Color for tag ${escapeHtml(t.name)}" />
+      <button type="button" class="pl-icon-btn danger" data-remove-tag="${t.id}" title="Remove tag" aria-label="Remove tag ${escapeHtml(t.name)}">🗑</button>
     </div>
   `).join('') || '<p class="pl-empty-inline">No tags yet.</p>';
   tagsEl.querySelectorAll('[data-tag-icon]').forEach(inp => inp.addEventListener('input', () => {
@@ -7610,14 +7626,14 @@ function createListingCard(l) {
   }
 
   const photoHtml = l.photo
-    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
+    ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" loading="lazy" onerror="handlePhotoError(this)" />`
     : noPhotoPlaceholderHtml();
 
   const saved = isListingSaved(l.id);
   const inPipeline = isInPipeline(l.id);
   card.innerHTML = `
-    <button class="save-listing-btn${saved ? ' saved' : ''}" data-save-id="${l.id}" title="${saved ? 'Remove from Dashboard' : 'Save to Dashboard'}">${saved ? '★' : '☆'}</button>
-    <button class="pipeline-listing-btn${inPipeline ? ' added' : ''}" data-pipeline-id="${l.id}" title="${inPipeline ? 'In Pipeline (click to remove)' : 'Add to Pipeline'}">${inPipeline ? '✓' : '＋'}</button>
+    <button class="save-listing-btn${saved ? ' saved' : ''}" data-save-id="${l.id}" title="${saved ? 'Remove from Dashboard' : 'Save to Dashboard'}" aria-label="${saved ? 'Remove' : 'Save'} ${escapeHtml(l.title)} ${saved ? 'from' : 'to'} Dashboard">${saved ? '★' : '☆'}</button>
+    <button class="pipeline-listing-btn${inPipeline ? ' added' : ''}" data-pipeline-id="${l.id}" title="${inPipeline ? 'In Pipeline (click to remove)' : 'Add to Pipeline'}" aria-label="${escapeHtml(l.title)} - ${inPipeline ? 'in Pipeline, click to remove' : 'add to Pipeline'}">${inPipeline ? '✓' : '＋'}</button>
     <div class="listing-link" data-listing-id="${l.id}">
       ${photoHtml}
       <div class="listing-body">
@@ -10015,7 +10031,7 @@ function renderListingDetail(merged) {
 
   const thumbsHtml = photos.length > 1 ? `
     <div class="detail-thumbs">
-      ${photos.map((p, i) => `<img class="detail-thumb${i === 0 ? ' active' : ''}" src="${p}" data-photo-index="${i}" onerror="this.style.display='none'" />`).join('')}
+      ${photos.map((p, i) => `<img class="detail-thumb${i === 0 ? ' active' : ''}" src="${p}" data-photo-index="${i}" alt="" role="button" tabindex="0" aria-label="View photo ${i + 1} of ${photos.length} - ${escapeHtml(l.title)}" loading="lazy" onerror="this.style.display='none'" />`).join('')}
     </div>
   ` : '';
 
@@ -10075,7 +10091,7 @@ function renderListingDetail(merged) {
                (openLightbox()) - cursor: zoom-in on .detail-photo signals
                that. -->
           ${mainPhoto
-            ? `<img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${l.title}" onerror="handleDetailPhotoError(this)" />`
+            ? `<img class="detail-photo" id="detailMainPhoto" src="${mainPhoto}" alt="${escapeHtml(l.title)}${l.portal ? escapeHtml(' - ' + l.portal) : ''}" onerror="handleDetailPhotoError(this)" />`
             : noPhotoPlaceholderHtml({ id: 'detailMainPhoto' })}
           ${photos.length > 1 ? `
             <button type="button" class="detail-photo-nav prev" aria-label="Previous photo">‹</button>
@@ -10180,6 +10196,16 @@ function renderListingDetail(merged) {
 
   document.getElementById('listingDetailBody').querySelectorAll('.detail-thumb').forEach(thumb => {
     thumb.addEventListener('click', () => setDetailPhoto(parseInt(thumb.dataset.photoIndex, 10)));
+    // role="button" on an <img> gets it into the tab order but doesn't make
+    // it respond to Enter/Space the way a real <button> would natively -
+    // found in the 2026-09-26 accessibility audit's keyboard-only pass
+    // (these were only clickable, not reachable by keyboard at all before).
+    thumb.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        setDetailPhoto(parseInt(thumb.dataset.photoIndex, 10));
+      }
+    });
   });
 
   const prevPhotoBtn = document.querySelector('#listingDetailBody .detail-photo-nav.prev');
@@ -10590,6 +10616,83 @@ sidebarToggleEl.addEventListener('click', () => {
 sidebarBackdropEl.addEventListener('click', closeSidebar);
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSidebar(); });
 window.addEventListener('resize', () => { if (window.innerWidth > 768) closeSidebar(); });
+
+// Modal accessibility: focus trap + Escape-to-close + return focus on close,
+// applied uniformly to all four .modal-overlay dialogs (Lead Generator
+// config, Pipeline stages/tags, Reminder, Deal Calculator). Added in the
+// 2026-09-26 accessibility audit's real keyboard-only pass, which found
+// none of the four trapped focus (Tab could reach the page behind the
+// overlay while it was open), none closed on Escape, and none returned
+// focus to whatever button opened them. This watches each overlay's `open`
+// class via MutationObserver rather than editing every open*()/close*()
+// call site individually, so it also automatically covers any future modal
+// built on the same .modal-overlay/.modal-panel markup.
+const MODAL_OVERLAY_CLOSERS = {
+  leadgenModalOverlay: () => closeLeadGenModal(),
+  plConfigModalOverlay: () => closePipelineConfigModal(),
+  reminderModalOverlay: () => closeReminderModal(),
+  dealCalcModalOverlay: () => closeDealCalcModal(),
+};
+
+let _activeModalOverlay = null;
+let _modalReturnFocusEl = null;
+
+function _modalFocusableEls(overlayEl) {
+  const panel = overlayEl.querySelector('.modal-panel') || overlayEl;
+  return Array.from(panel.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )).filter(el => el.offsetParent !== null);
+}
+
+Object.keys(MODAL_OVERLAY_CLOSERS).forEach(overlayId => {
+  const overlayEl = document.getElementById(overlayId);
+  if (!overlayEl) return;
+  new MutationObserver(() => {
+    const isOpen = overlayEl.classList.contains('open');
+    if (isOpen && _activeModalOverlay !== overlayEl) {
+      _activeModalOverlay = overlayEl;
+      _modalReturnFocusEl = document.activeElement;
+      // Deferred a frame so display:flex has applied and the panel's
+      // contents are actually focusable (some fields are conditionally
+      // hidden until then).
+      requestAnimationFrame(() => {
+        const focusables = _modalFocusableEls(overlayEl);
+        if (focusables[0]) focusables[0].focus();
+      });
+    } else if (!isOpen && _activeModalOverlay === overlayEl) {
+      _activeModalOverlay = null;
+      if (_modalReturnFocusEl && document.body.contains(_modalReturnFocusEl)) {
+        _modalReturnFocusEl.focus();
+      }
+      _modalReturnFocusEl = null;
+    }
+  }).observe(overlayEl, { attributes: true, attributeFilter: ['class'] });
+});
+
+// Capture phase so this beats the sidebar's own Escape listener above when
+// both could theoretically apply.
+document.addEventListener('keydown', (e) => {
+  if (!_activeModalOverlay) return;
+  if (e.key === 'Escape') {
+    e.stopPropagation();
+    const closer = MODAL_OVERLAY_CLOSERS[_activeModalOverlay.id];
+    if (closer) closer();
+    return;
+  }
+  if (e.key === 'Tab') {
+    const focusables = _modalFocusableEls(_activeModalOverlay);
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+}, true);
 
 document.getElementById('goToLeadsBtn').addEventListener('click', () => showSection('leads'));
 document.getElementById('goToLeadsBtn2').addEventListener('click', () => showSection('leads'));

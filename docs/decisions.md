@@ -6320,3 +6320,183 @@ PR's branch point and merge was lost: `leads_imot.json.gz` 47,283 records
 (87,246,113 -> 15,520,975 bytes), `history_olx.json.gz` 38,412 records
 (85,724,499 -> 15,594,787 bytes). `data/geocode_cache.json` and the
 homes.bg `.gz` files had no conflicting changes and merged automatically.
+## 2026-09-26: Accessibility audit + fixes (backlog item 40) - real contrast ratios, modal focus-trap gaps, icon-button ARIA labels
+
+User approved a batch of design/UX ideas and said "Execute"; this session
+covers the "technical/accessibility" slice specifically - real, evidenced
+fixes only, explicitly not a cosmetic/performative pass. Full findings
+and the fix for each are in `docs/backlog.md` item 40; this entry records
+the reasoning behind the specific choices made and the exact
+before/after numbers.
+
+**Contrast: measured, not eyeballed, and only for combinations actually
+in use.** Computed real WCAG relative-luminance contrast for every
+palette pair first (`(L_light + 0.05) / (L_dark + 0.05)`), then, rather
+than "fixing" every pair that happened to fail in the abstract, checked
+which of those pairs are actually used as text-on-background anywhere in
+`index.html` and on which real background (`.card`'s `--ivory`, or the
+page's own `--ivory-deep`, or a badge's own alpha-blended tint over
+either). This mattered: `--brass` (used only for borders/active-state
+fills with `--ink` text on top, itself already passing at 4.56:1) would
+have looked like it needed fixing from a naive pairwise table but never
+actually renders as small text anywhere, so was correctly left alone.
+
+Three tokens were real, confirmed failures:
+
+| Token | Old hex | On `--ivory` | On `--ivory-deep` | Worst real-world case |
+|---|---|---|---|---|
+| `--taupe` | `#8c8378` | 3.40:1 | 3.08:1 | `.subtitle`/`.card-sub`/filter labels/`.count` etc., all 4.5:1-requiring normal text |
+| `--sage` | `#7a8b6f` | 3.33:1 | 3.02:1 | as low as 2.89:1 against its own `rgba(sage,0.12)` badge background |
+| `--brass-deep` | `#8a6a24` | 4.59:1 (passes) | 4.17:1 (fails) | as low as 3.57:1 against its own `rgba(brass,0.16)` badge background |
+
+**Decision: darken each token in place via a uniform per-channel scale**
+(e.g. `--sage` at 0.65×) rather than introduce a new `--taupe-deep`-style
+variable and hunt down every one of the dozens of call sites individually
+- same hue, no new color added to the system (matching the explicit "stay
+within the palette" instruction), and it fixes every current and future
+usage of that token in one place instead of requiring the next feature
+that reaches for `--taupe` to remember it needs the special darker
+variant. New values: `--taupe` `#685f55`, `--sage` `#4f5a48`,
+`--brass-deep` `#755a1e`. Deliberately targeted a real margin above
+4.5:1 (5.17-6.62:1 depending on token/background) rather than the bare
+minimum, since these tokens are reused across many future contexts this
+session can't enumerate exhaustively, and 4.50-4.55:1 leaves zero room
+for a slightly-off rendering engine or a future slightly-lighter
+background variant to tip back under the line.
+
+**Decision: fix the two mouse-only interactions found, not just add
+labels.** The keyboard walkthrough surfaced two real interaction gaps,
+not just missing attributes: none of the 4 modals trapped focus or closed
+on Escape (confirmed live - Tab walked out of the open Lead Generator
+modal after ~14 presses before the fix), and the detail-page photo
+thumbnails were `<img>` elements with only a `click` listener, completely
+unreachable by keyboard. Both are "can't operate this feature with a
+keyboard at all" bugs, a materially worse class of problem than a missing
+label, so both got real interaction fixes (a shared focus-trap/Escape/
+return-focus mechanism for the modals; `role="button"` + `tabindex="0"` +
+a `keydown` handler for the thumbnails) rather than being logged as
+follow-up items.
+
+**Decision: centralize the modal fix via `MutationObserver` on each
+overlay's `open` class, instead of editing the 4 separate open()/close()
+function pairs.** The 4 modals (`leadgenModalOverlay`, `plConfigModalOverlay`,
+`reminderModalOverlay`, `dealCalcModalOverlay`) each already toggle a
+plain `.open` CSS class from independent, differently-named functions
+with no shared code path. Editing all 8 functions individually would work
+for today's 4 modals but silently miss any modal added later unless its
+author remembered to copy the same boilerplate. Watching the DOM
+attribute directly means the fix applies uniformly now and automatically
+to anything built on the same `.modal-overlay`/`.modal-panel` markup
+later, at the cost of one small shared script block instead of eight
+small edits.
+
+**Decision: `alt=""` on the "Browse by city" tile photos, not a
+descriptive string, despite the brief asking for "real, descriptive alt
+text."** These images sit directly inside a `<button aria-label="{city},
+{N} listings">` - the accessible-name algorithm already gives the button
+a full, correct name from that `aria-label`, and a screen reader would
+announce the image's own alt text as a second, redundant name
+immediately after it ("Sofia. Sofia, 1,234 listings" or similar,
+depending on the AT). Reasoned through the accessible-name-computation
+order rather than assuming "more text is always safer" - a wrong or
+redundant label is exactly the failure mode the brief's "no performative
+attribute pass" instruction warned against.
+
+**Verification environment note**: this sandbox's egress policy blocks
+every CDN host `index.html` actually loads from (`cdnjs.cloudflare.com`,
+`cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com` - all confirmed
+403'd by the proxy's own `__agentproxy/status` endpoint), the same
+constraint item 39's own Playwright harness ran into. Rather than
+`npm pack`-vendoring the real libraries the way item 39 did, used
+Playwright's `page.route()` to serve small local generic Proxy-based
+stub scripts for `supabase-js`/Leaflet/Leaflet-draw/Chart.js (any
+property access or method call returns a further-chainable stub; awaiting
+one resolves to an empty, error-free `{data: [], error: null}`) - enough
+for the real, unmodified `index.html` to boot end-to-end with zero
+console/JS errors and for its real render functions
+(`createListingCard`, `renderPipelineTableView`,
+`renderPipelineConfigLists`, the modal open/close functions) to be
+exercised directly, without needing real map/chart rendering, which
+these particular checks don't depend on. Also found and worked around one
+sandbox-chromium-specific issue undocumented elsewhere in this repo: the
+Leaflet `<script>`/`<link>` tags carry Subresource Integrity hashes
+(`integrity="sha256-..."`) pinned to the real unpkg-hosted files, which
+made Chromium reject the locally-stubbed content as a hash mismatch until
+the test harness's own document-route stripped those two `integrity`
+attributes for the stub run only - `index.html` itself was not changed
+for this, since the SRI hashes are correct and should stay for the real,
+unmodified file in production.
+
+Built in an isolated `git worktree` off a freshly-fetched `origin/main`
+(`a11y-technical-fixes` branch), per this repo's shared-checkout
+discipline. No live GitHub Actions dispatch of anything - this change has
+no workflow/script surface at all, only `index.html` and these two docs
+files. Not self-merged - opened as a PR for Missy's review per the
+repo's standing rule.
+
+### 2026-09-26 - Correction (Missy's PR #297 re-review): darkening `--brass-deep` for its text use fixed one failure and silently introduced a worse one for its background use
+
+The entry above darkened `--brass-deep` from `#8a6a24` to `#755a1e`
+purely against its use as **text** (badge text, links, stat values) -
+that swap was checked (4.59:1 -> higher on `--ivory`, 4.17:1 -> passing
+on `--ivory-deep`). What it missed: `--brass-deep` is also used as the
+**background** in 5 button `:hover` states, each of which sets
+`color: var(--ink)` only in the base rule and switches just the
+`background`/`border-color` to `--brass-deep` on hover with no `color`
+override - `.cta-btn:hover`, `.save-detail-btn:hover`,
+`.leadgen-check-btn:hover`, `.modal-btn-primary:hover`, `.brass-btn:hover`.
+Darkening a background that dark (`--ink`) text sits on top of always
+*reduces* contrast, so this made an already-failing state materially
+worse:
+
+| Case | Contrast | Result |
+|---|---|---|
+| `--ink` on OLD `--brass-deep` (`#8a6a24`) | 3.24:1 | already failed AA 4.5:1 before this PR (missed by the original audit, which only checked brass-deep as text) |
+| `--ink` on NEW `--brass-deep` (`#755a1e`) | 2.52:1 | made worse by this PR's own darkening |
+
+Real WCAG relative-luminance math (`(L_light + 0.05) / (L_dark + 0.05)`),
+same method as the rest of this audit - not re-litigated, verified
+independently against Missy's numbers.
+
+**Fix: add an explicit `color: var(--ivory)` override to each of the 5
+hover rules**, rather than introduce a separate hover-background
+variable. `--brass-deep` already has to stay dark enough to work as text
+elsewhere in the palette; asking it to *also* stay light enough for dark
+text to read on it as a background is two incompatible constraints on
+one token. Switching the hover text color to `--ivory` (already an
+existing palette token, not a new hue) resolves it directly and matches
+the existing inverse pattern already used by `.save-listing-btn:hover`
+(`background: var(--ivory); color: var(--brass-deep)`) elsewhere in this
+same file. Real contrast after the fix, all comfortably clear of 4.5:1:
+
+| Hover state | Text/background | Contrast |
+|---|---|---|
+| `.cta-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.save-detail-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.leadgen-check-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.modal-btn-primary:hover` (14px/600 - not "large text", strict 4.5:1 applies) | `--ivory` on `--brass-deep` | 5.91:1 |
+| `.brass-btn:hover` | `--ivory` on `--brass-deep` | 5.91:1 |
+
+**Verified no other `--brass-deep` usage has the same undetected issue.**
+Grepped every `--brass-deep` occurrence in `index.html` after the fix.
+All other usages are either (a) `--brass-deep` as text color on a light
+surface - the case the original audit already covered and which now
+passes at 4.60-6.49:1 across `--ivory`, `--ivory-deep`, white, and every
+tinted badge background in use (composited over `--ivory-deep`: 4.60:1
+at 0.16 alpha up to 4.90:1 at 0.10 alpha), or (b) non-text uses with no
+readable content on top (a map-highlight stroke, a map-pin background
+behind an icon glyph, decorative photo-placeholder gradients under a
+low-opacity blended letter, a progress-bar fill). None of these needed
+changes. Confirmed the badge-text fix this PR was originally shipping is
+still intact - the `color: var(--ivory)` hover override only touches the
+5 button states above, `--brass-deep`'s value and its text-color usages
+are unchanged by this correction.
+
+Verified visually with real Playwright screenshots of each of the 5
+hover states (normal + `:hover`, rendered from the real `.cta-btn`/
+`.save-detail-btn`/`.leadgen-check-btn`/`.modal-btn-primary`/`.brass-btn`
+CSS extracted unmodified from `index.html`) - all 5 read clearly, ivory
+text on the darker brass, no new hue introduced. Built in the same
+isolated-worktree-off-the-PR-branch pattern as the rest of this repo's
+process; not self-merged - pushed to the existing `a11y-technical-fixes`
+branch for Missy's re-review.

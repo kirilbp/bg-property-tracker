@@ -6004,6 +6004,150 @@ wants to pick it up: fixing it would mean either adding `"updated_at":
 now_iso` to every row `build_rows()` emits (so it's part of the `ON
 CONFLICT DO UPDATE SET` payload every run), or adding a Postgres trigger -
 the former is simpler and doesn't need a Supabase-SQL-editor manual step.
+## 43. Accessibility audit + fixes: real WCAG contrast measurement, missing alt text, keyboard-trap gaps in all 4 modals, icon-only-button ARIA labels, lazy-loading gaps - APPROVED BY MISSY (2 rounds - a hover-contrast regression from the PR's own --brass-deep darkening was found and fixed), MERGED (2026-09-26)
+
+User-approved design/UX backlog, "technical/accessibility" group. A
+genuine audit against real numbers, not a guess or a performative
+attribute-sprinkling pass - see `docs/decisions.md` for the full
+before/after contrast table and the reasoning behind each fix.
+
+**Color contrast (WCAG AA: 4.5:1 normal text, 3:1 large text/UI)**:
+computed real relative-luminance contrast ratios for every actually-used
+text-on-background combination in the brass/ivory/ink/sage palette (not
+just the raw pairwise combinations - checked what each token is really
+used for and on what background, e.g. `.card`'s `--ivory` background vs.
+the page's own `--ivory-deep`). Found three real, systemic failures:
+`--taupe` (used for `.subtitle`, `.card-sub`, filter labels, `.count`,
+`.listing-persqm`, pagination `.page-info`, and more - dozens of small/
+normal-text usages) measured 3.40:1 on `--ivory` and 3.08:1 on
+`--ivory-deep`, both well under the 4.5:1 floor; `--sage` (badge text,
+`.pl-status-line`, `.btl-pass-line.pass`) measured 3.33:1 / 3.02:1 direct
+and as low as 2.89:1 against its own tinted badge background; `--brass-
+deep` (link/label text used throughout) passed on `--ivory` (4.59:1) but
+failed on `--ivory-deep` (4.17:1) and on its own tinted badge backgrounds
+(as low as 3.57:1). Fixed by darkening all three tokens in place (a
+uniform per-channel scale - same hue, no new color introduced, per the
+"stay within the palette" instruction): `--taupe` `#8c8378`→`#685f55`,
+`--sage` `#7a8b6f`→`#4f5a48`, `--brass-deep` `#8a6a24`→`#755a1e`. Verified
+live post-fix via a Playwright page evaluating the actual computed CSS
+custom properties: `--taupe` now 5.70:1 (ivory) / 5.17:1 (ivory-deep),
+`--sage` 6.62:1 / 6.01:1, `--brass-deep` 5.91:1 / 5.36:1 - all clear 4.5:1
+with margin, everywhere they're actually used. `--brass`, `--ink`,
+`--ink-soft`, `--ivory`, `--ivory-deep`, `--taupe-light`, `--error` were
+all already passing and left untouched.
+
+**Alt text**: grepped every `<img>` tag and every listing-photo render
+site (6 total). Two had no `alt` attribute at all - `.pl-table-photo`
+(Pipeline table view's thumbnail column) and `.detail-thumb` (listing
+detail page's photo-strip thumbnails) - both fixed with real descriptive
+text (listing title + portal for the table photo; "View photo N of M -
+{title}" for the thumbnails, since they're also now interactive). The two
+main listing-grid card renders (`createListingCard`, `createPipelineCard`)
+already had `alt="${title}"` but were upgraded to title + portal per the
+brief's own example. The listing-detail main photo's alt was unescaped
+raw `l.title` (a real, if minor, HTML-injection/attribute-breaking risk
+for any listing title containing a quote) - fixed to `escapeHtml()` +
+portal. The one already-correct case, oddly, needed the opposite fix: the
+"Browse by city" home-page tiles had `alt="${city}"` on an `<img>` that
+sits inside a `<button>` whose own `aria-label` already states the full
+"{city}, {N} listings" - a screen reader would announce the city name
+twice. Set that one `alt=""` (decorative) since the parent already
+carries the accessible name - verified against how the accessible-name
+computation actually treats a labelled parent, not fixed on a guess.
+
+**Keyboard navigation**: real Playwright keyboard-only walkthroughs (Tab/
+Shift+Tab/Enter/Escape), not DOM reading. Found two real, confirmed gaps:
+(1) **none of the site's 4 modals** (Lead Generator config, Pipeline
+stages/tags config, Reminder, Deal Calculator) **trapped focus, closed on
+Escape, or returned focus to the triggering element** - Tab could walk
+straight through to the page behind an open modal, confirmed live by
+tabbing 40 times inside the Lead Generator modal before the fix (escaped
+after ~14 tabs) and by the total absence of any Escape/focus-management
+code for all 4 (only the mobile sidebar had one). Fixed with a single
+shared, centralized mechanism (`index.html`, near the sidebar's own
+Escape handler) - a `MutationObserver` per overlay watching its `open`
+class, rather than editing each open()/close() function individually, so
+it also covers any future modal built on the same markup. Re-verified
+live post-fix: 40 Tab presses inside the Lead Generator modal never left
+`.modal-panel` (`focus_escaped_modal_during_tab: false`), Shift+Tab from
+the first focusable element correctly wrapped to the last ("Save"),
+Escape closed it, and focus correctly returned to the "+ Add New Lead
+Generator" button that opened it. Also added `role="dialog"`,
+`aria-modal="true"`, and `aria-labelledby` (pointing at each modal's own
+heading) to all 4 `.modal-panel`s, which had none of the three. (2) the
+listing-detail **photo thumbnail strip was mouse-only** - `<img
+class="detail-thumb">` elements had a `click` listener and nothing else,
+so they were entirely unreachable by keyboard (no `tabindex`, no
+`role`, no `keydown` handling). Fixed: `role="button"`, `tabindex="0"`,
+a real `aria-label`, and a `keydown` handler for Enter/Space (with
+`preventDefault` so Space doesn't also scroll the page) wired alongside
+the existing click listener.
+
+**ARIA labels on icon-only buttons**: audited all 149 `<button>`s for
+ones with no visible text label (an emoji/symbol only). Buttons that
+already have a visible text label (e.g. "★ Saved to Dashboard", "⬇
+Export", "← Previous") were left alone - a redundant `aria-label` there
+would just duplicate the existing accessible name, which is the kind of
+performative attribute the brief explicitly warned against. Real gaps
+found and fixed, all with dynamic, context-specific text (not a generic
+"Edit"/"Delete" repeated identically down a list of otherwise-identical
+rows): the 4 modal close buttons (`✕`, previously not even carrying a
+`title`); the Lead Generator card's edit/duplicate/share/delete icon row
+(`aria-label="Edit {generator name}"` etc.); the Pipeline card's tags/
+remove icon buttons and the Pipeline table's row-remove button (listing
+title in the label); the stage/tag config rows' icon/name/color inputs
+and their remove buttons (previously had no accessible name at all - not
+just missing on the button, the plain-text icon/name inputs too); and the
+save-to-Dashboard (★/☆) and add-to-Pipeline (✓/＋) toggle buttons, whose
+existing `title` already stated the current state correctly but had no
+`aria-label`, now made dynamic and per-listing. Explicitly did **not**
+touch already-correct cases: the sidebar's hamburger toggle already had
+`aria-label`/`aria-expanded`/`aria-controls`; the detail page's photo
+prev/next arrows already had `aria-label`; every `.nav-item` already
+pairs its icon with visible text.
+
+**Lazy-loading**: the two main listing-grid card renders
+(`createListingCard`, `createPipelineCard`) and the comparables-panel
+photo render already used native `loading="lazy"` - confirmed this is
+correct as-is (native lazy-loading defers only images actually outside
+the viewport; it doesn't need hand-rolled "first N cards" exemption
+logic). Added it to the two images that were missing it entirely
+(`.pl-table-photo`, `.detail-thumb`) as part of the same fix that added
+their `alt` text. Left the listing-detail page's main hero photo
+(`#detailMainPhoto`) un-lazy, correctly - it's the one listing-photo
+element actually in the first viewport on that page. Verified the
+existing "no photo" placeholder logic still works identically after these
+changes: a real Playwright test that calls `createListingCard()` with a
+synthetic listing pointing at a broken photo URL and dispatches a real
+`error` event on the resulting `<img>` confirms `handlePhotoError()`
+still replaces it with the `.listing-photo-placeholder` exactly as
+before.
+
+**Verification**: this sandbox blocks every real CDN the page loads from
+(`cdnjs.cloudflare.com`, `cdn.jsdelivr.net`, `unpkg.com`, Google Fonts -
+confirmed via the proxy's own status endpoint, all rejected 403 by
+policy, matching item 39's own note about this). Used Playwright's
+`page.route()` to serve small local stand-ins for Supabase-js/Leaflet/
+Leaflet-draw/Chart.js (generic Proxy-based chainable/thenable/no-op
+stubs - not real map/chart rendering, irrelevant to these specific
+checks) so the real, unmodified `index.html` runs end to end against
+them. Confirmed **zero console/JS errors** at both 1440px and 390px with
+this harness. Contrast ratios above were read from the page's own live
+computed `--taupe`/`--sage`/`--brass-deep` CSS custom properties, not
+recomputed by hand only. Full keyboard walkthrough covered the sidebar
+nav, the Lead Generators page's filter/sort controls, and the Lead
+Generator config modal (focus trap, Shift+Tab wrap, Escape, focus
+return). `renderPipelineConfigLists()` and `renderPipelineTableView()`
+were also exercised directly with synthetic stage/tag/listing data to
+confirm their new ARIA labels and alt/lazy attributes render correctly
+end to end, not just as static markup.
+
+**Files touched**: `index.html` only (`:root` palette values; `alt`/
+`loading`/`aria-label`/`role`/`tabindex` attributes on the affected
+`<img>`/`<button>`/`<input>` templates; the new shared modal focus-trap/
+Escape/return-focus script; `role="dialog"`/`aria-modal`/
+`aria-labelledby` on the 4 modal panels). No scraper/sync/schema/workflow
+files touched. No auth/PII surface.
 
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
