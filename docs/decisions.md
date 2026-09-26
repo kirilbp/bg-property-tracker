@@ -5634,7 +5634,7 @@ every other large portal, which has its own `backfill_detail_*.py`).
 Independently re-verified the audit's own numbers against current
 `data/leads_homes.json.gz` rather than trusting them as given, per this
 repo's standing practice: 67,935 active listings (30.1% of 225,635 active
-listings tracked site-wide across all 7 portals - close to, consistent
+listings tracked site-wide across all 8 portals - close to, consistent
 with, the audit's cited ~29%), 0/67,935 with a non-empty `description`.
 
 Read the established pattern first (`backfill_detail_imot.py` -
@@ -5647,10 +5647,10 @@ per this repo's own `update_history()` merge-not-replace discipline
 history involved scrapers losing data by not using it correctly). That
 read surfaced a real, previously-undocumented finding, independent of
 whether live access is ever restored: `scraper_homes.py`'s
-`update_history()` is the only one of the seven scrapers with this
+`update_history()` is the only one of the eight scrapers with this
 function that still does an unconditional `history[lid]["latest"] = l`
 full replace, with no `_DETAIL_ONLY_FIELDS` merge-preservation at all -
-9a/9c gave the other six this treatment; homes.bg was *correctly*
+9a/9c gave the other seven this treatment; homes.bg was *correctly*
 excluded by 9c's own investigation at the time (no detail-only field
 existed yet to lose), but that reasoning silently expires the moment a
 real `description`/`detail_checked` field starts landing on `latest`.
@@ -5718,3 +5718,5 @@ it was mid-way through unrelated work on a different branch). No live
 consistent with this repo's standing rule against iterating via live
 dispatch. Not self-merged - opened as a PR for Missy's review per the
 repo's standing rule, even though it's docs-only.
+
+**Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.

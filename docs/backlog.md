@@ -1228,7 +1228,7 @@ A fresh audit found homes.bg is the single largest portal by active
 listings (independently re-verified directly against the current
 committed `data/leads_homes.json.gz`, not just repeating the audit's own
 numbers, per this repo's standing rule: **67,935 active listings**, 30.1%
-of the 225,635 active listings tracked site-wide across all 7 portals -
+of the 225,635 active listings tracked site-wide across all 8 portals -
 close to, and consistent with, the audit's cited ~29%, the small
 difference explained by normal data drift between the audit and this
 re-check) and sits at a flat **0/67,935 (0.0%) non-empty `description`**
@@ -1372,7 +1372,7 @@ further investigation):
    `update_history()` reproduces 9a's exact bug for homes.bg specifically:
    every real description this backfill writes gets silently wiped the
    next time `scrape.yml` runs, for every still-active listing, forever -
-   the identical failure mode 9a/9b/9c already fixed for the other six
+   the identical failure mode 9a/9b/9c already fixed for the other seven
    scrapers. Add `_DETAIL_ONLY_FIELDS = ("description", "detail_checked")`
    (name matching whatever flag step 2 above actually uses) to
    `scraper_homes.py` and give `update_history()` the identical
