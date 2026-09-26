@@ -170,6 +170,14 @@
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
+  /* Export toolbar (docs/backlog.md, "data trust" item) - a single quiet
+     secondary action next to the filter panel, not a competing primary CTA
+     (design-guidelines.md section 6: one full-weight primary action per
+     view). Reuses .detail-secondary-btn's outline style rather than a new
+     button treatment. */
+  .leads-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .leads-toolbar .detail-secondary-btn { margin-top: 0; }
+  .leads-toolbar-note { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
   .count { font-size: 13px; color: var(--taupe); margin: 16px 0; }
   /* Radius/polygon Lead Generator coordinate-coverage caveat (see
      leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
@@ -274,6 +282,14 @@
   .listing-price-row { display: flex; justify-content: space-between; align-items: baseline; }
   .listing-price { font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--ink); }
   .listing-persqm { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
+  /* Data-freshness badge (docs/backlog.md, "data trust" item) - deliberately
+     as quiet as .listing-persqm above it, not a badge/pill: this is
+     supporting context, not a signal worth competing with the price for
+     attention. .is-stale (unusually long since last portal-confirmed
+     update - see listingFreshnessInfo()) shifts to the ink-soft family
+     rather than an alarm color, per design-guidelines.md section 4. */
+  .listing-freshness { font-family: var(--font-sans); font-size: 11px; color: var(--taupe); margin: 2px 0 0; }
+  .listing-freshness.is-stale { color: var(--ink-soft); font-weight: 600; }
   /* min-height: one badge row's worth - so a 0- or 1-badge card doesn't
      let its title/price sit noticeably higher than a multi-badge card's
      right next to it (a 2+ row wrap for listings with many badges is left
@@ -532,6 +548,16 @@
   .detail-price-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
   .detail-price { font-family: var(--font-serif); font-weight: 400; font-size: 34px; color: var(--ink); }
   .detail-persqm { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); }
+  /* Freshness + cross-portal price divergence - see listingFreshnessInfo()/
+     priceDivergenceInfo() for what real, already-synced data each reads. */
+  .detail-freshness { font-family: var(--font-sans); font-size: 12.5px; color: var(--taupe); margin: -16px 0 16px; }
+  .detail-freshness.is-stale { color: var(--ink-soft); font-weight: 600; }
+  .detail-price-divergence {
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em;
+    margin: -14px 0 16px; color: var(--sage);
+  }
+  .detail-price-divergence a { color: inherit; }
+  .detail-price-divergence.neutral { color: var(--taupe); font-weight: 500; }
   /* Fixed-length stat rows (4 items here, 3 in the Price History panel
      below), not an open-ended list - auto-fit/minmax used to pick
      whatever column count happened to fit the available width, and any
@@ -1777,6 +1803,10 @@
                 <option value="score-desc">Motivation score</option>
               </select>
             </div>
+          </div>
+          <div class="leads-toolbar">
+            <span class="leads-toolbar-note" id="exportCsvNote"></span>
+            <button class="detail-secondary-btn" id="exportCsvBtn" type="button" title="Downloads the currently filtered and sorted listings as a CSV file">⬇ Export CSV</button>
           </div>
         </div>
 
@@ -7598,6 +7628,7 @@ function createListingCard(l) {
           <span class="listing-price">€${fmt(l.price_eur)}</span>
           <span class="listing-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
+        ${freshnessBadgeHtml(l, 'listing-freshness')}
       </div>
     </div>
     <div class="listing-body" style="padding-top:0;">
@@ -7774,6 +7805,85 @@ function matchesAllFilters(l, filters) {
     matchesCityFilter(l, filters.city) &&
     matchesOblastFilter(l, filters.oblast)
   );
+}
+
+// --- CSV export of the currently filtered/sorted Leads grid --------------
+// Reuses render()'s own readFilterState()/matchesAllFilters()/
+// sortComparator() exactly as-is, rather than a second, separately-
+// maintained filtering pass - so "what's on screen" and "what gets
+// exported" can never quietly drift apart from each other. All client-
+// side, on data already loaded into MERGED_LISTINGS (backlog item 6) - no
+// server round-trip.
+function getCurrentFilteredSortedListings() {
+  const filters = readFilterState();
+  const filtered = MERGED_LISTINGS.filter(l => matchesAllFilters(l, filters));
+  filtered.sort(sortComparator(filters.sortBy));
+  return filtered;
+}
+
+// Columns an investor doing their own analysis would actually want (per
+// the feature ask) - each a small function over one listing row rather
+// than a template string, so a later column addition/reorder only touches
+// this one array.
+const CSV_EXPORT_COLUMNS = [
+  { header: 'Title', value: l => l.title || '' },
+  { header: 'Price (EUR)', value: l => l.price_eur ?? '' },
+  { header: 'Sqm', value: l => l.sqm ?? '' },
+  { header: 'Price per sqm (EUR)', value: l => l.price_per_sqm ?? '' },
+  { header: 'Rooms', value: l => l.rooms ?? '' },
+  { header: 'City', value: l => {
+      const c = BG_CITIES.find(c => c.key === (l.city_key || listingCityKey(l)));
+      return c ? c.label : '';
+    } },
+  { header: 'Area', value: l => l.area || '' },
+  { header: 'Portal', value: l => (l.member_portals && l.member_portals.length > 1)
+      ? `${l.portal} (+${l.member_portals.length - 1} more)`
+      : (l.portal || '') },
+  { header: 'Status', value: l => l.status === 'sold' ? 'Sold' : 'Available' },
+  { header: 'Days on market', value: l => l.days_on_market ?? '' },
+  { header: 'Motivation score', value: l => l.score ?? '' },
+  { header: 'URL', value: l => l.url || '' },
+];
+
+function csvEscapeField(value) {
+  const s = String(value ?? '');
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function buildListingsCsv(listings) {
+  const lines = [CSV_EXPORT_COLUMNS.map(c => csvEscapeField(c.header)).join(',')];
+  listings.forEach(l => lines.push(CSV_EXPORT_COLUMNS.map(c => csvEscapeField(c.value(l))).join(',')));
+  // Leading UTF-8 BOM: Excel (unlike most CSV consumers) mis-detects
+  // encoding and mangles Cyrillic text without it - a real issue for this
+  // app's actual data (every BG title/area string), not a hypothetical
+  // edge case. \r\n per RFC 4180.
+  return '﻿' + lines.join('\r\n');
+}
+
+// Client-side Blob + <a download> - no server round trip, no new library.
+function exportFilteredListingsCsv() {
+  const note = document.getElementById('exportCsvNote');
+  if (!BULK_READY) {
+    if (note) note.textContent = 'Still loading the full dataset - try again in a moment.';
+    return;
+  }
+  const listings = getCurrentFilteredSortedListings();
+  if (listings.length === 0) {
+    if (note) note.textContent = 'No listings match the current filters.';
+    return;
+  }
+  const csv = buildListingsCsv(listings);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+  a.href = url;
+  a.download = `imotenradar-listings-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  if (note) note.textContent = `Exported ${fmt(listings.length)} listing${listings.length === 1 ? '' : 's'}.`;
 }
 
 function render() {
@@ -8363,6 +8473,155 @@ function sourceListedMetaHtml(s) {
     lines.push('Removed');
   }
   return lines.join(' · ');
+}
+
+// --- Data-freshness badge ("Verified X ago") ----------------------------
+// Built entirely from fields sync_to_supabase.py already syncs to
+// merged_listings/listing_sources (MERGED_LISTINGS_BULK_COLUMNS already
+// includes site_updated_at/first_seen_at, so the grid needs no extra
+// fetch) - no new backend field. Two real signals exist, each with the
+// exact same real coverage gap sourceListedMetaHtml() above already works
+// around for "Listed", and for the same underlying reason (only some
+// portals' scrapers expose the relevant date):
+//   - site_updated_at: the portal's OWN stated last-updated/renewed date -
+//     only scraper_alo.py, scraper_bcpea.py and scraper_olx.py populate
+//     this (confirmed by grepping every scraper_*.py for the field: the
+//     other five - bazar/homes/imot/imoti_bg/imoti_net - never set it).
+//     When present, this is a genuine portal-confirmed recency signal, so
+//     it's labeled "Verified".
+//   - first_seen_at: precomputed server-side by sync_to_supabase.py's
+//     first_seen_at_for() from this listing's earliest tracked snapshot -
+//     available for virtually every listing, but it is a static origin
+//     date, not a recheck date: it does NOT move just because a later
+//     scrape re-confirms an unchanged listing is still live. The per-run
+//     "still there, still live" confirmation genuinely exists (scraper.py's
+//     compute_leads() derives it as `last_seen`, from history's own
+//     snapshots[-1].seen_at) but is never synced to Supabase - only
+//     leads_*.json-derived fields are (see SOURCE_FIELDS/MERGED_FIELDS in
+//     sync_to_supabase.py). Labeled "First tracked", not "Verified", for
+//     exactly that reason - it would otherwise overstate how recently this
+//     listing's data was actually rechecked.
+//
+// Deliberately does NOT use merged_listings'/listing_sources' own
+// `updated_at` column, despite the name suggesting it would fit: upsert()
+// never includes "updated_at" in the SOURCE_FIELDS/MERGED_FIELDS list it
+// sends, and PostgREST's `Prefer: resolution=merge-duplicates` only adds
+// columns actually present in the request body to its ON CONFLICT DO
+// UPDATE SET clause - so `updated_at` is set once, by its own `default
+// now()`, on this row's original INSERT, and is never touched by any
+// later sync run despite every run re-sending this row's full payload.
+// It freezes at "whenever this row first landed in Supabase," not "last
+// confirmed by a sync run" as the column name implies. Using it here would
+// silently mislabel every long-tracked, still-actively-rechecked listing
+// as "stale" - the opposite of the honest signal this feature is meant to
+// be. See docs/decisions.md's entry for this feature for the full
+// reasoning (and why this wasn't just quietly "fixed" in sync_to_supabase.
+// py instead - out of scope for a frontend-only, no-new-backend-field ask,
+// and a live-Supabase-behavior change deserves its own review).
+function formatRelativeTime(d) {
+  const ms = Date.now() - d.getTime();
+  const sec = Math.round(ms / 1000);
+  if (sec < 60) return 'just now';
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.round(hr / 24);
+  if (day < 7) return `${day} day${day === 1 ? '' : 's'} ago`;
+  const week = Math.round(day / 7);
+  if (week < 5) return `${week} week${week === 1 ? '' : 's'} ago`;
+  const month = Math.round(day / 30);
+  if (month < 12) return `${month} month${month === 1 ? '' : 's'} ago`;
+  const year = Math.round(day / 365);
+  return `${year} year${year === 1 ? '' : 's'} ago`;
+}
+
+// Worth a visibly different (still calm, non-alarm) visual weight once a
+// listing's best available recency signal is this old - see the big
+// comment above. 3 days is comfortably above every real scrape cadence
+// this project runs (scrape.yml every 6h, scrape-large.yml every 24h, per
+// check_scrape_freshness.py's own MAX_FRESHEST_SNAPSHOT_AGE_HOURS=30
+// comment) and above GONE_AFTER's 48h remove-detection window, so a
+// site_updated_at this old genuinely means the portal itself hasn't
+// touched the ad in an unusually long time - not just "a normal gap
+// between two scrape runs."
+const FRESHNESS_STALE_AFTER_MS = 1000 * 60 * 60 * 24 * 3;
+
+function listingFreshnessInfo(l) {
+  const verified = l.site_updated_at || null;
+  const iso = verified || l.first_seen_at || null;
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return {
+    verb: verified ? 'Verified' : 'First tracked',
+    relative: formatRelativeTime(d),
+    // Only the genuine portal-confirmed signal drives the "stale" visual -
+    // see the "First tracked" branch's own comment above for why
+    // first_seen_at's age alone isn't a meaningful staleness signal (a
+    // perfectly healthy, still-being-rechecked listing's first_seen_at
+    // only grows the longer it stays on the market).
+    stale: !!verified && (Date.now() - d.getTime()) >= FRESHNESS_STALE_AFTER_MS,
+  };
+}
+
+function freshnessBadgeHtml(l, cssClass) {
+  const info = listingFreshnessInfo(l);
+  if (!info) return '';
+  return `<p class="${cssClass}${info.stale ? ' is-stale' : ''}">${info.verb} ${info.relative}</p>`;
+}
+
+// --- Cross-portal price divergence ---------------------------------------
+// Real, already-retained per-source price data: listing_sources keeps its
+// own price_eur for each (portal, source_id) row even after sync_to_
+// supabase.py's group_listings() merges matching sources into one
+// merged_listings record for display - merged.sources (lazily fetched from
+// listing_sources once a listing's detail page is opened - see
+// loadListingDetail()) is exactly that per-source data, the same rows the
+// portal-badge switcher above already reads each source's own price_eur
+// from. No new data needed here: this only adds a proactive callout when
+// those already-fetched prices genuinely diverge, instead of leaving the
+// user to notice it themselves by clicking through each portal badge.
+const PRICE_DIVERGENCE_MIN_PCT = 0.03; // 3%...
+const PRICE_DIVERGENCE_MIN_EUR = 1000; // ...and at least this much in euro
+// terms, so a trivial rounding/currency-conversion-level difference on a
+// cheap listing doesn't trigger a callout that reads as more significant
+// than it really is.
+
+function priceDivergenceInfo(merged, currentSource) {
+  const sources = (merged.sources || []).filter(s =>
+    s.source_status !== 'removed' && typeof s.price_eur === 'number' && s.price_eur > 0
+  );
+  if (sources.length < 2) return null;
+  const current = currentSource || sources[0];
+  const others = sources.filter(s => s.portal !== current.portal);
+  if (others.length === 0) return null;
+  const cheapest = others.reduce((min, s) => (s.price_eur < min.price_eur ? s : min), others[0]);
+  const priciest = others.reduce((max, s) => (s.price_eur > max.price_eur ? s : max), others[0]);
+  const isMeaningful = (other) => {
+    const diff = Math.abs(current.price_eur - other.price_eur);
+    return diff >= PRICE_DIVERGENCE_MIN_EUR && diff / current.price_eur >= PRICE_DIVERGENCE_MIN_PCT;
+  };
+  // Prefer surfacing a cheaper alternative (directly actionable for an
+  // investor - a real arbitrage/negotiation signal) over a pricier one.
+  if (cheapest.price_eur < current.price_eur && isMeaningful(cheapest)) {
+    return { other: cheapest, diff: current.price_eur - cheapest.price_eur, direction: 'less' };
+  }
+  if (priciest.price_eur > current.price_eur && isMeaningful(priciest)) {
+    return { other: priciest, diff: priciest.price_eur - current.price_eur, direction: 'more' };
+  }
+  return null;
+}
+
+function priceDivergenceHtml(merged, currentSource) {
+  const info = priceDivergenceInfo(merged, currentSource);
+  if (!info) return '';
+  // "less" (a genuinely cheaper alternative) is the buyer-favorable case -
+  // design-guidelines.md section 4 reserves the sage signal color for
+  // exactly this ("price moved in the buyer's favor"); "more" is a neutral
+  // fact, styled with the plain taupe secondary-text color instead.
+  const cls = info.direction === 'less' ? 'detail-price-divergence' : 'detail-price-divergence neutral';
+  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for €${fmt(info.diff)} ${info.direction}</p>`;
 }
 
 // --- Property Details & Keywords panel ----------------------------------
@@ -9829,10 +10088,12 @@ function renderListingDetail(merged) {
         <div class="badges">${badges}</div>
         <h1 class="detail-title">${l.title}</h1>
         <p class="detail-area">📍 ${l.area}${cityLabel ? ', ' + cityLabel : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''}</p>
+        ${freshnessBadgeHtml(l, 'detail-freshness')}
         <div class="detail-price-row">
           <span class="detail-price">€${fmt(l.price_eur)}</span>
           <span class="detail-persqm">${l.price_per_sqm ? '€' + fmt(l.price_per_sqm) + '/m²' : ''}</span>
         </div>
+        ${priceDivergenceHtml(merged, l)}
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
           <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
@@ -10435,6 +10696,7 @@ document.getElementById('minTimesReduced').addEventListener('input', renderFromS
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
 document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
+document.getElementById('exportCsvBtn').addEventListener('click', exportFilteredListingsCsv);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
