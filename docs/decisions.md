@@ -5551,3 +5551,75 @@ Built in an isolated `git worktree` off a fresh `origin/main`, per this
 repo's shared-checkout discipline (the shared checkout at
 `/home/user/bg-property-tracker` was left untouched). Not self-merged -
 opened as a PR for Missy's review per the repo's standing rule.
+
+### 2026-09-26 - Backlog item 30 (olx.bg grid-crawl timeout) was already fixed and merged on 2026-09-23 - only its own backlog entry was stale
+
+Dispatched to implement backlog item 30 (its own header still read "HIGH
+PRIORITY, READY TO DISPATCH"). Per this repo's standing practice, checked
+`origin/main` and the item's own referenced history before writing any
+code, rather than assuming the brief's framing was current - and found
+the fix already fully implemented, tested, reviewed, and merged three
+days earlier: commit `3e1aadb4` ("Fix olx.bg's masked grid-crawl timeout
+with a checkpointed, rotating oblast loop"), merged 2026-09-23 as
+[PR #249](https://github.com/kirilbp/bg-property-tracker/pull/249). The
+mismatch is explained by the 2026-09-23 entry above ("Scrapy's
+investigation...") - that entry recorded *scoping* items 30/31 for
+dispatch, and a later same-day session evidently picked item 30 up,
+built and merged it, but never went back to flip this item's own backlog
+header/status - later items (31, 35, 37) already correctly treat item
+30's mechanism as existing, so the gap was purely in item 30's own entry,
+not in anyone's understanding of the codebase.
+
+Verified this conclusion rather than taking the commit's existence alone
+as proof of a working fix, since "merged" isn't the same as "verified
+live":
+
+- **Code and tests read directly, not assumed from the commit message**:
+  `scraper_olx.py`'s `fetch_listings()` takes `deadline`/`on_checkpoint`,
+  a `TIME_BUDGET_SECONDS = 50 * 60` internal budget, a persisted
+  `data/olx_grid_state.json` rotating which `OBLAST_SLUGS` index to
+  resume from, and per-oblast checkpointing with an id-keyed dedup
+  (`recorded_ids` in `main()`). `.github/workflows/scrape.yml` has
+  `id: scraper_olx` on that step and a final `if: always()` step checking
+  `steps.scraper_olx.outcome` (not the `continue-on-error`-forced
+  `conclusion`) that fails the run loudly on a real timeout/failure.
+  Matches every element the backlog task asked for, option (a)
+  specifically (the recommended one).
+- **PR #249's own review record checked, not just its "merged" state**:
+  Missy reviewed it across two passes per the PR body - first pass
+  approved the mechanism but caught a wrong self-reported coverage number
+  in the commit message (claimed 25/26 oblasts covered after 2 runs; her
+  own reproduction found 24/26) and flagged a real gap, load-bearing new
+  logic shipping with no committed test. Both were fixed before the
+  second, fully-approving pass: the commit message corrected, and
+  `tests/test_olx_grid_crawl_timeout_fix.py` added and confirmed by her to
+  exercise the real functions (not a reimplementation) and to genuinely
+  fail against the pre-fix code.
+- **Re-ran the full test suite fresh** against current `origin/main` in a
+  new isolated worktree rather than trusting the historical CI result:
+  265 passed, 4 subtests passed, 0 regressions.
+- **Checked real, current production job logs** rather than assuming the
+  merged fix behaves the same live as it did in review - pulled the job
+  log for the most recent completed scheduled `scrape.yml` run that
+  predates item 38's fix (run `36211681854`, started 2026-09-26T02:26
+  UTC): the `python scraper_olx.py` step completed in 50m11s
+  (03:44:38-04:34:49 UTC) with `conclusion: "success"`, well inside its
+  new 50-minute internal budget and nowhere near the 60-minute
+  `timeout-minutes` cap that killed all 6 pre-fix runs. That run's own
+  overall `failure` conclusion traces to the unrelated, separately-fixed
+  item 38 (`check_scrape_freshness.py`'s homes.bg ratio floor going
+  stale) - not a recurrence of item 30's bug.
+
+**Outcome: no code change needed.** Updated `docs/backlog.md` item 30's
+own header/status and added a status paragraph documenting this
+finding (with the PR link, the live job-log confirmation, and why no
+further work was required) - a docs-only correction. Did not dispatch a
+live `workflow_dispatch` for this: real, current production data already
+confirms the fix works, so a fresh dispatch would add cost (and risk the
+same "spam the repo owner" pattern this repo's standing rule exists to
+prevent) for zero new information. Built in an isolated `git worktree`
+off a fresh `origin/main`, shared checkout at
+`/home/user/bg-property-tracker` left untouched. Sent for Missy's review
+per the repo's standing rule even though it's docs-only, consistent with
+how item 6 slice 2's docs-only follow-up (PR #228) was still routed
+through review.
