@@ -49,9 +49,8 @@ each portal's own leads*.json via that portal's own compute_leads().
 Run with: python3 backfill_category_review3_fixes.py
 """
 
-import json
-
 import category_classifier as cc
+from geo_utils import save_json_any
 
 
 PORTALS = [
@@ -112,7 +111,7 @@ def backfill_portal(portal_label, module_name, uses_description):
     if changed:
         module.save_history(history)
         leads = module.compute_leads(history)
-        module.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(module.LEADS_FILE, leads)
         print(f"DEBUG: wrote {len(leads)} leads to {module.LEADS_FILE}")
     else:
         print("DEBUG: nothing changed - history/leads left untouched")

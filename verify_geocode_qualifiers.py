@@ -57,11 +57,11 @@ MISMATCH_KM = 30
 # storage" comment). propagate_fix() below reads/writes through
 # load_json_any()/save_json_any(), which are extension-aware.
 PORTAL_FILES = [
-    ("history_imot.json", "leads_imot.json"),
+    ("history_imot.json.gz", "leads_imot.json.gz"),
     ("history_imoti_bg.json", "leads_imoti_bg.json"),
-    ("history_olx.json", "leads_olx.json"),
-    ("history_alo.json", "leads_alo.json"),
-    ("history_bazar.json", "leads_bazar.json"),
+    ("history_olx.json.gz", "leads_olx.json.gz"),
+    ("history_alo.json.gz", "leads_alo.json.gz"),
+    ("history_bazar.json.gz", "leads_bazar.json.gz"),
     ("history_homes.json.gz", "leads_homes.json.gz"),
     ("history.json", "leads.json"),
     ("history_bcpea.json", "leads_bcpea.json"),

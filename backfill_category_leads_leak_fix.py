@@ -34,9 +34,8 @@ For each portal:
 Run with: python3 backfill_category_leads_leak_fix.py
 """
 
-import json
-
 import category_classifier as cc
+from geo_utils import load_json_any, save_json_any
 
 
 PORTALS = [
@@ -53,7 +52,7 @@ def patch_portal(portal_label, module_name, uses_description):
     module = __import__(module_name)
     history = module.load_history()
 
-    leads = json.loads(module.LEADS_FILE.read_text(encoding="utf-8"))
+    leads = load_json_any(module.LEADS_FILE)
     leads_by_id = {rec["id"]: rec for rec in leads}
 
     total = 0
@@ -106,7 +105,7 @@ def patch_portal(portal_label, module_name, uses_description):
 
     if changed:
         module.save_history(history)
-        module.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(module.LEADS_FILE, leads)
         print(f"DEBUG: wrote category-only patch for {changed} records to {module.HISTORY_FILE} and {module.LEADS_FILE}")
     else:
         print("DEBUG: nothing changed - history/leads left untouched")

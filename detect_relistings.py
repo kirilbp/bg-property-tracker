@@ -70,10 +70,10 @@ IMOTI_BG_RE = re.compile(r"/(r_[0-9a-f]+_[0-9a-f]+)\.[a-z]+$", re.IGNORECASE)
 # write it through load_json_any()/save_json_any(), which are
 # extension-aware, so this is the only line that needed to change here.
 PORTALS = {
-    "bazar.bg": ("history_bazar.json", lambda url: _match(FOCUS_RE, url)),
-    "imot.bg": ("history_imot.json", lambda url: _match(FOCUS_RE, url)),
+    "bazar.bg": ("history_bazar.json.gz", lambda url: _match(FOCUS_RE, url)),
+    "imot.bg": ("history_imot.json.gz", lambda url: _match(FOCUS_RE, url)),
     "homes.bg": ("history_homes.json.gz", lambda url: _match(HOMES_RE, url)),
-    "olx.bg": ("history_olx.json", lambda url: _match(GENERIC_HASH_RE, url)),
+    "olx.bg": ("history_olx.json.gz", lambda url: _match(GENERIC_HASH_RE, url)),
     "imoti.bg": ("history_imoti_bg.json", lambda url: _match(IMOTI_BG_RE, url)),
 }
 
