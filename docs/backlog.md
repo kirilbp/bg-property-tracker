@@ -3216,7 +3216,7 @@ Changes on `index.html`/`sync_to_supabase.py` (Missy-reviewed, unchanged)
 plus this doc correction, on branch `fix-location-allocation-2026-09-23`
 - not pushed/merged by this session.
 
-## 30. olx.bg's grid crawl chronically times out mid-run, masked by `continue-on-error` - the workflow reports green while whole oblasts get skipped - HIGH PRIORITY, READY TO DISPATCH
+## 30. olx.bg's grid crawl chronically times out mid-run, masked by `continue-on-error` - the workflow reports green while whole oblasts get skipped - DONE, MERGED (2026-09-23, PR #249) - this entry itself was just never updated to say so until 2026-09-26
 
 From Scrapy's investigation into item 29's gap 4 (dispatched specifically
 to find why the scrapers themselves appear to be missing most of a real
@@ -3290,6 +3290,69 @@ builder's call on exact shape):**
   scraping) - Revy's review is not expected to be needed.
 - Send to Missy the moment it's locally verified, before starting
   anything else.
+
+**Status (found already DONE on 2026-09-26 - this entry was simply never
+updated after it shipped):** dispatched to pick this up per the task
+brief above, checked `origin/main` first per standing practice, and found
+the fix already fully implemented and merged - commit `3e1aadb4` ("Fix
+olx.bg's masked grid-crawl timeout with a checkpointed, rotating oblast
+loop"), merged 2026-09-23 as
+[PR #249](https://github.com/kirilbp/bg-property-tracker/pull/249)
+(`fix-olx-timeout-coverage-2026-09-23` -> `main`). Every later backlog
+entry that references "item 30's mechanism" (items 31/35/37) was already
+correctly assuming this existed - only this item's own header/status line
+was never updated to say so, a pure documentation gap, not a code gap.
+Confirmed nothing further needed rather than taking that on faith:
+
+- **PR #249 already did both required things.** `fetch_listings()` (the
+  grid crawl) now takes `deadline`/`on_checkpoint`, mirroring
+  `fetch_listing_details()`'s existing pattern exactly, per the
+  recommended option (a) above - a 50-minute internal `TIME_BUDGET_
+  SECONDS` budget, a small `data/olx_grid_state.json` persisting which
+  `OBLAST_SLUGS` index to resume from next run (rotating the start point
+  forward each run so leftover oblasts shift instead of the same ~10 tail
+  oblasts always being starved), and per-completed-oblast checkpointing
+  with an id-keyed dedup (`recorded_ids`) so overlapping checkpoint
+  batches don't double-append history snapshots. `scrape.yml` gained an
+  `id: scraper_olx` on the step plus a new final `if: always()` step that
+  checks `steps.scraper_olx.outcome` (the step's real result,
+  un-overridden by `continue-on-error`) and fails the whole run loudly if
+  it was a timeout/failure - exactly the "fail loud" requirement, without
+  removing the deliberate per-scraper crash isolation.
+- **Already reviewed by Missy across two passes** (per the PR body):
+  first pass approved the mechanism but caught a wrong self-reported
+  coverage number in the commit message (24/26 oblasts after 2 runs, not
+  the originally-claimed 25/26) and flagged a real gap - genuinely new,
+  load-bearing logic with no committed automated test. Both fixed: the
+  commit message corrected, and `tests/test_olx_grid_crawl_timeout_fix.py`
+  added, which Missy verified exercises the real `scraper_olx.py`
+  functions (not a reimplementation) and genuinely fails against the
+  pre-fix shape. Second pass: full sign-off, no remaining issues.
+- **Re-verified locally rather than trusting the PR's own claims**: ran
+  the full test suite fresh against current `origin/main` in an isolated
+  worktree - 265 passed, 4 subtests passed, 0 regressions (includes the
+  16 tests in `test_olx_grid_crawl_timeout_fix.py` covering rotation/
+  wraparound and checkpoint dedup).
+- **Live production confirmation, not just a code/test read**: pulled the
+  real job log for the most recent completed scheduled `scrape.yml` run
+  before this fix's own follow-up (item 38) landed - run `36211681854`
+  (started 2026-09-26T02:26 UTC) - and confirmed the `python
+  scraper_olx.py` step itself completed in 50m11s (03:44:38 to 04:34:49)
+  with `conclusion: "success"`, comfortably inside its new 50-minute
+  internal budget and nowhere near the 60-minute `timeout-minutes` cap
+  that killed all 6 prior runs. That run's overall `failure` conclusion
+  was from an unrelated, already-tracked-and-fixed issue (item 38:
+  `check_scrape_freshness.py`'s homes.bg active-ratio floor had gone
+  stale after a separate backfill correction roughly doubled that
+  portal's tracked-record denominator; recalibrated and merged same-day
+  as PR #288) - not a recurrence of this item's timeout at all.
+- No code change was made in this pass - only this entry's own status
+  line and the paragraph above, since the actual fix needed no further
+  work. Not dispatching a live `workflow_dispatch` for this, per the
+  standing rule against unnecessary live dispatches: real, current
+  production job logs already confirm the fix is working, so a fresh
+  dispatch would add cost and a possible spam email with zero new
+  information.
 
 ## 31. bazar.bg and imot.bg: nationwide coverage is structurally limited to a fixed ~25-30-city allowlist - Bulgaria's ~230 smaller towns and ~5,000 villages are never queried - DONE, MERGED (2026-09-23)
 
