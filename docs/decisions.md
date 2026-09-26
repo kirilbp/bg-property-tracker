@@ -5613,6 +5613,39 @@ this session's fixture data, and explicitly reverted that fix rather than
 ship it unverified - flagged as a real, still-open follow-up in the
 backlog entry instead of guessing.
 
+**Correction (Missy's review, 2026-09-26): the `.cmp-summary-bar` verdict
+above was wrong - it was checked empty, not populated, and is genuinely
+broken.** The "full width sweep" that cleared it ran against
+`#cmpSummaryBar` before any Comparables search had populated it (0
+children), which can't surface a stranded-item split no matter what the
+CSS does - the same mistake Missy then independently made and caught on
+her own first pass. Re-swept against a real, populated 4-tile search
+result and found it broken exactly like the three already-fixed
+instances: `auto-fit`/`minmax(120px,1fr)` computes 3 columns for 4 items
+at several real widths (confirmed live at 500px and 800px), stranding
+"Matches" alone. **Fixed** with the same explicit-column-count pattern as
+`.stat-row`/`.detail-stats`/`.type-filter-grid`: `repeat(4, 1fr)`, a
+`max-width: 800px` breakpoint to `repeat(2, 1fr)`, and `max-width: 480px`
+to `repeat(1, 1fr)` - never landing on the 3-column state. Verified via a
+live populated-state sweep, 420px-1440px, no stranded width.
+
+`.radius-result` was re-flagged for the same reason (the sibling claim
+had just failed on this exact empty-vs-populated distinction) and, this
+time, could be driven into its populated state: a wider scan of the
+fixture found a listing (`m_f1310d1d30f1bf85`) with one real geocoded
+comparable inside its 1500m radius, which the earlier, narrower check
+missed. It has the same bug (3 columns for 4 items, stranding
+"Comparables", at several real widths). **Fixed** - not with the same
+4-then-2 breakpoint used for `.cmp-summary-bar`, since this panel is
+always narrow (paired half-width next to the price-history panel on
+desktop, or stacked full-width on mobile) and a live sweep showed its
+real paired-desktop width never comfortably reaches 4 columns; forcing 4
+there wrapped labels onto three lines instead of stranding a tile, better
+but still not right. Used a permanent `repeat(2, 1fr)` instead, the same
+shape of fix `.price-history-panel .detail-stats` already uses for its
+own narrow-paired context, verified with the same live populated-state
+sweep and no stranded width from 420px to 1440px.
+
 **Verification**: Playwright screenshots at 1440px/1366px/390px across
 every major page/section, zero console/JS errors at any viewport (only
 harness-expected Google Fonts `preconnect` failures, not app errors).

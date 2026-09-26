@@ -5094,6 +5094,46 @@ against a hand-built `computeRadiusAverage()` result with count ≥ 4) next
 time someone is in this file, but not fixed here since it couldn't be
 seen.
 
+**Correction (Missy's review, 2026-09-26): the `.cmp-summary-bar` claim
+above was wrong, and confirmed broken via a real populated-state test.**
+The "checked, not found broken" verdict was reached by sweeping
+`#cmpSummaryBar` while it was still empty (0 children, before any
+Comparables search had ever been run) - a sweep against an empty grid
+can't show a stranded-item split regardless of the CSS, so it never
+actually exercised the bug it claimed to rule out. Missy re-ran the same
+sweep against a real, populated 4-tile search result and found it
+genuinely broken: `auto-fit`/`minmax(120px,1fr)` computes exactly 3
+columns for the 4 items at multiple real widths (confirmed live at both
+500px and 800px), stranding "Matches" alone on its own row - the same
+"3+1 split" bug this entry already documents fixing three other times.
+**Now fixed** with the identical explicit-column-count pattern used for
+those three instances: `repeat(4, 1fr)` down to a `max-width: 800px`
+breakpoint that drops to `repeat(2, 1fr)`, then `max-width: 480px` to
+`repeat(1, 1fr)` - never a divisor (3) that strands an item. Verified via
+a live populated-search sweep from 420px to 1440px with zero stranded
+widths, including at the two widths (500px/800px) where the bug was
+originally found.
+
+Missy also re-flagged `.radius-result` as worth a second look given the
+sibling claim had just failed once already on the exact same testing
+mistake (empty vs. populated state). A wider scan of this session's
+fixture data found a listing (`m_f1310d1d30f1bf85`) with a real geocoded
+comparable within its 1500m radius after all, so - contrary to the "can't
+be driven into its populated state" note above - it could be checked live
+this time. It has the same bug: 3 columns for 4 items at several real
+widths (paired half-width next to the price-history panel on desktop, or
+full-width stacked on mobile), stranding "Comparables" alone. **Now
+fixed**: a first attempt mirrored `.cmp-summary-bar`'s 4-then-2 scheme,
+but this panel never actually reaches a comfortable 4-column width (a
+live width sweep of its real paired-desktop size topped out under 500px)
+- forcing 4 columns there wrapped "Avg asking price" onto three lines
+instead of stranding a tile, an improvement but still not right. Fixed
+instead with a permanent `repeat(2, 1fr)` (no breakpoint needed - 2
+columns is comfortable at every width this panel actually renders at),
+the same shape of fix `.price-history-panel .detail-stats` already uses
+for its own narrow-paired context. Verified via the same live
+populated-radius sweep from 420px to 1440px, zero stranded widths.
+
 Also noted, not fixed this pass (native-browser behavior, not really a
 "misaligned cell", and not one of the named tasks): the Comparables page's
 "Quarter / area" `<select>` shows its selected placeholder option text

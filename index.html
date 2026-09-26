@@ -778,7 +778,31 @@
   .radius-btn:hover { border-color: var(--taupe); }
   .radius-btn.active { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
   .radius-hint { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 10px 0 0; }
-  .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+  /* Same fixed-4-item shape and same 3+1 stranding bug as .cmp-summary-bar
+     above (see that rule's own comment) - confirmed live once a listing
+     with real geocoded comparables within its selected radius could
+     actually be driven into this panel's populated 4-tile state (a prior
+     pass on this same PR couldn't find one in the available fixture and
+     left this as an open follow-up; re-checked with a wider fixture scan
+     and found one). auto-fit/minmax(100px,1fr) computes 3 columns for 4
+     items at several real widths this panel renders at, stranding
+     "Comparables" alone. Unlike .cmp-summary-bar (which gets real full
+     page width), this panel never does - it's always either paired
+     half-width next to the price-history panel on desktop (per
+     .detail-history-row above) or full-width stacked on mobile, and a
+     live width sweep of the paired-desktop case topped out under 500px,
+     the same narrow-paired shape .price-history-panel .detail-stats below
+     already has its own permanent 2-column override for (see that rule's
+     comment). A first attempt matched .cmp-summary-bar's 4-then-2 scheme
+     with a min-width breakpoint back up to 4 columns, but at the widths
+     this panel actually reaches that squeezed each column under 90px,
+     wrapping "Avg asking price" onto three lines - technically un-
+     stranded but worse to read than just not doing that. Fixed instead
+     with the same permanent-2-column approach as the sibling
+     .price-history-panel .detail-stats override: never a divisor (3) that
+     strands an item, and never a column count this panel is too narrow to
+     use comfortably either. */
+  .radius-result { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
   .radius-result .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 2px; }
   .radius-result .value { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
   /* Shrunk from 260px (docs/backlog.md item 7) now that the map sits in a
@@ -1193,11 +1217,27 @@
     transition: background 200ms ease-out;
   }
   .brass-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  /* Fixed set of exactly 4 tiles (Avg asking price/Avg surface area/Avg
+     €/m²/Matches), not an open-ended list - same bug class already fixed
+     three times elsewhere (.stat-row, .detail-stats, .type-filter-grid;
+     see their own comments). A prior pass claimed this rule was checked
+     against a live getComputedStyle sweep and found to transition cleanly
+     - that check was run against an empty, unpopulated #cmpSummaryBar (0
+     children), which trivially can't show a stranded-item split. Re-swept
+     against a real, populated 4-tile search result and found it genuinely
+     broken: auto-fit/minmax(120px,1fr) computes exactly 3 columns for 4
+     items at several real widths (measured live at 500px and 800px, both
+     stranding "Matches" alone on its own row) - the identical "3+1 split"
+     this same fix pattern already covers elsewhere. Fixed the same way:
+     explicit column counts that are always divisors of 4 (4, 2, or 1),
+     never 3. */
   .cmp-summary-bar {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
     background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px;
     overflow: hidden; margin: 16px 0;
   }
+  @media (max-width: 800px) { .cmp-summary-bar { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .cmp-summary-bar { grid-template-columns: repeat(1, 1fr); } }
   .cmp-summary-bar > div { background: var(--ivory); padding: 14px 16px; }
   .cmp-summary-bar .label {
     font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
