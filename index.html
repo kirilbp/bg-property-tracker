@@ -10,6 +10,19 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<!-- Leaflet.markercluster (discovery & engagement batch, backlog item -
+     national map marker clustering): loaded the same way as Leaflet/
+     Leaflet.draw above (a plain CDN script tag, no bundler/npm), the
+     existing pattern this codebase already uses for every third-party
+     client library. Only the base MarkerCluster.css is pulled in, NOT
+     MarkerCluster.Default.css - that stylesheet's default green/yellow/
+     orange cluster-size color scale would violate design-guidelines.md's
+     one-accent-color rule, so cluster icons are rendered entirely via a
+     custom iconCreateFunction (see brassClusterIcon()) styled in brass
+     instead, and the base stylesheet is only needed for spiderfy/
+     positioning behavior, not any of its color classes. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <!-- Playfair Display (serif, headline/price accent) + Inter (sans, body/UI) -
@@ -170,6 +183,55 @@
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
+  /* --- Saved filter presets (discovery & engagement batch) - a quiet,
+     compact row: no solid-fill button here (the filter panel isn't the
+     screen's one primary action), just a small-caps label, a row of
+     understated pills, and an outline "save" affordance. -->
+  .filter-presets { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--taupe-light); }
+  .filter-presets-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .filter-presets-label {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--taupe); flex-shrink: 0;
+  }
+  .filter-presets-list { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+  .filter-presets-empty { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); font-style: italic; }
+  .filter-preset-pill {
+    display: inline-flex; align-items: stretch; border: 1px solid var(--taupe-light); border-radius: 4px;
+    overflow: hidden; background: var(--ivory);
+  }
+  .filter-preset-load {
+    border: none; background: none; padding: 6px 10px; font-family: var(--font-sans); font-size: 13px;
+    color: var(--ink-soft); cursor: pointer;
+  }
+  .filter-preset-load:hover { color: var(--brass-deep); }
+  .filter-preset-remove {
+    border: none; border-left: 1px solid var(--taupe-light); background: none; padding: 6px 9px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--taupe); cursor: pointer; line-height: 1;
+  }
+  .filter-preset-remove:hover { color: var(--ink); background: var(--ivory-deep); }
+  .filter-presets-save-btn {
+    border: 1px solid var(--taupe-light); background: none; border-radius: 4px; padding: 8px 14px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); cursor: pointer;
+    transition: border-color 200ms ease-out, color 200ms ease-out; flex-shrink: 0;
+  }
+  .filter-presets-save-btn:hover { border-color: var(--brass); color: var(--brass-deep); }
+  .filter-presets-form { display: flex; gap: 8px; margin-top: 12px; }
+  .filter-presets-form input {
+    flex: 1; max-width: 320px; padding: 9px 11px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
+  }
+  .filter-presets-form input:focus { outline: none; border-color: var(--brass); }
+  .filter-presets-confirm-btn {
+    border: none; background: var(--brass); color: var(--ink); border-radius: 4px; padding: 0 16px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .filter-presets-confirm-btn:hover { background: var(--brass-deep); color: var(--ivory); }
+  .filter-presets-cancel-btn {
+    border: 1px solid var(--taupe-light); background: none; color: var(--taupe); border-radius: 4px; padding: 0 14px;
+    font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+  }
+  .filter-presets-cancel-btn:hover { color: var(--ink); }
+  @media (max-width: 560px) { .filter-presets-form { flex-wrap: wrap; } .filter-presets-form input { max-width: none; width: 100%; } }
   .count { font-size: 13px; color: var(--taupe); margin: 16px 0; }
   /* Radius/polygon Lead Generator coordinate-coverage caveat (see
      leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
@@ -594,6 +656,19 @@
   .detail-tab-btn.active { color: var(--ink); border-bottom-color: var(--brass); font-weight: 600; }
   .detail-tab-content { display: none; padding-top: 20px; }
   .detail-tab-content.active { display: block; }
+  /* --- "Similar listings" strip (discovery & engagement batch) -----------
+     Full-width, below the whole detail-grid (photo + info/tabs column) -
+     a horizontal scroll of the same card component used everywhere else on
+     the site, not a second card style. Section header matches .card h2's
+     serif/medium-weight treatment so "Similar listings" reads the same as
+     every other section header on the site. */
+  .similar-listings { margin: 48px 0 0; padding-top: 32px; border-top: 1px solid var(--taupe-light); }
+  .similar-listings h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; color: var(--ink); }
+  .similar-listings-strip {
+    display: flex; gap: 20px; margin-top: 20px; padding-bottom: 4px;
+    overflow-x: auto; scroll-snap-type: x proximity;
+  }
+  .similar-listings-strip .listing { flex: 0 0 260px; scroll-snap-align: start; }
   /* Item 7 (docs/backlog.md): the price-history chart is now pinned into
      the main flow (always visible, no tab click required) and sits beside
      the shrunk radius/comparables map rather than each being a separate
@@ -878,6 +953,28 @@
   .brass-pin::after {
     content: ''; position: absolute; top: 5px; left: 5px; width: 6px; height: 6px;
     border-radius: 50%; background: var(--ivory);
+  }
+  /* Marker clustering (discovery & engagement batch) - individual listing
+     dots (brassDotIcon()) and the cluster badges they collapse into
+     (brassClusterIcon()) on any map using addClusteredListingMarkers().
+     Cluster badges are a single brass circle at every size tier - no
+     green/yellow/orange size coloring (Leaflet.markercluster's own
+     default theme, deliberately not loaded - see the <head> script tag
+     comment), keeping the map to the one accent color design-guidelines.md
+     calls for regardless of how many listings a cluster represents. */
+  .brass-dot-icon { background: none; border: none; }
+  .brass-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--brass); border: 1px solid var(--brass-deep);
+    box-shadow: 0 1px 3px rgba(36,31,26,0.3);
+  }
+  .brass-cluster-icon { background: none; border: none; }
+  .brass-cluster-inner {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: rgba(169,129,46,0.88); border: 2px solid var(--ivory);
+    color: var(--ivory); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-sans); font-weight: 600; font-size: 13px;
+    box-shadow: 0 1px 5px rgba(36,31,26,0.35);
   }
 
   /* Lead generators gallery */
@@ -1196,6 +1293,19 @@
   .dash-inbox-row:first-child { border-top: none; }
   .dash-inbox-row:hover .dash-inbox-name { color: var(--brass-deep); }
   .dash-inbox-name { flex: 1; font-size: 14px; color: var(--ink); }
+
+  /* Dashboard "what changed" digest tags - small-caps text labels, not
+     colored badge fills/ribbons (design-guidelines.md section 6's "status
+     labels, not ribbons"). Price drops and new matches use the sage signal
+     color; sold/removed uses muted ink rather than red - a status change
+     isn't an urgency/alarm cue. */
+  .dashboard-digest-tag {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; flex-shrink: 0; width: 88px;
+  }
+  .dashboard-digest-tag.tag-drop, .dashboard-digest-tag.tag-new { color: var(--sage); }
+  .dashboard-digest-tag.tag-status { color: var(--ink-soft); }
+  .dashboard-digest-detail { font-size: 13px; color: var(--taupe); flex-shrink: 0; }
 
   /* Reminders */
   .reminders-section { margin-top: 16px; }
@@ -1778,6 +1888,26 @@
               </select>
             </div>
           </div>
+          <!-- Saved filter presets (discovery & engagement batch) - a
+               lighter-weight sibling to Lead Generators: no alert/tracking
+               config, just "save this exact filter combination under a
+               name, reload it with one click." Deliberately its own row,
+               its own localStorage key (filterPresets), and no shared UI
+               with the Lead Generator gallery/modal above, so the two
+               features stay clearly distinct rather than looking like two
+               entry points into the same thing. -->
+          <div class="filter-presets" id="filterPresetsBar">
+            <div class="filter-presets-row">
+              <span class="filter-presets-label">Saved filters</span>
+              <div class="filter-presets-list" id="filterPresetsList"></div>
+              <button type="button" class="filter-presets-save-btn" id="savePresetBtn">＋ Save current filters</button>
+            </div>
+            <div class="filter-presets-form" id="filterPresetsForm" style="display:none;">
+              <input type="text" id="filterPresetNameInput" placeholder="Name this filter combination…" maxlength="60" />
+              <button type="button" class="filter-presets-confirm-btn" id="filterPresetConfirmBtn">Save</button>
+              <button type="button" class="filter-presets-cancel-btn" id="filterPresetCancelBtn">Cancel</button>
+            </div>
+          </div>
         </div>
 
         <p class="count" id="count"></p>
@@ -1949,6 +2079,18 @@
             <button type="button" class="pl-text-link" id="startHereDismissBtn">Hide this checklist</button>
           </div>
           <ul class="start-here-list" id="startHereList"></ul>
+        </div>
+        <!-- "What's changed" digest (discovery & engagement batch) - diffs
+             the current state of every saved/pipelined listing plus each
+             Lead Generator's own fresh-match count against a snapshot taken
+             the last time this Dashboard was actually visited (see
+             markDashboardVisited()/computeDashboardDigest() in JS), so a
+             returning user sees what moved while they were away without
+             having to re-check each listing/generator individually. -->
+        <div class="card" id="dashboardDigestCard">
+          <h2>What's changed</h2>
+          <p class="card-sub" id="dashboardDigestSub">Since your last visit to this Dashboard.</p>
+          <div id="dashboardDigestBody"></div>
         </div>
         <div class="pl-card">
           <div class="pl-header-row">
@@ -4350,6 +4492,59 @@ function brassPinIcon() {
   });
 }
 
+// --- Marker clustering (discovery & engagement batch) --------------------
+// Leaflet.markercluster's own MarkerClusterGroup only clusters L.Marker
+// instances (it calls setIcon()/getIcon() on each child for spiderfying,
+// which L.CircleMarker doesn't implement) - individual listing dots on a
+// clustered map are therefore small brass divIcon markers rather than the
+// L.circleMarker dots this file's other (unclustered, already-scoped-small)
+// maps use. Visually near-identical at this size (a small solid brass
+// circle either way), so this doesn't read as a style change.
+function brassDotIcon() {
+  return L.divIcon({
+    className: 'brass-dot-icon',
+    html: '<div class="brass-dot"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+    popupAnchor: [0, -8],
+  });
+}
+
+// Custom cluster icon, deliberately overriding Leaflet.markercluster's own
+// default green/yellow/orange size-tiered coloring (MarkerCluster.Default.css,
+// not loaded at all here - see the <script> tag comment in <head>) - that
+// multi-color scale would violate design-guidelines.md's one-accent-color
+// rule. Every cluster renders in the same brass accent regardless of size;
+// only the circle's diameter and the count inside it change.
+function brassClusterIcon(cluster) {
+  const count = cluster.getChildCount();
+  const size = count < 10 ? 34 : count < 50 ? 42 : 50;
+  return L.divIcon({
+    html: `<div class="brass-cluster-inner">${fmt(count)}</div>`,
+    className: 'brass-cluster-icon',
+    iconSize: [size, size],
+  });
+}
+
+// Shared by every map that plots one marker per listing at a scale where
+// the raw count can get large enough to visually overwhelm (national/
+// zoomed-out views) - groups nearby markers into a single "N listings here"
+// brass cluster that expands into individual markers on zoom in, instead of
+// hundreds of raw overlapping dots at once. Falls back to plain ungrouped
+// markers if the Leaflet.markercluster CDN script didn't load (e.g. blocked
+// by an ad blocker/network policy) so the map still works, just without
+// clustering, rather than throwing.
+function addClusteredListingMarkers(map, listings, popupHtml) {
+  const useCluster = typeof L.markerClusterGroup === 'function';
+  const group = useCluster
+    ? L.markerClusterGroup({ iconCreateFunction: brassClusterIcon, maxClusterRadius: 60, spiderfyOnMaxZoom: true })
+    : L.layerGroup();
+  const markers = listings.map(l => L.marker([l.lat, l.lng], { icon: brassDotIcon() }).bindPopup(popupHtml(l)));
+  markers.forEach(m => group.addLayer(m));
+  group.addTo(map);
+  return markers;
+}
+
 // Tears down any previous Leaflet instance (its container div gets replaced
 // wholesale via innerHTML on every re-render, which would otherwise leak
 // map instances and throw "container is already initialized") and, if this
@@ -6022,10 +6217,19 @@ function renderCmpMapView() {
     maxZoom: 19,
   }).addTo(cmpMap);
   if (located.length === 0) return;
-  const markers = located.slice(0, 300).map(l =>
-    L.circleMarker([l.lat, l.lng], { radius: 6, color: '#8a6a24', fillColor: '#a9812e', fillOpacity: 0.8, weight: 1 })
-      .bindPopup(`<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}${l.price_per_sqm ? ' · €' + fmt(l.price_per_sqm) + '/m²' : ''}`)
-      .addTo(cmpMap)
+  // This is the one map in the app that can realistically show a whole-
+  // country result set at once (an empty city/area picker matches every
+  // tracked listing nationwide - see runComparablesSearch()'s own
+  // comment on inExactArea) - clustered via addClusteredListingMarkers()
+  // (discovery & engagement batch) so a national search reads as an
+  // ordered set of "N listings here" groups rather than hundreds of
+  // overlapping raw dots. The old 300-marker cap existed specifically to
+  // keep that unclustered case usable; clustering removes the need for
+  // as tight a limit, so this is raised substantially rather than kept -
+  // still capped, not unbounded, since a pathological all-listings query
+  // shouldn't ever have to construct tens of thousands of DOM markers.
+  const markers = addClusteredListingMarkers(cmpMap, located.slice(0, 2000), l =>
+    `<strong>${escapeHtml(l.title)}</strong><br>€${fmt(l.price_eur)}${l.price_per_sqm ? ' · €' + fmt(l.price_per_sqm) + '/m²' : ''}`
   );
   cmpMap.fitBounds(L.featureGroup(markers).getBounds(), { padding: [24, 24] });
 }
@@ -6095,6 +6299,156 @@ function removeLeadGenerator(id) {
   } catch (e) {
     console.error('Failed to delete lead generator', e);
   }
+}
+
+// --- Saved filter presets (discovery & engagement batch) ----------------
+// Deliberately a lighter-weight sibling to Lead Generators above, not a
+// replacement: no alert/tracking/matching config, no server round-trip,
+// just "remember this exact filter combination under a name, restore it
+// with one click." Same no-login localStorage pattern as leadGenerators/
+// sitePreferences (own storage key, own array, load/save/delete trio).
+const FILTER_PRESETS_KEY = 'filterPresets';
+const FILTER_PRESETS_MAX = 20;
+let FILTER_PRESETS = [];
+
+function loadFilterPresets() {
+  try {
+    FILTER_PRESETS = JSON.parse(localStorage.getItem(FILTER_PRESETS_KEY) || '[]')
+      .filter(p => p && typeof p.id === 'string' && typeof p.name === 'string');
+  } catch (e) {
+    console.error('Failed to load filter presets from localStorage', e);
+    FILTER_PRESETS = [];
+  }
+  renderFilterPresets();
+}
+
+function persistFilterPresets() {
+  try {
+    localStorage.setItem(FILTER_PRESETS_KEY, JSON.stringify(FILTER_PRESETS));
+  } catch (e) {
+    console.error('Failed to save filter presets to localStorage', e);
+  }
+}
+
+// Snapshots exactly what readFilterState() reads off the filter panel/tile
+// state, minus activeLeadGenerator - a preset is a plain filter combination,
+// deliberately independent of the separate Lead Generator feature.
+function saveCurrentFilterPreset(name) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) return;
+  const f = readFilterState();
+  const preset = {
+    id: 'fp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    name: trimmed.slice(0, 60),
+    createdAt: new Date().toISOString(),
+    min: f.min || null,
+    max: isFinite(f.max) ? f.max : null,
+    minSqm: f.minSqm || null,
+    area: f.area || null,
+    rooms: f.rooms || null,
+    minDays: f.minDays || null,
+    minReduced: f.minReduced || null,
+    excludeSold: f.excludeSold,
+    onlyWithPhotos: f.onlyWithPhotos,
+    sortBy: f.sortBy,
+    searchQuery: f.searchQuery || null,
+    type: f.type || null,
+    city: f.city || null,
+    oblast: f.oblast || null,
+  };
+  // Newest first, capped - same "don't grow unbounded" precedent as
+  // LEAD_GEN_MAX above.
+  FILTER_PRESETS = [preset, ...FILTER_PRESETS].slice(0, FILTER_PRESETS_MAX);
+  persistFilterPresets();
+  renderFilterPresets();
+}
+
+function deleteFilterPreset(id) {
+  FILTER_PRESETS = FILTER_PRESETS.filter(p => p.id !== id);
+  persistFilterPresets();
+  renderFilterPresets();
+}
+
+// Short human-readable summary of a preset's contents, used as the pill's
+// hover title so the saved-filters row itself can stay compact (name only)
+// per the design guidelines' "small set visible, density one interaction
+// deeper" principle (docs/design-guidelines.md section 5).
+function filterPresetSummary(p) {
+  const parts = [];
+  if (p.city) {
+    const cityDef = p.city === 'others' ? { label: 'Others' } : BG_CITIES.find(c => c.key === p.city);
+    if (cityDef) parts.push(cityDef.label);
+  }
+  if (p.oblast) {
+    const oblastDef = p.oblast === 'others' ? { label: 'Others' } : BG_OBLASTS.find(o => o.key === p.oblast);
+    if (oblastDef) parts.push(oblastDef.label);
+  }
+  if (p.type) {
+    const typeDef = TYPE_FILTER_BUCKETS.find(b => b.key === p.type);
+    if (typeDef) parts.push(typeDef.label);
+  }
+  if (p.min || p.max) parts.push(`€${p.min ? fmt(p.min) : '0'}–${p.max ? fmt(p.max) : '∞'}`);
+  if (p.minSqm) parts.push(`${p.minSqm}+ m²`);
+  if (p.rooms) parts.push(p.rooms === '5' ? '5+ rooms' : `${p.rooms} room${p.rooms === '1' ? '' : 's'}`);
+  if (p.searchQuery) parts.push(`"${p.searchQuery}"`);
+  return parts.length > 0 ? parts.join(' · ') : 'No filters set';
+}
+
+function renderFilterPresets() {
+  const list = document.getElementById('filterPresetsList');
+  if (!list) return;
+  if (FILTER_PRESETS.length === 0) {
+    list.innerHTML = '<span class="filter-presets-empty">None saved yet</span>';
+    return;
+  }
+  list.innerHTML = FILTER_PRESETS.map(p => `
+    <span class="filter-preset-pill">
+      <button type="button" class="filter-preset-load" data-load-preset="${p.id}" title="${escapeHtml(filterPresetSummary(p))}">${escapeHtml(p.name)}</button>
+      <button type="button" class="filter-preset-remove" data-remove-preset="${p.id}" aria-label="Delete saved filter ${escapeHtml(p.name)}" title="Delete this saved filter">×</button>
+    </span>
+  `).join('');
+}
+
+// Restores a saved combination in full, all at once. This differs from
+// clicking a city/type/oblast tile elsewhere (applyCityFilter/
+// applyTypeFilter/applyOblastFilter above), each of which clears the
+// other two as a single-filter UX shortcut - matchesAllFilters() already
+// ANDs city/type/oblast/price/etc together regardless of how each was set,
+// so restoring all of a preset's dimensions at once is a real, valid
+// combination, not a workaround.
+function applyFilterPreset(preset) {
+  if (!preset) return;
+  clearActiveLeadGenerator(true);
+  activeTypeFilter = preset.type || null;
+  activeCityFilter = preset.city || null;
+  activeOblastFilter = preset.oblast || null;
+
+  document.getElementById('minPrice').value = preset.min || '';
+  document.getElementById('maxPrice').value = preset.max || '';
+  document.getElementById('minSqm').value = preset.minSqm || '';
+  document.getElementById('areaFilter').value = preset.area || '';
+  document.getElementById('roomsFilter').value = preset.rooms || '';
+  document.getElementById('minDaysOnMarket').value = preset.minDays || '';
+  document.getElementById('minTimesReduced').value = preset.minReduced || '';
+  document.getElementById('excludeSold').checked = preset.excludeSold !== false;
+  document.getElementById('onlyWithPhotos').checked = !!preset.onlyWithPhotos;
+  document.getElementById('sortBy').value = preset.sortBy || 'price-asc';
+  document.getElementById('searchQuery').value = preset.searchQuery || '';
+
+  const typeDef = TYPE_FILTER_BUCKETS.find(b => b.key === activeTypeFilter);
+  document.getElementById('typeFilterBanner').style.display = activeTypeFilter ? 'flex' : 'none';
+  if (typeDef) document.getElementById('typeFilterBannerName').textContent = typeDef.label;
+
+  const cityDef = activeCityFilter === 'others' ? { label: 'Others (no matching city)' } : BG_CITIES.find(c => c.key === activeCityFilter);
+  document.getElementById('cityFilterBanner').style.display = activeCityFilter ? 'flex' : 'none';
+  if (cityDef) document.getElementById('cityFilterBannerName').textContent = cityDef.label;
+
+  const oblastDef = activeOblastFilter === 'others' ? { label: 'Others (no matching province)' } : BG_OBLASTS.find(o => o.key === activeOblastFilter);
+  document.getElementById('oblastFilterBanner').style.display = activeOblastFilter ? 'flex' : 'none';
+  if (oblastDef) document.getElementById('oblastFilterBannerName').textContent = oblastDef.label;
+
+  showSection('leads');
+  renderFromStart();
 }
 
 // Ray-casting point-in-polygon test; polygon is an array of [lat, lng] pairs.
@@ -7476,6 +7830,137 @@ function renderDashPipelineActions() {
   el.querySelectorAll('[data-stage-goto]').forEach(btn => btn.addEventListener('click', () => goToPipelineStage(btn.dataset.stageGoto)));
 }
 
+// --- Dashboard "what changed" digest (discovery & engagement batch) -----
+// Same no-login, no-backend, in-browser-only pattern as everything else in
+// this file (see Preferences > Notifications' own note on lastCheckedAt
+// above) - no email/push infra, just a localStorage snapshot of the
+// listings a user is actually tracking (saved + pipelined), diffed against
+// their live current state whenever the Dashboard is visited.
+const DASHBOARD_DIGEST_KEY = 'dashboardDigestSnapshot';
+let DASHBOARD_DIGEST_SNAPSHOT = null; // { visitedAt, listings: { [id]: { price_eur, status, title } } }
+
+function loadDashboardDigestSnapshot() {
+  try {
+    DASHBOARD_DIGEST_SNAPSHOT = JSON.parse(localStorage.getItem(DASHBOARD_DIGEST_KEY) || 'null');
+  } catch (e) {
+    console.error('Failed to load dashboard digest snapshot from localStorage', e);
+    DASHBOARD_DIGEST_SNAPSHOT = null;
+  }
+}
+
+// The two "things a user is actively tracking" sets this app already
+// maintains - not a new tracking mechanism, just the union of both.
+function dashboardTrackedListingIds() {
+  return Array.from(new Set([...SAVED_LISTING_IDS, ...Object.keys(PIPELINE_DEALS)]));
+}
+
+function dashboardDigestCurrentState() {
+  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
+  const listings = {};
+  dashboardTrackedListingIds().forEach(id => {
+    const l = byId.get(id);
+    if (l) listings[id] = { price_eur: l.price_eur, status: l.status, title: l.title };
+  });
+  return listings;
+}
+
+// Overwrites the stored baseline with right-now's state - called only when
+// the Dashboard is actually navigated to (see showSection()'s 'dashboard'
+// branch), never from every incidental renderDashboard() re-render (e.g.
+// after toggling a save elsewhere), so a diff a user hasn't looked at yet
+// doesn't get silently erased before they see it. Guarded by the caller on
+// MERGED_LISTINGS actually being loaded - snapshotting against an empty
+// array would otherwise make every tracked listing look "removed".
+function markDashboardVisited() {
+  const snapshot = { visitedAt: new Date().toISOString(), listings: dashboardDigestCurrentState() };
+  try {
+    localStorage.setItem(DASHBOARD_DIGEST_KEY, JSON.stringify(snapshot));
+  } catch (e) {
+    console.error('Failed to save dashboard digest snapshot to localStorage', e);
+  }
+  DASHBOARD_DIGEST_SNAPSHOT = snapshot;
+}
+
+// Read-only diff of the last-persisted snapshot against live current state -
+// deliberately never mutates DASHBOARD_DIGEST_SNAPSHOT itself (see
+// markDashboardVisited() above for when the baseline actually advances).
+function computeDashboardDigest() {
+  const byId = new Map(MERGED_LISTINGS.map(l => [l.id, l]));
+  const prevListings = (DASHBOARD_DIGEST_SNAPSHOT && DASHBOARD_DIGEST_SNAPSHOT.listings) || {};
+  const priceDrops = [];
+  const statusChanges = [];
+
+  Object.entries(prevListings).forEach(([id, prev]) => {
+    const current = byId.get(id);
+    if (!current) {
+      // Not just "marked sold" - gone from this session's MERGED_LISTINGS
+      // entirely, i.e. delisted across every tracked portal.
+      statusChanges.push({ id, title: prev.title, to: 'removed' });
+      return;
+    }
+    if (current.price_eur != null && prev.price_eur != null && current.price_eur < prev.price_eur) {
+      priceDrops.push({ id, title: current.title, from: prev.price_eur, to: current.price_eur });
+    } else if (prev.status !== 'sold' && current.status === 'sold') {
+      statusChanges.push({ id, title: current.title, to: 'sold' });
+    }
+  });
+
+  // Reuses the exact same "fresh" count each Lead Generator card already
+  // computes off its own lastCheckedAt (computeLeadGenCounts() above) -
+  // one real signal, not a second parallel new-match tracker with its own
+  // (possibly disagreeing) idea of what counts as new.
+  const newLeadMatches = LEAD_GENERATORS.reduce((sum, g) => sum + computeLeadGenCounts(g).fresh, 0);
+
+  return { priceDrops, statusChanges, newLeadMatches, hasBaseline: !!DASHBOARD_DIGEST_SNAPSHOT };
+}
+
+function renderDashboardDigest() {
+  const body = document.getElementById('dashboardDigestBody');
+  if (!body) return;
+  // Nothing to diff against yet until MERGED_LISTINGS' bulk load resolves -
+  // showing "nothing changed" here before that would be actively wrong,
+  // not just empty, so wait rather than render a false negative.
+  if (MERGED_LISTINGS.length === 0) {
+    body.innerHTML = '<p class="pl-empty-inline">Loading…</p>';
+    return;
+  }
+  const digest = computeDashboardDigest();
+  if (!digest.hasBaseline) {
+    body.innerHTML = '<p class="pl-empty-inline">This is your first visit - check back next time to see what changed while you were away.</p>';
+    return;
+  }
+  const rows = [];
+  digest.priceDrops.forEach(d => rows.push(`
+    <button type="button" class="dash-inbox-row" data-digest-goto="${d.id}">
+      <span class="dashboard-digest-tag tag-drop">Price drop</span>
+      <span class="dash-inbox-name">${escapeHtml(d.title)}</span>
+      <span class="dashboard-digest-detail">€${fmt(d.from)} → €${fmt(d.to)}</span>
+    </button>
+  `));
+  digest.statusChanges.forEach(c => rows.push(`
+    <button type="button" class="dash-inbox-row" data-digest-goto="${c.id}">
+      <span class="dashboard-digest-tag tag-status">${c.to === 'sold' ? 'Sold' : 'Removed'}</span>
+      <span class="dash-inbox-name">${escapeHtml(c.title)}</span>
+    </button>
+  `));
+  if (digest.newLeadMatches > 0) {
+    rows.push(`
+      <button type="button" class="dash-inbox-row" data-digest-goto-leadgen="1">
+        <span class="dashboard-digest-tag tag-new">New</span>
+        <span class="dash-inbox-name">${fmt(digest.newLeadMatches)} new Lead Generator match${digest.newLeadMatches === 1 ? '' : 'es'}</span>
+      </button>
+    `);
+  }
+  if (rows.length === 0) {
+    body.innerHTML = '<p class="pl-empty-inline">Nothing new since your last visit.</p>';
+    return;
+  }
+  body.innerHTML = rows.join('');
+  body.querySelectorAll('[data-digest-goto]').forEach(btn => btn.addEventListener('click', () => showListingDetail(btn.dataset.digestGoto)));
+  const leadgenRow = body.querySelector('[data-digest-goto-leadgen]');
+  if (leadgenRow) leadgenRow.addEventListener('click', () => showSection('leadgen'));
+}
+
 function renderDashboard() {
   // Fire-and-forget, same pattern as showListingDetail()'s lazy sources/
   // reminders fetch - renders once the network round-trip resolves rather
@@ -7483,6 +7968,7 @@ function renderDashboard() {
   // Dashboard render on it.
   loadDashboardReminders();
   renderStartHere();
+  renderDashboardDigest();
   renderDashLeadgenInbox();
   renderDashPipelineActions();
 
@@ -8706,6 +9192,37 @@ function areaDataMatches(l) {
     && (m.city_key || listingCityKey(m)) === cityKey);
 }
 
+// --- Listing detail page: "Similar listings" strip (docs/backlog.md,
+// discovery & engagement batch) ------------------------------------------
+// Deliberately a plain heuristic over the already-loaded MERGED_LISTINGS
+// array, not a ranked/ML "recommendation" - same city, same property-type
+// bucket, and within a price band of this listing's own price. Mirrors
+// areaDataMatches()'s own city+bucket filtering just above, minus the
+// area-key AND (similar listings can be anywhere in the same city, not
+// just the same quarter - area alone is often too narrow to find 4-6
+// results) and with a price band substituted in instead.
+const SIMILAR_LISTINGS_PRICE_TOLERANCE = 0.2; // +/-20%
+const SIMILAR_LISTINGS_LIMIT = 6;
+
+function findSimilarListings(merged) {
+  if (merged.price_eur == null) return [];
+  const cityKey = merged.city_key || listingCityKey(merged);
+  if (!cityKey) return [];
+  const bucket = typeFilterBucket(merged);
+  const minPrice = merged.price_eur * (1 - SIMILAR_LISTINGS_PRICE_TOLERANCE);
+  const maxPrice = merged.price_eur * (1 + SIMILAR_LISTINGS_PRICE_TOLERANCE);
+  return MERGED_LISTINGS
+    .filter(m => m.id !== merged.id
+      && m.status !== 'sold'
+      && (m.city_key || listingCityKey(m)) === cityKey
+      && typeFilterBucket(m) === bucket
+      && m.price_eur != null && m.price_eur >= minPrice && m.price_eur <= maxPrice)
+    // Closest in price first - the most immediately comparable alternative
+    // to this exact listing, not an arbitrary recency/score order.
+    .sort((a, b) => Math.abs(a.price_eur - merged.price_eur) - Math.abs(b.price_eur - merged.price_eur))
+    .slice(0, SIMILAR_LISTINGS_LIMIT);
+}
+
 function buildHistogramBuckets(values, subjectValue, numBuckets) {
   const vals = values.filter(v => v != null && isFinite(v));
   if (vals.length < AREA_DATA_MIN_SAMPLE) return null;
@@ -9795,6 +10312,10 @@ function renderListingDetail(merged) {
   const descIsLong = fullDesc.length > DESC_TRUNCATE_LEN;
   const truncatedDesc = descIsLong ? fullDesc.slice(0, DESC_TRUNCATE_LEN).replace(/\s+\S*$/, '') + '…' : fullDesc;
 
+  const similarListings = findSimilarListings(merged);
+  const similarBucketDef = TYPE_FILTER_BUCKETS.find(b => b.key === typeFilterBucket(merged));
+  const similarTypeLabel = similarBucketDef ? similarBucketDef.label.toLowerCase() : 'listings';
+
   document.getElementById('listingDetailBody').innerHTML = `
     ${pagerHtml}
     ${badgeRowHtml}
@@ -9915,7 +10436,22 @@ function renderListingDetail(merged) {
         </div>
       </div>
     </div>
+    ${similarListings.length > 0 ? `
+      <div class="similar-listings">
+        <h2>Similar listings</h2>
+        <p class="card-sub">Other ${escapeHtml(similarTypeLabel)} within 20% of this price${cityLabel ? ' in ' + escapeHtml(cityLabel) : ''}</p>
+        <div class="similar-listings-strip" id="similarListingsStrip"></div>
+      </div>
+    ` : ''}
   `;
+
+  // Built with createListingCard() (the same DOM-node card component used
+  // by the main results grid) rather than a second parallel HTML template,
+  // so a card here looks and behaves identically (save/pipeline buttons,
+  // click-through via the global .listing-link delegate) to every other
+  // card on the site.
+  const similarStripEl = document.getElementById('similarListingsStrip');
+  if (similarStripEl) similarListings.forEach(m => similarStripEl.appendChild(createListingCard(m)));
 
   document.getElementById('listingDetailBody').querySelectorAll('.detail-thumb').forEach(thumb => {
     thumb.addEventListener('click', () => setDetailPhoto(parseInt(thumb.dataset.photoIndex, 10)));
@@ -10282,6 +10818,12 @@ function showSection(name, { push = true } = {}) {
     renderLeadgenMiniMaps();
   } else if (name === 'dashboard') {
     renderDashboard();
+    // Advances the digest's baseline only on an actual navigation into the
+    // Dashboard (see markDashboardVisited()'s own comment) - guarded on
+    // real data being loaded so an early click before the bulk fetch
+    // resolves can't snapshot an empty MERGED_LISTINGS as "everything
+    // removed".
+    if (MERGED_LISTINGS.length > 0) markDashboardVisited();
   } else if (name === 'pipeline') {
     renderPipeline();
     // Refresh in the background (prices/status can have changed since the
@@ -10438,6 +10980,32 @@ document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
 document.getElementById('paginationTop').addEventListener('click', handlePaginationClick);
 document.getElementById('paginationBottom').addEventListener('click', handlePaginationClick);
+
+document.getElementById('savePresetBtn').addEventListener('click', () => {
+  const form = document.getElementById('filterPresetsForm');
+  const input = document.getElementById('filterPresetNameInput');
+  form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+  if (form.style.display === 'flex') { input.value = ''; input.focus(); }
+});
+document.getElementById('filterPresetCancelBtn').addEventListener('click', () => {
+  document.getElementById('filterPresetsForm').style.display = 'none';
+});
+document.getElementById('filterPresetConfirmBtn').addEventListener('click', () => {
+  const input = document.getElementById('filterPresetNameInput');
+  if (!input.value.trim()) return;
+  saveCurrentFilterPreset(input.value);
+  document.getElementById('filterPresetsForm').style.display = 'none';
+});
+document.getElementById('filterPresetNameInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('filterPresetConfirmBtn').click();
+  if (e.key === 'Escape') document.getElementById('filterPresetCancelBtn').click();
+});
+document.getElementById('filterPresetsList').addEventListener('click', (e) => {
+  const loadBtn = e.target.closest('[data-load-preset]');
+  if (loadBtn) { applyFilterPreset(FILTER_PRESETS.find(p => p.id === loadBtn.dataset.loadPreset)); return; }
+  const removeBtn = e.target.closest('[data-remove-preset]');
+  if (removeBtn) deleteFilterPreset(removeBtn.dataset.removePreset);
+});
 
 document.getElementById('leadgenBannerClearBtn').addEventListener('click', () => clearActiveLeadGenerator());
 document.getElementById('backToLeadgenLink').addEventListener('click', (e) => {
@@ -11129,6 +11697,8 @@ function updatePipelineButtonsFor(id) {
 loadPreferences();
 loadSavedListings();
 loadLeadGenerators();
+loadFilterPresets();
+loadDashboardDigestSnapshot();
 loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
