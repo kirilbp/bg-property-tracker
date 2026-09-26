@@ -6111,6 +6111,67 @@ a PR for Missy's review per the repo's standing rule.
 
 **Correction (2026-09-26, post-review):** an initial Missy review flagged this PR's headline numbers as false, having checked `data/leads_homes.json`/`scraper_homes.py` against a stale local checkout that predates the 2026-09-25 gzip migration (item 37) - that plain, uncompressed filename hasn't existed on `origin/main` since then; the real, live, actively-updated file is `data/leads_homes.json.gz`. Independently re-verified directly against a freshly-fetched `origin/main`: decompressing the real `data/leads_homes.json.gz` gives 67,935 active listings / 0 with a non-empty `description`, exactly matching this PR's original claim; `scraper_homes.py` on current `main` does define `HISTORY_FILE`/`LEADS_FILE` with the `.json.gz` suffix and does carry the cited comment. The one genuinely correct finding from that review - this PR's own text undercounted the portal total as "7" (it's 8: `scraper.py`/imoti.net, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`, `scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`, `scraper_olx.py`) and correspondingly said "other six" instead of "other seven" - has been fixed in both this file and `docs/backlog.md`. Everything else in the original PR body stands as originally written.
 
+### 2026-09-26 - Deal Calculator PDF export: `window.print()`, not a vendored PDF library
+
+For backlog item 40's "export a listing or Deal Calculator result as
+PDF," chose `window.print()` + a dedicated `@media print` stylesheet over
+vendoring a client-side PDF library (e.g. jsPDF/pdf-lib). This codebase
+already has an established "no new libraries unless necessary" pattern -
+the two it does vendor (Chart.js, Leaflet) both do something CSS
+fundamentally cannot (canvas charting, tile-based interactive maps).
+Exporting a static, single-page investor summary isn't in that category:
+`window.print()` already gives every browser's own "Save as PDF" option
+in its print dialog, at zero added page weight, versus jsPDF alone
+running ~200KB+ minified for a capability the browser already has
+natively. Would only have been insufficient if pixel-exact layout control
+independent of the browser's own print/PDF engine were required (e.g.
+matching a fixed corporate letterhead template precisely) - not the bar
+for a clean, readable investor hand-out. Built as a single shared
+`#printRoot` + `body.print-active` mechanism (the whole live app is
+hidden and only a purpose-built fragment shown, rather than hiding the
+live UI's chrome piecemeal) so the same approach covers both the listing
+detail page and the Deal Calculator template card without two separate
+print code paths.
+
+### 2026-09-26 - Listing comparison kept separate from the existing Comparables tab, not merged into it
+
+Backlog item 40's user-curated "compare 2-3 listings side by side" table
+was deliberately NOT folded into the existing radius-based Comparables
+tab/page (item 15, `findComparables()`). They answer different questions:
+the existing tool asks "what's the nearby market average around this one
+listing" (automatic, radius-driven, many results); the new one asks "how
+do these specific listings I hand-picked compare" (manual, cross-page
+selection, 2-3 results, no radius or location logic at all). Sharing one
+UI for both would have forced an artificial choice between two selection
+models (an implicit radius vs. an explicit pick-list) that don't map onto
+each other - kept as two small, clearly-named surfaces instead (the
+existing tab keeps its name; the new one is labeled "Compare listings" in
+its own modal, distinct from the existing "⇄ Compare nearby" button's
+copy, which was left untouched).
+
+### 2026-09-26 - PR #295 fix: detail-page compare button now updates its own visual state
+
+Missy's review of PR #295 (`feat/investor-facing-features`) found the ⚖
+compare toggle button on the listing detail page never refreshed its own
+text/style after being clicked. Root cause: it was rendered with only
+`detail-secondary-btn` (plus a conditional `active`) - no compare-specific
+class - so `updateCompareButtonsFor()`, which every toggle click runs to
+refresh button visuals, only queried `.compare-listing-btn,
+.compare-listing-btn-inline` and silently skipped it. The click still
+worked functionally (the global delegated `[data-compare-id]` handler
+fires `toggleCompareListing()` off the attribute regardless of class, so
+localStorage and the floating compare bar updated correctly) but the
+button itself showed stale text/style until the whole view re-rendered.
+Missy's finding pointed at the exact right precedent already solved
+correctly for the analogous Save button: `updateSaveButtonsFor()` has a
+third selector, `.save-detail-btn`, specifically for its own
+differently-styled detail-page instance. Mirrored that shape here: added
+a `.compare-listing-btn-detail` class to the detail-page button alongside
+its existing `detail-secondary-btn`/`active` classes, added that selector
+to `updateCompareButtonsFor()`'s query, and added a branch there that
+sets the detail button's full-text label (`⚖ In comparison` / `⚖ Add to
+compare`) rather than reusing the grid button's single-glyph swap.
+
 ### 2026-09-26 - alo.bg/bazar.bg hit the same GH001 wall homes.bg already hit (item 37) - gzip migration extended to alo.bg, bazar.bg, olx.bg, imot.bg
 
 **Confirmed live before touching anything, not assumed from the incident report alone:** independently re-verified via `git cat-file -s` against a freshly-fetched `origin/main` (not trusting the reported numbers blind) - `data/leads_alo.json` 104,292,257 bytes, `data/history_alo.json` 101,950,671 bytes, `data/leads_bazar.json` 100,191,086 bytes, `data/history_bazar.json` 98,734,614 bytes, all already over/at GitHub's 100MB (100,000,000-byte, decimal) hard push limit. Cross-checked against GitHub Actions' own real job logs (`backfill-detail-alo.yml` runs 558/559, the two most recent scheduled runs, both `conclusion: failure`) - the exact quoted `GH001` rejection text matches these byte counts precisely, and no open PR or in-progress branch was already addressing this (checked `list_pull_requests` and `git branch -r` before starting, per this repo's shared-checkout discipline).
@@ -6122,6 +6183,7 @@ a PR for Missy's review per the repo's standing rule.
 **Not dispatched live** - per this repo's standing rule against iterating on production workflows via `workflow_dispatch` (the exact rule this session's own CLAUDE.md was written to enforce, after 5 failed live runs of one diagnostic script in an earlier session). Every change was validated locally instead: `python3 -m py_compile` on every changed file, the full test suite (270 passed, 4 subtests, 0 regressions), each of the 4 migrated scrapers' own `load_history()`/`compute_leads()` run end-to-end against the real migrated `.gz` data, `check_scrape_freshness.py`/`sync_to_supabase.py`/`merge_history_conflict.py`/`evict_stale_history.py --dry-run` all run against the real post-migration files and confirmed working.
 
 Built in an isolated `git worktree` off a fresh `origin/main`, per this repo's shared-checkout discipline (confirmed via `git status`/`git log` on the shared checkout before starting: it was mid-way through unrelated work on a different branch, left untouched). Not self-merged - opened as a PR for Missy's review, flagged time-sensitive given active, ongoing production data loss on every `backfill-detail-alo.yml` run until this merges.
+
 ## 2026-09-26: Browser back button fix (backlog item 40) - history.pushState()/popstate added; none existed before
 
 **Root cause.** Direct user feedback: "the back button brings me to home

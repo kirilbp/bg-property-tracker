@@ -749,6 +749,7 @@
     margin-top: 12px; transition: border-color 200ms ease-out;
   }
   .detail-secondary-btn:hover { border-color: var(--taupe); }
+  .detail-secondary-btn.active { border-color: var(--brass); color: var(--brass-deep); background: var(--ivory); }
 
   /* Multi-portal badge row - the up-to-N portals a single physical
      property is cross-posted under, each with its own "Listed" date and
@@ -1184,6 +1185,7 @@
   .pl-icon-btn { border: 1px solid var(--taupe-light); background: white; border-radius: 4px; padding: 6px 9px; cursor: pointer; font-size: 13px; color: var(--ink-soft); }
   .pl-icon-btn:hover { border-color: var(--taupe); background: var(--ivory-deep); }
   .pl-icon-btn.danger:hover { border-color: var(--error); color: var(--error); }
+  .pl-icon-btn.active { border-color: var(--brass); color: var(--brass-deep); background: var(--ivory); }
   .pl-tag-popover {
     position: absolute; bottom: calc(100% + 6px); left: 0; background: white; border: 1px solid var(--taupe-light);
     border-radius: 6px; padding: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 5; min-width: 180px;
@@ -1539,6 +1541,129 @@
   }
   .market-evo-chart-wrap { height: 280px; margin-top: 8px; }
 
+  /* --- Listing comparison (docs/backlog.md investor-facing dispatch) ------
+     Distinct from the existing radius-based Comparables tab/page - this is
+     a small, user-curated "compare these specific listings" set, entered
+     via a ⚖ toggle on a listing card (same absolutely-positioned-button
+     pattern as .save-listing-btn/.pipeline-listing-btn, one slot further
+     right) and viewed via a floating bar + modal table. */
+  .compare-listing-btn {
+    position: absolute; top: 8px; right: 80px; z-index: 1;
+    width: 30px; height: 30px; border-radius: 999px; border: none;
+    background: rgba(247,244,238,0.92); box-shadow: 0 1px 3px rgba(36,31,26,0.2);
+    cursor: pointer; font-size: 14px; line-height: 1; color: var(--taupe);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .compare-listing-btn:hover { background: white; color: var(--brass-deep); }
+  .compare-listing-btn.active { color: var(--brass-deep); background: var(--ivory); }
+
+  .compare-bar {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 950;
+    background: var(--ink); color: var(--ivory); padding: 12px 24px;
+    align-items: center; gap: 16px; flex-wrap: wrap;
+    box-shadow: 0 -2px 14px rgba(0,0,0,0.25); font-family: var(--font-sans);
+  }
+  .compare-bar-label { font-size: 13px; white-space: nowrap; }
+  .compare-bar-thumbs { display: flex; gap: 8px; flex: 1 1 auto; flex-wrap: wrap; min-width: 0; }
+  .compare-bar-thumb {
+    display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1);
+    border-radius: 999px; padding: 4px 8px 4px 4px; font-size: 12px; max-width: 220px;
+  }
+  .compare-bar-thumb img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.15); }
+  .compare-bar-thumb button {
+    background: none; border: none; color: var(--taupe-light); cursor: pointer;
+    font-size: 13px; line-height: 1; padding: 2px;
+  }
+  .compare-bar-thumb button:hover { color: var(--ivory); }
+  .compare-bar-actions { display: flex; gap: 10px; flex-shrink: 0; }
+  .compare-bar-btn-primary {
+    background: var(--brass); border: 1px solid var(--brass); color: var(--ink);
+    padding: 8px 16px; border-radius: 4px; font-family: var(--font-sans); font-weight: 600;
+    font-size: 13px; cursor: pointer;
+  }
+  .compare-bar-btn-primary:hover:not(:disabled) { background: var(--brass-deep); border-color: var(--brass-deep); }
+  .compare-bar-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .compare-bar-btn-secondary {
+    background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--ivory);
+    padding: 8px 14px; border-radius: 4px; font-family: var(--font-sans); font-size: 13px; cursor: pointer;
+  }
+  .compare-bar-btn-secondary:hover { border-color: var(--ivory); }
+
+  .compare-table-wrap { overflow-x: auto; }
+  .compare-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--taupe-light); text-align: left; vertical-align: top; }
+  .compare-table th.compare-row-label {
+    color: var(--taupe); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+    font-weight: 500; white-space: nowrap; vertical-align: middle;
+  }
+  .compare-table th.compare-col-header { min-width: 190px; }
+  .compare-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; background: var(--ivory-deep); display: block; }
+  .compare-col-title { font-family: var(--font-sans); font-weight: 600; font-size: 13px; margin: 8px 0 2px; }
+  .compare-col-remove {
+    background: transparent; border: 1px solid var(--taupe-light); color: var(--ink-soft);
+    border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer; margin-top: 4px;
+  }
+  .compare-col-remove:hover { border-color: var(--taupe); }
+  @media (max-width: 600px) {
+    .compare-bar { padding: 10px 12px; gap: 10px; }
+    .compare-bar-label { width: 100%; }
+  }
+
+  /* --- Recently viewed strip (Home page) ---------------------------------- */
+  .recently-viewed-strip {
+    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity;
+  }
+  .rv-card {
+    flex: 0 0 180px; scroll-snap-align: start; background: var(--ivory); border: 1px solid var(--taupe-light);
+    border-radius: 6px; overflow: hidden; cursor: pointer; text-decoration: none; color: inherit; display: block;
+  }
+  .rv-card:hover { border-color: var(--taupe); }
+  .rv-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: var(--ivory-deep); display: block; }
+  .rv-card-body { padding: 10px 12px; }
+  .rv-card-title {
+    font-family: var(--font-sans); font-weight: 600; font-size: 12.5px; margin: 0 0 4px; color: var(--ink);
+    line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; min-height: 2.4em;
+  }
+  .rv-card-price { font-family: var(--font-serif); font-size: 14px; color: var(--ink); margin: 0; }
+
+  /* --- Print view (item 2: window.print()-based export, no new dependency)
+     A single hidden #printRoot, filled with a purpose-built printable
+     fragment right before window.print() is called, then the whole live
+     app (everything under .app) is hidden for the print media query so
+     only that fragment reaches paper/PDF. Ink-on-white, no chrome, no
+     interactive controls - matches this codebase's "no new libraries
+     unless necessary" pattern (see docs/decisions.md for why this was
+     chosen over vendoring a PDF library). */
+  #printRoot { display: none; }
+  .print-page { font-family: var(--font-sans); color: #111; }
+  .print-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 18px; }
+  .print-brand { font-family: var(--font-serif); font-size: 18px; font-weight: 600; }
+  .print-meta { font-size: 11px; color: #555; }
+  .print-photo { width: 100%; max-height: 340px; object-fit: cover; border-radius: 4px; margin-bottom: 16px; }
+  .print-title { font-family: var(--font-serif); font-size: 24px; margin: 0 0 4px; }
+  .print-sub { font-size: 13px; color: #333; margin: 0 0 14px; }
+  .print-price-row { display: flex; gap: 20px; align-items: baseline; margin-bottom: 18px; }
+  .print-price { font-family: var(--font-serif); font-size: 26px; font-weight: 600; }
+  .print-persqm { font-size: 14px; color: #555; }
+  .print-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .print-stat { border: 1px solid #ccc; border-radius: 4px; padding: 8px 10px; }
+  .print-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; color: #666; margin: 0 0 2px; }
+  .print-stat-value { font-size: 15px; font-weight: 600; margin: 0; }
+  .print-section-title { font-family: var(--font-serif); font-size: 15px; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin: 20px 0 8px; }
+  .print-desc { font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; }
+  .print-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
+  .print-table th, .print-table td { border-bottom: 1px solid #ddd; padding: 6px 10px; text-align: left; }
+  .print-table th { color: #555; font-weight: 500; width: 55%; }
+  .print-footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 10.5px; color: #777; }
+  @media print {
+    body.print-active { background: #fff !important; }
+    body.print-active .app { display: none !important; }
+    body.print-active .compare-bar { display: none !important; }
+    body.print-active #printRoot { display: block !important; background: #fff; }
+    @page { margin: 16mm; }
+  }
+
   /* Skeleton loading state (backlog "polish" pass) - a soft brass/ivory
      shimmer standing in for the listing grid while either the fast-path
      page query or the initial bulk load is in flight (see
@@ -1680,6 +1805,11 @@
             <input type="text" id="homeSearchQuery" placeholder="Search by address, area, or keyword…" />
             <button class="cta-btn" id="homeSearchBtn">Search →</button>
           </div>
+        </div>
+        <div class="card" id="recentlyViewedCard" style="display:none;">
+          <h2>Recently viewed</h2>
+          <p class="card-sub">Jump back into a listing you already looked at, without re-searching.</p>
+          <div class="recently-viewed-strip" id="recentlyViewedStrip"></div>
         </div>
         <div class="card">
           <h2>Browse by city</h2>
@@ -2611,6 +2741,34 @@
   </div>
 </div>
 
+<!-- User-curated listing comparison (up to 3) - docs/backlog.md investor-
+     facing dispatch, item 1. Distinct from the existing radius-based
+     Comparables tab/page. Floating bar (always in the DOM, shown/hidden via
+     renderCompareBar()) + a wide modal table, following the same
+     modal-overlay/compare-modal pattern as plConfigModalOverlay/
+     dealCalcModalOverlay above. -->
+<div class="compare-bar" id="compareBar"></div>
+
+<div class="modal-overlay compare-modal" id="compareModalOverlay">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h2>Compare listings</h2>
+      <button class="modal-close-btn" id="compareModalCloseBtn">✕</button>
+    </div>
+    <div id="compareModalBody"></div>
+    <div class="modal-footer">
+      <button type="button" class="modal-btn-secondary" id="compareModalClearBtn">Clear all</button>
+      <button type="button" class="modal-btn-primary" id="compareModalDoneBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Print/PDF export target (item 2) - hidden on screen, the only thing
+     shown under the body.print-active @media print rule. Filled by
+     buildPrintListingHtml()/buildPrintDealCalcHtml() right before
+     window.print() is called. -->
+<div id="printRoot"></div>
+
 <!-- Toast/snackbar container - see showToast() in JS. Empty by default;
      populated/cleared entirely from JS, never server-rendered. -->
 <div id="toastContainer" aria-live="polite"></div>
@@ -3017,6 +3175,372 @@ function updateSaveButtonsFor(id) {
       btn.innerHTML = saved ? '★ Saved to Dashboard' : '☆ Save to Dashboard';
     }
   });
+}
+
+// --- Listing comparison (docs/backlog.md investor-facing dispatch, item 1) --
+// A small, user-curated "compare these specific listings side by side" set -
+// deliberately separate from the existing radius-based Comparables tab/page
+// (findComparables() et al.), which shows nearby listings for market-average
+// context, not a hand-picked set to weigh against each other. No login -
+// localStorage only, same pattern as savedListingIds above.
+const COMPARE_LISTINGS_KEY = 'compareListingIds';
+const COMPARE_MAX = 3;
+let COMPARE_LISTING_IDS = [];
+
+function loadCompareListings() {
+  try {
+    COMPARE_LISTING_IDS = JSON.parse(localStorage.getItem(COMPARE_LISTINGS_KEY) || '[]')
+      .filter(id => typeof id === 'string' && id).slice(0, COMPARE_MAX);
+  } catch (e) {
+    console.error('Failed to load compare listings from localStorage', e);
+    COMPARE_LISTING_IDS = [];
+  }
+}
+
+function persistCompareListings() {
+  try {
+    localStorage.setItem(COMPARE_LISTINGS_KEY, JSON.stringify(COMPARE_LISTING_IDS));
+  } catch (e) {
+    console.error('Failed to save compare listings to localStorage', e);
+  }
+}
+
+function isInCompare(id) {
+  return COMPARE_LISTING_IDS.includes(id);
+}
+
+function toggleCompareListing(id) {
+  if (isInCompare(id)) {
+    COMPARE_LISTING_IDS = COMPARE_LISTING_IDS.filter(x => x !== id);
+  } else {
+    if (COMPARE_LISTING_IDS.length >= COMPARE_MAX) {
+      alert(`You can compare up to ${COMPARE_MAX} listings at a time - remove one from the compare bar first.`);
+      return;
+    }
+    COMPARE_LISTING_IDS = [...COMPARE_LISTING_IDS, id];
+  }
+  persistCompareListings();
+  updateCompareButtonsFor(id);
+  renderCompareBar();
+}
+
+// Same id-filter approach as updateSaveButtonsFor() above, not a CSS
+// attribute-selector string - listing ids aren't guaranteed selector-safe.
+// Matches the absolutely-positioned grid/card button (.compare-listing-btn,
+// ⚖/⚖✓ glyph), the inline pl-icon-btn variant used on Pipeline cards
+// (.compare-listing-btn-inline, always a plain ⚖ - active state shown via
+// the shared .active border/color treatment instead of a glyph change there),
+// and the detail page's own instance (.compare-listing-btn-detail, full-text
+// label) - mirrors updateSaveButtonsFor()'s .save-detail-btn handling above.
+function updateCompareButtonsFor(id) {
+  const active = isInCompare(id);
+  document.querySelectorAll('.compare-listing-btn, .compare-listing-btn-inline, .compare-listing-btn-detail').forEach(btn => {
+    if (btn.dataset.compareId !== id) return;
+    btn.classList.toggle('active', active);
+    btn.title = active ? 'Remove from comparison' : 'Add to comparison';
+    if (btn.classList.contains('compare-listing-btn')) {
+      btn.textContent = active ? '⚖✓' : '⚖';
+    } else if (btn.classList.contains('compare-listing-btn-detail')) {
+      btn.textContent = active ? '⚖ In comparison' : '⚖ Add to compare';
+    }
+  });
+}
+
+// Resolves a plain listing id against whatever's currently loaded in
+// MERGED_LISTINGS (the same array every grid/detail/pipeline view reads) -
+// shared by the compare bar, the compare modal, and the recently-viewed
+// strip below, all three of which only ever store bare ids.
+function findListingByIdAnywhere(id) {
+  return MERGED_LISTINGS.find(x => x.id === id) || null;
+}
+
+function renderCompareBar() {
+  const bar = document.getElementById('compareBar');
+  if (!bar) return;
+  if (COMPARE_LISTING_IDS.length === 0) {
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    return;
+  }
+  const listings = COMPARE_LISTING_IDS.map(findListingByIdAnywhere).filter(Boolean);
+  bar.style.display = 'flex';
+  bar.innerHTML = `
+    <span class="compare-bar-label">Comparing ${listings.length} listing${listings.length === 1 ? '' : 's'}</span>
+    <div class="compare-bar-thumbs">
+      ${listings.map(l => `
+        <span class="compare-bar-thumb">
+          <img src="${l.photo || ''}" onerror="this.style.visibility='hidden'" />
+          <span>${escapeHtml((l.title || '').slice(0, 26))}${(l.title || '').length > 26 ? '…' : ''}</span>
+          <button type="button" data-compare-remove-id="${l.id}" title="Remove">✕</button>
+        </span>
+      `).join('')}
+    </div>
+    <div class="compare-bar-actions">
+      <button type="button" class="compare-bar-btn-secondary" id="compareBarClearBtn">Clear</button>
+      <button type="button" class="compare-bar-btn-primary" id="compareBarViewBtn" ${listings.length < 2 ? 'disabled title="Add at least 2 listings to compare"' : ''}>⇄ Compare</button>
+    </div>
+  `;
+  bar.querySelectorAll('[data-compare-remove-id]').forEach(btn => {
+    btn.addEventListener('click', () => toggleCompareListing(btn.dataset.compareRemoveId));
+  });
+  const clearBtn = document.getElementById('compareBarClearBtn');
+  if (clearBtn) clearBtn.addEventListener('click', clearCompareListings);
+  const viewBtn = document.getElementById('compareBarViewBtn');
+  if (viewBtn) viewBtn.addEventListener('click', openCompareModal);
+}
+
+function clearCompareListings() {
+  const ids = COMPARE_LISTING_IDS.slice();
+  COMPARE_LISTING_IDS = [];
+  persistCompareListings();
+  ids.forEach(updateCompareButtonsFor);
+  renderCompareBar();
+}
+
+function openCompareModal() {
+  renderCompareModal();
+  document.getElementById('compareModalOverlay').classList.add('open');
+}
+function closeCompareModal() {
+  document.getElementById('compareModalOverlay').classList.remove('open');
+}
+
+function compareMotivationLabel(l) {
+  if (l.status === 'sold') return `${l.score ?? '–'} · Sold`;
+  if (l.score >= HOT_SCORE_THRESHOLD) return `${l.score} · 🔥 Hot`;
+  if (l.score >= WARM_SCORE_THRESHOLD) return `${l.score} · Warm`;
+  return l.score ?? '–';
+}
+
+const COMPARE_TABLE_ROWS = [
+  { label: 'Price', render: l => `€${fmt(l.price_eur)}` },
+  { label: 'Size', render: l => l.sqm ? `${l.sqm} m²` : '–' },
+  { label: 'Price / m²', render: l => l.price_per_sqm ? `€${fmt(l.price_per_sqm)}` : '–' },
+  { label: 'Rooms', render: l => l.rooms ?? '–' },
+  { label: 'Days on market', render: l => l.days_on_market ?? '–' },
+  { label: 'Motivation score', render: l => compareMotivationLabel(l) },
+  { label: 'Portal', render: l => escapeHtml(l.portal || '–') },
+  { label: 'Badges', render: l => buildBadgesHtml(l) },
+];
+
+function renderCompareModal() {
+  const body = document.getElementById('compareModalBody');
+  if (!body) return;
+  const listings = COMPARE_LISTING_IDS.map(findListingByIdAnywhere).filter(Boolean);
+  if (listings.length === 0) {
+    body.innerHTML = '<p class="dc-empty-state">Nothing to compare yet - pick 2-3 listings from the grid using their ⚖ button, then come back here.</p>';
+    return;
+  }
+  body.innerHTML = `
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            ${listings.map(l => `
+              <th class="compare-col-header">
+                ${l.photo ? `<img class="compare-photo" src="${l.photo}" onerror="this.style.visibility='hidden'" />` : ''}
+                <p class="compare-col-title">${escapeHtml(l.title)}</p>
+                <p class="listing-area" style="margin:0 0 6px;">📍 ${escapeHtml(l.area || '')}</p>
+                <button type="button" class="compare-col-remove" data-compare-remove-id="${l.id}">Remove</button>
+              </th>
+            `).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${COMPARE_TABLE_ROWS.map(r => `
+            <tr>
+              <th class="compare-row-label">${r.label}</th>
+              ${listings.map(l => `<td>${r.render(l)}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <p class="modal-hint" style="margin-top:14px;">This is a comparison of listings you picked yourself - for nearby-market context instead, open a listing and use its own "Comparables" tab.</p>
+  `;
+  body.querySelectorAll('[data-compare-remove-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleCompareListing(btn.dataset.compareRemoveId);
+      renderCompareModal();
+      if (COMPARE_LISTING_IDS.length === 0) closeCompareModal();
+    });
+  });
+}
+
+// --- Recently viewed listings (Home page strip) -----------------------------
+// Backlog item 3: tracks the last RECENTLY_VIEWED_MAX distinct listings
+// actually opened via showListingDetail(), most-recent first. No login -
+// localStorage only, same pattern as savedListingIds/compareListingIds above.
+const RECENTLY_VIEWED_KEY = 'recentlyViewedListingIds';
+const RECENTLY_VIEWED_MAX = 8;
+let RECENTLY_VIEWED_IDS = [];
+
+function loadRecentlyViewed() {
+  try {
+    RECENTLY_VIEWED_IDS = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]')
+      .filter(id => typeof id === 'string' && id).slice(0, RECENTLY_VIEWED_MAX);
+  } catch (e) {
+    console.error('Failed to load recently-viewed listings from localStorage', e);
+    RECENTLY_VIEWED_IDS = [];
+  }
+}
+
+function persistRecentlyViewed() {
+  try {
+    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(RECENTLY_VIEWED_IDS));
+  } catch (e) {
+    console.error('Failed to save recently-viewed listings to localStorage', e);
+  }
+}
+
+function trackRecentlyViewed(id) {
+  RECENTLY_VIEWED_IDS = [id, ...RECENTLY_VIEWED_IDS.filter(x => x !== id)].slice(0, RECENTLY_VIEWED_MAX);
+  persistRecentlyViewed();
+}
+
+function renderRecentlyViewedStrip() {
+  const card = document.getElementById('recentlyViewedCard');
+  const wrap = document.getElementById('recentlyViewedStrip');
+  if (!card || !wrap) return;
+  const listings = RECENTLY_VIEWED_IDS.map(findListingByIdAnywhere).filter(Boolean);
+  if (listings.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  wrap.innerHTML = listings.map(l => `
+    <a class="rv-card" href="#/listing/${encodeURIComponent(l.id)}" data-rv-listing-id="${l.id}">
+      ${l.photo
+        ? `<img src="${l.photo}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="handlePhotoError(this)" />`
+        : '<div class="listing-photo-placeholder"><span class="icon">🖼️</span><span>No photo</span></div>'}
+      <div class="rv-card-body">
+        <p class="rv-card-title">${escapeHtml(l.title)}</p>
+        <p class="rv-card-price">€${fmt(l.price_eur)}</p>
+      </div>
+    </a>
+  `).join('');
+  wrap.querySelectorAll('[data-rv-listing-id]').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); showListingDetail(a.dataset.rvListingId); });
+  });
+}
+
+// --- Print / PDF export (docs/backlog.md investor-facing dispatch, item 2) --
+// window.print() + a dedicated print stylesheet (#printRoot/.print-* rules
+// in <style> above), not a vendored PDF library - see docs/decisions.md for
+// the reasoning. Builds a clean, standalone printable fragment into
+// #printRoot, flips body.print-active (which the @media print rule uses to
+// hide the whole live app and show only that fragment), calls window.print(),
+// then restores normal state on the browser's own 'afterprint' event so this
+// behaves the same whether the user actually prints or cancels the dialog.
+function runPrint(html) {
+  document.getElementById('printRoot').innerHTML = html;
+  document.body.classList.add('print-active');
+  const cleanup = () => { document.body.classList.remove('print-active'); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  // print() blocks synchronously in some browsers until the dialog closes -
+  // deferred one tick so the print-active class/DOM update has actually
+  // painted first, otherwise a couple of browsers have been known to
+  // snapshot the previous frame.
+  setTimeout(() => window.print(), 50);
+}
+
+function printedOnLine() {
+  return `Printed from imotenradar.com on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+}
+
+function buildPrintListingHtml(merged, l) {
+  const cityDef = BG_CITIES.find(c => c.key === (merged.city_key || listingCityKey(merged)));
+  const cityLabel = cityDef ? cityDef.label : '';
+  const photo = l.photo || merged.photo || '';
+  return `
+    <div class="print-page">
+      <div class="print-header">
+        <span class="print-brand">🏠 Imoten Radar</span>
+        <span class="print-meta">${printedOnLine()}</span>
+      </div>
+      ${photo ? `<img class="print-photo" src="${photo}" />` : ''}
+      <h1 class="print-title">${escapeHtml(l.title || '')}</h1>
+      <p class="print-sub">📍 ${escapeHtml(l.area || '')}${cityLabel ? ', ' + escapeHtml(cityLabel) : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''} · Listed on ${escapeHtml(l.portal || '')}</p>
+      <div class="print-price-row">
+        <span class="print-price">€${fmt(l.price_eur)}</span>
+        ${l.price_per_sqm ? `<span class="print-persqm">€${fmt(l.price_per_sqm)}/m²</span>` : ''}
+      </div>
+      <div class="print-stats">
+        <div class="print-stat"><p class="print-stat-label">Rooms</p><p class="print-stat-value">${l.rooms ?? '–'}</p></div>
+        <div class="print-stat"><p class="print-stat-label">Days on market</p><p class="print-stat-value">${l.days_on_market ?? '–'}</p></div>
+        <div class="print-stat"><p class="print-stat-label">Motivation score</p><p class="print-stat-value">${l.score ?? '–'}</p></div>
+        <div class="print-stat"><p class="print-stat-label">Area avg €/m²</p><p class="print-stat-value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
+      </div>
+      ${l.description ? `<p class="print-section-title">Description</p><p class="print-desc">${escapeHtml(l.description)}</p>` : ''}
+      <p class="print-footer">Original listing: ${escapeHtml(l.url || '–')} — data tracked by imotenradar.com, not a verified valuation. Always confirm details against the original listing and the land registry before acting.</p>
+    </div>
+  `;
+}
+
+function printListingDetail(merged, l) {
+  runPrint(buildPrintListingHtml(merged, l));
+}
+
+// Deal Calculator result print view - reuses computeDealCalcResultFor() (the
+// exact same function the on-screen template card uses), never a separate
+// print-only recomputation, so the printed numbers can't drift from what's
+// shown on screen.
+function buildPrintDealCalcHtml(t) {
+  const def = DEAL_CALC_STRATEGIES.find(s => s.id === t.strategy);
+  const result = computeDealCalcResultFor(t);
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
+  const fmtNum = (v) => (v == null || isNaN(v)) ? '–' : fmt(v);
+
+  const INPUT_LABELS = t.strategy === 'btl' ? {
+    price: 'Purchase price (€)', ltvPct: 'LTV (%)', interestPct: 'Interest rate (%)',
+    icrPct: 'ICR required (%)', loanTermYears: 'Loan term (years)', closingCostsPct: 'Closing costs (%)',
+    refurbCost: 'Refurb cost (€)', monthlyRent: 'Monthly rent (€)', managementFeePct: 'Management fee (%)',
+    maintenancePct: 'Maintenance (% of price/yr)', voidPct: 'Void allowance (%)', insuranceAnnual: 'Insurance (€/yr)',
+    hoaMonthly: 'HOA (€/month)', currentMarketValue: 'Current market value (€)',
+  } : {
+    purchasePrice: 'Purchase price (€)', closingCostsPct: 'Closing costs (%)', purchaseLoanAmount: 'Purchase loan amount (€)',
+    renovationBudget: 'Renovation budget (€)', holdingCosts: 'Holding costs (€)', financingCost: 'Financing cost (€)',
+    expectedResalePrice: 'Expected resale price (€)', sellingCostsPct: 'Selling costs (%)',
+  };
+  const RESULT_ROWS = t.strategy === 'btl' ? [
+    ['grossYieldPct', 'Gross yield', fmtPct], ['netYieldPct', 'Net yield', fmtPct], ['capRatePct', 'Cap rate', fmtPct],
+    ['monthlyCashFlow', 'Monthly cash flow', fmtEur], ['annualCashFlow', 'Annual cash flow', fmtEur],
+    ['cashOnCashPct', 'Cash-on-cash return', fmtPct], ['loanAmount', 'Loan amount', fmtEur],
+    ['monthlyMortgagePayment', 'Monthly mortgage payment', fmtEur], ['totalCashInvested', 'Total cash invested', fmtEur],
+    ['passes', 'Passes ICR stress test', v => v ? 'Yes' : 'No'],
+  ] : [
+    ['totalProjectCosts', 'Total project costs', fmtEur], ['totalCashNeeded', 'Total cash needed', fmtEur],
+    ['sellingCosts', 'Selling costs', fmtEur], ['grossProfit', 'Gross profit', fmtEur], ['roiPct', 'ROI', fmtPct],
+  ];
+
+  const inputRows = Object.entries(INPUT_LABELS)
+    .map(([key, label]) => `<tr><th>${escapeHtml(label)}</th><td>${t.inputs[key] == null ? '–' : fmtNum(t.inputs[key])}</td></tr>`)
+    .join('');
+  const resultRows = RESULT_ROWS.map(([key, label, f]) => `<tr><th>${escapeHtml(label)}</th><td>${f(result[key])}</td></tr>`).join('');
+
+  return `
+    <div class="print-page">
+      <div class="print-header">
+        <span class="print-brand">🏠 Imoten Radar</span>
+        <span class="print-meta">${printedOnLine()}</span>
+      </div>
+      <h1 class="print-title">${escapeHtml(t.name)}</h1>
+      <p class="print-sub">${escapeHtml(def ? def.full : t.strategy)} strategy${t.listingId && t.listingSnapshot ? ' · Linked to ' + escapeHtml(t.listingSnapshot.title || '') : ''}</p>
+      <p class="print-section-title">Inputs</p>
+      <table class="print-table"><tbody>${inputRows}</tbody></table>
+      <p class="print-section-title">Results</p>
+      <table class="print-table"><tbody>${resultRows}</tbody></table>
+      <p class="print-footer">Figures are estimates from user-entered assumptions, not financial advice or a lending decision - verify independently before acting on them.</p>
+    </div>
+  `;
+}
+
+function printDealCalcTemplate(templateId) {
+  const t = DEAL_CALC_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  runPrint(buildPrintDealCalcHtml(t));
 }
 
 // --- Lead generators (saved searches) ----------------------------------------
@@ -7147,6 +7671,7 @@ function createPipelineCard(listing, deal) {
             ${PIPELINE_STAGES.map(s => `<option value="${s.id}" ${s.id === deal.stageId ? 'selected' : ''}>${s.icon || ''} ${escapeHtml(s.name)}</option>`).join('')}
           </select>
           <button type="button" class="pl-icon-btn" data-pl-tags-id="${l.id}" title="Tags" aria-label="Edit tags for ${escapeHtml(l.title)}">🏷</button>
+          <button type="button" class="pl-icon-btn compare-listing-btn-inline${isInCompare(l.id) ? ' active' : ''}" data-compare-id="${l.id}" title="${isInCompare(l.id) ? 'Remove from comparison' : 'Add to comparison'}" aria-label="${isInCompare(l.id) ? 'Remove' : 'Add'} ${escapeHtml(l.title)} ${isInCompare(l.id) ? 'from' : 'to'} comparison">⚖</button>
           <button type="button" class="pl-icon-btn danger" data-pl-remove-id="${l.id}" title="Remove from Pipeline" aria-label="Remove ${escapeHtml(l.title)} from Pipeline">🗑</button>
         </div>
       </div>
@@ -7414,6 +7939,7 @@ function renderHome() {
   renderTypeFilters();
   renderCityTabs();
   renderOblastTabs();
+  renderRecentlyViewedStrip();
 }
 
 function renderHomeChart() {
@@ -7631,9 +8157,11 @@ function createListingCard(l) {
 
   const saved = isListingSaved(l.id);
   const inPipeline = isInPipeline(l.id);
+  const inCompare = isInCompare(l.id);
   card.innerHTML = `
     <button class="save-listing-btn${saved ? ' saved' : ''}" data-save-id="${l.id}" title="${saved ? 'Remove from Dashboard' : 'Save to Dashboard'}" aria-label="${saved ? 'Remove' : 'Save'} ${escapeHtml(l.title)} ${saved ? 'from' : 'to'} Dashboard">${saved ? '★' : '☆'}</button>
     <button class="pipeline-listing-btn${inPipeline ? ' added' : ''}" data-pipeline-id="${l.id}" title="${inPipeline ? 'In Pipeline (click to remove)' : 'Add to Pipeline'}" aria-label="${escapeHtml(l.title)} - ${inPipeline ? 'in Pipeline, click to remove' : 'add to Pipeline'}">${inPipeline ? '✓' : '＋'}</button>
+    <button class="compare-listing-btn${inCompare ? ' active' : ''}" data-compare-id="${l.id}" title="${inCompare ? 'Remove from comparison' : 'Add to comparison'}" aria-label="${inCompare ? 'Remove' : 'Add'} ${escapeHtml(l.title)} ${inCompare ? 'from' : 'to'} comparison">${inCompare ? '⚖✓' : '⚖'}</button>
     <div class="listing-link" data-listing-id="${l.id}">
       ${photoHtml}
       <div class="listing-body">
@@ -9898,6 +10426,7 @@ function renderDealCalcTemplateCard(t) {
       <div class="dc-template-footer">
         <button type="button" class="pl-secondary-btn" data-dc-edit="${t.id}">✎ Edit</button>
         <button type="button" class="pl-secondary-btn" data-dc-duplicate="${t.id}">⧉ Duplicate</button>
+        <button type="button" class="pl-secondary-btn" data-dc-print="${t.id}">🖨 Print / Export PDF</button>
         <button type="button" class="pl-secondary-btn" data-dc-delete="${t.id}">🗑 Delete</button>
       </div>
     </div>
@@ -9908,6 +10437,7 @@ function wireDealCalcTemplateCardEvents(container) {
   if (!container) return;
   container.querySelectorAll('[data-dc-edit]').forEach(btn => btn.addEventListener('click', () => openDealCalcModalForEdit(btn.dataset.dcEdit)));
   container.querySelectorAll('[data-dc-duplicate]').forEach(btn => btn.addEventListener('click', () => duplicateDealCalcTemplate(btn.dataset.dcDuplicate)));
+  container.querySelectorAll('[data-dc-print]').forEach(btn => btn.addEventListener('click', () => printDealCalcTemplate(btn.dataset.dcPrint)));
   container.querySelectorAll('[data-dc-delete]').forEach(btn => btn.addEventListener('click', () => deleteDealCalcTemplate(btn.dataset.dcDelete)));
   container.querySelectorAll('[data-dc-goto-listing]').forEach(a => a.addEventListener('click', (e) => { e.preventDefault(); showListingDetail(a.dataset.dcGotoListing); }));
 }
@@ -10113,6 +10643,8 @@ function renderListingDetail(merged) {
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button class="save-detail-btn${isListingSaved(merged.id) ? ' saved' : ''}" data-save-id="${merged.id}">${isListingSaved(merged.id) ? '★ Saved to Dashboard' : '☆ Save to Dashboard'}</button>
           <button class="detail-secondary-btn" id="compareBtn">⇄ Compare nearby</button>
+          <button class="detail-secondary-btn compare-listing-btn-detail${isInCompare(merged.id) ? ' active' : ''}" data-compare-id="${merged.id}" title="${isInCompare(merged.id) ? 'Remove from comparison' : 'Add to comparison'}">${isInCompare(merged.id) ? '⚖ In comparison' : '⚖ Add to compare'}</button>
+          <button class="detail-secondary-btn" id="printListingBtn">🖨 Print / Export PDF</button>
           <button class="detail-secondary-btn" id="reminderBtn">🔔 Remind me</button>
           ${isInPipeline(merged.id) ? `
             <select class="pl-stage-select" id="detailPipelineStageSelect" data-listing-id="${merged.id}">
@@ -10282,6 +10814,7 @@ function renderListingDetail(merged) {
     document.querySelector('.detail-tabs').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   document.getElementById('reminderBtn').addEventListener('click', () => openReminderModal(merged));
+  document.getElementById('printListingBtn').addEventListener('click', () => printListingDetail(merged, l));
 
   const detailPlAddBtn = document.getElementById('detailPipelineAddBtn');
   if (detailPlAddBtn) detailPlAddBtn.addEventListener('click', () => {
@@ -10447,6 +10980,10 @@ function currentResultPosition(id) {
 function showListingDetail(id, { push = true, tab = 'details' } = {}) {
   const merged = MERGED_LISTINGS.find(x => x.id === id);
   if (!merged) return;
+  // Backlog item 3 ("Recently viewed" strip) - tracked on every real open,
+  // not just navigation via the strip itself, so it reflects everywhere a
+  // listing gets opened from (grid, Pipeline, Dashboard, a direct link).
+  trackRecentlyViewed(id);
   // Remember whichever real section was on screen before this (Leads,
   // Pipeline, a Lead Generator's results, Comparables, Dashboard...) so the
   // in-page "← Back to listings" button can return there instead of a
@@ -10562,7 +11099,9 @@ function showSection(name, { push = true } = {}) {
     const hash = name === 'home' ? '' : ('#/section/' + name);
     history.pushState({ type: 'section', name }, '', window.location.pathname + window.location.search + hash);
   }
-  if (name === 'market') {
+  if (name === 'home') {
+    renderRecentlyViewedStrip();
+  } else if (name === 'market') {
     if (!marketHubInitialized) { initMarketDataHub(); marketHubInitialized = true; }
     else { renderActiveMarketTab(); }
   } else if (name === 'leadgen') {
@@ -10713,6 +11252,29 @@ document.addEventListener('click', (e) => {
   const btn = e.target.closest('.save-listing-btn, .save-detail-btn');
   if (btn) toggleSavedListing(btn.dataset.saveId);
 });
+
+// Single delegated handler for every ⚖ compare toggle - the grid/card
+// button (.compare-listing-btn) and the Pipeline card's inline variant
+// (.compare-listing-btn-inline) both carry the same data-compare-id.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-compare-id]');
+  if (btn) toggleCompareListing(btn.dataset.compareId);
+});
+
+document.getElementById('compareModalCloseBtn').addEventListener('click', closeCompareModal);
+document.getElementById('compareModalDoneBtn').addEventListener('click', closeCompareModal);
+document.getElementById('compareModalClearBtn').addEventListener('click', () => {
+  clearCompareListings();
+  renderCompareModal();
+  closeCompareModal();
+});
+
+// NOTE: this used to also carry a `window.addEventListener('hashchange', ...)`
+// listener that re-opened a listing on `#/listing/<id>` hash changes - removed
+// by the browser-back-button fix below (docs/decisions.md), which replaces it
+// with a `popstate`-driven restore. Leaving both in place double-handled every
+// back/forward step into or out of a listing (see that entry for the verified
+// failure mode).
 
 // --- Browser back/forward button support ---------------------------------
 // Root cause (docs/decisions.md): showSection() never pushed a history
@@ -11498,6 +12060,9 @@ loadPipelineStages();
 loadPipelineTags();
 loadPipelineDeals();
 loadDealCalcTemplates();
+loadCompareListings();
+loadRecentlyViewed();
+renderCompareBar();
 
 // Give the page's very first history entry a real {type, ...} state object
 // up front (replaceState, not pushState - this is the entry the browser

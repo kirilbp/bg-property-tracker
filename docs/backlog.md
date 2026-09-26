@@ -6286,3 +6286,200 @@ this is entirely client-side navigation state.
   properties) - not enough for reliable yield. Revisit only if imoti.net's
   or imot.bg's real listing counts become readable (their rental sections
   exist but the count couldn't be extracted last time).
+## 44. Investor-facing features: user-curated listing comparison, print/PDF export, "Recently viewed" strip - APPROVED BY MISSY (2 rounds - detail-page compare button state fix), MERGED (2026-09-26); saved-search digest - SCOPED, NOT BUILT (see below)
+
+
+User approved a batch of design/UX ideas and said "Execute" - this item
+covers the "investor-facing features" group of that batch. Built in an
+isolated `git worktree` off a fresh `origin/main`
+(`feat/investor-facing-features` branch), per this repo's shared-checkout
+discipline (other agents were confirmed to be touching `index.html`
+concurrently - a design-polish pass and a data-file fix - via
+`git worktree list`/`git status` before starting). No live GitHub Actions
+workflow touched, so the standing rule against iterating via live
+`workflow_dispatch` doesn't apply here. Verified with a real headless-
+browser (Playwright) harness before opening the PR, not just read-through -
+see "Verification" below. Not self-merged - opened as a PR for Missy's
+review per the repo's standing rule.
+
+**1. Side-by-side comparison table for 2-3 listings** (`compareListingIds`
+localStorage key, `COMPARE_MAX = 3`). Deliberately kept distinct from the
+existing radius-based Comparables tab/page (`findComparables()` et al.,
+item 15) - that surface answers "what's the nearby market average around
+this one listing"; this one answers "how do these specific listings I
+picked stack up against each other," a different question with a
+different (small, manual, cross-page) selection model. No "select
+multiple" UI pattern already existed anywhere in the app (grid, Lead
+Generators, or Pipeline all checked first) to extend, so a new, minimal
+one was built:
+- A ⚖ toggle button on every listing card in the main Leads grid
+  (`createListingCard()`) and on every Pipeline card
+  (`createPipelineCard()`, as a `pl-icon-btn` variant since the absolutely-
+  positioned corner-button style used on grid cards doesn't fit Pipeline's
+  card footer layout) - both wired through one delegated
+  `document` click handler on `[data-compare-id]`, so adding it to a
+  future third surface (e.g. the Dashboard's saved-listings grid) needs no
+  new listener, just the button markup.
+- A floating bottom compare bar (`#compareBar`, always in the DOM, shown/
+  hidden by `renderCompareBar()`) showing thumbnails of the current
+  selection with per-item remove, a Clear action, and a brass "⇄ Compare"
+  CTA (disabled below 2 selected).
+- A wide modal (`#compareModalOverlay`, reusing the existing
+  `.compare-modal` width modifier already shared by the Pipeline
+  stages/tags config and Deal Calculator wizard modals) rendering the
+  actual side-by-side table: photo, title, area, price, size, price/m²,
+  rooms, days on market, motivation score, portal, and the same badge set
+  `buildBadgesHtml()` already renders on cards - no separate badge logic
+  to maintain.
+- Persisted to `localStorage` on every change (`compareListingIds`),
+  following the app's existing no-login pattern (`savedListingIds`/
+  `pipelineDeals`/`sitePreferences`) - survives a reload, confirmed via a
+  real `page.reload()` in the verification harness, not just re-reading
+  the same page instance.
+
+**2. Export a listing or Deal Calculator result as PDF** - shipped via
+`window.print()` + a dedicated print stylesheet, not a vendored PDF
+library. Reasoning: this codebase already has a documented "no new
+libraries unless necessary" pattern, and the two vendored libraries it
+does carry (Chart.js, Leaflet) are both large interactive libraries doing
+things CSS fundamentally can't (canvas charting, tile-based maps) - a
+static, single-page investor hand-out has no interactive requirement
+`window.print()` + `@media print` can't already satisfy. A vendored PDF
+library (e.g. jsPDF/pdf-lib) would add real weight (jsPDF alone is
+~200KB+ minified) for a feature `window.print()` covers natively in every
+browser, including "Save as PDF" as a first-class option in every major
+browser's own print dialog - genuinely insufficient only if pixel-perfect
+layout control independent of the browser's print engine were required,
+which a clean investor summary page doesn't need.
+- Mechanism: a single hidden `#printRoot` div plus `body.print-active`
+  toggled by a shared `runPrint(html)` helper - the `@media print` rule
+  hides the entire live app (`.app`) and shows only `#printRoot`, so the
+  printed/PDF'd page is never the live UI with chrome hidden piecemeal
+  (which tends to leave gaps), always a purpose-built fragment.
+  `runPrint()` restores normal state on the browser's own `afterprint`
+  event, so cancelling the print dialog leaves the app exactly as it was.
+- **Listing print view** (`buildPrintListingHtml()`, "🖨 Print / Export
+  PDF" button on the listing detail page): photo, title, address, price,
+  price/m², rooms/days-on-market/motivation-score/area-avg stat tiles,
+  full description, and a footer with the original listing URL and a
+  standard "not a verified valuation, confirm against the original
+  listing and the land registry" caveat (same tone the app already uses
+  elsewhere for relisting/unverified-price disclaimers).
+- **Deal Calculator print view** (`buildPrintDealCalcHtml()`, "🖨 Print /
+  Export PDF" button on every Deal Calculator template card, alongside the
+  existing Edit/Duplicate/Delete actions): full input table (every field
+  the BTL or FLIP wizard collected, human-labeled) + full results table,
+  computed via the exact same `computeDealCalcResultFor()` the on-screen
+  card already uses - never a separate print-only recomputation, so the
+  printed numbers can't drift from what's shown on screen.
+- Ink-on-white print styling (`.print-*` classes), explicit `background:
+  #fff` under `@media print` (the live app's warm-ivory background would
+  otherwise print if the browser has "background graphics" enabled) -
+  verified via Playwright's `page.emulate_media(media='print')`, which
+  confirmed `.app` fully hidden and `#printRoot` the only visible content
+  in the print-media render.
+
+**3. "Recently viewed" strip** (`recentlyViewedListingIds` localStorage
+key, last 8, most-recent-first). Tracked on every real listing open via
+`showListingDetail()` (`trackRecentlyViewed()`), not just navigation from
+the strip itself, so it reflects opens from anywhere - the grid, Pipeline,
+Dashboard, a direct `#/listing/...` link. Shown as a new "Recently viewed"
+card on the Home page (`renderRecentlyViewedStrip()`, called from
+`renderHome()` and from `showSection('home')` so it's current whether Home
+was already loaded or navigated back to), placed right after the Search
+card and hidden entirely (`display:none`) until there's at least one
+entry, so it never shows an empty strip to a first-time visitor. Persisted
+to `localStorage`, same no-login pattern as items 1 and elsewhere -
+survives a reload (verified the same way as item 1's compare set, in the
+same harness run).
+
+**4. Saved-search digest - documented only, per the dispatch's own
+instruction not to build it.** This needs real infrastructure the app
+doesn't have and can't fake convincingly:
+- **A way to run on a schedule server-side.** Every existing "automatic"
+  behavior in this app (the scrape/sync GitHub Actions workflows) runs
+  against this repo's own data pipeline, not per-user - there's no
+  existing job runner that could iterate "for each saved search, check
+  what's new, send a digest" against arbitrary users' `localStorage`-only
+  Lead Generators, because that data structurally never leaves the user's
+  own browser today. This would need a genuinely new lightweight backend
+  job (e.g. a small scheduled function/worker with its own datastore),
+  not an extension of the existing scrapers.
+- **A way to identify "the same browser/user" across visits without full
+  auth.** Lead Generators are `localStorage`-keyed today, with no login
+  anywhere in the app (a per-user Supabase Auth version existed briefly
+  and was deliberately removed - see this file's login-removal history).
+  A digest needs *something* durable to send to, which means either (a) a
+  real login system (a bigger, separately-scoped decision this dispatch
+  explicitly isn't making) or (b) a lighter-weight anonymous-device-id +
+  email-opt-in model (e.g. a signed token stored in `localStorage`,
+  associated server-side with an email address and that browser's saved
+  searches, synced up on save rather than kept purely local) - itself a
+  real design decision (what happens if `localStorage` is cleared? what
+  happens on a second device?) that needs to be made deliberately, not
+  implied by a checkbox nobody thought through.
+- **An email-sending capability.** No email service (transactional email
+  provider, sending domain/DNS setup, unsubscribe-compliance handling) is
+  wired into this app anywhere today. This is a real, non-trivial
+  integration on its own, independent of the scheduling/identity pieces
+  above.
+- **What "new" means for a digest**, concretely: new listings matching
+  the saved search's filters since last sent, price drops on already-
+  matched listings, or both - a product decision this dispatch doesn't
+  make, deliberately left for whoever picks this item up to decide
+  alongside the send cadence (daily/weekly) and what a "no new matches"
+  digest should do (skip sending, or send a quiet confirmation).
+- Per the dispatch's explicit instruction, no fake/inert settings UI was
+  added anywhere (no "Email me when..." checkbox that silently does
+  nothing) - the Preferences page is unchanged by this item.
+
+**Verification**: real Playwright screenshots at 1440px and 390px
+(desktop/mobile) against a local static server, using the same
+stub-`window.supabase`-and-inject-fixture-data harness pattern as prior
+sessions' scratchpad checks (`check_page.py`), extended with a generic
+`Proxy`-based chainable Supabase stub (robust to every `.select()/.eq()/
+.in()/.order()/.limit()/.maybeSingle()` call shape `loadData()`/
+`showListingDetail()` use, not a hand-picked method list) and a minimal
+`Chart` constructor stub (Chart.js itself is CDN-hosted and unreachable in
+this sandbox - a pre-existing, environment-only gap, unrelated to this
+change; Leaflet-dependent map code already guards `typeof L === 'undefined'`
+everywhere and needed no stub). Confirmed via 3 fake listings injected
+into `MERGED_LISTINGS`:
+- Compare: toggled 2 listings' ⚖ buttons on the real grid cards, opened
+  the real compare bar and modal, confirmed the table renders the right
+  8 rows for both columns, confirmed `localStorage.compareListingIds`
+  holds `["fake1","fake2"]` **after a real `page.reload()`** (not just a
+  fresh page load with an empty profile, which would prove nothing about
+  persistence) - both desktop and mobile viewports.
+- Recently viewed: opened a listing via `showListingDetail()`, navigated
+  home, confirmed the strip shows it and `localStorage
+  .recentlyViewedListingIds` holds `["fake3"]`, again reconfirmed after a
+  real `page.reload()` - both viewports.
+- Print: emulated `print` media (`page.emulate_media()`), confirmed
+  `.app`'s computed `display` is `none` and `#printRoot`'s is `block`
+  while active, for both the listing print view and the Deal Calculator
+  print view, both viewports.
+- **Zero new console/JS errors** across every run (0 `pageerror`s, 0
+  `console.error`s once "Failed to load resource" network-only noise from
+  this sandbox's unreachable CDNs/fake photo URLs is excluded - that
+  category can't hide a real thrown error, which is never phrased that
+  way).
+
+**Files touched**: `index.html` only (new CSS rules for `.compare-*`/
+`.rv-*`/`.print-*`, new HTML for the compare bar/modal, the Home page's
+Recently Viewed card, and `#printRoot`; new JS: `loadCompareListings()`/
+`persistCompareListings()`/`isInCompare()`/`toggleCompareListing()`/
+`updateCompareButtonsFor()`/`findListingByIdAnywhere()`/
+`renderCompareBar()`/`clearCompareListings()`/`openCompareModal()`/
+`closeCompareModal()`/`renderCompareModal()`/`compareMotivationLabel()`,
+`loadRecentlyViewed()`/`persistRecentlyViewed()`/`trackRecentlyViewed()`/
+`renderRecentlyViewedStrip()`, `runPrint()`/`printedOnLine()`/
+`buildPrintListingHtml()`/`printListingDetail()`/`buildPrintDealCalcHtml()`/
+`printDealCalcTemplate()`; small additions to `createListingCard()`,
+`createPipelineCard()`, `renderListingDetail()`,
+`renderDealCalcTemplateCard()`/`wireDealCalcTemplateCardEvents()`,
+`renderHome()`, `showSection()`, `showListingDetail()`, and the init-time
+`load*()` call sequence). No scraper/sync/schema/workflow files touched;
+no backend/data change of any kind, matching the dispatch's "no auth/PII
+surface" instruction.
+
