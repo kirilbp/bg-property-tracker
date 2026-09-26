@@ -1357,7 +1357,7 @@ further investigation):
    separately - do this or the fix will silently self-defeat**:
    `scraper_homes.py`'s `update_history()` currently does
    `history[lid]["latest"] = l` as an unconditional full replace, with no
-   `_DETAIL_ONLY_FIELDS` merge-preservation at all - unlike all six other
+   `_DETAIL_ONLY_FIELDS` merge-preservation at all - unlike all seven other
    scrapers that already got this treatment in 9a/9c. This was
    *correctly* left alone at the time (9c's own investigation explicitly
    found homes.bg "genuinely NOT at risk, no action needed" - true then,
