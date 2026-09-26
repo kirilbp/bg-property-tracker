@@ -61,9 +61,8 @@ wrong category bucket for every affected listing, not just its own record.
 Run with: python3 backfill_garage_tiebreak_regression.py
 """
 
-import json
-
 import category_classifier as cc
+from geo_utils import save_json_any
 
 
 # Each entry: (portal label, scraper module import name, whether that
@@ -128,7 +127,7 @@ def backfill_portal(portal_label, module_name, uses_description):
     if changed:
         module.save_history(history)
         leads = module.compute_leads(history)
-        module.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(module.LEADS_FILE, leads)
         print(f"DEBUG: wrote {len(leads)} leads to {module.LEADS_FILE}")
     else:
         print("DEBUG: nothing changed - history/leads left untouched")

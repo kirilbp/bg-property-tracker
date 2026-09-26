@@ -33,10 +33,10 @@ to keep up with that day's newly-discovered listings, a much smaller
 number.
 """
 
-import json
 import time
 
 import scraper_olx as so
+from geo_utils import save_json_any
 
 # One shared Playwright page reused across the whole batch (see
 # fetch_listing_details()'s own comment) keeps the per-listing cost close
@@ -68,7 +68,7 @@ def main():
     def checkpoint():
         so.save_history(history)
         leads = so.compute_leads(history)
-        so.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(so.LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     so.fetch_listing_details(to_check, on_checkpoint=checkpoint, checkpoint_every=CHECKPOINT_EVERY, deadline=deadline)

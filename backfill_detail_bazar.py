@@ -58,13 +58,12 @@ site throttling or blocking, same as alo.bg's own fix) stops early
 instead of grinding through the rest of a doomed batch.
 """
 
-import json
 import time
 
 import scraper_bazar as sb
 from geo_utils import (
     extract_coords_bazar, extract_contact_bazar, extract_description_ldjson,
-    extract_photos_ldjson, extract_specs_bazar,
+    extract_photos_ldjson, extract_specs_bazar, save_json_any,
 )
 
 REQUEST_DELAY_SECONDS = 1.0
@@ -104,7 +103,7 @@ def main():
     def checkpoint():
         sb.save_history(history)
         leads = sb.compute_leads(history)
-        sb.LEADS_FILE.write_text(json.dumps(leads, ensure_ascii=False, indent=2), encoding="utf-8")
+        save_json_any(sb.LEADS_FILE, leads)
 
     deadline = time.monotonic() + TIME_BUDGET_SECONDS
     filled = 0
