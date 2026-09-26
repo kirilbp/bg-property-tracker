@@ -5713,6 +5713,153 @@ needed for anything in this pass - the photos-only filter's data
 (`photo` field, placeholder-URL detection) already existed; everything
 else was pure CSS/layout.
 
+## 40. "Polish that reads as luxurious fast" - skeleton loading, toasts, branded no-photo placeholder, icon audit, photo lightbox - BUILT, PENDING REVIEW (2026-09-26, Dessy)
+
+Five-item dispatch from Bossy (user-approved backlog of design/UX ideas,
+"Execute"), all additive polish over `docs/design-guidelines.md`'s
+existing brass/ivory/ink/sage palette - no redesign, no scraper/backend
+changes needed for any of the five.
+
+**1. Skeleton loading states.** The primary results grid (`#grid`) had no
+loading state at all between page load and the first real paint while
+either `renderFastPage()`'s own small server query or the initial cold
+`loadData()` bulk fetch was in flight - just whatever the grid last held
+(blank on first load, stale cards on a filter/pagination change). Added
+`renderSkeletonGrid()` (12 shimmer cards, same `.listing` shape/border/
+radius as a real card - photo block + title/price/meta lines) called at
+the top of `renderFastPage()` right before its `await
+fetchFastListingsPage()`, cleared the same way real content already is
+(`grid.innerHTML = ''`). Shimmer is a slow (1.6s), linear, brass/ivory
+`background-position` sweep - no pulse/bounce, per design-guidelines.md
+section 8's "quiet skeleton/shimmer" rule. Verified with a Playwright
+harness that delays the mocked `merged_listings`/`listing_sources`
+responses by 1.8s: skeleton cards are on screen and captured mid-flight
+at both 1440px and 390px, then confirmed cleared once the delayed
+response resolves.
+
+**2. Toast/snackbar confirmations.** Added one shared `#toastContainer`
+(bottom-right desktop, full-width bottom mobile) and a `showToast(message)`
+function - ink background, brass left-border, fade+rise in over 220ms,
+auto-dismiss after 2.4s. Grepped for the actual state-changing handlers
+rather than guessing at names, and wired all six named in the dispatch:
+`toggleSavedListing()` ("Saved to Dashboard" / "Removed from Dashboard"),
+`addToPipeline()`/`removeFromPipeline()` ("Added to Pipeline" / "Removed
+from Pipeline" - covers both the quick-add card button and the detail
+page's own Add/Remove button, since the toast lives in the shared
+function, not a specific click handler), `saveLeadGenFromModal()`/
+`deleteLeadGenerator()` ("Lead Generator added"/"updated"/"deleted"),
+`saveDealCalcTemplateFromWizard()` ("Deal Calculator template
+saved"/"updated"), and `dismissReminder()` ("Reminder dismissed"). Did
+NOT add one to `saveReminderFromModal()` (creating a reminder) - the
+dispatch's own list named only "dismissing," and that action already has
+its own visible confirmation (the modal closing) - flagging the
+distinction rather than silently expanding scope. Verified live: clicking
+save/pipeline-add fired a real toast with the right text, screenshotted at
+both viewports.
+
+**3. Branded "no photo" placeholder.** Grepped every place a listing photo
+renders: grid cards (`createListingCard()`), the old `handlePhotoError()`
+inline-emoji-plus-text fallback, the Pipeline card view and (previously
+un-handled - a missing photo there just left an invisible broken `<img>`
+with no message at all) the Pipeline table view's 60x45 thumbnail cell,
+and the listing detail hero. Comparables reuses `createListingCard()`
+directly, so it's covered without separate changes. Replaced all of them
+with one `noPhotoPlaceholderHtml()` - a CSS/SVG stylized house-and-key
+glyph in brass/taupe on ivory, no new image asset - with a `small` variant
+(icon only, no caption) for the pipeline table's fixed-size cell. The
+detail hero's old "just drop the src, leave a blank ivory box" fallback
+(kept deliberately blank before, per its own comment, to avoid stranding
+the prev/next arrows) now shows the same branded placeholder instead,
+still inside the same aspect-ratio box so the arrows stay correctly
+positioned either way. Verified live: a real fixture listing with no
+`photo` field renders the placeholder in the grid and on its own detail
+page at both viewports; a broken photo URL (confirmed live via the test
+harness's own sandboxed lack of internet access to real photo CDNs)
+correctly triggers the same placeholder via `onerror` rather than a
+browser broken-image icon, with zero JS errors.
+
+**4. Icon consistency audit - documented, no changes made.** Grepped the
+whole file for every emoji/unicode-symbol UI icon (nav items, section
+headers, badges, pipeline stage/tag icons, property-type icons, action
+buttons - dozens of call sites) and for any competing custom icon system.
+Found exactly one custom icon construct in the codebase, `brassPinIcon()`
+- a Leaflet map-marker `DivIcon`, a different UI category entirely (a
+geographic pin on a map), not a general-purpose icon language competing
+with the emoji usage for nav/buttons/badges. Every emoji use site-wide
+follows the same single, consistent pattern already: a small supporting
+glyph immediately next to a text label, never icon-only navigation -
+which is exactly what design-guidelines.md section 9's anti-pattern #7
+asks for ("icons are fine as small supporting elements next to text
+labels... avoid icon-only navigation"). Per the dispatch's own explicit
+instruction not to do a wall-to-wall replacement where the existing usage
+is actually consistent and intentional, no icons were changed. **One real
+tension worth flagging for a design-direction call, not decided
+unilaterally here**: full-color emoji glyphs (🏠🎯🔥📍 etc.) render in
+whatever multi-hue style the OS/browser ships (Apple's gradient set vs.
+Windows' flatter set vs. a Linux "tofu" fallback with no emoji font
+installed) and are outside the site's own CSS color control entirely -
+in tension with design-guidelines.md section 4's "one accent color, not
+four" restraint principle, in a way the monochrome CSS-colored unicode
+symbols used elsewhere (✓ ✕ ★ ☆) aren't. Not fixed here since it would be
+a genuine wall-to-wall icon-language replacement (dozens of call sites,
+a real design decision about what replaces each glyph) well beyond this
+polish pass's scope - flagging for Nosy/Missy to weigh in on rather than
+picking a direction solo.
+
+**5. Photo gallery lightbox + swipe.** The listing detail page already had
+an inline prev/next photo gallery (`setDetailPhoto()`) but no way to view
+a photo full-screen. Added `#lightboxOverlay` (full-screen ink scrim,
+brass-accented nav/close controls, fade-only transition) reusing the
+existing `detailPhotos`/`detailPhotoIndex` state rather than tracking a
+second index that could drift out of sync. Opens on clicking the main
+hero photo (`cursor: zoom-in` signals it; no-op on the no-photo
+placeholder, which has no click handler); closes on the close button,
+clicking the scrim itself (not the image/buttons), or Escape; navigates
+with on-screen arrows or Left/Right arrow keys (the pre-existing inline-
+gallery keyboard listener now explicitly skips while the lightbox is open,
+so a single keypress can't double-step the photo by firing both
+listeners); supports a touch swipe on the image via a plain
+touchstart/touchend clientX-delta check, no gesture library. Vanilla JS
+throughout, consistent with the rest of the codebase's dependency-light
+approach. Verified live end-to-end with a mocked multi-photo listing
+(inline data-URI SVGs, since the fixture's real photo URLs point at
+external CDNs this sandbox can't reach): open via click, Next arrow
+advances (1/3 → 2/3), Escape closes, click-outside closes, and a
+simulated left swipe on a touch-enabled mobile viewport advances the
+photo exactly like the Next arrow - all screenshotted at 1440px and
+390px, zero JS `pageerror`s (one unrelated, expected console resource-load
+message from a real fixture listing's own external, unreachable photo URL
+elsewhere in the same run - not a regression, and exactly the case item 3
+above is designed to handle gracefully).
+
+**Verification setup**: reused a prior session's own Playwright harness
+(`/tmp/dessy-test/` - vendored Chart.js 4.4.0, Leaflet 1.9.4 + Leaflet.draw
+1.0.4, and a `merged_listings` fixture of 6,000 rows, all routed in via
+`page.route()` so the real, unmodified `index.html` runs against it
+unchanged) rather than building a new one from scratch. Screenshots taken
+at 1440px and 390px for all five items; a dedicated slow-network variant
+delays every mocked REST response by 1.8s specifically to prove the
+skeleton actually appears rather than existing as unused CSS. Zero new
+`pageerror`s across every run.
+
+**Files touched**: `index.html` only (new CSS: `.skeleton-*`,
+`#toastContainer`/`.toast`, `.no-photo-placeholder`, `#lightboxOverlay`
+and its children; new JS: `showToast()`, `renderSkeletonGrid()`,
+`noPhotoPlaceholderHtml()`, `handleDetailPhotoError()`,
+`handlePipelineTablePhotoError()`, `openLightbox()`/`closeLightbox()`/
+`renderLightboxImage()`/`lightboxStep()` and their event listeners; small
+edits to `handlePhotoError()`, `createListingCard()`,
+`createPipelineCard()`, `renderPipelineTableView()`, `renderListingDetail()`,
+`toggleSavedListing()`, `addToPipeline()`/`removeFromPipeline()`,
+`saveDealCalcTemplateFromWizard()`, `dismissReminder()`,
+`saveLeadGenFromModal()`/`deleteLeadGenerator()`, and the existing
+Left/Right-arrow-key listener). No scraper/sync/schema/workflow files
+touched - nothing in this pass needed a backend or data-shape change; all
+five items are pure frontend/markup/CSS/client-JS. Not self-merged - built
+in an isolated `git worktree` off a fresh `origin/main`
+(`dessy/luxury-polish-5-items` branch) and opened as a PR for Missy's
+review, per this repo's standing rules.
+
 ## Confirmed drops - no Bulgarian substitute, not backlog items
 
 Explicitly not being built, per Nosy's spec: CT Band (Council Tax Band),
@@ -5740,6 +5887,108 @@ error-state screens beyond the two captured, and any expanded
 Due-Diligence chevron panel were all requested but not supplied. None of
 these block starting items 13-21; revisit if/when they turn out to matter
 for a specific item.
+
+## 40. Browser back button jumped straight to Home instead of one step back - direct user feedback ("the back button brings me to home screen. Needs to be one step back from previous action") - FIXED
+
+Direct, verbatim user feedback: "Also the back button brings me to home
+screen. Needs to be one step back from previous action."
+
+**Root cause (two separate bugs, both contributing):**
+
+1. `showSection()` never pushed its own `history` entry - it only cleared
+   a leftover listing hash (via `history.pushState('', document.title,
+   ...)`) when one happened to be present, and otherwise did nothing at
+   all. So switching between sections (Home, Leads, Pipeline, Comparables,
+   Dashboard, etc.) left the browser with nothing but the single
+   initial-page-load entry to go back to. `showListingDetail()` did put
+   each listing on its own entry (by assigning `location.hash`, which
+   itself creates a history entry), but nothing anywhere listened for the
+   `popstate` event - the one listener that reacted at all to a hash
+   change was a `hashchange` listener that only handled navigating BACK
+   INTO a listing (re-opening it, always reset to its default "Details"
+   tab), never back OUT of one. Net effect: however many sections/listings
+   a user actually visited, the back button surfaced at most one real step
+   before landing on whatever the initial entry happened to be - Home, in
+   practice, almost every time.
+2. Separately, the in-page "← Back to listings" button on the listing
+   detail page (`#backBtn`) was hardcoded to `showSection('leads')` no
+   matter which section the listing had actually been opened from -
+   Pipeline, a Lead Generator's results, Comparables, Dashboard's saved
+   listings, etc. all funneled back to the same fixed section.
+
+**What was built:** real `history.pushState()`/`popstate`-based navigation
+(index.html only, no library - the app has none and doesn't need one for
+this):
+- `showSection(name, {push})`, `showListingDetail(id, {push, tab})`, and
+  `switchDetailTab(tab, l, {push})` each now push a `{type, ...}` history
+  state (`{type:'section', name}`, `{type:'listing', id, tab}`) and a
+  matching URL (`#/section/<name>`, `#/listing/<id>` - unchanged from
+  before, so no existing deep link breaks) whenever they run as a genuine
+  user-facing navigation (`push: true`, the default).
+- One `popstate` listener (`applyHistoryState()`/`restoreListingState()`)
+  now restores whichever state was popped back to by re-driving the same
+  render functions a normal click would (`push: false`, so restoring
+  doesn't itself push a new entry) - a tab switch on the listing already
+  on screen is done in place (`switchDetailTab()`) rather than by fully
+  re-opening the listing and losing its radius/map-layer/BTL inputs. Falls
+  back to parsing the URL hash for any history entry that has no usable
+  state object (a pre-existing entry from before this fix, or a hand-
+  edited hash), rather than defaulting straight to Home.
+- The page's very first history entry gets a matching state object up
+  front (`history.replaceState()`, keyed off the URL - a listing deep
+  link, a `#/section/<name>` link, or Home), so restoring back to it is
+  never a guess.
+- `#backBtn` now returns to `lastSectionBeforeListing` (the real section
+  that was on screen right before the listing was opened, tracked in
+  `showListingDetail()`) instead of a hardcoded section - fixes bug 2
+  above directly, and matches what the browser back button now does too.
+- The old listing-only `hashchange` listener was removed - `popstate` now
+  covers everything it did (plus tabs and sections), and leaving both
+  active would have double-handled every real back/forward navigation
+  (hash changes fire `hashchange` in addition to `popstate` during
+  traversal), reopening the correct listing and then immediately
+  re-clobbering it back to the "Details" tab.
+
+**Verification, since this sandbox blocks both this app's live Supabase
+project and every CDN it loads from (cdnjs.cloudflare.com, cdn.jsdelivr.net,
+unpkg.com - confirmed dead via this sandbox's own proxy status, not
+assumed)**: a real Playwright browser, not a code read-through, driven
+against the actual, unmodified `index.html` served locally
+(`python -m http.server`), with Chart.js/Supabase/Leaflet's three CDN
+`<script>` tags intercepted via `page.route()` and swapped for small local
+stand-ins - a real query-builder-shaped Supabase fake (`.eq()`/`.in()`
+filtering included) backed by 6 synthetic `merged_listings` rows, and
+generic infinitely-chainable Proxy stand-ins for `Chart`/`L` (Leaflet) that
+no-op every call rather than throw, since no chart/map actually needs to
+render for a navigation test. This exercises the real client-side
+history/DOM logic in a real browser, not a mock of it - the CDN
+stand-ins are the only thing not real.
+
+Ran, at both 1440px and 390px: Home -> Leads -> open a listing -> switch to
+Comparables tab -> open a second listing from a Comparables-tab "compare"
+link -> back x3 -> forward x3, asserting the exact section/listing/tab at
+every step (not just "something changed"). Result at both widths: back x3
+correctly retraced comparables-tab-on-listing-1 -> details-tab-on-listing-1
+-> Leads (never Home); forward x3 retraced the same steps in reverse.
+Also separately verified: (a) a longer Home -> Pipeline -> Comparables ->
+Dashboard -> back x3 chain, confirming every section is independently a
+back-button step, not just Leads; (b) `#backBtn` clicked from a listing
+opened out of Pipeline returns to Pipeline, not a hardcoded section; (c) a
+direct/deep link straight to `#/listing/<id>` (no prior in-app navigation)
+loads correctly and back from it returns to that same listing's own prior
+tab rather than skipping past it. Confirmed via an instrumented Supabase
+stub that the entire back/forward sequence triggers zero additional
+`merged_listings` bulk fetches beyond the two the page load itself already
+does (the fast first-paint query and the real bulk load) - popstate
+restores from in-memory state, it doesn't refetch. Console/`pageerror`
+count was identical before and after the fix (re-ran the same harness
+against unmodified `origin/main`'s `index.html`): the only console noise
+both times is this sandbox's own blocked CSS/web-font/tile requests and a
+Leaflet `integrity`-attribute mismatch against the local stand-in, all
+pre-existing artifacts of testing offline, not caused by this change.
+
+**Files touched**: `index.html` only. No backend/schema/workflow change -
+this is entirely client-side navigation state.
 
 ## Parked - do not start
 
