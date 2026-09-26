@@ -91,8 +91,46 @@ MIN_LISTINGS_FOR_RATIO_CHECK = 50
 # don't have the margin to use a higher one without real false-alarm risk.
 # A portal not listed here (alo.bg, imoti.net's "" suffix) keeps using
 # DEFAULT_MIN_ACTIVE_RATIO unchanged, exactly as before this change.
+#
+# Recalibrated 2026-09-26 (homes.bg only) - the 0.55 floor set above was
+# itself stale within 2 days and, undetected, would have failed EVERY
+# scheduled scrape.yml run from #189 through #193 (~20h+, all on this one
+# check) as a false alarm, not a real crawl failure. Root cause: dd83178
+# (2026-09-23, "Fix homes.bg tracking-ID type collision") fixed
+# build_tracking_id() to stop dropping homes.bg's hs/as/lp/la type prefix.
+# Before that fix, two different-typed listings sharing a bare numeric id
+# silently collided onto one tracking key, permanently hiding one "side"
+# of the collision. Once fixed, every collision pair's previously-hidden
+# other side surfaced as a genuinely new record on its next crawl - a
+# real, wanted, one-time correction to the tracked population, not a
+# live incident (see docs/backlog.md item 23 for the fix itself and item
+# 37's addenda for the resulting ~74,012 -> ~140,337 record-count jump,
+# and docs/decisions.md's 2026-09-26 entry for the full investigation).
+# Confirmed directly against real committed data across the 5 runs this
+# tripped (#189-193, 2026-09-25/26): active ratio held steady at
+# 47.3%-48.0% (66,377-68,116 active out of 140,387-142,420 total) - the
+# real-world active-listing count is capped by homes.bg's own actual
+# nationwide inventory (~70,253, per scraper_homes.py's module docstring)
+# regardless of crawl health, while the tracked-total denominator roughly
+# doubled from the collision-fix backfill, so ~47-48% is the new
+# mathematically-expected healthy baseline, not a degraded one. (Also
+# confirmed mechanically: of the 74,304 "removed" records in the current
+# data/leads_homes.json.gz, 66,882 (90%) share removed_at=2026-09-23 -
+# the exact day the backfill ran - with the large majority of those at
+# days_on_market=28, matching the 2026-08-25 nationwide-coverage
+# expansion - a one-time mechanical artifact, not organic delisting.)
+# New floor 0.25 keeps the same ~22-25pt-margin-below-observed-baseline
+# discipline already used for this portal's similarly-tight peers
+# (olx.bg: 43.3% healthy -> 0.20 floor, ~23pt margin; bazar.bg: 45.2%
+# healthy -> 0.20 floor, ~25pt margin) rather than the much larger ~35pt
+# margin affordable for the high-baseline portals (imoti.bg, homes.bg's
+# own old figure) - homes.bg is now a tight portal like olx.bg/bazar.bg,
+# not a high-baseline one, and its floor is calibrated the same way
+# theirs was. Still comfortably clears a genuine incident: a real
+# dead/stuck crawl (alo.bg's own 0.0% incident, or anything in the
+# 5-10% pathological range) fails this floor by a wide margin.
 PER_PORTAL_MIN_ACTIVE_RATIO = {
-    "homes": 0.55,     # healthy ~91.2% - ~36pt margin
+    "homes": 0.25,     # healthy ~47.3-48.0% post-2026-09-23 ID-collision-fix backfill (see addendum above) - ~22-23pt margin
     "imot": 0.45,      # healthy ~68.8% - ~24pt margin
     "olx": 0.20,       # healthy ~43.3% - tight portal, see caveat above; best safely-available margin
     "bazar": 0.20,     # healthy ~45.2% - tight portal, see caveat above; best safely-available margin

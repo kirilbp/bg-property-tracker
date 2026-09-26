@@ -4731,6 +4731,94 @@ review.
 ---
 ---
 
+## 38. `check_scrape_freshness.py`'s homes.bg active-ratio floor (0.55) was itself stale, failing every scheduled run for ~20h - FALSE ALARM, not a live crawl bug - RECALIBRATED (2026-09-26)
+
+**Not a real crawl failure.** `scrape.yml` runs #189-193 (2026-09-25
+10:45 UTC through 2026-09-26 06:22 UTC, ~20h, 5 consecutive runs) all
+failed on the exact same single step - `check_scrape_freshness.py`'s
+homes.bg active-ratio check - and nothing else. Every scraper step, the
+commit/push, and `sync_to_supabase.py` succeeded in all 5 runs; the
+freshness (staleness) half of the check also passed every time (3.3-3.5h
+old, well under the 30h limit). Only the `PER_PORTAL_MIN_ACTIVE_RATIO
+["homes"] = 0.55` floor added by item 35 fired, every single run.
+
+**Root cause: the 0.55 floor was calibrated on 2026-09-22 against
+homes.bg's pre-collision-fix 91.2% baseline, and dd83178 (2026-09-23,
+item 23's fix) made that baseline stale within 2 days.** dd83178 fixed
+`build_tracking_id()` to stop dropping homes.bg's hs/as/lp/la type
+prefix - before that fix, listings of different types sharing a bare
+numeric id silently collided onto one tracking key, permanently hiding
+one "side" of each collision. Once fixed, every collision pair's
+previously-hidden other side surfaced as a genuinely new record on its
+next crawl (item 37's addendum already documented and shipped for this:
+the resulting ~74,012 -> ~140,337 record-count jump, handled via the
+gzip storage change). That's a real, wanted, one-time correction to the
+*tracked* population, not a live-inventory change - the real-world
+active-listing count stays capped by homes.bg's own actual nationwide
+inventory (~70,253, per `scraper_homes.py`'s own module docstring)
+regardless. So the tracked-total denominator roughly doubled while the
+active numerator didn't, and the mathematically-expected healthy active
+ratio dropped from ~91% to ~47-48% - a real, permanent shift in what
+"healthy" looks like for this one portal, not degradation.
+
+**Confirmed directly, not assumed:** measured the real committed
+`data/leads_homes.json.gz` (142,420 total, 68,116 active, 47.8%) and
+pulled each of the 5 failing runs' own job logs - active ratio held
+steady at 47.3%-48.0% across all 5 (66,377-68,116 active out of
+140,387-142,420 total), while every other check in every one of those
+runs (freshness for all 6 portals, active ratio for imot.bg/olx.bg/
+bazar.bg/imoti.bg/bcpea) passed with real margin. Also confirmed the
+mechanical fingerprint of the one-time correction: of the 74,304
+"removed" records in the current data, 66,882 (90%) share
+`removed_at=2026-09-23` (the exact day the collision-fix backfill ran),
+and the large majority of those sit at `days_on_market=28` (first-seen
+≈2026-08-25, the documented nationwide-coverage-expansion date) - a
+one-time mechanical artifact of two already-shipped, already-understood
+changes, not organic mass delisting. Run #194 (in progress as of this
+investigation, homes.bg's own scraper step completed cleanly with no
+errors) was not waited on before recalibrating, since the pattern was
+already unambiguous across 5 independent runs and this project's
+standing rule is not to iterate against live `scrape.yml` runs.
+
+**Fix:** `PER_PORTAL_MIN_ACTIVE_RATIO["homes"]` recalibrated 0.55 ->
+0.25 - same margin-below-observed-baseline discipline item 35 already
+used for olx.bg/bazar.bg (its own similarly-tight, ~43-45%-healthy
+peers get a ~20% floor, ~23-25pt margin) rather than the ~35pt margin
+affordable for a high-baseline portal, since homes.bg is now a tight
+portal like them, not a high-baseline one. Full reasoning and the
+exact numbers are in `check_scrape_freshness.py`'s own updated inline
+comment (kept in the code, not just here, per this file's own precedent
+of citing the old 91.2% baseline inline) and in `docs/decisions.md`'s
+2026-09-26 entry. Does **not** touch imiti.net/`scraper.py` or
+alo.bg/`scraper_alo.py` - a separate, still-open investigation, out of
+scope here - and does not weaken the freshness-guard mechanism itself,
+only this one stale number.
+
+**Tested:** new `tests/test_check_scrape_freshness_homes_ratio.py` (6
+tests) - the recalibrated constant itself, the other 5 portals'
+floors are unchanged, the new floor passes at the real observed
+47.3%-48.0% band, still fails a genuinely pathological ratio (~5.7%,
+same shape as alo.bg's real 0.0% incident), a boundary test just below/
+above the new 25% floor, and a documentation test against the real
+committed `data/leads_homes.json.gz` (asserts it clears the new floor
+with margin and stays in the expected 40%-55% band, so a real future
+regression is caught rather than silently accepted). Full suite on this
+fresh `origin/main` checkout: **265 passed, 4 subtests passed, 0
+regressions** (259 pre-existing + 6 new; item 37's addendum quoted 258
+on 2026-09-25, so this checkout picked up 1 more from other work landed
+since - expected in this shared, concurrently-edited repo). Also
+manually re-ran `check_scrape_freshness.py` against the real
+currently-committed data for all 6 `scrape.yml` portals (not via
+`workflow_dispatch` - a local dry run, per this project's standing rule)
+and confirmed it now exits 0.
+
+Built in an isolated `git worktree` off `origin/main`, per this repo's
+shared-checkout discipline. Not self-merged - handed back for Missy's
+review.
+
+---
+---
+
 ## Open questions - uncertain Bulgarian-data substitutes, do not build until resolved
 
 Flagged by Nosy as genuinely open, not confirmed either way. Each blocks
