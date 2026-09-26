@@ -227,7 +227,7 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
             "site_updated_at": "2026-09-10T00:00:00+00:00",
             "lat": 42.14, "lng": 24.75,
             "_detail_fetched": True, "_photos_checked": True,
-            "_gallery_specs_rechecked": True,
+            "_gallery_specs_rechecked": True, "_description_title_echo_rechecked": True,
         }
         # alo's grid parser (fetch_listings_page()) never sets these keys
         # at all - confirmed by reading the parser directly.
@@ -239,7 +239,8 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         self._assert_preserved_and_updated(
             scraper_alo, "alo_1", prior_latest, fresh_grid,
             ["description", "photos", "site_updated_at", "lat", "lng",
-             "_detail_fetched", "_photos_checked", "_gallery_specs_rechecked"],
+             "_detail_fetched", "_photos_checked", "_gallery_specs_rechecked",
+             "_description_title_echo_rechecked"],
             new_price=58000,
         )
 

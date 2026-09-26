@@ -73,7 +73,12 @@ geo_utils.py for the full investigation). As of 2026-09-24, that function
 has a real implementation, built from real user-supplied screenshots of a
 live detail page rather than a live HTML probe (this sandbox's network
 egress to alo.bg is still blocked) - see its own comment for the full
-selector strategy. The same screenshots are also the source for two new
+selector strategy. A 2026-09-26 production re-audit found that
+implementation still reproduces the same title-echo bug on 77.7% of what
+it extracts (down from the old selector's 88.3%, not actually fixed) -
+extract_description_alo() now also takes this listing's own `l["title"]`
+and rejects a candidate that's a substring of it, per that function's own
+comment. The same screenshots are also the source for two new
 detail-page extractors wired in below: geo_utils.extract_specs_alo()
 (property type/size/construction type/built year/completion status/
 floor/features from the page's structured spec table - sqm from here
@@ -488,6 +493,7 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
             l["_detail_fetched"] = True
             l["_photos_checked"] = True
             l["_gallery_specs_rechecked"] = True
+            l["_description_title_echo_rechecked"] = True
             continue
         if html is None:
             consecutive_failures += 1
@@ -504,7 +510,7 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
         if coords:
             l["lat"] = coords["lat"]
             l["lng"] = coords["lng"]
-        description = extract_description_alo(html)
+        description = extract_description_alo(html, title=l.get("title"))
         if description:
             l["description"] = description
         photos = extract_photos_alo(html)
@@ -578,6 +584,24 @@ def fetch_update_dates(seen, on_checkpoint=None, checkpoint_every=150, deadline=
         # done and isn't retried forever - only listings visited before
         # today get backfill_detail_alo.py's new one-time re-check.
         l["_gallery_specs_rechecked"] = True
+        # 2026-09-26: SAME "flag says checked, extractor didn't actually
+        # work" problem again, this time for description specifically - a
+        # production sample of 300 real non-empty descriptions produced by
+        # the 2026-09-24 heading-based extract_description_alo() found
+        # 233/300 (77.7%) are still exact title echoes, the same failure
+        # mode the 2026-09-24 fix was meant to replace (see that function's
+        # own comment on _looks_like_title_echo()). Every
+        # _gallery_specs_rechecked: True listing was visited under that
+        # still-flawed extractor at least once, so - same fix pattern as
+        # _photos_checked's and _gallery_specs_rechecked's own creation - a
+        # new, separate marker distinguishes "visited under today's
+        # title-echo-aware extractor" from "visited (possibly under the
+        # still-flawed one)". Set unconditionally on every real visit (like
+        # its three siblings) so a listing that's genuinely just a short,
+        # title-like description even under the new guard still counts as
+        # done - only listings visited before today get backfill_detail_
+        # alo.py's new one-time re-check.
+        l["_description_title_echo_rechecked"] = True
         if on_checkpoint and i % checkpoint_every == 0:
             on_checkpoint()
 
@@ -665,7 +689,8 @@ def save_history(history):
 # value.
 _DETAIL_ONLY_FIELDS = (
     "description", "photos", "site_updated_at", "lat", "lng",
-    "_detail_fetched", "_photos_checked", "_gallery_specs_rechecked", "sqm",
+    "_detail_fetched", "_photos_checked", "_gallery_specs_rechecked",
+    "_description_title_echo_rechecked", "sqm",
     "property_type_raw", "construction_type", "built_year", "completion_status",
     "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
     "has_central_heating", "agency_name", "agency_website",
