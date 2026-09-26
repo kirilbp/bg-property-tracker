@@ -159,6 +159,25 @@ TITLE_ECHO_BLOCK_NO_REAL_DESCRIPTION = """
 </body></html>
 """
 
+# 2026-09-26 production re-audit finding: sampling 300 real non-empty
+# descriptions produced by the heading-based extractor above against
+# data/leads_alo.json found 233/300 (77.7%) are exact substrings of that
+# same listing's own title - the same title-echo failure mode the 2026-09-24
+# fix was meant to replace, just reached via a different DOM shape. This
+# fixture reproduces that shape directly (not the exact unverified real
+# markup, which still can't be confirmed without live access): the
+# "Допълнителна информация" heading's own content IS the listing's title
+# text and nothing else, so the ancestor walk finds "real" content long
+# enough to pass MIN_ALO_DESCRIPTION_LENGTH that is still just a title echo.
+TITLE_ECHO_VIA_HEADING_CONTENT_PAGE = """
+<html><body>
+<section>
+  <h3>Допълнителна информация</h3>
+  <p>Двустаен апартамент в к-с Суит хоум 2</p>
+</section>
+</body></html>
+"""
+
 # The OLD `_ALO_GALLERY_ANCHOR_RE` required class/data-type/href to appear
 # in exactly that order, double-quoted, inside one <a> tag - this fixture
 # has the *same* three gallery anchors and the *same* one non-photo
@@ -230,6 +249,35 @@ class ExtractDescriptionAloTest(unittest.TestCase):
     def test_returns_none_on_garbage_html(self):
         self.assertIsNone(extract_description_alo("<<<not even html"))
         self.assertIsNone(extract_description_alo(""))
+
+    def test_rejects_title_echo_when_title_given(self):
+        # The 2026-09-26 finding's fix: a candidate that's a substring of
+        # the listing's own known title is rejected rather than returned.
+        self.assertIsNone(
+            extract_description_alo(
+                TITLE_ECHO_VIA_HEADING_CONTENT_PAGE,
+                title="Titan Properties преди 18 дни Двустаен апартамент в к-с "
+                "Суит хоум 2 София",
+            )
+        )
+
+    def test_keeps_matching_text_when_no_title_given(self):
+        # Backward compatible: a caller that doesn't pass `title` (the
+        # default) sees the same behavior as before this fix - no
+        # regression for any caller that hasn't been updated.
+        desc = extract_description_alo(TITLE_ECHO_VIA_HEADING_CONTENT_PAGE)
+        self.assertEqual(desc, "Двустаен апартамент в к-с Суит хоум 2")
+
+    def test_does_not_reject_genuine_prose_sharing_words_with_title(self):
+        # A real description that happens to share words with the title
+        # (common - sellers often restate the property type) must not be
+        # rejected - only a genuine substring match trips the guard.
+        desc = extract_description_alo(
+            REALISTIC_DETAIL_PAGE_TABLE_SHAPE,
+            title="Продавам ателие в зона Б-19, София",
+        )
+        self.assertIsNotNone(desc)
+        self.assertIn("новия собственик", desc)
 
 
 class ExtractSpecsAloTest(unittest.TestCase):
