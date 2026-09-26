@@ -5437,3 +5437,117 @@ entirely inside the full `[0,300]x[0,194]` viewBox, which `meet` always
 shows in full) plus cairosvg-rendered PNGs of the 4 previously-cropped
 oblasts and 3 already-correct ones (sofia_grad, varna, burgas), standing in
 for a live browser screenshot.
+
+### 2026-09-26 - homes.bg's `check_scrape_freshness.py` active-ratio floor recalibrated 0.55 -> 0.25: confirmed false alarm from a stale threshold, not a live crawl incident
+
+**The question investigated:** `scrape.yml` runs #189-193 (5 consecutive
+scheduled runs, ~20h, 2026-09-25 10:45 UTC through 2026-09-26 06:22 UTC)
+all failed. Was this a real, ongoing homes.bg crawl problem (as the
+guard's own error message - "this looks like a portal-wide false-removal
+event... not a real mass delisting" - literally says), or a false alarm?
+
+**Method - verified every claim directly against real data before acting
+on it, rather than trusting a prior investigation's summary at face
+value:**
+1. Pulled all 5 failing runs' own job logs (`get_job_logs` against each
+   run's `scrape` job). Confirmed: in every one of the 5 runs, exactly
+   one step failed - `check_scrape_freshness.py` - and only its homes.bg
+   active-ratio check specifically; the freshness (staleness) half of
+   the same check, and every check for the other 5 portals it also
+   covers (imot.bg, olx.bg, bazar.bg, imoti.bg, bcpea), passed with real
+   margin in all 5 runs. The reported homes.bg ratio was stable across
+   all 5: 47.3%, 47.3%, 47.8%, 47.8%, 48.0% (66,377-68,116 active out of
+   140,387-142,420 total) - not degrading, not erratic, a tight,
+   consistent band.
+2. Fetched the real, currently-committed `data/leads_homes.json.gz` from
+   a fresh `origin/main` checkout and computed the ratio directly:
+   142,420 total, 68,116 active, 74,304 removed = 47.8% - matches the
+   job logs exactly, not just a plausible-sounding number.
+3. Checked the mechanical fingerprint of the claimed one-time cause
+   directly, rather than accepting the causal story on assertion alone:
+   of the 74,304 "removed" records, 66,882 (90.0%) share
+   `removed_at=2026-09-23T02:46:24Z` - one exact timestamp, not a spread
+   - and of those, 60,259 (90.1% of that cohort) sit at exactly
+   `days_on_market=28` (first-seen ≈2026-08-25). Both figures match a
+   one-time backfill/migration signature, not organic day-to-day
+   delisting (which would spread `removed_at` across many days/times).
+4. Confirmed `dd83178` ("Fix homes.bg tracking-ID type collision; split 2
+   of 3 corrupted IDs (#234)") is a real commit, merged 2026-09-23,
+   matching `docs/backlog.md` item 23's own writeup of the same fix.
+5. Confirmed the ~74,012 -> ~140,337 record-count jump this fix caused is
+   independently documented and already shipped: `3b1f6860`'s own commit
+   message ("Addendum: gzip homes.bg's history/leads to actually survive
+   the next run", 2026-09-25, item 37's addendum) states the exact same
+   root cause and the exact same 74,012/140,337/1.90x figures, written
+   the day before this incident and for an unrelated reason (file-size,
+   not the active-ratio guard) - strong independent corroboration, not
+   the same claim repeated once.
+6. Confirmed `scraper_homes.py`'s own module docstring states its
+   verified real nationwide total as ~70,253 listings across all 4 of
+   homes.bg's own listing types - consistent with the observed
+   66,377-68,116 active count staying flat while the tracked-total
+   denominator roughly doubled, which is exactly what "the tracked
+   population doubled, the real world's inventory didn't" predicts.
+7. Checked run #194 (in progress at investigation time): its homes.bg
+   scraper step had already completed with no errors, consistent with
+   the pattern; did not wait for it to finish before recalibrating -
+   the pattern across 5 independent, already-completed runs was already
+   unambiguous, and this project's standing rule is against iterating
+   live against `scrape.yml`.
+
+**Conclusion: genuine false alarm.** The 0.55 floor
+(`PER_PORTAL_MIN_ACTIVE_RATIO["homes"]`, added 2026-09-24 by item 35) was
+correctly calibrated against homes.bg's real 2026-09-22-measured 91.2%
+baseline at the time, but that baseline was made obsolete by `dd83178`
+the very next day. The guard was doing exactly what it was built to do
+(fire on a ratio below its floor) against a number that no longer
+described a healthy day. This is the inverse of item 3's original
+alo.bg incident (a guard that should have fired and didn't) - here the
+guard fired and was right to be suspicious, but the specific number it
+was checking against needed updating, not the crawl.
+
+**Decision: recalibrate the one number, keep the mechanism.** Changed
+`PER_PORTAL_MIN_ACTIVE_RATIO["homes"]` from 0.55 to 0.25. Chose this
+value by treating homes.bg as now belonging to the same "tight portal"
+category as olx.bg/bazar.bg rather than the high-baseline category it
+used to belong to: olx.bg (43.3% healthy -> 0.20 floor, ~23pt margin) and
+bazar.bg (45.2% healthy -> 0.20 floor, ~25pt margin) were calibrated with
+roughly a 20-25 percentage-point absolute margin below their own observed
+baseline, because a bigger absolute margin (like the ~35pt one
+imoti.bg/homes.bg's old figure could afford) would leave too little
+headroom above zero for a portal whose baseline itself is already in the
+40s. Applying that same ~22-23pt margin to homes.bg's newly-observed
+47.3%-48.0% band gives ~0.25, which is what was chosen - deliberately
+not the shallower ~12-17pt margin a 0.30-0.35 floor would imply, since
+that would have given homes.bg less real safety margin than its closest
+analogs already use for a baseline in the same range. Rejected reverting
+to a single shared `DEFAULT_MIN_ACTIVE_RATIO` for homes.bg instead of its
+own calibrated entry - the whole point of item 35's per-portal floors was
+avoiding exactly that copy-paste risk.
+
+**Explicitly out of scope, per the task:** imoti.net/`scraper.py` and
+alo.bg/`scraper_alo.py` were not touched - a separate, still-open,
+unconfirmed investigation (a possible transient connection issue in
+`scrape-large.yml`). The freshness-guard mechanism itself (the staleness
+check, the per-portal floor concept, `MIN_LISTINGS_FOR_RATIO_CHECK`) is
+unchanged - only the one stale homes.bg number.
+
+**Verification, no live dispatch:** ran `check_scrape_freshness.py`
+locally against the real, currently-committed data for all 6 `scrape.yml`
+portals - now exits 0. Added `tests/test_check_scrape_freshness_homes_ratio.py`
+(6 tests): the recalibrated constant, the other 5 portals' floors
+unchanged, the new floor passing at the real observed band, the new
+floor still failing a genuinely pathological ratio (~5.7%, same shape as
+alo.bg's real 0.0% incident) so the guard itself wasn't gutted, an
+above/below-floor boundary check, and a documentation test against the
+real committed `data/leads_homes.json.gz`. Full suite: 265 passed, 4
+subtests passed, 0 regressions. Not dispatched live against `scrape.yml`
+- consistent with this repo's standing rule against iterating on it via
+`workflow_dispatch`; the next real scheduled run (or #194, once it
+finishes) will be the first live confirmation, and is expected to pass
+given the local dry run above matches its own logic exactly.
+
+Built in an isolated `git worktree` off a fresh `origin/main`, per this
+repo's shared-checkout discipline (the shared checkout at
+`/home/user/bg-property-tracker` was left untouched). Not self-merged -
+opened as a PR for Missy's review per the repo's standing rule.
