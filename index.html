@@ -1939,8 +1939,10 @@
                  button - a "condensed version" of the same panel, not a
                  second copy of it, so every field keeps its live value
                  either way (collapsing only hides #leadsFiltersPanel, never
-                 clears or duplicates its inputs). Starts collapsed on
-                 narrow viewports, expanded on desktop - see the
+                 clears or duplicates its inputs). Always starts fully
+                 expanded on load, regardless of viewport width - it only
+                 condenses once scroll makes the card stick to the top of
+                 the viewport (and re-expands once it un-sticks); see the
                  initLeadsFilterToggle() call near the other init code. -->
             <button type="button" class="leads-filter-toggle" id="leadsFilterToggle" aria-expanded="true" aria-controls="leadsFiltersPanel">
               <span>Filters</span>
@@ -3611,14 +3613,14 @@ function buildPrintListingHtml(merged, l) {
       <h1 class="print-title">${escapeHtml(l.title || '')}</h1>
       <p class="print-sub">📍 ${escapeHtml(l.area || '')}${cityLabel ? ', ' + escapeHtml(cityLabel) : ''}${l.sqm ? ' · ' + l.sqm + ' m²' : ''} · Listed on ${escapeHtml(l.portal || '')}</p>
       <div class="print-price-row">
-        <span class="print-price">€${fmt(l.price_eur)}</span>
-        ${l.price_per_sqm ? `<span class="print-persqm">€${fmt(l.price_per_sqm)}/m²</span>` : ''}
+        <span class="print-price">${formatMoney(l.price_eur)}</span>
+        ${l.price_per_sqm ? `<span class="print-persqm">${formatMoney(l.price_per_sqm, '/m²')}</span>` : ''}
       </div>
       <div class="print-stats">
         <div class="print-stat"><p class="print-stat-label">Rooms</p><p class="print-stat-value">${l.rooms ?? '–'}</p></div>
         <div class="print-stat"><p class="print-stat-label">Days on market</p><p class="print-stat-value">${l.days_on_market ?? '–'}</p></div>
         <div class="print-stat"><p class="print-stat-label">Motivation score</p><p class="print-stat-value">${l.score ?? '–'}</p></div>
-        <div class="print-stat"><p class="print-stat-label">Area avg €/m²</p><p class="print-stat-value">${l.area_avg_price_per_sqm ? '€' + fmt(l.area_avg_price_per_sqm) : '–'}</p></div>
+        <div class="print-stat"><p class="print-stat-label">Area avg price/m²</p><p class="print-stat-value">${l.area_avg_price_per_sqm ? formatMoney(l.area_avg_price_per_sqm) : '–'}</p></div>
       </div>
       ${l.description ? `<p class="print-section-title">Description</p><p class="print-desc">${escapeHtml(l.description)}</p>` : ''}
       <p class="print-footer">Original listing: ${escapeHtml(l.url || '–')} — data tracked by imotenradar.com, not a verified valuation. Always confirm details against the original listing and the land registry before acting.</p>
@@ -3637,7 +3639,7 @@ function printListingDetail(merged, l) {
 function buildPrintDealCalcHtml(t) {
   const def = DEAL_CALC_STRATEGIES.find(s => s.id === t.strategy);
   const result = computeDealCalcResultFor(t);
-  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : '€' + fmt(Math.round(v));
+  const fmtEur = (v) => (v == null || isNaN(v)) ? '–' : formatMoney(Math.round(v));
   const fmtPct = (v) => (v == null || isNaN(v)) ? '–' : v.toFixed(1) + '%';
   const fmtNum = (v) => (v == null || isNaN(v)) ? '–' : fmt(v);
 
@@ -9319,7 +9321,7 @@ function priceDivergenceHtml(merged, currentSource) {
   // exactly this ("price moved in the buyer's favor"); "more" is a neutral
   // fact, styled with the plain taupe secondary-text color instead.
   const cls = info.direction === 'less' ? 'detail-price-divergence' : 'detail-price-divergence neutral';
-  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for €${fmt(info.diff)} ${info.direction}</p>`;
+  return `<p class="${cls}">Also listed on <a href="${info.other.url}" target="_blank" rel="noreferrer">${escapeHtml(info.other.portal)}</a> for ${formatMoney(info.diff)} ${info.direction}</p>`;
 }
 
 // --- Property Details & Keywords panel ----------------------------------

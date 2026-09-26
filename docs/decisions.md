@@ -6643,3 +6643,66 @@ Not self-merged - opened as a PR for Missy's review per the repo's
 standing rule. No live GitHub Actions dispatch involved anywhere in this
 work (pure `index.html` + docs changes, no scraper/workflow files
 touched).
+
+## 2026-09-26 (addendum): PR #302 review follow-up - three un-migrated raw-EUR spots + one stale comment (backlog item 51)
+
+Missy's review of the currency-toggle work above (items 49-51) found the
+"every price-display call site was migrated to `formatMoney()`" claim was
+not quite true. Three real, un-migrated raw-EUR spots on the listing
+detail/print paths, plus one stale doc comment, fixed here:
+
+- **`priceDivergenceHtml()`** (the "Also listed on [portal] for €X
+  less/more" line directly under a listing's main price) still built its
+  string with a hardcoded `` `for €${fmt(info.diff)} ${info.direction}` ``
+  instead of `formatMoney()`. With BGN-only selected this meant the main
+  price correctly showed in лв. while this line right below it stayed in
+  €, which is the exact "reads as broken/inconsistent" failure mode this
+  whole item was trying to avoid. Switched to
+  `` `for ${formatMoney(info.diff)} ${info.direction}` `` - `formatMoney()`
+  already returns the currency symbol/suffix attached, matching every
+  other migrated call site's convention, so the sentence still reads
+  naturally in all three modes (e.g. "for 9,779 лв. less" in BGN-only,
+  "for €5,000 (9,779 лв.) less" in Both).
+- **`buildPrintDealCalcHtml()`'s `fmtEur`** (the print/PDF view of a Deal
+  Calculator result) had its own local `fmtEur` still doing
+  `'€' + fmt(Math.round(v))` directly, unlike the identical-looking
+  `fmtEur` helpers elsewhere in the file (e.g. the on-screen BTL wizard)
+  that already call `formatMoney(Math.round(v))`. Brought it in line with
+  that established pattern.
+- **`buildPrintListingHtml()`** (printing a single listing) had the same
+  problem in its price row and its "Area avg" stat: both interpolated
+  `€${fmt(...)}` directly. Switched both to `formatMoney()` (with the
+  `/m²` suffix passed through as `formatMoney`'s second argument, same as
+  every other per-m² call site) and reworded the static "Area avg €/m²"
+  label to the currency-agnostic "Area avg price/m²" already used
+  elsewhere in the file (e.g. the on-screen detail-stat block), since a
+  label with a baked-in € no longer matches a value that can render in
+  лв.
+- Corrected a stale HTML comment near the sticky filter bar's toggle
+  button claiming it "starts collapsed on narrow viewports, expanded on
+  desktop." `initLeadsFilterToggle()` has no viewport-width check at all -
+  the card always starts fully expanded on load regardless of width, and
+  only condenses once scroll makes it stick to the top of the viewport
+  (matching what this same PR's own `docs/backlog.md` verification
+  section already correctly says happens).
+
+CSV export (`CSV_EXPORT_COLUMNS`/`buildListingsCsv`/`csvEscapeField`/
+`exportFilteredListingsCsv`, and the Comparables/Pipeline CSV export
+functions) was deliberately left untouched, per the original decision
+above - those correctly export raw `price_eur` regardless of the display
+preference.
+
+Two more raw-EUR spots were noticed while grepping for this (the
+Comparables modal's `COMPARE_TABLE_ROWS` price/price-per-m² rows around
+line 3466-3468, and the Recently Viewed card's price line around line
+3569) but were left alone here as out of scope for this specific
+follow-up - flagged for Missy separately rather than fixed opportunistically.
+
+Verified: `node --check` on the extracted inline script (clean); a
+direct-function-call Node test exercising the post-fix
+`priceDivergenceHtml()`/print-path logic against EUR/BGN/Both modes,
+confirming no `€` leaks through in BGN-only mode and the лв. amounts are
+correct against the 1.95583 peg; `python3 -m pytest -q` - 270 passed, 4
+subtests passed, no regression. Pushed directly to the existing
+`claude/content-seo-friction-removers` branch (no new PR) for Missy to
+re-review; not self-merged.
