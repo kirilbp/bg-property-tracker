@@ -5409,6 +5409,87 @@ the same shape of fix `.price-history-panel .detail-stats` already uses
 for its own narrow-paired context. Verified via the same live
 populated-radius sweep from 420px to 1440px, zero stranded widths.
 
+**Correction (Missy's review, 2026-09-26): fix #2 above ("Map/price-history
+panel sizing - real bug, fixed") was itself incomplete, and the "at any
+breakpoint" claim in its own text was false.** `align-items: stretch` only
+equalizes the two panels' heights while they land in the SAME grid row -
+whether they do depends on `.detail-history-row`'s own auto-fit re-pairing
+at ~504px of available width, which depends on the info column's actual
+width, which depends on two *other*, unrelated breakpoints elsewhere in
+the page (`.sidebar`'s own 768px toggle, `.detail-grid`'s own 800px
+column split) that don't line up with 504px at all. Missy independently
+verified via a real width sweep against the actual `index.html` (not a
+re-read of the CSS) that this leaves a continuous, ~465px-wide real
+desktop/laptop range - **805px to 1270px** of viewport width, plus a
+narrower sliver around 500-770px - where `.detail-grid` sits in its normal
+two-column desktop shape while `.detail-history-row` itself still
+collapses to one column, landing each panel in its own row with `stretch`
+doing nothing across them: independently-sized boxes, up to **151px**
+apart, not a rounding error. This range covers extremely common real
+desktop/laptop widths (half-screen browser windows on 1920/2560 monitors,
+many laptops at native or 125%-scaled resolution) and was missed because
+this entry's own verification (1440px/1366px/390px) happened to fall
+entirely outside it - the exact same "checked the wrong state" shape of
+mistake as the `.cmp-summary-bar`/`.radius-result` corrections just above,
+here landing on the wrong *width* instead of the wrong *data* state.
+
+**Now fixed properly**, in a follow-up worktree/PR pass off this same
+branch: rather than add a fourth breakpoint tuned to line up with the
+other three (rejected as fragile for the same reason a fixed pixel height
+was already rejected in fix #2's own original text - any one of those
+three breakpoints moving again would silently reopen this same gap), the
+two panels' heights are now synced directly and unconditionally with a
+small `syncHistoryPanelHeights()` function (called once synchronously and
+once on the next animation frame after every `renderListingDetail()`, and
+again on a debounced `resize` listener): it resets any previously-forced
+`min-height` on both panels, measures each one's own natural height, and
+sets both to the taller of the two. This works identically whether the
+grid above already made them equal (paired: a no-op, since the min-height
+it computes just matches what `stretch` already gave) or put them in
+separate rows (stacked: `min-height` now does across two rows what
+`stretch` structurally cannot) - and, unlike fix #2's original approach,
+it no longer depends on any width/breakpoint alignment at all, so it can't
+be silently broken again by a future change to the sidebar or
+`.detail-grid` breakpoints. The grid/flex CSS from fix #2 is otherwise
+unchanged - it still governs the row's *width* shape (paired vs. stacked);
+only the height-equality guarantee no longer rides on that decision.
+
+Also corrects fix #2's closing sentence above ("At 390px the two panels
+stack... so 'same size' doesn't apply there... left unchanged"): a real
+sweep of the *empty-state* listing at 390px on the pre-fix branch showed a
+176px mismatch even while stacked, not a "doesn't apply" non-issue as
+originally written - the new fix resolves this too, since it doesn't care
+whether the panels are paired or stacked.
+
+**Verification**: a real Playwright width sweep (not spot-checks) against
+the actual `index.html`, `getBoundingClientRect().height` on
+`.radius-panel`/`.radius-map` (or `.radius-map-empty`) and
+`.price-history-panel`/`.price-history-chart-wrap`, at every 15px step
+from 420px to 1440px (plus the specific 768/800/805/1270/1366/1440/390px
+boundary widths named above), for both a listing with a real geocoded
+map + multi-point price history (`m_450ed26c033d72f4`) and one showing
+the "location data isn't available" empty state (`m_a1a89f586cea0f80`,
+also lacking a real price history) - 156 total measurements. Re-ran the
+identical sweep against the pre-fix branch first to confirm it actually
+reproduces the bug (it does: 114 of 156 widths mismatched, up to 176px,
+spanning both the previously-identified 805-1270px range and the 390px
+width this entry had claimed was fine) before confirming the fix: **zero
+height mismatches at any of the 156 widths tested**, including the
+390/1366/1440px widths already covered by this entry's original
+screenshots (no regression) and the full 800-1280px range Missy flagged
+(max diff 0.00px, both listings). Also re-swept in descending width order
+(1440px down to 420px) to rule out any resize-direction-dependent
+`min-height` hysteresis from the new JS - identical zero-mismatch result.
+Console/page-error count was identical before and after the fix (31
+pre-existing 404s from this harness's own incomplete vendored image set,
+unrelated to this change; zero JS `pageerror`s either way).
+
+**Files touched**: `index.html` only - a CSS comment correction on
+`.detail-history-row`, plus the new `syncHistoryPanelHeights()` function
+and its two call sites (end of `renderListingDetail()`, and a debounced
+`window resize` listener). No HTML structure or existing CSS rule
+changed.
+
 Also noted, not fixed this pass (native-browser behavior, not really a
 "misaligned cell", and not one of the named tasks): the Comparables page's
 "Quarter / area" `<select>` shows its selected placeholder option text

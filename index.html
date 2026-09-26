@@ -629,7 +629,34 @@
      absorb whatever the exact chrome difference happens to be, keeps the
      two outer boxes pixel-identical in height automatically, for any
      listing, at any breakpoint, without needing to keep re-tuning a magic
-     number every time either panel's content shape changes again. */
+     number every time either panel's content shape changes again.
+     Correction (Missy's review, 2026-09-26): the paragraph above is only
+     true while the two panels land in the SAME grid row - stretch never
+     equalizes across rows. Whether they do depends on whether this row's
+     own ~504px auto-fit threshold is cleared by the info column's actual
+     width, which itself depends on two unrelated breakpoints elsewhere
+     (.sidebar's own 768px toggle, .detail-grid's own 800px column split) -
+     neither lines up with 504px, so across a real ~805-1270px viewport
+     range (plus a narrower sliver around 500-770px) .detail-grid sits in
+     its normal two-column desktop shape while THIS row still auto-fits
+     down to one column, landing each panel in its own row with stretch
+     doing nothing - independent heights, up to 151px apart, confirmed via
+     a full width sweep. Chasing a fourth breakpoint to line up with the
+     other three was rejected as fragile in the same way a fixed pixel
+     height was already rejected above - any one of those three moving
+     again re-opens the same gap. Fixed instead with
+     syncHistoryPanelHeights() (see its own comment near
+     renderListingDetail()): an explicit min-height set on both panels
+     from their own measured natural heights, which works whether the grid
+     above already made them equal (paired - the min-height it sets is
+     just what stretch already gave, so it's a no-op) or didn't (stacked -
+     min-height now does across two rows what stretch can't). The grid CSS
+     above is kept as-is; it still decides the row's WIDTH shape (paired
+     vs stacked), just no longer carries the height-equality guarantee on
+     its own. Verified via a real Playwright width sweep, 420-1440px in
+     ~15px steps, both a listing with a real map+chart and one showing the
+     "location not available" empty state - zero height mismatch at any
+     width (see docs/decisions.md for the full sweep results). */
   .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: stretch; margin: 0 0 20px; }
   .detail-history-row .radius-panel { margin: 0; }
   .radius-panel, .price-history-panel { display: flex; flex-direction: column; }
@@ -9701,7 +9728,64 @@ function renderListingDetail(merged) {
   wireListingDealCalcTab(merged);
 
   updateRadiusMap(l);
+  // See syncHistoryPanelHeights()'s own comment (docs/decisions.md
+  // Correction, Missy's review 2026-09-26) - re-run on every render so a
+  // content change (radius pick, map layer toggle, new relisting entry)
+  // that alters either panel's natural height keeps both in sync.
+  syncHistoryPanelHeights();
+  requestAnimationFrame(syncHistoryPanelHeights);
 }
+
+// Correction (Missy's review, 2026-09-26) to the .detail-history-row CSS
+// comment above: align-items:stretch there only equalizes the two panels'
+// heights while they land in the SAME grid row, and whether they do
+// depends on this row's own width, which depends on two unrelated
+// breakpoints elsewhere (.sidebar's 768px toggle, .detail-grid's 800px
+// column split) that don't line up with the ~504px this row needs to
+// re-pair - so across a real, wide desktop range the two panels silently
+// decoupled into independently-sized rows again, the exact bug this pass
+// was meant to fix. Rather than add a fourth breakpoint tuned to line up
+// with the other three (fragile - any one of them changing again reopens
+// this same gap), this measures and syncs the two panels' heights
+// directly, independent of whichever width-driven shape the grid above
+// puts them in. Reset first (not read-then-max against a stale forced
+// value) so a shrinking panel - fewer relisting rows, no radius picked -
+// isn't stuck at its previous, now-too-tall min-height forever. Each
+// panel is already display:flex;flex-direction:column with one flex:1
+// child (the map/chart itself) that exists specifically to absorb
+// whatever space min-height adds beyond the panel's own natural content
+// (see the .detail-history-row comment's own explanation of that part) -
+// so setting min-height here works identically whether the grid already
+// stretched them equal (paired: this is a no-op, min-height ends up equal
+// to what stretch already gave) or put them in separate rows (stacked:
+// min-height now does across two rows what stretch structurally can't).
+// Called once synchronously (covers the common case immediately, no
+// visible flash) and again on the next animation frame (covers the rare
+// case where Chart.js/Leaflet's own async layout - e.g. a
+// ResizeObserver-driven canvas resize on first paint - nudges a panel's
+// height after the synchronous call already measured it); harmless to run
+// twice since the second call just confirms the same target or corrects a
+// tiny one-frame drift. Also re-run on resize (debounced) below, since a
+// window resize is the other way either panel's natural height, or the
+// row's paired/stacked shape, can change without a full re-render.
+function syncHistoryPanelHeights() {
+  const row = document.querySelector('#listingDetailBody .detail-history-row');
+  if (!row) return;
+  const radiusPanel = row.querySelector('.radius-panel');
+  const pricePanel = row.querySelector('.price-history-panel');
+  if (!radiusPanel || !pricePanel) return;
+  radiusPanel.style.minHeight = '';
+  pricePanel.style.minHeight = '';
+  const target = Math.max(radiusPanel.getBoundingClientRect().height, pricePanel.getBoundingClientRect().height);
+  radiusPanel.style.minHeight = target + 'px';
+  pricePanel.style.minHeight = target + 'px';
+}
+
+let _historyPanelResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_historyPanelResizeTimer);
+  _historyPanelResizeTimer = setTimeout(syncHistoryPanelHeights, 120);
+});
 
 // A single-source placeholder built straight from the merged row itself -
 // exact for a listing that was only ever seen on one portal (the vast

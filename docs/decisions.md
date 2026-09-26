@@ -5656,6 +5656,105 @@ Built in an isolated `git worktree` off a fresh `origin/main`, per this
 repo's shared-checkout discipline. Not self-merged - opened as a PR for
 Missy's review per the repo's standing rule.
 
+### 2026-09-26 - Correction (Missy's PR #293 re-review): map/price-history "equal size" fix above only worked in the two viewport widths it was tested at - real breakpoint mismatch left a ~465px-wide desktop range broken
+
+Missy's re-review of the design-polish PR above found that its
+map/price-history height fix - `align-items: stretch` on
+`.detail-history-row`, `flex: 1` on the map/chart inside each panel -
+only equalizes the two panels' heights while they land in the SAME grid
+row, and independently verified (a real width sweep against the actual
+`index.html`, not a re-read of the CSS) that whether they do is not
+reliable at all: it depends on `.detail-history-row`'s own auto-fit
+re-pairing threshold (~504px of available width), which depends on the
+info column's real width, which itself depends on two *other*, unrelated
+breakpoints elsewhere on the page (`.sidebar`'s own 768px mobile toggle,
+`.detail-grid`'s own 800px photo/info column split) - neither of which
+lines up with 504px. The result: a continuous, real **805px-1270px**
+viewport range (plus a narrower sliver around 500-770px) where
+`.detail-grid` sits in its normal two-column desktop layout while
+`.detail-history-row` itself has already collapsed to one column,
+stranding the two panels in separate grid rows where `stretch` does
+nothing across them - independently-sized boxes, up to **151px** apart,
+not a rounding error. This range covers extremely common real desktop/
+laptop widths (half-screen browser windows on 1920px/2560px monitors,
+many laptops at native or 125%-scaled resolution). It went uncaught
+because the original pass's own verification (1440px, 1366px, 390px)
+happened to fall entirely outside the broken range - the same underlying
+mistake as the `.cmp-summary-bar`/`.radius-result` corrections earlier in
+this same entry (verifying too narrow a slice of the real state space),
+here landing on viewport *width* rather than data *population*.
+
+**Fixed in an isolated worktree off the open PR branch
+(`dessy/design-polish-2026-09-26`)**, per this repo's standing
+shared-checkout discipline, merging current `origin/main` first. Rejected
+adding a fourth breakpoint hand-tuned to line up with the other three
+(the exact "fragile magic number" shape of fix the original pass's own
+text already argued against for the fixed-pixel-height approach it
+replaced - any one of those three breakpoints changing again in the
+future would silently reopen this same gap with no warning). Instead
+added `syncHistoryPanelHeights()`: a small JS function, run once
+synchronously and once on the next animation frame after every
+`renderListingDetail()` call, and again on a debounced `resize` listener,
+that resets any previously-forced `min-height` on `.radius-panel`/
+`.price-history-panel`, measures each panel's own natural
+(`getBoundingClientRect`) height, and sets both to the taller of the two.
+This reuses the exact same absorption mechanism the original fix already
+relied on (each panel is `display:flex;flex-direction:column` with one
+`flex:1` child - the map or chart - built to absorb whatever slack an
+externally-imposed height leaves) so it works identically whether the
+grid above already made the two panels equal (paired: the min-height it
+computes is just what `stretch` already gave, a no-op) or put them in
+separate rows (stacked: `min-height` now does across two rows what
+`stretch` structurally cannot). Crucially, this no longer depends on any
+width/breakpoint alignment at all, so a future change to the sidebar or
+`.detail-grid` breakpoints can't silently reopen this specific bug again.
+The grid/flex CSS from the original fix is otherwise unchanged - it still
+decides the row's *width* shape (paired vs. stacked); only the
+height-equality guarantee no longer rides on that decision. Also corrects
+the original entry's closing claim that "at 390px the two panels
+stack... so 'same size' doesn't apply there" - a real sweep of the
+empty-state listing at 390px on the pre-fix branch showed a **176px**
+mismatch even while stacked, which the new fix resolves too, precisely
+because it doesn't care whether the panels are paired or stacked.
+
+**Verification - full width sweep, not spot-checks**, matching the rigor
+this same PR's `.cmp-summary-bar`/`.radius-result` corrections already
+established: a real local Playwright harness (`.qa/`-style local
+CDN-vendor + Supabase-shim routing, reusing this PR's own existing
+`.qa/vendor/` assets and fixture data, not committed) against the actual,
+unmodified `index.html`, measuring `getBoundingClientRect().height` on
+both `.radius-panel`/`.radius-map` (or `.radius-map-empty`) and
+`.price-history-panel`/`.price-history-chart-wrap`, at every 15px step
+from 420px to 1440px plus the specific boundary widths named above
+(768/800/805/1270/1366/1440/390px) - 156 measurements total, for both a
+listing with a real geocoded map and multi-point price history
+(`m_450ed26c033d72f4`) and one showing the "location data isn't
+available" empty state with no real price history (`m_a1a89f586cea0f80`).
+Ran the identical sweep against the pre-fix branch first, as a control,
+to confirm it actually reproduces the reported bug rather than testing
+nothing: it does - **114 of 156 widths mismatched**, up to 176px, spanning
+both the previously-identified 805-1270px range and the 390px width the
+original entry had claimed was a non-issue. Against the fix: **zero
+height mismatches at any of the 156 widths tested**, for both listings,
+including no regression at 390px/1366px/1440px (the three widths the
+original pass's screenshots already covered) and zero mismatch anywhere
+in the full 800-1280px range Missy flagged (max diff 0.00px). Also
+re-ran the same sweep in descending width order (1440px down to 420px)
+to rule out any resize-direction-dependent `min-height` hysteresis from
+the new JS - identical zero-mismatch result. Console/page-error count
+(31, all pre-existing 404s from the harness's own incomplete vendored
+image set, e.g. missing Leaflet marker icons - unrelated to this change)
+was identical before and after the fix; zero JS `pageerror`s in either
+run.
+
+**Files touched**: `index.html` only - a correcting comment added to the
+existing `.detail-history-row` CSS comment, plus the new
+`syncHistoryPanelHeights()` function and its two call sites (end of
+`renderListingDetail()`, and a debounced `window` `resize` listener). No
+existing CSS rule or HTML structure changed. Not self-merged - pushed to
+the existing PR branch for Missy's re-review, per the repo's standing
+rule.
+
 ### 2026-09-26 - Backlog item 9 full re-audit: "MOSTLY DONE" was wrong, alo.bg's 2026-09-24 fix doesn't actually work, homes.bg is a new 0%-coverage gap
 
 User repeated the same complaint ("Description on the listings still
