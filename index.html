@@ -216,9 +216,20 @@
      a shadow - section 6 is explicit that it's border OR shadow, not
      both), and a slow photo zoom on hover instead of a border color snap.
      Small radius (6px), not the old fully-rounded 12px. */
+  /* display:flex column (not the old plain block) - a design-QA audit
+     (2026-09-26 polish pass, direct user complaint about misaligned
+     cards) found the "Check land registry" footer link landing at a
+     different height on every card in the same row, since it just
+     followed on immediately after however many lines of badges/title/
+     area a given listing happened to have. .grid already stretches every
+     card in a row to the same overall height (grid's own default
+     align-items: stretch, unchanged) - flex:1 on .listing-link below
+     spends exactly that already-equal leftover height, so the footer
+     link now always sits flush with the card's bottom edge instead of
+     floating wherever the content above it happened to end. */
   .listing {
     background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px;
-    overflow: hidden; position: relative;
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
   }
   .listing img { transition: transform 350ms ease-out; }
   .listing:hover img { transform: scale(1.04); }
@@ -239,13 +250,37 @@
   }
   .listing-photo-placeholder .icon { font-size: 22px; }
   .listing-body { padding: 16px; }
-  .listing-link { cursor: pointer; text-decoration: none; color: inherit; display: block; }
-  .listing-title { font-family: var(--font-sans); font-weight: 600; font-size: 14px; margin: 0 0 4px; color: var(--ink); }
-  .listing-area { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 0 0 10px; }
+  /* flex:1 - see .listing's own comment above: this is the piece that
+     actually absorbs the card's already-equal stretched height, pushing
+     the registry-link footer (.listing's second, sibling .listing-body)
+     down to a consistent bottom position on every card in a row. */
+  .listing-link { cursor: pointer; text-decoration: none; color: inherit; display: block; flex: 1 1 auto; }
+  /* Fixed 2-line reservation (line-clamp + min-height) - a one-line title
+     and a two-line title used to leave the price row beneath them at two
+     different heights within the same card; every card now reserves the
+     same title space regardless of how long its actual title is, which is
+     most of what actually made the price row itself look misaligned
+     across a row (the footer-link fix above only pinned the row's very
+     bottom edge, not the price row above it). */
+  .listing-title {
+    font-family: var(--font-sans); font-weight: 600; font-size: 14px; margin: 0 0 4px; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    line-height: 1.3; min-height: 2.6em;
+  }
+  .listing-area {
+    font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 0 0 10px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
   .listing-price-row { display: flex; justify-content: space-between; align-items: baseline; }
   .listing-price { font-family: var(--font-serif); font-weight: 500; font-size: 18px; color: var(--ink); }
   .listing-persqm { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); }
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  /* min-height: one badge row's worth - so a 0- or 1-badge card doesn't
+     let its title/price sit noticeably higher than a multi-badge card's
+     right next to it (a 2+ row wrap for listings with many badges is left
+     alone - real information, not something to truncate just for
+     symmetry, per docs/design-guidelines.md's "simplify without removing
+     features"). */
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 22px; }
   /* Status labels, not ribbons (design-guidelines.md section 6/9): small-
      caps muted text pills instead of saturated fills. One accent (brass,
      for the single "look here" Hot-deal signal) plus the one signal color
@@ -276,8 +311,18 @@
   .empty { text-align: center; color: var(--taupe); padding: 60px 20px; font-family: var(--font-sans); }
   #homeChartWrap { height: 130px; margin: 4px 0 10px; }
 
-  /* Home page */
-  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  /* Home page. Always exactly 3 tiles (Total listings/Hot deals/Portals
+     tracked) - auto-fit/minmax used to pick whatever column count fit the
+     available width, and 3 items don't divide evenly into 2 columns, so
+     medium/narrow widths (found live at 390px mobile in a design audit)
+     stranded "Portals tracked" alone on its own row, stretched to the
+     full row width next to the grid gap's own background peeking through
+     the empty second cell - the exact same class of bug already fixed for
+     .detail-stats elsewhere (see that rule's own comment). Fixed the same
+     way: an explicit column count that's always a divisor of 3 (3, or 1
+     below the breakpoint), never 2. */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .stat-row { grid-template-columns: repeat(1, 1fr); } }
   .stat-tile { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 20px; }
   .stat-tile .stat-value { font-family: var(--font-serif); font-weight: 500; font-size: 24px; color: var(--ink); margin: 0 0 4px; }
   .stat-tile .stat-label { font-family: var(--font-sans); font-size: 12px; color: var(--taupe); margin: 0; }
@@ -567,15 +612,67 @@
      viewport width) so 1366px clears the threshold with a comfortable
      margin without going so low that the paired columns get uselessly
      narrow at the trigger point; still collapses to one column at real
-     pinch/phone widths exactly as before. */
-  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: start; margin: 0 0 20px; }
+     pinch/phone widths exactly as before.
+     align-items: stretch (not the grid default's own initial "start") plus
+     display:flex/flex-direction:column on both panels below is what makes
+     the map and price-history boxes "the same size" as each other, per a
+     direct user complaint (2026-09-26 design-polish pass) that they
+     visibly weren't: the two panels' own content never has the same
+     number of rows (the radius panel's header/hint/layer-toggle rows vary
+     with whether the listing has coordinates and which radius is picked;
+     the price-history panel's legend/relisting-events rows vary with
+     price-drop/relist history) - a fixed-pixel-height rule on the outer
+     boxes would just get bypassed by whichever one had more chrome inside
+     it that day, unnoticed until the next audit. Stretching both grid
+     items to the row's own max content height, then letting the map/chart
+     graphic itself (the one element in each panel given flex:1 below)
+     absorb whatever the exact chrome difference happens to be, keeps the
+     two outer boxes pixel-identical in height automatically, for any
+     listing, at any breakpoint, without needing to keep re-tuning a magic
+     number every time either panel's content shape changes again.
+     Correction (Missy's review, 2026-09-26): the paragraph above is only
+     true while the two panels land in the SAME grid row - stretch never
+     equalizes across rows. Whether they do depends on whether this row's
+     own ~504px auto-fit threshold is cleared by the info column's actual
+     width, which itself depends on two unrelated breakpoints elsewhere
+     (.sidebar's own 768px toggle, .detail-grid's own 800px column split) -
+     neither lines up with 504px, so across a real ~805-1270px viewport
+     range (plus a narrower sliver around 500-770px) .detail-grid sits in
+     its normal two-column desktop shape while THIS row still auto-fits
+     down to one column, landing each panel in its own row with stretch
+     doing nothing - independent heights, up to 151px apart, confirmed via
+     a full width sweep. Chasing a fourth breakpoint to line up with the
+     other three was rejected as fragile in the same way a fixed pixel
+     height was already rejected above - any one of those three moving
+     again re-opens the same gap. Fixed instead with
+     syncHistoryPanelHeights() (see its own comment near
+     renderListingDetail()): an explicit min-height set on both panels
+     from their own measured natural heights, which works whether the grid
+     above already made them equal (paired - the min-height it sets is
+     just what stretch already gave, so it's a no-op) or didn't (stacked -
+     min-height now does across two rows what stretch can't). The grid CSS
+     above is kept as-is; it still decides the row's WIDTH shape (paired
+     vs stacked), just no longer carries the height-equality guarantee on
+     its own. Verified via a real Playwright width sweep, 420-1440px in
+     ~15px steps, both a listing with a real map+chart and one showing the
+     "location not available" empty state - zero height mismatch at any
+     width (see docs/decisions.md for the full sweep results). */
+  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: stretch; margin: 0 0 20px; }
   .detail-history-row .radius-panel { margin: 0; }
+  .radius-panel, .price-history-panel { display: flex; flex-direction: column; }
   .price-history-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
     padding: 16px 18px;
   }
   .price-history-panel .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 10px; }
-  .price-history-chart-wrap { height: 240px; margin-top: 12px; }
+  /* flex:1 (not a fixed height) - see .detail-history-row's own comment
+     above for why: this is the element that grows/shrinks per listing so
+     the OUTER .price-history-panel box always matches .radius-panel's
+     height exactly, rather than the two drifting apart by however much
+     extra chrome either one happens to have that render. min-height keeps
+     Chart.js from ever getting squeezed below a usable size in the rare
+     case the radius panel's own content is unusually short. */
+  .price-history-chart-wrap { flex: 1 1 240px; min-height: 240px; margin-top: 12px; }
   .price-history-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 0 0; }
   .price-history-legend span { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--taupe); display: inline-flex; align-items: center; gap: 6px; }
   .price-history-legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -708,20 +805,48 @@
   .radius-btn:hover { border-color: var(--taupe); }
   .radius-btn.active { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
   .radius-hint { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 10px 0 0; }
-  .radius-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; }
+  /* Same fixed-4-item shape and same 3+1 stranding bug as .cmp-summary-bar
+     above (see that rule's own comment) - confirmed live once a listing
+     with real geocoded comparables within its selected radius could
+     actually be driven into this panel's populated 4-tile state (a prior
+     pass on this same PR couldn't find one in the available fixture and
+     left this as an open follow-up; re-checked with a wider fixture scan
+     and found one). auto-fit/minmax(100px,1fr) computes 3 columns for 4
+     items at several real widths this panel renders at, stranding
+     "Comparables" alone. Unlike .cmp-summary-bar (which gets real full
+     page width), this panel never does - it's always either paired
+     half-width next to the price-history panel on desktop (per
+     .detail-history-row above) or full-width stacked on mobile, and a
+     live width sweep of the paired-desktop case topped out under 500px,
+     the same narrow-paired shape .price-history-panel .detail-stats below
+     already has its own permanent 2-column override for (see that rule's
+     comment). A first attempt matched .cmp-summary-bar's 4-then-2 scheme
+     with a min-width breakpoint back up to 4 columns, but at the widths
+     this panel actually reaches that squeezed each column under 90px,
+     wrapping "Avg asking price" onto three lines - technically un-
+     stranded but worse to read than just not doing that. Fixed instead
+     with the same permanent-2-column approach as the sibling
+     .price-history-panel .detail-stats override: never a divisor (3) that
+     strands an item, and never a column count this panel is too narrow to
+     use comfortably either. */
+  .radius-result { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
   .radius-result .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 2px; }
   .radius-result .value { font-family: var(--font-sans); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
   /* Shrunk from 260px (docs/backlog.md item 7) now that the map sits in a
      half-width column next to the pinned price chart rather than a
      full-width block on its own - still tall enough to read the radius
-     circle and comparable pins at a glance. */
-  .radius-map { height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
+     circle and comparable pins at a glance. flex:1 (not a fixed height) -
+     this is .radius-panel's own "absorb the difference" element, the map
+     side of the same equal-box-height fix .price-history-chart-wrap's
+     comment above describes; min-height keeps Leaflet from ever being
+     asked to size itself into an unusably short container. */
+  .radius-map { flex: 1 1 200px; min-height: 200px; border-radius: 4px; margin-top: 10px; z-index: 0; }
   .radius-map .leaflet-popup-content { font-size: 13px; }
   /* Matches .radius-map's own height/radius/margin so a listing without
      coordinates doesn't visibly jump the layout versus one that has a
      real map - the map's own quiet empty state (see renderRadiusPanel). */
   .radius-map-empty {
-    height: 200px; border-radius: 4px; margin-top: 10px;
+    flex: 1 1 200px; min-height: 200px; border-radius: 4px; margin-top: 10px;
     background: var(--ivory); border: 1px dashed var(--taupe-light);
     display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px;
   }
@@ -1119,11 +1244,27 @@
     transition: background 200ms ease-out;
   }
   .brass-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+  /* Fixed set of exactly 4 tiles (Avg asking price/Avg surface area/Avg
+     €/m²/Matches), not an open-ended list - same bug class already fixed
+     three times elsewhere (.stat-row, .detail-stats, .type-filter-grid;
+     see their own comments). A prior pass claimed this rule was checked
+     against a live getComputedStyle sweep and found to transition cleanly
+     - that check was run against an empty, unpopulated #cmpSummaryBar (0
+     children), which trivially can't show a stranded-item split. Re-swept
+     against a real, populated 4-tile search result and found it genuinely
+     broken: auto-fit/minmax(120px,1fr) computes exactly 3 columns for 4
+     items at several real widths (measured live at 500px and 800px, both
+     stranding "Matches" alone on its own row) - the identical "3+1 split"
+     this same fix pattern already covers elsewhere. Fixed the same way:
+     explicit column counts that are always divisors of 4 (4, 2, or 1),
+     never 3. */
   .cmp-summary-bar {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
     background: var(--taupe-light); border: 1px solid var(--taupe-light); border-radius: 6px;
     overflow: hidden; margin: 16px 0;
   }
+  @media (max-width: 800px) { .cmp-summary-bar { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .cmp-summary-bar { grid-template-columns: repeat(1, 1fr); } }
   .cmp-summary-bar > div { background: var(--ivory); padding: 14px 16px; }
   .cmp-summary-bar .label {
     font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em;
@@ -9587,7 +9728,64 @@ function renderListingDetail(merged) {
   wireListingDealCalcTab(merged);
 
   updateRadiusMap(l);
+  // See syncHistoryPanelHeights()'s own comment (docs/decisions.md
+  // Correction, Missy's review 2026-09-26) - re-run on every render so a
+  // content change (radius pick, map layer toggle, new relisting entry)
+  // that alters either panel's natural height keeps both in sync.
+  syncHistoryPanelHeights();
+  requestAnimationFrame(syncHistoryPanelHeights);
 }
+
+// Correction (Missy's review, 2026-09-26) to the .detail-history-row CSS
+// comment above: align-items:stretch there only equalizes the two panels'
+// heights while they land in the SAME grid row, and whether they do
+// depends on this row's own width, which depends on two unrelated
+// breakpoints elsewhere (.sidebar's 768px toggle, .detail-grid's 800px
+// column split) that don't line up with the ~504px this row needs to
+// re-pair - so across a real, wide desktop range the two panels silently
+// decoupled into independently-sized rows again, the exact bug this pass
+// was meant to fix. Rather than add a fourth breakpoint tuned to line up
+// with the other three (fragile - any one of them changing again reopens
+// this same gap), this measures and syncs the two panels' heights
+// directly, independent of whichever width-driven shape the grid above
+// puts them in. Reset first (not read-then-max against a stale forced
+// value) so a shrinking panel - fewer relisting rows, no radius picked -
+// isn't stuck at its previous, now-too-tall min-height forever. Each
+// panel is already display:flex;flex-direction:column with one flex:1
+// child (the map/chart itself) that exists specifically to absorb
+// whatever space min-height adds beyond the panel's own natural content
+// (see the .detail-history-row comment's own explanation of that part) -
+// so setting min-height here works identically whether the grid already
+// stretched them equal (paired: this is a no-op, min-height ends up equal
+// to what stretch already gave) or put them in separate rows (stacked:
+// min-height now does across two rows what stretch structurally can't).
+// Called once synchronously (covers the common case immediately, no
+// visible flash) and again on the next animation frame (covers the rare
+// case where Chart.js/Leaflet's own async layout - e.g. a
+// ResizeObserver-driven canvas resize on first paint - nudges a panel's
+// height after the synchronous call already measured it); harmless to run
+// twice since the second call just confirms the same target or corrects a
+// tiny one-frame drift. Also re-run on resize (debounced) below, since a
+// window resize is the other way either panel's natural height, or the
+// row's paired/stacked shape, can change without a full re-render.
+function syncHistoryPanelHeights() {
+  const row = document.querySelector('#listingDetailBody .detail-history-row');
+  if (!row) return;
+  const radiusPanel = row.querySelector('.radius-panel');
+  const pricePanel = row.querySelector('.price-history-panel');
+  if (!radiusPanel || !pricePanel) return;
+  radiusPanel.style.minHeight = '';
+  pricePanel.style.minHeight = '';
+  const target = Math.max(radiusPanel.getBoundingClientRect().height, pricePanel.getBoundingClientRect().height);
+  radiusPanel.style.minHeight = target + 'px';
+  pricePanel.style.minHeight = target + 'px';
+}
+
+let _historyPanelResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_historyPanelResizeTimer);
+  _historyPanelResizeTimer = setTimeout(syncHistoryPanelHeights, 120);
+});
 
 // A single-source placeholder built straight from the merged row itself -
 // exact for a listing that was only ever seen on one portal (the vast
