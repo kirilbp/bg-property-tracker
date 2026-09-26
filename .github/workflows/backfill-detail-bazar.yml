@@ -69,8 +69,16 @@ jobs:
             fi
             if ! git pull --rebase origin main; then
               echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
-              git diff --name-only --diff-filter=U | xargs -r git checkout --ours --
-              git diff --name-only --diff-filter=U | xargs -r git add
+              remaining=$(git diff --name-only --diff-filter=U)
+              for f in $remaining; do
+                if git cat-file -e "HEAD:$f" 2>/dev/null; then
+                  git checkout --ours -- "$f"
+                  git add "$f"
+                else
+                  echo "::warning::$f no longer exists on main's side of this conflict (e.g. removed by a data-format migration) - removing it here too instead of trying to resurrect a stale copy"
+                  git rm -f "$f"
+                fi
+              done
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true

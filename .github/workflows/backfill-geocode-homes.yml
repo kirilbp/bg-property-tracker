@@ -101,8 +101,15 @@ jobs:
               remaining=$(git diff --name-only --diff-filter=U)
               if [ -n "$remaining" ]; then
                 echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
-                echo "$remaining" | xargs -r git checkout --ours --
-                echo "$remaining" | xargs -r git add
+                for f in $remaining; do
+                  if git cat-file -e "HEAD:$f" 2>/dev/null; then
+                    git checkout --ours -- "$f"
+                    git add "$f"
+                  else
+                    echo "::warning::$f no longer exists on main's side of this conflict (e.g. removed by a data-format migration) - removing it here too instead of trying to resurrect a stale copy"
+                    git rm -f "$f"
+                  fi
+                done
               fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
