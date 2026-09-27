@@ -104,14 +104,21 @@ yield. That's still true and this idea doesn't change it. But a
 *periodically-updated, small, manually-maintained reference table* of
 published city-level gross rental yields from a third-party market
 report (Global Property Guide publishes per-city Bulgarian gross rental
-yields - as of Q1 2026, a national average of 4.19%, with city figures
-cited around Plovdiv ~6%, Varna ~5.5%, Burgas ~5%, Sofia ~4.8-6%
-depending on the source) would let the Deal Calculator/BTL Stress
-Test/Area Data "Est. Yield" panel show an illustrative market-yield band
-for a listing's city, clearly labeled as a third-party benchmark, not a
-live number - while still requiring the user's own real rent figure for
-the actual calculation (per item 15's existing, correct "never fabricate
-a rent number" design decision).
+yields - as of Q1 2026, a national average of 4.19%; GPG's own most
+recent full city breakdown, April 2025, gives Burgas 5.15%, Varna 5.06%,
+Plovdiv 4.70%, Sofia 4.26% - Burgas and Varna are the higher-yield
+cities, Sofia and Plovdiv the lower) would let the Deal Calculator/BTL
+Stress Test/Area Data "Est. Yield" panel show an illustrative
+market-yield band for a listing's city, clearly labeled as a third-party
+benchmark, not a live number - while still requiring the user's own real
+rent figure for the actual calculation (per item 15's existing, correct
+"never fabricate a rent number" design decision).
+
+**Correction (Missy's review):** an earlier draft of this entry cited
+Plovdiv ~6%, Varna ~5.5%, Burgas ~5%, Sofia ~4.8-6% - numbers that matched
+a third-party blog's rounded/rebadged figures, not GPG's own published
+city table, and inverted the real ranking. The figures above are GPG's
+own reported numbers.
 
 **Why this platform specifically:** directly unblocks the one thing
 already flagged as NOT built in item 15 and item 16 for lack of data
@@ -185,9 +192,22 @@ accuracy check (ideally by someone who can verify against a primary
 Bulgarian-language legal source, not just the secondary English-language
 sources found here) before shipping any specific legal wording.
 
+**Open questions, flagged by Missy's review, not yet resolved:** the "EU/
+EEA/Swiss citizens: no restriction" framing above extends a ruling that
+was specifically about EU law and an EU-citizen litigant (CJEU C-562/22,
+18 January 2024, striking down a 5-year-prior-residency requirement) to
+EEA/Swiss nationals too - whether they're automatically covered by this
+specific ruling (as opposed to EU citizens strictly) isn't confirmed here.
+Separately, at least one source references a distinct "agricultural
+producer registration" requirement for EU citizens buying agricultural
+land, alongside the residency rule the ruling struck down - it's unclear
+whether that separate requirement also fell away or still applies. Don't
+present EU-citizen agricultural land access as unconditionally
+unrestricted until both are checked.
+
 Sources: [ELRA - Bulgaria: Limitations to Foreigners](https://www.elra.eu/contact-point-contribution/bulgaria/limitations-to-foreigners/), [EU Court ruling on foreigners buying agricultural land in Bulgaria](https://www.advocatemarkov.com/the-eu-court-allowed-foreigners-to-buy-agricultural-land-in-bulgaria/), [Investropa - Buying Land as a Foreigner in Bulgaria](https://investropa.com/blogs/news/bulgaria-foreigners-own-land-really)
 
-### 6. Residence-by-investment threshold badge - flagged with an open discrepancy, not shipped confidently
+### 6. Residence-by-investment threshold badge - threshold resolved, still needs a primary-source check before shipping a number
 
 **What it is:** Bulgaria has a real-estate-investment path to a
 residence permit for non-EU nationals. A badge on qualifying listings/
@@ -196,15 +216,21 @@ residence-by-investment property threshold - confirm with an immigration
 lawyer") would be a genuine, differentiated hook for the foreign-investor
 audience this site's English framing implies.
 
-**Real problem found, not glossed over:** the sources found here
-disagree on the actual threshold - one cites approximately €300,000 in
-real estate, another cites a BGN 600,000 figure for certain
-third-country nationals, and neither is a primary legal source. **Do not
-ship a specific number from this research alone** - this needs
-confirmation against Bulgaria's actual Law for Foreigners in the
-Republic of Bulgaria (or a lawyer) before any number appears on the live
-site, given how easily a wrong investment-migration threshold could
-mislead a real buyer's decision.
+**Correction (Missy's review):** an earlier draft of this entry treated
+"~€300,000" and "BGN 600,000" as two conflicting sources and refused to
+ship either. They're not actually conflicting - the lev has long been
+pegged to the euro at 1.95583, and BGN 600,000 / 1.95583 ≈ €306,800, i.e.
+the same figure as "~€300,000" just expressed in a different currency.
+Multiple independent sources converge on **BGN 600,000 (~€306,000-
+312,000) as the current real-estate-route threshold**. A separate, much
+higher figure (~€512,000 / BGN 1,000,000) that appears in some sources
+describes a newer AIF/fund-investment route, not the real-estate route -
+a different investment vehicle, not a competing number for the same one.
+This removes the original "don't ship any number" blocker, but a
+primary-source check (the actual Law for Foreigners in the Republic of
+Bulgaria, or a lawyer) is still warranted before either figure appears on
+the live site, given how easily a wrong investment-migration threshold
+could mislead a real buyer's decision.
 
 **Build complexity / data:** cheap once the real number is confirmed (a
 static price-threshold rule) - the only blocker is getting the number
@@ -252,13 +278,20 @@ snapshots plus a small UI addition to the existing heat map.
 ### 9. Bulgaria-specific school-quality proxy layer
 
 **What it is:** unlike UK school-catchment data (correctly dropped from
-this platform's scope per the spec), Bulgaria does publish real,
-government-sourced comparative school data: NVO (7th-grade) national
-external evaluation results and Matura (12th-grade) state matriculation
-exam results, with real regional disparities documented down to
-municipality level (weaker clusters in Northeastern/Northwestern
-Bulgaria and around Plovdiv/Stara Zagora; nationally top schools like
-American College of Sofia stand out clearly in the data).
+this platform's scope per the spec), Bulgaria does have real, publicly
+available comparative school data at municipality level: NVO (7th-grade)
+national external evaluation results and Matura (12th-grade) state
+matriculation exam results, with real regional disparities documented
+(weaker clusters in Northeastern/Northwestern Bulgaria and around
+Plovdiv/Stara Zagora; nationally top schools like American College of
+Sofia stand out clearly in the data). **Correction (Missy's review):**
+an earlier draft called this "government-sourced" - the municipality-level
+aggregation itself is compiled by Regional Profiles, a project of the
+Institute for Market Economics (an independent Bulgarian think tank),
+from official exam results; it is not itself a Ministry of Education
+publication. The underlying exam results are official; the
+municipality-level rollup this idea would actually use is an independent
+third party's aggregation of them.
 
 **Why this platform specifically:** genuinely fills the "school-district-
 equivalent data for Bulgaria" prompt in the brief, with a real (if
@@ -415,7 +448,5 @@ deliberately not repeated as "new" above:
 - [Get Golden Visa - Bulgaria Golden Visa 2026](https://getgoldenvisa.com/bulgaria-golden-visa)
 - [Regional Profiles - Municipalities and the Matriculation Exam in Bulgarian - Results](https://www.regionalprofiles.bg/en/news/municipalities-and-the-matriculation-exam-in-bulgarian-results-in-2019/)
 - [Regional Profiles - Average NVO math result by municipality](https://www.regionalprofiles.bg/en/news/the-average-result-of-national-external-evaluation-in-mathematics-after-the-seventh-grade-is-weak-2-in-181-municipalities/)
-- [Wolf Theiss - New EU rules on short-term rentals (Regulation (EU) 2024/1028)](https://www.wolftheiss.com/insights/new-eu-rules-on-short-term-rentals-what-hosts-platforms-and-investors-need-to-know/)
-- [Innovires - Renting Out Property in Bulgaria: Airbnb & Long-Term (2026)](https://innovires.com/tax-residency/blog/renting-property-bulgaria-foreigner.html)
 - [Redfin - How Walk Score Works](https://www.redfin.com/how-walk-score-works)
 - [Redfin/Rover - Best Cities for Dog Walks](https://www.redfin.com/news/tag/walk-score/)
