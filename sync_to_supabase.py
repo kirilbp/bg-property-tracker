@@ -203,6 +203,70 @@ def group_listings(all_listings):
     # (each within prices_match() of a neighbor) can drift the group's
     # overall min-to-max price spread well past that same tolerance.
     price_range = {id(l): (l["price_eur"], l["price_eur"]) for l in with_sqm}
+    # Backlog item 60 (Placy's allocation investigation, PR #312 handoff):
+    # a group's own set of member portals, keyed by the current root's id -
+    # a candidate union is refused outright if the two groups being merged
+    # already share a portal. Real-data-confirmed root cause: with no real
+    # unit/floor/address discriminator in the scraped data (verified - see
+    # docs/decisions.md for what was actually checked: no portal reliably
+    # extracts a unit/apartment number, "area" is the only address-like
+    # text any portal has and it's already the matching key itself, and
+    # every portal's lat/lng is itself a Nominatim geocode of that same
+    # area+city text - not a real per-listing coordinate - so it carries no
+    # independent building-level signal and using it as a discriminator
+    # would just be re-deriving a fake precision from the same area string
+    # already being matched on), a mass development selling many
+    # near-identical-sized/priced units is indistinguishable from one unit
+    # cross-posted across portals UNLESS this one structural fact is used:
+    # a single portal never lists the same real property twice in a way
+    # that should count as "cross-posted" - two listings from the same
+    # portal in what would become one merged group is proof they're
+    # different real properties, not proof of heavier cross-posting.
+    # Unlike sqm_range/price_range above (which cap a candidate union's
+    # resulting *span*), this is a hard refuse, not a tolerance: portal
+    # membership is exact, not fuzzy, so there is no "close enough" case to
+    # allow. This directly targets the confirmed root cause - 13,814 of
+    # 59,028 real multi-member groups contained more than one same-portal
+    # listing before this fix, which is structurally impossible for
+    # genuine cross-posting.
+    #
+    # Keyed by (portal, url), not portal alone - a real, separate,
+    # pre-existing data bug found while quantifying this fix's impact
+    # (docs/decisions.md has the full writeup) made the portal-alone
+    # version of this check actively harmful: homes.bg's own
+    # leads_homes.json.gz stores 43,838 real listings TWICE, once under a
+    # plain numeric id and once under an "as"-prefixed id, both with the
+    # exact same url/price/sqm/title - one real listing under two ids, not
+    # two apartments. That pair sharing a portal is not proof of a
+    # development; the two homes.bg *ids* just refer to one real listing,
+    # confirmed by their identical url. A plain "same portal" check
+    # couldn't tell that apart from a genuine second unit and refused
+    # perfectly good cross-portal matches over it - measured on the real
+    # data: a portal-only version of this guard broke 21.56% of the
+    # cross-portal pairs already correctly grouped before this fix ever
+    # ran, almost entirely concentrated in exactly this bug's footprint
+    # (homes.bg has real listing density high enough that some price/area
+    # bucket hits one of these 43,838 pairs constantly). Comparing by
+    # (portal, url) together fixes that without discarding or guessing
+    # which of a same-url pair is "correct" (this task's earlier attempt at
+    # that - picking whichever of a same-url pair had more populated
+    # fields - was tried and measured *worse*, 30.78% broken, because
+    # richness has no relationship to which of the two prices is current):
+    # two same-portal listings that share a url are the same real listing
+    # by definition and are simply never a conflict; two that don't are
+    # still refused exactly as before.
+    portal_urls = {id(l): {l["portal"]: {l.get("url")}} for l in with_sqm}
+
+    def _portal_conflict(pu_a, pu_b):
+        for portal in pu_a.keys() & pu_b.keys():
+            combined = pu_a[portal] | pu_b[portal]
+            # None (a missing url) can never be confirmed identical to
+            # anything, including another None - stay conservative (treat
+            # as a conflict) rather than assume two url-less listings from
+            # the same portal are the same real one.
+            if None in combined or len(combined) > 1:
+                return True
+        return False
 
     def find(x):
         while parent[id(x)] is not x:
@@ -213,6 +277,8 @@ def group_listings(all_listings):
     def union(a, b):
         ra, rb = find(a), find(b)
         if ra is rb:
+            return
+        if _portal_conflict(portal_urls[id(ra)], portal_urls[id(rb)]):
             return
         lo_sqm = min(sqm_range[id(ra)][0], sqm_range[id(rb)][0])
         hi_sqm = max(sqm_range[id(ra)][1], sqm_range[id(rb)][1])
@@ -225,6 +291,10 @@ def group_listings(all_listings):
         parent[id(ra)] = rb
         sqm_range[id(rb)] = (lo_sqm, hi_sqm)
         price_range[id(rb)] = (lo_price, hi_price)
+        merged_portal_urls = dict(portal_urls[id(rb)])
+        for portal, urls in portal_urls[id(ra)].items():
+            merged_portal_urls[portal] = merged_portal_urls.get(portal, set()) | urls
+        portal_urls[id(rb)] = merged_portal_urls
 
     for l in with_sqm:
         na = normalize_area(l.get("area"))
@@ -280,6 +350,18 @@ def group_listings(all_listings):
         prices = [m["price_eur"] for m in g if m.get("price_eur")]
         group_price_range[id(g)] = (min(prices), max(prices))
 
+    # Backlog item 60: this loop's own "first candidate group that
+    # satisfies prices_match()" tie-break, and the with_sqm portal-conflict
+    # guard above, were both tried in a version keyed on portal alone and
+    # in a version that picked candidates by price-distance or refused
+    # whenever more than one candidate qualified - both alternatives were
+    # measured to break MORE already-correct real cross-portal matches than
+    # this unchanged first-match rule does (see docs/decisions.md's
+    # false-negative measurements for the numbers). This loop is
+    # deliberately left exactly as it was before this backlog item -
+    # unrelated to the with_sqm fix above, which only needed the
+    # (portal, url) refinement to stop miscounting a same-url homes.bg
+    # duplicate as a second real unit.
     solo_sqmless = []
     for l in without_sqm:
         na = normalize_area(l.get("area"))
