@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  CONCEPT 2 of 5 — "Split & Interlock" (includes a logo mark)
+
+  Distinct idea: the wordmark is broken across two lines - "Imoten" and
+  "Radar" - set close enough in line-height that they interlock rather
+  than simply stack, and the second line is nudged right and slightly
+  larger so it visually leads the eye down and across. A thin brass
+  rule (styled as a radar sweep-line, not a plain hairline) crosses
+  between the two words at the exact height where a small custom logo
+  mark sits - a minimal glyph combining a radar sweep arc with a single
+  property "roof" notch, built as inline SVG (renders cleanly from
+  favicon scale up to this hero scale, since it's 3 strokes and one
+  filled dot). The overlap target here is the search bar specifically
+  (not the stats row): "Radar"'s baseline bleeds down over the top
+  edge of the search card, so the search field reads as tucked partly
+  underneath the wordmark rather than simply below it - a different
+  overlap mechanism than Concept 1's masthead-over-stats or Concept 3's
+  full-bleed backdrop treatment.
+-->
+<meta charset="UTF-8" />
+<title>Imoten Radar — Concept 2: Split &amp; Interlock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #241f1a; --ink-soft: #4a433c; --taupe: #8c8378; --taupe-light: #ded6c8;
+    --ivory: #f7f4ee; --ivory-deep: #efe9dc; --brass: #a9812e; --brass-deep: #8a6a24; --sage: #7a8b6f;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); background: var(--ivory-deep); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 0 32px 64px; }
+
+  .top-row { display: flex; justify-content: space-between; align-items: center; padding: 28px 0 0; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--taupe); }
+
+  .hero { position: relative; margin: 16px 0 -70px; z-index: 2; padding-left: 4px; }
+  .word-line-1 {
+    font-family: var(--font-serif); font-weight: 400; font-size: 96px; line-height: 1;
+    margin: 0; color: var(--ink);
+  }
+  .word-line-2-row { display: flex; align-items: center; gap: 22px; margin-top: -6px; margin-left: 96px; }
+  .radar-mark { flex-shrink: 0; }
+  .word-line-2 {
+    font-family: var(--font-serif); font-weight: 500; font-size: 136px; line-height: 0.9;
+    margin: 0; color: var(--brass-deep);
+  }
+  .sweep-rule {
+    position: absolute; left: 0; right: 0; top: 84px; height: 1px; background: var(--taupe-light);
+    z-index: -1;
+  }
+
+  .search-card {
+    position: relative; z-index: 1;
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
+    padding: 100px 32px 32px; box-shadow: 0 2px 24px rgba(36,31,26,0.06);
+  }
+  .search-card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; }
+  .search-card p { color: var(--taupe); font-size: 13px; margin: 0 0 18px; }
+  .home-search-row { display: flex; gap: 10px; }
+  .home-search-row input {
+    flex: 1; padding: 14px 16px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    background: var(--ivory-deep); font-family: var(--font-sans); font-size: 14px; color: var(--ink);
+  }
+  .cta-btn { background: var(--brass); color: var(--ink); border: 1px solid var(--brass); padding: 13px 22px; border-radius: 4px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .stat-tile { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 20px; }
+  .stat-tile .stat-value { font-family: var(--font-serif); font-weight: 500; font-size: 24px; color: var(--ink); margin: 0 0 4px; }
+  .stat-tile .stat-label { font-size: 12px; color: var(--taupe); margin: 0; }
+
+  .subtitle { color: var(--taupe); font-size: 13px; margin: 16px 0 0; }
+
+  @media (max-width: 900px) {
+    .word-line-1 { font-size: 56px; }
+    .word-line-2 { font-size: 76px; }
+    .word-line-2-row { margin-left: 40px; gap: 12px; }
+    .radar-mark svg { width: 40px; height: 40px; }
+    .search-card { padding-top: 64px; }
+    .stat-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-row">
+      <span class="eyebrow">Bulgaria · Property Aggregator</span>
+      <span class="eyebrow" style="letter-spacing:0;text-transform:none;color:var(--taupe);">Good afternoon</span>
+    </div>
+
+    <div class="hero">
+      <p class="word-line-1">Imoten</p>
+      <div class="sweep-rule"></div>
+      <div class="word-line-2-row">
+        <span class="radar-mark">
+          <!-- Logo mark: radar sweep arc + single property "roof" notch at
+               center, 3 strokes + 1 dot, scales cleanly from 16px favicon
+               to this size. -->
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="36" cy="36" r="30" stroke="#8c8378" stroke-width="1.5" opacity="0.5" />
+            <circle cx="36" cy="36" r="19" stroke="#8c8378" stroke-width="1.5" opacity="0.5" />
+            <path d="M36 36 L36 10 A26 26 0 0 1 58 23 Z" fill="#a9812e" opacity="0.85" />
+            <path d="M24 40 L36 30 L48 40 L48 48 L24 48 Z" fill="none" stroke="#241f1a" stroke-width="2.5" stroke-linejoin="round" />
+            <circle cx="36" cy="36" r="2.5" fill="#241f1a" />
+          </svg>
+        </span>
+        <p class="word-line-2">Radar</p>
+      </div>
+    </div>
+
+    <div class="search-card">
+      <h2>Search listings</h2>
+      <p>Search imotenradar's own tracked listings by city, quarter (кв.), or keyword.</p>
+      <div class="home-search-row">
+        <input type="text" placeholder="Search by address, area, or keyword…" />
+        <button class="cta-btn">Search →</button>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-tile"><p class="stat-value">281,029</p><p class="stat-label">Total listings</p></div>
+      <div class="stat-tile"><p class="stat-value">1,342</p><p class="stat-label">🔥 Hot deals</p></div>
+      <div class="stat-tile"><p class="stat-value">8</p><p class="stat-label">Portals tracked</p></div>
+    </div>
+    <p class="subtitle">281,029 unique listings across 8 portals · auto-updates every 6 hours</p>
+  </div>
+</body>
+</html>

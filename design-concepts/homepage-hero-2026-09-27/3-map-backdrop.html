@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  CONCEPT 3 of 5 — "Map Backdrop" (includes a logo mark)
+
+  Distinct idea: the only one of the 5 concepts with a full-bleed
+  hero backdrop rather than content-width type on the page's plain
+  ivory background. The backdrop is a dark ink-colored panel carrying
+  a faint abstract cadastral/topographic line grid (built with CSS
+  layered gradients - no external map imagery, so this stays fully
+  self-contained and license-free) to gesture at "map of tracked
+  listings" without literally embedding a map API. The wordmark sits
+  large and reversed (ivory-on-ink) inside that dark panel, paired with
+  a distinct logo mark - a scanning radar "blip" glyph (concentric
+  rings with one small solid dot on the ring, like a radar contact
+  ping) that's a different idea from Concept 2's roofline-in-a-sweep
+  mark. The overlap here targets the backdrop itself: the stat tiles
+  sit on a light ivory panel that bleeds UP into the dark hero's bottom
+  edge (negative margin pulls it up), so the transition from dark hero
+  to light page body happens mid-tile rather than at a clean seam -
+  the most "editorial full-bleed" of the 5, closest to Knight
+  Frank/Douglas Elliman's cinematic-hero convention referenced in the
+  design guidelines.
+-->
+<meta charset="UTF-8" />
+<title>Imoten Radar — Concept 3: Map Backdrop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #241f1a; --ink-soft: #4a433c; --taupe: #8c8378; --taupe-light: #ded6c8;
+    --ivory: #f7f4ee; --ivory-deep: #efe9dc; --brass: #a9812e; --brass-deep: #8a6a24; --sage: #7a8b6f;
+    --ivory-warm: #f0ebe2;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); background: var(--ivory-deep); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .hero {
+    position: relative; overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(23,19,15,0.0) 0%, rgba(23,19,15,0.55) 100%),
+      repeating-linear-gradient(0deg, rgba(240,235,226,0.05) 0, rgba(240,235,226,0.05) 1px, transparent 1px, transparent 64px),
+      repeating-linear-gradient(90deg, rgba(240,235,226,0.05) 0, rgba(240,235,226,0.05) 1px, transparent 1px, transparent 64px),
+      radial-gradient(circle at 70% 25%, #3a2f22 0%, #17130f 70%);
+    padding: 56px 32px 180px;
+  }
+  .hero-inner { max-width: 1440px; margin: 0 auto; position: relative; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe-light); opacity: 0.85; }
+
+  .wordmark-row { display: flex; align-items: center; gap: 28px; margin-top: 48px; }
+  .wordmark-row h1 {
+    font-family: var(--font-serif); font-weight: 500; font-size: 128px; line-height: 0.95;
+    margin: 0; color: var(--ivory-warm); letter-spacing: -0.01em;
+  }
+  .tagline {
+    font-family: var(--font-sans); font-size: 15px; color: var(--taupe-light);
+    margin: 18px 0 0; max-width: 560px; line-height: 1.6;
+  }
+
+  .container { max-width: 1440px; margin: 0 auto; padding: 0 32px 64px; }
+  .stat-row {
+    position: relative; z-index: 2; margin-top: -128px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
+    padding: 32px; box-shadow: 0 8px 32px rgba(23,19,15,0.18);
+  }
+  .stat-tile { text-align: center; border-left: 1px solid var(--taupe-light); }
+  .stat-tile:first-child { border-left: none; }
+  .stat-tile .stat-value { font-family: var(--font-serif); font-weight: 500; font-size: 32px; color: var(--ink); margin: 0 0 4px; }
+  .stat-tile .stat-label { font-size: 12px; color: var(--taupe); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+
+  .subtitle { color: var(--taupe); font-size: 13px; margin: 20px 0 0; text-align: center; }
+
+  .card { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px; padding: 32px; margin-top: 24px; }
+  .card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; }
+  .card p { color: var(--taupe); font-size: 13px; margin: 0 0 18px; }
+  .home-search-row { display: flex; gap: 10px; }
+  .home-search-row input { flex: 1; padding: 14px 16px; border: 1px solid var(--taupe-light); border-radius: 4px; background: var(--ivory-deep); font-size: 14px; color: var(--ink); }
+  .cta-btn { background: var(--brass); color: var(--ink); border: 1px solid var(--brass); padding: 13px 22px; border-radius: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .wordmark-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .wordmark-row h1 { font-size: 64px; }
+    .hero { padding-bottom: 140px; }
+    .stat-row { grid-template-columns: 1fr; margin-top: -96px; }
+    .stat-tile { border-left: none; border-top: 1px solid var(--taupe-light); padding-top: 12px; }
+    .stat-tile:first-child { border-top: none; padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="top-row">
+        <span class="eyebrow">Bulgaria · Property Aggregator</span>
+        <span class="eyebrow" style="letter-spacing:0;text-transform:none;">Good afternoon</span>
+      </div>
+      <div class="wordmark-row">
+        <!-- Logo mark: radar "contact ping" - concentric rings with one
+             solid blip riding the outer ring, distinct from Concept 2's
+             roofline-in-sweep mark; reads at favicon scale as a simple dot
+             on rings, and at this scale as a legible radar-scan icon. -->
+        <svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="54" cy="54" r="46" stroke="#f0ebe2" stroke-width="1.5" opacity="0.35" />
+          <circle cx="54" cy="54" r="31" stroke="#f0ebe2" stroke-width="1.5" opacity="0.45" />
+          <circle cx="54" cy="54" r="16" stroke="#f0ebe2" stroke-width="1.5" opacity="0.6" />
+          <line x1="54" y1="54" x2="54" y2="8" stroke="#c9a464" stroke-width="2" />
+          <circle cx="54" cy="8" r="5" fill="#c9a464" />
+          <circle cx="54" cy="54" r="3" fill="#f0ebe2" />
+        </svg>
+        <h1>Imoten Radar</h1>
+      </div>
+      <p class="tagline">Every major Bulgarian property portal, scanned continuously and merged into one list — so nothing new on the market gets past you.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stat-row">
+      <div class="stat-tile"><p class="stat-value">281,029</p><p class="stat-label">Total listings</p></div>
+      <div class="stat-tile"><p class="stat-value">1,342</p><p class="stat-label">🔥 Hot deals</p></div>
+      <div class="stat-tile"><p class="stat-value">8</p><p class="stat-label">Portals tracked</p></div>
+    </div>
+    <p class="subtitle">281,029 unique listings across 8 portals · auto-updates every 6 hours</p>
+
+    <div class="card">
+      <h2>Search listings</h2>
+      <p>Search imotenradar's own tracked listings by city, quarter (кв.), or keyword.</p>
+      <div class="home-search-row">
+        <input type="text" placeholder="Search by address, area, or keyword…" />
+        <button class="cta-btn">Search →</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

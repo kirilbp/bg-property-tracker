@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  CONCEPT 5 of 5 — "Editorial Rules"
+
+  Distinct idea: a newspaper/journal-masthead treatment - thin brass
+  rule lines run full-width above and below the wordmark like a
+  broadsheet nameplate, with a small-caps eyebrow line nested between
+  the top rule and the wordmark itself (rather than floating loose in a
+  corner as in Concepts 1/3/4). No separate logo mark; instead the
+  wordmark's own "O" in "Imoten" is treated as the mark, redrawn as a
+  simple radar-ring glyph inline with the letterforms via SVG, so the
+  logo is literally built into the type rather than sitting beside it -
+  a third, more integrated take on "creative logo" distinct from
+  Concept 2's icon-next-to-word and Concept 3's icon-then-word layouts.
+  The overlap target is different again: this bleeds down over the
+  "Listings by source" portal-chip row (the real per-portal counts
+  from the live Home section) rather than the plain stat tiles or the
+  search bar, so the big brand moment visually anchors directly above
+  the specific proof point ("8 real portals, this many real listings
+  each") rather than above a generic stat block. Overall mood: the most
+  graphic/structured of the 5, trading some warmth for a crisp,
+  considered "trade publication" feel while staying inside the brass/
+  ivory/ink palette throughout.
+-->
+<meta charset="UTF-8" />
+<title>Imoten Radar — Concept 5: Editorial Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #241f1a; --ink-soft: #4a433c; --taupe: #8c8378; --taupe-light: #ded6c8;
+    --ivory: #f7f4ee; --ivory-deep: #efe9dc; --brass: #a9812e; --brass-deep: #8a6a24; --sage: #7a8b6f;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); background: var(--ivory-deep); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 0 32px 64px; }
+
+  .masthead { padding-top: 36px; }
+  .rule { height: 2px; background: var(--brass); width: 100%; }
+  .rule-thin { height: 1px; background: var(--taupe-light); width: 100%; margin-top: 6px; }
+  .eyebrow-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+
+  .wordmark-wrap { position: relative; z-index: 2; text-align: center; margin: 4px 0 -84px; }
+  .wordmark {
+    font-family: var(--font-serif); font-weight: 500; font-size: 140px; line-height: 1;
+    margin: 0; color: var(--ink); letter-spacing: -0.005em; display: inline-flex; align-items: baseline; justify-content: center;
+  }
+  .o-mark {
+    display: inline-block; position: relative; width: 0.56em; height: 0.56em;
+    margin: 0 0.005em; transform: translateY(0.11em);
+  }
+  .o-mark svg { width: 100%; height: 100%; display: block; }
+
+  .bottom-rule { height: 2px; background: var(--brass); width: 100%; margin-top: 18px; }
+
+  .source-card {
+    position: relative; z-index: 1; margin-top: 24px;
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
+    padding: 108px 32px 32px; box-shadow: 0 2px 24px rgba(36,31,26,0.06);
+  }
+  .source-card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; text-align: center; }
+  .source-card p { color: var(--taupe); font-size: 13px; margin: 0 auto 20px; max-width: 560px; text-align: center; }
+  .portal-chip-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .portal-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--ivory-deep);
+    border: 1px solid var(--taupe-light); border-radius: 999px; padding: 6px 14px;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .portal-chip strong { color: var(--brass-deep); font-weight: 700; }
+
+  .below-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 24px; flex-wrap: wrap; gap: 10px; }
+  .subtitle { color: var(--taupe); font-size: 13px; margin: 0; }
+
+  .card { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px; padding: 32px; margin-top: 24px; }
+  .card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; }
+  .card p { color: var(--taupe); font-size: 13px; margin: 0 0 18px; }
+  .home-search-row { display: flex; gap: 10px; }
+  .home-search-row input { flex: 1; padding: 14px 16px; border: 1px solid var(--taupe-light); border-radius: 4px; background: var(--ivory-deep); font-size: 14px; color: var(--ink); }
+  .cta-btn { background: var(--brass); color: var(--ink); border: 1px solid var(--brass); padding: 13px 22px; border-radius: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .wordmark { font-size: 60px; }
+    .source-card { padding-top: 56px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="masthead">
+      <div class="rule"></div>
+      <div class="eyebrow-row">
+        <span class="eyebrow">Bulgaria · Property Aggregator</span>
+        <span class="eyebrow" style="letter-spacing:0;text-transform:none;color:var(--taupe);">Good afternoon</span>
+      </div>
+      <div class="rule-thin"></div>
+    </div>
+
+    <div class="wordmark-wrap">
+      <h1 class="wordmark">
+        Im<span class="o-mark">
+          <!-- The wordmark's own "O" redrawn as the logo mark: a radar
+               ring standing in for the letterform, with one sweep line
+               and a blip dot - built into the type itself rather than
+               placed beside it. -->
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="27" stroke="#241f1a" stroke-width="6" />
+            <circle cx="32" cy="32" r="14" stroke="#a9812e" stroke-width="2" opacity="0.6" />
+            <line x1="32" y1="32" x2="32" y2="8" stroke="#a9812e" stroke-width="3" stroke-linecap="round" />
+            <circle cx="32" cy="8" r="4.5" fill="#a9812e" />
+          </svg>
+        </span>ten Radar
+      </h1>
+    </div>
+    <div class="bottom-rule"></div>
+
+    <div class="source-card">
+      <h2>Listings by source</h2>
+      <p>All 8 portals are scraped automatically and de-duplicated into one list.</p>
+      <div class="portal-chip-row">
+        <span class="portal-chip">imot.bg <strong>112,404</strong></span>
+        <span class="portal-chip">imoti.net <strong>98,221</strong></span>
+        <span class="portal-chip">homes.bg <strong>41,038</strong></span>
+        <span class="portal-chip">olx.bg <strong>18,662</strong></span>
+        <span class="portal-chip">bazar.bg <strong>6,204</strong></span>
+        <span class="portal-chip">alo.bg <strong>2,890</strong></span>
+        <span class="portal-chip">sales.bcpea.org <strong>1,412</strong></span>
+        <span class="portal-chip">others <strong>198</strong></span>
+      </div>
+    </div>
+
+    <div class="below-row">
+      <p class="subtitle">281,029 unique listings across 8 portals · auto-updates every 6 hours</p>
+    </div>
+
+    <div class="card">
+      <h2>Search listings</h2>
+      <p>Search imotenradar's own tracked listings by city, quarter (кв.), or keyword.</p>
+      <div class="home-search-row">
+        <input type="text" placeholder="Search by address, area, or keyword…" />
+        <button class="cta-btn">Search →</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
