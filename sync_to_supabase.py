@@ -42,6 +42,7 @@ import requests
 
 from geo_utils import (
     BG_CITIES, BG_CITY_BY_NAME, LATIN_CITY_TO_KEY,
+    _looks_like_title_echo,
     bcpea_settlement_from_title, bcpea_type_match, city_key_from_name,
     city_key_from_name_prefix, cyr_city_key_from_text, latin_city_key_from_text,
     listing_city_key, load_json_any,
@@ -1131,6 +1132,88 @@ def first_seen_at_for(row):
 # column to write to.
 MERGED_FIELDS = [f for f in SOURCE_FIELDS if f not in ("source_status", "removed_at")]
 
+# Fields a merged listing takes from the group's richest-media source
+# (`media_best`) rather than its highest-motivation-score source (`best`) -
+# see MEDIA_FIELDS' selection logic below (`select_media_best()`) for why:
+# `score` (compute_motivation_score() in geo_utils.py) is price-drop/days-
+# on-market/price-vs-area-average - it has no relationship at all to how
+# many photos a cross-posted source has or whether it has a real
+# description, so picking `best`'s photo/photos/description here (as the
+# generic MERGED_FIELDS loop below still does for every other field)
+# regularly ships a merged listing with a single photo and no description
+# from the top-scoring source, while a different cross-posted source for
+# the exact same real property sitting right next to it in the same group
+# has, say, 8 photos and a full seller-written description. Backlog:
+# reported directly by the site owner ("every single listing needs to have
+# multiple photos... priority for our listing the one with multiple photos
+# and full description").
+MEDIA_FIELDS = ("photo", "photos", "description")
+
+
+def _photo_count(s):
+    # "photos" (plural) is the richer, portal-scraped photo-gallery field -
+    # confirmed against the real committed leads_*.json(.gz) files (not
+    # assumed): where present it's always a flat list of image URL strings
+    # (never a list of objects, on any of the 8 portals), and 3 portals
+    # (alo.bg, imot.bg, sales.bcpea.org... in fact all 8 except imoti.bg)
+    # only populate it for a subset of their own listings - imoti.bg never
+    # has the key at all. "photo" (singular) is the one field every portal
+    # always has when it has any image at all, so a source with no "photos"
+    # list but a real "photo" still counts as having exactly 1 photo, not
+    # 0 - that's the literal "original listing with only one photo" case
+    # from the bug report, not an absent-data case.
+    photos = s.get("photos")
+    if isinstance(photos, list) and photos:
+        return len(photos)
+    return 1 if s.get("photo") else 0
+
+
+def _has_real_description(s):
+    # Reuses geo_utils._looks_like_title_echo() - the same "extracted text
+    # is just a substring of the listing's own title, not real prose" check
+    # already confirmed against real alo.bg production data (see that
+    # function's own comment) - rather than duplicating that logic here.
+    # Generalized on purpose: the same failure shape (a "description" field
+    # that's actually an echo of the title) is exactly what this fix must
+    # not treat as a real description on ANY portal, not just alo.bg.
+    desc = s.get("description")
+    if not desc or not str(desc).strip():
+        return False
+    return not _looks_like_title_echo(desc, s.get("title"))
+
+
+def select_media_best(sorted_sources):
+    """Picks which group member's photo/photos/description the merged
+    listing should show, independently of `best` (sorted_sources[0], the
+    highest motivation-score source used for every other MERGED_FIELDS
+    value). Selection order:
+      1. Most photos (_photo_count()).
+      2. Tiebreak: has a real, non-title-echo description.
+      3. Second tiebreak: sorted_sources' own existing motivation-score
+         order (so behavior stays deterministic when several sources are
+         equally rich on both signals above).
+    If no source in the group has more than 1 photo, there is nothing
+    richer to prefer on the one signal the user actually complained about
+    (a single-photo listing being shown when a multi-photo one existed for
+    the same property), so this falls back to `best` unchanged - today's
+    behavior - rather than picking a source based on description alone.
+    For a group of 1 (the ~majority of listings, which aren't cross-posted
+    at all) this is always a complete no-op: `max_photos` is that one
+    source's own count, `candidates` is `[sorted_sources[0]]`, so the
+    single `return` at the bottom always yields `sorted_sources[0]` -
+    identical to `best`.
+    """
+    max_photos = max(_photo_count(s) for s in sorted_sources)
+    if max_photos <= 1:
+        return sorted_sources[0]
+    # Preserves sorted_sources' motivation-score order at every step below,
+    # so the last remaining tiebreak (comparing candidates written to `pool`)
+    # is exactly "whichever qualifying source scores highest".
+    candidates = [s for s in sorted_sources if _photo_count(s) == max_photos]
+    with_description = [s for s in candidates if _has_real_description(s)]
+    pool = with_description or candidates
+    return pool[0]
+
 
 def build_rows(all_listings):
     groups = group_listings(all_listings)
@@ -1165,6 +1248,16 @@ def build_rows(all_listings):
         }
         for f in MERGED_FIELDS:
             merged[f] = best.get(f)
+        # photo/photos/description specifically come from whichever group
+        # member has the richest media, not from `best` (highest motivation
+        # score) like every other field above - see select_media_best()'s
+        # own comment. Deliberately overwrites just these 3 keys after the
+        # generic MERGED_FIELDS loop above rather than excluding them from
+        # it, so this stays a clearly-scoped override, not a second parallel
+        # field list to keep in sync with MERGED_FIELDS.
+        media_best = select_media_best(sorted_sources)
+        for f in MEDIA_FIELDS:
+            merged[f] = media_best.get(f)
         merged["type_bucket"] = type_filter_bucket(best)
         city_key = listing_city_key(best)
         merged["city_key"] = city_key
