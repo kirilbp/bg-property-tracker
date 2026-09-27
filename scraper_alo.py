@@ -42,6 +42,40 @@ real last page - alo.bg's own per-page listing count is also higher
 nationwide (60/page vs 30/page Sofia-only), so the real total is closer to
 ~156,000. MAX_PAGES raised well past that with real margin.
 
+CORRECTION (2026-09-27, investigating backlog item 61's alo.bg-vs-Sofia
+finding): the "~156,000" estimate two paragraphs above is wrong, and wrong
+in a way worth flagging clearly rather than quietly fixing, because it
+was the reason a real coverage gap was suspected here in the first place.
+It came from multiplying MAX_PAGES-scale page count by "60/page" - but
+that 60 is fetch_listings_page()'s own `link_count` return value, which
+counts every LISTING_LINK_RE-matching <a> TAG on the page (each real
+listing card has two - see smallest_container_with_price()'s own use of
+this), not 60 unique listings. Confirmed directly against two full,
+real, complete production runs (workflow run 35973606926, 2026-09-24, and
+workflow run 36113518576, 2026-09-25 - both scraper_alo.py job steps,
+full logs read page-by-page, not just the tail): `link_count` prints
+exactly 60 on essentially every real page in both runs, but the actual
+NEW-listing yield per page (the delta in "N listings so far" between
+consecutive pages) is consistently ~29-30 the entire way through both
+2.25-hour crawls, page 1 through page ~2706, with no degradation over
+time. So nationwide is ~30 unique listings/page, the SAME rate as the
+old Sofia-only crawl, not double it - there's no real basis for a
+~156,000-listing nationwide total. Both runs instead crawled cleanly to
+a genuine 404 wall (page 2707-2711, never anywhere near MAX_PAGES=2800)
+and landed within ~100 listings of each other (77,843 and 77,935) - i.e.
+this scraper is capturing close to the FULL real current nationwide
+inventory under this search query, not roughly half of it. This means
+the Sofia/Plovdiv/Burgas imbalance backlog item 61 found in alo.bg's own
+raw `city` field (Бургас 18,128 / Пловдив 17,632 / София 9,906) is not
+explained by an uneven partial crawl - the crawl is close to complete -
+so it reflects either a genuine fact about alo.bg's own current listing
+mix by city, or a URL/query-construction issue independent of pagination
+depth (e.g. whether region_id=0 truly applies no server-side region bias
+at all, vs. some session/cookie-driven default) that this sandbox's
+alo.bg egress block prevents confirming live. See docs/decisions.md's
+2026-09-27 entry for the full investigation and what a human/agent with
+live alo.bg access should check next.
+
 LOCATION_RE replaces the old Sofia-only AREA_RE (which matched "<area
 words>, София" specifically) - live samples of real non-Sofia cards found
 the consistent shape "<settlement>, [област ]<city>" immediately before
@@ -122,9 +156,15 @@ LEADS_FILE = OUT_DIR / "leads_alo.json.gz"
 
 MAX_CARD_TEXT_LENGTH = 1500
 MAX_PRICE_MENTIONS = 1
-# ~156,000 listings at 60/page nationwide is ~2,600 real pages (live-
-# verified: real content through page 2600, a genuine 404 at page 2700,
-# no block of any kind) - well past the old Sofia-only 350.
+# Real ~30 unique listings/page (not the 60 raw <a>-tag matches/page this
+# comment originally assumed - see the module docstring's 2026-09-27
+# correction) puts the real nationwide total around ~78,000-80,000, not
+# ~156,000; two full real production runs (2026-09-24, 2026-09-25) both
+# crawled cleanly to a genuine 404 wall around page 2707-2711, nowhere
+# near this cap. Left at 2800 anyway - real margin above the confirmed
+# real page count costs nothing (the crawl already stops cleanly on its
+# own real 404 well before reaching it) and protects against genuine
+# future site growth.
 MAX_PAGES = 2800
 REQUEST_DELAY_SECONDS = 1.0
 # A run of this many CONSECUTIVE page-level failures (each already having
@@ -326,10 +366,13 @@ def fetch_with_retries(url):
 
 
 def fetch_listings_page(url, seen):
-    try:
-        html = fetch_with_retries(url)
-    except PermanentlyGone:
-        return None
+    # PermanentlyGone (404/410) is deliberately NOT caught here - it must
+    # propagate to fetch_listings()'s own caller, which treats "hit a real
+    # 404 past the last page" as a distinct, confirmed-end-of-pagination
+    # signal, not a generic failure. See fetch_listings()'s own comment for
+    # why conflating the two (as this function used to, returning None for
+    # both) was a real bug, confirmed against real job logs.
+    html = fetch_with_retries(url)
     if html is None:
         return None
 
@@ -621,12 +664,54 @@ def fetch_listings():
     start_time = time.monotonic()
     seen = {}
     consecutive_failures = 0
+    consecutive_permanently_gone = 0
     for page_num in range(1, MAX_PAGES + 1):
         if page_num > 1:
             time.sleep(REQUEST_DELAY_SECONDS)
         url = SEARCH_URL if page_num == 1 else f"{SEARCH_URL}&page={page_num}"
-        link_count = fetch_listings_page(url, seen)
         elapsed = time.monotonic() - start_time
+        try:
+            link_count = fetch_listings_page(url, seen)
+        except PermanentlyGone:
+            # Real production job logs (runs 35973606926 on 2026-09-24 and
+            # 36113518576 on 2026-09-25, both scraper_alo.py steps) show
+            # alo.bg returns a genuine HTTP 404 for the first page past its
+            # real last page, rather than a page that loads with zero
+            # listings (the "stop on empty page" signal every sibling
+            # scraper's own crawl loop relies on - see this module's own
+            # docstring). Before this fix, that 404 was caught inside
+            # fetch_listings_page() and returned as a plain None, identical
+            # to a genuinely transient failure (a timeout or 5xx) - so
+            # reaching the real end of the site always cost
+            # MAX_CONSECUTIVE_PAGE_FAILURES (5) wasted page requests before
+            # stopping, AND - the real risk - a genuine mid-crawl outage
+            # would print the exact same "looks like a real outage" message
+            # as an ordinary, harmless end-of-day completion, making the two
+            # impossible to tell apart from a run's own logs.
+            #
+            # A 404 here is still trusted faster than a generic transient
+            # failure (both real runs confirmed several consecutive 404s in
+            # a row at the true end, not one flaky one among successes), but
+            # NOT on the very first occurrence: alo.bg sits behind
+            # CONNECT_FAILURE_MAX_RETRIES-acknowledged anti-bot/rate-limit
+            # behavior against GitHub Actions IP ranges, and a WAF serving a
+            # single spurious 404 instead of a 429/503 mid-crawl is a known
+            # technique - requiring 2 in a row before treating this as the
+            # real end avoids silently truncating a day's crawl on one
+            # spurious response, while still stopping promptly (not after
+            # MAX_CONSECUTIVE_PAGE_FAILURES=5 wasted requests) once it's
+            # confirmed. Does not count toward MAX_CONSECUTIVE_PAGE_FAILURES,
+            # which stays reserved for actual transient failures (timeouts,
+            # connection errors, 5xx) where a retry might have succeeded.
+            consecutive_permanently_gone += 1
+            print(f"DEBUG: page {page_num} returned 404 "
+                  f"({consecutive_permanently_gone}/2 consecutive) - "
+                  f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
+            if consecutive_permanently_gone >= 2:
+                print(f"DEBUG: {consecutive_permanently_gone} consecutive 404s - "
+                      f"reached the real end of pagination")
+                break
+            continue
 
         if link_count is None:
             consecutive_failures += 1
@@ -640,6 +725,7 @@ def fetch_listings():
             continue
 
         consecutive_failures = 0
+        consecutive_permanently_gone = 0
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count} "
               f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
         if not link_count:
