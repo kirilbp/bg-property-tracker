@@ -7031,3 +7031,52 @@ For a group of size 1 (not cross-posted - confirmed the majority case below), th
 **Scope, deliberately not touched:** `best`'s meaning for every other field (price, title, url, `type_bucket`/`city_key`/`oblast_key`/`area_key`, `member_portals`, `status`, the score-driven fields); `listing_sources` rows (still each source's own real photo/photos/description, exactly as scraped - this fix only changes what `merged_listings` shows); `group_listings()`'s cross-portal matching logic itself; anything client-side in `index.html` (it reads `merged_listings` as-is from Supabase, so this fix takes effect there automatically once synced, no frontend change needed).
 
 Verification was local-data-only, no Supabase writes performed (not needed - `build_rows()`'s output was inspected directly, per the task's own explicit scope). Built in an isolated worktree off a fresh `origin/main` fetch; no live GitHub Actions `workflow_dispatch` used at any point. Not self-merged - pushed as `fix/merged-listing-media-richness`, PR opened for Missy's review, per this repo's standing rule.
+
+## 60. Navy/gold palette shipped for real, replacing the brown-ink/brass-on-ivory palette - user picked it after reviewing 5 exploration concepts ("Do the navy/gold option") - PR OPEN FOR MISSY'S REVIEW (2026-09-27, Dessy)
+
+The 5-palette exploration (`design-concepts/color-palettes-2026-09-27/README.md`, branch `design/color-palettes-2026-09-27`) was pure mockup - nothing there touched the real `index.html` on `main`. This item is that decision actually shipped, in a fresh isolated worktree (`design/navy-gold-palette-2026-09-27`) off a clean `origin/main` fetch.
+
+**Exact values applied to `:root` in `index.html`** (the single definition site - confirmed no second `:root`, dark-mode `prefers-color-scheme` override, or `@media print` override of any of these 9 tokens exists anywhere else in the file):
+
+| Token | Old | New |
+|---|---|---|
+| `--ink` | `#241f1a` | `#1B2434` |
+| `--ink-soft` | `#4a433c` | `#3E4A5E` |
+| `--ivory` | `#f7f4ee` | `#F4F1E8` |
+| `--ivory-deep` | `#efe9dc` | `#EAE5D6` |
+| `--taupe` | `#685f55` | `#5B6472` |
+| `--taupe-light` | `#ded6c8` | `#D5D5D0` |
+| `--sage` | `#4f5a48` | `#455C4F` |
+| `--brass` | `#a9812e` | `#B08A2E` |
+| `--brass-deep` | `#755a1e` | `#7A5D1E` |
+
+`--error` (`#a33f34`) untouched, per the exploration's own note - outside this palette's scope.
+
+**Beyond the 9 `:root` values, two categories of hardcoded literal duplicating the old palette were found and fixed, one left alone on purpose:**
+
+1. **Fixed - a stale `var()` fallback:** `.count-caveat { color: var(--brass-deep, #96702f); }` - `#96702f` was already a stale pre-2026-09-26-audit leftover (didn't even match the *old* live `--brass-deep`, `#755a1e`), the exact "fallback literal sitting around from before this token system was fully adopted" pattern flagged as worth checking. Updated to `#7A5D1E` (the new `--brass-deep`) for consistency, even though this fallback is inert in practice (the browser only ever uses a `var()` fallback when the custom property itself fails to resolve, which doesn't happen here).
+2. **Fixed - 35 hardcoded `rgba(...)` literals inside the `<style>` block** (badge backgrounds, `.nav-item.active`, focus rings, hover shadows, modal overlay, toast shadow, portal-badge/brass-pin/brass-dot map-marker CSS, etc.) that baked in the old tokens' RGB channels as decimal triplets instead of tracking the CSS custom property - the same real bug class this repo's 2026-09-26 accessibility audit already found once (docs/decisions.md, item 40): `rgba(169,129,46,...)` (old `--brass`), `rgba(36,31,26,...)` (old `--ink`), `rgba(122,139,111,...)` (a pre-audit `--sage` value, `#7a8b6f` - even the *audited* `--sage` background tint was never fixed, only the text-color variable was), and `rgba(140,131,120,...)` (a pre-audit `--taupe` value, `#8c8378`). All 35 converted 1:1 to the new tokens' RGB triplets at their original alpha (e.g. `rgba(169,129,46,0.16)` → `rgba(176,138,46,0.16)`). Without this fix, every badge (`.badge-hot`/`.badge-warm`/`.badge-below`/`.badge-drop`/`.badge-relisted`/`.badge-portal`/`.badge-above`), the active sidebar nav item, focus rings, and several hover/shadow treatments would have kept rendering in the *old* palette's colors while the text sitting on top of them (driven by the actual `var(--brass-deep)`/`var(--sage)`/etc.) switched to the new one - a visible, ugly mismatch, confirmed by an actual screenshot diff before this fix was applied (see Verification below).
+3. **Found, deliberately NOT fixed - flagging for a follow-up ticket:** a further ~20 hardcoded hex/rgba literals in the inline `<script>` (Leaflet map-marker colors: `#a9812e`/`#8a6a24` at lines ~5378-12857; Chart.js price-history/market-data chart colors: `PRICE_HISTORY_DROP_COLOR = '#7a8b6f'`, `PRICE_HISTORY_STABLE_COLOR = '#8a6a24'`, `PRICE_HISTORY_RELIST_COLOR = '#4a433c'`, `PRICE_HISTORY_BAND_COLOR = 'rgba(36, 31, 26, 0.055)'`, plus several Chart.js `backgroundColor`/`borderColor` literals for the Market Data bar/line charts) still reference the OLD pre-navy-gold (and in some cases pre-2026-09-26-audit) hex values, not the new tokens. This is the exact "map-marker and Chart.js JS code" issue the exploration's own README pre-flagged as a known, pre-existing, deliberately-out-of-scope inconsistency worth a separate maintenance ticket - confirmed here to cause a real, visible mismatch: a side-by-side screenshot of the listing detail page's price-history chart legend shows the real shipped page's "Price drop" swatch as a muted old-olive-sage and "Relisted" swatch as an old near-black, while the approved mockup (which patched these same JS constants only for its own screenshot generation, per that README) shows them in the new dark-teal-sage and navy. Left alone here to keep this diff to the CSS token system as scoped by the task; flagging for Bossy/Missy to decide whether it's a merge-blocker or a fast-follow, since it's real but non-breaking (map pins and charts still render and function, just slightly off-palette).
+
+**Contrast re-verified for real, against the actual current `index.html` after every edit above** (not re-derived from the exploration's numbers, though they matched exactly once the CSS `rgba()` fix above was applied - real relative-luminance math, `(L_light + 0.05) / (L_dark + 0.05)`, same combination list as the 2026-09-26 audit, backlog item 40):
+
+| Check | Ratio |
+|---|---|
+| `--ink` on `--ivory` | 13.79 |
+| `--ink-soft` on `--ivory`/`--ivory-deep` | 7.93 / 7.11 |
+| `--taupe` on `--ivory`/`--ivory-deep` | 5.30 / 4.75 |
+| `--sage` on `--ivory`/`--ivory-deep` | 6.42 / 5.76 |
+| `--sage` on its own real badge tint (0.12/0.14 rgba, post-fix) | 5.41 / 5.25 |
+| `--brass-deep` on `--ivory`/`--ivory-deep` | 5.45 / 4.89 |
+| `--brass-deep` on its own real badge tint (0.16 rgba, post-fix) | 4.72 |
+| `--ink` on `--brass` (primary CTA button text) | 4.84 |
+| `--ivory` on `--brass-deep` (hover text) | 5.45 |
+| `--ivory` on `--ink` (sidebar nav text) | 13.79 |
+
+All 10 clear the 4.5:1 AA floor with margin - lowest is 4.72:1 (`--brass-deep` on its own badge tint), matching the exploration's pre-check almost exactly (its number for this combination, computed before the real CSS `rgba()` fix above existed, was the same 4.72). Verified the real badge-tint RGB triplets now in the shipped CSS (`(69,92,79)` sage, `(176,138,46)` brass) are byte-identical to `--sage`/`--brass`'s own hex, so this table reflects the actual rendered page, not a theoretical blend.
+
+**Verified visually**, not just via token math: a Playwright harness (same vendored-CDN-stub pattern as this repo's other frontend verification work, `page.route()` stubbing Chart.js/Leaflet/supabase-js since this sandbox's egress proxy blocks the real CDNs) served the real, edited `index.html` from the isolated worktree, injected the same realistic multi-listing fixture data the exploration used, and screenshotted Home, the Leads results grid, and a listing detail page at 1440px. Compared side-by-side against the exploration's own `1-navy-gold-{home,leads,detail}.png` mockups: Home and Leads are pixel-identical; the listing detail page matches except for the pre-existing, deliberately-unfixed JS chart-color gap noted above.
+
+`node --check` on the extracted inline `<script>` - clean. `python3 -m pytest -q` - 308 passed, 4 subtests passed, no regressions (pure CSS change, as expected - confirms this didn't touch any Python).
+
+Documented in `docs/decisions.md`. Built in an isolated worktree off a fresh `origin/main` fetch (`git worktree list` checked first - several other agents' worktrees active, none touched). No live GitHub Actions `workflow_dispatch` used. Not self-merged - pushed as `design/navy-gold-palette-2026-09-27`, PR opened for Missy's review, per this repo's standing rule.
