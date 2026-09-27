@@ -266,7 +266,17 @@ keeping as a nice small feature.
   a guaranteed one. Photo carousel + download: **fully replicable**.
 - **Due Diligence panel** - the densest single panel, several fields
   UK-only:
-  - Bed/bath/garage icons, floor area: **replicable**.
+  - Bed/bath/garage icons, floor area: **replicable, and partly already
+    shipped**. `docs/property-specifications-fields.md` is the
+    BG-data-grounded spec for imotenradar's own "Specifications" section -
+    corrected 2026-09-27 (Missy's review) after its first version missed
+    that a real Specifications/Agency panel already existed and already
+    ships live for 3 of 8 portals (alo.bg, bazar.bg, imoti.bg partially),
+    now relocated next to the map per direct user request; that doc has
+    the real column names, the per-portal coverage gaps, and what's a
+    genuine fast-follow (imoti.bg's missing schema.org vocabulary,
+    homes.bg's missing detail-page-fetch capability, imot.bg/imoti.net/
+    olx.bg/sales.bcpea.org still unverified).
   - **CT Band (Council Tax Band): UK-only, weak/no BG substitute.**
     UK council tax bands (A-H) are a property-value-banding system for
     local taxation. Bulgaria's closest analog is the local "данък
