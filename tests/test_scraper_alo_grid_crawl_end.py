@@ -1,6 +1,6 @@
 """
 Regression tests for scraper_alo.py's fetch_listings() grid-crawl stop
-condition (2026-09-27, investigating backlog item 60's alo.bg-vs-Sofia
+condition (2026-09-27, investigating backlog item 61's alo.bg-vs-Sofia
 finding).
 
 Real production job logs (workflow run 35973606926, 2026-09-24, and

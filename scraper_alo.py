@@ -42,7 +42,7 @@ real last page - alo.bg's own per-page listing count is also higher
 nationwide (60/page vs 30/page Sofia-only), so the real total is closer to
 ~156,000. MAX_PAGES raised well past that with real margin.
 
-CORRECTION (2026-09-27, investigating backlog item 60's alo.bg-vs-Sofia
+CORRECTION (2026-09-27, investigating backlog item 61's alo.bg-vs-Sofia
 finding): the "~156,000" estimate two paragraphs above is wrong, and wrong
 in a way worth flagging clearly rather than quietly fixing, because it
 was the reason a real coverage gap was suspected here in the first place.
@@ -65,7 +65,7 @@ a genuine 404 wall (page 2707-2711, never anywhere near MAX_PAGES=2800)
 and landed within ~100 listings of each other (77,843 and 77,935) - i.e.
 this scraper is capturing close to the FULL real current nationwide
 inventory under this search query, not roughly half of it. This means
-the Sofia/Plovdiv/Burgas imbalance backlog item 60 found in alo.bg's own
+the Sofia/Plovdiv/Burgas imbalance backlog item 61 found in alo.bg's own
 raw `city` field (Бургас 18,128 / Пловдив 17,632 / София 9,906) is not
 explained by an uneven partial crawl - the crawl is close to complete -
 so it reflects either a genuine fact about alo.bg's own current listing
