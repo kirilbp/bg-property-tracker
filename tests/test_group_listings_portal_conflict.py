@@ -1,6 +1,6 @@
 """
-Regression tests for backlog item 60 (Placy's allocation investigation,
-PR #312 handoff): group_listings() was merging genuinely different real
+Regression tests for backlog item 64 (handoff from item 61, Placy's
+allocation investigation, PR #312): group_listings() was merging genuinely different real
 properties (different units in the same mass development) into one
 merged_listings row, because its matching key - city + exact area +
 price (+/-0.5%) + sqm (+/-1) - has no unit/floor/address discriminator, so

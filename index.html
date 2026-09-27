@@ -43,31 +43,28 @@
        grid/cards, the search/filter panel, home page, help page, and the
        shared modal styles below - every remaining surface that still had
        the old blue-SaaS palette. */
-    --ink: #241f1a;
-    --ink-soft: #4a433c;
-    /* --taupe, --brass-deep and --sage below are darkened from this file's
-       earlier values (#8c8378, #8a6a24, #7a8b6f) per the 2026-09-26
-       accessibility audit (docs/decisions.md, backlog item - see
-       docs/backlog.md). Measured with a real WCAG relative-luminance
-       contrast calculation, not eyeballed: at the old values, --taupe used
-       as small/normal text on --ivory/--ivory-deep (subtitle, card-sub,
-       market-stat label, filters label, count, listing-persqm, etc.) only
-       reached 3.40:1 / 3.08:1 - both fail the 4.5:1 AA text minimum. --sage
-       used the same way (badge text, pl-status-line, btl-pass-line.pass)
-       reached 3.33:1 / 3.02:1 direct, and as low as 2.89:1 against its own
-       tinted badge background - also failing. --brass-deep passed on
-       --ivory (4.59:1) but failed on --ivory-deep (4.17:1) and on its own
-       tinted badge backgrounds (as low as 3.57:1). Each is darkened here by
-       a uniform per-channel scale (same hue, no new color introduced) just
-       far enough that every real on-page usage clears 4.5:1 with a safety
-       margin - see docs/decisions.md for the full before/after ratio table. */
-    --taupe: #685f55;
-    --taupe-light: #ded6c8;
-    --ivory: #f7f4ee;
-    --ivory-deep: #efe9dc;
-    --brass: #a9812e;
-    --brass-deep: #755a1e;
-    --sage: #4f5a48;
+    /* Navy/gold palette (2026-09-27, docs/decisions.md) - replaces the
+       previous brown-ink/brass-on-ivory palette below at the user's
+       explicit request after reviewing 5 palette concepts
+       (design-concepts/color-palettes-2026-09-27/README.md). Same structure
+       as before (dark ink, light ivory, one brass/gold accent, sage status
+       color, taupe neutral) - only the hex values change. Contrast
+       re-verified against this exact file's real usage after the swap; see
+       docs/decisions.md for the full ratio table (lowest is 4.72:1,
+       --brass-deep on its own badge tint, still clearing the 4.5:1 AA
+       floor). The --taupe/--brass-deep/--sage darkening story from the
+       2026-09-26 accessibility audit (backlog item 40) still applies in
+       spirit - these new values were chosen to clear the same real on-page
+       combinations that audit checked, not picked by hue alone. */
+    --ink: #1B2434;
+    --ink-soft: #3E4A5E;
+    --taupe: #5B6472;
+    --taupe-light: #D5D5D0;
+    --ivory: #F4F1E8;
+    --ivory-deep: #EAE5D6;
+    --brass: #B08A2E;
+    --brass-deep: #7A5D1E;
+    --sage: #455C4F;
     /* Not one of the 9 core palette colors above - design-guidelines.md
        section 6 ("Forms and filter panels") explicitly carves out an
        exception for validation/error text specifically: "reserving any
@@ -110,12 +107,12 @@
   .nav-item {
     display: flex; align-items: center; gap: 12px; padding: 11px 20px; margin: 2px 10px;
     border-radius: 4px; cursor: pointer; font-family: var(--font-sans); font-size: 14px;
-    color: rgba(247,244,238,0.65); background: none; border: none; width: calc(100% - 20px);
+    color: rgba(244,241,232,0.65); background: none; border: none; width: calc(100% - 20px);
     text-align: left; transition: color 200ms ease-out, background 200ms ease-out;
   }
   .nav-item .icon { font-size: 15px; width: 18px; text-align: center; opacity: 0.85; }
-  .nav-item:hover { background: rgba(247,244,238,0.06); color: var(--ivory); }
-  .nav-item.active { background: rgba(169,129,46,0.16); color: var(--ivory); font-weight: 600; box-shadow: inset 2px 0 0 var(--brass); }
+  .nav-item:hover { background: rgba(244,241,232,0.06); color: var(--ivory); }
+  .nav-item.active { background: rgba(176,138,46,0.16); color: var(--ivory); font-weight: 600; box-shadow: inset 2px 0 0 var(--brass); }
 
   /* Mobile off-canvas nav (backlog: sidebar doesn't collapse at mobile
      widths, flagged by the PR #233 investigation). Below the 768px
@@ -140,7 +137,7 @@
   .sidebar-toggle-bars { display: flex; flex-direction: column; gap: 3px; }
   .sidebar-toggle-bar { display: block; width: 16px; height: 2px; background: var(--ink); border-radius: 1px; }
   .sidebar-backdrop {
-    display: none; position: fixed; inset: 0; background: rgba(36,31,26,0.45); z-index: 199;
+    display: none; position: fixed; inset: 0; background: rgba(27,36,52,0.45); z-index: 199;
   }
   @media (max-width: 768px) {
     .sidebar-toggle { display: inline-flex; }
@@ -148,7 +145,7 @@
       position: fixed; top: 0; left: 0; height: 100vh; z-index: 200;
       transform: translateX(-100%);
       transition: transform 250ms ease-out;
-      box-shadow: 4px 0 24px rgba(36,31,26,0.25);
+      box-shadow: 4px 0 24px rgba(27,36,52,0.25);
     }
     .sidebar.open { transform: translateX(0); }
     .sidebar-backdrop.open { display: block; }
@@ -188,21 +185,56 @@
     width: 100%; padding: 12px 16px; border: 1px solid var(--taupe-light); border-radius: 4px;
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
-  .search-row input:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(169,129,46,0.12); }
-  .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  .search-row input:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(176,138,46,0.12); }
+  /* Fixed column counts (3/2/1), not repeat(auto-fit, minmax(...)) - with
+     the (then 10, now 9 after folding "Only with photos" into Sort By
+     below) filter cells this panel holds, auto-fit's actual column count
+     depended on the exact container width available at any given moment,
+     which produced an unpredictable, unevenly-filled trailing row (e.g.
+     7 cells on row one, 3 orphaned cells on row two, out of the pre-fix
+     10) that read as jagged/misaligned rather than the "strict, repeated
+     visual hierarchy" design-guidelines.md section 5 calls for. A fixed
+     3-column grid divides the current 9 cells evenly at desktop widths;
+     the two breakpoints below match this file's existing .grid/
+     .type-filter-grid convention (1400/900/560 wouldn't apply here since
+     this panel never needs the 1400px step - 900/560 alone cover its
+     narrower max-width). */
+  .filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 20px; }
+  @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .filters { grid-template-columns: 1fr; } }
   .filters label {
     font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase;
     color: var(--taupe); display: block; margin-bottom: 6px;
   }
   .filters input, .filters select {
-    width: 100%; padding: 9px 11px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    width: 100%; height: 40px; padding: 9px 11px; border: 1px solid var(--taupe-light); border-radius: 4px;
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
+  /* Shared by the Status checkbox cell (formerly also the Photos checkbox
+     cell, folded into Sort By - see #sortBy's "Only listings with photos"
+     option) - a named class instead of a repeated inline style, and its
+     height matches .filters input/select's own 40px exactly so a checkbox
+     cell's control never sits at a different height than a text-input
+     cell's in the same row. */
+  .filter-checkbox-row { display: flex; align-items: center; gap: 6px; height: 40px; cursor: pointer; }
   /* --- Saved filter presets (discovery & engagement batch) - a quiet,
      compact row: no solid-fill button here (the filter panel isn't the
      screen's one primary action), just a small-caps label, a row of
-     understated pills, and an outline "save" affordance. -->
+     understated pills, and an outline "save" affordance.
+     Bug found in the 2026-09-27 site-wide audit: this comment used to close
+     with "-->" (an HTML comment terminator) instead of "*/" - CSS doesn't
+     recognize "-->" as anything special, so the parser just kept
+     consuming everything as still-inside-this-comment until it happened to
+     hit the next real "*/" nearly 50 lines down (the "Export toolbar"
+     comment below .leads-toolbar). Every rule in between - .filter-presets,
+     .filter-presets-row/-label/-list/-empty, .filter-preset-pill/-load/
+     -remove, .filter-presets-save-btn, .filter-presets-form and its
+     children, .filter-presets-confirm-btn, .filter-presets-cancel-btn, and
+     its mobile @media rule - was silently dead this whole time, which is
+     why the "Saved filters" row rendered as plain unstyled stacked text
+     instead of the intended flex row of small-caps label + pills + outline
+     button. */
   .filter-presets { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--taupe-light); }
   .filter-presets-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
   .filter-presets-label {
@@ -267,7 +299,7 @@
      initLeadsFilterToggle()) only adds a shadow to mark it's now floating
      over the grid; the sticky positioning itself needs no JS. */
   .leads-filter-card { position: sticky; top: 0; z-index: 40; transition: box-shadow 160ms ease-out; }
-  .leads-filter-card.is-stuck { box-shadow: 0 6px 18px rgba(36,31,26,0.14); }
+  .leads-filter-card.is-stuck { box-shadow: 0 6px 18px rgba(27,36,52,0.14); }
   .leads-filter-header { display: flex; align-items: flex-start; gap: 12px; }
   .leads-filter-header .search-row { flex: 1; margin-bottom: 0; }
   .leads-filter-toggle {
@@ -279,7 +311,7 @@
   .leads-filter-toggle:hover { border-color: var(--brass); }
   .leads-filter-toggle-count {
     display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px;
-    padding: 0 5px; border-radius: 999px; background: rgba(169,129,46,0.16); color: var(--brass-deep);
+    padding: 0 5px; border-radius: 999px; background: rgba(176,138,46,0.16); color: var(--brass-deep);
     font-size: 11px; font-weight: 700;
   }
   .leads-filter-toggle-chevron { font-size: 10px; color: var(--taupe); transition: transform 160ms ease-out; }
@@ -291,7 +323,7 @@
      leadGenUnmappedNearbyCount()'s own comment) - deliberately styled as a
      visible caveat, not muted like .count, since it's disclosing a real
      blind spot in the result count above it, not routine metadata. */
-  .count-caveat { font-size: 13px; color: var(--brass-deep, #96702f); margin: -8px 0 16px; }
+  .count-caveat { font-size: 13px; color: var(--brass-deep, #7A5D1E); margin: -8px 0 16px; }
   .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
   @media (max-width: 1400px) { .grid { grid-template-columns: repeat(4, 1fr); } }
   @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -352,7 +384,7 @@
   .save-listing-btn {
     position: absolute; top: 8px; right: 8px; z-index: 1;
     width: 30px; height: 30px; border-radius: 999px; border: none;
-    background: rgba(247,244,238,0.92); box-shadow: 0 1px 3px rgba(36,31,26,0.2);
+    background: rgba(244,241,232,0.92); box-shadow: 0 1px 3px rgba(27,36,52,0.2);
     cursor: pointer; font-size: 15px; line-height: 1; color: var(--taupe);
     display: flex; align-items: center; justify-content: center;
   }
@@ -404,7 +436,19 @@
      alone - real information, not something to truncate just for
      symmetry, per docs/design-guidelines.md's "simplify without removing
      features"). */
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 22px; }
+  /* min-height bumped from 22px (one badge row) to 50px (two badge rows +
+     the 6px gap) - site-wide audit, 2026-09-27: a card can carry anywhere
+     from zero badges (portal removed/unavailable) up to portal + price-
+     divergence + motivation + alt-portal chips, which commonly wraps to a
+     second line. With only one row reserved, the title/price block below
+     started at a different vertical position on almost every other card in
+     a grid row, breaking the "strict, repeated visual hierarchy" design-
+     guidelines.md section 5 calls for. Two rows covers the common case
+     (portal + one status pill, or portal + one alt-portal chip) without
+     reserving so much dead space that a zero/one-badge card looks empty -
+     a rare 3+-badge card still pushes its own text down further than its
+     row-mates, but that's now the exception rather than the norm. */
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 50px; align-content: flex-start; }
   /* Status labels, not ribbons (design-guidelines.md section 6/9): small-
      caps muted text pills instead of saturated fills. One accent (brass,
      for the single "look here" Hot-deal signal) plus the one signal color
@@ -415,16 +459,16 @@
     display: inline-block; font-family: var(--font-sans); font-size: 10.5px; font-weight: 600;
     letter-spacing: 0.03em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
   }
-  .badge-hot { background: rgba(169,129,46,0.16); color: var(--brass-deep); }
-  .badge-warm { background: rgba(122,139,111,0.12); color: var(--sage); }
-  .badge-below { background: rgba(122,139,111,0.14); color: var(--sage); }
-  .badge-above { background: rgba(36,31,26,0.07); color: var(--ink-soft); }
-  .badge-drop { background: rgba(122,139,111,0.14); color: var(--sage); }
-  .badge-portal { background: rgba(140,131,120,0.14); color: var(--ink-soft); }
+  .badge-hot { background: rgba(176,138,46,0.16); color: var(--brass-deep); }
+  .badge-warm { background: rgba(69,92,79,0.12); color: var(--sage); }
+  .badge-below { background: rgba(69,92,79,0.14); color: var(--sage); }
+  .badge-above { background: rgba(27,36,52,0.07); color: var(--ink-soft); }
+  .badge-drop { background: rgba(69,92,79,0.14); color: var(--sage); }
+  .badge-portal { background: rgba(91,100,114,0.14); color: var(--ink-soft); }
   .badge-unverified { background: var(--ivory-deep); border: 1px solid var(--taupe); color: var(--ink-soft); padding: 2px 8px; }
   .badge-sold { background: var(--ink); color: var(--ivory); }
   .badge-source-removed { background: none; border: 1px solid var(--taupe-light); color: var(--taupe); padding: 2px 8px; }
-  .badge-relisted { background: rgba(122,139,111,0.14); color: var(--sage); }
+  .badge-relisted { background: rgba(69,92,79,0.14); color: var(--sage); }
   .registry-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-family: var(--font-sans); font-size: 12px; color: var(--taupe); text-decoration: none;
@@ -440,7 +484,7 @@
   .empty-state { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .empty-state-icon {
     width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-    background: rgba(169,129,46,0.10); color: var(--brass-deep);
+    background: rgba(176,138,46,0.10); color: var(--brass-deep);
     display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
   }
   .empty-state-title { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0; }
@@ -650,11 +694,11 @@
   .detail-photo-wrap { position: relative; }
   .detail-photo-nav {
     position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px;
-    border-radius: 50%; border: none; background: rgba(36, 31, 26, 0.55); color: #fff;
+    border-radius: 50%; border: none; background: rgba(27,36,52, 0.55); color: #fff;
     font-size: 18px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: background 200ms ease-out;
   }
-  .detail-photo-nav:hover { background: rgba(36, 31, 26, 0.8); }
+  .detail-photo-nav:hover { background: rgba(27,36,52, 0.8); }
   .detail-photo-nav.prev { left: 10px; }
   .detail-photo-nav.next { right: 10px; }
   .detail-title {
@@ -818,7 +862,7 @@
      width (see docs/decisions.md for the full sweep results). */
   .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: stretch; margin: 0 0 20px; }
   .detail-history-row .radius-panel { margin: 0; }
-  .radius-panel, .price-history-panel { display: flex; flex-direction: column; }
+  .radius-panel, .price-history-panel, .specs-history-panel { display: flex; flex-direction: column; }
   .price-history-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
     padding: 16px 18px;
@@ -836,6 +880,30 @@
   .price-history-legend span { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--taupe); display: inline-flex; align-items: center; gap: 6px; }
   .price-history-legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
   .price-history-empty { font-family: var(--font-sans); font-size: 14px; color: var(--taupe); margin: 8px 0 0; }
+  /* Third .detail-history-row panel (2026-09-27) - same box treatment as
+     .price-history-panel (identical background/border/radius/padding, same
+     flex column so align-items:stretch/syncHistoryPanelHeights() can equalize
+     all three), reusing renderSpecsPanel()/renderAgencyPanel()'s own markup
+     unchanged inside it. Their own .specs-panel/.agency-panel rule (further
+     below) adds a 28px top margin + hairline divider meant to separate them
+     from OTHER content stacked above them inside the "Details" tab - not
+     needed as this panel's own first/only children, so both are reset to
+     flush here; .agency-panel keeps its divider when it follows a populated
+     .specs-panel (set via the adjacent-sibling rule below), just not a
+     leading gap when either one is this panel's first child. */
+  .specs-history-panel {
+    background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .specs-history-panel > .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 10px; }
+  .specs-history-panel .specs-panel, .specs-history-panel .agency-panel { margin-top: 0; padding-top: 0; border-top: none; }
+  .specs-history-panel .specs-panel + .agency-panel { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--taupe-light); }
+  /* Most listings have nothing here yet (real extraction only ships for
+     alo.bg/bazar.bg/imoti.bg today - see renderSpecsPanel()'s own comment)
+     - flex:1/min-height matches .radius-map-empty's own "quiet empty box"
+     sizing convention so a listing with no specs doesn't collapse this
+     panel to a sliver next to two full-height ones. */
+  .specs-history-empty { flex: 1 1 200px; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 16px; }
   .relisting-events { border-top: 1px solid var(--taupe-light); padding-top: 8px; margin-top: 20px; }
   .relisting-events .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); }
   .relisting-event { font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
@@ -889,7 +957,7 @@
      full highlighted treatment instead of the two states fighting over
      background/opacity and the selection becoming invisible. */
   .portal-badge.is-removed { border-style: dashed; opacity: 0.7; }
-  .portal-badge.active { background: rgba(169, 129, 46, 0.12); border-color: var(--brass); opacity: 1; }
+  .portal-badge.active { background: rgba(176,138,46, 0.12); border-color: var(--brass); opacity: 1; }
   .portal-badge.active.is-removed { border-style: dashed; opacity: 1; }
   .portal-badge-name {
     font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-soft);
@@ -949,7 +1017,7 @@
   .detail-pager-btn:disabled { color: var(--taupe-light); cursor: default; }
   .detail-pager-pos { font-size: 12px; color: var(--taupe); }
 
-  .badge-alt-portal { background: rgba(140,131,120,0.14); color: var(--ink-soft); }
+  .badge-alt-portal { background: rgba(91,100,114,0.14); color: var(--ink-soft); }
   .radius-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
     padding: 16px 18px; margin: 0 0 20px;
@@ -1033,7 +1101,7 @@
   .brass-pin {
     width: 20px; height: 20px; margin: 2px 0 0 2px; border-radius: 50% 50% 50% 0;
     background: var(--brass-deep); border: 2px solid var(--ivory); transform: rotate(-45deg);
-    box-shadow: 0 1px 4px rgba(36,31,26,0.35);
+    box-shadow: 0 1px 4px rgba(27,36,52,0.35);
   }
   .brass-pin::after {
     content: ''; position: absolute; top: 5px; left: 5px; width: 6px; height: 6px;
@@ -1051,15 +1119,15 @@
   .brass-dot {
     width: 12px; height: 12px; border-radius: 50%;
     background: var(--brass); border: 1px solid var(--brass-deep);
-    box-shadow: 0 1px 3px rgba(36,31,26,0.3);
+    box-shadow: 0 1px 3px rgba(27,36,52,0.3);
   }
   .brass-cluster-icon { background: none; border: none; }
   .brass-cluster-inner {
     width: 100%; height: 100%; border-radius: 50%;
-    background: rgba(169,129,46,0.88); border: 2px solid var(--ivory);
+    background: rgba(176,138,46,0.88); border: 2px solid var(--ivory);
     color: var(--ivory); display: flex; align-items: center; justify-content: center;
     font-family: var(--font-sans); font-weight: 600; font-size: 13px;
-    box-shadow: 0 1px 5px rgba(36,31,26,0.35);
+    box-shadow: 0 1px 5px rgba(27,36,52,0.35);
   }
 
   /* Lead generators gallery */
@@ -1087,8 +1155,8 @@
   }
   .leadgen-badge-row { display: flex; gap: 8px; margin-bottom: 10px; }
   .leadgen-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 3px 9px; border-radius: 999px; }
-  .leadgen-badge-total { background: rgba(122,139,111,0.14); color: var(--sage); }
-  .leadgen-badge-new { background: rgba(169,129,46,0.14); color: var(--brass-deep); }
+  .leadgen-badge-total { background: rgba(69,92,79,0.14); color: var(--sage); }
+  .leadgen-badge-new { background: rgba(176,138,46,0.14); color: var(--brass-deep); }
   .leadgen-card h3 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 8px; color: var(--ink); }
   .leadgen-card .leadgen-summary-line { font-size: 12px; color: var(--taupe); margin: 0 0 3px; }
   .leadgen-card-body { flex: 1; }
@@ -1111,7 +1179,7 @@
   .leadgen-icon-btn.danger:hover { border-color: var(--error); background: var(--ivory-deep); color: var(--error); }
   .leadgen-type-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
   .leadgen-type-badge { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; padding: 2px 9px; border-radius: 999px; background: var(--ivory-deep); color: var(--ink-soft); }
-  .leadgen-saletype-badge { background: rgba(169,129,46,0.12); color: var(--brass-deep); }
+  .leadgen-saletype-badge { background: rgba(176,138,46,0.12); color: var(--brass-deep); }
   .leadgen-add-tile {
     border: 1px dashed var(--taupe); border-radius: 8px; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 8px; cursor: pointer; padding: 16px;
@@ -1177,7 +1245,7 @@
      radius, small-caps field labels, one solid-brass primary action per
      footer with everything else demoted to the outline secondary style. */
   .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(36,31,26,0.55); z-index: 1000;
+    display: none; position: fixed; inset: 0; background: rgba(27,36,52,0.55); z-index: 1000;
     align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
   }
   .modal-overlay.open { display: flex; }
@@ -1268,7 +1336,7 @@
   .compare-table th, .compare-table td { padding: 10px 10px; border-bottom: 1px solid var(--taupe-light); text-align: left; white-space: nowrap; }
   .compare-table th { color: var(--taupe); font-weight: 500; font-size: 11px; letter-spacing: 0.02em; text-transform: uppercase; }
   .compare-table td.compare-title { white-space: normal; max-width: 220px; color: var(--ink); }
-  .compare-table tr.compare-subject-row-highlight td { background: rgba(169,129,46,0.08); font-weight: 600; }
+  .compare-table tr.compare-subject-row-highlight td { background: rgba(176,138,46,0.08); font-weight: 600; }
   .compare-table a { color: var(--brass-deep); text-decoration: none; }
   .compare-table a:hover { text-decoration: underline; }
   .compare-empty { text-align: center; color: var(--taupe); padding: 30px 20px; font-family: var(--font-sans); }
@@ -1358,7 +1426,7 @@
   .pipeline-listing-btn {
     position: absolute; top: 8px; right: 44px; z-index: 1;
     width: 30px; height: 30px; border-radius: 999px; border: none;
-    background: rgba(247,244,238,0.92); box-shadow: 0 1px 3px rgba(36,31,26,0.2);
+    background: rgba(244,241,232,0.92); box-shadow: 0 1px 3px rgba(27,36,52,0.2);
     cursor: pointer; font-size: 15px; line-height: 1; color: var(--taupe);
     display: flex; align-items: center; justify-content: center;
   }
@@ -1404,13 +1472,13 @@
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 4px;
     padding: 10px 14px; margin-bottom: 6px; font-family: var(--font-sans);
   }
-  .reminder-row.due { background: rgba(169,129,46,0.10); border-color: var(--brass); }
+  .reminder-row.due { background: rgba(176,138,46,0.10); border-color: var(--brass); }
   .reminder-row-main { font-size: 13px; color: var(--ink-soft); }
   .reminder-row-listing { font-size: 12px; color: var(--taupe); margin-top: 2px; }
   .reminder-row-listing a { color: var(--brass-deep); text-decoration: none; }
   .reminder-due-badge {
     display: inline-block; font-family: var(--font-sans); font-size: 10px; font-weight: 700;
-    letter-spacing: 0.02em; text-transform: uppercase; color: var(--brass-deep); background: rgba(169,129,46,0.16);
+    letter-spacing: 0.02em; text-transform: uppercase; color: var(--brass-deep); background: rgba(176,138,46,0.16);
     border-radius: 999px; padding: 1px 7px; margin-right: 6px; vertical-align: middle;
   }
   .reminder-dismiss-btn {
@@ -1530,7 +1598,7 @@
     padding: 16px; cursor: pointer; font-family: var(--font-sans); transition: border-color 150ms ease-out;
   }
   .dc-strategy-card:hover:not(:disabled) { border-color: var(--brass); }
-  .dc-strategy-card.active { border-color: var(--brass); background: rgba(169,129,46,0.06); }
+  .dc-strategy-card.active { border-color: var(--brass); background: rgba(176,138,46,0.06); }
   .dc-strategy-card:disabled { cursor: not-allowed; opacity: 0.55; }
   .dc-strategy-name { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0 0 4px; }
   .dc-strategy-full { font-size: 12px; color: var(--taupe); margin: 0 0 8px; line-height: 1.4; }
@@ -1561,7 +1629,7 @@
   .dc-template-card { background: white; border: 1px solid var(--taupe-light); border-radius: 6px; padding: 18px; font-family: var(--font-sans); }
   .dc-template-strategy-tag {
     display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--brass-deep); background: rgba(169,129,46,0.10); border-radius: 3px; padding: 2px 7px; margin-bottom: 8px;
+    color: var(--brass-deep); background: rgba(176,138,46,0.10); border-radius: 3px; padding: 2px 7px; margin-bottom: 8px;
   }
   .dc-template-name { font-family: var(--font-serif); font-weight: 500; font-size: 16px; color: var(--ink); margin: 0 0 10px; }
   .dc-template-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 12px; }
@@ -1706,7 +1774,7 @@
   .compare-listing-btn {
     position: absolute; top: 8px; right: 80px; z-index: 1;
     width: 30px; height: 30px; border-radius: 999px; border: none;
-    background: rgba(247,244,238,0.92); box-shadow: 0 1px 3px rgba(36,31,26,0.2);
+    background: rgba(244,241,232,0.92); box-shadow: 0 1px 3px rgba(27,36,52,0.2);
     cursor: pointer; font-size: 14px; line-height: 1; color: var(--taupe);
     display: flex; align-items: center; justify-content: center;
   }
@@ -1858,7 +1926,7 @@
   .toast {
     background: var(--ink); color: var(--ivory); font-family: var(--font-sans);
     font-size: 13px; font-weight: 500; padding: 12px 18px; border-radius: 6px;
-    box-shadow: 0 4px 20px rgba(36,31,26,0.28); border-left: 3px solid var(--brass);
+    box-shadow: 0 4px 20px rgba(27,36,52,0.28); border-left: 3px solid var(--brass);
     opacity: 0; transform: translateY(8px); transition: opacity 220ms ease-out, transform 220ms ease-out;
     max-width: 320px;
   }
@@ -1893,16 +1961,16 @@
   .lightbox-img { max-width: 90vw; max-height: 86vh; object-fit: contain; border-radius: 4px; user-select: none; }
   .lightbox-close {
     position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%;
-    border: none; background: rgba(247,244,238,0.12); color: var(--ivory); font-size: 22px; line-height: 1;
+    border: none; background: rgba(244,241,232,0.12); color: var(--ivory); font-size: 22px; line-height: 1;
     cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 200ms ease-out;
   }
-  .lightbox-close:hover { background: rgba(247,244,238,0.22); }
+  .lightbox-close:hover { background: rgba(244,241,232,0.22); }
   .lightbox-nav {
     position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%;
-    border: none; background: rgba(247,244,238,0.12); color: var(--ivory); font-size: 24px; line-height: 1;
+    border: none; background: rgba(244,241,232,0.12); color: var(--ivory); font-size: 24px; line-height: 1;
     cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 200ms ease-out;
   }
-  .lightbox-nav:hover { background: rgba(247,244,238,0.22); }
+  .lightbox-nav:hover { background: rgba(244,241,232,0.22); }
   .lightbox-nav.prev { left: 16px; }
   .lightbox-nav.next { right: 16px; }
   .lightbox-count {
@@ -2035,6 +2103,11 @@
           <span>Showing <strong id="oblastFilterBannerName"></strong></span>
           <button id="oblastFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
+        <!-- Sentinel for initLeadsFilterToggle()'s IntersectionObserver -
+             see that function's own comment for why this replaced a plain
+             getBoundingClientRect().top<=0 scroll check. Zero-height, purely
+             a scroll-position marker, not a layout element. -->
+        <div id="leadsFilterStickySentinel" style="height:1px;"></div>
         <div class="card leads-filter-card" id="leadsFilterCard">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:var(--brass-deep); text-decoration:none;">← Back to Lead Generators</a>
           <div class="leads-filter-header">
@@ -2098,16 +2171,9 @@
             </div>
             <div>
               <label>Status</label>
-              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
+              <label class="filter-checkbox-row">
                 <input type="checkbox" id="excludeSold" checked style="width:auto;" />
                 Exclude sold
-              </label>
-            </div>
-            <div>
-              <label>Photos</label>
-              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
-                <input type="checkbox" id="onlyWithPhotos" style="width:auto;" />
-                Only with photos
               </label>
             </div>
             <div>
@@ -2123,6 +2189,14 @@
                 <option value="drops-desc">Most price drops</option>
                 <option value="vsavg-asc">Most below area average</option>
                 <option value="score-desc">Motivation score</option>
+                <!-- Formerly a standalone "Only with photos" checkbox cell -
+                     per explicit user request (asked twice), folded into
+                     Sort By instead of living as a separate filter. Chosen
+                     value is appended last, not inserted earlier in the
+                     list, so the <select>'s implicit default (the first
+                     option, "price-asc") is unchanged for everyone who
+                     never touches this field. -->
+                <option value="photos-first">Only listings with photos</option>
               </select>
             </div>
           </div>
@@ -5488,7 +5562,14 @@ function renderRadiusPanel(l) {
   } else {
     const r = computeRadiusAverage(l, detailRadiusM);
     if (r.noLocation) {
-      resultHtml = `<p class="radius-hint">Location data isn't available for this listing yet.</p>`;
+      // Left blank on purpose (site-wide audit, 2026-09-27): r.noLocation is
+      // only ever true under the exact same l.lat==null||l.lng==null
+      // condition mapHtml below already renders its own "Location data
+      // isn't available for this listing yet." message for (see mapHtml's
+      // own comment) - showing the identical sentence twice, stacked in the
+      // same panel, read as a redundant/sloppy duplication rather than one
+      // clear message. One listing, one "no location" message.
+      resultHtml = '';
     } else if (r.count === 0) {
       resultHtml = `<p class="radius-hint">No other ${l.category || 'apartment'} listings with a known location found within ${detailRadiusM}m.</p>`;
     } else {
@@ -7213,8 +7294,12 @@ function applyFilterPreset(preset) {
   document.getElementById('minDaysOnMarket').value = preset.minDays || '';
   document.getElementById('minTimesReduced').value = preset.minReduced || '';
   document.getElementById('excludeSold').checked = preset.excludeSold !== false;
-  document.getElementById('onlyWithPhotos').checked = !!preset.onlyWithPhotos;
-  document.getElementById('sortBy').value = preset.sortBy || 'price-asc';
+  // preset.onlyWithPhotos is a legacy field from before "Only with photos"
+  // was folded into Sort By - a preset saved back then takes priority here
+  // so it still restores its filtering behavior, even though that means an
+  // old preset that combined onlyWithPhotos with some other explicit sort
+  // no longer restores that other sort (the two are now one field, not two).
+  document.getElementById('sortBy').value = preset.onlyWithPhotos ? 'photos-first' : (preset.sortBy || 'price-asc');
   document.getElementById('searchQuery').value = preset.searchQuery || '';
 
   const typeDef = TYPE_FILTER_BUCKETS.find(b => b.key === activeTypeFilter);
@@ -8992,6 +9077,12 @@ function sortComparator(sortBy) {
       const dropDiff = (b.price_drop_count ?? 0) - (a.price_drop_count ?? 0);
       return dropDiff !== 0 ? dropDiff : (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
     }
+    // "Only listings with photos" - the filtering half of this sort mode
+    // happens in matchesAllFilters() (onlyWithPhotos, now derived from this
+    // same sortBy value - see readFilterState()); this is just its ordering
+    // half. Motivation score is the most useful default ordering once
+    // photo-less listings are already excluded.
+    if (sortBy === 'photos-first') return (b.score ?? 0) - (a.score ?? 0);
     return 0;
   };
 }
@@ -9011,8 +9102,13 @@ function readFilterState() {
     minDays: parseFloat(document.getElementById('minDaysOnMarket').value) || 0,
     minReduced: parseFloat(document.getElementById('minTimesReduced').value) || 0,
     excludeSold: document.getElementById('excludeSold').checked,
-    onlyWithPhotos: document.getElementById('onlyWithPhotos').checked,
+    // No longer its own checkbox - "Only with photos" is now the
+    // 'photos-first' Sort By option (see that <select>'s own comment), so
+    // this is derived rather than read from a separate control. Left as
+    // its own key (not inlined at every call site) since matchesAllFilters()
+    // and saveCurrentFilterPreset() below both still key off it directly.
     sortBy: document.getElementById('sortBy').value,
+    onlyWithPhotos: document.getElementById('sortBy').value === 'photos-first',
     searchQuery: (document.getElementById('searchQuery').value || '').trim().toLowerCase(),
     activeLeadGenerator,
     type: activeTypeFilter,
@@ -9978,21 +10074,15 @@ function renderKeywordsPanel(merged, l) {
 // docs/property-filter-spec.md section 5's "Due Diligence"/"Agent"
 // panels). Property type/size/construction type/built year/completion
 // status/floor number+qualifier/feature checkboxes, and agency
-// name/website/phone are a real, named backend gap - checked the full
-// field union across every data/leads_*.json file and confirmed none of
-// these are scraped anywhere today (same gap already flagged for the
-// Agent panel elsewhere on this page - see PROPERTY_TYPE_LABELS'
-// neighboring code and docs/backlog.md item 9). A parallel backend fix
-// is adding real extraction for these; this only lays out where/how
-// they'd render once that lands, using the real snake_case field names
-// the backend actually ships (property_type_raw, construction_type,
-// built_year, completion_status, floor_number, floor_qualifier,
-// features[], agency_name, agency_website - agency_phone is
-// deliberately never populated, see extract_contact_alo()'s own
-// comment on masked/JS-reveal phone numbers). Every field is read
-// defensively (undefined until a portal's extraction fills it in) so
-// both panels return '' and render nothing - no empty box, no broken
-// layout - until real data exists for a given listing.
+// name/website/phone, using the real snake_case field names the backend
+// actually ships (property_type_raw, construction_type, built_year,
+// completion_status, floor_number, floor_qualifier, features[],
+// agency_name, agency_website - agency_phone is deliberately never
+// populated, see extract_contact_alo()'s own comment on masked/JS-reveal
+// phone numbers). Every field is read defensively (undefined until a
+// portal's extraction fills it in) so both panels return '' and render
+// nothing - no empty box, no broken layout - until real data exists for
+// a given listing.
 //
 // Correction (2026-09-24): this row originally read `l.property_type`,
 // a name assumed before the backend schema shipped. The real column is
@@ -10001,6 +10091,27 @@ function renderKeywordsPanel(merged, l) {
 // Property Type row silently never rendered for any portal, including
 // already-shipped alo.bg data, since this panel first merged. Caught
 // while extending detail-page extraction to olx.bg and fixed here.
+//
+// Correction (2026-09-27, per Missy's PR #309 review): this comment used
+// to claim the backend fields above were "a real, named backend gap...
+// none of these are scraped anywhere today" and that this panel was pure
+// scaffolding "laying out where they'd render once that lands." That was
+// true when this panel first merged (410ef312) but went stale the moment
+// geo_utils.extract_specs_alo()/extract_specs_bazar()/
+// extract_specs_imoti_bg() shipped real extraction for alo.bg, bazar.bg,
+// and (property_type_raw/features/has_elevator/furnished/
+// has_central_heating only - construction_type/built_year/
+// completion_status/floor_number/floor_qualifier have no schema.org
+// vocabulary imoti.bg's ld+json can express, see that function's own
+// comment) imoti.bg - nobody circled back to update this note once the
+// backend caught up, and a since-abandoned docs-only PR (#309) re-did the
+// "genuinely new scope" research from scratch without noticing this panel
+// or that extraction already existed. Both panels were also, until now,
+// buried inside the click-gated "Details" tab rather than visible next to
+// the map - moved into `.detail-history-row` as a third panel (see
+// renderSpecsHistoryPanel() below) per direct, twice-repeated user
+// feedback that specs were reading as "missing" on listings the click-
+// gated tab never got opened for.
 function renderSpecsPanel(l) {
   const rows = [
     ['Property type', l.property_type_raw],
@@ -10035,6 +10146,40 @@ function renderAgencyPanel(l) {
         ${l.agency_phone ? `<a class="source-link" href="tel:${escapeHtml(String(l.agency_phone).replace(/\s+/g, ''))}">📞 ${escapeHtml(l.agency_phone)}</a>` : ''}
         ${l.agency_website ? `<a class="source-link" href="${escapeHtml(l.agency_website)}" target="_blank" rel="noreferrer">🌐 Agency website →</a>` : ''}
       </div>
+    </div>
+  `;
+}
+// Third .detail-history-row panel (2026-09-27, per Missy's PR #309 review
+// and direct, twice-repeated user feedback: "Specifications on every
+// listing still missing. They need to be built in a section, same size
+// and next to the map section."). Reuses renderSpecsPanel()/
+// renderAgencyPanel() completely unchanged - this wrapper adds no new
+// field logic of its own, only the panel chrome (heading + same-size box)
+// that lets their existing output sit as a third grid child alongside
+// renderRadiusPanel(l) and .price-history-panel instead of staying buried
+// inside the click-gated "Details" tab (where both calls used to live -
+// removed from there below so the same content isn't shown twice).
+//
+// Most listings still have nothing here - real extraction only ships for
+// alo.bg, bazar.bg, and (a subset of fields) imoti.bg today, see the
+// correction above renderSpecsPanel() - so this needs its own graceful
+// empty state rather than rendering an empty, oddly-short box next to two
+// full ones. Reuses the shared emptyStateHtml() treatment (icon + title +
+// message) already established for exactly this "this whole panel has
+// nothing to show" shape elsewhere on this page (e.g. the Area Data tab's
+// "Area data not available" state), rather than a new one-off message
+// style.
+function renderSpecsHistoryPanel(l) {
+  const specsHtml = renderSpecsPanel(l);
+  const agencyHtml = renderAgencyPanel(l);
+  const body = (specsHtml || agencyHtml)
+    ? `${specsHtml}${agencyHtml}`
+    : `<div class="specs-history-empty">${emptyStateHtml('No specifications yet',
+        `${escapeHtml(l.portal || 'This source')} doesn't publish property type, construction, floor, or agency details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`)}</div>`;
+  return `
+    <div class="specs-history-panel">
+      <p class="label">Specifications</p>
+      ${body}
     </div>
   `;
 }
@@ -11411,7 +11556,15 @@ function renderListingDetail(merged) {
              it's now pinned here, always visible, side by side with the
              (shrunk) radius/comparables map instead of each being a
              separate full-width stacked block. The other tabs below stay
-             click-gated; only the graph itself needed to come out. -->
+             click-gated.
+             2026-09-27 (per Missy's PR #309 review): the Specifications/
+             Agency panel joined this row as a third always-visible child
+             for the exact same reason - it used to only render inside the
+             click-gated "Details" tab (renderSpecsPanel()/
+             renderAgencyPanel()'s own comment has the history), which read
+             as "specifications are missing" for anyone who never opened
+             that tab even on the 3 portals real data already ships for.
+             See renderSpecsHistoryPanel(). -->
         <div class="detail-history-row">
           ${renderRadiusPanel(l)}
           <div class="price-history-panel">
@@ -11433,6 +11586,7 @@ function renderListingDetail(merged) {
               : ''}
             ${relistEventsHtml}
           </div>
+          ${renderSpecsHistoryPanel(l)}
         </div>
         <div class="detail-tabs">
           <button class="detail-tab-btn${detailActiveTab === 'details' ? ' active' : ''}" data-tab="details">Details</button>
@@ -11451,8 +11605,6 @@ function renderListingDetail(merged) {
             <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
           </div>
           ${renderKeywordsPanel(merged, l)}
-          ${renderSpecsPanel(l)}
-          ${renderAgencyPanel(l)}
         </div>
         <div class="detail-tab-content${detailActiveTab === 'comparables' ? ' active' : ''}" data-tab-content="comparables">
           ${renderComparablesTabHtml(l)}
@@ -11675,17 +11827,31 @@ function renderListingDetail(merged) {
 // tiny one-frame drift. Also re-run on resize (debounced) below, since a
 // window resize is the other way either panel's natural height, or the
 // row's paired/stacked shape, can change without a full re-render.
+//
+// Correction (2026-09-27, per Missy's PR #309 review): this used to
+// hardcode exactly the two original panel selectors (.radius-panel,
+// .price-history-panel). Adding the Specifications/Agency panel
+// (.specs-history-panel, see renderSpecsHistoryPanel()) as a third
+// .detail-history-row child without updating this list would have quietly
+// reintroduced the exact height-desync bug this function was built to fix
+// - the two originals would still equalize with each other, but the new
+// third panel would sit at its own unmanaged natural height, mismatched
+// whenever it lands in the same row as the other two. Genuinely
+// generalized to every direct child of .detail-history-row (queried
+// fresh via row.children each call, not a named-selector list) - each of
+// renderRadiusPanel()/the inline price-history block/renderSpecsHistoryPanel()
+// emits exactly one wrapping <div> as .detail-history-row's direct child
+// (verified, not assumed), so this correctly equalizes however many
+// panels are actually present without needing a class name added here
+// the next time a panel is added or removed.
 function syncHistoryPanelHeights() {
   const row = document.querySelector('#listingDetailBody .detail-history-row');
   if (!row) return;
-  const radiusPanel = row.querySelector('.radius-panel');
-  const pricePanel = row.querySelector('.price-history-panel');
-  if (!radiusPanel || !pricePanel) return;
-  radiusPanel.style.minHeight = '';
-  pricePanel.style.minHeight = '';
-  const target = Math.max(radiusPanel.getBoundingClientRect().height, pricePanel.getBoundingClientRect().height);
-  radiusPanel.style.minHeight = target + 'px';
-  pricePanel.style.minHeight = target + 'px';
+  const panels = Array.from(row.children);
+  if (panels.length < 2) return;
+  panels.forEach(p => { p.style.minHeight = ''; });
+  const target = Math.max(...panels.map(p => p.getBoundingClientRect().height));
+  panels.forEach(p => { p.style.minHeight = target + 'px'; });
 }
 
 let _historyPanelResizeTimer = null;
@@ -12124,7 +12290,6 @@ document.getElementById('roomsFilter').addEventListener('change', renderFromStar
 document.getElementById('minDaysOnMarket').addEventListener('input', renderFromStart);
 document.getElementById('minTimesReduced').addEventListener('input', renderFromStart);
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
-document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('exportCsvBtn').addEventListener('click', exportFilteredListingsCsv);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
@@ -12148,7 +12313,7 @@ function updateLeadsFilterBadge() {
   if (document.getElementById('minDaysOnMarket').value) n++;
   if (document.getElementById('minTimesReduced').value) n++;
   if (!document.getElementById('excludeSold').checked) n++;
-  if (document.getElementById('onlyWithPhotos').checked) n++;
+  if (document.getElementById('sortBy').value === 'photos-first') n++;
   badge.textContent = String(n);
   badge.style.display = n > 0 ? 'inline-flex' : 'none';
 }
@@ -12179,25 +12344,50 @@ function initLeadsFilterToggle() {
   // - the "condensed version" the backlog item calls for - and auto-
   // expands back (clearing any manual override) the moment it scrolls back
   // to its normal resting position, so the un-scrolled page never looks
-  // different from before. Passive scroll listener, throttled via
-  // requestAnimationFrame; the collapse/expand logic itself only runs on
-  // an actual stuck/unstuck transition, not on every scroll tick.
+  // different from before.
+  //
+  // Site-wide audit fix (2026-09-27): this used to detect "stuck" with
+  // `card.getBoundingClientRect().top <= 0` on every scroll event, anywhere
+  // in the app - not gated to the Leads section being visible/active. Two
+  // real bugs followed from that: (1) a hidden `.page:not(.active)` element
+  // collapses to a zero-size box at (0,0), so simply scrolling the Home
+  // page (e.g. Playwright auto-scrolling "Browse listings →" into view
+  // before clicking it, but any real scroll works too) made the *hidden*
+  // leads card read as "stuck" and collapse itself before the user ever
+  // switched sections - it then opened already collapsed. (2) on narrow/
+  // mobile viewports the card can legitimately sit at/near the very top of
+  // its own normal resting position (little content above it), so
+  // `top <= 0` was spuriously true on load with no scrolling at all -
+  // filters stayed permanently collapsed on mobile.
+  // Fixed with a proper IntersectionObserver against a 1px sentinel placed
+  // immediately before the card (#leadsFilterStickySentinel) instead of a
+  // position-based heuristic: "stuck" now strictly means "the sentinel that
+  // used to sit right above this card has scrolled out of view," which is
+  // only ever true from real scrolling of the actual visible section, never
+  // from a hidden element's collapsed geometry or a short natural layout.
   let wasStuck = false;
-  let stuckTicking = false;
-  const updateStuck = () => {
-    stuckTicking = false;
-    const stuck = card.getBoundingClientRect().top <= 0;
+  const sentinel = document.getElementById('leadsFilterStickySentinel');
+  const applyStuck = (stuck) => {
+    // Ignore intersection changes while the Leads page isn't the visible
+    // page - a hidden `.page:not(.active)` sentinel has no box and reports
+    // isIntersecting:false the instant the observer attaches (at script
+    // init, while Home is still showing), which would otherwise collapse
+    // the panel before the user ever opens Leads (the same class of bug
+    // this whole rewrite was fixing, via a different code path).
+    const leadsSection = document.getElementById('section-leads');
+    if (!leadsSection || !leadsSection.classList.contains('active')) return;
     card.classList.toggle('is-stuck', stuck);
     if (stuck === wasStuck) return;
     wasStuck = stuck;
     if (stuck) setCollapsed(userOverride !== null ? userOverride : true);
     else { userOverride = null; setCollapsed(false); }
   };
-  window.addEventListener('scroll', () => {
-    if (stuckTicking) return;
-    stuckTicking = true;
-    requestAnimationFrame(updateStuck);
-  }, { passive: true });
+  if (sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => { applyStuck(!entries[0].isIntersecting); },
+      { threshold: 0 }
+    ).observe(sentinel);
+  }
 }
 initLeadsFilterToggle();
 
