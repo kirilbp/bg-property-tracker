@@ -8726,7 +8726,7 @@ function renderDashboardDigest() {
     <button type="button" class="dash-inbox-row" data-digest-goto="${d.id}">
       <span class="dashboard-digest-tag tag-drop">Price drop</span>
       <span class="dash-inbox-name">${escapeHtml(d.title)}</span>
-      <span class="dashboard-digest-detail">€${fmt(d.from)} → €${fmt(d.to)}</span>
+      <span class="dashboard-digest-detail">${formatMoney(d.from)} → ${formatMoney(d.to)}</span>
     </button>
   `));
   digest.statusChanges.forEach(c => rows.push(`

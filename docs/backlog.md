@@ -6793,9 +6793,11 @@ and YAML parsing on all 16 changed files, plus a clean `python3 -m pytest
 worktree off fresh `origin/main`; PR opened for Missy's review, not
 self-merged.
 
-## 56. Follow-up (non-blocking, flagged by Missy during item 54's re-review): a third raw-EUR spot predating the currency toggle - NOT YET FIXED
+## 56. Follow-up (non-blocking, flagged by Missy during item 54's re-review): a third raw-EUR spot predating the currency toggle - FIXED, PR OPEN FOR MISSY'S REVIEW (2026-09-27, Dessy)
 
 While re-reviewing PR #304 (item 54's fix), Missy grepped the whole file for any remaining `€${fmt(...)}` pattern and found one more genuine, unmigrated spot beyond the two item 54 fixed: the Dashboard "what changed" digest's price-drop detail line (`€${fmt(d.from)} → €${fmt(d.to)}`, backlog item 45's discovery-and-engagement feature). Not part of item 51's or item 54's claimed scope, so not a broken promise - just a small, real, remaining gap. Same fix pattern as items 51/54: switch to `formatMoney()`.
+
+**Fix:** `renderDashboardDigest()`'s price-drop row now reads `${formatMoney(d.from)} → ${formatMoney(d.to)}`, matching every other already-migrated call site's convention (no `unitSuffix` needed here, same as the plain `formatMoney(l.price_eur)` sites). Verified with `node --check` on the extracted inline script, a direct trace of `formatMoney()`/`eurToBgn()` against the real 1.95583 peg confirming correct output in all 3 Preferences > Display > "Price currency" modes (eur/bgn/both), and `python3 -m pytest -q` (278 passed, no regressions - frontend-only change).
 
 ## 57. imoti.net (`scraper.py`) active-ratio collapse: 84.8% → 24.7% in 3 days - ROOT-CAUSED to a real, currently-unexplained ~83% per-page extraction-yield drop; a genuine site-side card-markup change is the leading explanation but could not be confirmed live (egress-blocked) - DIAGNOSTIC LOGGING SHIPPED, SELECTOR FIX NOT ATTEMPTED, HANDED BACK FOR REVIEW (2026-09-26)
 
