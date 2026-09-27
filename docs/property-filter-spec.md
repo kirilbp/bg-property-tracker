@@ -266,7 +266,14 @@ keeping as a nice small feature.
   a guaranteed one. Photo carousel + download: **fully replicable**.
 - **Due Diligence panel** - the densest single panel, several fields
   UK-only:
-  - Bed/bath/garage icons, floor area: **replicable**.
+  - Bed/bath/garage icons, floor area: **replicable**. **Now specced in
+    detail**: which Bulgarian structural-spec fields (floor/total floors,
+    construction type, year built, heating, furnishing, etc.) are
+    realistically available per source portal, plus the display format and
+    missing-data handling for imotenradar's own "Specifications" section,
+    is worked out in `docs/property-specifications-fields.md` - this bullet
+    only established that the category of field is replicable in
+    principle, that doc is the actual BG-data-grounded spec for it.
   - **CT Band (Council Tax Band): UK-only, weak/no BG substitute.**
     UK council tax bands (A-H) are a property-value-banding system for
     local taxation. Bulgaria's closest analog is the local "данък
