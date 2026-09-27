@@ -974,10 +974,86 @@ CITY_AREA_OBLAST_OVERRIDE = {
 }
 
 
+# 2026-09-27 (Placy, Sofia/Plovdiv count + "map not active" investigation):
+# imoti.net's own detail-page HTML apparently embeds at least one other
+# "latitude"/"longitude" JSON pair somewhere on the page besides a listing's
+# own real pin (a site-wide widget or similar - this sandbox's egress proxy
+# still blocks direct access to imoti.net, same block noted throughout this
+# file's history, so the exact page element responsible couldn't be
+# confirmed directly). extract_coords_imoti_net()'s plain regex search picks
+# up whichever "latitude"/"longitude" pair appears first in the raw HTML,
+# which is wrong whenever that isn't the listing's own real coordinate.
+#
+# Live-confirmed against real committed data (not guessed): of imoti.net's
+# active listings that have coordinates at all, 1,686 cluster within ~300m
+# of one of the two fixed points below (both in central Sofia, near
+# Sofia University/NDK) - 1,017 of those 1,686 (60%) have their OWN "city"
+# text field naming a DIFFERENT real city entirely (626 Пловдив, 169
+# Бургас, 110 Варна, 55 Стара Загора, 26 Враца, and 10 more oblasts with a
+# handful each), proving the coordinate isn't real per-listing geocoding
+# for at least that many - every one of those 1,017 was resolving to the
+# wrong "sofia_grad" oblast in production before this fix, since geo
+# coordinates are checked before any text signal below.
+#
+# Rather than guess the real coordinate (unreachable from this sandbox) or
+# blanket-distrust every coordinate anywhere near this point (669 of the
+# 1,686 genuinely ARE tagged "София" and must not regress), this only
+# distrusts the suspect point when an independent, resolvable city/area
+# text signal actively disagrees with "sofia_grad" - the same
+# "corroborate before overriding a geo signal, never guess" discipline
+# CITY_AREA_OBLAST_OVERRIDE and listing_city_key()'s own field-vs-title
+# check already use. Every listing found in either cluster has a non-empty
+# "city" field (0 of 1,686 had none), so this check never has to fall back
+# to guessing when text is missing - the corroborating signal is always
+# available for the listings this actually matters for.
+_IMOTI_NET_SUSPECT_COORD_CLUSTERS = [
+    (42.6961, 23.3254),
+    (42.7010, 23.3210),
+]
+_IMOTI_NET_SUSPECT_COORD_TOLERANCE_DEG = 0.003
+
+
+def _imoti_net_coord_is_suspect(lat, lng):
+    return any(
+        abs(lat - clat) <= _IMOTI_NET_SUSPECT_COORD_TOLERANCE_DEG
+        and abs(lng - clng) <= _IMOTI_NET_SUSPECT_COORD_TOLERANCE_DEG
+        for clat, clng in _IMOTI_NET_SUSPECT_COORD_CLUSTERS
+    )
+
+
+def _text_oblast_key(l):
+    # The same (city, area) text-based oblast lookup listing_oblast_key()
+    # itself falls through to lower down - factored out so the suspect-
+    # coordinate check above can corroborate against it without duplicating
+    # the lookup order.
+    for field in ("city", "area"):
+        value = l.get(field)
+        if value:
+            key = (
+                oblast_key_from_name(value)
+                or oblast_key_from_name_prefix(value)
+                or oblast_key_from_municipality(value)
+            )
+            if key:
+                return key
+    return None
+
+
 def listing_oblast_key(l, city_key):
     geo_key = oblast_key_from_latlng(l.get("lat"), l.get("lng"))
     if geo_key:
-        return geo_key
+        if (
+            geo_key == "sofia_grad"
+            and l.get("portal") == "imoti.net"
+            and l.get("lat") is not None
+            and l.get("lng") is not None
+            and _imoti_net_coord_is_suspect(l["lat"], l["lng"])
+        ):
+            text_key = _text_oblast_key(l)
+            if text_key and text_key != "sofia_grad":
+                geo_key = None  # fall through to the text-based checks below instead
+        if geo_key:
+            return geo_key
     override = CITY_AREA_OBLAST_OVERRIDE.get((l.get("city"), normalize_area(l.get("area"))))
     if override:
         return override

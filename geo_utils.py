@@ -2037,6 +2037,70 @@ BG_CITIES = [
 BG_CITY_BY_NAME = {name: key for key, name in BG_CITIES}
 
 
+# 2026-09-27 (Placy, Sofia/Plovdiv count investigation): Sofia is the only
+# one of these 30 cities with real, distinct villages formally absorbed
+# into its own municipality (Stolichna) that still go by their own
+# settlement name in scraped listing text (e.g. "с.Владая", "Войнеговци,
+# София") rather than "София" itself - every other BG_CITIES entry's own
+# surrounding villages are a genuinely separate town/municipality, not a
+# quarter of the city itself, so this asymmetry is real, not a
+# special-casing shortcut (see this file's own city_key_from_name() comment
+# for the parallel "София област is a different oblast" asymmetry). A
+# listing naming only the village (no "София" anywhere in city/title) was
+# real-world-live-confirmed to resolve to city_key=None while an identical
+# listing of the SAME real property on another portal (whose own city field
+# says "София" directly) resolves to "sofia" - blocking group_listings()'s
+# cross-portal merge (its hard city_key-must-agree gate can't merge "sofia"
+# with None) and showing as an un-mergeable duplicate card, plus silently
+# undercounting Sofia's own city-level listing count.
+#
+# Reuses data/bg_settlements_to_oblast.json - the SAME already-audited,
+# ambiguous-name-excluded gazetteer backlog item 4 built (see
+# sync_to_supabase.py's own BG_SETTLEMENT_TO_OBLAST comment for the full
+# ambiguity-exclusion process) - filtered to just the names that dataset
+# already resolved to oblast "sofia_grad" (Sofia city's own single-
+# municipality oblast), minus "София" itself (handled separately, above).
+# Deliberately NOT a new, separately-maintained list: any settlement name
+# that dataset's own automatic ambiguity check ever excludes (spans more
+# than one oblast) never reaches this set either, so this can't introduce
+# a new guessed/ambiguous mapping of its own - it only ever narrows an
+# already-vetted single-oblast set down to city-key granularity.
+# Purely additive: only ever fills in city_key when it would otherwise be
+# unresolved (None) below - never overrides an existing field/title match,
+# the same "additive only" rule BG_SETTLEMENT_TO_OBLAST itself follows.
+_SOFIA_SATELLITE_SETTLEMENTS_PATH = Path(__file__).parent / "data" / "bg_settlements_to_oblast.json"
+
+
+def _load_sofia_satellite_settlements():
+    if not _SOFIA_SATELLITE_SETTLEMENTS_PATH.exists():
+        return frozenset()
+    data = json.loads(_SOFIA_SATELLITE_SETTLEMENTS_PATH.read_text(encoding="utf-8"))
+    return frozenset(name for name, oblast in data.items() if oblast == "sofia_grad" and name != "София")
+
+
+SOFIA_SATELLITE_SETTLEMENTS = _load_sofia_satellite_settlements()
+
+# Portals prefix a settlement-type label onto the name itself ("с.Владая" -
+# village, "кв. Курило" - quarter) - same normalization principle
+# city_key_from_name() already applies for its own trailing-suffix case,
+# mirrored here for this leading-prefix shape (matches
+# sync_to_supabase.py's own _MUNICIPALITY_PREFIX_RE; duplicated rather than
+# imported since sync_to_supabase.py imports FROM this module, not the
+# other way around - see this module's own top-of-file comment on that
+# one-directional import architecture).
+_SETTLEMENT_PREFIX_RE = re.compile(r"^[\s,]*(?:гр\.?|с\.?|кв\.?|ж\.?к\.?)\s*", re.IGNORECASE)
+
+
+def _sofia_satellite_city_key(*values):
+    for value in values:
+        if not value:
+            continue
+        normalized = _SETTLEMENT_PREFIX_RE.sub("", value.strip()).strip()
+        if normalized in SOFIA_SATELLITE_SETTLEMENTS:
+            return "sofia"
+    return None
+
+
 def city_key_from_name(name):
     if not name:
         return None
@@ -2259,7 +2323,13 @@ def listing_city_key(l):
     if field_key and title_key_strict and field_key != title_key_strict:
         return title_key_strict
     title_key = _title_derived_city_key(title)
-    return field_key or title_key
+    if field_key or title_key:
+        return field_key or title_key
+    # Fill-a-gap-only, same rule as the loose title fallbacks above: only
+    # runs once every other signal has already failed to resolve anything -
+    # see SOFIA_SATELLITE_SETTLEMENTS' own comment for why this is scoped to
+    # Sofia specifically and can't introduce a new ambiguous guess.
+    return _sofia_satellite_city_key(city, l.get("area"))
 
 
 # --- Motivation score (backlog item, reworked after relisting detection was
