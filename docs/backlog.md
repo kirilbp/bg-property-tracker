@@ -7032,7 +7032,7 @@ For a group of size 1 (not cross-posted - confirmed the majority case below), th
 
 Verification was local-data-only, no Supabase writes performed (not needed - `build_rows()`'s output was inspected directly, per the task's own explicit scope). Built in an isolated worktree off a fresh `origin/main` fetch; no live GitHub Actions `workflow_dispatch` used at any point. Not self-merged - pushed as `fix/merged-listing-media-richness`, PR opened for Missy's review, per this repo's standing rule.
 
-## 60. Navy/gold palette shipped for real, replacing the brown-ink/brass-on-ivory palette - user picked it after reviewing 5 exploration concepts ("Do the navy/gold option") - PR OPEN FOR MISSY'S REVIEW (2026-09-27, Dessy)
+## 60. Navy/gold palette shipped for real, replacing the brown-ink/brass-on-ivory palette - user picked it after reviewing 5 exploration concepts ("Do the navy/gold option") - APPROVED BY MISSY (2 minor doc-accuracy fast-follows applied), MERGED (2026-09-27, Dessy)
 
 The 5-palette exploration (`design-concepts/color-palettes-2026-09-27/README.md`, branch `design/color-palettes-2026-09-27`) was pure mockup - nothing there touched the real `index.html` on `main`. This item is that decision actually shipped, in a fresh isolated worktree (`design/navy-gold-palette-2026-09-27`) off a clean `origin/main` fetch.
 
@@ -7080,3 +7080,5 @@ All 10 clear the 4.5:1 AA floor with margin - lowest is 4.72:1 (`--brass-deep` o
 `node --check` on the extracted inline `<script>` - clean. `python3 -m pytest -q` - 308 passed, 4 subtests passed, no regressions (pure CSS change, as expected - confirms this didn't touch any Python).
 
 Documented in `docs/decisions.md`. Built in an isolated worktree off a fresh `origin/main` fetch (`git worktree list` checked first - several other agents' worktrees active, none touched). No live GitHub Actions `workflow_dispatch` used. Not self-merged - pushed as `design/navy-gold-palette-2026-09-27`, PR opened for Missy's review, per this repo's standing rule.
+
+**Correction (Missy's review):** the original "35 hardcoded rgba literals fixed" sweep missed 9 more old-`--ivory` (`#f7f4ee`) rgba literals in the same `<style>` block (`.nav-item`/`.nav-item:hover`, `.save-listing-btn`/`.pipeline-listing-btn`/`.compare-listing-btn` backgrounds, `.lightbox-close`/`.lightbox-nav` and their hover states) - low visual impact (old vs new ivory differ by only 3-6 per channel) but the same bug class, now fixed to the new ivory's RGB triplet at unchanged alpha. Also corrected the `:root` block's own inline comment, which claimed the lowest post-swap contrast ratio was 4.84:1 (`--ink` on `--brass`) when the real lowest, matching this file's own ratio table, is 4.72:1 (`--brass-deep` on its own badge tint) - both clear the 4.5:1 AA floor, this was a doc-accuracy fix only.
