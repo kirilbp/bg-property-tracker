@@ -186,20 +186,55 @@
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .search-row input:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(176,138,46,0.12); }
-  .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+  /* Fixed column counts (3/2/1), not repeat(auto-fit, minmax(...)) - with
+     the (then 10, now 9 after folding "Only with photos" into Sort By
+     below) filter cells this panel holds, auto-fit's actual column count
+     depended on the exact container width available at any given moment,
+     which produced an unpredictable, unevenly-filled trailing row (e.g.
+     7 cells on row one, 3 orphaned cells on row two, out of the pre-fix
+     10) that read as jagged/misaligned rather than the "strict, repeated
+     visual hierarchy" design-guidelines.md section 5 calls for. A fixed
+     3-column grid divides the current 9 cells evenly at desktop widths;
+     the two breakpoints below match this file's existing .grid/
+     .type-filter-grid convention (1400/900/560 wouldn't apply here since
+     this panel never needs the 1400px step - 900/560 alone cover its
+     narrower max-width). */
+  .filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 20px; }
+  @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .filters { grid-template-columns: 1fr; } }
   .filters label {
     font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase;
     color: var(--taupe); display: block; margin-bottom: 6px;
   }
   .filters input, .filters select {
-    width: 100%; padding: 9px 11px; border: 1px solid var(--taupe-light); border-radius: 4px;
+    width: 100%; height: 40px; padding: 9px 11px; border: 1px solid var(--taupe-light); border-radius: 4px;
     font-family: var(--font-sans); font-size: 14px; background: white; color: var(--ink);
   }
   .filters input:focus, .filters select:focus { outline: none; border-color: var(--brass); }
+  /* Shared by the Status checkbox cell (formerly also the Photos checkbox
+     cell, folded into Sort By - see #sortBy's "Only listings with photos"
+     option) - a named class instead of a repeated inline style, and its
+     height matches .filters input/select's own 40px exactly so a checkbox
+     cell's control never sits at a different height than a text-input
+     cell's in the same row. */
+  .filter-checkbox-row { display: flex; align-items: center; gap: 6px; height: 40px; cursor: pointer; }
   /* --- Saved filter presets (discovery & engagement batch) - a quiet,
      compact row: no solid-fill button here (the filter panel isn't the
      screen's one primary action), just a small-caps label, a row of
-     understated pills, and an outline "save" affordance. -->
+     understated pills, and an outline "save" affordance.
+     Bug found in the 2026-09-27 site-wide audit: this comment used to close
+     with "-->" (an HTML comment terminator) instead of "*/" - CSS doesn't
+     recognize "-->" as anything special, so the parser just kept
+     consuming everything as still-inside-this-comment until it happened to
+     hit the next real "*/" nearly 50 lines down (the "Export toolbar"
+     comment below .leads-toolbar). Every rule in between - .filter-presets,
+     .filter-presets-row/-label/-list/-empty, .filter-preset-pill/-load/
+     -remove, .filter-presets-save-btn, .filter-presets-form and its
+     children, .filter-presets-confirm-btn, .filter-presets-cancel-btn, and
+     its mobile @media rule - was silently dead this whole time, which is
+     why the "Saved filters" row rendered as plain unstyled stacked text
+     instead of the intended flex row of small-caps label + pills + outline
+     button. */
   .filter-presets { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--taupe-light); }
   .filter-presets-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
   .filter-presets-label {
@@ -401,7 +436,19 @@
      alone - real information, not something to truncate just for
      symmetry, per docs/design-guidelines.md's "simplify without removing
      features"). */
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 22px; }
+  /* min-height bumped from 22px (one badge row) to 50px (two badge rows +
+     the 6px gap) - site-wide audit, 2026-09-27: a card can carry anywhere
+     from zero badges (portal removed/unavailable) up to portal + price-
+     divergence + motivation + alt-portal chips, which commonly wraps to a
+     second line. With only one row reserved, the title/price block below
+     started at a different vertical position on almost every other card in
+     a grid row, breaking the "strict, repeated visual hierarchy" design-
+     guidelines.md section 5 calls for. Two rows covers the common case
+     (portal + one status pill, or portal + one alt-portal chip) without
+     reserving so much dead space that a zero/one-badge card looks empty -
+     a rare 3+-badge card still pushes its own text down further than its
+     row-mates, but that's now the exception rather than the norm. */
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 50px; align-content: flex-start; }
   /* Status labels, not ribbons (design-guidelines.md section 6/9): small-
      caps muted text pills instead of saturated fills. One accent (brass,
      for the single "look here" Hot-deal signal) plus the one signal color
@@ -2056,6 +2103,11 @@
           <span>Showing <strong id="oblastFilterBannerName"></strong></span>
           <button id="oblastFilterBannerClearBtn">✕ Clear, show all listings</button>
         </div>
+        <!-- Sentinel for initLeadsFilterToggle()'s IntersectionObserver -
+             see that function's own comment for why this replaced a plain
+             getBoundingClientRect().top<=0 scroll check. Zero-height, purely
+             a scroll-position marker, not a layout element. -->
+        <div id="leadsFilterStickySentinel" style="height:1px;"></div>
         <div class="card leads-filter-card" id="leadsFilterCard">
           <a href="#" id="backToLeadgenLink" style="display:block; margin-bottom:12px; font-size:13px; color:var(--brass-deep); text-decoration:none;">← Back to Lead Generators</a>
           <div class="leads-filter-header">
@@ -2119,16 +2171,9 @@
             </div>
             <div>
               <label>Status</label>
-              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
+              <label class="filter-checkbox-row">
                 <input type="checkbox" id="excludeSold" checked style="width:auto;" />
                 Exclude sold
-              </label>
-            </div>
-            <div>
-              <label>Photos</label>
-              <label style="display:flex; align-items:center; gap:6px; height:36px; cursor:pointer;">
-                <input type="checkbox" id="onlyWithPhotos" style="width:auto;" />
-                Only with photos
               </label>
             </div>
             <div>
@@ -2144,6 +2189,14 @@
                 <option value="drops-desc">Most price drops</option>
                 <option value="vsavg-asc">Most below area average</option>
                 <option value="score-desc">Motivation score</option>
+                <!-- Formerly a standalone "Only with photos" checkbox cell -
+                     per explicit user request (asked twice), folded into
+                     Sort By instead of living as a separate filter. Chosen
+                     value is appended last, not inserted earlier in the
+                     list, so the <select>'s implicit default (the first
+                     option, "price-asc") is unchanged for everyone who
+                     never touches this field. -->
+                <option value="photos-first">Only listings with photos</option>
               </select>
             </div>
           </div>
@@ -5509,7 +5562,14 @@ function renderRadiusPanel(l) {
   } else {
     const r = computeRadiusAverage(l, detailRadiusM);
     if (r.noLocation) {
-      resultHtml = `<p class="radius-hint">Location data isn't available for this listing yet.</p>`;
+      // Left blank on purpose (site-wide audit, 2026-09-27): r.noLocation is
+      // only ever true under the exact same l.lat==null||l.lng==null
+      // condition mapHtml below already renders its own "Location data
+      // isn't available for this listing yet." message for (see mapHtml's
+      // own comment) - showing the identical sentence twice, stacked in the
+      // same panel, read as a redundant/sloppy duplication rather than one
+      // clear message. One listing, one "no location" message.
+      resultHtml = '';
     } else if (r.count === 0) {
       resultHtml = `<p class="radius-hint">No other ${l.category || 'apartment'} listings with a known location found within ${detailRadiusM}m.</p>`;
     } else {
@@ -7234,8 +7294,12 @@ function applyFilterPreset(preset) {
   document.getElementById('minDaysOnMarket').value = preset.minDays || '';
   document.getElementById('minTimesReduced').value = preset.minReduced || '';
   document.getElementById('excludeSold').checked = preset.excludeSold !== false;
-  document.getElementById('onlyWithPhotos').checked = !!preset.onlyWithPhotos;
-  document.getElementById('sortBy').value = preset.sortBy || 'price-asc';
+  // preset.onlyWithPhotos is a legacy field from before "Only with photos"
+  // was folded into Sort By - a preset saved back then takes priority here
+  // so it still restores its filtering behavior, even though that means an
+  // old preset that combined onlyWithPhotos with some other explicit sort
+  // no longer restores that other sort (the two are now one field, not two).
+  document.getElementById('sortBy').value = preset.onlyWithPhotos ? 'photos-first' : (preset.sortBy || 'price-asc');
   document.getElementById('searchQuery').value = preset.searchQuery || '';
 
   const typeDef = TYPE_FILTER_BUCKETS.find(b => b.key === activeTypeFilter);
@@ -9013,6 +9077,12 @@ function sortComparator(sortBy) {
       const dropDiff = (b.price_drop_count ?? 0) - (a.price_drop_count ?? 0);
       return dropDiff !== 0 ? dropDiff : (b.drop_pct ?? 0) - (a.drop_pct ?? 0);
     }
+    // "Only listings with photos" - the filtering half of this sort mode
+    // happens in matchesAllFilters() (onlyWithPhotos, now derived from this
+    // same sortBy value - see readFilterState()); this is just its ordering
+    // half. Motivation score is the most useful default ordering once
+    // photo-less listings are already excluded.
+    if (sortBy === 'photos-first') return (b.score ?? 0) - (a.score ?? 0);
     return 0;
   };
 }
@@ -9032,8 +9102,13 @@ function readFilterState() {
     minDays: parseFloat(document.getElementById('minDaysOnMarket').value) || 0,
     minReduced: parseFloat(document.getElementById('minTimesReduced').value) || 0,
     excludeSold: document.getElementById('excludeSold').checked,
-    onlyWithPhotos: document.getElementById('onlyWithPhotos').checked,
+    // No longer its own checkbox - "Only with photos" is now the
+    // 'photos-first' Sort By option (see that <select>'s own comment), so
+    // this is derived rather than read from a separate control. Left as
+    // its own key (not inlined at every call site) since matchesAllFilters()
+    // and saveCurrentFilterPreset() below both still key off it directly.
     sortBy: document.getElementById('sortBy').value,
+    onlyWithPhotos: document.getElementById('sortBy').value === 'photos-first',
     searchQuery: (document.getElementById('searchQuery').value || '').trim().toLowerCase(),
     activeLeadGenerator,
     type: activeTypeFilter,
@@ -12215,7 +12290,6 @@ document.getElementById('roomsFilter').addEventListener('change', renderFromStar
 document.getElementById('minDaysOnMarket').addEventListener('input', renderFromStart);
 document.getElementById('minTimesReduced').addEventListener('input', renderFromStart);
 document.getElementById('excludeSold').addEventListener('change', renderFromStart);
-document.getElementById('onlyWithPhotos').addEventListener('change', renderFromStart);
 document.getElementById('sortBy').addEventListener('change', renderFromStart);
 document.getElementById('exportCsvBtn').addEventListener('click', exportFilteredListingsCsv);
 document.getElementById('savedSortBy').addEventListener('change', renderDashboard);
@@ -12239,7 +12313,7 @@ function updateLeadsFilterBadge() {
   if (document.getElementById('minDaysOnMarket').value) n++;
   if (document.getElementById('minTimesReduced').value) n++;
   if (!document.getElementById('excludeSold').checked) n++;
-  if (document.getElementById('onlyWithPhotos').checked) n++;
+  if (document.getElementById('sortBy').value === 'photos-first') n++;
   badge.textContent = String(n);
   badge.style.display = n > 0 ? 'inline-flex' : 'none';
 }
@@ -12270,25 +12344,50 @@ function initLeadsFilterToggle() {
   // - the "condensed version" the backlog item calls for - and auto-
   // expands back (clearing any manual override) the moment it scrolls back
   // to its normal resting position, so the un-scrolled page never looks
-  // different from before. Passive scroll listener, throttled via
-  // requestAnimationFrame; the collapse/expand logic itself only runs on
-  // an actual stuck/unstuck transition, not on every scroll tick.
+  // different from before.
+  //
+  // Site-wide audit fix (2026-09-27): this used to detect "stuck" with
+  // `card.getBoundingClientRect().top <= 0` on every scroll event, anywhere
+  // in the app - not gated to the Leads section being visible/active. Two
+  // real bugs followed from that: (1) a hidden `.page:not(.active)` element
+  // collapses to a zero-size box at (0,0), so simply scrolling the Home
+  // page (e.g. Playwright auto-scrolling "Browse listings →" into view
+  // before clicking it, but any real scroll works too) made the *hidden*
+  // leads card read as "stuck" and collapse itself before the user ever
+  // switched sections - it then opened already collapsed. (2) on narrow/
+  // mobile viewports the card can legitimately sit at/near the very top of
+  // its own normal resting position (little content above it), so
+  // `top <= 0` was spuriously true on load with no scrolling at all -
+  // filters stayed permanently collapsed on mobile.
+  // Fixed with a proper IntersectionObserver against a 1px sentinel placed
+  // immediately before the card (#leadsFilterStickySentinel) instead of a
+  // position-based heuristic: "stuck" now strictly means "the sentinel that
+  // used to sit right above this card has scrolled out of view," which is
+  // only ever true from real scrolling of the actual visible section, never
+  // from a hidden element's collapsed geometry or a short natural layout.
   let wasStuck = false;
-  let stuckTicking = false;
-  const updateStuck = () => {
-    stuckTicking = false;
-    const stuck = card.getBoundingClientRect().top <= 0;
+  const sentinel = document.getElementById('leadsFilterStickySentinel');
+  const applyStuck = (stuck) => {
+    // Ignore intersection changes while the Leads page isn't the visible
+    // page - a hidden `.page:not(.active)` sentinel has no box and reports
+    // isIntersecting:false the instant the observer attaches (at script
+    // init, while Home is still showing), which would otherwise collapse
+    // the panel before the user ever opens Leads (the same class of bug
+    // this whole rewrite was fixing, via a different code path).
+    const leadsSection = document.getElementById('section-leads');
+    if (!leadsSection || !leadsSection.classList.contains('active')) return;
     card.classList.toggle('is-stuck', stuck);
     if (stuck === wasStuck) return;
     wasStuck = stuck;
     if (stuck) setCollapsed(userOverride !== null ? userOverride : true);
     else { userOverride = null; setCollapsed(false); }
   };
-  window.addEventListener('scroll', () => {
-    if (stuckTicking) return;
-    stuckTicking = true;
-    requestAnimationFrame(updateStuck);
-  }, { passive: true });
+  if (sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => { applyStuck(!entries[0].isIntersecting); },
+      { threshold: 0 }
+    ).observe(sentinel);
+  }
 }
 initLeadsFilterToggle();
 
