@@ -270,16 +270,18 @@ selectors: `.radius-panel` and `.price-history-panel`. **Adding a third
 `.detail-history-row` panel without updating this function would have
 quietly reintroduced the exact bug it exists to prevent** - the two
 original panels would keep equalizing with each other while the new one
-sat at its own unmanaged height. Fixed as part of this same change:
-`syncHistoryPanelHeights()` now measures and equalizes every panel the
-row actually has (`.radius-panel, .price-history-panel,
-.specs-history-panel`, queried fresh each call) rather than a hardcoded
-pair, so a future fourth panel won't need this function edited again
-either. **Anyone adding a fourth `.detail-history-row` panel in the
-future should re-check this function is still covering it** - this is
-exactly the kind of dependency that's easy to miss without reading this
-far, per how this doc itself got it wrong the first time by not knowing
-this function existed.
+sat at its own unmanaged height. Fixed as part of this same change, and further corrected in Missy's
+re-review (an earlier version of this fix and this note claimed a
+`.radius-panel, .price-history-panel, .specs-history-panel` selector
+list was "generalized" - it wasn't, it was still a fixed 3-name list that
+a genuine 4th panel would silently miss): `syncHistoryPanelHeights()` now
+reads `row.children` directly rather than naming any panel class at all,
+so it measures and equalizes however many direct children
+`.detail-history-row` actually has - genuinely no future edit needed here
+when a panel is added or removed, verified against the real markup that
+each of the three current panel-producing functions emits exactly one
+wrapping `<div>` as a direct child of the row (so `row.children`'s count
+matches the panel count, not some other DOM structure).
 
 ---
 

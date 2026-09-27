@@ -11764,14 +11764,18 @@ function renderListingDetail(merged) {
 // reintroduced the exact height-desync bug this function was built to fix
 // - the two originals would still equalize with each other, but the new
 // third panel would sit at its own unmanaged natural height, mismatched
-// whenever it lands in the same row as the other two. Generalized to every
-// direct panel-shaped child this row actually has (queried fresh each
-// call, not a fixed count) so a future fourth panel doesn't need this
-// function edited again either.
+// whenever it lands in the same row as the other two. Genuinely
+// generalized to every direct child of .detail-history-row (queried
+// fresh via row.children each call, not a named-selector list) - each of
+// renderRadiusPanel()/the inline price-history block/renderSpecsHistoryPanel()
+// emits exactly one wrapping <div> as .detail-history-row's direct child
+// (verified, not assumed), so this correctly equalizes however many
+// panels are actually present without needing a class name added here
+// the next time a panel is added or removed.
 function syncHistoryPanelHeights() {
   const row = document.querySelector('#listingDetailBody .detail-history-row');
   if (!row) return;
-  const panels = Array.from(row.querySelectorAll('.radius-panel, .price-history-panel, .specs-history-panel'));
+  const panels = Array.from(row.children);
   if (panels.length < 2) return;
   panels.forEach(p => { p.style.minHeight = ''; });
   const target = Math.max(...panels.map(p => p.getBoundingClientRect().height));
