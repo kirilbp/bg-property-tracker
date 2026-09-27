@@ -5265,6 +5265,58 @@ function addClusteredListingMarkers(map, listings, popupHtml) {
   return markers;
 }
 
+// Every Leaflet map in this file is built with scrollWheelZoom: false, so a
+// plain two-finger scroll over a map scrolls the page underneath it instead
+// of hijacking the page scroll (the exact annoyance that setting exists to
+// avoid) - but that also throws away Leaflet's own wheel-zoom handler
+// entirely, including the one wheel gesture that unambiguously means "zoom"
+// rather than "scroll": a laptop trackpad two-finger pinch. Chrome/Firefox/
+// Safari all report a trackpad pinch to the page as a `wheel` event with
+// `ctrlKey: true` (the same convention Google Maps/Mapbox rely on) - a plain
+// two-finger scroll fires ordinary wheel events with `ctrlKey: false`. This
+// restores zoom for exactly the ctrl+wheel case and leaves everything else
+// (plain scroll, real touchscreen pinch via Leaflet's own touchZoom, which
+// this never touches) exactly as it already was.
+function enableTrackpadPinchZoom(map, container) {
+  // None of this file's maps override zoomSnap, so every one uses Leaflet's
+  // own default (1) - meaning map.setZoom()/setZoomAround() always round
+  // their target to the nearest whole zoom level internally (see Leaflet's
+  // own _limitZoom()), no matter what fractional value is passed in. A real
+  // trackpad pinch fires many wheel events in quick succession, often with a
+  // small deltaY each - computing a fresh target from map.getZoom() (already
+  // rounded) on every single event would let most of those small deltas get
+  // rounded away to nothing, making the gesture feel unresponsive. This
+  // fractional target is tracked independently of what Leaflet reports back,
+  // so small deltas keep accumulating across events instead of being
+  // discarded each time - resynced from the map's real zoom whenever
+  // something other than this handler last moved it (zoom buttons,
+  // double-click, a fresh fitBounds on re-render, etc).
+  let pendingZoom = null;
+  container.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey) return; // plain two-finger scroll - let the page scroll, don't touch the map
+    e.preventDefault();
+    if (pendingZoom == null || Math.round(pendingZoom) !== map.getZoom()) {
+      pendingZoom = map.getZoom();
+    }
+    // Damping factor - deltaY units per zoom level. This is a starting point
+    // per the backlog item, not a value confirmed against real trackpad
+    // hardware (this sandbox has none) - reasonable to retune after a real
+    // pinch test if it feels too twitchy or too sluggish.
+    pendingZoom -= e.deltaY * 0.01;
+    pendingZoom = Math.max(map.getMinZoom(), Math.min(map.getMaxZoom(), pendingZoom));
+    // Zoom around the cursor position, not the map's current center - this is
+    // exactly what Leaflet's own built-in scroll-wheel zoom does internally
+    // (Map.ScrollWheelZoom's _performZoom), so pinch-zoom feels consistent
+    // with it rather than like a different, centered-only zoom behavior.
+    // animate:false applies each step immediately (no ~250ms CSS transition
+    // fighting the next wheel event a few milliseconds later), matching a
+    // live pinch's expected real-time tracking rather than Leaflet's own
+    // scroll-wheel handler, which instead debounces a whole gesture into one
+    // animated jump - not the right feel for a continuous two-finger pinch.
+    map.setZoomAround(map.mouseEventToContainerPoint(e), pendingZoom, { animate: false });
+  }, { passive: false });
+}
+
 // Tears down any previous Leaflet instance (its container div gets replaced
 // wholesale via innerHTML on every re-render, which would otherwise leak
 // map instances and throw "container is already initialized") and, if this
@@ -5315,6 +5367,7 @@ function updateRadiusMap(l) {
   }
 
   detailMap = L.map(container, { scrollWheelZoom: false }).setView([l.lat, l.lng], 15);
+  enableTrackpadPinchZoom(detailMap, container);
   (detailMapLayer === 'satellite' ? detailSatelliteTileLayer() : detailStreetTileLayer()).addTo(detailMap);
 
   const subjectMarker = L.marker([l.lat, l.lng], { icon: brassPinIcon() }).addTo(detailMap).bindPopup('This listing');
@@ -6931,7 +6984,8 @@ function renderCmpMapView() {
     return;
   }
   const located = CMP_RESULTS.filter(l => l.lat != null && l.lng != null);
-  cmpMap = L.map(container).setView([42.6977, 23.3219], 7);
+  cmpMap = L.map(container, { scrollWheelZoom: false }).setView([42.6977, 23.3219], 7);
+  enableTrackpadPinchZoom(cmpMap, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -7592,6 +7646,7 @@ function renderLeadgenMiniMap(gen) {
     ? { lat: area.polygon[0][0], lng: area.polygon[0][1] }
     : { lat: 42.6977, lng: 23.3219 };
   const map = L.map(container, { scrollWheelZoom: false }).setView([initialCenter.lat, initialCenter.lng], 12);
+  enableTrackpadPinchZoom(map, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -7660,7 +7715,8 @@ function initLgRadiusMap() {
   const container = document.getElementById('lgRadiusMap');
   if (!container) return;
   const start = lgRadiusCenter || { lat: 42.6977, lng: 23.3219 };
-  lgRadiusMap = L.map(container).setView([start.lat, start.lng], 12);
+  lgRadiusMap = L.map(container, { scrollWheelZoom: false }).setView([start.lat, start.lng], 12);
+  enableTrackpadPinchZoom(lgRadiusMap, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -7693,7 +7749,8 @@ function initLgPolygonMap() {
   if (lgPolygonMap || typeof L === 'undefined' || typeof L.Control === 'undefined' || typeof L.Control.Draw === 'undefined') return;
   const container = document.getElementById('lgPolygonMap');
   if (!container) return;
-  lgPolygonMap = L.map(container).setView([42.6977, 23.3219], 12);
+  lgPolygonMap = L.map(container, { scrollWheelZoom: false }).setView([42.6977, 23.3219], 12);
+  enableTrackpadPinchZoom(lgPolygonMap, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -8282,7 +8339,8 @@ function renderPipelineMapView(rows) {
     return;
   }
   const located = rows.filter(({ listing: l }) => l.lat != null && l.lng != null);
-  pipelineMap = L.map(container).setView([42.6977, 23.3219], 7);
+  pipelineMap = L.map(container, { scrollWheelZoom: false }).setView([42.6977, 23.3219], 7);
+  enableTrackpadPinchZoom(pipelineMap, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -10041,6 +10099,7 @@ function renderDetailCompMap(l, comparables) {
     return;
   }
   detailCompMap = L.map(container, { scrollWheelZoom: false }).setView([l.lat, l.lng], 14);
+  enableTrackpadPinchZoom(detailCompMap, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
@@ -12676,7 +12735,8 @@ function renderMarketLiveMapTab(cityKey, typeKey) {
   teardownMarketLiveMap();
   const container = document.getElementById('marketLiveMapEl');
   if (typeof L === 'undefined') { container.textContent = "Map unavailable (couldn't load the map library)."; return; }
-  marketLiveMapObj = L.map(container).setView([42.6977, 23.3219], cityKey ? 12 : 7);
+  marketLiveMapObj = L.map(container, { scrollWheelZoom: false }).setView([42.6977, 23.3219], cityKey ? 12 : 7);
+  enableTrackpadPinchZoom(marketLiveMapObj, container);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
