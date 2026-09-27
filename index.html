@@ -187,16 +187,18 @@
   }
   .search-row input:focus { outline: none; border-color: var(--brass); box-shadow: 0 0 0 3px rgba(176,138,46,0.12); }
   /* Fixed column counts (3/2/1), not repeat(auto-fit, minmax(...)) - with
-     9 filter cells, auto-fit's actual column count depends on the exact
-     container width available at any given moment, which produced an
-     unpredictable, unevenly-filled trailing row (e.g. 7 cells on row one,
-     3 orphaned cells on row two) that read as jagged/misaligned rather
-     than the "strict, repeated visual hierarchy" design-guidelines.md
-     section 5 calls for. A fixed 3x3 grid always fills completely at
-     desktop widths; the two breakpoints below match this file's existing
-     .grid/.type-filter-grid convention (1400/900/560 wouldn't apply here
-     since this panel never needs the 1400px step - 900/560 alone cover
-     its narrower max-width). */
+     the (then 10, now 9 after folding "Only with photos" into Sort By
+     below) filter cells this panel holds, auto-fit's actual column count
+     depended on the exact container width available at any given moment,
+     which produced an unpredictable, unevenly-filled trailing row (e.g.
+     7 cells on row one, 3 orphaned cells on row two, out of the pre-fix
+     10) that read as jagged/misaligned rather than the "strict, repeated
+     visual hierarchy" design-guidelines.md section 5 calls for. A fixed
+     3-column grid divides the current 9 cells evenly at desktop widths;
+     the two breakpoints below match this file's existing .grid/
+     .type-filter-grid convention (1400/900/560 wouldn't apply here since
+     this panel never needs the 1400px step - 900/560 alone cover its
+     narrower max-width). */
   .filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 20px; }
   @media (max-width: 900px) { .filters { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 560px) { .filters { grid-template-columns: 1fr; } }
