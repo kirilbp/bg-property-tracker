@@ -12,13 +12,20 @@ loop relies on). Before this fix, fetch_listings_page() caught that 404
 itself (PermanentlyGone) and returned a plain None - identical to what a
 genuinely transient failure (a timeout or 5xx) also returns - so
 fetch_listings()'s own loop could not tell "reached the confirmed real
-end of the site" apart from "an actual outage is happening". Both real
-runs cost 4 extra wasted page requests (5 consecutive "failures" required
-before stopping) to reach a stop they should have made immediately, and -
-the real risk this test guards against - a genuine mid-crawl outage would
-have printed the exact same "looks like a real outage" message as an
-ordinary, harmless end-of-day completion, making the two impossible to
-tell apart from a run's own logs alone.
+end of the site" apart from "an actual outage is happening".
+
+Correction (Missy's review): the first version of this fix stopped the
+crawl on the very first PermanentlyGone, no retry required - a real
+functional-regression risk, since a WAF/anti-bot layer serving a single
+spurious 404 instead of a 429/503 mid-crawl (a known technique) would
+have silently truncated that day's crawl while printing the *most*
+confident, least-suspicious log message available. Fixed to require 2
+consecutive PermanentlyGone responses before treating it as the real end
+- still far faster than MAX_CONSECUTIVE_PAGE_FAILURES (5) wasted requests,
+but no longer trusting a single occurrence blindly. Both real runs this
+fix was built from showed several consecutive 404s in a row at the true
+end, not one flaky one among successes, so requiring 2 does not risk
+missing the real end.
 
 This sandbox has no network egress to alo.bg, so fetch_with_retries() is
 mocked throughout - no live dispatch, per this repo's CLAUDE.md.
@@ -37,17 +44,18 @@ import scraper_alo
 
 
 class GridCrawlStopsCleanlyOnRealPastEndTests(unittest.TestCase):
-    """A 404 (PermanentlyGone) on the grid crawl stops immediately, without
-    consuming any of the MAX_CONSECUTIVE_PAGE_FAILURES budget - the same
-    trust a single empty page (`if not link_count: break`) already gets."""
+    """Two consecutive 404s (PermanentlyGone) on the grid crawl stop it
+    promptly, without consuming the MAX_CONSECUTIVE_PAGE_FAILURES budget -
+    but a single, spurious 404 does NOT stop the crawl on its own."""
 
-    def test_single_404_stops_the_crawl_immediately(self):
-        # Page 1 succeeds with real listings; page 2 is a genuine 404 (the
-        # real end of pagination) - matches both real runs' own shape.
+    def test_two_consecutive_404s_stop_the_crawl(self):
+        # Page 1 succeeds with real listings; pages 2 and 3 are genuine
+        # 404s (the real end of pagination) - matches both real runs' own
+        # shape of several consecutive 404s in a row at the true end.
         page_1_html = _card_html(["1000001", "1000002"])
 
         def fake_fetch(url):
-            if "page=2" not in url and url == scraper_alo.SEARCH_URL:
+            if url == scraper_alo.SEARCH_URL:
                 return page_1_html
             raise scraper_alo.PermanentlyGone(url)
 
@@ -58,11 +66,35 @@ class GridCrawlStopsCleanlyOnRealPastEndTests(unittest.TestCase):
         # Real listings from the one real page are kept.
         self.assertEqual({l["id"] for l in listings}, {"alo_1000001", "alo_1000002"})
 
+    def test_single_spurious_404_does_not_stop_the_crawl(self):
+        # Page 2 is a lone 404 (e.g. a WAF/anti-bot blip), but page 3
+        # succeeds again with real listings - the crawl must NOT have
+        # stopped after the single 404, and must pick page 3's listings
+        # up. This is the exact regression the 2-consecutive threshold
+        # guards against.
+        def fake_fetch(url):
+            if url == scraper_alo.SEARCH_URL:
+                return _card_html(["5000001"])
+            if "page=2" in url:
+                raise scraper_alo.PermanentlyGone(url)
+            if "page=3" in url:
+                return _card_html(["5000002"])
+            raise scraper_alo.PermanentlyGone(url)
+
+        with mock.patch("scraper_alo.fetch_with_retries", side_effect=fake_fetch), \
+             mock.patch("scraper_alo.time.sleep"):
+            listings = scraper_alo.fetch_listings()
+
+        # Both the pre- and post-blip real pages' listings were kept - the
+        # single spurious 404 on page 2 did not truncate the crawl there.
+        self.assertEqual({l["id"] for l in listings}, {"alo_5000001", "alo_5000002"})
+
     def test_404_is_not_counted_toward_consecutive_page_failures(self):
-        # A single 404 must not print the "N/5 consecutive" failure framing
-        # nor the "looks like a real outage" message - those are reserved
-        # for actual transient failures (fetch_with_retries returning None
-        # after exhausting retries, not raising PermanentlyGone).
+        # Two consecutive 404s must not print the "N/5 consecutive"
+        # transient-failure framing nor the "looks like a real outage"
+        # message - those are reserved for actual transient failures
+        # (fetch_with_retries returning None after exhausting retries, not
+        # raising PermanentlyGone).
         def fake_fetch(url):
             if url == scraper_alo.SEARCH_URL:
                 return _card_html(["2000001"])
@@ -74,9 +106,13 @@ class GridCrawlStopsCleanlyOnRealPastEndTests(unittest.TestCase):
             scraper_alo.fetch_listings()
 
         printed = "\n".join(str(call.args[0]) for call in mock_print.call_args_list)
-        self.assertNotIn("consecutive", printed)
+        self.assertNotIn("consecutive page failures", printed)
         self.assertNotIn("looks like a real outage", printed)
         self.assertIn("reached the real end of pagination", printed)
+        # The first 404 is logged as 1/2, the second as 2/2, before the
+        # crawl actually stops.
+        self.assertIn("1/2 consecutive", printed)
+        self.assertIn("2/2 consecutive", printed)
 
     def test_genuine_transient_failures_still_require_five_in_a_row(self):
         # A real transient failure (fetch_with_retries exhausts retries and
@@ -108,11 +144,11 @@ class GridCrawlStopsCleanlyOnRealPastEndTests(unittest.TestCase):
         # (unchanged) threshold.
         self.assertEqual(call_count["n"], 1 + scraper_alo.MAX_CONSECUTIVE_PAGE_FAILURES)
 
-    def test_transient_failure_then_404_stops_via_the_404_not_the_threshold(self):
+    def test_transient_failure_then_404s_stop_via_the_404s_not_the_threshold(self):
         # A real transient blip (below the consecutive-failure threshold)
-        # followed by a genuine 404 must still stop cleanly on the 404,
-        # not require the 404 itself to also accumulate toward the
-        # transient-failure counter.
+        # followed by two genuine consecutive 404s must still stop
+        # cleanly on the 404s, not require them to also accumulate toward
+        # the transient-failure counter.
         calls = {"n": 0}
 
         def fake_fetch(url):
@@ -132,6 +168,36 @@ class GridCrawlStopsCleanlyOnRealPastEndTests(unittest.TestCase):
         self.assertIn("reached the real end of pagination", printed)
         self.assertNotIn("looks like a real outage", printed)
         self.assertEqual({l["id"] for l in listings}, {"alo_4000001"})
+
+    def test_success_between_two_404s_resets_the_gone_counter(self):
+        # A lone 404 followed by a real success page must not carry over
+        # toward a later, genuinely-consecutive pair - the counter resets
+        # on any successful page, same as consecutive_failures does.
+        calls = {"n": 0}
+
+        def fake_fetch(url):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return _card_html(["6000001"])
+            if calls["n"] == 2:
+                raise scraper_alo.PermanentlyGone(url)  # one lone 404
+            if calls["n"] == 3:
+                return _card_html(["6000002"])  # real page resets the counter
+            raise scraper_alo.PermanentlyGone(url)  # real end starts here
+
+        with mock.patch("scraper_alo.fetch_with_retries", side_effect=fake_fetch), \
+             mock.patch("scraper_alo.time.sleep"), \
+             mock.patch("builtins.print") as mock_print:
+            listings = scraper_alo.fetch_listings()
+
+        printed = "\n".join(str(call.args[0]) for call in mock_print.call_args_list)
+        # If the counter hadn't reset, the crawl would have stopped one
+        # page earlier (on call 4, the first 404 after the reset) instead
+        # of call 5 - so both real pages must be present.
+        self.assertEqual(
+            {l["id"] for l in listings}, {"alo_6000001", "alo_6000002"}
+        )
+        self.assertIn("reached the real end of pagination", printed)
 
 
 def _card_html(listing_ids):

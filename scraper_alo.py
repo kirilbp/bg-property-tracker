@@ -664,6 +664,7 @@ def fetch_listings():
     start_time = time.monotonic()
     seen = {}
     consecutive_failures = 0
+    consecutive_permanently_gone = 0
     for page_num in range(1, MAX_PAGES + 1):
         if page_num > 1:
             time.sleep(REQUEST_DELAY_SECONDS)
@@ -686,18 +687,31 @@ def fetch_listings():
             # stopping, AND - the real risk - a genuine mid-crawl outage
             # would print the exact same "looks like a real outage" message
             # as an ordinary, harmless end-of-day completion, making the two
-            # impossible to tell apart from a run's own logs. A 404 here is
-            # not like a connect timeout or a 5xx: it's a stable, repeatable
-            # answer (both real runs confirmed several consecutive 404s in a
-            # row, not one flaky one among successes), so it's trusted
-            # immediately, the same way `if not link_count: break` below
-            # already trusts a single empty page - it does not count toward
-            # MAX_CONSECUTIVE_PAGE_FAILURES, which stays reserved for actual
-            # transient failures (timeouts, connection errors, 5xx) where a
-            # retry might have succeeded.
-            print(f"DEBUG: page {page_num} returned 404 - reached the real end of "
-                  f"pagination (t={elapsed:.0f}s, {len(seen)} listings so far)")
-            break
+            # impossible to tell apart from a run's own logs.
+            #
+            # A 404 here is still trusted faster than a generic transient
+            # failure (both real runs confirmed several consecutive 404s in
+            # a row at the true end, not one flaky one among successes), but
+            # NOT on the very first occurrence: alo.bg sits behind
+            # CONNECT_FAILURE_MAX_RETRIES-acknowledged anti-bot/rate-limit
+            # behavior against GitHub Actions IP ranges, and a WAF serving a
+            # single spurious 404 instead of a 429/503 mid-crawl is a known
+            # technique - requiring 2 in a row before treating this as the
+            # real end avoids silently truncating a day's crawl on one
+            # spurious response, while still stopping promptly (not after
+            # MAX_CONSECUTIVE_PAGE_FAILURES=5 wasted requests) once it's
+            # confirmed. Does not count toward MAX_CONSECUTIVE_PAGE_FAILURES,
+            # which stays reserved for actual transient failures (timeouts,
+            # connection errors, 5xx) where a retry might have succeeded.
+            consecutive_permanently_gone += 1
+            print(f"DEBUG: page {page_num} returned 404 "
+                  f"({consecutive_permanently_gone}/2 consecutive) - "
+                  f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
+            if consecutive_permanently_gone >= 2:
+                print(f"DEBUG: {consecutive_permanently_gone} consecutive 404s - "
+                      f"reached the real end of pagination")
+                break
+            continue
 
         if link_count is None:
             consecutive_failures += 1
@@ -711,6 +725,7 @@ def fetch_listings():
             continue
 
         consecutive_failures = 0
+        consecutive_permanently_gone = 0
         print(f"DEBUG: page {page_num} links matching listing URL pattern = {link_count} "
               f"(t={elapsed:.0f}s, {len(seen)} listings so far)")
         if not link_count:
