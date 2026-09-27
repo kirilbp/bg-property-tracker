@@ -1,5 +1,6 @@
 """
-Regression test for docs/backlog.md item 9a.
+Regression test for docs/backlog.md item 9a (and its item 9d addendum,
+scraper_homes.py, added below).
 
 update_history() in scraper_imot.py, scraper_olx.py, scraper_bcpea.py,
 scraper_alo.py, scraper_bazar.py, and scraper.py (imoti.net) used to do
@@ -27,6 +28,18 @@ the actual bug this fixes - while still confirming fresh data (price,
 and for imoti.bg a successful description/site_posted_at re-fetch) really
 does get applied, so the fix is a merge, not an accidental freeze.
 
+**docs/backlog.md item 9d addendum (homes.bg):** scraper_homes.py's own
+update_history() had the identical unconditional-replace shape, but was
+*correctly* left out of the original 9a/9c fix at the time - 9c's own
+investigation found homes.bg genuinely not at risk then, since it had no
+detail-only field on "latest" to lose (photos come straight off the grid
+JSON every run, lat/lng self-heal via the shared geocode cache). That
+stopped being true the moment backfill_detail_homes.py shipped
+(description/detail_checked are now real detail-only fields the grid crawl
+never produces - see scraper_homes.py's parse_offer(), which always sets
+"description": None). Same merge-not-replace fix, same test shape, added
+here alongside the other seven scrapers rather than in a separate file.
+
 Run with: python3 -m unittest tests.test_update_history -v
 (no pytest / other test framework is installed in this repo - see the
 commit this test shipped in for that check).
@@ -43,6 +56,7 @@ import scraper as scraper_imoti_net  # imoti.net
 import scraper_alo
 import scraper_bazar
 import scraper_bcpea
+import scraper_homes
 import scraper_imot
 import scraper_imoti_bg
 import scraper_olx
@@ -551,6 +565,60 @@ class UpdateHistoryDetailPreservationTest(unittest.TestCase):
         self.assertEqual(result["imotibg_4"]["latest"]["sqm"], 60)
 
     # -- new listing (no prior history) still works normally --------------
+    # -- homes.bg (docs/backlog.md item 9d) ------------------------------
+    def test_scraper_homes_preserves_detail_fields(self):
+        prior_latest = {
+            "id": "homes_as1697613", "url": "https://www.homes.bg/offer/as1697613",
+            "photo": "https://g1.homes.bg/1.jpg", "photos": ["https://g1.homes.bg/1.jpg"],
+            "price_eur": 120000, "sqm": 78, "area": "Vitosha", "city": "Sofia",
+            "title": "Apartment, Vitosha, Sofia", "portal": "homes.bg", "lat": 42.65, "lng": 23.28,
+            "category": "flat", "category_confidence": "high",
+            "description": "A real, seller-written description of this apartment, found via "
+            "the detail-page backfill, well over the minimum length guard.",
+            "detail_checked": True,
+        }
+        # A fresh grid-only record (parse_offer()'s real shape): "description"
+        # is always None (see its own comment - the grid's own JSON key by
+        # that name is NOT real prose), and "detail_checked" is never present
+        # at all - the grid crawl has no way to know it.
+        fresh_grid = {
+            "id": "homes_as1697613", "url": "https://www.homes.bg/offer/as1697613",
+            "photo": "https://g1.homes.bg/1.jpg", "photos": ["https://g1.homes.bg/1.jpg"],
+            "sqm": 78, "area": "Vitosha", "city": "Sofia", "title": "Apartment, Vitosha, Sofia",
+            "portal": "homes.bg", "lat": 42.65, "lng": 23.28, "category": "flat",
+            "category_confidence": "high", "description": None,
+        }
+        self._assert_preserved_and_updated(
+            scraper_homes, "homes_as1697613", prior_latest, fresh_grid,
+            ["description", "detail_checked"], new_price=115000,
+        )
+
+    def test_scraper_homes_updates_detail_fields_on_successful_refetch(self):
+        # The fix is a merge, not a freeze: once backfill_detail_homes.py
+        # actually visits a listing and finds a real description, that new
+        # value must win over whatever (if anything) was there before.
+        prior_latest = {
+            "id": "homes_hs2", "url": "https://www.homes.bg/offer/hs2", "price_eur": 90000,
+            "sqm": 110, "area": "Center", "city": "Plovdiv", "title": "House, Center, Plovdiv",
+            "portal": "homes.bg", "category": "house", "category_confidence": "high",
+            "description": None,
+        }
+        fresh_grid = {
+            "id": "homes_hs2", "url": "https://www.homes.bg/offer/hs2",
+            "sqm": 110, "area": "Center", "city": "Plovdiv", "title": "House, Center, Plovdiv",
+            "portal": "homes.bg", "category": "house", "category_confidence": "high",
+            "description": "Real description found by this run's detail-page visit.",
+            "detail_checked": True,
+        }
+        history = self._make_history("homes_hs2", prior_latest)
+        fresh = copy.deepcopy(fresh_grid)
+        fresh["price_eur"] = 88000
+        result = scraper_homes.update_history(history, [fresh])
+        latest = result["homes_hs2"]["latest"]
+        self.assertEqual(latest["description"], "Real description found by this run's detail-page visit.")
+        self.assertTrue(latest["detail_checked"])
+        self.assertEqual(latest["price_eur"], 88000)
+
     def test_new_listing_with_no_prior_history_is_unaffected(self):
         fresh_grid = {
             "id": "imot_new", "url": "https://imot.bg/new", "photo": None,

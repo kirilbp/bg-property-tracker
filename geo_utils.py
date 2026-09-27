@@ -344,6 +344,139 @@ def extract_photos_imot(html):
     return seen
 
 
+# homes.bg detail-page description extraction - docs/backlog.md item 9d.
+#
+# homes.bg's own detail pages (offer["viewHref"]) have never been fetched or
+# inspected by this codebase before this - this sandbox's egress to
+# www.homes.bg is fully blocked (confirmed via both curl and WebFetch against
+# several hosts, see item 9d's own investigation log), so none of the three
+# tiers below could be verified against a real live page. Each was chosen
+# because it's a technique already PROVEN to work on at least one other
+# portal in this exact codebase (not a fresh guess pulled from nothing), and
+# every one degrades to None on a markup mismatch rather than falling back to
+# some other, unrelated element - same defensive standard as
+# extract_description_alo()'s own fix:
+#   1. A labeled HTML block keyed on the heading TEXT "Описание" ("
+#      Description") - not a guessed CSS class/id, since homes.bg's own
+#      classes/ids are completely unknown. "Описание" (or "Описание на
+#      имота:") is the confirmed real label text this codebase has already
+#      found on two OTHER Bulgarian real-estate portals for the exact same
+#      purpose (imot.bg's <div class="moreInfo">, see
+#      extract_description_imot() above; sales.bcpea.org's own
+#      .label__group/.info block, see scraper_bcpea.py's label_info() call) -
+#      real cross-portal evidence this is a common convention on this
+#      category of site, not an arbitrary guess. Structure-agnostic ancestor
+#      walk, same shape as extract_description_alo(): finds the heading as a
+#      plain text node, then walks up looking for the first ancestor whose
+#      own text (heading stripped off) is long enough to plausibly be real
+#      prose.
+#   2. <meta name="description">/<meta property="og:description"> - the
+#      exact same proven pattern already used by scraper_imoti_bg.py's own
+#      fetch_listing_detail() (94%+ live hit rate there).
+#   3. application/ld+json "description" - extract_description_ldjson()
+#      above, already proven live on olx.bg/bazar.bg.
+# Deliberately NOT attempted: guessing at a different key inside the detail
+# page's own window.__PRELOADED_STATE__ blob (item 9d's spec flags this as
+# worth checking first, since it might mean no HTML parsing is needed at
+# all). Doing that without live access would mean picking some field name
+# (or the longest Cyrillic string anywhere in a large, deeply-nested JSON
+# blob of unknown shape) out of pure speculation - real risk of confidently
+# extracting the WRONG structured field (an address, an agent bio, an SEO
+# blurb) as if it were the listing's own description, which is worse than
+# finding nothing. This is the same "don't guess a selector that can't be
+# verified live" line already drawn for imoti.net's untried Bulgarian-locale
+# page and alo.bg's original selector search - left as a genuinely open
+# follow-up for whoever next has live homes.bg access, not attempted here.
+#
+# Every candidate from every tier is rejected if it's shorter than
+# MIN_HOMES_DESCRIPTION_LENGTH (comfortably above the known construction-tag
+# lines' length - e.g. "Тухла/Бетон, Полуобзаведен" is 26 chars - so this
+# also guards against the SAME wrong-field text PR #217 already fixed
+# resurfacing from a different tier) or reads as a title echo (the same
+# _looks_like_title_echo() guard alo.bg's own fix uses - homes.bg has no
+# confirmed-different failure mode to expect instead, and a title echo is
+# the single most common way a "looks real but isn't" description bug has
+# shown up across this codebase's other portals).
+# Anchored at both ends - matches ONLY a text node that is exactly the
+# heading itself (whatever whitespace surrounds it), the same way
+# extract_description_alo() locates its own heading.
+_HOMES_DESC_HEADING_EXACT_RE = re.compile(r"^\s*Описание(?:\s+на\s+имота)?\s*[:\-]?\s*$")
+# Prefix-only (no trailing "$") - strips just the leading heading text off
+# the front of an ancestor's own flattened text, which also contains the
+# real body after it.
+_HOMES_DESC_HEADING_PREFIX_RE = re.compile(r"^\s*Описание(?:\s+на\s+имота)?\s*[:\-]?\s*")
+MIN_HOMES_DESCRIPTION_LENGTH = 30
+_HOMES_DESC_ANCESTOR_SEARCH_LEVELS = 6
+
+
+def _homes_label_description(html, title=None):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+
+    label_node = soup.find(string=_HOMES_DESC_HEADING_EXACT_RE)
+    if label_node is None or label_node.parent is None:
+        return None
+
+    node = label_node.parent
+    for _ in range(_HOMES_DESC_ANCESTOR_SEARCH_LEVELS):
+        if node is None:
+            break
+        raw_text = node.get_text(" ", strip=True)
+        stripped = _HOMES_DESC_HEADING_PREFIX_RE.sub("", raw_text, count=1).strip()
+        # Only accept an ancestor whose text actually STARTS with the
+        # heading - i.e. the prefix regex really matched something, not a
+        # no-op on text that happens to already be long enough. Without
+        # this, an ancestor broad enough to also contain unrelated content
+        # BEFORE the heading (e.g. the page's own <h1> title, a specs
+        # table) would have the heading buried in the middle of `raw_text`
+        # instead of stripped off the front, and this would wrongly return
+        # that whole mixed blob - title text and all - as if it were the
+        # real description. Safer to keep climbing (and ultimately return
+        # None) than risk that.
+        if stripped == raw_text:
+            node = node.parent
+            continue
+        if len(stripped) >= MIN_HOMES_DESCRIPTION_LENGTH and not _looks_like_title_echo(stripped, title):
+            return stripped
+        node = node.parent
+    return None
+
+
+def _homes_meta_description(html):
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return None
+    meta = soup.find("meta", attrs={"name": "description"}) or soup.find(
+        "meta", attrs={"property": "og:description"}
+    )
+    if not meta or not meta.get("content"):
+        return None
+    content = meta["content"].strip()
+    return content or None
+
+
+def extract_description_homes(html, title=None):
+    """Best-effort real free-text description for a homes.bg detail page -
+    see the module comment above for the full 3-tier search order and why
+    each tier was chosen. Never raises; returns None (not a guess) when no
+    tier finds a candidate that clears MIN_HOMES_DESCRIPTION_LENGTH and
+    isn't a title echo."""
+    for candidate in (
+        _homes_label_description(html, title=title),
+        _homes_meta_description(html),
+        extract_description_ldjson(html),
+    ):
+        if not candidate:
+            continue
+        text = candidate.strip()
+        if len(text) >= MIN_HOMES_DESCRIPTION_LENGTH and not _looks_like_title_echo(text, title):
+            return text
+    return None
+
+
 # bazar.bg and olx.bg both embed the listing's full photo gallery as the
 # "image" key of the same <script type="application/ld+json"> block
 # extract_description_ldjson() already reads "description" from -
