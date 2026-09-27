@@ -5,368 +5,351 @@ on every listing still missing. They need to be built in a section (same
 size and next to the map section). Every listing must include
 specifications from the original listing."*
 
-This is a **focused doc, not a section inside `docs/property-filter-spec.md`**,
-following the exact precedent that doc already set for
-`docs/deal-calculator-formulas.md` (see that doc's own section 8: a UK
-screenshot alone couldn't answer the question, so independent research was
-split into its own file and cross-referenced). The same applies here: the
-UK reference material (`property-filter-spec.md` section 5's Due Diligence
-panel: *"Bed/bath/garage icons, floor area: replicable"*, *"'Existing
-Extension' tag, Construction age (date range): replicable if source data
-includes build year/renovation info"*) told us this kind of field belongs on
-imotenradar, but it can't tell us what a **Bulgarian** listing actually
-publishes - that required its own research, done here. A one-line
-cross-reference has been added to `property-filter-spec.md` section 5
-pointing here; nothing else in that document was changed.
+## Erratum (2026-09-27, Missy's review of this doc's original PR #309 - NOT APPROVED)
 
-**Confirmed before starting:** grepped all 8 scrapers
-(`scraper.py`, `scraper_alo.py`, `scraper_bazar.py`, `scraper_bcpea.py`,
-`scraper_homes.py`, `scraper_imot.py`, `scraper_imoti_bg.py`,
-`scraper_olx.py`) - none extract floor level, total floors, construction
-type, year built, heating, elevator, or furnishing status today. This is
-genuinely new scope, not a regression.
+**This doc's central premise was wrong, and has been corrected in place
+rather than left standing.** The original version below claimed a
+Specifications section was "genuinely new scope, not a regression" and
+that no scraper extracted any of these fields. Both claims were false:
 
----
+- **A Specifications panel (and an Agency panel) already existed and
+  already shipped live for 3 of the 8 portals** before this doc's research
+  pass ever ran - `geo_utils.extract_specs_alo()`,
+  `extract_specs_bazar()`, and `extract_specs_imoti_bg()` (wired into
+  `scraper_alo.py`, `backfill_detail_bazar.py`/`scraper_bazar.py`, and
+  `scraper_imoti_bg.py` respectively), synced as real columns via
+  `sync_to_supabase.py`'s `SOURCE_FIELDS`, and rendered by `index.html`'s
+  `renderSpecsPanel()`/`renderAgencyPanel()`. The original research pass
+  grepped for field names it invented itself (`year_built`, `elevator`,
+  `furnishing`) instead of the real ones, missed all of the above, and
+  concluded there was nothing there.
+- **The real, most likely root cause of the user's complaint was never
+  identified.** The panel existed but was buried inside the click-gated
+  "Details" tab rather than visible next to the map, and real data is
+  only populated for 3 of 8 portals - so most listings genuinely showed
+  nothing there even though the code path existed. Section 1 below now
+  describes this correctly; the fix (moving the panel next to the map,
+  per the user's literal, twice-repeated request) shipped in the same
+  change that corrected this doc - see `renderSpecsHistoryPanel()` in
+  `index.html` and `docs/decisions.md`'s entry for this date.
+- **The proposed field names collided with the real, already-shipped
+  schema** (`year_built` vs. the real `built_year`; a boolean-style
+  `elevator` vs. the real `has_elevator`; a tri-state `furnishing` vs. the
+  real boolean `furnished`). Section 2 below is corrected to build against
+  the real names for anything that overlaps, and only proposes genuinely
+  new keys for fields nothing shipped extracts yet.
+- **The per-portal ease ranking had it backwards** for the portals that
+  matter most: alo.bg and bazar.bg were rated "Uncertain - verify live
+  before committing" when they are in fact the two portals with the LEAST
+  uncertainty of any of the 8 - real, shipped, tested extraction, not a
+  guess. imoti.bg was rated a blanket "Easy" when its real gap is
+  specific and structural (see below), not a general confidence rating.
+  homes.bg was rated "Easy, and de-risked" without flagging that it needs
+  a real new capability (a detail-page fetch) it does not have today.
+  Section 4 below is corrected.
+- **The homes.bg "confirmed" data point was mischaracterized.** Backlog
+  item 9 / PR #217 found ONE combined string
+  ("Тухла/Бетон, Полуобзаведен" - construction material AND furnishing
+  status joined together in a single field), sourced from the
+  **search-results JSON**, not the detail page (`scraper_homes.py` never
+  fetches homes.bg's detail page at all). This doc's table implied two
+  independently structured fields in a fixed order - not verified, and
+  not what the evidence actually shows. Corrected below; splitting this
+  string safely, if it's even the same fixed order on every listing, is
+  explicitly flagged as unverified.
+- A stale line-number citation for `KEYWORD_DICTIONARY` is fixed.
+- The `syncHistoryPanelHeights()` dependency the frontend placement
+  recommendation didn't know to flag (added after this doc's original
+  research pass, specifically to fix a real live height-desync bug) is
+  now noted in section 3.
 
-## 0. Sourcing note - read this before trusting any specific field claim below
-
-**Live access to all 8 portals was attempted and blocked.** A real, current
-listing URL was pulled from this repo's own committed data
-(`data/leads*.json`) for every portal and fetched via `WebFetch`:
-
-| Portal | URL attempted | Result |
-|---|---|---|
-| imoti.net | `imoti.net/en/obiava/.../tristaen/6272314/...` | `EGRESS_BLOCKED` |
-| homes.bg | `homes.bg/offer/kyshta-za-prodazhba/.../hs296609` | `EGRESS_BLOCKED` |
-| imot.bg | `imot.bg/obiava-1b175093643714011-...` | `EGRESS_BLOCKED` |
-| olx.bg | `olx.bg/d/ad/mnogostaen-apartament-...` | `EGRESS_BLOCKED` |
-| bazar.bg | `bazar.bg/obiava-56169327/...` | `EGRESS_BLOCKED` |
-| alo.bg | `alo.bg/prodavam-apartament-11243706` | `EGRESS_BLOCKED` |
-| sales.bcpea.org | `sales.bcpea.org/properties/90481` | `EGRESS_BLOCKED` |
-| imoti.bg | `imoti.bg/продажби/.../515376.htm` | `EGRESS_BLOCKED` |
-
-Every one was blocked by this sandbox's network egress proxy - the same
-block `docs/design-guidelines.md` already documented for imot.bg/imoti.net
-and that Missy and Scrapy have both independently hit in prior sessions
-(backlog items 4, 6, 9). **Nothing below is a pixel-level live audit.**
-A handful of `WebSearch` queries were run as a secondary check and are cited
-where they add anything, but search snippets are not a substitute for
-seeing a real rendered page either.
-
-Given that, the field list below is built from three tiers of evidence,
-labeled per field/portal so nothing is silently presented as more solid
-than it is:
-
-1. **CONFIRMED, from this codebase's own data** - the strongest evidence
-   available this session, not from Property Filter or general knowledge.
-   One concrete example anchors this whole doc: `docs/backlog.md` item 9
-   documents that `scraper_homes.py` was writing homes.bg's
-   **construction-material/furnishing tag line** ("Тухла/Бетон,
-   Полуобзаведен" - "Brick/Concrete, Semi-furnished") into the
-   `description` field by mistake, fixed in PR #217. That bug is direct,
-   confirmed proof that homes.bg's listing pages carry a distinct,
-   separately-rendered construction-type + furnishing-status field
-   *outside* the free-text description - not a guess, an artifact of a
-   real scraper bug already found and documented in this repo.
-2. **General knowledge of the Bulgarian real-estate-portal genre** - Nosy's
-   own training knowledge of imot.bg, imoti.net, imoti.bg, homes.bg, olx.bg,
-   bazar.bg, alo.bg and BG judicial-auction listings as a category. This is
-   knowledge of a well-established, long-running national market, not a
-   guess extrapolated from unrelated markets - but it is still **not** a
-   confirmed live audit, and portal UIs change over time. Flagged
-   **GENERAL KNOWLEDGE** per field/portal below.
-3. **WebSearch snippets** - a handful of search results (Bulgarian-language
-   queries about each portal's field labels) that corroborate the
-   general-knowledge claims without being a full page view. Flagged
-   **SEARCH-CORROBORATED** where used.
-
-**Recommendation to whoever picks up the per-portal extraction work:**
-before writing a single selector, do one live fetch per portal from a
-network-capable environment (this sandbox cannot) and sanity-check the
-field list below against the real current page - this doc is a strong
-starting point, not a substitute for that five-minute check.
+Everything below has been re-verified against the real code at the
+current `origin/main` HEAD as of this correction, not just patched
+around the errors above.
 
 ---
 
-## 1. What already exists today - don't duplicate it
+## 1. What already exists today - don't duplicate it, and don't miss it
 
-Before adding new fields, it matters that **imotenradar already has a
-partial answer to "specifications" today**, and the new section must be
-positioned as a complement to it, not a duplicate:
+Before adding new fields, two things already exist and the new/expanded
+work must be positioned as a complement to both, not a duplicate of
+either:
 
-`index.html`'s `KEYWORD_DICTIONARY` / `extractKeywordTags()` /
-`renderKeywordsPanel()` (already shipped, ~line 6104-6166) mines each
-listing's free-text `description` + `title` for keyword matches and
+**A. The free-text keyword panel** - `index.html`'s `KEYWORD_DICTIONARY` /
+`extractKeywordTags()` / `renderKeywordsPanel()` (~line 9938-10018) mines
+each listing's free-text `description` + `title` for keyword matches and
 renders them as tag pills, grouped into "Sale features", **"Property
-features"**, and "Close by". The "Property features" group already
-covers, as **boolean detected/not-detected tags, not structured values**:
+features"**, and "Close by". The "Property features" group covers, as
+**boolean detected/not-detected tags, not structured values**: Parking,
+Garage, Elevator, Balcony / terrace, Furnished, Renovated, Brick
+construction, Air conditioning, High ceilings. This is presence-only (no
+slot for "3rd floor of 8" or "built 1998") and depends on `description`
+text, which backlog item 9 already found is missing or badly wrong for
+most listings on most portals. This panel is unaffected by anything below
+and should not be touched.
 
-- Parking, Garage, Elevator, Balcony / terrace, Furnished, Renovated,
-  Brick construction, Air conditioning, High ceilings.
+**B. The real Specifications + Agency panel - already shipped for 3 of 8
+portals, this is what this doc originally missed.** `geo_utils.py` has
+three real detail-page extractors:
 
-This is the exact feature `property-filter-spec.md` section 5 already
-flagged as *"an NLP/keyword-extraction pattern... genuinely one of the
-better features to prioritize"* - it's built, and it's good. But it has
-two real limits worth naming plainly, because they're exactly what the new
-Specifications section should fix:
+- `extract_specs_alo()` (~line 689) - alo.bg, wired into `scraper_alo.py`
+  (~line 535).
+- `extract_specs_bazar()` (~line 1205) - bazar.bg, wired into
+  `backfill_detail_bazar.py` (a detail-page backfill pass, not the main
+  grid scraper) and preserved on subsequent grid re-scrapes via
+  `scraper_bazar.py`'s `_DETAIL_ONLY_FIELDS` merge (~line 570).
+- `extract_specs_imoti_bg()` (~line 1068) - imoti.bg, wired into
+  `scraper_imoti_bg.py` (~line 267, 432-440), **but only for
+  `property_type_raw`/`features`/`has_elevator`/`furnished`/
+  `has_central_heating`** - see part C below for why the rest is missing
+  on this portal specifically, not just "not built yet."
 
-1. **It's presence-only, not value-bearing.** It can say "Elevator" is
-   mentioned, but not "3rd floor of 8" or "built 1998" or "gas heating" -
-   there's no slot for an actual number or an enum value, only a yes/tag.
-2. **It depends on `description` text, which backlog item 9 already found
-   is missing or badly wrong for most listings on most portals** (0% for
-   imoti.net, ~35% coverage with 52-char average on alo.bg, 92% coverage
-   but wrong-field on homes.bg pre-fix, etc.). A field that only exists
-   inside free text inherits every one of those data-quality problems.
+These write real columns - `property_type_raw`, `construction_type`,
+`built_year`, `completion_status`, `floor_number`, `floor_qualifier`,
+`features[]`, `has_elevator` (boolean), `furnished` (boolean),
+`has_central_heating` (boolean), `agency_name`, `agency_website` - synced
+to Supabase via `sync_to_supabase.py`'s `SOURCE_FIELDS` (~line 1101-1107).
+`agency_phone` is rendered by the frontend (`renderAgencyPanel()`) but is
+**never actually populated by any scraper** - alo.bg's own
+`extract_contact_alo()` deliberately skips it (masked/JS-reveal phone
+numbers, see that function's own comment) and no other portal's contact
+extractor was ever given a phone field either; it is dead-but-harmless in
+`sync_to_supabase.py`'s field list terms (it isn't in `SOURCE_FIELDS` at
+all) and the frontend already reads it defensively (`undefined` renders
+as absent, not a crash).
 
-**The new Specifications section's job is specifically the fields that are
-usually published as their own labeled field on a source portal (a
-"Основни данни" / "Характеристики" table, or a form-driven attribute list),
-not fields that only ever appear as prose** - i.e. exactly the category of
-field the homes.bg bug above proves exists separately from `description`.
-Floor/total-floors, year built, heating type, and a real construction-type
-enum are the new section's focus; Parking/Garage/Elevator/Balcony/
-Furnished/Brick as *boolean tags* should stay exactly where they are in the
-existing keywords panel - don't re-implement them as a second, competing
-UI element. (Elevator specifically: if a portal *also* exposes it as a
-structured yes/no field rather than only inline text, extracting it
-structurally and feeding it into the new section as a real value alongside
-Floor/Total Floors is a reasonable upgrade - but the boolean tag path
-should keep working as the fallback for portals that don't.)
+`index.html` already renders this via `renderSpecsPanel()`
+(~line 10043) and `renderAgencyPanel()` (~line 10067) - "Property type /
+Construction type / Built year / Completion status / Floor" plus feature
+tags and agency info, using exactly the real column names above (an
+earlier bug had this reading a made-up `l.property_type` instead of the
+real `property_type_raw`; already fixed, see that function's own
+"Correction (2026-09-24)" comment).
 
----
+**Until this correction, both panels only rendered inside the click-gated
+"Details" tab** (`renderListingDetail()`, called right after
+`renderKeywordsPanel()`), never visible next to the map the way the user's
+twice-repeated request describes. **This is now fixed as part of the same
+change that corrected this doc**: both are relocated into
+`.detail-history-row` as a third panel via a new `renderSpecsHistoryPanel(l)`
+wrapper (index.html, next to `renderSpecsPanel()`/`renderAgencyPanel()`)
+that reuses both functions' output completely unchanged, adds a shared
+empty state for the (still common, 3-of-8-portals) case where a listing
+has neither, and is no longer duplicated inside the Details tab. See
+section 3 for the concrete markup/CSS and section 4/5 for what's still
+genuinely missing per portal.
 
-## 2. Recommended field list, priority order
-
-Each field: normalized key (for the data layer / scraper schema), the
-Bulgarian label(s) it's known/believed to appear under, a UI label, its
-value format, which property types it applies to, and its evidence tier.
-
-### Tier 1 - core structural specs, worth a guaranteed row slot in the section
-
-| # | Normalized key | BG label(s) seen/expected | UI label | Value format | Applies to | Evidence |
-|---|---|---|---|---|---|---|
-| 1 | `floor` + `total_floors` | Етаж / Етажност | "Floor" | `"3 of 8"` (combine both into one row when both present; if only one is known, show just that one, never a fabricated other half) | Apartments (multi-unit buildings); N/A for standalone houses/plots | GENERAL KNOWLEDGE - this is the single most standard structured field across Bulgarian apartment listings |
-| 2 | `construction_type` | Тип строителство / Конструкция: Тухла (brick), Панел (panel/precast), ЕПК (a specific Bulgarian large-panel system), Гредоред (older timber-beam), Стоманобетон/Монолитна (reinforced-concrete monolithic) | "Construction" | one of a fixed enum (see vocabulary note below) | Apartments and houses | GENERAL KNOWLEDGE, **CONFIRMED indirectly**: homes.bg bug (section 1) shows this exact category of field exists as a distinct source field, not just prose |
-| 3 | `year_built` | Година на строеж / Строителна година | "Year built" | 4-digit year, or a decade range if that's all the source gives (e.g. "1980s") | Apartments and houses | GENERAL KNOWLEDGE |
-| 4 | `heating` | Отопление: ТЕЦ (district/central heating), Климатик (A/C heat pump), Локално/Парно (local boiler), Печка (stove), без отопление | "Heating" | one of a fixed enum | Apartments and houses | GENERAL KNOWLEDGE |
-| 5 | `furnishing` | Обзавеждане: Обзаведен / Полуобзаведен / Необзаведен | "Furnishing" | Furnished / Semi-furnished / Unfurnished | Apartments and houses (not land) | GENERAL KNOWLEDGE, **CONFIRMED indirectly** by the same homes.bg bug ("Полуобзаведен" was literally in the mis-scraped string) |
-
-### Tier 2 - common, but keep as structured values only when the source gives a real one (not a text-mined guess); the boolean-tag fallback already covers "mentioned somewhere"
-
-| # | Normalized key | BG label(s) | UI label | Value format | Applies to | Evidence |
-|---|---|---|---|---|---|---|
-| 6 | `exposure` | Изложение: Юг/Север/Изток/Запад, combinations (e.g. "Юг/Изток") | "Exposure" | one or two of N/E/S/W | Apartments mainly | GENERAL KNOWLEDGE |
-| 7 | `elevator` | Асансьор: Да/Не | "Elevator" | Yes/No, only when the source gives it as a real field distinct from the keyword-tag text-mining path in section 1 | Apartments in multi-story buildings | GENERAL KNOWLEDGE - overlaps with the existing keyword tag, see section 1's note |
-
-### Tier 3 - category-specific, conditional on property type, lower priority but cheap if already scraped
-
-| # | Normalized key | BG label(s) | UI label | Value format | Applies to | Evidence |
-|---|---|---|---|---|---|---|
-| 8 | `yard_sqm` | Дворно място / Двор | "Yard" | m² | Houses only | GENERAL KNOWLEDGE |
-| 9 | `regulation_status` | Регулация: В регулация / Извън регулация | "Zoning" | In zone / Out of zone | Plots/land only | GENERAL KNOWLEDGE, lower confidence |
-| 10 | `cadastral_id` | Идентификатор по кадастъра | "Cadastral ID" | reference string, ties to the existing `property-filter-spec.md` section 5 note about a cadastral identifier as the weak BG substitute for a UK Land Registry title number | Any, but realistically only ever populated on sales.bcpea.org's legally-formatted auction listings | GENERAL KNOWLEDGE + property-filter-spec.md section 5 cross-reference |
-
-**Deliberately excluded, do not build:**
-- **Tenure/ownership type** - already ruled UK-only-mostly-inapplicable in
-  `property-filter-spec.md` section 4 (Bulgarian property is
-  overwhelmingly freehold-equivalent).
-- **EPC / energy-efficiency rating** - already flagged in
-  `property-filter-spec.md` sections 3/4/5 as a real Bulgarian scheme that
-  *may* exist (сертификат за енергийна ефективност) but with no confirmed
-  scrapable source found yet; don't add a slot for it until that's
-  resolved, to avoid a permanently-empty row.
-- **Rooms/total area/price/price-per-m²** - already exist as their own
-  fields elsewhere on the page (title strip, `detail-stats`); don't
-  duplicate them inside the new Specifications section.
-
-**Vocabulary normalization note (for the scraper-side builder):** each BG
-source site will phrase these differently (e.g. "тухла" vs "тухлена
-конструкция" vs "Brick" on imoti.net's English pages, similar to the exact
-English/Bulgarian keyword-matching problem `category_classifier.py` already
-solves for property type - see `docs/backlog.md` item 5). Recommend a small
-shared `normalize_specifications()` helper (new module, e.g.
-`spec_normalizer.py`), mirroring the already-working precedent of
-`category_classifier.classify_listing()` being shared across
-`scraper_alo.py`/`scraper_imoti_bg.py`/`scraper.py` - one place owns the
-BG-term-to-canonical-enum mapping so all 8 scrapers write the same
-normalized values instead of each inventing its own strings.
+**C. Why imoti.bg is a partial case, not a missing one.**
+`extract_specs_imoti_bg()`'s own comment (geo_utils.py, ~line 955-968) is
+explicit and worth quoting rather than re-summarizing loosely: schema.org
+(the `application/ld+json` vocabulary this extractor reads) has no core
+term for `construction_type`, `built_year`, `completion_status`,
+`floor_number`, or `floor_qualifier` - only `floorSize`, `amenityFeature`,
+and the Accommodation subtype names are real, documented schema.org
+properties, which is why only `property_type_raw`/`features`/
+`has_elevator`/`furnished`/`has_central_heating` are extracted for this
+portal. The comment names the concrete next step for anyone extending
+this: check a candidate's `additionalProperty` array (schema.org's
+generic name/value escape hatch) once live access is available. This is
+a **real, specific, structural gap** (no vocabulary term exists, not "not
+gotten to yet") and should not be rated a blanket "Easy" the way the
+original version of this doc did (see section 4).
 
 ---
 
-## 3. Display format and placement
+## 2. Field list - real schema first, proposed additions second
+
+**Do not invent new field names or a second schema for fields that
+already ship.** Any new extraction work for an already-covered field
+(construction type, built year, completion status, floor, elevator,
+furnished, central heating, property type, features) must write into the
+existing real columns listed in section 1(B) - `property_type_raw`,
+`construction_type`, `built_year`, `completion_status`, `floor_number`,
+`floor_qualifier`, `features[]`, `has_elevator`, `furnished`,
+`has_central_heating`, `agency_name`, `agency_website` - not a
+parallel `year_built`/`elevator`/`furnishing`-style set. The table below
+is corrected to show the mapping explicitly, and only proposes genuinely
+new keys where nothing shipped touches the concept at all.
+
+### Already real (ship for alo.bg + bazar.bg fully, imoti.bg partially - see 1C)
+
+| Real column | UI label (`renderSpecsPanel()`) | Value format | Note |
+|---|---|---|---|
+| `property_type_raw` | "Property type" | free string, portal's own wording (e.g. "2-стаен") | Not normalized across portals today - a `spec_normalizer.py`-style shared mapping (see the old section 2's vocabulary note) is still a reasonable future improvement, not required for this fix |
+| `construction_type` | "Construction type" | free string (e.g. "Тухла", "ЕПК") | imoti.bg: not extracted, no schema.org term (1C) |
+| `built_year` | "Built year" | 4-digit int | imoti.bg: not extracted (1C) |
+| `completion_status` | "Completion status" | free string | imoti.bg: not extracted (1C) |
+| `floor_number` + `floor_qualifier` | "Floor" (combined: `"4 (Непоследен)"`) | int + optional qualifier string | alo.bg's `floor_qualifier` is a qualifier word ("Непоследен" - "not top floor"), NOT a total-floor-count; bazar.bg only ever sets `floor_number`, no qualifier. imoti.bg: neither extracted (1C) |
+| `features[]` | feature tag pills | array of free strings | All 3 portals |
+| `has_elevator` | folded into feature tags upstream, not its own row | boolean | Derived from a matched feature string, all 3 portals |
+| `furnished` | folded into feature tags upstream, not its own row | boolean | All 3 portals |
+| `has_central_heating` | folded into feature tags upstream, not its own row | boolean | All 3 portals |
+| `agency_name` / `agency_website` | "Agency" panel | strings | alo.bg + imoti.bg (bazar.bg's own extractor doesn't collect agency contact) |
+| `agency_phone` | "Agency" panel (📞 link) | string | **Never populated by any scraper** - alo.bg's masked/JS-reveal number is deliberately not extracted (`extract_contact_alo()`'s own comment); frontend already handles its absence gracefully |
+
+### Genuinely new - not shipped anywhere, real candidates for a fast-follow
+
+Kept from the original research pass, since nothing here overlaps a real
+column - but every new key should still land inside the same flat
+per-listing shape (`l.<key>`, matching `sqm`/`price_eur`/the fields
+above), not a nested `specs` object, for consistency with how the shipped
+fields already sit.
+
+| Proposed key | BG label(s) seen/expected | UI label | Value format | Notes |
+|---|---|---|---|---|
+| `total_floors` | Етажност | "Floor" (combine with `floor_number` when both known: `"4 of 8"`) | int | Distinct from the real `floor_qualifier` above - nothing shipped captures a building's total floor count today on any portal |
+| `heating_type` | Отопление: ТЕЦ / Климатик / Локално / Парно / Печка | "Heating" | enum string | `has_central_heating` (real, shipped) already covers the ТЕЦ/central-heating yes-no case as a boolean; this would be a richer enum covering the other heating types, not a replacement |
+| `exposure` | Изложение: Юг/Север/Изток/Запад | "Exposure" | 1-2 of N/E/S/W | Apartments mainly |
+| `yard_sqm` | Дворно място / Двор | "Yard" | m² | Houses only |
+| `regulation_status` | Регулация: В регулация / Извън регулация | "Zoning" | In zone / Out of zone | Plots/land only, lower confidence |
+| `cadastral_id` | Идентификатор по кадастъра | "Cadastral ID" | reference string | Realistically only sales.bcpea.org's legally-formatted auction listings |
+
+**Deliberately excluded, unchanged from the original research:**
+Tenure/ownership type (Bulgarian property is overwhelmingly
+freehold-equivalent, already ruled out in `property-filter-spec.md`
+section 4); EPC/energy-efficiency rating (no confirmed scrapable source
+yet, `property-filter-spec.md` sections 3/4/5); rooms/total area/
+price/price-per-m² (already exist elsewhere on the page, don't duplicate).
+
+---
+
+## 3. Display format and placement - IMPLEMENTED as of this correction
 
 ### Placement - "same size and next to the map section"
 
-The current listing detail page already has exactly the row this request
-describes: `.detail-history-row` (in `renderListingDetail()`, `index.html`
-~line 6852), a CSS grid (`grid-template-columns: repeat(auto-fit,
-minmax(240px, 1fr))`, `gap: 24px`) currently holding two same-styled panels
-side by side - `renderRadiusPanel(l)` (the map) and `.price-history-panel`.
-It already collapses to one column at narrow widths with no extra work.
+`.detail-history-row` (in `renderListingDetail()`, `index.html`
+~line 11464 as of this change - line numbers drift, search for the
+literal class name rather than trusting any cited number including this
+one) is a CSS grid (`grid-template-columns: repeat(auto-fit,
+minmax(240px, 1fr))`, `gap: 24px`) that held two same-styled panels -
+`renderRadiusPanel(l)` (the map) and `.price-history-panel`. **A third
+panel has now been added**: `renderSpecsHistoryPanel(l)`, called right
+alongside the other two, producing a `.specs-history-panel` box reusing
+the exact same background/border/radius/padding as `.price-history-panel`
+and wrapping `renderSpecsPanel(l)`'s + `renderAgencyPanel(l)`'s own,
+completely unchanged output (their nested `margin-top`/`border-top`
+divider styling, meant for stacking under other Details-tab content, is
+reset to flush via a scoped `.specs-history-panel .specs-panel` /
+`.agency-panel` override rather than editing those two functions). The
+grid's existing `auto-fit` behavior handles 3 children the same way it
+already handled 2 - no new breakpoint logic needed.
 
-**Recommendation:** add the new Specifications panel as a third child of
-this same grid (`renderSpecificationsPanel(l)`, called right alongside
-`renderRadiusPanel(l)` and the price-history panel), reusing the exact same
-panel styling already defined for `.price-history-panel` (`background:
-var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius:
-6px; padding: 16px 18px;`). This satisfies "same size, next to the map"
-literally, requires no new CSS grid work (the row is already `auto-fit`),
-and keeps the map/price-chart/specifications trio visually consistent.
-**This exact placement (third grid cell vs. its own separate row) is a
-judgment call, not something the user specified pixel-for-pixel** - flagged
-so whoever builds it can adjust if a three-way row reads too cramped once
-real content is in it; the styling reuse is the load-bearing
-recommendation, the exact grid slot is a reasonable default.
+### Row format
 
-### Row format - reuse the existing `.detail-stats` / `.detail-stat` convention, not a new icon grid
+Reuses `renderSpecsPanel()`'s own already-shipped `.specs-grid`/
+`.specs-row` markup (small-caps uppercase label above a plain-text value,
+matching `.detail-stats`/`.detail-stat`'s established convention) - not
+rebuilt, not a new icon grid.
 
-`index.html` already has an established label+value convention used for
-the top summary stats and the price-history stats
-(`.detail-stats`/`.detail-stat`, ~line 374-377): a grid of cells, each with
-a small-caps uppercase label (`font-size: 11px`, `letter-spacing: 0.03em`,
-taupe color) above a plain-text value (`16px`, `600` weight, ink color) -
-**no icons**. This already matches `docs/design-guidelines.md`'s explicit
-anti-pattern #1 and #7 (avoid dense icon-grid stat blocks; prefer text
-labels over icon-only elements). The new Specifications panel should reuse
-this exact `.detail-stats`/`.detail-stat` markup pattern - one cell per
-field from section 2 above (label = "Floor", value = "3 of 8", etc.) -
-rather than inventing a new icon-plus-label row style. This also means no
-new CSS is needed for the fields themselves, only the outer panel wrapper.
+### Missing-data handling - now genuinely common (3 of 8 portals ship data), not hypothetical
 
-### Missing-data handling - this needs to be graceful, since it will be common
+`renderSpecsPanel()` already omits any single missing field (a listing
+with only `floor_number` known renders a one-cell grid, not a five-cell
+grid with four dashes) and returns `''` when nothing at all is known -
+this part of the original design already matched section 3's "omit the
+row" recommendation once real data existed to test it against. What was
+missing, and is now fixed, is the **whole-panel** empty case: an empty
+string collapsing a grid cell to nothing next to two full-height panels
+reads as a broken layout, not "not specified" - especially now that this
+sits outside the click-gated tab where a genuinely empty string was
+easy to miss unnoticed. `renderSpecsHistoryPanel()` now reuses the
+platform's shared `emptyStateHtml()` treatment (icon + title + message,
+the same pattern already used for e.g. the Area Data tab's "Area data not
+available" state) rather than rendering nothing, with copy naming the
+per-portal cause plainly: *"{portal} doesn't publish property type,
+construction, floor, or agency details for this listing yet - coverage
+currently varies by portal and fills in as it becomes available."*
 
-Every scraper currently writes **zero** of these fields, so on day one
-every single listing will have an empty (or near-empty) Specifications
-panel. Two existing precedents in this codebase already solve this shape of
-problem and should both be reused rather than inventing a third pattern:
+### `syncHistoryPanelHeights()` dependency - not known to the original doc, now handled
 
-1. **Omit the row, don't show a placeholder dash, for a single missing
-   field.** The existing `.detail-stat` cells elsewhere on the page use a
-   `?? '–'` fallback (e.g. `l.score ?? '–'`) because those cells are always
-   meaningful stats the platform itself computes. Specifications are
-   different: most will be simply absent per-listing, and rendering five
-   "–" cells in a row reads as broken, not "not specified". **Recommend:
-   only render a `.detail-stat` cell for a field if the value is
-   non-null** - i.e. a listing with only `floor`/`total_floors` known
-   renders a one-cell panel, not a five-cell panel with four dashes.
-2. **If literally zero fields are known for a listing, show one graceful
-   sentence instead of an empty-looking panel** - directly mirroring the
-   existing `renderKeywordsPanel()`'s own empty state (*"No description
-   available to extract keywords from yet."*) and the plain-text fallback
-   already used for missing descriptions (*"No description available from
-   {portal} yet — this portal doesn't expose one on its listing grid."*,
-   ~line 6884) and for missing photos (`.listing-photo-placeholder`, icon +
-   "No photo available", ~line 5041/5527/5549). Recommended wording,
-   matching that tone: *"No structural specifications available from
-   {portal} yet — this portal doesn't expose them on its listing page."*
-   This also gives a natural place to be honest that the gap is
-   per-portal, not a platform bug, exactly like the description fallback
-   already does.
-3. This same "omit the row" principle already has a precedent one level up
-   too: `docs/backlog.md`'s Area Data work has an
-   `AREA_DATA_MIN_SAMPLE = 5` graceful "not enough data" empty state for
-   thin areas, and the spec for that panel explicitly notes Property
-   Filter itself shows a "Not Enough Data" state rather than faking
-   numbers (`property-filter-spec.md` section 5, Area Data tab). Same
-   philosophy applies here: never fabricate a value, never show a
-   full-looking panel of dashes.
+Added 2026-09-26 (before this doc's original research pass ran, but not
+mentioned by it) specifically to fix a real live height-desync bug
+between the map and price-history panels, `syncHistoryPanelHeights()`
+(index.html, called from `renderListingDetail()`) hardcoded exactly two
+selectors: `.radius-panel` and `.price-history-panel`. **Adding a third
+`.detail-history-row` panel without updating this function would have
+quietly reintroduced the exact bug it exists to prevent** - the two
+original panels would keep equalizing with each other while the new one
+sat at its own unmanaged height. Fixed as part of this same change:
+`syncHistoryPanelHeights()` now measures and equalizes every panel the
+row actually has (`.radius-panel, .price-history-panel,
+.specs-history-panel`, queried fresh each call) rather than a hardcoded
+pair, so a future fourth panel won't need this function edited again
+either. **Anyone adding a fourth `.detail-history-row` panel in the
+future should re-check this function is still covering it** - this is
+exactly the kind of dependency that's easy to miss without reading this
+far, per how this doc itself got it wrong the first time by not knowing
+this function existed.
 
 ---
 
-## 4. Per-portal extractability assessment
+## 4. Per-portal extractability assessment - corrected ranking
 
-**All rows below are GENERAL KNOWLEDGE / SEARCH-CORROBORATED, not a live
-audit - see section 0.** "Structure" describes how the field is believed to
-appear on the listing page; "Ease" is a rough read on whether this looks
-like a clean structured-extraction job (a labeled key-value table/list
-already on the page) or a harder text-mining job (only ever in free
-prose), for whoever scopes the per-portal work.
-
-| Portal | Believed structure | Ease | Notes |
+| Portal | Real status | Ease | Notes |
 |---|---|---|---|
-| **imot.bg** | Dedicated "characteristics" table/list on the listing page (labeled key-value pairs: Етаж, Етажност, Конструкция, Отопление, etc.) | **Easy** | One of Bulgaria's two largest dedicated real-estate portals (with imoti.net); WebSearch snippets (section 0) corroborate a structured characteristics block exists. Highest-confidence portal in this list. |
-| **imoti.net** | Same category of dedicated portal as imot.bg; an "Property information" style block with labeled fields is expected on both the Bulgarian and English (`/en/`) pages | **Easy, with a caveat** | `docs/backlog.md` item 5 already found this scraper crawls the **English** `/en/` pages for category classification, and the English pages' Bulgarian-only category keywords caused a real, shipped bug - the same English-page risk applies here: labels/enum values will likely be in English on this scraper's crawled pages, not Bulgarian, and need their own vocabulary mapping (or a switch to the Bulgarian-language pages, the "bigger, riskier option" that same backlog item explicitly declined to take for the category-classification bug). |
-| **imoti.bg** | Dedicated real-estate portal, same tier as imot.bg/imoti.net; expected labeled characteristics table | **Easy** | `docs/backlog.md` item 5's fix references `scraper_imoti_bg.py` as already sharing the good `category_classifier` pattern - a reasonable sign this scraper's existing code is already handling this portal carefully; worth using as the reference implementation once a first portal is picked for this feature, per that item's own note that imoti.bg is "a working reference for whoever fixes the other portals" (in the description-coverage context, but the same portal-maturity signal applies here). |
-| **homes.bg** | Structured field(s) confirmed to exist separately from `description` - **the one portal with direct proof in this codebase**, not just general knowledge (section 1's construction-material/furnishing bug) | **Easy, and de-risked** | This is the strongest starting point of all 8 portals: we already know from a real, fixed bug exactly what a construction-type+furnishing string looks like in this portal's raw data ("Тухла/Бетон, Полуобзаведен"), so the "does this field exist at all" question is already answered here - recommend building/testing this portal's extraction first. |
-| **sales.bcpea.org** | Judicial/private-enforcement-agent auction listings are a legally-formatted announcement, typically carrying an appraisal-report-derived technical description (construction type, year, floor/floors) plus a cadastral identifier and tax-assessment value, as a matter of legal form, not marketing copy | **Likely easy, but format may differ from the other 7** | GENERAL KNOWLEDGE, lower direct-experience confidence than imot.bg/imoti.net since this is a narrower/more specialized site category. `docs/backlog.md` items 4/9 already treat this portal as structurally different from the marketing portals (categorical "Auction" tag applied portal-wide regardless of text, low photo coverage 43.6%) - the same "different animal" pattern likely applies to specifications: expect a denser, more legalistic single block of text/table rather than a marketing-style icon row. Worth a dedicated look, not an afterthought. |
-| **olx.bg** | OLX's real-estate posting form is, in Nosy's general knowledge of the OLX product across markets, dropdown/select-driven for several attributes (floor, construction type), which usually produces a structured "Details" panel on the resulting ad page - **but this is the single least-confirmed structural claim in this table** | **Uncertain - verify live before committing** | GENERAL KNOWLEDGE ONLY, not corroborated by search or codebase evidence the way homes.bg/imot.bg are. OLX is a general classifieds marketplace, not a real-estate-specific portal, and individual sellers can skip optional form fields - even if the panel exists structurally, per-listing fill rates may be much lower than on imot.bg/imoti.net. Flag for a live check before assuming this is a clean structured job. |
-| **bazar.bg** | Similar general-classifieds-with-category-specific-fields pattern to olx.bg, plausibly with its own "Детайли" attribute panel for real estate | **Uncertain - verify live before committing** | Same confidence caveat as olx.bg - general knowledge only, not corroborated. `docs/backlog.md` item 9 already found bazar.bg's descriptions are short (avg 159 chars, "shorter than expected, check the selector" flag) - worth checking, while investigating that existing flag, whether some of that "missing" description text is actually specification data sitting in a separate structured panel the current scraper doesn't read at all (the same shape of thing the homes.bg bug turned out to be). |
-| **alo.bg** | Same general-classifieds pattern as olx.bg/bazar.bg | **Uncertain - verify live before committing, same suspicion as bazar.bg** | `docs/backlog.md` item 9 found alo.bg's description average is only **52 characters** - unusually short even among the "coverage gap" portals, flagged there as needing a live check for "genuinely short source description... or another wrong-selector bug like homes.bg's". That open question and this doc's question are plausibly the same root cause: alo.bg may render specifications (floor, construction type, etc.) as their own labeled fields/icon row separate from a genuinely short free-text description, the same shape as the already-fixed homes.bg bug. **Recommend investigating this alongside backlog item 9's still-open alo.bg task, not as a separate blind effort** - same portal, likely same underlying page structure question. |
+| **alo.bg** | **SHIPPED** - `extract_specs_alo()`, full field set (property_type_raw, construction_type, built_year, completion_status, floor_number, floor_qualifier, features, has_elevator, furnished, has_central_heating, agency_name, agency_website) | **Already done - least uncertain of any portal here** | The original doc rated this "Uncertain - verify live before committing" based on general-knowledge guessing; that was wrong even at the time it was written, since the real extractor already existed in this same codebase. Nothing further needed unless expanding beyond the current field set. |
+| **bazar.bg** | **SHIPPED** - `extract_specs_bazar()`, same field set minus agency contact (this portal's extractor doesn't collect agency name/website) | **Already done - least uncertain, same as alo.bg** | Same correction as alo.bg: previously rated "Uncertain - verify live before committing," actually already shipped and working via `backfill_detail_bazar.py`. |
+| **imoti.bg** | **PARTIALLY SHIPPED** - `extract_specs_imoti_bg()` gets `property_type_raw`/`features`/`has_elevator`/`furnished`/`has_central_heating` from real schema.org ld+json, but **cannot** get `construction_type`/`built_year`/`completion_status`/`floor_number`/`floor_qualifier` - no core schema.org vocabulary term exists for any of them (see section 1C, and that function's own comment for the concrete next step: check `additionalProperty` once live access exists) | **Not a blanket "Easy"** - the shipped subset is done; the missing subset is a specific, structural, unsolved gap, not a general confidence rating | The original doc rated this portal a flat "Easy" with no field-level distinction. Correcting: rate the shipped fields as done, and the missing fields as their own, harder, dedicated task (needs either live-page inspection for a real `additionalProperty` mapping, or a different extraction source than ld+json entirely). |
+| **homes.bg** | **NOT SHIPPED - needs a new capability, not just a selector.** The one confirmed data point (backlog item 9 / PR #217) is a **single combined string** ("Тухла/Бетон, Полуобзаведен" - construction material AND furnishing status joined in one field), read from the **search-results JSON** (`offer["description"]`, despite the misleading key name) - `scraper_homes.py` never fetches homes.bg's detail page at all today (confirmed in that scraper's own code comment: "which this scraper never fetches, since it only ever calls the paginated search/listing endpoint"). Building out a real Specifications panel for this portal - floor, built year, completion status, etc., the fields most likely to only live on the detail page - requires adding that detail-page fetch first, the same new capability backlog item 9 already flags as the prerequisite for a real homes.bg description too. | **Prerequisite work needed before this is "Easy"** | The original doc rated this "Easy, and de-risked" and implied the one known string was proof the rest would be simple. Corrected: the one string is real, but (a) it's one field, not two independently structured ones - **do not assume a fixed split order without verifying it against real, current data first**, since a search-results tag line is exactly the kind of thing that could reorder or vary by category - and (b) it doesn't establish anything about whether floor/built-year/etc. exist anywhere accessible without the new detail-page-fetch capability this portal doesn't have. |
+| **imot.bg** | Not shipped, general knowledge only | Believed easy (dedicated "characteristics" table expected) - unchanged from the original doc, not re-verified this session | Highest-confidence *unshipped* portal, per the original doc's WebSearch corroboration - still not a live audit. |
+| **imoti.net** | Not shipped, general knowledge only | Believed easy with an English-page caveat (unchanged from the original doc) | `docs/backlog.md` item 5's English-page category-classification bug risk still applies to any future label/enum extraction here. |
+| **sales.bcpea.org** | Not shipped, general knowledge only | Likely easy but format may differ (legal-document style) - unchanged from the original doc | Structurally different from the marketing portals per backlog items 4/9; worth its own dedicated look. |
+| **olx.bg** | Not shipped, general knowledge only | Uncertain - verify live before committing (unchanged from the original doc - this uncertainty rating was always correctly placed here, just wrongly ALSO applied to alo.bg/bazar.bg) | Least-confirmed structural claim of the truly-unshipped portals. |
 
-**Overall read:** imot.bg, imoti.net, imoti.bg, and homes.bg (the four
-dedicated real-estate portals) are the highest-confidence, likely-easiest
-targets - build and verify the extraction there first. sales.bcpea.org is a
-plausible fifth easy target but structurally different (legal-document
-style) and deserves its own dedicated look rather than reusing a
-real-estate-portal template. olx.bg, bazar.bg, and alo.bg (general
-classifieds platforms) are the least certain - alo.bg in particular is
-worth investigating jointly with the already-open backlog item 9 short-
-description question, since both may share the same root cause.
-
----
-
-## 5. Handoff notes for the two builders
-
-**Frontend builder** (adds the section to `index.html`):
-- Expects a `specs` object per listing (or flat fields directly on the
-  listing row, matching how `sqm`/`price_eur`/etc. already sit flat on
-  `l`) with the normalized keys from section 2 - `floor`, `total_floors`,
-  `construction_type`, `year_built`, `heating`, `furnishing`, `exposure`,
-  `elevator`, `yard_sqm`, `regulation_status`, `cadastral_id`. All
-  optional/nullable; render logic per section 3 (omit missing rows, omit/
-  message the whole panel if none present).
-- New function `renderSpecificationsPanel(l)`, called from
-  `renderListingDetail()` inside `.detail-history-row` alongside
-  `renderRadiusPanel(l)` and the price-history panel (section 3).
-- Reuse `.detail-stats`/`.detail-stat` CSS as-is; no icons, matching
-  `docs/design-guidelines.md`.
-- Do not touch or duplicate `KEYWORD_DICTIONARY`/`extractKeywordTags()`/
-  `renderKeywordsPanel()` - that panel stays exactly as-is (section 1).
-
-**Per-portal extraction builder(s)** (scraper-side, likely one task per
-portal or per portal-tier, independently shippable like backlog item 9's
-per-portal description tasks):
-- Start with homes.bg (already de-risked, section 4) and the three other
-  dedicated real-estate portals (imot.bg, imoti.net, imoti.bg) before the
-  three general-classifieds portals (olx.bg, bazar.bg, alo.bg) and the
-  auction portal (sales.bcpea.org), per the confidence ordering in
-  section 4.
-- Do one live fetch per portal before writing selectors (this sandbox
-  couldn't - see section 0) - don't build blind off this doc's
-  general-knowledge field list alone.
-- Write to a shared normalized schema (section 2's keys and enums), via a
-  new shared `spec_normalizer.py`-style module rather than each scraper
-  inventing its own strings, mirroring the existing
-  `category_classifier.py` precedent (`docs/backlog.md` item 5).
-- Investigate alo.bg's and bazar.bg's short-description questions
-  (`docs/backlog.md` item 9, still open) jointly with this work, not
-  separately - flagged in section 4 as plausibly the same underlying
-  cause.
+**Overall read, corrected:** alo.bg and bazar.bg need no further backend
+work for the fields listed in section 2's "already real" table - they're
+done. imoti.bg is half-done, with a specific named gap. homes.bg needs a
+new fetch capability before any of this can be built there, not just a
+selector. imot.bg, imoti.net, olx.bg, and sales.bcpea.org remain
+completely unverified general-knowledge guesses, same confidence level as
+the original doc left them - **this task deliberately did not extend
+extraction coverage to any of them** (out of scope for the relocation fix
+this correction shipped alongside; a reasonable fast-follow, not required
+here).
 
 ---
 
-## 6. Process note - no code changed, docs-only
+## 5. Handoff notes - frontend done, backend scope corrected
 
-**This session made no changes to any scraper, schema, or frontend code** -
-only this new doc and a one-line cross-reference added to
-`property-filter-spec.md` section 5. This repo has a standing precedent for
-shipping a pure research/design/scoping pass as its own docs-only PR rather
-than bundling it with implementation (`docs/backlog.md` item 6 slice 2:
-*"DONE (2026-09-23, Bossy, PR #228, docs-only, merged): design/scoping
-done"*) - the same shape applies here. Recommend the same treatment: a
-docs-only PR for this file (and the one-line cross-reference), reviewed and
-merged on its own, with the frontend and per-portal scraper implementation
-work filed as separate backlog items referencing it (Bossy's call, not this
-doc's).
+**Frontend: DONE as of this correction.** `renderSpecsHistoryPanel(l)`
+(index.html) wraps the existing `renderSpecsPanel(l)`/`renderAgencyPanel(l)`
+completely unchanged, as a third `.detail-history-row` child, with a
+graceful empty state and `syncHistoryPanelHeights()` updated to cover it.
+No new field logic was added on the frontend - see section 3.
 
-**A real limitation of this session, stated plainly:** no shell/git tool
-was available, so this file was written directly into the working tree
-rather than via an isolated worktree/branch/PR the way
-`CLAUDE.md`'s shared-working-directory guidance recommends for anything
-beyond a trivial docs edit. Before this is treated as ready to merge,
-whoever has git access should run `git status`/`git log --oneline -5`
-first to confirm nothing else is concurrently touching
-`property-filter-spec.md` or this new file, then commit this addition (and
-only this addition) on a branch and open the docs-only PR described above -
-per `CLAUDE.md`, this should not be self-merged.
+**Per-portal extraction builder(s), if picking up further work:**
+- alo.bg and bazar.bg: nothing to do for the fields in section 2's
+  "already real" table.
+- imoti.bg: the real remaining task is narrow and specific - find a real
+  `additionalProperty` (or other) source for
+  `construction_type`/`built_year`/`completion_status`/`floor_number`/
+  `floor_qualifier` on a live page; don't assume this is a general "easy"
+  job the way the original doc did.
+- homes.bg: the real remaining task starts with adding a detail-page
+  fetch capability (the `backfill_detail_alo.py`/`backfill_detail_bazar.py`
+  pattern this repo already uses for other large portals is the existing
+  precedent to follow) - only after that exists does splitting or
+  verifying the one known combined string become meaningful. Don't split
+  it blind off this doc's assumed order without a real sample to check
+  against.
+- imot.bg, imoti.net, olx.bg, sales.bcpea.org: unchanged from the
+  original doc's guidance - do one live fetch per portal before writing
+  selectors, write to the real shared column names from section 2 (not a
+  new parallel schema), and use `category_classifier.py`'s shared-module
+  precedent (`docs/backlog.md` item 5) as the model if a normalization
+  helper becomes worth building once more portals are involved.
+
+---
+
+## 6. Process note
+
+**This correction's own session made real code and doc changes** (not a
+docs-only pass): `renderSpecsHistoryPanel()`, its CSS, and the
+`syncHistoryPanelHeights()` fix in `index.html`, plus this doc and the
+`property-filter-spec.md` cross-reference, in an isolated git worktree off
+a fresh `origin/main`, per `CLAUDE.md`'s shared-working-directory
+guidance. No scraper, sync, or schema file was touched - the 3-portal
+extraction described in section 1 already shipped in earlier commits
+(`bd510274`, `f9272166`, `28b507c2`, `ac80d36e`, `1c5873f7`), independent
+of this fix. Per `CLAUDE.md`, **not self-merged** - pushed for Missy's
+re-review.
