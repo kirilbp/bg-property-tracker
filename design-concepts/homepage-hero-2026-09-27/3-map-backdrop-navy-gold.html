@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  CONCEPT 3 of 5 — "Map Backdrop" (includes a logo mark)
+  NAVY / GOLD RE-SKIN — color-only variant of 3-map-backdrop.html
+
+  Layout, the full-bleed dark hero, the CSS-only cadastral-grid texture,
+  the reversed wordmark + tagline, the radar-ping logo mark, and the
+  light stat-panel-bleeding-into-dark-hero overlap are all unchanged
+  from the original brass/ivory build. Only color values changed.
+
+  This concept needed the most judgment of the two, since it's the only
+  one with a dark, full-bleed backdrop rather than light-on-light type:
+
+  - The original backdrop was built from hardcoded near-black/brown
+    hex values (#3a2f22 center highlight -> #17130f edge, plus a bottom
+    vignette in rgba(23,19,15,x)) that were never tokenized as CSS
+    variables in the first place - swapping --ink alone wouldn't have
+    touched them. They've been re-derived from the new --ink (#1B2434)
+    navy: the vignette now uses rgba(27,36,52,x) (--ink as RGB), the
+    radial-gradient center is a lightened navy (#2B3A56, roughly the
+    same lighten-ratio the original used off its own edge tone) and the
+    edge is a deeper-than-ink navy-black (#10141F) so the panel still
+    reads as having depth/vignetting rather than going flat.
+  - The grid-texture tint (previously a warm ivory rgba at 0.05 opacity)
+    now uses the new --ivory value at the same 0.05 opacity - same
+    faintness as originally designed, just recolored to the cooler
+    palette so it doesn't look like a leftover warm smear against navy.
+  - The original used a non-tokenized "--ivory-warm" (#f0ebe2) for the
+    reversed wordmark specifically (slightly warmer/deeper than its
+    --ivory token, presumably for a touch of extra brightness on black).
+    The Navy/Gold spec's 9 tokens don't include an equivalent, so this
+    was consolidated to --ivory (#F4F1E8) for the wordmark - it's the
+    brightest ivory in the approved palette and reads clearly against
+    the new navy (contrast ~16:1 against the dark edge, ~10:1 against
+    the lightened gradient center - verified via WCAG relative-luminance
+    calc, both comfortably AAA for large text).
+  - The radar-ping icon's accent dot/line was originally a brightened,
+    non-tokenized gold (#c9a464) rather than the mockup's own --brass
+    token, seemingly because plain brass read a little flat against
+    near-black. Re-checked against the new navy backdrop using the
+    approved --brass (#B08A2E) directly (no invented brighter variant):
+    contrast comes out to ~5.7:1 on the dark edge and ~3.5:1 on the
+    lighter gradient center - both clear the WCAG 3:1 non-text/graphical
+    contrast minimum, so plain --brass was kept rather than introducing
+    an off-palette brighter gold.
+-->
+<meta charset="UTF-8" />
+<title>Imoten Radar — Concept 3: Map Backdrop (Navy/Gold)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1B2434; --ink-soft: #3E4A5E; --taupe: #5B6472; --taupe-light: #D5D5D0;
+    --ivory: #F4F1E8; --ivory-deep: #EAE5D6; --brass: #B08A2E; --brass-deep: #7A5D1E; --sage: #455C4F;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); background: var(--ivory-deep); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .hero {
+    position: relative; overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(27,36,52,0.0) 0%, rgba(27,36,52,0.55) 100%),
+      repeating-linear-gradient(0deg, rgba(244,241,232,0.05) 0, rgba(244,241,232,0.05) 1px, transparent 1px, transparent 64px),
+      repeating-linear-gradient(90deg, rgba(244,241,232,0.05) 0, rgba(244,241,232,0.05) 1px, transparent 1px, transparent 64px),
+      radial-gradient(circle at 70% 25%, #2B3A56 0%, #10141F 70%);
+    padding: 56px 32px 180px;
+  }
+  .hero-inner { max-width: 1440px; margin: 0 auto; position: relative; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--taupe-light); opacity: 0.85; }
+
+  .wordmark-row { display: flex; align-items: center; gap: 28px; margin-top: 48px; }
+  .wordmark-row h1 {
+    font-family: var(--font-serif); font-weight: 500; font-size: 128px; line-height: 0.95;
+    margin: 0; color: var(--ivory); letter-spacing: -0.01em;
+  }
+  .tagline {
+    font-family: var(--font-sans); font-size: 15px; color: var(--taupe-light);
+    margin: 18px 0 0; max-width: 560px; line-height: 1.6;
+  }
+
+  .container { max-width: 1440px; margin: 0 auto; padding: 0 32px 64px; }
+  .stat-row {
+    position: relative; z-index: 2; margin-top: -128px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px;
+    padding: 32px; box-shadow: 0 8px 32px rgba(16,20,31,0.18);
+  }
+  .stat-tile { text-align: center; border-left: 1px solid var(--taupe-light); }
+  .stat-tile:first-child { border-left: none; }
+  .stat-tile .stat-value { font-family: var(--font-serif); font-weight: 500; font-size: 32px; color: var(--ink); margin: 0 0 4px; }
+  .stat-tile .stat-label { font-size: 12px; color: var(--taupe); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+
+  .subtitle { color: var(--taupe); font-size: 13px; margin: 20px 0 0; text-align: center; }
+
+  .card { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 8px; padding: 32px; margin-top: 24px; }
+  .card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 18px; margin: 0 0 6px; }
+  .card p { color: var(--taupe); font-size: 13px; margin: 0 0 18px; }
+  .home-search-row { display: flex; gap: 10px; }
+  .home-search-row input { flex: 1; padding: 14px 16px; border: 1px solid var(--taupe-light); border-radius: 4px; background: var(--ivory-deep); font-size: 14px; color: var(--ink); }
+  .cta-btn { background: var(--brass); color: var(--ink); border: 1px solid var(--brass); padding: 13px 22px; border-radius: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; cursor: pointer; }
+
+  @media (max-width: 900px) {
+    .wordmark-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .wordmark-row h1 { font-size: 64px; }
+    .hero { padding-bottom: 140px; }
+    .stat-row { grid-template-columns: 1fr; margin-top: -96px; }
+    .stat-tile { border-left: none; border-top: 1px solid var(--taupe-light); padding-top: 12px; }
+    .stat-tile:first-child { border-top: none; padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="top-row">
+        <span class="eyebrow">Bulgaria · Property Aggregator</span>
+        <span class="eyebrow" style="letter-spacing:0;text-transform:none;">Good afternoon</span>
+      </div>
+      <div class="wordmark-row">
+        <!-- Logo mark: radar "contact ping" - concentric rings with one
+             solid blip riding the outer ring, distinct from Concept 2's
+             roofline-in-sweep mark; reads at favicon scale as a simple dot
+             on rings, and at this scale as a legible radar-scan icon. -->
+        <svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="54" cy="54" r="46" stroke="#F4F1E8" stroke-width="1.5" opacity="0.35" />
+          <circle cx="54" cy="54" r="31" stroke="#F4F1E8" stroke-width="1.5" opacity="0.45" />
+          <circle cx="54" cy="54" r="16" stroke="#F4F1E8" stroke-width="1.5" opacity="0.6" />
+          <line x1="54" y1="54" x2="54" y2="8" stroke="#B08A2E" stroke-width="2" />
+          <circle cx="54" cy="8" r="5" fill="#B08A2E" />
+          <circle cx="54" cy="54" r="3" fill="#F4F1E8" />
+        </svg>
+        <h1>Imoten Radar</h1>
+      </div>
+      <p class="tagline">Every major Bulgarian property portal, scanned continuously and merged into one list — so nothing new on the market gets past you.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stat-row">
+      <div class="stat-tile"><p class="stat-value">281,029</p><p class="stat-label">Total listings</p></div>
+      <div class="stat-tile"><p class="stat-value">1,342</p><p class="stat-label">🔥 Hot deals</p></div>
+      <div class="stat-tile"><p class="stat-value">8</p><p class="stat-label">Portals tracked</p></div>
+    </div>
+    <p class="subtitle">281,029 unique listings across 8 portals · auto-updates every 6 hours</p>
+
+    <div class="card">
+      <h2>Search listings</h2>
+      <p>Search imotenradar's own tracked listings by city, quarter (кв.), or keyword.</p>
+      <div class="home-search-row">
+        <input type="text" placeholder="Search by address, area, or keyword…" />
+        <button class="cta-btn">Search →</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
