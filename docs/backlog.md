@@ -1252,6 +1252,12 @@ access" framing as the alo.bg selector search above. No auth/session/
 personal-data surface either way - Revy's review not expected to be
 needed for this task.
 
+**9d shipped (2026-09-27):** branch `feat/backfill-detail-homes` pushed for
+Missy's review (not self-merged, per this repo's standing rule) - see the
+"9d update" note after the spec below for what shipped, what's still
+genuinely unverified, and a new, separately-scoped finding (9e) from the
+broader per-portal recheck this task also required.
+
 **9d. homes.bg: zero real description coverage across the site's LARGEST
 portal - NEW, HIGH PRIORITY - CONFIRMED-BLOCKED-BUT-READY-TO-BUILD
 (2026-09-26).**
@@ -1424,6 +1430,162 @@ further investigation):
 Not attempted here per this backlog's own standing rule against shipping
 an unverified/guessed selector - see the live-access findings above.
 Docs-only change for this entry; no code touched.
+
+**9d update (2026-09-27): built per the spec above, general-purpose
+builder.** homes.bg is still fully blocked from this sandbox today (curl
+and WebFetch both fail identically against `www.homes.bg` and several other
+hosts, same as 2026-09-26's check) - so, same as every other "genuinely
+can't verify live" case in this backlog (alo.bg's original selector search,
+imoti.net's untried `/bg` path), this could not be tested against a real
+live homes.bg page. Built and reasoned about as carefully as possible
+given that constraint, mirroring the 6 proven `backfill_detail_*.py`
+scripts' own conventions closely rather than inventing new patterns:
+
+- **Corequisite fix (step 3, done first in the same change):**
+  `scraper_homes.py` now has `_DETAIL_ONLY_FIELDS = ("description",
+  "detail_checked")` and `update_history()` does the identical
+  merge-not-replace logic already proven in `scraper_imot.py` (copied
+  directly, not reinvented) - a fresh grid-only record only overwrites
+  these two fields when it actually carries a non-empty value, otherwise
+  the previous "latest" record's value is preserved. Verified by a new
+  `test_scraper_homes_preserves_detail_fields`/`test_scraper_homes_updates_
+  detail_fields_on_successful_refetch` pair in `tests/test_update_history.py`
+  (alongside the existing 7-scraper suite this repo already runs for items
+  9a/9c), proving both that a grid-only re-touch no longer wipes an
+  already-backfilled description AND that a real new description from a
+  successful detail-page visit still overwrites a stale one - a merge, not
+  a freeze.
+- **`backfill_detail_homes.py`:** new, mirrors `backfill_detail_imot.py`'s
+  structure exactly (checkpointed, time-budgeted, newest-first by
+  `first_seen`, `detail_checked` marker, uses `scraper_homes.py`'s own
+  `load_history()`/`save_history()`/`compute_leads()`/`LEADS_FILE` - never
+  hand-rolls JSON I/O). Fetches via a plain `requests.Session()` (added as
+  `scraper_homes.fetch_listing_detail()`/`fetch_listing_details()`), not
+  Playwright - homes.bg's own grid crawl already succeeds this way with no
+  anti-bot blocking ever observed, unlike imot.bg/olx.bg - rate-limited to
+  1 request/second (`DETAIL_REQUEST_DELAY_SECONDS`, same value
+  `backfill_detail_bazar.py` already uses) to stay polite regardless.
+- **Selector search order - honestly narrower than the spec's own step 1,
+  with the reasoning logged in `geo_utils.py` above
+  `extract_description_homes()`:** implemented 3 of the spec's tiers -
+  (1) a labeled-heading-text search for "Описание" (structure-agnostic
+  ancestor walk, same shape as `extract_description_alo()`'s own fix;
+  "Описание" is the confirmed real label text this codebase already found
+  on two OTHER portals - imot.bg's "Описание на имота:", bcpea.org's
+  "Описание" - real cross-portal evidence, not a fresh guess), (2)
+  `<meta name="description">`/`og:description` (the same pattern already
+  proven at a 94%+ live hit rate on imoti.bg), (3) `application/ld+json`
+  `"description"` (already proven on olx.bg/bazar.bg). Every tier is
+  rejected below `MIN_HOMES_DESCRIPTION_LENGTH` (30 chars, comfortably
+  above the known construction-tag lines' length, e.g. "Тухла/Бетон,
+  Полуобзаведен" is 26) or on a title-echo match (`_looks_like_title_echo()`,
+  the same guard alo.bg's own fix uses). **Deliberately did NOT attempt**
+  the spec's step 1 idea of a different key inside the detail page's own
+  `window.__PRELOADED_STATE__` blob - with no live access to see that
+  blob's real shape, the only way to implement it would be guessing a key
+  name (or picking "the longest Cyrillic string anywhere in a large,
+  unknown-shape JSON blob," which risks confidently extracting the WRONG
+  structured field - an address, an agent bio - as if it were the
+  description). That's the same "don't guess a selector that can't be
+  verified live" line this backlog already draws elsewhere (imoti.net task
+  1, alo.bg's original search) - logged as a genuinely open follow-up in
+  `geo_utils.py`'s own comment for whoever next has live homes.bg access,
+  not attempted here. **This means the real, live production hit rate for
+  this backfill is genuinely unknown until it actually runs** - it's
+  possible (given homes.bg's own frontend is React-SPA-shaped per its
+  `__PRELOADED_STATE__` mechanism) that none of these 3 static-HTML tiers
+  find anything and this ships a `detail_checked: true` backfill with a
+  real 0% hit rate, which would still be useful information (proof the
+  description genuinely doesn't exist in any of the 3 most common places)
+  but not the fix the user is hoping for. Flagged plainly rather than
+  claimed as certain to work.
+- **`.github/workflows/backfill-detail-homes.yml`:** new, modeled on
+  `backfill-detail-bazar.yml` (the closest match - plain `requests`/
+  `beautifulsoup4`, no Playwright install step needed) with this repo's
+  now-corrected modify/delete-safe `git checkout --ours` conflict fallback
+  (PR #303) built in from the start, not retrofitted. Hourly (`10 * * * *`,
+  a free minute-offset slot), own dedicated concurrency group like every
+  other backfill.
+- **Tests:** `tests/test_homes_detail_extraction.py` (new, 13 cases) -
+  synthetic HTML fixtures for all 3 tiers plus the PR #217 regression case
+  (a heading-labeled section that holds only the construction-tag text must
+  still be rejected), a title-echo case, and a defensive case proving an
+  ancestor whose text doesn't start with the heading (i.e. genuinely
+  unrelated leading content, like the page's own `<h1>` title, sits before
+  it) returns `None` rather than leaking that unrelated content back as a
+  fake "description" - same fixture-based, no-live-access-available style
+  already used for `test_alo_detail_extraction.py`.
+- **Verification run:** `python3 -m py_compile` on every changed/new file;
+  full `python3 -m pytest -q` - 293 passed (278 baseline + 15 new: 13
+  extraction tests + 2 update_history tests), no regressions; the new
+  workflow YAML-parses cleanly. No live `workflow_dispatch` used at any
+  point, per this repo's `CLAUDE.md`.
+
+**9e (NEW, from this task's required broader per-portal recheck): alo.bg's
+own STORED description data is 77.7% title-echo-contaminated right now -
+confirmed via a fresh, direct count against the current committed
+`data/leads_alo.json.gz`, not the original 2026-09-26 audit's sample.**
+27,039 of alo.bg's 78,786 active listings (34.3%) have a non-empty
+`description` today - but running every one of those 27,039 through the
+same `_looks_like_title_echo()` guard the 2026-09-26 fix added to
+`extract_description_alo()` finds **21,010 of them (77.7%) are still title
+echoes**, essentially unchanged from the exact 77.7% (233/300) rate that
+fix's own audit sample found and was built specifically to reject going
+forward. This is expected and already implicitly acknowledged by that
+fix's own docstring ("does not retroactively scrub already-stored bad
+descriptions") - but it hadn't been quantified against the FULL dataset
+before, only a 300-record sample, and it means well over three-quarters of
+what `data/leads_alo.json`/the frontend currently shows as alo.bg's
+"description" for still-active listings is not real, useful text. This is
+exactly the shape of the user's own complaint ("just a few words on most
+listings," "descriptions still missing") for a huge share of one of the
+site's largest portals (alo.bg is the single largest portal by active
+listing count site-wide) - genuinely still an open, real, currently-live
+gap, distinct from item 9d's homes.bg 0% gap and from the still-open "find
+alo.bg's real selector" half of the original 2026-09-24/26 fix.
+
+Not attempted in this same change - clearly a separate, non-trivial scope
+(closing it for real needs BOTH the still-open live-selector search AND a
+one-time backfill/re-check pass over ~21,000 already-stored bad records,
+not a quick fix), and this task's own scope note says to document rather
+than necessarily fix everything found in the broader check. **Task, for
+whoever picks this up next:** once alo.bg's real selector is found live
+(the still-open half of the 2026-09-24/26 fix), add a one-time
+recheck-tier marker (this codebase already has the pattern -
+`_description_title_echo_rechecked` on `scraper_alo.py`'s OTHER recheck
+tiers is the obvious name to reuse) so every listing whose CURRENT stored
+description fails `_looks_like_title_echo()` against its own title gets
+re-visited once with the corrected selector, rather than waiting for
+natural relisting/removal churn to clear the backlog. No auth/session/
+personal-data surface (public listing descriptions only) - Revy's review
+not expected to be needed.
+
+**Full 8-portal description-coverage recheck (2026-09-27), against real
+committed data, this task's own required broader check:**
+
+| Portal | Active | Non-empty desc | % | Avg length | Title-echo rate |
+|---|---|---|---|---|---|
+| imoti.net | 6,742 | 0 | 0.0% | - | - |
+| homes.bg | 66,895 | 0 | 0.0% | - | - |
+| alo.bg | 78,786 | 27,039 | 34.3% | 167 | 77.7% (see 9e) |
+| bazar.bg | 25,358 | 15,015 | 59.2% | 157 | 1.0% |
+| imot.bg | 37,230 | 7,488 | 20.1% | 1,009 | 0.0% |
+| olx.bg | 13,570 | 5,789 | 42.7% | 967 | 0.1% |
+| bcpea.org | 1,207 | 1,157 | 95.9% | 2,609 | 0.0% |
+| imoti.bg | 825 | 784 | 95.0% | 777 | 0.0% |
+
+Site-wide: 230,613 active listings, 57,272 (24.8%) with a non-empty
+description - and, per 9e above, roughly another ~21,000 of those
+57,272 are title-echo noise rather than real prose, so the real
+"has a genuinely useful description" rate site-wide is closer to
+**~16%** (57,272 - 21,010 title echoes, over 230,613 active listings) than
+the raw 24.8% non-empty figure suggests. homes.bg's 0.0% and alo.bg's
+77.7% title-echo rate are the two largest single contributors to the
+user's "missing on a lot of listings" complaint, by active-listing count.
+Every other portal's numbers here are consistent with (small natural drift
+from, given ~3-4 days of listing turnover since the last recheck) what's
+already tracked above for imot.bg/olx.bg/bcpea.org/imoti.bg/bazar.bg - no
+other new, unexpected gap found beyond 9e.
 
 ## 10. Overall design/luxuriousness still not landing site-wide - user feedback 2026-09-23, elevates item 21's priority - DONE (2026-09-23)
 
@@ -6838,3 +7000,34 @@ All 8 `L.map(...)` instantiations in `index.html` were audited: `detailMap` (lis
 **Verified** with a real Playwright harness (vendored Leaflet/Chart.js/supabase-js locally, `page.route()` intercepting the CDN URLs - this sandbox's egress proxy still blocks the real CDNs) against the actual, current `index.html` in an isolated worktree (not a rewritten copy): dispatched synthetic `wheel` events with `ctrlKey: true` against `detailMap` (already had `scrollWheelZoom: false`), `cmpMap` and `pipelineMap` (didn't have it before this change) - all three: pinch-out changes zoom, pinch-in reverses it, a plain `wheel` with no `ctrlKey` leaves zoom completely unchanged (page-scroll preservation confirmed), and a burst of small `ctrlKey` deltas accumulates correctly instead of being individually rounded away. `node --check` on the extracted inline `<script>` - clean. `python3 -m pytest -q` - 278 passed, 4 subtests, no regression (frontend-only change, as expected). Screenshots at both an unlocated and a located real listing confirm the map itself still renders normally (pin, radius circle, +/- zoom control, attribution) with no visual regression.
 
 Built in an isolated worktree off a fresh `origin/main` fetch; no live GitHub Actions `workflow_dispatch` used at any point. Not self-merged - PR opened for Missy's review, per this repo's standing rule.
+
+## 59. Merged listings always showed the highest-*motivation-score* cross-posted source's photos/description, not the richest one - direct user report ("every single listing needs to have multiple photos... priority for our listing the one with multiple photos and full description") - ROOT-CAUSED AND FIXED, PR OPEN FOR MISSY'S REVIEW (2026-09-27)
+
+**Root cause, confirmed by reading `sync_to_supabase.py`'s `build_rows()` (not re-derived from the symptom):** for a cross-posted group (the same real property scraped from more than one portal, unioned into one `merged_listings` row by `group_listings()`), every `MERGED_FIELDS` value - including `photo`, `photos` and `description` - was copied from `best`, the single group member with the highest `compute_motivation_score()` (`geo_utils.py`: price-drop count/percentage, days on market, price vs. area average). That score has zero relationship to how many photos a source has or whether it has a real seller-written description, so a merged listing regularly ended up showing a 1-photo, no-description source's media while a different cross-posted source for the exact same property, sitting right there in the same group, had many photos and a full real description.
+
+**Fix (`sync_to_supabase.py`):** `best` still drives every other `MERGED_FIELDS` value (price, title, url, the score-driven fields, `type_bucket`/`city_key`/`oblast_key`/`area_key`, `member_portals`, `status`) exactly as before - untouched. `photo`/`photos`/`description` now come from a separately-selected `media_best` instead:
+1. Most photos, via a new `_photo_count(s)` - `len(s["photos"])` when that list is present and non-empty (confirmed against the real committed `leads_*.json(.gz)`/`leads.json` files: it's always a flat list of image URL strings, never a list of objects, on every portal that has it at all), else `1` if `s["photo"]` is set, else `0`. The `1`-when-only-`photo`-exists case matters: imoti.bg never populates `photos` (plural) at all, and every other portal only populates it for a subset of its own listings, so treating "has `photo` but no `photos` list" as 0 photos would misclassify exactly the "original listing with only one photo" case the report is about.
+2. Tie-break: has a real, non-empty, non-title-echo description, via a new `_has_real_description(s)` that reuses `geo_utils._looks_like_title_echo()` (added 2026-09-26 for the alo.bg description-extraction re-audit, `geo_utils.py:228`) rather than duplicating that logic - it wasn't alo.bg-specific to begin with (it takes `text`/`title` and does a normalized substring check), and the exact same failure shape (a "description" that's actually an echo of the title) is exactly what this fix must not treat as real on any portal.
+3. Second tie-break: falls back to `sorted_sources`' own existing motivation-score order, so behavior stays deterministic between equally-rich sources.
+4. Edge case: if no source in the group has more than 1 photo, there's nothing richer to prefer on the one axis the report is actually about, so `media_best` falls back to `best` unchanged (today's behavior) rather than picking a source based on description alone.
+
+For a group of size 1 (not cross-posted - confirmed the majority case below), this is a complete no-op: `select_media_best([only])` always returns that same one source, identical to `best`.
+
+**Verified against the real committed data** (`load_all_listings()` + `group_listings()` + `build_rows()` run directly, no Supabase credentials/writes involved - all 8 portals' real `leads_*.json`/`leads_*.json.gz` files, 408,281 total listings, 280,972 groups, 59,003 of them cross-posted/`>1` member):
+
+- **Real before/after examples** (portal names, photo counts and description presence are all real, read straight off the loaded data - not constructed):
+  - Group `{alo.bg, bazar.bg, homes.bg×2, imoti.net, olx.bg}`, Varna/Troshevo 2BR, 59m²: old `best` = imoti.net (score 38) - 1 photo, no real description. New `media_best` = homes.bg (score 36) - 8 photos, real description.
+  - Group `{bazar.bg, homes.bg, imot.bg, imoti.net}`, Vratsa/Seniche 2-room: old `best` = imot.bg (score 43) - 1 photo, no real description. New `media_best` = bazar.bg (score 40) - 6 photos, real description.
+  - Group `{alo.bg, bazar.bg, homes.bg, imot.bg, imoti.net}`, Targovishte/Borovets: old `best` = imoti.net (score 35) - already had 6 photos but no real description. New `media_best` = bazar.bg (score 18, far lower) - 10 photos and a real description - proves the photo-count-then-description ordering, not just "any richer source wins."
+  - Group `{homes.bg×2, imoti.net, olx.bg}`, Varna/Asparuhovo land parcel: old `best` = imoti.net (score 35) - 1 photo, no description. New `media_best` = homes.bg (same score, 35) - 5 photos, real description.
+  - Group of 11 sources (Burgas/Lazur multi-room), old `best` = imoti.net (score 35) - 1 photo, no description; new `media_best` = homes.bg (same score) - 10 photos, real description.
+  - Description tie-break confirmed overriding plain motivation-score order on real data too: one 4-source group's top scorer (imoti.net, score 33, 4 photos, no real description) lost to a same-photo-count homes.bg source scoring only 28; an 18-member group's top scorer (imoti.net, score 27, 6 photos, no description) lost to bazar.bg scoring 0 (the lowest in the group) purely because it tied on the group's max photo count (6) and had the only real description among that tied set.
+  - The "no source has >1 photo" fallback case is real and common, not just a theoretical edge case: 11,624 of the 59,003 cross-posted groups have every member at 0-1 photos, and `media_best` correctly stays `best` (verified: 0 mismatches) for all of them.
+- **Quantified impact:** 31,507 of 280,972 total merged listings (**11.2%** of everything) get a different `photo`/`photos`/`description` under this fix - **53.4% of the 59,003 cross-posted groups** (the only groups this can possibly affect). Broken down: 31,496 get a different `photo`, 31,503 a different `photos` array, 28,373 a different `description`.
+- **Single-portal (non-cross-posted) case confirmed unaffected, not just assumed:** ran `select_media_best()` against every one of the 221,969 real single-source groups - 0 mismatches with `best`.
+- `python3 -m py_compile sync_to_supabase.py` - clean.
+- `python3 -m pytest -q` - **278 passed, 4 subtests passed** on a fresh `origin/main` baseline (stashed this change, confirmed the exact same number, unstashed) → **293 passed, 4 subtests passed** with this fix and its 15 new tests (`tests/test_sync_media_richness.py`) added - exactly 278 + 15, no regressions anywhere else. New tests cover `_photo_count()`'s photos-list-vs-single-photo-vs-none shapes, `_has_real_description()`'s title-echo rejection (reusing the real `geo_utils._looks_like_title_echo()`, a synthetic fixture matching the confirmed alo.bg bug shape from that function's own comment), `select_media_best()`'s photo-count-then-description-then-score ordering (including a case that proves the description tie-break actually overrides score order, not just agrees with it), both fallback edge cases (no source `>1` photo; full tie on both signals), the single-source no-op, and an end-to-end `build_rows()` integration test proving the merged row picks up `media_best`'s 3 fields while every other field and every `listing_sources` per-portal row is untouched.
+
+**Scope, deliberately not touched:** `best`'s meaning for every other field (price, title, url, `type_bucket`/`city_key`/`oblast_key`/`area_key`, `member_portals`, `status`, the score-driven fields); `listing_sources` rows (still each source's own real photo/photos/description, exactly as scraped - this fix only changes what `merged_listings` shows); `group_listings()`'s cross-portal matching logic itself; anything client-side in `index.html` (it reads `merged_listings` as-is from Supabase, so this fix takes effect there automatically once synced, no frontend change needed).
+
+Verification was local-data-only, no Supabase writes performed (not needed - `build_rows()`'s output was inspected directly, per the task's own explicit scope). Built in an isolated worktree off a fresh `origin/main` fetch; no live GitHub Actions `workflow_dispatch` used at any point. Not self-merged - pushed as `fix/merged-listing-media-richness`, PR opened for Missy's review, per this repo's standing rule.

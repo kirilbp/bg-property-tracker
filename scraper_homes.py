@@ -126,6 +126,7 @@ import requests
 from geo_utils import (
     Geocoder, compute_motivation_score, listing_city_key, prune_snapshots,
     evict_stale_records, STALE_RECORD_RETENTION, load_json_any, save_json_any,
+    extract_description_homes,
 )
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; PersonalDealTracker/1.0)"}
@@ -268,6 +269,68 @@ def fetch_with_retries(session, url):
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_SECONDS * attempt)
     return None
+
+
+# Rate limit for backfill_detail_homes.py's own detail-page visits - the
+# main grid crawl above has no need for one (each search-page fetch already
+# returns dozens of listings, so its own natural page-to-page cadence is
+# already far below one request/listing), but a detail backfill makes one
+# plain HTTP request per LISTING, the same shape backfill_detail_bazar.py
+# already rate-limits with the same value, for the same reason: be polite to
+# a site that (unlike imot.bg/olx.bg) has shown no anti-bot blocking so far,
+# rather than risk becoming the reason it starts.
+DETAIL_REQUEST_DELAY_SECONDS = 1.0
+
+
+def fetch_listing_detail(session, listing):
+    """Visits this listing's own detail page (offer["url"]) and fills in a
+    real free-text description via extract_description_homes() - see that
+    function's own module comment in geo_utils.py for the full 3-tier
+    search order and why this is the best that could be built without live
+    homes.bg access (docs/backlog.md item 9d).
+
+    Returns whether the page actually loaded (used by
+    fetch_listing_details() below to detect a run of consecutive
+    failures) - mirrors scraper_imot.py's own fetch_listing_detail()
+    exactly: "detail_checked" is set only once a real page was fetched, so
+    a transient failure (site throttling, a timeout) doesn't permanently
+    skip a listing that was never actually looked at."""
+    html = fetch_with_retries(session, listing["url"])
+    if html is None:
+        return False
+    listing["detail_checked"] = True
+    description = extract_description_homes(html, title=listing.get("title"))
+    if description:
+        listing["description"] = description
+    return True
+
+
+def fetch_listing_details(listings, on_checkpoint=None, checkpoint_every=150, deadline=None):
+    """Batch driver for backfill_detail_homes.py - same deadline/
+    on_checkpoint/consecutive-failure-stop shape as scraper_imot.py's own
+    fetch_listing_details(), adapted for a plain requests.Session() (homes.bg
+    has shown no anti-bot blocking on its grid crawl, unlike imot.bg/olx.bg,
+    so no Playwright browser is needed here)."""
+    session = requests.Session()
+    consecutive_failures = 0
+    for i, listing in enumerate(listings, 1):
+        if deadline is not None and time.monotonic() >= deadline:
+            print(f"DEBUG: stopping at {i - 1}/{len(listings)} - approaching this run's time budget")
+            break
+        time.sleep(DETAIL_REQUEST_DELAY_SECONDS)
+        ok = fetch_listing_detail(session, listing)
+        if ok:
+            consecutive_failures = 0
+        else:
+            consecutive_failures += 1
+            if consecutive_failures >= MAX_CONSECUTIVE_PAGE_FAILURES:
+                print(f"DEBUG: {consecutive_failures} consecutive detail-page failures at "
+                      f"{i}/{len(listings)} - looks like the site is throttling this run, stopping here")
+                break
+        if i % 200 == 0:
+            print(f"DEBUG: checked {i}/{len(listings)} listings")
+        if on_checkpoint and i % checkpoint_every == 0:
+            on_checkpoint()
 
 
 def build_url(type_id, page, price_from=None, price_to=None):
@@ -482,6 +545,24 @@ def save_history(history):
     save_json_any(HISTORY_FILE, history)
 
 
+# Fields fetch_listing_detail() adds on top of what the grid crawl
+# (parse_offer()) itself produces - never present on a fresh grid-only
+# record, which always sets "description": None (see parse_offer()'s own
+# comment). update_history() below must merge these in from the previous
+# "latest" rather than let a fresh grid re-touch wipe them off an
+# already-detail-checked, still-active listing every ~6 hours - the same
+# bug class docs/backlog.md items 9a/9c already fixed for the other seven
+# scrapers. This scraper was *correctly* left out of that original fix (9c
+# investigated it directly and found it genuinely not at risk at the time:
+# photos come straight off the grid JSON every run, and lat/lng self-heal
+# via the shared geocode cache) - that stopped being true the moment
+# backfill_detail_homes.py shipped (item 9d), since description/
+# detail_checked are now real detail-only fields on "latest" the grid crawl
+# never produces. Same merge-not-replace pattern already used by
+# scraper_imot.py/scraper_alo.py/etc., copied here rather than reinvented.
+_DETAIL_ONLY_FIELDS = ("description", "detail_checked")
+
+
 def update_history(history, listings):
     now = datetime.now(timezone.utc).isoformat()
     for l in listings:
@@ -489,7 +570,13 @@ def update_history(history, listings):
         if lid not in history:
             history[lid] = {"first_seen": now, "snapshots": []}
         history[lid]["snapshots"].append({"seen_at": now, "price_eur": l["price_eur"]})
-        history[lid]["latest"] = l
+        prev_latest = history[lid].get("latest") or {}
+        merged = dict(l)
+        for field in _DETAIL_ONLY_FIELDS:
+            prev_value = prev_latest.get(field)
+            if merged.get(field) in (None, "", []) and prev_value not in (None, "", []):
+                merged[field] = prev_value
+        history[lid]["latest"] = merged
     return history
 
 
