@@ -201,6 +201,26 @@ async function runRealFetchAllRows(source, sb, table, columns) {
   });
 }
 
+// Calls the real, unmodified hexIdPartitionBoundaries() (same extracted
+// source as fetchAllRows() above) so a boundary-exact fixture row below is
+// built from the shard math actually shipped, not a hand-guessed value that
+// could silently drift out of sync with it.
+function runRealHexIdPartitionBoundaries(source, count) {
+  return new Promise((resolve, reject) => {
+    const sandbox = { __done: (err, result) => (err ? reject(err) : resolve(result)) };
+    vm.createContext(sandbox);
+    const driver = `
+      ${source}
+      __done(null, hexIdPartitionBoundaries(${JSON.stringify(count)}));
+    `;
+    try {
+      vm.runInContext(driver, sandbox, { filename: 'index.html (extracted)' });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 // --- OLD algorithm, kept ONLY for this benchmark comparison -----------------
 // Hand-copied from index.html as it stood before backlog item 71 (single
 // keyset cursor, fully sequential) - not the code under test, just the
@@ -291,6 +311,42 @@ async function main() {
     const result = await runRealFetchAllRows(source, sb, 'merged_listings', 'id');
     assertEqual(result.length, 0, 'empty table returns empty array');
     console.log('[empty table] 0 rows - PASS');
+  }
+
+  // --- Test 3b: a row landing exactly ON a real shard boundary is counted
+  // exactly once (Missy's review of the first version of this test found a
+  // real coverage gap: a random sha256-derived id essentially never lands
+  // exactly on a computed boundary - 1-in-2^64 odds - so Test 1's own
+  // random fixture could never actually exercise the >=/< split at
+  // fetchPartition()'s shard edges, meaning a real off-by-one there
+  // (e.g. `.gt` instead of `.gte` on a shard's lower bound) would pass
+  // Test 1 silently while still dropping real rows in production whenever
+  // one happened to hash onto a boundary. This test builds a fixture with
+  // a row deliberately pinned to a real boundary value (computed from the
+  // actual shipped hexIdPartitionBoundaries(), not a hand-picked guess) and
+  // confirms it's returned exactly once - verified against a deliberately
+  // reintroduced `.gt`-not-`.gte` bug to confirm this test would actually
+  // fail if that regression came back (see this file's own git history/PR
+  // discussion for that verification - not re-run automatically here since
+  // it requires mutating the extracted source, done once by hand during
+  // review, not as part of every test run).
+  {
+    const boundaries = await runRealHexIdPartitionBoundaries(source, 10);
+    assertEqual(boundaries.length, 11, 'hexIdPartitionBoundaries(10) returns 11 edges');
+    const pinnedId = boundaries[5]; // an interior boundary, real non-null edge
+    assertTrue(typeof pinnedId === 'string' && pinnedId.startsWith('m_'), 'pinned boundary id looks real');
+
+    const N = 3000;
+    const fixture = buildFixtureRows(N).filter((r) => r.id !== pinnedId);
+    fixture.push({ id: pinnedId, portal: 'imot.bg', price_eur: 999999 });
+    const columns = 'id,portal,price_eur';
+    const sb = makeMockSupabase(fixture, { latencyMs: 1, tableColumns: ['id', 'portal', 'price_eur'] });
+
+    const result = await runRealFetchAllRows(source, sb, 'merged_listings', columns);
+    const matches = result.filter((r) => r.id === pinnedId);
+    assertEqual(result.length, fixture.length, 'row count including the boundary-pinned row');
+    assertEqual(matches.length, 1, `row exactly on shard boundary ${pinnedId} returned exactly once (got ${matches.length})`);
+    console.log(`[boundary-exact] row pinned to real shard boundary ${pinnedId} counted exactly once - PASS`);
   }
 
   // --- Test 4: real measured speedup under simulated realistic latency ----
