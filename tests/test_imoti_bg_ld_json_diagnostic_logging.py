@@ -27,6 +27,7 @@ from contextlib import redirect_stdout
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import geo_utils
 import scraper_imoti_bg
 
 
@@ -62,6 +63,36 @@ class LogLdJsonMissTest(unittest.TestCase):
         self.assertIn("https://imoti.bg/x/1", output)
         self.assertIn("'script_tags': 1", output)
         self.assertIn("'types_seen': ['Product']", output)
+        # 2026-09-28 additions: generic, non-guessing structural facts about
+        # the rest of the page (see imoti_bg_ld_json_diagnostic()'s own
+        # comment) - this page has exactly the one ld+json script counted
+        # above, no other <script> tags, and no <table>/<dl>.
+        self.assertIn("'any_script_tags': 1", output)
+        self.assertIn("'script_types_seen': ['application/ld+json']", output)
+        self.assertIn("'has_table_or_dl': False", output)
+
+    def test_diagnostic_reports_non_ld_json_scripts_and_table(self):
+        # A page whose ONLY structured markup is a <table> and a plain
+        # <script> with a non-ld+json type - the "real page has zero
+        # ld+json but real structure elsewhere" case the 2026-09-28
+        # production finding (real imoti.bg pages: script_tags always 0)
+        # makes this diagnostic's actual job now.
+        page = (
+            '<html><head><script type="text/javascript">var x=1;</script>'
+            "</head><body><table><tr><td>Етаж</td><td>3</td></tr></table>"
+            "</body></html>"
+        )
+        diag = geo_utils.imoti_bg_ld_json_diagnostic(page)
+        self.assertEqual(diag["script_tags"], 0)
+        self.assertEqual(diag["any_script_tags"], 1)
+        self.assertEqual(diag["script_types_seen"], ["text/javascript"])
+        self.assertTrue(diag["has_table_or_dl"])
+
+    def test_diagnostic_never_raises_on_garbage_html(self):
+        diag = geo_utils.imoti_bg_ld_json_diagnostic("<<<not even html")
+        self.assertEqual(diag["any_script_tags"], 0)
+        self.assertEqual(diag["script_types_seen"], [])
+        self.assertFalse(diag["has_table_or_dl"])
 
     def test_logs_when_no_ld_json_at_all(self):
         buf = io.StringIO()

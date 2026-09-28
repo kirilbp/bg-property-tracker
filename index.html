@@ -12057,6 +12057,14 @@ function showListingDetail(id, { push = true, tab = 'details' } = {}) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-listing').classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  // Listing detail isn't reached via showSection() (it has its own
+  // section-activation logic above, not shared with showSection()'s own),
+  // so the Home-only header.home-compact collapse (see showSection())
+  // doesn't get cleared by the normal path - explicitly clear it here too,
+  // otherwise a listing opened from Home (e.g. "Recently viewed", or a
+  // cold-loaded #/listing/<id> permalink, which never calls showSection()
+  // first) keeps the masthead collapsed to just the hamburger button.
+  document.getElementById('siteHeader').classList.remove('home-compact');
   // Opening a listing is its own back-button step, distinct from whatever
   // section/listing it was opened from (docs/decisions.md - back button
   // fix). `push: false` is used when this call is itself restoring a
