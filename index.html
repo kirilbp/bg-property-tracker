@@ -915,10 +915,81 @@
      its own. Verified via a real Playwright width sweep, 420-1440px in
      ~15px steps, both a listing with a real map+chart and one showing the
      "location not available" empty state - zero height mismatch at any
-     width (see docs/decisions.md for the full sweep results). */
-  .detail-history-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; align-items: stretch; margin: 0 0 20px; }
+     width (see docs/decisions.md for the full sweep results).
+     Correction (backlog item 67, 2026-09-28, direct user screenshot with
+     hand-drawn annotations of a real listing-detail page): auto-fit's
+     minmax(240px, 1fr) guarantees a MINIMUM column width, not equal columns
+     across the row - the exact same failure class already fixed for
+     `.filters` in backlog item 62/PR #317. With three children, whenever
+     the row's real width clears 2*240+24=504px but not 3*240+48=768px,
+     auto-fit pairs two panels into row 1 and strands the third alone at the
+     FULL row width in row 2 - visibly much wider than the other two, which
+     is exactly what the user's screenshot showed (the price-history panel
+     rendered noticeably wider than the map and specs panels). Switched to a
+     fixed `repeat(3, 1fr)` with explicit stacking breakpoints, mirroring
+     item 62's own `.filters` convention (3 desktop / 2 at <=900px / 1 at
+     <=560px) instead of implicit auto-fit collapse.
+     Correction (Missy's review, 2026-09-28, a real headless-browser width
+     sweep, not just reading the CSS): `repeat(3, 1fr)` alone did NOT
+     deliver equal columns - a `1fr` grid track expands to `minmax(auto,
+     1fr)`, and "auto" resolves to each item's own CONTENT-based minimum
+     width when nothing overrides it. None of these three panels had
+     `min-width: 0`, and `.radius-panel`'s own non-wrapping radius-button
+     row (`.radius-btn-row { display:flex; gap:6px }`, 4 buttons, no wrap)
+     gives it a real content-minimum wider than an equal third at common
+     widths - measured 294px/105px/198px (a 2.8x ratio, not 1:1:1) at
+     1280-1366px specifically, the same "most common laptop resolution"
+     range the very first correction above already had to tune for. Fixed
+     with `min-width: 0` on all three panels below, the standard fix for
+     this exact CSS Grid behavior - re-verified via the same width-sweep
+     harness: genuinely equal thirds confirmed at every desktop width from
+     1280px up through 1800px+.
+     Also corrected here: the "lone third panel spans the full row" claim
+     two paragraphs up was never actually true - a plain `repeat(2, 1fr)`
+     does not auto-span a trailing solo item without an explicit
+     `grid-column` rule, which this never had; the third panel was
+     confined to column 1 alone, leaving a visible empty gap in column 2.
+     `.specs-history-panel` is always this row's third and last child (see
+     the row's own markup - renderRadiusPanel(), the inline price-history
+     block, then renderSpecsHistoryPanel(), in that fixed order), so it can
+     be targeted directly to span both columns in the 2-column band -
+     verified via the same harness, no more empty gap.
+     Disclosed, NOT fixed here (found during this same re-verification, but
+     a real, separate issue this row's own CSS doesn't cause and can't fix
+     on its own): a genuine horizontal-overflow bug exists in the real-
+     viewport range just above `.detail-grid`'s own 800px breakpoint
+     (confirmed via a width sweep at 900-1200px; clean again by 1280px -
+     the exact edges will vary slightly with a given listing's real
+     content) - the whole page, not just this row, overflows there (e.g.
+     ~1085px of real content
+     width forced into a 1000px viewport). Root cause traced past this row
+     entirely: `.detail-grid` (the outer photo-column/info-column split,
+     `minmax(280px, 460px) 1fr`, ~750 lines above) only collapses to a
+     single column below an 800px VIEWPORT width, not 800px of its own
+     available width - but its available width is already ~220px (sidebar)
+     + ~48px (`.container`'s own padding; `.card`'s own 24px padding is
+     overridden to 0 on this page by `#listingDetailBody`'s higher-
+     specificity ID rule, so it contributes nothing here - correction,
+     Missy's review, the ~96px figure double-counted it) narrower than the
+     viewport, so anywhere the viewport is wide enough to keep
+     `.detail-grid` in its two-column shape (>800px) but not wide enough to
+     actually fit a 280px-minimum photo column plus a usable info column
+     inside what's left,
+     the whole grid is forced past the viewport's real width - this row's
+     own width games (auto-fit vs fixed, min-width or not) only ever
+     affect how what little space `.detail-grid` hands down gets divided,
+     never whether enough space exists in the first place. Filed as its
+     own backlog item rather than silently left unmentioned or wrongly
+     claimed fixed here - a real fix needs `.detail-grid`'s own breakpoint
+     reworked (e.g. a container query, or accounting for the sidebar/
+     padding chrome in its threshold), out of scope for a `.detail-history-
+     row`-only change. */
+  .detail-history-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch; margin: 0 0 20px; }
+  @media (max-width: 900px) { .detail-history-row { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .detail-history-row { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .detail-history-row .specs-history-panel { grid-column: 1 / -1; } }
   .detail-history-row .radius-panel { margin: 0; }
-  .radius-panel, .price-history-panel, .specs-history-panel { display: flex; flex-direction: column; }
+  .radius-panel, .price-history-panel, .specs-history-panel { display: flex; flex-direction: column; min-width: 0; }
   .price-history-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
     padding: 16px 18px;
@@ -939,27 +1010,50 @@
   /* Third .detail-history-row panel (2026-09-27) - same box treatment as
      .price-history-panel (identical background/border/radius/padding, same
      flex column so align-items:stretch/syncHistoryPanelHeights() can equalize
-     all three), reusing renderSpecsPanel()/renderAgencyPanel()'s own markup
-     unchanged inside it. Their own .specs-panel/.agency-panel rule (further
-     below) adds a 28px top margin + hairline divider meant to separate them
-     from OTHER content stacked above them inside the "Details" tab - not
-     needed as this panel's own first/only children, so both are reset to
-     flush here; .agency-panel keeps its divider when it follows a populated
-     .specs-panel (set via the adjacent-sibling rule below), just not a
-     leading gap when either one is this panel's first child. */
+     all three), reusing renderSpecsPanel()'s own markup unchanged inside it.
+     Its own .specs-panel rule (further below) adds a 28px top margin +
+     hairline divider meant to separate it from OTHER content stacked above
+     it inside the "Details" tab - not needed as this panel's own first/only
+     child, so it's reset to flush here.
+     Correction (backlog item 67, 2026-09-28): this panel used to also carry
+     renderAgencyPanel()'s output as a second child (folded in via
+     renderSpecsHistoryPanel()) - split out per the user's own hand-drawn
+     listing-detail annotations, which show "specs" and "seller's details"
+     as two separate sections rather than one combined box. Agency/contact
+     data now renders in its own standalone .seller-panel section below the
+     Description instead (see renderSellerPanel()); the old
+     .specs-panel + .agency-panel adjacent-sibling divider rule that used to
+     live here no longer applies now that .agency-panel never appears as
+     this panel's child, so it's removed rather than left as dead CSS. */
   .specs-history-panel {
     background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px;
     padding: 16px 18px;
   }
   .specs-history-panel > .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 10px; }
-  .specs-history-panel .specs-panel, .specs-history-panel .agency-panel { margin-top: 0; padding-top: 0; border-top: none; }
-  .specs-history-panel .specs-panel + .agency-panel { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--taupe-light); }
+  .specs-history-panel .specs-panel { margin-top: 0; padding-top: 0; border-top: none; }
   /* Most listings have nothing here yet (real extraction only ships for
      alo.bg/bazar.bg/imoti.bg today - see renderSpecsPanel()'s own comment)
      - flex:1/min-height matches .radius-map-empty's own "quiet empty box"
      sizing convention so a listing with no specs doesn't collapse this
      panel to a sliver next to two full-height ones. */
   .specs-history-empty { flex: 1 1 200px; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  /* Description and Seller's details sections (backlog item 67, 2026-09-28,
+     per the user's hand-drawn annotations on a real listing-detail
+     screenshot): both sit full-width below .detail-history-row, inside the
+     "Details" tab, and reuse the exact same box treatment as the three
+     panels above (.price-history-panel/.specs-history-panel - identical
+     background/border/radius/padding) so they read as intentional sections
+     rather than the previous plain, unstyled text block. Not part of the
+     equal-width three-column row above (no syncHistoryPanelHeights concern
+     here - each is its own full-width block, stacked vertically). */
+  .description-panel, .seller-panel { background: var(--ivory-deep); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 16px 18px; margin: 0 0 20px; }
+  .description-panel > .label, .seller-panel > .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); margin: 0 0 10px; }
+  .description-panel .detail-description { margin-top: 0; }
+  /* .agency-panel's own rule (further below) adds a 28px top margin +
+     hairline divider meant to separate it from OTHER content stacked above
+     it when it lives inside the click-gated Details tab elsewhere on this
+     page - not needed as .seller-panel's own first/only child. */
+  .seller-panel .agency-panel { margin-top: 0; padding-top: 0; border-top: none; }
   .relisting-events { border-top: 1px solid var(--taupe-light); padding-top: 8px; margin-top: 20px; }
   .relisting-events .label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--taupe); }
   .relisting-event { font-family: var(--font-sans); font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
@@ -10248,16 +10342,53 @@ function renderAgencyPanel(l) {
     </div>
   `;
 }
+// Standalone "Seller's details" section (backlog item 67, 2026-09-28, per
+// the user's hand-drawn annotations on a real listing-detail screenshot):
+// previously renderAgencyPanel()'s output only ever appeared folded inside
+// the Specifications panel via renderSpecsHistoryPanel() - split out here
+// into its own full-width section below the Description so it isn't buried
+// as a sub-block of an unrelated panel, matching the user's sketch (specs
+// and seller's details drawn as two separate sections). Reuses
+// renderAgencyPanel(l) completely unchanged for the actual field logic -
+// this wrapper only adds the section chrome (heading + box) and its own
+// graceful empty state (same emptyStateHtml() icon+title+message shape
+// renderSpecsHistoryPanel() uses above) for the common case: agency/contact
+// data is genuinely sparse today (bazar.bg ~42% of active listings have
+// agency_name, alo.bg ~5%, every other portal 0%; agency_phone specifically
+// is never populated by any scraper at all - alo.bg's own phone numbers are
+// JS-masked, a known, disclosed, unfixable-for-now gap) so most listings hit
+// the empty state here, not a populated box - not our call to change, see
+// renderAgencyPanel()/the scrapers that populate these fields.
+function renderSellerPanel(l) {
+  const agencyHtml = renderAgencyPanel(l);
+  const body = agencyHtml || emptyStateHtml('No seller details yet',
+    `${escapeHtml(l.portal || 'This source')} doesn't publish agency or contact details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`);
+  return `
+    <div class="seller-panel">
+      <p class="label">Seller's details</p>
+      ${body}
+    </div>
+  `;
+}
 // Third .detail-history-row panel (2026-09-27, per Missy's PR #309 review
 // and direct, twice-repeated user feedback: "Specifications on every
 // listing still missing. They need to be built in a section, same size
-// and next to the map section."). Reuses renderSpecsPanel()/
-// renderAgencyPanel() completely unchanged - this wrapper adds no new
-// field logic of its own, only the panel chrome (heading + same-size box)
-// that lets their existing output sit as a third grid child alongside
-// renderRadiusPanel(l) and .price-history-panel instead of staying buried
-// inside the click-gated "Details" tab (where both calls used to live -
-// removed from there below so the same content isn't shown twice).
+// and next to the map section."). Reuses renderSpecsPanel() unchanged - this
+// wrapper adds no new field logic of its own, only the panel chrome
+// (heading + same-size box) that lets its existing output sit as a third
+// grid child alongside renderRadiusPanel(l) and .price-history-panel instead
+// of staying buried inside the click-gated "Details" tab (where the call
+// used to live - removed from there below so the same content isn't shown
+// twice).
+//
+// Correction (backlog item 67, 2026-09-28, per the user's hand-drawn
+// listing-detail annotations): this used to also call renderAgencyPanel()
+// and fold its output in here as a second child. Split out into its own
+// renderSellerPanel() section below the Description instead - the user's
+// sketch draws "specs" and "seller's details" as two visually separate
+// sections, not one combined box, and agency/contact data (who to call
+// about the property) is conceptually distinct from the property's own
+// specifications anyway.
 //
 // Most listings still have nothing here - real extraction only ships for
 // alo.bg, bazar.bg, and (a subset of fields) imoti.bg today, see the
@@ -10270,11 +10401,10 @@ function renderAgencyPanel(l) {
 // style.
 function renderSpecsHistoryPanel(l) {
   const specsHtml = renderSpecsPanel(l);
-  const agencyHtml = renderAgencyPanel(l);
-  const body = (specsHtml || agencyHtml)
-    ? `${specsHtml}${agencyHtml}`
+  const body = specsHtml
+    ? specsHtml
     : `<div class="specs-history-empty">${emptyStateHtml('No specifications yet',
-        `${escapeHtml(l.portal || 'This source')} doesn't publish property type, construction, floor, or agency details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`)}</div>`;
+        `${escapeHtml(l.portal || 'This source')} doesn't publish property type, construction, or floor details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`)}</div>`;
   return `
     <div class="specs-history-panel">
       <p class="label">Specifications</p>
@@ -11656,14 +11786,18 @@ function renderListingDetail(merged) {
              (shrunk) radius/comparables map instead of each being a
              separate full-width stacked block. The other tabs below stay
              click-gated.
-             2026-09-27 (per Missy's PR #309 review): the Specifications/
-             Agency panel joined this row as a third always-visible child
-             for the exact same reason - it used to only render inside the
-             click-gated "Details" tab (renderSpecsPanel()/
-             renderAgencyPanel()'s own comment has the history), which read
-             as "specifications are missing" for anyone who never opened
-             that tab even on the 3 portals real data already ships for.
-             See renderSpecsHistoryPanel(). -->
+             2026-09-27 (per Missy's PR #309 review): the Specifications
+             panel joined this row as a third always-visible child for the
+             exact same reason - it used to only render inside the
+             click-gated "Details" tab (renderSpecsPanel()'s own comment has
+             the history), which read as "specifications are missing" for
+             anyone who never opened that tab even on the 3 portals real data
+             already ships for. See renderSpecsHistoryPanel(). Agency/seller
+             contact info used to be folded into this same panel too, but
+             moved to its own standalone section (renderSellerPanel(), below
+             the Description) in backlog item 67 (2026-09-28) per the user's
+             hand-drawn annotations, which draw specs and seller's details as
+             two separate sections. -->
         <div class="detail-history-row">
           ${renderRadiusPanel(l)}
           <div class="price-history-panel">
@@ -11695,10 +11829,23 @@ function renderListingDetail(merged) {
           <button class="detail-tab-btn${detailActiveTab === 'dealcalc' ? ' active' : ''}" data-tab="dealcalc">Deal Calculator</button>
         </div>
         <div class="detail-tab-content${detailActiveTab === 'details' ? ' active' : ''}" data-tab-content="details">
-          ${l.description
-            ? `<p class="detail-description" id="detailDescriptionText">${escapeHtml(descIsLong ? truncatedDesc : fullDesc)}</p>
-               ${descIsLong ? `<button class="detail-description-toggle" id="detailDescToggle" data-expanded="false">See more</button>` : ''}`
-            : `<p class="detail-description" style="color:var(--taupe);">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
+          <!-- Description and Seller's details sections (backlog item 67,
+               2026-09-28, per the user's hand-drawn annotations on a real
+               listing-detail screenshot): the description used to render as
+               a plain, unstyled text block here with no section treatment;
+               now boxed to match this tab's other panel conventions. Seller
+               contact info used to be folded inside the Specifications panel
+               above (see renderSpecsHistoryPanel()'s own comment) - now its
+               own standalone section below the description, per the user's
+               sketch. -->
+          <div class="description-panel">
+            <p class="label">Description</p>
+            ${l.description
+              ? `<p class="detail-description" id="detailDescriptionText">${escapeHtml(descIsLong ? truncatedDesc : fullDesc)}</p>
+                 ${descIsLong ? `<button class="detail-description-toggle" id="detailDescToggle" data-expanded="false">See more</button>` : ''}`
+              : `<p class="detail-description" style="color:var(--taupe);">No description available from ${l.portal} yet — this portal doesn't expose one on its listing grid. View the original listing for full details.</p>`}
+          </div>
+          ${renderSellerPanel(l)}
           <div class="detail-links">
             <a class="source-link" href="${l.url}" target="_blank" rel="noreferrer">🌐 View original listing on ${l.portal} →</a>
             <a class="source-link" href="${REGISTRY_URL}" target="_blank" rel="noreferrer" title="Opens the official land registry portal. You'll need the exact address from the listing page, plus a free account and a small fee per search.">🏛 Check land registry →</a>
