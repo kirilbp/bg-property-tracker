@@ -202,8 +202,16 @@ def fetch_listing_detail(url):
     geo_utils.extract_specs_imoti_bg()'s own comment for exactly which
     schema.org fields are read and why (and which fields were deliberately
     left out for lack of any real evidence of where they'd live on this
-    site), and for what remains genuinely unverified about this page's real
-    ld+json shape.
+    site).
+
+    UPDATE 2026-09-28: what was "genuinely unverified" about this page's
+    real ld+json shape is now settled, via real production log evidence
+    (scrape.yml run 36369847151, no live dispatch needed - see geo_utils.py's
+    own comment for the exact numbers): these pages carry NO
+    application/ld+json block at all, so specs/contact will keep coming up
+    empty here until a real DOM/text-based extractor replaces this ld+json
+    approach entirely - see _log_ld_json_miss()'s own updated comment below
+    for what a future fix needs next.
 
     Does not extract a photo gallery: confirmed live via probe_photos.py/
     probe_photos_round2.py (one land-parcel and one apartment sample) that
@@ -291,8 +299,19 @@ def _log_ld_json_miss(url, html):
     geo_utils.py's own comment above _imoti_bg_ld_json_candidates() for why
     this diagnostic exists: distinguishing "no ld+json on this page at all"
     from "ld+json is there but not the shape assumed" from "ld+json is there
-    but fails to parse" is exactly what a future real fix needs, and this
-    sandbox has no live access to find out directly."""
+    but fails to parse" is exactly what a future real fix needs.
+
+    UPDATE 2026-09-28: that distinction is now answered for real, via this
+    exact diagnostic's own real production output (see geo_utils.py's own
+    comment for the full story) - every real, live imoti.bg page sampled so
+    far reads `script_tags: 0`, i.e. no ld+json at all, not an unrecognized
+    shape. What's still open is what these pages DO carry instead (a plain
+    HTML spec table, a non-ld+json JSON state blob, or genuinely nothing
+    machine-readable at all) - imoti_bg_ld_json_diagnostic() now also
+    reports 3 safe, generic structural facts (any_script_tags,
+    script_types_seen, has_table_or_dl) toward answering that on this
+    already-scheduled workflow's own next run, without guessing at
+    Bulgarian label text sight-unseen."""
     global _ld_json_miss_logged
     if _ld_json_miss_logged >= _LD_JSON_MISS_LOG_CAP:
         return
