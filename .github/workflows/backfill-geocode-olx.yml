@@ -9,8 +9,13 @@
 # schedule firing while an earlier one was still queued canceled it
 # outright rather than just delaying it (confirmed live: runs were being
 # canceled every few minutes). Any git push race with a concurrent
-# scrape/backfill is already handled by the rebase-retry-with-ours
-# fallback below, same as always.
+# scrape/backfill is handled by the rebase-retry fallback below - a real
+# merge for data/history*.json(.gz), see merge_history_conflict.py - not
+# the old keep-one-side-only "ours" fallback that used to silently
+# discard this run's own geocoded lat/lng on every conflict against
+# scrape.yml's own 6-hourly runs (see docs/backlog.md item 3's addendum:
+# this was one of several backfill workflows never upgraded when
+# alo.bg/homes.bg/imoti.net's own versions of this bug were fixed).
 #
 # Was workflow_dispatch-only - never actually re-run by hand at any real
 # volume, so ~70% of olx.bg (13,570 listings) sat with no coordinates
@@ -74,17 +79,32 @@ jobs:
               git commit -m "Update listings (residual)"
             fi
             if ! git pull --rebase origin main; then
-              echo "Rebase hit a content conflict - keeping main's version of the conflicted files and continuing"
+              # merge_history_conflict.py actually merges any conflicted
+              # data/history_olx.json.gz (the append-only source of truth
+              # scraper_olx.py's own compute_leads() derives from) instead
+              # of discarding one side - see its own docstring for why
+              # checkout --ours here was silently eating this run's
+              # freshly-geocoded lat/lng every time it fired against
+              # scrape.yml's own 6-hourly runs. Anything it doesn't
+              # recognize (data/leads_olx.json.gz - fully derived,
+              # self-heals from history_olx.json.gz on this workflow's
+              # very next run) still falls back to the old behavior, now
+              # logged loudly instead of silently.
+              echo "Rebase hit a content conflict - attempting a real merge for data/history*.json(.gz) files"
+              python merge_history_conflict.py $(git diff --name-only --diff-filter=U)
               remaining=$(git diff --name-only --diff-filter=U)
-              for f in $remaining; do
-                if git cat-file -e "HEAD:$f" 2>/dev/null; then
-                  git checkout --ours -- "$f"
-                  git add "$f"
-                else
-                  echo "::warning::$f no longer exists on main's side of this conflict (e.g. removed by a data-format migration) - removing it here too instead of trying to resurrect a stale copy"
-                  git rm -f "$f"
-                fi
-              done
+              if [ -n "$remaining" ]; then
+                echo "::warning::Falling back to 'keep main's version' for files a real merge doesn't apply to: $remaining"
+                for f in $remaining; do
+                  if git cat-file -e "HEAD:$f" 2>/dev/null; then
+                    git checkout --ours -- "$f"
+                    git add "$f"
+                  else
+                    echo "::warning::$f no longer exists on main's side of this conflict (e.g. removed by a data-format migration) - removing it here too instead of trying to resurrect a stale copy"
+                    git rm -f "$f"
+                  fi
+                done
+              fi
               if ! GIT_EDITOR=true git rebase --continue; then
                 echo "rebase --continue still failed after auto-resolving conflicts - aborting this attempt and retrying from a clean state"
                 git rebase --abort || true
