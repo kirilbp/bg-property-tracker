@@ -155,6 +155,15 @@
   .main { flex: 1; min-width: 0; }
   header { padding: 32px 24px 16px; max-width: 1600px; margin: 0 auto; display: flex; align-items: flex-start; gap: 14px; }
   .header-titles { min-width: 0; }
+  /* Home page hero ("Split & Interlock" concept, docs/backlog.md item 67)
+     fully replaces this shared masthead's title/subtitle while Home is
+     active - collapsed to just enough height for the mobile
+     .sidebar-toggle button (still needed on Home, unlike the title text)
+     rather than hidden outright, so the hamburger menu never disappears.
+     Toggled by showSection() below; every other page keeps this header
+     unchanged. */
+  header.home-compact { padding-top: 12px; padding-bottom: 0; }
+  header.home-compact .header-titles { display: none; }
   h1 { font-family: var(--font-serif); font-weight: 500; font-size: 26px; margin: 0 0 6px; color: var(--ink); }
   .subtitle { color: var(--taupe); font-family: var(--font-sans); font-size: 14px; margin: 0; }
   .container { max-width: 1600px; margin: 0 auto; padding: 0 24px 48px; }
@@ -491,17 +500,64 @@
   .empty-state-message { font-family: var(--font-sans); font-size: 13px; color: var(--taupe); margin: 0; max-width: 400px; line-height: 1.55; }
   #homeChartWrap { height: 130px; margin: 4px 0 10px; }
 
-  /* Home page. Always exactly 3 tiles (Total listings/Hot deals/Portals
-     tracked) - auto-fit/minmax used to pick whatever column count fit the
-     available width, and 3 items don't divide evenly into 2 columns, so
-     medium/narrow widths (found live at 390px mobile in a design audit)
-     stranded "Portals tracked" alone on its own row, stretched to the
-     full row width next to the grid gap's own background peeking through
-     the empty second cell - the exact same class of bug already fixed for
-     .detail-stats elsewhere (see that rule's own comment). Fixed the same
-     way: an explicit column count that's always a divisor of 3 (3, or 1
-     below the breakpoint), never 2. */
-  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  /* Home page hero ("Split & Interlock" concept - user picked it from the
+     5 exploratory concepts built on branch design/homepage-hero-concepts-
+     2026-09-27, re-skinned in the now-shipped Navy/Gold palette on branch
+     design/hero-concepts-navy-gold-2026-09-27,
+     design-concepts/homepage-hero-2026-09-27/2-split-interlock-navy-gold.html
+     - see docs/backlog.md item 67). The wordmark breaks across two lines,
+     "Imoten" then "Radar", set close enough in line-height to interlock
+     rather than simply stack; "Radar" is set larger, in brass-deep, paired
+     with a radar-sweep-plus-roofline logo mark, and its own baseline
+     overlaps down onto the search card below it (a negative bottom margin
+     on .home-hero pulls the search card up underneath it) - the "bigger
+     wordmark, overlapping the section below, with a creative logo" from
+     the user's original brief. Unlike the Map Backdrop concept the user
+     did NOT pick, this one has no full-bleed dark backdrop, so it needed
+     no width/breakout adaptation for this site's fixed 220px sidebar -
+     the concept's own sizes/breakpoints carry over as-is, just bound to
+     this file's existing 1600px .container like every other panel. */
+  .home-hero-top-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 4px; margin-bottom: 4px; }
+  .home-hero-eyebrow { font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--taupe); }
+  .home-hero-eyebrow.home-hero-greeting { letter-spacing: 0; text-transform: none; }
+  .home-hero { position: relative; z-index: 2; margin: 16px 0 -70px; padding-left: 4px; }
+  .home-hero-line1 { font-family: var(--font-serif); font-weight: 400; font-size: 96px; line-height: 1; margin: 0; color: var(--ink); }
+  .home-hero-sweep-rule { position: absolute; left: 0; right: 0; top: 84px; height: 1px; background: var(--taupe-light); z-index: -1; }
+  .home-hero-line2-row { display: flex; align-items: center; gap: 22px; margin-top: -6px; margin-left: 96px; }
+  .home-hero-logo { flex-shrink: 0; }
+  .home-hero-line2 { font-family: var(--font-serif); font-weight: 500; font-size: 136px; line-height: 0.9; margin: 0; color: var(--brass-deep); }
+  /* The search card is the concept's overlap target (not the stat row) -
+     same base .card look (background/border/radius/padding/margin-bottom),
+     just extra top padding to make room for "Radar" hanging over its top
+     edge, a lower z-index than .home-hero so the wordmark visually sits on
+     top of it, and a softer shadow than the standard .card's flat border
+     alone, per the concept. */
+  .home-hero-search-card { position: relative; z-index: 1; padding-top: 100px; box-shadow: 0 2px 24px rgba(27,36,52,0.06); }
+  @media (max-width: 900px) {
+    .home-hero-line1 { font-size: 56px; }
+    .home-hero-line2 { font-size: 76px; }
+    .home-hero-line2-row { margin-left: 40px; gap: 12px; }
+    .home-hero-logo svg { width: 40px; height: 40px; }
+    .home-hero-search-card { padding-top: 64px; }
+  }
+  .home-hero-subtitle { color: var(--taupe); font-family: var(--font-sans); font-size: 13px; margin: 16px 0 24px; }
+
+  /* Home page stats. Always exactly 3 tiles (Total listings/Hot deals/
+     Portals tracked) - auto-fit/minmax used to pick whatever column count
+     fit the available width, and 3 items don't divide evenly into 2
+     columns, so medium/narrow widths (found live at 390px mobile in a
+     design audit) stranded "Portals tracked" alone on its own row,
+     stretched to the full row width next to the grid gap's own background
+     peeking through the empty second cell - the exact same class of bug
+     already fixed for .detail-stats elsewhere (see that rule's own
+     comment). Fixed the same way: an explicit column count that's always
+     a divisor of 3 (3, or 1 below the breakpoint), never 2.
+     margin-top added (docs/backlog.md item 67) since the hero+search card
+     above now precede this in the DOM instead of it being Home's first
+     element - .stat-tile/.stat-value/.stat-label are otherwise unchanged,
+     since the Split & Interlock concept's own stat row is the plain
+     3-tile treatment already shipped here, not a redesign of it. */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
   @media (max-width: 700px) { .stat-row { grid-template-columns: repeat(1, 1fr); } }
   .stat-tile { background: var(--ivory); border: 1px solid var(--taupe-light); border-radius: 6px; padding: 20px; }
   .stat-tile .stat-value { font-family: var(--font-serif); font-weight: 500; font-size: 24px; color: var(--ink); margin: 0 0 4px; }
@@ -2004,7 +2060,7 @@
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <div class="main">
-    <header>
+    <header id="siteHeader" class="home-compact">
       <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="appSidebar">
         <span class="sidebar-toggle-bars">
           <span class="sidebar-toggle-bar"></span>
@@ -2022,14 +2078,45 @@
 
       <!-- Home -->
       <section class="page active" id="section-home">
-        <div class="stat-row" id="homeStats"></div>
-        <div class="card">
+        <!-- "Split & Interlock" hero (docs/backlog.md item 67) - see the
+             .home-hero CSS rules above for the full rationale. -->
+        <div class="home-hero-top-row">
+          <span class="home-hero-eyebrow">Bulgaria &middot; Property Aggregator</span>
+          <span class="home-hero-eyebrow home-hero-greeting" id="homeHeroGreeting">Good day</span>
+        </div>
+        <div class="home-hero">
+          <p class="home-hero-line1">Imoten</p>
+          <div class="home-hero-sweep-rule"></div>
+          <div class="home-hero-line2-row">
+            <span class="home-hero-logo">
+              <!-- Radar-sweep-plus-roofline logo mark, unchanged from the
+                   concept: two concentric sweep rings, a brass sweep-arc
+                   wedge, and an ink property-roof notch at center. Literal
+                   hex (not var()) since SVG presentation attributes don't
+                   reliably resolve CSS custom properties across browsers;
+                   #5B6472/#B08A2E/#1B2434 match --taupe/--brass/--ink
+                   exactly. -->
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <circle cx="36" cy="36" r="30" stroke="#5B6472" stroke-width="1.5" opacity="0.5" />
+                <circle cx="36" cy="36" r="19" stroke="#5B6472" stroke-width="1.5" opacity="0.5" />
+                <path d="M36 36 L36 10 A26 26 0 0 1 58 23 Z" fill="#B08A2E" opacity="0.85" />
+                <path d="M24 40 L36 30 L48 40 L48 48 L24 48 Z" fill="none" stroke="#1B2434" stroke-width="2.5" stroke-linejoin="round" />
+                <circle cx="36" cy="36" r="2.5" fill="#1B2434" />
+              </svg>
+            </span>
+            <p class="home-hero-line2">Radar</p>
+          </div>
+        </div>
+        <div class="card home-hero-search-card">
           <h2>Search listings</h2>
+          <p class="card-sub">Search imotenradar's own tracked listings by city, quarter (кв.), or keyword.</p>
           <div class="home-search-row">
             <input type="text" id="homeSearchQuery" placeholder="Search by address, area, or keyword…" />
             <button class="cta-btn" id="homeSearchBtn">Search →</button>
           </div>
         </div>
+        <div class="stat-row" id="homeStats"></div>
+        <p class="home-hero-subtitle" id="homeHeroSubtitle">Loading live listings…</p>
         <div class="card" id="recentlyViewedCard" style="display:none;">
           <h2>Recently viewed</h2>
           <p class="card-sub">Jump back into a listing you already looked at, without re-searching.</p>
@@ -5878,6 +5965,11 @@ function setGreeting() {
   const hour = new Date().getHours();
   const time = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
   document.getElementById('greeting').textContent = `🏠 Good ${time}`;
+  // Home hero's own greeting eyebrow (docs/backlog.md item 67) - no 🏠
+  // emoji here, since the hero already carries a dedicated SVG radar-mark
+  // logo; every other page's masthead keeps the emoji-prefixed greeting
+  // above, untouched.
+  document.getElementById('homeHeroGreeting').textContent = `Good ${time}`;
 }
 
 // Fixed order (not DB row order, which is arbitrary) so the home page's
@@ -6642,10 +6734,16 @@ async function loadData() {
     PORTAL_ORDER.forEach(p => { PORTAL_COUNTS[p] = countsByPortal[p] || 0; });
 
     const duplicatesMerged = totalSourceCount - MERGED_LISTINGS.length;
-    document.getElementById('subtitle').textContent =
+    const subtitleText =
       `${fmt(MERGED_LISTINGS.length)} unique listings` +
       (duplicatesMerged > 0 ? ` (${fmt(duplicatesMerged)} duplicates merged across sites)` : '') +
       ` (${Object.entries(PORTAL_COUNTS).map(([p, c]) => `${c} ${p}`).join(', ')}) · auto-updates every 6 hours`;
+    document.getElementById('subtitle').textContent = subtitleText;
+    // Home hero's own subtitle line (docs/backlog.md item 67) - same text
+    // as the shared masthead's #subtitle above, just rendered inside the
+    // Home page body instead, since that masthead is hidden while Home is
+    // active (see header.home-compact).
+    document.getElementById('homeHeroSubtitle').textContent = subtitleText;
     populateAreaFilter();
     populateLeadGenNeighborhoods();
     populateComparablesFilters();
@@ -6669,6 +6767,7 @@ async function loadData() {
     if (m) showListingDetail(decodeURIComponent(m[1]), { push: false, tab: (history.state && history.state.type === 'listing' && history.state.tab) || 'details' });
   } catch (e) {
     document.getElementById('subtitle').textContent = 'Could not load listings data.';
+    document.getElementById('homeHeroSubtitle').textContent = 'Could not load listings data.';
     console.error(e);
   }
 }
@@ -12012,6 +12111,11 @@ function showSection(name, { push = true } = {}) {
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.getElementById('section-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.section === name));
+  // Home's own "Split & Interlock" hero (docs/backlog.md item 67) fully
+  // replaces the shared masthead's title/subtitle - collapse it to just
+  // the mobile sidebar-toggle button while Home is active; every other
+  // section keeps the plain masthead exactly as before.
+  document.getElementById('siteHeader').classList.toggle('home-compact', name === 'home');
   // Leaving the listing detail page (showSection is never called with
   // name === 'listing' - that page is only reached via showListingDetail()).
   currentDetailListingId = null;

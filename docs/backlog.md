@@ -7208,4 +7208,131 @@ Built in an isolated `git worktree` off a fresh `origin/main` fetch (checked `gi
 
 **Why this wasn't fixed here:** collapsing a same-url pair down to one canonical record needs picking which of the two is *correct* (specifically, which price is current) - this investigation tried the obvious heuristic (keep whichever record has more populated fields) and **measured it worse than doing nothing**: 30.78% of already-correct real cross-portal matches broke, because field-richness has no relationship to which of a stale/current pair's prices is the real one. (This 30.78% figure, like the portal-alone guard's 21.56% above, was measured before the fuller 67,653-pair duplicate population was known - whoever picks this item up should re-measure against the full population before relying on the exact number, though the underlying reasoning - field-richness doesn't track price freshness - doesn't depend on which subset was measured.) A real fix needs either a reliable freshness signal (a scrape timestamp per record, if one exists but isn't currently read this way) or a proper investigation into why `scraper_homes.py`/its history-merge logic produces two ids for one real listing in the first place, so the *cause* can be fixed rather than papering over its output. Item 64's own fix works correctly without resolving this (see its `(portal, url)` discriminator), so shipping it doesn't depend on this item.
 
+## 67. Homepage hero shipped for real: "Split & Interlock" concept, user's pick from 5 exploratory concepts - SHIPPED, PR OPEN FOR MISSY'S REVIEW (2026-09-28, Dessy)
+
+Earlier this session, 5 standalone homepage hero mockups (Masthead Minimal,
+Split & Interlock, Map Backdrop, Tagline Sandwich, Editorial Rules) were
+built on branch `design/homepage-hero-concepts-2026-09-27` at
+`design-concepts/homepage-hero-2026-09-27/*.html`, per the user's request
+for "5 creative examples for a home page, Including the sign 'Imoten
+Radar' being bigger and overlapping the other section... a creative logo."
+Concepts #2 and #3 were later re-skinned in Navy/Gold specifically at the
+user's request (branch `design/hero-concepts-navy-gold-2026-09-27`). The
+user reviewed both re-skinned options and, after an initial signal toward
+concept #3 ("Map Backdrop") was corrected mid-task, **picked concept #2,
+"Split & Interlock."** This item ships that concept for real.
+
+**What shipped:** the wordmark breaks across two lines - "Imoten" then
+"Radar" - set close enough in line-height to interlock rather than simply
+stack; "Radar" is set much larger (136px desktop / 76px mobile, vs. this
+site's normal 26px h1) and in `--brass-deep`, paired with a small inline-SVG
+radar-sweep-plus-roofline logo mark. A thin hairline ("sweep rule") crosses
+between the two words. The wordmark's own bottom edge overlaps down onto
+the Search listings card immediately below it (a negative bottom margin
+on the wordmark block pulls that card up underneath it, with extra
+top-padding on the card itself making room for the overlap) - the
+concrete answer to "bigger... overlapping the other section... a creative
+logo" from the user's original brief. The stat row (Total listings/Hot
+deals/Portals tracked) and its dynamic subtitle line move to directly
+below the search card - a minor, concept-required reordering of Home's
+existing elements, not a content change (every existing stat, the search
+box, and every card further down Home - Recently viewed, Browse by
+city/Council/type, Listings by source, the Browse CTA - are unchanged and
+still fully wired to real data/JS).
+
+**Reused the already-shipped Navy/Gold tokens** (`--ink`, `--brass`,
+`--brass-deep`, `--taupe`, `--ivory`, etc. from item 60) throughout - no
+new hardcoded colors were introduced for any CSS property. The one
+exception is the inline SVG logo mark's own `fill`/`stroke` attributes,
+which use literal hex matching those tokens exactly (`#5B6472`/`#B08A2E`/
+`#1B2434`): SVG presentation attributes don't reliably resolve CSS custom
+properties via `var()` across browsers, so the concept's own navy-gold
+re-skin also hardcoded them literally rather than relying on inheritance -
+this ships the same way, not a new drift from the token system.
+
+**Shared masthead handling (a real integration decision, not just a copy-
+paste):** the site's existing `<header>` (shown above `.container` on
+every page, carrying the "🏠 Imoten Radar" title + a live subtitle
+showing real listing counts) is used site-wide, not just on Home, so it
+couldn't simply be replaced by the new hero. Solution: `header.home-compact`
+(toggled by `showSection()`, already applied by default in the HTML since
+Home is the default section) hides only the title/subtitle text while
+Home is active, collapsing the header down to just enough height for the
+mobile `.sidebar-toggle` hamburger button - which still needs to work on
+Home, unlike the title text. Every other page's masthead is completely
+unchanged (verified live - see below). The hero's own greeting eyebrow and
+subtitle line are separate elements (`#homeHeroGreeting`/
+`#homeHeroSubtitle`) populated by the exact same `setGreeting()`/data-load
+code paths that already populate the shared masthead's `#greeting`/
+`#subtitle` - same real data, two render targets, not a re-implementation.
+
+**Design-guidelines judgment calls made, disclosed:**
+1. The concept's own `.container` max-width (1440px) was widened to match
+   this file's real, already-shipped `.container` convention (1600px) -
+   not a new value invented for this task.
+2. Unlike the Map Backdrop concept the user did NOT pick, Split &
+   Interlock has no full-bleed dark backdrop, so - unlike the abandoned
+   Map Backdrop attempt earlier in this same task - no width/breakout
+   adaptation was needed for this site's fixed 220px sidebar. The
+   concept's own font sizes and 900px breakpoint carry over essentially
+   as-is.
+3. A short `<p class="card-sub">` line was added under "Search listings"
+   (present in the concept, absent from the site's current search card) -
+   reused this file's own existing `.card-sub` class rather than inventing
+   a new one.
+
+**Verification - real Playwright screenshots, not a read-through.** This
+sandbox blocks both the live Supabase project and every CDN `index.html`
+loads from, so testing meant standing up an offline equivalent: served the
+real, unmodified `index.html` via a local static server, and used
+Playwright's `page.route()` to swap the CDN `<script>`/`<link>` tags for
+local vendored stand-ins (reusing a prior session's own `/tmp/dessy-test/`
+vendor bundle for Chart.js/Leaflet/Leaflet.draw/supabase-js, plus its
+6,000-row `merged_listings` fixture routed in as the mocked `/rest/v1/`
+response) - the same pattern already established in this repo's own
+`docs/decisions.md`. No vendored copy of Leaflet.markercluster exists;
+those specific requests were aborted rather than left to hang on a real
+blocked-network timeout, relying on this app's own already-documented
+graceful fallback for that CDN being unavailable.
+
+Checked, at both 1440px desktop and 390px mobile: the wordmark renders
+"Imoten"/"Radar" with the logo mark and overlaps the search card exactly
+as intended (confirmed visually - no text collision with "Search
+listings" at either width); the hero's greeting/subtitle elements contain
+the real fixture-derived text (`"4,311 unique listings (...) · auto-
+updates every 6 hours"`, matching the shared masthead's own text exactly);
+all 3 stat tiles populate from real data; the search input still exists
+and is still wired - typing a query and pressing Enter still navigates to
+the Leads section exactly as before; navigating to another section
+(Lead Generators) via the sidebar restores the plain masthead exactly as
+before (title visible, `home-compact` class removed, screenshot
+confirms); navigating back to Home re-collapses it. Console/network
+errors were diffed against a plain unmodified-`index.html` run through
+the same harness: identical (this sandbox's own blocked Google Fonts CDN,
+blocked Leaflet.markercluster CDN, and missing `assets/city-photos/*.jpg`
+in this throwaway test directory - pre-existing artifacts of testing
+offline, not introduced by this change).
+
+`python3 -m pytest -q`: 320 passed, 4 subtests passed on this fresh
+`origin/main` fetch, both before and after this change - a pure frontend/
+CSS/markup change with zero Python-side impact, confirmed rather than
+assumed.
+
+**Discarded false start:** this task initially began implementing the
+Map Backdrop concept (#3) per an earlier instruction, including a full
+CSS/HTML/JS pass and its own Playwright verification, before a
+mid-task correction from the user (via the coordinator) clarified the
+real pick was Split & Interlock (#2). The Map Backdrop worktree/branch
+was discarded entirely (not merged, not left half-applied) and this item
+was built fresh from a new `origin/main` fetch - no Map Backdrop code
+shipped.
+
+Built in an isolated `git worktree` off a fresh `origin/main` fetch
+(`git worktree list` checked first, per this repo's `CLAUDE.md` - two
+other agents' worktrees were active and left untouched). No live GitHub
+Actions `workflow_dispatch` at any point - not applicable, this is a
+static-markup/CSS/client-JS-only change. Not self-merged - pushed as
+`design/ship-split-interlock-hero-2026-09-28`, PR opened for Missy's
+review, per this repo's standing rule.
+
 **What a real fix needs, precisely, for whoever picks this up:** (1) confirm in `scraper_homes.py`/`update_history()`'s own logic why the same real listing (same url) sometimes gets assigned a second, differently-formatted id instead of updating the existing record in place - likely related to whichever code path decides between a numeric vs. "as"-prefixed id when parsing a listing card or its detail page; (2) once the cause is understood, either stop it from happening for new scrapes, or - separately - a one-time backfill pass over the already-committed 67,653 pairs that merges each pair's price/price_history into a single canonical record (keeping the more RECENT price by a real timestamp, not by field-richness) and removes the stale duplicate. Until then, item 64's `(portal, url)` handling means this bug is harmless to the cross-portal merge computation specifically, but it still double-counts homes.bg in every other place that reads `leads_homes.json.gz`'s raw record count (site-wide listing totals, homes.bg's own per-area price averages, `listing_sources` row counts once synced) - not quantified here, since that's this new item's own scope, not item 64's.
