@@ -736,7 +736,20 @@
      else on the site) is deliberately neutralized here - #section-listing
      itself is now the visual container, so the inner body sits flush on
      the ivory canvas rather than nesting a second white box inside it. */
-  #listingDetailBody { background: transparent; border: none; padding: 0; margin: 0; }
+  /* container-type: inline-size (backlog item 70 fix, 2026-09-28): makes
+     this element's own real rendered width queryable by the @container
+     rule on .detail-grid below, instead of that rule guessing at a
+     viewport-width breakpoint that has no idea the .sidebar (~220px) and
+     .container's own padding (~48px) already ate into the space actually
+     available here - see .detail-grid's own comment for the full story.
+     This is the first @container usage anywhere in this codebase -
+     verified via a real headless-Chromium width sweep (700-1400px) against
+     the real extracted CSS and real panel markup, both before and after,
+     confirming zero page-level horizontal overflow across that whole
+     range post-fix. Supported in all evergreen browsers since 2022-2023
+     (Chrome/Edge 105, Safari 16, Firefox 110) - no documented browser
+     floor in docs/design-guidelines.md that this would violate. */
+  #listingDetailBody { background: transparent; border: none; padding: 0; margin: 0; container-type: inline-size; }
   .back-btn {
     display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
     color: var(--ink-soft); font-family: var(--font-sans); font-size: 13px; font-weight: 500;
@@ -745,7 +758,29 @@
   }
   .back-btn:hover { color: var(--brass-deep); }
   .detail-grid { display: grid; grid-template-columns: minmax(280px, 460px) 1fr; gap: 40px; align-items: start; }
-  @media (max-width: 800px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
+  /* backlog item 70 FIXED (2026-09-28): was `@media (max-width: 800px)`,
+     a raw viewport-width query that had no way to know this row's real
+     available width is already ~220px (.sidebar) + ~48px (.container's own
+     padding) narrower than the viewport - so anywhere the viewport was
+     wide enough to keep this in its two-column shape (>800px) but not wide
+     enough to actually fit a 280px-minimum photo column plus a usable info
+     column in what was actually left, the whole grid got forced wider than
+     the viewport (confirmed overflow at real viewports ~810-1070px against
+     this file's own extracted CSS + real panel markup). Rewritten as an
+     @container query keyed to #listingDetailBody's own real rendered
+     width (see its `container-type: inline-size`, set just above where
+     #listingDetailBody is styled) instead of the viewport, so this now
+     reacts to the actual space handed down regardless of sidebar/padding
+     chrome. 820px chosen with real margin over the real measured clean
+     point (page-level overflow confirmed gone by ~750-760px of
+     #listingDetailBody's own width in the same sweep) to absorb the
+     wobble real listings' content (title/specs length, etc.) introduces -
+     structurally close to 280px (photo min) + 40px (gap) + ~500px (a
+     usable info column). Re-verified clean (zero page-level horizontal
+     overflow) across a fresh 700-1400px real-viewport sweep after this
+     change, and confirmed the two-column shape still shows at genuinely
+     wide widths (not over-corrected into single-column-everywhere). */
+  @container (max-width: 820px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
   .detail-photo { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px; background: var(--ivory-deep); display: block; cursor: zoom-in; }
   .detail-photo-wrap { position: relative; }
   .detail-photo-nav {
