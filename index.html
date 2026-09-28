@@ -6253,7 +6253,22 @@ function stripMissingSelectColumn(table, columns, errorMessage) {
 // this project is realistically running on Pro. A single tunable constant,
 // easy to raise later with real production monitoring (Supabase's own
 // dashboard connection/error metrics) rather than guessed upward blind now.
-const FETCH_ALL_ROWS_CONCURRENCY = 10;
+//
+// Lowered from 10 to 4 (backlog item 72, live production regression): the
+// live site started failing outright ("Could not load listings data.")
+// within minutes of item 71 shipping at 10. The leading, honestly-labeled
+// hypothesis (not live-confirmed - this sandbox still has no egress to
+// Supabase) is that 10 concurrent shards, multiplied across every real
+// concurrent visitor's own 10-shard fan-out, tripped exactly the
+// connection-pool-exhaustion risk this comment already flagged as an
+// unverified unknown when item 71 shipped. 4 keeps most of the real
+// measured speedup (still a ~4x cut to wall-clock pages-in-flight) while
+// meaningfully lowering that per-visitor fan-out until real Supabase
+// dashboard monitoring can justify raising it again with actual evidence
+// instead of another guess. See fetchAllRows()'s own fallback below for the
+// other, more important half of this fix: even at a lower number, a shard
+// can still fail for real, so that can no longer take the whole page down.
+const FETCH_ALL_ROWS_CONCURRENCY = 4;
 
 // merged_listings' own id is not sequential/numeric - merged_id_for()
 // (sync_to_supabase.py) builds it as "m_" + the first 16 hex characters of
@@ -6359,15 +6374,42 @@ async function fetchAllRows(table, columns) {
   // at most one request in flight at a time internally - this IS the
   // concurrency bound (never more than FETCH_ALL_ROWS_CONCURRENCY requests
   // in flight at once), not a separate pool on top of it.
-  const shardResults = await Promise.all(
-    boundaries.slice(0, -1).map((lowerBound, i) => fetchPartition(lowerBound, boundaries[i + 1]))
-  );
-  // Shards are disjoint, contiguous, ascending sub-ranges of the id
-  // keyspace and each one's own rows are already id-ascending
-  // (`.order('id')` per page) - concatenating shard 0, 1, ..., N-1 in
-  // order reproduces exactly the same id-ascending sequence the original
-  // single-cursor sequential fetch produced, not just "some" order.
-  return shardResults.flat();
+  try {
+    const shardResults = await Promise.all(
+      boundaries.slice(0, -1).map((lowerBound, i) => fetchPartition(lowerBound, boundaries[i + 1]))
+    );
+    // Shards are disjoint, contiguous, ascending sub-ranges of the id
+    // keyspace and each one's own rows are already id-ascending
+    // (`.order('id')` per page) - concatenating shard 0, 1, ..., N-1 in
+    // order reproduces exactly the same id-ascending sequence the original
+    // single-cursor sequential fetch produced, not just "some" order.
+    return shardResults.flat();
+  } catch (shardError) {
+    // Safety net (backlog item 72 - live production regression right after
+    // item 71 shipped: the site started showing "Could not load listings
+    // data." outright, a total failure, worse than the old slow-but-
+    // reliable sequential fetch it replaced). Promise.all rejects the
+    // instant ANY ONE shard's fetchPartition() throws (i.e. that shard hit
+    // a real error on every one of its own maxRetries attempts) - unlike
+    // the old single-cursor sequential fetch, which only ever had one
+    // request in flight at a time and was far less likely to trip a
+    // concurrency-sensitive server-side limit (connection-pool exhaustion,
+    // rate limiting) in the first place. This sandbox has no live egress to
+    // Supabase, so the exact trigger isn't independently confirmed here -
+    // but regardless of the exact cause, the fix is the same: never let a
+    // sharded-fetch failure take the whole page down when the plain
+    // sequential method would still have worked. Discards any partial
+    // shard progress above and re-fetches the ENTIRE table from scratch via
+    // fetchPartition() with no bounds (lowerBound=null, upperBound=null) -
+    // this is exactly the pre-item-71 algorithm (a single keyset cursor,
+    // one request in flight at a time), not a reimplementation - so if this
+    // also fails, the failure is a real, non-concurrency-related problem
+    // (e.g. the table itself being unreachable) and should propagate to
+    // loadData()'s own catch exactly as it always did before item 71.
+    console.error(`fetchAllRows: a concurrent shard failed after exhausting its own retries - ` +
+      `falling back to the single-stream sequential fetch instead of failing the whole page load.`, shardError);
+    return await fetchPartition(null, null);
+  }
 }
 
 function computeUnverified(l) {

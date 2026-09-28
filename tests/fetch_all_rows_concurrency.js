@@ -93,7 +93,7 @@ function bisectRight(arr, id) {
   return lo;
 }
 
-function makeMockSupabase(rows, { latencyMs = 0, tableColumns = null, batchCap = 1000 } = {}) {
+function makeMockSupabase(rows, { latencyMs = 0, tableColumns = null, batchCap = 1000, failGteValue = null } = {}) {
   const sorted = rows.slice().sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   let requestCount = 0;
   let inFlight = 0;
@@ -122,6 +122,23 @@ function makeMockSupabase(rows, { latencyMs = 0, tableColumns = null, batchCap =
                 resolve({ data: null, error: { message: `column ${table}.${missing} does not exist` } });
                 return;
               }
+            }
+            // Backlog item 72: simulates a hard, permanent, non-retryable-
+            // shaped failure (real production could be connection-pool
+            // exhaustion, a rate limit, etc - the exact shape doesn't
+            // matter, only that it's NOT the missing-column shape above and
+            // NEVER succeeds) on whichever shard's very first request
+            // carries this exact `.gte('id', failGteValue)` lower-bound
+            // filter - i.e. one whole shard, from its first page, every
+            // attempt. Only ever matches a shard's OWN opening `gte` filter,
+            // never a later page's `gt` cursor filter within that same
+            // shard (real code moves to `.gt` after page 1) and never the
+            // sequential fallback's own unbounded first request (no lower
+            // bound at all) - so the fallback this test exists to verify
+            // genuinely can't accidentally trip this same failure itself.
+            if (failGteValue !== null && state.filters.some(([op, val]) => op === 'gte' && val === failGteValue)) {
+              resolve({ data: null, error: { message: 'simulated connection-pool exhaustion (test)' } });
+              return;
             }
             // Binary-search the [lo, hi) index range instead of a linear
             // .filter() scan - real Postgres does this in O(log n) via its
@@ -258,7 +275,17 @@ function assertTrue(cond, msg) {
 
 async function main() {
   const source = extractRealSource();
-  console.log('=== fetchAllRows() bounded-concurrency check (backlog item 71) ===\n');
+  console.log('=== fetchAllRows() bounded-concurrency check (backlog items 71, 72) ===\n');
+
+  // Read the real, currently-shipped concurrency constant rather than
+  // hardcoding an assumed value here - backlog item 72 lowered it from 10
+  // to 4 (a live production regression right after item 71 shipped at 10),
+  // and hardcoding would let this test silently drift out of sync with
+  // whatever the shipped code actually uses next time it's tuned.
+  const concurrencyMatch = /FETCH_ALL_ROWS_CONCURRENCY\s*=\s*(\d+)/.exec(source);
+  assertTrue(!!concurrencyMatch, 'could extract the real FETCH_ALL_ROWS_CONCURRENCY value from index.html');
+  const CONCURRENCY = Number(concurrencyMatch[1]);
+  console.log(`(shipped FETCH_ALL_ROWS_CONCURRENCY = ${CONCURRENCY})\n`);
 
   // --- Test 1: correctness (count, no dupes, no gaps, stable order) -------
   {
@@ -281,7 +308,8 @@ async function main() {
     assertEqual(JSON.stringify(ids), JSON.stringify(expectedOrder), 'id-ascending order preserved exactly');
 
     const { requestCount, maxInFlight } = sb.stats();
-    assertTrue(maxInFlight <= 10, `bounded concurrency respected (max in-flight ${maxInFlight}, expected <= 10)`);
+    assertTrue(maxInFlight <= CONCURRENCY,
+      `bounded concurrency respected (max in-flight ${maxInFlight}, expected <= ${CONCURRENCY})`);
     console.log(`[correctness] ${N} rows, ${requestCount} total requests, max ${maxInFlight} concurrent in-flight - PASS`);
   }
 
@@ -349,6 +377,45 @@ async function main() {
     console.log(`[boundary-exact] row pinned to real shard boundary ${pinnedId} counted exactly once - PASS`);
   }
 
+  // --- Test 3c: one shard's hard, exhausted-retries failure falls back to
+  // the sequential fetch instead of failing the whole load (backlog item
+  // 72 - real production regression: the live site started showing
+  // "Could not load listings data." outright within minutes of item 71
+  // shipping at concurrency 10. Promise.all rejects the instant ANY one
+  // shard's fetchPartition() throws after exhausting its own maxRetries -
+  // this is the exact scenario, and it must now recover instead of
+  // propagating). Forces one real shard (picked from the real, extracted
+  // hexIdPartitionBoundaries() output, at whatever FETCH_ALL_ROWS_
+  // CONCURRENCY the shipped code actually uses) to fail every one of its
+  // own retry attempts with a non-missing-column-shaped error, and confirms
+  // fetchAllRows() still resolves with the complete, correct dataset - via
+  // the sequential fallback - rather than rejecting.
+  {
+    const boundaries = await runRealHexIdPartitionBoundaries(source, CONCURRENCY);
+    const failLowerBound = boundaries[1]; // a real interior shard boundary (never null - index 0 is)
+    assertTrue(typeof failLowerBound === 'string', 'picked a real interior shard boundary to force-fail');
+
+    const N = 4000;
+    const fixture = buildFixtureRows(N);
+    const columns = 'id,portal,price_eur';
+    const sb = makeMockSupabase(fixture, {
+      latencyMs: 1,
+      tableColumns: ['id', 'portal', 'price_eur'],
+      failGteValue: failLowerBound,
+    });
+
+    const result = await runRealFetchAllRows(source, sb, 'merged_listings', columns);
+    assertEqual(result.length, N, 'row count after shard hard-failure + sequential fallback');
+    assertEqual(new Set(result.map((r) => r.id)).size, N, 'no duplicate ids after fallback');
+    const gotSorted = result.map((r) => r.id).slice().sort();
+    const expectedIds = fixture.map((r) => r.id).sort();
+    assertEqual(JSON.stringify(gotSorted), JSON.stringify(expectedIds),
+      'exact same id set recovered via fallback (no gaps, no extras)');
+    console.log(`[hard shard failure -> sequential fallback] shard covering boundary ${failLowerBound} failed ` +
+      `every retry, fetchAllRows() still returned the complete ${N}-row dataset via fallback instead of ` +
+      `throwing - PASS`);
+  }
+
   // --- Test 4: real measured speedup under simulated realistic latency ----
   {
     const N = 40000; // 40 sequential pages at batchSize=1000
@@ -380,12 +447,22 @@ async function main() {
       `max ${newStats.maxInFlight} concurrent in-flight`);
     console.log(`  measured speedup: ${speedup.toFixed(2)}x`);
 
-    assertTrue(newStats.maxInFlight <= 10, `new implementation stayed within the 10-shard concurrency bound (got ${newStats.maxInFlight})`);
+    assertTrue(newStats.maxInFlight <= CONCURRENCY,
+      `new implementation stayed within the ${CONCURRENCY}-shard concurrency bound (got ${newStats.maxInFlight})`);
     // Real round-trip count is unchanged (still ~rows/1000 total requests) -
     // only wall clock should improve, matching the fix's own stated goal.
     assertTrue(Math.abs(oldStats.requestCount - newStats.requestCount) <= 10,
       `total request count roughly unchanged by concurrency alone (old ${oldStats.requestCount}, new ${newStats.requestCount})`);
-    assertTrue(speedup >= 5, `expected a meaningful (>=5x) real measured speedup, got ${speedup.toFixed(2)}x`);
+    // Threshold scales with the shipped concurrency instead of a fixed
+    // number (backlog item 72 lowered CONCURRENCY from 10 to 4, which on
+    // its own meaningfully lowers the achievable speedup too - a fixed
+    // ">=5x" threshold written for concurrency 10 would flake/fail at 4
+    // for a reason that has nothing to do with a real regression). Kept
+    // comfortably under the ~CONCURRENCY-x theoretical ceiling to leave
+    // headroom for per-request/event-loop overhead this mock still has.
+    const minSpeedup = Math.max(2, CONCURRENCY * 0.6);
+    assertTrue(speedup >= minSpeedup,
+      `expected a meaningful (>=${minSpeedup.toFixed(1)}x) real measured speedup, got ${speedup.toFixed(2)}x`);
     console.log('  PASS (meaningful real measured speedup, same total request count, bounded concurrency)');
   }
 

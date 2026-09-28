@@ -7592,3 +7592,91 @@ branch `fix/parallel-fetch-all-rows`) off a fresh `origin/main` fetch
 checkout per this repo's `CLAUDE.md` - no conflicting in-progress work
 found. No live GitHub Actions `workflow_dispatch` at any point. Not
 self-merged - pushed for Missy's review.
+
+## 72. URGENT: item 71's merge broke the live site outright ("Could not load listings data.") within minutes - graceful fallback shipped, PR OPEN FOR MISSY'S FAST REVIEW (2026-09-28)
+
+Item 71 (PR #325) merged to `main` and, per direct user report with a
+screenshot, the live site immediately started showing "Could not load
+listings data." on every visit - `loadData()`'s own catch-block message,
+meaning `fetchAllRows()` now throws where it previously (slowly) succeeded.
+Strictly worse than the pre-item-71 state: slow-but-working became
+broken-outright, and needed an immediate, conservative fix over a perfect
+diagnosis.
+
+**Root cause, read from the shipped code (not live-reproduced - this
+sandbox still has no egress to `*.supabase.co`, confirmed again):**
+`fetchAllRows()`'s `Promise.all()` over its `FETCH_ALL_ROWS_CONCURRENCY`
+shards has no `catch` - `Promise.all()` rejects the instant ANY ONE shard's
+`fetchPartition()` throws (i.e. that shard exhausted its own
+`maxRetries = 3` on a real error), taking the entire bulk load down
+immediately. This is exactly the risk item 71's own review already flagged
+as open and unverified (connection-pool exhaustion under real concurrent
+load, checkable only via code-reading/mock, not live traffic) - now
+plausibly manifesting for real, at real production scale, across every
+concurrent visitor's own 10-shard fan-out. No other plausible cause was
+found by reading `fetchAllRows()`/`fetchPartition()`/
+`hexIdPartitionBoundaries()` end to end again (the boundary math stays
+correct-by-construction regardless of hash uniformity; the `.gte()`/`.lt()`
++`.order()`+`.limit()` chain on a `text` column is ordinary, unremarkable
+supabase-js usage). Disclosed honestly as the most plausible read of the
+evidence, not a live-confirmed root cause - this sandbox cannot reproduce
+or verify the exact production trigger directly.
+
+**Fix shipped, in priority order:**
+1. **Graceful fallback inside `fetchAllRows()` itself**: the `Promise.all()`
+   is now wrapped in `try`/`catch`. On any shard failure it logs a
+   `console.error` (so a real future failure still leaves a trace) and
+   falls back to `fetchPartition(null, null)` - which, with no bounds, IS
+   the exact pre-item-71 single-cursor sequential algorithm, not a
+   reimplementation - discarding any partial shard progress and re-fetching
+   the whole table from scratch sequentially. Worst case is now "slow like
+   before," never "broken." If the sequential fallback also fails, that
+   still propagates to `loadData()`'s own catch exactly as before item 71 -
+   a real non-concurrency problem (e.g. genuine unreachability) isn't
+   masked.
+2. **`FETCH_ALL_ROWS_CONCURRENCY` lowered from 10 to 4** - no documented
+   Supabase Pro connection-pool ceiling exists anywhere in this repo to
+   justify 10 (item 71's own writeup already says so), and going from
+   "looked safe under mocks" to "broke in minutes" happened exactly when
+   this started running at real production concurrency, summed across real
+   concurrent visitors. 4 keeps a meaningful chunk of the original speedup
+   (measured ~3.6x on the same mocked-latency harness vs. item 71's
+   ~7.5-7.8x at 10) while cutting per-visitor fan-out until real Supabase
+   dashboard metrics justify raising it again with actual evidence.
+3. **New test** in `tests/fetch_all_rows_concurrency.js`: forces one real
+   shard (identified from the actual extracted `hexIdPartitionBoundaries()`
+   output) to fail every one of its own retry attempts with a
+   non-missing-column-shaped error, and confirms `fetchAllRows()` still
+   resolves with the complete, correct dataset via the fallback instead of
+   throwing - the exact regression scenario, now covered. The pre-existing
+   speed test's hardcoded `>=5x`/`<=10` assertions (tied to the old
+   concurrency=10 default) now read the real `FETCH_ALL_ROWS_CONCURRENCY`
+   constant out of the extracted source instead, so they track whatever
+   value actually ships.
+
+**What this does and doesn't protect against, stated plainly:** protects
+against any one shard's real, retry-exhausting failure taking the whole
+page down, whatever its underlying live cause turns out to be - the code
+now always has a proven-reliable single-stream path to fall back to. Does
+NOT independently confirm connection-pool exhaustion was the actual live
+trigger (no live Supabase access existed this session); if the real cause
+is something the sequential fallback would also hit (e.g. genuine
+unreachability, an unrelated config problem), this fix does not mask that -
+the error still surfaces exactly as it did before item 71, which is the
+honest, correct behavior rather than silently hiding a real outage.
+
+**Verification:** `node --check` against the extracted, unmodified
+`<script>` block - clean. `tests/fetch_all_rows_concurrency.js` - all
+checks pass, including the new hard-shard-failure-falls-back-to-sequential
+case. `python3 -m pytest -q` run fresh on `origin/main` before starting:
+322 passed, 4 subtests - unchanged after (pure `index.html`/JS change, no
+Python file touched).
+
+Built in an isolated `git worktree` off a fresh `origin/main` fetch
+(`c9965d99`); `git worktree list`/`git status` checked first in the shared
+primary checkout per this repo's `CLAUDE.md` - clean, nothing conflicting
+found. No live GitHub Actions `workflow_dispatch` at any point (per the
+dispatch's own explicit instruction and this repo's standing rule against
+iterating via live dispatch). Not self-merged - pushed as
+`fix/fetch-all-rows-fallback-2026-09-28`, PR opened immediately for Missy's
+fast review given the production severity.
