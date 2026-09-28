@@ -7421,3 +7421,174 @@ Found while re-verifying item 68's `.detail-history-row` width fixes with a real
 `python3 -m pytest -q` run fresh on this worktree: 322 passed, 4 subtests passed - no regressions.
 
 Built in its own isolated `git worktree` off a fresh `origin/main` fetch (separate from item 68/69's worktree, which had already merged). No live GitHub Actions `workflow_dispatch`. Not self-merged - PR open for Missy's review, per this repo's standing rule.
+
+## 71. Site very slow to load (3-5 real minutes) - `merged_listings` bulk fetch was sequential, ~215-290 round trips - bounded-concurrency fix built, PR OPEN FOR MISSY'S REVIEW (2026-09-28)
+
+From the user directly ("very slow when started... 3-5 minutes... VERY
+IMPORTANT"), still true after backlog item 6's slice 1 (payload narrowing +
+45-minute IndexedDB cache) and slice 2 (fast first-paint for the grid) both
+shipped: whenever `loadData()`'s cache is cold or stale (first-ever visit,
+any visit after the 45-minute TTL, a cache write that silently failed),
+`fetchAllRows('merged_listings', ...)` still has to pull the entire table -
+~214,889-290,000+ rows and growing daily - via `fetchBatch()`'s single
+keyset cursor, one 1000-row page at a time, each page fully `await`ed
+before the next one starts. That's ~215-290 **sequential** HTTP round
+trips - the code's own comment already said so, live-measured via
+`measure_listings_payload.py`. At even ~1s of real round-trip time
+(Supabase REST + network), that's the user's exact 3-5 minute complaint.
+
+**Checked first, not assumed: is this actually still happening, or did
+item 6 already fix it?** Re-read item 6/11's full history
+(`docs/backlog.md`, `docs/decisions.md`'s matching 2026-09-22/23 entries)
+before touching anything. Confirmed slice 2 only fast-paths the *grid's
+own first paint* - `loadData()`'s full bulk fetch still runs in the
+background afterward for every other consumer (Comparables, Market Data
+hub, Lead Generator counts, dashboard, area filter), on a cold/stale cache,
+exactly as slow as before. Item 6 itself flagged this design as
+deliberately sequential and explained why (`fetchAllRows()`'s own big
+comment): a keyset cursor can't be parallelized on its own, since page N+1's
+cursor is only known once page N's last row has been read.
+
+**Two specific alternatives were considered and rejected before picking a
+design, both because this repo has already lived through the exact failure
+each one would risk re-introducing:**
+- **OFFSET-based `.range(from, to)` sharding** (fire N workers, each
+  covering a fixed offset window) - the obvious way to parallelize
+  arbitrary pagination, and exactly what this project used to do. The
+  comment directly above `fetchAllRows()` documents why it was replaced
+  with keyset pagination in the first place: `OFFSET`'s scan-and-discard
+  cost grows with page depth and broke outright once the table passed
+  ~244k rows, every page past offset=75000 failing with Postgres 57014
+  (`statement_timeout`), 100% reproducible - that's what caused
+  "Could not load listings data." on every refresh before. Re-introducing
+  `.range()` for concurrency would resurrect that same incident at a much
+  larger scale today (~290k rows now vs. ~244k then). Not used.
+- **A `count: 'exact'` (or `'estimated'`) pre-pass** to know the total row
+  count up front and plan even shards - already independently confirmed to
+  hit the same `statement_timeout` live against this exact table
+  (`measure_listings_payload.py`'s own `get_total_count()` fallback,
+  docs/backlog.md items 6 and 11's "note" at the end). Not used - no count
+  of any kind is requested anywhere in this fix.
+
+**The design actually shipped: split the id keyspace into
+`FETCH_ALL_ROWS_CONCURRENCY` (10) disjoint sub-ranges up front, using pure
+client-side string/BigInt math (no query needed to compute them), and run
+one independent keyset-pagination stream per sub-range concurrently.**
+This only works safely because of a fact confirmed by reading
+`sync_to_supabase.py` directly rather than assumed: `merged_listings.id` is
+`text` (`supabase/schema.sql`), built by `merged_id_for()` as `"m_" + the
+first 16 hex characters of a sha256 digest` over the group's sorted member
+ids - not sequential, not numeric, not chronological. That's exactly what
+makes even, correct sharding possible without a COUNT: a sha256 digest is
+uniformly distributed across its hex range, so splitting that range into 10
+equal-width hex windows client-side statistically splits the real rows into
+10 roughly-equal shards too, each then paged with the exact same safe,
+depth-independent keyset loop this file already used - just bounded to its
+own slice of the id space, and with 10 of them running via one
+`Promise.all()` instead of one cursor working through the whole table.
+Boundaries deliberately cover the entire text domain (first shard has no
+lower bound, last has no upper bound), so a row whose id somehow doesn't
+match the `"m_"+hex` shape still lands in exactly one shard rather than
+being silently dropped - correctness never depends on the hash-uniformity
+assumption holding, only how *even* the split is.
+
+**Concurrency level (10), justified, not guessed:** no specific Supabase
+Pro connection-pool ceiling is documented anywhere in this repo - item 11's
+full audit already went looking and found none, and Supabase doesn't
+publish a fixed number either (PostgREST holds its own internal pool to
+Postgres, sized by compute add-on, not a flat Pro-tier constant). The one
+real precedent this codebase has in this exact neighborhood (bulk-loading
+`listing_sources`, see `loadData()`'s comment) was a *sustained-request-
+volume* connection exhaustion, not a documented "N was fine, N+1 broke it"
+threshold - so there's no number to aim close to, only a general shape of
+risk to stay clear of. Picked 10 (the low end of a reasonable 8-15 bounded-
+pool range) because this fetch already runs alongside its own sibling
+`refreshPipelineListingsCache()` query and every other concurrent visitor's
+identical fan-out; a single tunable constant
+(`FETCH_ALL_ROWS_CONCURRENCY`), easy to raise later against real Supabase
+dashboard connection/error metrics rather than guessed upward blind now.
+
+**Order and correctness preserved exactly, verified, not assumed:**
+confirmed by reading every `MERGED_LISTINGS` consumer that array order
+carries no meaning today (`id` is a hash, not chronological; every lookup
+is `.find(x => x.id === id)`; the one sort mode that would preserve
+pre-sort order, `sortComparator()`'s `return 0` fallback, already inherits
+this same arbitrary hash order) - so this didn't need to preserve order for
+correctness, but does anyway, exactly: shards are disjoint, contiguous,
+ascending sub-ranges of the id keyspace, each internally id-ascending
+(`.order('id')` per page), so concatenating shard 0..9 in order reproduces
+the exact same id-ascending sequence the old single-cursor fetch produced.
+`stripMissingSelectColumn()`'s existing missing-column detect/strip/retry
+behavior is unchanged and shared correctly across concurrently-running
+shards (a shard whose in-flight request used a stale column list simply
+falls through to the ordinary transient-retry branch and succeeds on its
+next attempt with the now-fixed list - bounded by the same `maxRetries`
+budget every other transient error already uses).
+
+**Verified, not assumed:**
+- This sandbox's egress to `*.supabase.co` is blocked (re-confirmed, same
+  documented limitation as every prior session) - no live "before/after"
+  wall-clock measurement against production was possible, disclosed
+  plainly rather than fabricated.
+- `node --check` against the extracted, unmodified `<script>` block -
+  clean, no syntax breakage.
+- A new Node-runnable test, `tests/fetch_all_rows_concurrency.js` (no
+  existing JS test harness anywhere in this repo to extend - checked, none
+  found; every other test is Python/pytest against scraper/sync code).
+  Extracts the real, unmodified `fetchAllRows()`/`stripMissingSelectColumn()`/
+  `hexIdPartitionBoundaries()` source straight out of `index.html` (not a
+  hand-written reimplementation) and runs it in a Node `vm` context against
+  a mocked supabase-js query builder. Confirms: a 6,173-row synthetic table
+  (real-shaped `"m_"+sha256-hex` ids) comes back with exactly the right
+  count, no duplicate ids, no missing ids, and the exact same id-ascending
+  order a sequential fetch would produce, while never exceeding 10
+  concurrent in-flight requests; a missing-select-column scenario is
+  correctly recovered even when every one of the 10 shards races the same
+  error simultaneously; an empty table returns cleanly. A real, measured
+  (not asserted) speed comparison - the same extracted code vs. a hardcoded
+  copy of the old sequential algorithm, both against 40,000 mock rows with
+  60ms of simulated per-request latency - found **7.5-7.8x faster wall-clock
+  time across repeated runs** (~2.5s old vs. ~0.3-0.35s new), with the same
+  total request count in both (concurrency doesn't change round-trip count,
+  only how many run at once, exactly as designed). Extrapolated to the real
+  table: ~215-290 sequential round trips today becomes ~22-30 sequential
+  rounds per shard (10 shards run concurrently) - at the ~1s/request
+  estimate behind the user's original 3-5 minute complaint, that's roughly
+  **22-30 seconds instead of 3.5-4.8 minutes**, an ~8-10x reduction (not
+  quite "a few seconds," disclosed honestly rather than oversold - see
+  `docs/decisions.md`'s matching entry for the full arithmetic).
+- `python3 -m pytest -q`: 322 passed, 4 subtests (confirmed as the current
+  fresh-`origin/main` baseline before starting, unchanged after - this is a
+  pure `index.html`/JS change, no Python file touched).
+
+**Cache reliability also checked per this item's own scope (task item 4):
+no bug found.** Read `readListingsCache()`/`writeListingsCache()`/
+`loadData()`'s cache-freshness check line by line looking specifically for
+a reason the 45-minute TTL cache might be missing/failing more often than
+the TTL alone would explain (the user's "every time I open it" framing).
+Found none: both read and write are wrapped in `try/catch` and never throw
+into `loadData()`'s own flow; the write is fire-and-forget so a slow/failed
+IndexedDB write can't block rendering; the `columns` field doubles as a
+correctly-working schema-version guard. The much simpler explanation that
+fits "every time I open it" without needing a bug at all: a 45-minute TTL
+cache is stale by the time you reopen the site unless you're actively using
+it more than once every 45 minutes - for a user who checks in periodically
+rather than keeping a tab open, that's indistinguishable from "always
+slow," which is exactly what this item's actual fix (cutting the cold-cache
+path itself from minutes to seconds) addresses directly. TTL value left
+unchanged - no evidence it's wrong, per this item's own instruction not to
+touch it without evidence.
+
+**Not attempted here, explicitly out of scope:** `findComparables()`'s
+in-memory radius scan and the Market Data hub's full-array aggregation
+(item 6's own already-filed follow-ups) - unaffected by this change either
+way, still reading the same (now much faster to obtain) background-loaded
+full array exactly as before.
+
+Built in an isolated `git worktree`
+(`/home/user/bg-property-tracker-worktrees/parallel-fetch-all-rows`,
+branch `fix/parallel-fetch-all-rows`) off a fresh `origin/main` fetch
+(`c74338b5`); `git worktree list` checked first in the shared primary
+checkout per this repo's `CLAUDE.md` - no conflicting in-progress work
+found. No live GitHub Actions `workflow_dispatch` at any point. Not
+self-merged - pushed for Missy's review.
