@@ -967,10 +967,14 @@
      `minmax(280px, 460px) 1fr`, ~750 lines above) only collapses to a
      single column below an 800px VIEWPORT width, not 800px of its own
      available width - but its available width is already ~220px (sidebar)
-     + ~96px (`.container`/`.card` padding) narrower than the viewport, so
-     anywhere the viewport is wide enough to keep `.detail-grid` in its
-     two-column shape (>800px) but not wide enough to actually fit a 280px-
-     minimum photo column plus a usable info column inside what's left,
+     + ~48px (`.container`'s own padding; `.card`'s own 24px padding is
+     overridden to 0 on this page by `#listingDetailBody`'s higher-
+     specificity ID rule, so it contributes nothing here - correction,
+     Missy's review, the ~96px figure double-counted it) narrower than the
+     viewport, so anywhere the viewport is wide enough to keep
+     `.detail-grid` in its two-column shape (>800px) but not wide enough to
+     actually fit a 280px-minimum photo column plus a usable info column
+     inside what's left,
      the whole grid is forced past the viewport's real width - this row's
      own width games (auto-fit vs fixed, min-width or not) only ever
      affect how what little space `.detail-grid` hands down gets divided,
