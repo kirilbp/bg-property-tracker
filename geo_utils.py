@@ -1042,14 +1042,49 @@ def extract_contact_alo(html):
 # (PR #279): a confident "this is already proven" claim that wasn't actually
 # checked against what really drives the number it points to.
 #
-# Two real, independent failure modes could produce exactly this 0% pattern,
-# and this sandbox's network egress to imoti.bg is blocked (confirmed again
-# this session, same as every other scraper's own egress-block note), so
-# live re-verification wasn't possible and CLAUDE.md rules out finding out
-# via a live workflow_dispatch:
+# SETTLED 2026-09-28, not still open: a fresh real-data audit (828 active
+# imoti.bg listings, still a flat, literal 0% - not just low - for every one
+# of property_type_raw/construction_type/built_year/floor_number/features/
+# has_elevator/furnished/has_central_heating/agency_name/agency_website,
+# confirming the 0% below never actually improved) traced this to real,
+# live production evidence rather than guessing further from this sandbox's
+# own still-blocked egress to imoti.bg (re-confirmed via WebFetch here too).
+# scrape.yml run 36369847151 (2026-09-28, job 108763654513,
+# `python scraper_imoti_bg.py` step) - a normal SCHEDULED run, nothing
+# manually dispatched to get this, per CLAUDE.md - logged this file's own
+# imoti_bg_ld_json_diagnostic() output for 5 real, live, currently-active
+# imoti.bg detail pages (e.g. .../тристаен-апартамент/софия/връбница-
+# 515941.htm/cu:BGN). All 5 read `{'script_tags': 0, 'parsed': 0,
+# 'failed_to_parse': 0, 'types_seen': []}` - i.e. real confirmation of
+# failure mode 1 below, not mode 2 (a parse failure would show a non-zero
+# `failed_to_parse`, and any ld+json at all, even unrecognized, would show
+# a non-zero `script_tags`). This is not "the wrong schema.org shape" - it's
+# these pages genuinely carrying no <script type="application/ld+json">
+# block at all. extract_specs_imoti_bg()/extract_contact_imoti_bg()
+# themselves are not buggy (both correctly return None on exactly this
+# input, and both are covered by tests/test_imoti_bg_detail_extraction.py's
+# full synthetic-fixture suite) - their founding premise (this site
+# publishes schema.org structured data, the same way its description also
+# happens to be readable from a plain <meta name="description"> tag) was
+# simply wrong for this portal. A real fix needs a DOM/text-based extractor
+# (the same "read known labels off the real page" approach already proven
+# for alo.bg/bazar.bg) built against this site's REAL markup, which this
+# sandbox still can't fetch - imoti_bg_ld_json_diagnostic() now also reports
+# 3 safe, generic (not label-guessing) structural facts about the rest of
+# the page for whoever picks this up next with live access or a future
+# scheduled run's logs: total <script> tag count of any type, the distinct
+# "type" attribute values seen among them, and whether the body has any
+# <table>/<dl> element at all (see that function's own comment for why
+# these three and not a guessed label search).
+#
+# Two real, independent failure modes could produce a 0% pattern like this
+# in general (now narrowed to mode 1, confirmed live, per the paragraph
+# above - mode 2 is kept here as an already-hardened-against possibility,
+# not because it's still an open question for THIS 0%):
 #   1. imoti.bg's real ld+json (if it carries any at all) simply doesn't use
 #      the RealEstateListing/Accommodation/Organization schema.org shape
-#      assumed below - genuinely unverifiable without live access.
+#      assumed below - CONFIRMED as the real cause here (see above): these
+#      pages carry no ld+json block at all, not merely an unrecognized one.
 #   2. A common, well-documented real-world JSON-LD quirk: many sites
 #      generate a script's JSON text from a raw user-submitted description
 #      containing literal newline/control characters without escaping them,
@@ -1164,20 +1199,81 @@ def imoti_bg_ld_json_diagnostic(html):
     words for what a candidate IS, the single most useful thing to log for
     telling "no ld+json here" apart from "ld+json is here but not the
     Accommodation/Organization shape this file assumes"), all without
-    dumping raw HTML/JSON into a log. Never raises."""
+    dumping raw HTML/JSON into a log. Never raises.
+
+    UPDATE 2026-09-28: the original hypothesis this diagnostic was built to
+    distinguish is now settled, not still open - a real production audit
+    (this repo's own scrape.yml run 36369847151, 2026-09-28, job
+    108763654513) logged this exact diagnostic for 5 real, live imoti.bg
+    detail pages and every single one came back `'script_tags': 0`. That is
+    not "ld+json is here but the wrong shape" (which is what
+    extract_specs_imoti_bg()/extract_contact_imoti_bg() were built to
+    tolerate) - it's real, repeated, live confirmation that these pages
+    carry NO application/ld+json block at all. The two extractor functions
+    are not buggy (both are exercised by a full synthetic-fixture test
+    suite in tests/test_imoti_bg_detail_extraction.py and correctly return
+    None on exactly this input) - their founding assumption (this site
+    publishes schema.org structured data the same way its description
+    happens to also be readable from a plain <meta name="description">
+    tag) was simply wrong for this portal. Fixing this for real needs a
+    DOM/text-based extractor targeting whatever the real page actually
+    looks like (the same "read known labels off the real page" approach
+    already proven for alo.bg/bazar.bg), which needs real markup to read
+    first - this sandbox's egress to imoti.bg is blocked (confirmed via
+    WebFetch here too), so the 3 fields added below exist to capture that
+    real markup's shape, safely and generically (no guess at Bulgarian
+    label text, which is exactly the kind of guess this codebase's own
+    history (see extract_specs_alo()/extract_specs_bazar()'s own comments)
+    has repeatedly warned against making without live confirmation), the
+    next time this already-scheduled workflow runs - no live dispatch
+    needed to get it, it already runs every few hours on its own."""
     try:
         candidates, script_count, failed = _parse_ld_json_blocks(html)
     except Exception:
-        return {"script_tags": 0, "parsed": 0, "failed_to_parse": 0, "types_seen": []}
+        return {
+            "script_tags": 0, "parsed": 0, "failed_to_parse": 0, "types_seen": [],
+            "any_script_tags": 0, "script_types_seen": [], "has_table_or_dl": False,
+        }
     types_seen = sorted({
         c["@type"] for c in candidates
         if isinstance(c.get("@type"), str)
     })
+    # Three generic, non-guessing structural facts about the REST of the
+    # page - deliberately not a search for any specific Bulgarian label
+    # text (that would be exactly the kind of blind guess this file's own
+    # history warns against): how many <script> tags of ANY type exist (a
+    # page that renders specs client-side from a JSON state blob would show
+    # many, with an unfamiliar "type" - or none at all, e.g. "text/
+    # javascript" - either fact narrows things down), which distinct "type"
+    # attribute values they carry (a real "type" other than "application/
+    # ld+json" - e.g. a framework's own state-blob convention - is the
+    # single most actionable clue a future non-guessing fix could act on),
+    # and whether the body has any <table>/<dl> element at all (the generic
+    # shape a plain server-rendered spec table - the same shape bazar.bg's
+    # own, already-proven extract_specs_bazar() reads - would take, versus
+    # a page with no structured markup anywhere).
+    any_script_tags = 0
+    script_types_seen = []
+    has_table_or_dl = False
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        all_scripts = soup.find_all("script")
+        any_script_tags = len(all_scripts)
+        script_types_seen = sorted({
+            s.get("type").strip() for s in all_scripts
+            if isinstance(s.get("type"), str) and s.get("type").strip()
+        })
+        has_table_or_dl = bool(soup.find(["table", "dl"]))
+    except Exception:
+        pass
     return {
         "script_tags": script_count,
         "parsed": len(candidates),
         "failed_to_parse": failed,
         "types_seen": types_seen,
+        "any_script_tags": any_script_tags,
+        "script_types_seen": script_types_seen,
+        "has_table_or_dl": has_table_or_dl,
     }
 
 
