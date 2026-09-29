@@ -7822,3 +7822,135 @@ active (`fix/fetch-all-rows-fallback-2026-09-28`,
 iterating via live dispatch - all investigation used real committed
 `data/*.json.gz` files and code-reading, not a live run). Not self-merged -
 pushed for Missy's review.
+
+## 75. Cross-portal false merge confirmed and narrowed: "жк. Надежда 4" homes.bg/bazar.bg pair (174m2 vs the actual 71m2 stated in bazar.bg's own description) - CONFIRMED WITH REAL DATA, PARTIAL FIX SHIPPED (measured, does not close item 64/decisions.md's disclosed sqm-less-pass risk), PR OPEN FOR MISSY'S REVIEW (2026-09-29)
+
+Direct user report, from spot-checking real merged listings on the live
+site: several merged listings whose portal tabs are shown as "the same"
+apartment are actually different real properties. The user's own
+screenshot gave one specific, checkable case - "Двустаен, 174m2, жк.
+Надежда 4, София" - homes.bg side EUR173,200/174 sqm, bazar.bg side
+EUR174,000 with no sqm in its title, but its own description text.
+
+**Step 1 - confirmed against the real committed data, not assumed.**
+Found both real source rows: `data/leads_homes.json.gz`'s
+`homes_as1600786` (174 sqm, EUR173,200) and `data/leads_bazar.json.gz`'s
+`bazar_55365467` (`sqm: null`, EUR174,000, description literally
+`"...бл. 429Площ: 71 кв.м.Етаж: 4..."` - 71 sqm). Ran the real
+`group_listings()` from `sync_to_supabase.py` against the real committed
+data (413,467 listings, not a toy sample) and confirmed directly: these
+two land in the same merged group, and `bazar_55365467` gets there via the
+`without_sqm`/`solo_sqmless` price-only attach loop (no `sqm` comparison
+possible - the field is null), exactly the "second matching pass" risk
+docs/decisions.md already disclosed for backlog item 64 (18.31% accepted
+false-negative-adjacent regression, concentrated in "specific known
+busy/development neighbourhoods" - жк. Надежда 4, a dense housing complex,
+matches that pattern exactly). A second, related false merge was found in
+the same run: `bazar_53949423` (EUR172,982, `sqm: null`, an "АТЕЛИЕ"/studio
+per its own description, so almost certainly not even the same property
+type) also merged into `homes_1600786` (the sibling homes.bg listing) the
+same way - its description has no stated area at all, so it is **not**
+fixed by the change below (see "what this doesn't fix").
+
+**Step 2 - quantified the real scope, not just this one example.** Sampled
+every real merged group from the same live `group_listings()` run where at
+least one member has a real `sqm` and at least one doesn't ("mixed"
+groups): 54,909 of 67,621 real multi-member groups (81.2%). Of the 71,414
+sqm-less listings sitting inside those mixed groups, only 356 (0.5%) have
+an extractable `"Площ: <N> кв.м"`-style figure literally embedded in their
+own description text (a narrow, deliberately conservative regex - see
+below). **Of those 356, 124 (34.8%) disagreed by more than 20% with their
+own group's real-sqm members' average - i.e. were almost certainly the
+same class of false merge as the Nadezhda 4 case**, concentrated exactly
+where predicted: of 18,584 sqm-less listings in a жк.-tagged mixed group,
+22 were confirmed mismatches this way. **This does not mean 34.8% of all
+sqm-less merges are false positives** - it means 34.8% of the narrow 0.5%
+slice where a description-derived sqm happens to exist and be checkable
+are. The other 99.5% remain unmeasured by this method (no number to check
+against at all) and are exactly decisions.md's disclosed, still-open gap.
+
+**Step 3 - fix shipped, scoped to `sync_to_supabase.py`'s merge logic
+only** (per this task's explicit instruction, `geo_utils.py`'s
+`extract_specs_bazar()`/other specs-extraction functions and
+`backfill_detail_bazar.py` were not touched - another agent was
+concurrently working there): a new `extract_description_sqm()` recovers a
+real sqm figure from a listing's own `description` text when its
+structured `sqm` field is null, matching only the literal `"Площ:"` label
+(the same structured-field-style text the confirmed real case itself has,
+apparently copy-pasted agency spec blocks) - not free-form prose like "с
+площ от X кв.м", which sampling showed more often describes a balcony,
+plot, "чиста"/"обща" area variants, or an unrelated structure rather than
+the unit's own living area, and would have been a much noisier signal.
+`group_listings()`'s `with_sqm`/`without_sqm` split and every sqm
+comparison inside it (`sqm_range`, the pairwise `with_sqm` check) now read
+this recovered "effective sqm" instead of the raw field - so a listing
+like `bazar_55365467` now goes through the strict, already-tuned
+`with_sqm` pass (exact area/city + price +/-0.5% + sqm +/-1) instead of the
+risky price-only one. The recovered value is used for matching only and is
+**never** written back onto the listing's own `sqm` field - `build_rows()`
+still only ever reads a listing's real structured `sqm` for the merged
+row's displayed value and `price_per_sqm`, so this has zero effect on
+anything shown to a user beyond which listings get merged together.
+Deliberately did **not** touch the `(portal, url)` conflict guard,
+`sqm_range`/`price_range` tolerance-capping, or the `without_sqm` pass's
+own first-candidate tie-break - all backlog-item-64-tuned logic this task
+was explicitly told to leave alone.
+
+**Verified against the real data, before and after, same 413,467-listing
+run:**
+
+| metric | before | after |
+|---|---|---|
+| total groups | 292,801 | 292,821 (+20 real splits) |
+| multi-member groups | 67,621 | 67,606 |
+| mixed sqm/sqm-less groups | 54,909 | 54,844 |
+| sqm-less members in a mixed group | 71,414 | 71,286 |
+| ...with extractable description sqm | 356 | 265 |
+| ...of those, >20% mismatch vs group | **124** | **0** |
+| жк.-tagged mismatches | 22 | 0 |
+
+Every one of the 124 confirmed mismatches this method could detect is
+gone after the fix, with zero new mismatches introduced among the
+extractable cases that remain - the confirmed Nadezhda 4 pair itself now
+splits into two separate groups (verified directly: `homes_as1600786`
+alone, `bazar_55365467` alone). `bazar_53949423` (the second, no-stated-
+-area false merge in the same complex) is unchanged, as expected - it is
+recorded here, not silently left, and is not claimed as fixed.
+
+**What this does and does NOT fix, stated plainly:** this closes the
+narrow slice where a sqm-less listing's own description literally states
+its area in the one specific format checked - real, measured, and now
+fixed. It does **not** close decisions.md's disclosed 18.31% sqm-less-pass
+regression risk: the other 99.5% of sqm-less listings in mixed groups have
+no extractable area anywhere in their text at all (most bazar.bg/alo.bg
+description text simply never states a sqm figure), and those still go
+through the exact same risky price-only pass as before, unchanged. A real
+close of that gap needs a genuine per-listing address/unit discriminator,
+which decisions.md's item 64 writeup already confirmed no portal currently
+provides - this item does not change that conclusion. `index.html` has no
+client-side `groupListings()` of its own to update (confirmed by reading
+`loadData()`: the client now reads Supabase's precomputed `merged_listings`
+directly, the in-browser port was already retired) - this Python-side fix
+is the only place this logic runs.
+
+**Tests:** `tests/test_group_listings_description_sqm.py` (new, 8 cases:
+the regex itself including the exact real confirmed description text,
+comma-decimal handling, non-colon prose correctly NOT matched, the
+Nadezhda 4 false merge splitting apart, a genuinely-agreeing description
+sqm correctly still merging, and the no-extractable-text case correctly
+falling back to the untouched original behavior). Full suite:
+`python3 -m pytest -q` - 330 passed, 4 subtests passed (up from 322 passed,
+4 subtests on a fresh `origin/main` checkout before this change - the 8 new
+tests, nothing else moved). `tests/test_group_listings_portal_conflict.py`
+(backlog item 64's own regression suite) still passes unchanged - the
+`(portal, url)` guard and tie-break logic were not touched.
+
+Built in an isolated `git worktree` off a fresh `origin/main` fetch
+(`18fb0fe0`); `git worktree list`/`git status` checked first in the shared
+primary checkout per this repo's `CLAUDE.md` - two other agents' worktrees
+(`/tmp/wt-fetchfix`, `/tmp/wt/decisions-fix`) were active and left
+untouched. No live GitHub Actions `workflow_dispatch` at any point - every
+number above comes from running the real `group_listings()` against the
+real committed `data/leads_*.json(.gz)` files locally, not from dispatching
+anything. Not self-merged - pushed as
+`fix/sqm-desc-extraction-merge-2026-09-29`, PR opened for Missy's review.
