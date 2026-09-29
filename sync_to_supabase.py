@@ -186,6 +186,31 @@ def price_bucket_key(price):
 # only a bare, unqualified "Площ:" (or one preceded by unrelated text, e.g.
 # "...Етаж: 4.Площ: 87 кв.м.") is trusted, matching the exact confirmed
 # real case's own text.
+#
+# Re-measured against the real committed data with this narrowed regex (see
+# docs/backlog.md item 75 for the full writeup): of 71,414 sqm-less
+# listings in a mixed sqm/sqm-less merged group (baseline, unmodified
+# grouping), 270 have an extractable bare "Площ:" figure, and 95 of those
+# (down from the first version's inflated 124, which counted qualified
+# variants as agreeing/disagreeing when they were never comparable in the
+# first place) disagree by >20% with their group - all 95 are resolved
+# after this fix (0 remain). Also caught by the same review, and disclosed
+# honestly rather than hidden: among the 175 listings whose extracted sqm
+# already agreed with their baseline group (i.e. were presumably genuine,
+# correct matches before this fix), 51 (29.1%) lose their real-sqm partner
+# entirely after this change and now show as a standalone listing instead
+# of a consolidated one - a real recall cost, not just a precision gain.
+# This happens because moving a listing into the with_sqm pass also
+# subjects it to that pass's own transitive sqm_range/price_range span
+# caps (see union() below) - protections the lenient sqm-less attach loop
+# never enforced at all - so a recovered value that's individually within
+# +/-1 sqm of one real member can still fail to join a group whose already-
+# established span leaves no more room. Not addressed in this change (a
+# narrower "refuse-only" variant - using the recovered sqm just to block a
+# conflicting attachment rather than to route the listing through the full
+# with_sqm pass - would likely avoid most of this cost, but is a bigger
+# change to the matching logic than this task's scope allows and is not
+# implemented here).
 _DESCRIPTION_SQM_RE = re.compile(
     r"площ:\s*(\d+(?:[.,]\d+)?)\s*(?:кв\.?\s*\.?\s*м\.?|m2|m²)",
     re.IGNORECASE,
