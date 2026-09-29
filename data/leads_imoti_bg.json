@@ -620,6 +620,42 @@
     "score": 19
   },
   {
+    "id": "imotibg_515923",
+    "url": "https://imoti.bg/продажби/вила/враца/център-515923.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6ab050eee7477_6ab052451d37a.jpg",
+    "price_eur": 45000,
+    "sqm": 734,
+    "area": "Център",
+    "city": "Враца",
+    "title": "Вила, Център",
+    "portal": "imoti.bg",
+    "lat": 43.2229451,
+    "lng": 23.5402562,
+    "description": "Вилата е на два етажа в местност Дери Вол до гр. Враца. Първи етаж кухня, две мазета. Втори етаж 2 стаи и предверие, три тераси, геран, резервоар за вода отделно от герана, двор, гараж, вътрешна баня с тоалетна. Къщата е близнак. Къщата е обзаведена. Намира се на 300 м от главния път Враца - Оряхово.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 61,
+    "price_history": [
+      {
+        "date": "2026-09-21T04:22:34.424853+00:00",
+        "price_eur": 50000
+      },
+      {
+        "date": "2026-09-29T23:40:37.783186+00:00",
+        "price_eur": 45000
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 10.0,
+    "days_on_market": 8,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 61,
+    "pct_vs_area_avg": 0.0,
+    "score": 18
+  },
+  {
     "id": "imotibg_515319",
     "url": "https://imoti.bg/продажби/къща/ловеч-област/смалка-желязна-515319.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a47b7880733e_6a47b7e7c47b3.jpg",
@@ -27584,38 +27620,6 @@
     "score": 1
   },
   {
-    "id": "imotibg_515923",
-    "url": "https://imoti.bg/продажби/вила/враца/център-515923.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6ab050eee7477_6ab052451d37a.jpg",
-    "price_eur": 50000,
-    "sqm": 734,
-    "area": "Център",
-    "city": "Враца",
-    "title": "Вила, Център",
-    "portal": "imoti.bg",
-    "lat": 43.2229451,
-    "lng": 23.5402562,
-    "description": "Вилата е на два етажа в местност Дери Вол до гр. Враца. Първи етаж кухня, две мазета. Втори етаж 2 стаи и предверие, три тераси, геран, резервоар за вода отделно от герана, двор, гараж, вътрешна баня с тоалетна. Къщата е близнак. Къщата е обзаведена. Намира се на 300 м от главния път Враца - Оряхово.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 68,
-    "price_history": [
-      {
-        "date": "2026-09-21T04:22:34.424853+00:00",
-        "price_eur": 50000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 8,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 68,
-    "pct_vs_area_avg": 0.0,
-    "score": 1
-  },
-  {
     "id": "imotibg_515590",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/пловдив/кършияка-515590.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a7043fd7cf8d_6a70442573fcc.jpg",
@@ -29753,7 +29757,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": -2.1,
-    "days_on_market": 3,
+    "days_on_market": 4,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1595,
@@ -29977,7 +29981,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 624,
@@ -30009,7 +30013,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 65,
@@ -30041,7 +30045,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 85,
@@ -30073,7 +30077,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 640,
