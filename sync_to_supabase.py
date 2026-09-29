@@ -145,6 +145,121 @@ def price_bucket_key(price):
     return round(math.log(max(price or 0, 1)) / _PRICE_LOG_BUCKET_WIDTH)
 
 
+# Live-confirmed false merge (user-reported, spot-checked on the production
+# site): "Двустаен, 174m2, жк. Надежда 4, София" merged a homes.bg listing
+# (174 sqm, EUR173,200) with a bazar.bg listing (EUR174,000) that is a
+# DIFFERENT real apartment - its own description literally says "Площ: 71
+# кв.м." (71 sqm), but bazar.bg's structured `sqm` field was null for that
+# listing, so group_listings() below never saw a real sqm for it at all and
+# ran it through the without_sqm/solo_sqmless price-only attach pass
+# instead (see that pass's own comments) - price+area+room-count proximity
+# alone, no per-listing unit discriminator, exactly the "sqm-less second
+# pass" risk docs/decisions.md already disclosed (18.31% accepted
+# false-negative-adjacent regression, concentrated in exactly this kind of
+# busy housing-complex/жк. area with many similar-priced units).
+#
+# bazar.bg (and alo.bg, which has the same gap) often has no structured sqm
+# field, but a lot of its listing text still states the real area in plain
+# words as part of a copy-pasted agency mini-spec block embedded in the
+# description ("...бл. 429Площ: 71 кв.м.Етаж: 4..."). Recovering that number
+# for classification purposes only lets more listings go through the
+# strict, already-tuned with_sqm pass (exact area/city + price +/-0.5% +
+# sqm +/-1) instead of falling into the risky sqm-less one - a precision
+# improvement, not a rework of either pass. Deliberately narrow: only the
+# literal "Площ:" label (the same structured-field-style text the confirmed
+# false-merge case itself used), not free-form prose like "с площ от X
+# кв.м" elsewhere in a description, which more often describes a balcony,
+# plot or unrelated structure rather than the unit's own living area.
+#
+# Missy's review caught a real bug in the first version of this regex: a
+# bare `search()` for "площ:" also matches inside "Чиста площ:", "Обща
+# площ:", "Разгъната застроена площ:", etc. - standard Bulgarian
+# real-estate labels for net/usable vs. gross/built area, which routinely
+# differ 10-20%+ for the *same* physical unit. Feeding one of those into
+# the same +/-1-sqm strict pass as a portal's own structured field would
+# compare two different measurements as if they were the same one - a real
+# correctness bug, not cosmetic (confirmed: 128 of the original 356
+# extractable listings, 36%, were actually one of these qualified
+# variants, not a bare "Площ:"). Fixed by walking every "площ:" occurrence
+# in the text (finditer, not a single search) and skipping any whose
+# immediately preceding word starts with one of _QUALIFIED_AREA_PREFIXES -
+# only a bare, unqualified "Площ:" (or one preceded by unrelated text, e.g.
+# "...Етаж: 4.Площ: 87 кв.м.") is trusted, matching the exact confirmed
+# real case's own text.
+#
+# Re-measured against the real committed data with this narrowed regex (see
+# docs/backlog.md item 75 for the full writeup): of 71,414 sqm-less
+# listings in a mixed sqm/sqm-less merged group (baseline, unmodified
+# grouping), 270 have an extractable bare "Площ:" figure, and 95 of those
+# (down from the first version's inflated 124, which counted qualified
+# variants as agreeing/disagreeing when they were never comparable in the
+# first place) disagree by >20% with their group - all 95 are resolved
+# after this fix (0 remain). Also caught by the same review, and disclosed
+# honestly rather than hidden: among the 175 listings whose extracted sqm
+# already agreed with their baseline group (i.e. were presumably genuine,
+# correct matches before this fix), 51 (29.1%) lose their real-sqm partner
+# entirely after this change and now show as a standalone listing instead
+# of a consolidated one - a real recall cost, not just a precision gain.
+# This happens because moving a listing into the with_sqm pass also
+# subjects it to that pass's own transitive sqm_range/price_range span
+# caps (see union() below) - protections the lenient sqm-less attach loop
+# never enforced at all - so a recovered value that's individually within
+# +/-1 sqm of one real member can still fail to join a group whose already-
+# established span leaves no more room. Not addressed in this change (a
+# narrower "refuse-only" variant - using the recovered sqm just to block a
+# conflicting attachment rather than to route the listing through the full
+# with_sqm pass - would likely avoid most of this cost, but is a bigger
+# change to the matching logic than this task's scope allows and is not
+# implemented here).
+_DESCRIPTION_SQM_RE = re.compile(
+    r"площ:\s*(\d+(?:[.,]\d+)?)\s*(?:кв\.?\s*\.?\s*м\.?|m2|m²)",
+    re.IGNORECASE,
+)
+
+# The word immediately preceding "площ:" is checked against these - net
+# ("чиста"/"полезна"), gross/built ("обща"/"застроена") and "разгъната"
+# (spread-out, as in "разгъната застроена площ") area qualifiers all name a
+# different, non-comparable measurement from the unit's own plain living
+# area.
+_QUALIFIED_AREA_PREFIXES = ("чист", "общ", "застроен", "разгъна", "полезн")
+
+_WORD_BEFORE_MATCH_RE = re.compile(r"([A-Za-zА-Яа-яЁё]+)\s*$")
+
+
+def extract_description_sqm(description):
+    if not description:
+        return None
+    for m in _DESCRIPTION_SQM_RE.finditer(description):
+        preceding_word_match = _WORD_BEFORE_MATCH_RE.search(description[:m.start()])
+        if preceding_word_match and preceding_word_match.group(1).lower().startswith(
+            _QUALIFIED_AREA_PREFIXES
+        ):
+            continue
+        try:
+            value = float(m.group(1).replace(",", "."))
+        except ValueError:
+            continue
+        # Sanity bound only to reject obvious mis-parses (e.g. a stray
+        # decimal fragment) - not a claim about plausible apartment sizes,
+        # since the same label text also appears on houses/plots in the
+        # same data.
+        if 5 <= value <= 2000:
+            return round(value)
+    return None
+
+
+def _effective_sqm(l):
+    # The listing's own structured sqm field when present; otherwise a
+    # value recovered from its description text (see
+    # extract_description_sqm() above) purely so group_listings() can
+    # decide which of its two matching passes a listing is eligible for.
+    # This is intentionally NOT written back onto the listing itself - the
+    # merged row's own `sqm` field (built later in build_rows()) still only
+    # ever comes from a listing's real structured field, so this has no
+    # effect on what's displayed or on price_per_sqm.
+    return l.get("sqm") or extract_description_sqm(l.get("description"))
+
+
 def group_listings(all_listings):
     # City is a hard blocking condition on every merge decision below, not
     # a scoring input - a live report found a bazar.bg listing genuinely in
@@ -163,8 +278,15 @@ def group_listings(all_listings):
     # agreeing on both sides, and an unknown city can't agree with anything.
     city_keys = {id(l): listing_city_key(l) for l in all_listings}
 
-    with_sqm = [l for l in all_listings if l.get("sqm")]
-    without_sqm = [l for l in all_listings if not l.get("sqm")]
+    # effective_sqm - see _effective_sqm() above - is what actually decides
+    # which pass a listing goes through below; every sqm comparison in this
+    # function (sqm_range, the with_sqm pairwise check) reads it instead of
+    # the raw l["sqm"] field for that reason. It equals l["sqm"] whenever
+    # that's set, so this changes nothing for the vast majority of listings.
+    effective_sqm = {id(l): _effective_sqm(l) for l in all_listings}
+
+    with_sqm = [l for l in all_listings if effective_sqm[id(l)]]
+    without_sqm = [l for l in all_listings if not effective_sqm[id(l)]]
 
     # Bucketing by price alone puts every listing near a common round price
     # (e.g. exactly 100,000 EUR - very common in this market) into one
@@ -197,7 +319,7 @@ def group_listings(all_listings):
     # found false-merge bug: a Varna new-construction development selling
     # ~39 distinct units at the same round price with sqm varying by a
     # couple square meters was collapsing into a single "merged" listing.
-    sqm_range = {id(l): (l["sqm"], l["sqm"]) for l in with_sqm}
+    sqm_range = {id(l): (effective_sqm[id(l)], effective_sqm[id(l)]) for l in with_sqm}
     # Same transitive-drift risk as sqm, same fix: without tracking the
     # group's own price span, a chain of pairwise-tolerable price hops
     # (each within prices_match() of a neighbor) can drift the group's
@@ -315,7 +437,7 @@ def group_listings(all_listings):
                     continue
                 if (
                     prices_match(l.get("price_eur"), other.get("price_eur"))
-                    and abs(l["sqm"] - other["sqm"]) <= 1
+                    and abs(effective_sqm[id(l)] - effective_sqm[id(other)]) <= 1
                 ):
                     union(l, other)
 
