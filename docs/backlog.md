@@ -7522,7 +7522,123 @@ iterating via live dispatch). Not self-merged - pushed as
 `fix/fetch-all-rows-fallback-2026-09-28`, PR opened immediately for Missy's
 fast review given the production severity.
 
-## 73. Description/Specifications/Seller's details showing empty on real bazar.bg and homes.bg listings (user re-report, a bazar.bg listing "REMOVED FROM BAZAR.BG" after only 2 days flagged as a concrete example) - THREE REAL, DISTINCT CAUSES FOUND, TWO ROOT-CAUSED AND FIXED, ONE (homes.bg specs/contact) CONFIRMED AS A GENUINE UNBUILT-EXTRACTOR GAP AND HANDED OFF - PR OPEN FOR MISSY'S REVIEW (2026-09-29)
+## 73. Listing detail page: `.detail-history-row`'s three panels reported unequal-width AGAIN at full desktop width, same symptom items 68/70 already shipped fixes for - RE-VERIFIED, NOT REPRODUCIBLE on `origin/main` HEAD - NO CODE CHANGE, HANDED BACK FOR A LIVE-SITE CHECK (2026-09-29, Dessy)
+
+**Report:** a fresh user screenshot, described as a full-width desktop
+browser (~1920px), showing the map panel visibly wider than the price-
+history panel, wider again than the specifications panel - apparently the
+exact bug items 68 (PR #321, equal-width fix) and 70 (PR #326, `.detail-grid`
+container-query overflow fix) already shipped fixes for, but now reported at
+a wide desktop width specifically rather than the narrower ranges those two
+items' own write-ups called out.
+
+**Verification method (per explicit instruction, because false "equal
+columns" claims on this exact bug were caught before by reading CSS without
+rendering it):** did not reason from the CSS alone. Extracted the real
+`<style>` block from `index.html` via a Python regex (same approach items
+68/70 used), built a real render fixture matching `renderRadiusPanel()`'s,
+the inline price-history block's, and `renderSpecsHistoryPanel()`'s actual
+markup exactly (verified against the live functions, not hand-simplified),
+and loaded a **real Leaflet 1.9.4 map** (`L.map(container, {scrollWheelZoom:
+false}).setView(...)` plus a tile layer and a radius circle, matching
+`updateRadiusMap()`'s own call shape) and a **real Chart.js 4.4.0 line
+chart** (`responsive:true, maintainAspectRatio:false`, matching
+`detailChart`'s own config) into the real `.radius-map`/
+`.price-history-chart-wrap` containers - not stubbed empty divs - since
+their intrinsic sizing behavior was exactly what was suspected. Both
+libraries were fetched as real npm packages (`leaflet@1.9.4`, `chart.js@4.4.0`
+via the registry, which is allowlisted through this sandbox's egress proxy
+even though CDN hosts like unpkg.com/cdnjs.cloudflare.com are not) rather
+than approximated. Measured via Playwright + headless Chromium 141
+(`getBoundingClientRect()` on all three panels) at five wide desktop
+widths - 1440px, 1600px, 1800px, 1920px, 2200px - plus `document.body.
+scrollWidth` vs `document.documentElement.clientWidth` for overflow, per the
+handoff's explicit widths and both explicit checks.
+
+**Result: genuinely equal thirds at every one of the five widths, no
+overflow at any of them.**
+
+| Viewport | radius-panel | price-history-panel | specs-history-panel | Overflow? |
+|---|---|---|---|---|
+| 1440px | 281.33px | 281.33px | 281.34px | none |
+| 1600px | 334.66px | 334.67px | 334.66px | none |
+| 1800px | 334.66px | 334.67px | 334.66px | none |
+| 1920px | 334.66px | 334.67px | 334.66px | none |
+| 2200px | 334.66px | 334.67px | 334.66px | none |
+
+(The row's own rendered width plateaus at 1600px+ because `.container`'s own
+`max-width: 1600px` - a genuine, pre-existing rule, confirmed live in the
+CSS - caps the whole page's content width there; this is expected centering
+behavior, not a bug, and doesn't affect whether the three columns are equal
+to each other.)
+
+**Harness sanity check (confirms the test is actually sensitive to this bug
+class, not just passing by construction):** re-ran the identical harness
+with item 68's `min-width: 0` fix manually stripped from `.radius-panel,
+.price-history-panel, .specs-history-panel` (the fix items 68/70 both
+credit for the equal-column behavior). This immediately reproduced unequal
+columns - `[294.14, 338, 211.86]` at 1440px, `[333, 338, 333]` at
+1600-2200px - confirming the harness would have caught a real regression of
+this exact kind, not just confirmed a foregone conclusion.
+
+**Also confirmed directly in the source, not just via the harness:**
+`.radius-panel, .price-history-panel, .specs-history-panel { display: flex;
+flex-direction: column; min-width: 0; }` (line 1027) is still the single,
+unconflicting declaration of `min-width` for all three classes - grepped the
+whole file for every occurrence of these three class names; no later rule at
+equal-or-higher specificity re-sets `min-width` on any of them. `.detail-
+history-row { display: grid; grid-template-columns: repeat(3, 1fr); ... }`
+(line 1022) is likewise still the only grid-template-columns declaration for
+this row at desktop widths (the `@media (max-width: 900px)`/`(max-width:
+560px)` overrides below it are the same narrower-viewport stacking rules
+items 68/70 already accounted for, not new overrides at wide widths).
+
+**Conclusion: this is not currently a code bug on `origin/main`
+(`2a2f3b10`, which already includes both PR #321 and PR #326).** Every
+measured width across the requested wide-desktop range is equal within
+0.01px of rounding, with real Leaflet/Chart.js content in place, and no
+horizontal overflow exists anywhere in that range. Two honest limitations
+of this verification, disclosed rather than glossed over:
+1. This sandbox's egress proxy blocks `imotenradar.com` directly (`CONNECT
+   tunnel failed, response 403`), so the actual **live, deployed** site
+   could not be checked against this same fixture - only `origin/main`'s
+   source was verified. Item 71/72's own history (a bad merge broke the live
+   site within minutes of merging) suggests deploys do track `main` closely,
+   which argues against a stale deployment, but that's inference, not a
+   direct check - worth someone with live access confirming which commit is
+   actually serving the page the screenshot was taken from, and whether a
+   hard refresh / cache-bust changes what's rendered.
+2. The specific listing behind the reported screenshot wasn't identified,
+   so this used representative fixture content (a populated radius result,
+   a populated specs panel, a normal price-history chart) rather than that
+   listing's exact real data. Reasoned, not just assumed, that this
+   shouldn't matter: `min-width: 0` on a grid item tells the grid to ignore
+   that item's own content-based minimum entirely when sizing the track, so
+   by design the column width shouldn't depend on how much or how little
+   content any one panel has - only content that overflows its own box
+   should be possible, not a resized column. If a live re-check finds an
+   actual counter-example (a specific listing where this prediction is
+   wrong), that would itself be new information worth a fresh look, not
+   something this pass could rule out with certainty from a fixture alone.
+
+**No CSS or markup change made.** Per this role's own standing rule against
+guessing big or inventing a fix nothing measured supports, this is handed
+back for the live site to be checked directly (with cache-busting / a
+confirmed commit hash) rather than a speculative code change made against a
+bug this session couldn't reproduce.
+
+`python3 -m pytest -q`: 322 passed, 4 subtests passed - unchanged (docs-only
+change, no Python or app code touched).
+
+Built in an isolated `git worktree` off a fresh `origin/main` fetch
+(`18fb0fe0`); `git worktree list` checked first in the shared primary
+checkout per this repo's `CLAUDE.md` - two other worktrees were active
+(`/tmp/wt-fetchfix`, `/tmp/wt/decisions-fix`) and left untouched. No live
+GitHub Actions `workflow_dispatch` at any point. Not self-merged - this
+docs-only verification pushed as
+`fix/detail-grid-equal-width-verify-2026-09-29` for Missy's review.
+
+## 74. Description/Specifications/Seller's details showing empty on real bazar.bg and homes.bg listings (user re-report, a bazar.bg listing "REMOVED FROM BAZAR.BG" after only 2 days flagged as a concrete example) - THREE REAL, DISTINCT CAUSES FOUND, TWO ROOT-CAUSED AND FIXED, ONE (homes.bg specs/contact) CONFIRMED AS A GENUINE UNBUILT-EXTRACTOR GAP AND HANDED OFF - PR OPEN FOR MISSY'S REVIEW (2026-09-29)
 
 User reported this a second time; the UI's own empty-state copy
 (`renderSpecsPanel()`/`renderSellerPanel()` in `index.html`) was flagged
