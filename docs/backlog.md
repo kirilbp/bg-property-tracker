@@ -7637,3 +7637,188 @@ checkout per this repo's `CLAUDE.md` - two other worktrees were active
 GitHub Actions `workflow_dispatch` at any point. Not self-merged - this
 docs-only verification pushed as
 `fix/detail-grid-equal-width-verify-2026-09-29` for Missy's review.
+
+## 74. Description/Specifications/Seller's details showing empty on real bazar.bg and homes.bg listings (user re-report, a bazar.bg listing "REMOVED FROM BAZAR.BG" after only 2 days flagged as a concrete example) - THREE REAL, DISTINCT CAUSES FOUND, TWO ROOT-CAUSED AND FIXED, ONE (homes.bg specs/contact) CONFIRMED AS A GENUINE UNBUILT-EXTRACTOR GAP AND HANDED OFF - PR OPEN FOR MISSY'S REVIEW (2026-09-29)
+
+User reported this a second time; the UI's own empty-state copy
+(`renderSpecsPanel()`/`renderSellerPanel()` in `index.html`) was flagged
+going in as a *generic* fallback - "`${portal}` doesn't publish X ... yet"
+renders whenever a field is simply absent, regardless of why, so it was
+never a verified, portal-specific claim in the first place. The task was
+to find out what's actually true, using real committed data
+(`data/history_bazar.json.gz`, `data/history_homes.json.gz`), not to trust
+that copy.
+
+**Three real, independent causes found - not one:**
+
+1. **(Frontend, likely the dominant cause for single-portal listings, FIXED)**
+   `showListingDetail()`'s lazy by-id fetch for a listing's own detail page
+   (`sb.from('merged_listings').select('description,photos,price_history')...`)
+   never selected `property_type_raw`/`construction_type`/`built_year`/
+   `completion_status`/`floor_number`/`floor_qualifier`/`features`/
+   `has_elevator`/`furnished`/`has_central_heating`/`agency_name`/
+   `agency_website` at all. A single-portal listing's synthesized source
+   (`synthesizeSingleSource()`) reads these fields straight off `merged` -
+   the exact same "straight off `merged`" path the existing comment already
+   correctly described for `description`/`photos`/`price_history` just
+   above it, without anyone noticing Specs/Seller's-details fields have the
+   identical problem. Net effect: Specs/Seller's-details panels could
+   **never** render real data for any single-portal (not cross-posted to a
+   second portal) listing, regardless of what the backend actually had -
+   only a listing cross-posted to ≥2 portals (fetched via
+   `listing_sources.select('*')`, a different code path) was ever safe from
+   this. Most listings on any one portal aren't cross-posted, so this
+   plausibly explains the bulk of what's being reported. **Fixed**: the
+   select list now includes all of the above, plus the new
+   `coords_checked`/`specs_checked`/`detail_checked` columns (item 2
+   below). `property_type_raw` etc. already exist as real columns on
+   `merged_listings` (added 2026-09-24, unrelated to this item), so most of
+   this starts working the moment the PR ships - but naming the 3 brand-new
+   columns in the same `.select()` before their own migration (below) is
+   applied would make PostgREST reject the WHOLE query as a missing-column
+   error, silently taking description/photos/price_history (already
+   working today) down with it too. Fetch now retries through the same
+   `stripMissingSelectColumn()` helper `fetchAllRows()` already uses for
+   this exact error shape, stripping one missing column at a time, so it
+   works correctly before, during, and after that migration lands instead
+   of being blocked on its timing. `tests/detail_fields_missing_column_retry.js`
+   (6 checks, same real-helper-in-a-`vm`-context approach) covers all 3 new
+   columns missing at once, none missing, and a real unrelated error not
+   looping forever.
+
+2. **(Backend, bazar.bg specifically, ROOT-CAUSED AND FIXED)** Confirmed,
+   with real numbers from `data/history_bazar.json.gz` (59,778 listings,
+   read 2026-09-29): `backfill_detail_bazar.py` marks a listing
+   `coords_checked: true` unconditionally on every visit and never revisits
+   one again. `extract_specs_bazar()`/`extract_contact_bazar()` were added
+   2026-09-24, but every listing already `coords_checked: true` **before**
+   that date had been visited under the OLD script, which never called them -
+   being `coords_checked: true` never meant "specs/contact were attempted,"
+   just that *some* visit happened, so it can't double as "checked under an
+   extractor that knows about specs/contact." Measured: 43,185 listings were
+   `coords_checked` before 2026-09-24, and only 21.5% of those have any
+   specs at all - vs. **99.2%** for the 7,450 listings first checked
+   on/after 2026-09-24. Of the pre-cutoff no-specs listings, **91.7%
+   already have a real description**, proving their page WAS fetched
+   successfully - the gap is this stale-flag bug, not bazar.bg "not
+   publishing" the field. This is the *exact* "flag says checked, extractor
+   didn't actually run" bug already fixed for alo.bg three times over
+   (`_photos_checked`/`_gallery_specs_rechecked`/
+   `_description_title_echo_rechecked` - see `backfill_detail_alo.py`'s own
+   comments) - same fix pattern applied here as a fourth instance, one
+   portal over. **The short-lived-listing hypothesis in the original task
+   (a listing removed within 1-2 days never getting backfilled at all) was
+   directly tested and is FALSE for bazar.bg**: removed listings actually
+   have a **higher** `coords_checked` rate (93.6%, 100% for lifespan ≤7
+   days) than still-active ones (75.2%) - the newest-first queue reaches
+   fresh listings, active or not, well before they'd typically be removed.
+   The real problem was the stale-flag bug above, which affects active and
+   removed listings alike (just more visibly on short-lived ones, since
+   nearly all of them predate the 2026-09-24 fix and were checked-and-
+   marked-done under the old, specs-blind script). **Fixed**: a new
+   `specs_checked` marker (mirrors `_gallery_specs_rechecked`'s own
+   precedent) and a floor-protected two-tier `select_batch()` (mirrors
+   `backfill_detail_alo.py`'s own, `SPECS_RECHECK_FLOOR = 400` so the
+   never-checked tier - ~9,100 listings - still gets a real, guaranteed
+   share of every run) queue every pre-2026-09-24-checked listing for
+   exactly one more visit. `tests/test_backfill_detail_bazar_tiers.py` (7
+   tests, mirrors `tests/test_backfill_detail_alo_tiers.py`) covers tier
+   disjointness, floor protection against backlog starvation, and
+   newest-first ordering within each tier.
+
+3. **(homes.bg specs/contact, CONFIRMED GAP, NOT BUILT - handed off, same
+   as item 66's imoti.bg precedent)** `geo_utils.py` has no
+   `extract_specs_homes()`/`extract_contact_homes()` at all - checked by
+   grep, not assumed. `scraper_homes.py` never sets `property_type_raw`/
+   `construction_type`/`floor_number`/`agency_name`/`agency_website`
+   anywhere. Confirmed against `data/history_homes.json.gz` (143,184
+   listings): **zero** have any of these fields set, ever. This is not a
+   timing/coverage gap like bazar.bg's (item 2) - it's a real, unbuilt
+   extractor, the same category of gap item 66 found for imoti.bg. Not
+   built here, for the same reason item 66 gave: this sandbox's egress to
+   homes.bg is blocked (already documented in `backfill_detail_homes.py`'s
+   own module docstring), so there is no real markup to build a text/label-
+   based extractor against without guessing - exactly the anti-pattern
+   `extract_specs_alo()`/`extract_specs_bazar()`'s own comments warn
+   against, and `CLAUDE.md`'s "read it end to end, dry-run first" rule
+   exists to prevent. Separately, and worth flagging on its own: homes.bg's
+   *description* backfill (`backfill_detail_homes.py`, item 9d, shipped
+   2026-09-23) has only reached **1.2%** of its 143,184 listings
+   (`detail_checked: true` on 1,711 of them) as of this measurement - not a
+   bug, just very early progress against a backlog that's grown past the
+   ~67,000 this script's own docstring estimated when it shipped. Real
+   population needing this decision either way: **all 143,184 homes.bg
+   listings** (100% - the 0% is uniform, not partial, same shape as item
+   66's imoti.bg finding).
+
+**UI copy fix (the task's own "at minimum" ask, done regardless of the
+backend timing):** `renderSpecsPanel()`/`renderSellerPanel()`'s shared new
+`specsSellerEmptyMessage()` helper now distinguishes three real states
+instead of asserting one:
+- **No extractor exists for this portal at all** (homes.bg, imot.bg,
+  olx.bg, bcpea.org, imoti.net - checked against `SPECS_CAPABLE_PORTALS =
+  {alo.bg, bazar.bg, imoti.bg}`, the same three portals the pre-existing
+  comment above `renderSpecsPanel()` already named as having real
+  extraction) → "aren't tracked for `${portal}` listings yet - this is a
+  gap in our own extraction coverage, not something this specific listing
+  is missing." Never blames the portal.
+- **A capable portal, but this listing's own page hasn't been (re)checked
+  under the current extractor yet** (currently only distinguishable for
+  bazar.bg, via the newly-synced `specs_checked` column - see item 2) →
+  "hasn't been checked for these details yet - it fills in automatically
+  as our backfill catches up."
+- **A capable portal, checked, still genuinely nothing found** → the
+  original "`${portal}` doesn't publish ... for this listing" wording,
+  now actually justified by a checked-flag instead of asserted by default.
+  alo.bg/imoti.bg fall through to this branch unconditionally for now
+  (their own equivalent checked-markers - `_gallery_specs_rechecked` for
+  alo.bg; imoti.bg's extraction runs inline with no backfill lag at all -
+  aren't synced to the frontend yet, a smaller separate follow-up, not a
+  regression from before this fix).
+
+`tests/specs_seller_empty_message.js` (7 checks, same "extract the real
+function out of `index.html` and run it in a Node `vm` context" approach
+`tests/fetch_all_rows_concurrency.js` already established, since this repo
+has no JS test framework) covers all three states plus the "never claims
+'doesn't publish' for a no-extractor portal" and "falls through
+unconditionally for alo.bg/imoti.bg" cases explicitly.
+
+**Plumbing needed for the new `specs_checked` signal (and the `detail_checked`/
+`coords_checked` markers, for future portals' own use) to actually reach
+the frontend**: `coords_checked`/`specs_checked`/`detail_checked` added to
+`sync_to_supabase.py`'s `SOURCE_FIELDS` (flows into `MERGED_FIELDS`
+automatically, same list-comprehension exclusion pattern already used for
+`source_status`/`removed_at`) and the matching
+`alter table ... add column if not exists ... boolean` migration added to
+`supabase/schema.sql` for both `listing_sources` and `merged_listings` -
+same "additive, `upsert()`'s own `_MISSING_COLUMN_RE` handling keeps syncs
+working even before it's applied" pattern as every prior column addition
+in this file. **Action needed from Kiril**: run the new migration
+(the 6 new `coords_checked`/`specs_checked`/`detail_checked` lines at the
+bottom of `supabase/schema.sql`) in the Supabase SQL editor - until then,
+the new `specs_checked`-aware empty-state branch for bazar.bg silently
+falls back to the "checked" behavior (same as alo.bg/imoti.bg today), not
+an error; item 1's frontend fix and item 2's backend backfill fix do NOT
+depend on this migration at all and take effect immediately.
+
+**Verification:** `python3 -m pytest -q`: 329 passed, 4 subtests - up from
+the 322/4 baseline (item 72's own last-confirmed count) by exactly the 7
+new `tests/test_backfill_detail_bazar_tiers.py` cases, no regressions.
+`node --check` against the
+extracted, unmodified inline `<script>` block - clean.
+`node tests/specs_seller_empty_message.js` - all 7 checks pass.
+`node tests/detail_fields_missing_column_retry.js` - all 6 checks pass.
+`node tests/fetch_all_rows_concurrency.js` (pre-existing, unrelated to
+this change but re-run as a regression check since `index.html` was
+touched) - all checks still pass, unchanged.
+
+Built in an isolated `git worktree`
+(`investigate/spec-backfill-coverage`) off a fresh `origin/main` fetch
+(`18fb0fe0`); `git worktree list`/`git status` checked first in the shared
+primary checkout per this repo's `CLAUDE.md` - two other worktrees found
+active (`fix/fetch-all-rows-fallback-2026-09-28`,
+`decisions-fix-local`), left untouched. No live GitHub Actions
+`workflow_dispatch` at any point (per `CLAUDE.md`'s standing rule against
+iterating via live dispatch - all investigation used real committed
+`data/*.json.gz` files and code-reading, not a live run). Not self-merged -
+pushed for Missy's review.

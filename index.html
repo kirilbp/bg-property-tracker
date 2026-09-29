@@ -10501,6 +10501,59 @@ function renderKeywordsPanel(merged, l) {
 // renderSpecsHistoryPanel() below) per direct, twice-repeated user
 // feedback that specs were reading as "missing" on listings the click-
 // gated tab never got opened for.
+// Portals with a real specs/contact extractor wired up AT ALL (see the
+// correction above for the full history: extract_specs_alo()/
+// extract_specs_bazar()/extract_specs_imoti_bg() and their extract_contact_*
+// counterparts) - every other portal (homes.bg, imot.bg, olx.bg, bcpea.org,
+// imoti.net) has never had this attempted for any listing, so an empty
+// Specs/Seller's-details panel there is a genuine gap in OUR OWN extraction
+// coverage, not a fact about that portal's own listing page.
+const SPECS_CAPABLE_PORTALS = new Set(['alo.bg', 'bazar.bg', 'imoti.bg']);
+
+// Per-portal name of the synced "has this listing's own detail page
+// actually been (re)checked under today's specs/contact extractor"
+// boolean, where one exists (see sync_to_supabase.py's SOURCE_FIELDS own
+// 2026-09-29 comment for the real data behind this: 43,185 bazar.bg
+// listings were marked "checked" before extract_specs_bazar()/
+// extract_contact_bazar() even existed, 91.7% of them with a real
+// description proving the page WAS fetched - so "checked" alone can't be
+// trusted as "checked FOR SPECS" without this newer, separate marker).
+// alo.bg's/imoti.bg's own equivalent markers aren't synced to the
+// frontend yet (alo.bg's are deliberately internal-only, leading-
+// underscore fields; imoti.bg's extraction runs inline on every scrape
+// with no separate backfill lag at all) - a listing on either of those
+// two portals falls through to the "checked" branch below unconditionally,
+// same behavior as before this fix.
+const SPECS_CHECKED_FIELD_BY_PORTAL = { 'bazar.bg': 'specs_checked' };
+
+// Builds the honest empty-state message for the Specs/Seller's-details
+// panels (2026-09-29, live user report: Description/Specifications/
+// Seller's details all showing empty on real bazar.bg/homes.bg listings).
+// Previously both panels asserted "${portal} doesn't publish ... yet"
+// unconditionally for every empty case - a live data audit found that
+// blames the portal for what's usually one of two very different,
+// non-portal causes: (1) this portal has no real specs/contact extractor
+// at all - a gap in OUR OWN coverage, not the portal withholding
+// anything - or (2) this specific listing's own page just hasn't been
+// (re)checked yet under a working extractor. Only the remaining case - a
+// capable portal, a listing already checked under the CURRENT extractor,
+// still nothing found - is an honest "this portal's own page genuinely
+// doesn't show it" claim.
+// `phrase` is always a plural noun phrase ending in "details" ("property
+// type, construction, or floor details" / "agency or contact details"),
+// so "these details"/"details aren't" reads correctly for both callers
+// without needing per-call grammar branching.
+function specsSellerEmptyMessage(l, phrase) {
+  const portalLabel = escapeHtml(l.portal || 'This source');
+  if (!SPECS_CAPABLE_PORTALS.has(l.portal)) {
+    return `${phrase[0].toUpperCase()}${phrase.slice(1)} aren't tracked for ${portalLabel} listings yet - this is a gap in our own extraction coverage, not something this specific listing is missing.`;
+  }
+  const checkedField = SPECS_CHECKED_FIELD_BY_PORTAL[l.portal];
+  if (checkedField && !l[checkedField]) {
+    return `This listing's own page hasn't been checked for these details yet - it fills in automatically as our backfill catches up, usually within a day.`;
+  }
+  return `${portalLabel} doesn't publish ${phrase} for this listing.`;
+}
 function renderSpecsPanel(l) {
   const rows = [
     ['Property type', l.property_type_raw],
@@ -10558,7 +10611,7 @@ function renderAgencyPanel(l) {
 function renderSellerPanel(l) {
   const agencyHtml = renderAgencyPanel(l);
   const body = agencyHtml || emptyStateHtml('No seller details yet',
-    `${escapeHtml(l.portal || 'This source')} doesn't publish agency or contact details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`);
+    specsSellerEmptyMessage(l, 'agency or contact details'));
   return `
     <div class="seller-panel">
       <p class="label">Seller's details</p>
@@ -10600,7 +10653,7 @@ function renderSpecsHistoryPanel(l) {
   const body = specsHtml
     ? specsHtml
     : `<div class="specs-history-empty">${emptyStateHtml('No specifications yet',
-        `${escapeHtml(l.portal || 'This source')} doesn't publish property type, construction, or floor details for this listing yet - coverage currently varies by portal and fills in as it becomes available.`)}</div>`;
+        specsSellerEmptyMessage(l, 'property type, construction, or floor details'))}</div>`;
   return `
     <div class="specs-history-panel">
       <p class="label">Specifications</p>
@@ -12438,23 +12491,76 @@ function showListingDetail(id, { push = true, tab = 'details' } = {}) {
   // (not just for member_count > 1), since a single-portal listing's
   // synthesized source (see synthesizeSingleSource()) reads these straight
   // off `merged` and never gets them from listing_sources at all.
+  //
+  // Correction (2026-09-29, live user report: Description/Specifications/
+  // Seller's details all showing empty on real bazar.bg/homes.bg listing
+  // pages): this select() list was missing every field renderSpecsPanel()/
+  // renderAgencyPanel() actually read (property_type_raw, construction_type,
+  // built_year, completion_status, floor_number, floor_qualifier, features,
+  // has_elevator, furnished, has_central_heating, agency_name,
+  // agency_website) - a single-portal listing's synthesized source gets
+  // these the exact same "straight off `merged`" way as description/
+  // photos/price_history (see the comment above), so leaving them out here
+  // meant Specs/Seller's details could never render for ANY single-portal
+  // listing (the common case - most listings aren't cross-posted to a
+  // second portal) regardless of whether the backend actually had real
+  // data for it. A cross-posted listing's real per-source rows (fetched
+  // via listing_sources.select('*') above) were never affected by this -
+  // only single-portal listings were silently starved. Also fetches the
+  // three "was this listing's detail page actually (re)checked yet"
+  // markers (coords_checked/specs_checked/detail_checked - see
+  // sync_to_supabase.py's SOURCE_FIELDS and backfill_detail_bazar.py's own
+  // comment) so the empty-state copy below can tell "not checked yet" apart
+  // from "checked, this portal genuinely doesn't have it" instead of
+  // blaming the portal by default.
+  //
+  // These three checked-flag columns are BRAND NEW (this same change) and
+  // need their own `supabase/schema.sql` migration applied by hand before
+  // they exist on the live table (same standing process as every prior
+  // column addition here - see that file's own comment) - until then, a
+  // plain `.select()` naming a column Postgres doesn't have yet fails the
+  // WHOLE query, which would silently take description/photos/
+  // price_history (already working today) down with it too. Retried
+  // through the same stripMissingSelectColumn() helper fetchAllRows()
+  // already uses for exactly this shape of error (see its own comment
+  // above), one column at a time, so this keeps working before, during,
+  // and after that migration lands instead of being blocked on its timing.
   if (merged._detailFieldsFetched !== true) {
     merged._detailFieldsFetched = true;
-    sb.from('merged_listings').select('description,photos,price_history').eq('id', merged.id).maybeSingle()
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        Object.assign(merged, data);
-        // synthesizeSingleSource() shallow-copied merged's fields at
-        // creation time, before this fetch resolved - refresh it so the
-        // currently-displayed (single, synthesized) source picks up the
-        // real values too. A cross-posted listing's real per-source rows
-        // (fetched above) already carry their own description/photos/
-        // price_history and don't need this.
-        if (merged.sources && merged.sources.length === 1 && merged._sourcesFetched !== true) {
-          merged.sources[0] = synthesizeSingleSource(merged);
-        }
-        if (location.hash === '#/listing/' + id) renderListingDetail(merged);
-      }).catch(e => console.error('Failed to load description/photos/price_history for', id, e));
+    let detailColumns =
+      'description,photos,price_history,' +
+      'property_type_raw,construction_type,built_year,completion_status,' +
+      'floor_number,floor_qualifier,features,has_elevator,furnished,' +
+      'has_central_heating,agency_name,agency_website,' +
+      'coords_checked,specs_checked,detail_checked';
+    (async () => {
+      let data = null;
+      // Bounded the same way fetchAllRows() already relies on
+      // stripMissingSelectColumn() being bounded: each retry either strips
+      // one real column out of a short, fixed list or returns null (no
+      // match), so this loop runs at most a handful of times, never
+      // unboundedly.
+      for (;;) {
+        const { data: rows, error } = await sb.from('merged_listings')
+          .select(detailColumns).eq('id', merged.id).maybeSingle();
+        if (!error) { data = rows; break; }
+        const narrowed = stripMissingSelectColumn('merged_listings', detailColumns, error.message);
+        if (!narrowed) return; // a real, different error - give up quietly, same as before this fix
+        detailColumns = narrowed;
+      }
+      if (!data) return;
+      Object.assign(merged, data);
+      // synthesizeSingleSource() shallow-copied merged's fields at
+      // creation time, before this fetch resolved - refresh it so the
+      // currently-displayed (single, synthesized) source picks up the
+      // real values too. A cross-posted listing's real per-source rows
+      // (fetched above) already carry their own description/photos/
+      // price_history and don't need this.
+      if (merged.sources && merged.sources.length === 1 && merged._sourcesFetched !== true) {
+        merged.sources[0] = synthesizeSingleSource(merged);
+      }
+      if (location.hash === '#/listing/' + id) renderListingDetail(merged);
+    })().catch(e => console.error('Failed to load description/photos/price_history/specs for', id, e));
   }
 }
 

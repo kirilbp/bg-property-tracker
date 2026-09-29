@@ -1257,6 +1257,31 @@ def merged_id_for(sources):
 # handling further down, for why a sync still succeeds even before that
 # migration is applied (the missing column(s) are stripped and retried,
 # not a hard failure).
+#
+# coords_checked/specs_checked/detail_checked (2026-09-29): NOT content
+# fields - these are the backfill scripts' own "has this listing's detail
+# page actually been (re)visited" markers (backfill_detail_bazar.py/
+# backfill_detail_homes.py/backfill_detail_bcpea.py/backfill_detail_imot.py/
+# backfill_detail_imoti_net.py/backfill_detail_olx.py - see each one's own
+# module docstring), synced so the frontend's empty-state copy
+# (renderSpecsPanel()/renderSellerPanel() in index.html) can tell "this
+# listing's own page hasn't been checked yet" apart from "checked, this
+# portal's page genuinely doesn't show it" instead of asserting the latter
+# for every empty field by default. Real, measured gap this closes: a
+# live audit of data/history_bazar.json.gz on 2026-09-29 found 43,185
+# bazar.bg listings already marked coords_checked before extract_specs_
+# bazar()/extract_contact_bazar() existed (2026-09-24) - only 21.5% of
+# those have any specs, vs. 99.2% for listings checked on/after that date,
+# and 91.7% of the no-specs ones already have a real description, proving
+# their page WAS fetched successfully - the gap is a stale-flag bug (now
+# fixed, see backfill_detail_bazar.py's specs_checked tier), not bazar.bg
+# "not publishing" the field. alo.bg's own equivalent markers
+# (_detail_fetched/_photos_checked/_gallery_specs_rechecked/
+# _description_title_echo_rechecked) are deliberately NOT included here -
+# their leading underscore is this codebase's existing convention for
+# "internal bookkeeping, not meant to leave history_*.json" (see
+# scraper_alo.py's own _DETAIL_ONLY_FIELDS) - surfacing an alo.bg-specific
+# checked signal to the frontend is a separate follow-up, not done here.
 SOURCE_FIELDS = [
     "url", "photo", "photos", "price_eur", "sqm", "area", "title", "description",
     "category", "category_confidence", "lat", "lng", "price_per_sqm", "price_history",
@@ -1265,6 +1290,7 @@ SOURCE_FIELDS = [
     "property_type_raw", "construction_type", "built_year", "completion_status",
     "floor_number", "floor_qualifier", "features", "has_elevator", "furnished",
     "has_central_heating", "agency_name", "agency_website",
+    "coords_checked", "specs_checked", "detail_checked",
 ]
 
 # "First seen" date for a listing/group, precomputed server-side (backlog
