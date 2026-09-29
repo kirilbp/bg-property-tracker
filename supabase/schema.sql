@@ -326,3 +326,19 @@ alter table merged_listings add column if not exists furnished boolean;
 alter table merged_listings add column if not exists has_central_heating boolean;
 alter table merged_listings add column if not exists agency_name text;
 alter table merged_listings add column if not exists agency_website text;
+
+-- coords_checked/specs_checked/detail_checked (2026-09-29): the backfill
+-- scripts' own "has this listing's detail page actually been (re)visited"
+-- markers (see sync_to_supabase.py's SOURCE_FIELDS own comment for the
+-- full reasoning and the real measured bug this closes) - synced so the
+-- frontend can tell "not checked yet" apart from "checked, this portal
+-- genuinely doesn't have it" instead of defaulting to the latter for
+-- every empty specs/contact field. Booleans, same nullable-until-a-real-
+-- visit-happens shape as the other backfill-only fields above.
+alter table listing_sources add column if not exists coords_checked boolean;
+alter table listing_sources add column if not exists specs_checked boolean;
+alter table listing_sources add column if not exists detail_checked boolean;
+
+alter table merged_listings add column if not exists coords_checked boolean;
+alter table merged_listings add column if not exists specs_checked boolean;
+alter table merged_listings add column if not exists detail_checked boolean;

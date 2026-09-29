@@ -37,6 +37,30 @@ or a description - some bazar.bg listings genuinely have neither on their
 own page, and without an explicit marker those would get needlessly
 re-visited by every future run instead of being treated as done.
 
+2026-09-29: a second, separate marker - "specs_checked" - fixes the exact
+"flag says checked, extractor didn't actually run" bug already fixed for
+alo.bg (see backfill_detail_alo.py's own "_photos_checked"/
+"_gallery_specs_rechecked" comments): extract_specs_bazar()/
+extract_contact_bazar() were added 2026-09-24, but every listing already
+marked "coords_checked": True BEFORE that date had already been visited
+under the OLD version of this script, which never called them - being
+"coords_checked": True never meant "specs/contact were actually
+attempted", just that a visit happened, so it can't double as "checked
+under an extractor that knows about specs/contact at all". Live-measured
+against the real committed data/history_bazar.json.gz on 2026-09-29: 43,185
+listings were already coords_checked before 2026-09-24, and only 21.5% of
+those have any specs - almost all of the rest (91.7% of the no-specs
+ones) already have a real description, proving their page WAS
+successfully fetched and the gap is this stale-flag bug, not bazar.bg
+"not publishing" the field. Listings visited on/after 2026-09-24 hit
+99.2% specs coverage, confirming the extractor itself works fine once it
+actually runs. Every listing missing "specs_checked" gets a one-time
+re-visit (same two-tier, floor-protected shape as backfill_detail_alo.py's
+select_batch(), see SPECS_RECHECK_FLOOR below) - set unconditionally on
+every real visit (like "coords_checked") so a listing that genuinely has
+no specs/contact on its own page under the current extractor still counts
+as done and isn't retried forever.
+
 Scheduled hourly (see backfill-detail-bazar.yml) - previously
 workflow_dispatch-only since it only filled in map coordinates, a
 lower-priority field; now that it also fills in description (real
@@ -74,6 +98,20 @@ REQUEST_DELAY_SECONDS = 1.0
 # what actually decides when a run stops.
 MAX_LOOKUPS_PER_RUN = 1000
 
+# Guaranteed floor for the "specs_checked" recheck tier (see the module
+# docstring's 2026-09-29 note) - same starvation fix
+# backfill_detail_alo.py's PHOTOS_RECHECK_FLOOR/GALLERY_SPECS_RECHECK_FLOOR
+# exist for: with recheck items simply appended after (or mixed into) the
+# never-checked tier and both drawn from the same MAX_LOOKUPS_PER_RUN-sized
+# slice, a real run's entire batch could come from whichever tier sorts
+# first by first_seen alone, starving the other. Sized well below
+# MAX_LOOKUPS_PER_RUN so never-checked listings still get a real,
+# guaranteed share of every run (see remaining_cap in select_batch()) even
+# while this tier's backlog (43,185 pre-2026-09-24 listings, measured
+# against real data on 2026-09-29) is far larger than never-checked's own
+# (~9,100 at the same measurement).
+SPECS_RECHECK_FLOOR = 400
+
 # Stop visiting new listings once a run has spent this much of the
 # workflow's 45-minute timeout - real headroom for whatever page is in
 # flight, the final checkpoint, computing leads, and the commit/push step.
@@ -88,17 +126,53 @@ CHECKPOINT_EVERY = 150
 MAX_CONSECUTIVE_FAILURES = 5
 
 
-def main():
-    history = sb.load_history()
-
-    missing = [
+def select_batch(history):
+    """Picks this run's batch of listing ids to visit, in two mutually-
+    exclusive, newest-first-sorted tiers (never_checked / specs_recheck -
+    see the module docstring's 2026-09-29 note), the recheck tier's
+    guaranteed floor claimed first, and returns the ordered
+    `[(listing_id, history_record), ...]` list main() should process this
+    run. Pulled out of main() (mirrors backfill_detail_alo.py's own
+    select_batch()) so this selection/budgeting logic can be unit-tested
+    directly against a synthetic history dict."""
+    never_checked = [
         (lid, rec) for lid, rec in history.items()
         if not rec.get("latest", {}).get("coords_checked")
     ]
-    missing.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
-    print(f"DEBUG: {len(missing)} / {len(history)} listings not yet detail-checked")
+    specs_recheck = [
+        (lid, rec) for lid, rec in history.items()
+        if rec.get("latest", {}).get("coords_checked")
+        and not rec.get("latest", {}).get("specs_checked")
+    ]
+    never_checked.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
+    specs_recheck.sort(key=lambda item: item[1].get("first_seen", ""), reverse=True)
+    print(f"DEBUG: {len(never_checked)} never detail-checked, "
+          f"{len(specs_recheck)} detail-checked but not yet rechecked under the "
+          f"specs/contact extractors, {len(history)} total")
 
-    batch = missing[:MAX_LOOKUPS_PER_RUN]
+    # The recheck tier's guaranteed floor goes FIRST in processing order
+    # (not just included somewhere in the pool) so it gets first claim on
+    # this run's actual time budget too - see SPECS_RECHECK_FLOOR's own
+    # comment for the starvation bug this avoids.
+    specs_recheck_slice = specs_recheck[:SPECS_RECHECK_FLOOR]
+    remaining_cap = MAX_LOOKUPS_PER_RUN - len(specs_recheck_slice)
+    never_checked_slice = never_checked[:remaining_cap]
+    # If never-checked itself is smaller than its share of the cap, spend
+    # the leftover room on more of the recheck tier instead of leaving it
+    # unused.
+    leftover_cap = remaining_cap - len(never_checked_slice)
+    extra_specs_recheck_slice = (
+        specs_recheck[SPECS_RECHECK_FLOOR:SPECS_RECHECK_FLOOR + leftover_cap] if leftover_cap > 0 else []
+    )
+    return specs_recheck_slice + never_checked_slice + extra_specs_recheck_slice
+
+
+def main():
+    history = sb.load_history()
+
+    missing = select_batch(history)
+
+    batch = missing
 
     def checkpoint():
         sb.save_history(history)
@@ -116,6 +190,12 @@ def main():
         latest = rec["latest"]
         time.sleep(REQUEST_DELAY_SECONDS)
         latest["coords_checked"] = True
+        # Set unconditionally alongside coords_checked (same point, same
+        # semantics - see the module docstring's 2026-09-29 note) so a
+        # listing whose page turns out to be gone (PermanentlyGone below)
+        # or genuinely has no specs/contact still counts as done under the
+        # current extractors, rather than being retried forever.
+        latest["specs_checked"] = True
         checked += 1
         try:
             html = sb.fetch_html(latest["url"])
