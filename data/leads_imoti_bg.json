@@ -71,8 +71,8 @@
     "days_on_market": 39,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2154,
-    "pct_vs_area_avg": 0.0,
+    "area_avg_price_per_sqm": 1885,
+    "pct_vs_area_avg": 14.3,
     "score": 31
   },
   {
@@ -396,38 +396,6 @@
     "score": 19
   },
   {
-    "id": "imotibg_514561",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/хасково-област/грдимитровград-514561.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69c40d9f32b19_69c40e1da49f1.jpg",
-    "price_eur": 68000,
-    "sqm": 67,
-    "area": "гр.Димитровград",
-    "city": "Хасково област",
-    "title": "Тристаен апартамент, гр.Димитровград",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продава се 3-стаен панелен апартамент с реална площ 67 м², разположен на 4-ти етаж от 5-етажен блок, югоизточно изложение. Блока е с асансьор, саниран. В район с просторно между-блоково пространство. Разпределение: една голяма южна стая с остъклена тераса, кухня, дневна, спалня, баня с тоалетна. Към жилището има избено помещение. Апартаментът се нуждае от освежаване или основен ремонт според нуждите.  Отлична локация: В непосредствена близост до един от големите паркове на града, до детска градина, до центъра на града.",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1015,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 68000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 36,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1752,
-    "pct_vs_area_avg": -42.1,
-    "score": 19
-  },
-  {
     "id": "imotibg_264362",
     "url": "https://imoti.bg/продажби/парцел/добрич-област/сбългарево-264362.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_63d7e6f487790_63ed2b7d21566.jpg",
@@ -457,6 +425,42 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 36,
     "pct_vs_area_avg": -40.8,
+    "score": 19
+  },
+  {
+    "id": "imotibg_250261",
+    "url": "https://imoti.bg/продажби/търговско-помещение/варна/идеален-център-250261.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_627a3e7437ee0_627a3e74396b0.jpg",
+    "price_eur": 150000,
+    "sqm": 100,
+    "area": "Идеален център",
+    "city": "Варна",
+    "title": "Търговско помещение, Идеален център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Заведение в района на Адвокатска градинка със статут на нощен бар. Едно търговско помещение с барплот, две сепарета, два склада, баня и тоалет. Подходящо е и за всякакъв друг бизнес. Възможно е предлагането на сладкарски изделия, сандвичи, салати, алкохол и др. Нивото е полусутерен 100 кв.м с височина и четири прозореца с югозападна ориентираност. Към имота има 50% идеални части от парцела, който е 250 кв.м. Ползва се едно паркомясто във двора. Възможно е ползването да бъде за жилищни цели, отдаване под наем на нощувки или друго. Брокер Калина Христова 0887245514",
+    "site_posted_at": null,
+    "category": "garage",
+    "category_confidence": "low",
+    "price_per_sqm": 1500,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 100000
+      },
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 150000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": -50.0,
+    "days_on_market": 36,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2747,
+    "pct_vs_area_avg": -45.4,
     "score": 19
   },
   {
@@ -852,7 +856,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2436,
@@ -1172,7 +1176,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 24,
+    "days_on_market": 25,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1386,
@@ -1468,6 +1472,38 @@
     "score": 15
   },
   {
+    "id": "imotibg_514561",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/хасково-област/грдимитровград-514561.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69c40d9f32b19_69c40e1da49f1.jpg",
+    "price_eur": 68000,
+    "sqm": 67,
+    "area": "гр.Димитровград",
+    "city": "Хасково област",
+    "title": "Тристаен апартамент, гр.Димитровград",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продава се 3-стаен панелен апартамент с реална площ 67 м², разположен на 4-ти етаж от 5-етажен блок, югоизточно изложение. Блока е с асансьор, саниран. В район с просторно между-блоково пространство. Разпределение: една голяма южна стая с остъклена тераса, кухня, дневна, спалня, баня с тоалетна. Към жилището има избено помещение. Апартаментът се нуждае от освежаване или основен ремонт според нуждите.  Отлична локация: В непосредствена близост до един от големите паркове на града, до детска градина, до центъра на града.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1015,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 68000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 36,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1455,
+    "pct_vs_area_avg": -30.2,
+    "score": 15
+  },
+  {
     "id": "imotibg_515040",
     "url": "https://imoti.bg/продажби/четиристаен-апартамент/варна-област/гр-провадия-515040.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a1cb1ca99698_6a1cb2f84195e.jpg",
@@ -1757,6 +1793,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 28,
     "pct_vs_area_avg": -53.6,
+    "score": 15
+  },
+  {
+    "id": "imotibg_515988",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/хасково-област/грдимитровград-515988.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abd1bde90939_6abd2159bf3b4.jpg",
+    "price_eur": 80000,
+    "sqm": 93,
+    "area": "гр.Димитровград",
+    "city": "Хасково област",
+    "title": "Тристаен апартамент, гр.Димитровград",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ПРОДАВА се ЗАЕДНО с търговско помещение в същата сграда (преустроено мазе), подходящо за фризьорски салон или друго - 15 кв.м.\r\nЦена заедно с търговското помещение - 100 000 евро, ПОДЛЕЖИ НА ДОГОВАРЯНЕ❗",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 860,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 80000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1455,
+    "pct_vs_area_avg": -40.9,
     "score": 15
   },
   {
@@ -3184,7 +3252,7 @@
     ],
     "price_drop_count": 1,
     "drop_pct": 2.4,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2914,
@@ -3408,7 +3476,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1570,
@@ -4115,8 +4183,8 @@
     "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": -11.9,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": -11.1,
     "score": 8
   },
   {
@@ -4150,6 +4218,38 @@
     "area_avg_price_per_sqm": 1285,
     "pct_vs_area_avg": -10.6,
     "score": 8
+  },
+  {
+    "id": "imotibg_270199",
+    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-270199.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9031c66c60c_6a9031c66f823.jpg",
+    "price_eur": 995000,
+    "sqm": 400,
+    "area": "Идеален център",
+    "city": "Варна",
+    "title": "Офис, Идеален център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Луксозен, обзаведен офис с 35 седящи места, 3 тераси, 2 кухни и 2 тоалетни. Кухните са оборудвани с фурни и микровълнови на Bosch и двойни хладилници на Liebher. Прекрасна локация, опция за закупуване на паркоместа в сградата на етаж -1 и -2 с топла връзка. Отопление и охлаждане с климатични тела висок клас на Mitsubishi, подовата настилка е гранитогрес навсякъде, а бюрата в целия офис са с функция за вдигане за работа изправен.\r\nПродава се във вида който се вижда на снимките с цялото оборудване.\r\n\r\nЧистата квадратура е 356.55 кв.м. 52.11 кв.м. общи части.",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 2488,
+    "price_history": [
+      {
+        "date": "2026-08-28T04:41:50.772578+00:00",
+        "price_eur": 995000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 33,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2747,
+    "pct_vs_area_avg": -9.4,
+    "score": 7
   },
   {
     "id": "imotibg_268040",
@@ -4376,6 +4476,38 @@
     "score": 7
   },
   {
+    "id": "imotibg_101652",
+    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-101652.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_627a3dfc1584f_627a3dfc179bd.jpg",
+    "price_eur": 367000,
+    "sqm": 147,
+    "area": "Идеален център",
+    "city": "Варна",
+    "title": "Офис, Идеален център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Офис с лице на главен булевард, в централната част на гр. Варна. Шест помещения, два санитарни възела, статут на офис, климатици, СОТ, на първи надпартерен етаж от 6-ти. Помещението е пригодено за медицински център, кабинети или друго. Подходящо за представителство, застрахователен, банков офис или  друга търговска дейност . Договаряне. Брокер Калина Христова 0887245514",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 2497,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 367000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 36,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2747,
+    "pct_vs_area_avg": -9.1,
+    "score": 7
+  },
+  {
     "id": "imotibg_270237",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/кайсиева-градина-270237.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a99585b57f7b_6a99585b6a72f.jpg",
@@ -4568,38 +4700,6 @@
     "score": 6
   },
   {
-    "id": "imotibg_270199",
-    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-270199.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a9031c66c60c_6a9031c66f823.jpg",
-    "price_eur": 995000,
-    "sqm": 400,
-    "area": "Идеален център",
-    "city": "Варна",
-    "title": "Офис, Идеален център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Луксозен, обзаведен офис с 35 седящи места, 3 тераси, 2 кухни и 2 тоалетни. Кухните са оборудвани с фурни и микровълнови на Bosch и двойни хладилници на Liebher. Прекрасна локация, опция за закупуване на паркоместа в сградата на етаж -1 и -2 с топла връзка. Отопление и охлаждане с климатични тела висок клас на Mitsubishi, подовата настилка е гранитогрес навсякъде, а бюрата в целия офис са с функция за вдигане за работа изправен.\r\nПродава се във вида който се вижда на снимките с цялото оборудване.\r\n\r\nЧистата квадратура е 356.55 кв.м. 52.11 кв.м. общи части.",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 2488,
-    "price_history": [
-      {
-        "date": "2026-08-28T04:41:50.772578+00:00",
-        "price_eur": 995000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 33,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2647,
-    "pct_vs_area_avg": -6.0,
-    "score": 6
-  },
-  {
     "id": "imotibg_513255",
     "url": "https://imoti.bg/продажби/къща/пазарджик-област/грвелинград-513255.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68d1a1f74f521_68d1a47b43ca6.jpg",
@@ -4627,8 +4727,8 @@
     "days_on_market": 28,
     "source_status": "removed",
     "removed_at": "2026-09-22T18:16:14.653743+00:00",
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": -8.1,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": -7.3,
     "score": 6
   },
   {
@@ -4787,8 +4887,8 @@
     "days_on_market": 28,
     "source_status": "removed",
     "removed_at": "2026-09-22T18:16:14.653743+00:00",
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": -8.1,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": -7.3,
     "score": 6
   },
   {
@@ -4821,38 +4921,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 2028,
     "pct_vs_area_avg": -10.7,
-    "score": 6
-  },
-  {
-    "id": "imotibg_101652",
-    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-101652.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_627a3dfc1584f_627a3dfc179bd.jpg",
-    "price_eur": 367000,
-    "sqm": 147,
-    "area": "Идеален център",
-    "city": "Варна",
-    "title": "Офис, Идеален център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Офис с лице на главен булевард, в централната част на гр. Варна. Шест помещения, два санитарни възела, статут на офис, климатици, СОТ, на първи надпартерен етаж от 6-ти. Помещението е пригодено за медицински център, кабинети или друго. Подходящо за представителство, застрахователен, банков офис или  друга търговска дейност . Договаряне. Брокер Калина Христова 0887245514",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 2497,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 367000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 36,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2647,
-    "pct_vs_area_avg": -5.7,
     "score": 6
   },
   {
@@ -5945,6 +6013,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1099,
     "pct_vs_area_avg": -68.1,
+    "score": 5
+  },
+  {
+    "id": "imotibg_514406",
+    "url": "https://imoti.bg/продажби/заведение/хасково-област/грдимитровград-514406.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69a81a26bbd11_69a81c2c1132a.jpg",
+    "price_eur": 1220000,
+    "sqm": 490,
+    "area": "гр.Димитровград",
+    "city": "Хасково област",
+    "title": "Заведение, гр.Димитровград",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Продава се ресторант ФОРУМ в Димитровград.\r\nНапълно обзаведен и оборудван - готов за работа.",
+    "site_posted_at": null,
+    "category": "shop",
+    "category_confidence": "high",
+    "price_per_sqm": 2490,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 1220000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 36,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1455,
+    "pct_vs_area_avg": 71.1,
     "score": 5
   },
   {
@@ -7361,38 +7461,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
-    "score": 5
-  },
-  {
-    "id": "imotibg_250261",
-    "url": "https://imoti.bg/продажби/търговско-помещение/варна/идеален-център-250261.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_627a3e7437ee0_627a3e74396b0.jpg",
-    "price_eur": 100000,
-    "sqm": 100,
-    "area": "Идеален център",
-    "city": "Варна",
-    "title": "Търговско помещение, Идеален център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Заведение в района на Адвокатска градинка със статут на нощен бар. Едно търговско помещение с барплот, две сепарета, два склада, баня и тоалет. Подходящо е и за всякакъв друг бизнес. Възможно е предлагането на сладкарски изделия, сандвичи, салати, алкохол и др. Нивото е полусутерен 100 кв.м с височина и четири прозореца с югозападна ориентираност. Към имота има 50% идеални части от парцела, който е 250 кв.м. Ползва се едно паркомясто във двора. Възможно е ползването да бъде за жилищни цели, отдаване под наем на нощувки или друго. Брокер Калина Христова 0887245514",
-    "site_posted_at": null,
-    "category": "garage",
-    "category_confidence": "low",
-    "price_per_sqm": 1000,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 100000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 36,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2647,
-    "pct_vs_area_avg": -62.2,
     "score": 5
   },
   {
@@ -11168,7 +11236,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": null,
@@ -11232,7 +11300,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1735,
@@ -13357,38 +13425,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 76,
     "pct_vs_area_avg": 0.0,
-    "score": 4
-  },
-  {
-    "id": "imotibg_514406",
-    "url": "https://imoti.bg/продажби/заведение/хасково-област/грдимитровград-514406.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69a81a26bbd11_69a81c2c1132a.jpg",
-    "price_eur": 1220000,
-    "sqm": 490,
-    "area": "гр.Димитровград",
-    "city": "Хасково област",
-    "title": "Заведение, гр.Димитровград",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продава се ресторант ФОРУМ в Димитровград.\r\nНапълно обзаведен и оборудван - готов за работа.",
-    "site_posted_at": null,
-    "category": "shop",
-    "category_confidence": "high",
-    "price_per_sqm": 2490,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 1220000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 36,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1752,
-    "pct_vs_area_avg": 42.1,
     "score": 4
   },
   {
@@ -18227,8 +18263,8 @@
     "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2647,
-    "pct_vs_area_avg": 39.5,
+    "area_avg_price_per_sqm": 2747,
+    "pct_vs_area_avg": 34.4,
     "score": 4
   },
   {
@@ -23903,8 +23939,8 @@
     "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2647,
-    "pct_vs_area_avg": 34.4,
+    "area_avg_price_per_sqm": 2747,
+    "pct_vs_area_avg": 29.5,
     "score": 4
   },
   {
@@ -24668,7 +24704,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1336,
@@ -24703,8 +24739,8 @@
     "days_on_market": 29,
     "source_status": "removed",
     "removed_at": "2026-09-23T12:41:09.321440+00:00",
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": 15.7,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": 16.8,
     "score": 3
   },
   {
@@ -24800,6 +24836,38 @@
     "source_status": "removed",
     "removed_at": "2026-09-23T12:41:09.321440+00:00",
     "area_avg_price_per_sqm": 2066,
+    "pct_vs_area_avg": 0.0,
+    "score": 3
+  },
+  {
+    "id": "imotibg_515853",
+    "url": "https://imoti.bg/продажби/къща/стара-загора-област/грмъглиж-515853.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9ef5d3a9335_6aa29eec56c0b.jpg",
+    "price_eur": 125000,
+    "sqm": 255,
+    "area": "гр.Мъглиж",
+    "city": "Стара Загора област",
+    "title": "Къща, гр.Мъглиж",
+    "portal": "imoti.bg",
+    "lat": 42.6308172,
+    "lng": 25.5541541,
+    "description": "Масивна двуетажна къща в центъра на Мъглиж, панорамна гледка, до гората, с голям двор, малък басейн, гараж с канал и вход за микробус\r\nЗастроена площ 85 м² и разгъната застроена площ 255 м²\r\nПърви етаж: 66 м² жилищни помещения и 12 м2 балкон.\r\nВтори етаж: 30 м² с хоризонтален таван, 39 м² с наклонен таван, 12 м2 балкон.\r\nМазета: 67 м² сухи, просторни, идеални за склад или работилница\r\nМасивен гараж: 34 м² с височина до 2,3 м и канал за ремонт на автомобили\r\nДвор: 691 м², терасиран на 4 нива, в подножието на Балкана, граничи директно с гората, предлага изключителна панорамна гледка, има изграден масивен басейн с размери 340 на 240 и дълбочина 90 см\r\nКъщата е със здрава масивна конструкция от 1985, Измазана е външно и вътрешно с изключение на тавана и мазетата. Не е обитавана последните 20 години и се нуждае от частичен ремонт.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 490,
+    "price_history": [
+      {
+        "date": "2026-09-07T20:52:45.326351+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 490,
     "pct_vs_area_avg": 0.0,
     "score": 3
   },
@@ -25028,6 +25096,38 @@
     "score": 3
   },
   {
+    "id": "imotibg_515849",
+    "url": "https://imoti.bg/продажби/къща/кърджали/байкал-515849.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9ec5e06e46b_6a9ec81074955.jpg",
+    "price_eur": 210000,
+    "sqm": 150,
+    "area": "Байкал",
+    "city": "Кърджали",
+    "title": "Къща, Байкал",
+    "portal": "imoti.bg",
+    "lat": 41.6502164,
+    "lng": 25.3737777,
+    "description": "Предлагат се за продажба два самостоятелни етажа / един над друг/  от къща /150 кв.м/ с дворно място, гараж и лятна кухня, с обща площ от 220 кв.м. Имотът се намира в тих и предпочитан централен квартал, в непосредствена близост до училища, детски градини, търговски обекти, административни институции.\r\n       РАЗПРЕДЕЛЕНИЕ НА КЪЩАТА:  \r\n \tСъстои се от 2 етажа с отделни входове, включващи:  \r\n \t3 спални помещения \r\n \tДневна  с  кухненски бокс\r\n \tХолно помещение\r\n \tДве отделни стаи\r\n \tГараж с асфалтирано дворно място\r\n \tЛятна кухня до гаража, с приятен кът с чешма и асмалък за почивка\r\n \tСанитарни възли с баня 2 бр.\r\n \tВъншен двор пред къщата \r\n \tПросторен двор с красив асмалък, осигуряващ прохлада през лятото.\r\n \r\n• Входът е през двора, откъдето по външно стълбище се стига до терасата и входната врата на :\r\n• 2-ри етаж /85 кв.м /:\r\nРазпределение: коридор, две почти еднакви по големина стаи разделени със свод, обзаведени, баня, тоалетна.\r\nЕдната стая е обособена като дневна и е обзаведена с всичко необходимо. От нея се преминава към кухненски бокс и външна тераса. Другата стая е обзаведена като хол. Двете помещения са свързани чрез елегантен свод, който създава усещане за простор и уют.\r\nОт коридора  се влиза в обзаведена спалня.\r\n• 1-ви етаж /65 кв.м /:\r\nОт друг външен вход  се влиза на  първи етаж, състоящ се от две стаи, обзаведени, баня с тоалетна.\r\n Всички стаи са обзаведени с нови, осъвременени мебели, с бяла алуминиева дограма, с щори, с бледосив ламинат, с климатици в стаите.\r\nДОПЪЛНИТЕЛНА ИНФОРМАЦИЯ:\r\n• Един собственик (без наследствени неуредици)\r\n• Документално къщата е изрядна (няма тежести)\r\n• С място за паркиране директно и пред къщата, както и в гараж.\r\nПри интерес ще бъдат изпратени повече снимки относно имота.",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 1400,
+    "price_history": [
+      {
+        "date": "2026-09-07T20:52:45.326351+00:00",
+        "price_eur": 210000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 23,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1400,
+    "pct_vs_area_avg": 0.0,
+    "score": 3
+  },
+  {
     "id": "imotibg_513257",
     "url": "https://imoti.bg/продажби/къща/пазарджик-област/грвелинград-513257.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68d1a830cce6b_68d1a9056f23a.jpg",
@@ -25055,8 +25155,8 @@
     "days_on_market": 28,
     "source_status": "removed",
     "removed_at": "2026-09-22T18:16:14.653743+00:00",
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": 8.6,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": 9.6,
     "score": 3
   },
   {
@@ -25276,7 +25376,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 728,
@@ -25407,8 +25507,8 @@
     "days_on_market": 28,
     "source_status": "removed",
     "removed_at": "2026-09-22T18:16:14.653743+00:00",
-    "area_avg_price_per_sqm": 1394,
-    "pct_vs_area_avg": 3.8,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": 4.8,
     "score": 3
   },
   {
@@ -25700,6 +25800,70 @@
     "score": 3
   },
   {
+    "id": "imotibg_515993",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/люлин-4-515993.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abd522a16dc2_6abd538c00d0c.jpeg",
+    "price_eur": 168000,
+    "sqm": 96,
+    "area": "Люлин 4",
+    "city": "София",
+    "title": "Тристаен апартамент, Люлин 4",
+    "portal": "imoti.bg",
+    "lat": 42.7210556,
+    "lng": 23.5292354,
+    "description": "???? ТОП ОФЕРТА! ТРИСТАЕН В ЛЮЛИН 4 • АКТ 16 • ОТ СОБСТВЕНИК • БЕЗ КОМИСИОНА\r\n\r\nПродава се тристаен апартамент в нова жилищна сграда с Акт 16, находяща се в гр. София, ж.к. Люлин 4, бул. „Добринова скала“ №44.\r\n\r\nОбща площ: 96 кв.м\r\nЗастроена площ: 82,29 кв.м\r\nЕтаж: 2 от 5\r\nИзложение: южно\r\nЦена: 168 000 € (1 750 €/кв.м)\r\n\r\nАпартаментът е с функционално разпределение: входно антре, дневна с кухненски бокс, две спални, всяка със собствен дрешник, тераса и баня с тоалетна.\r\n\r\nЖилището се предава на шпакловка и замазка, с PVC дограма REHAU.\r\n\r\nСградата е с Акт 16, асансьор и отлично завършени общи части. Използвани са съвременни материали, включително HPL плоскости по фасадата и гранитогрес в общите части.\r\n\r\nИма възможност за закупуване на подземно паркомясто на цена 19 000 €. \r\n\r\nЗа информация и огледи:\r\nИвайло Андреев – 088 700 2000",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1750,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 168000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1885,
+    "pct_vs_area_avg": -7.1,
+    "score": 3
+  },
+  {
+    "id": "imotibg_515994",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/люлин-4-515994.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abd541b0a2a9_6abd54f36bd38.jpeg",
+    "price_eur": 192500,
+    "sqm": 110,
+    "area": "Люлин 4",
+    "city": "София",
+    "title": "Тристаен апартамент, Люлин 4",
+    "portal": "imoti.bg",
+    "lat": 42.7210556,
+    "lng": 23.5292354,
+    "description": "???? ТОП ОФЕРТА! ТРИСТАЕН 110 КВ.М В ЛЮЛИН 4 • АКТ 16 • БЕЗ КОМИСИОНА\r\n\r\n\r\nПродава се тристаен апартамент в нова жилищна сграда с Акт 16, находяща се в гр. София, ж.к. Люлин 4, бул. „Добринова скала“ №44.\r\n\r\nОбща площ: 110 кв.м\r\nЗастроена площ: 94 кв.\r\nЕтаж: 2 от 5\r\nИзложение: югоизточно\r\nЦена: 192 500 € (1 750 €/кв.м)\r\n\r\nРазпределението включва входно антре, дневна с трапезария и кухненски бокс, две самостоятелни спални, дрешник, две тераси, баня с тоалетна и отделна втора тоалетна.\r\n\r\nЖилището се предава на шпакловка и замазка, с PVC дограма REHAU.\r\n\r\nСградата е с Акт 16, асансьор и отлично завършени общи части. Фасадата и общите пространства са изпълнени със съвременни материали.\r\n\r\nИма възможност за закупуване на подземно паркомясто на цена 19 000 €.\r\n\r\n\r\nЗа информация и огледи:\r\nИвайло Андреев – 088 700 2000",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1750,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 192500
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1885,
+    "pct_vs_area_avg": -7.1,
+    "score": 3
+  },
+  {
     "id": "imotibg_515877",
     "url": "https://imoti.bg/продажби/къща/ловеч-област/грлетница-515877.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa411b124c85_6aa412af3f568.jpeg",
@@ -25724,7 +25888,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 18,
+    "days_on_market": 19,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 300,
@@ -26308,38 +26472,6 @@
     "score": 2
   },
   {
-    "id": "imotibg_515853",
-    "url": "https://imoti.bg/продажби/къща/стара-загора-област/грмъглиж-515853.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a9ef5d3a9335_6aa29eec56c0b.jpg",
-    "price_eur": 125000,
-    "sqm": 255,
-    "area": "гр.Мъглиж",
-    "city": "Стара Загора област",
-    "title": "Къща, гр.Мъглиж",
-    "portal": "imoti.bg",
-    "lat": 42.6308172,
-    "lng": 25.5541541,
-    "description": "Масивна двуетажна къща в центъра на Мъглиж, панорамна гледка, до гората, с голям двор, малък басейн, гараж с канал и вход за микробус\r\nЗастроена площ 85 м² и разгъната застроена площ 255 м²\r\nПърви етаж: 66 м² жилищни помещения и 12 м2 балкон.\r\nВтори етаж: 30 м² с хоризонтален таван, 39 м² с наклонен таван, 12 м2 балкон.\r\nМазета: 67 м² сухи, просторни, идеални за склад или работилница\r\nМасивен гараж: 34 м² с височина до 2,3 м и канал за ремонт на автомобили\r\nДвор: 691 м², терасиран на 4 нива, в подножието на Балкана, граничи директно с гората, предлага изключителна панорамна гледка, има изграден масивен басейн с размери 340 на 240 и дълбочина 90 см\r\nКъщата е със здрава масивна конструкция от 1985, Измазана е външно и вътрешно с изключение на тавана и мазетата. Не е обитавана последните 20 години и се нуждае от частичен ремонт.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 490,
-    "price_history": [
-      {
-        "date": "2026-09-07T20:52:45.326351+00:00",
-        "price_eur": 125000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 22,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 490,
-    "pct_vs_area_avg": 0.0,
-    "score": 2
-  },
-  {
     "id": "imotibg_513398",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/овча-купел-513398.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68e7b2f7a5f5d_68e7b33548c52.jpg",
@@ -26588,7 +26720,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 25,
@@ -26720,38 +26852,6 @@
     "source_status": "removed",
     "removed_at": "2026-09-06T21:04:49.094229+00:00",
     "area_avg_price_per_sqm": 3041,
-    "pct_vs_area_avg": 0.0,
-    "score": 2
-  },
-  {
-    "id": "imotibg_515849",
-    "url": "https://imoti.bg/продажби/къща/кърджали/байкал-515849.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a9ec5e06e46b_6a9ec81074955.jpg",
-    "price_eur": 210000,
-    "sqm": 150,
-    "area": "Байкал",
-    "city": "Кърджали",
-    "title": "Къща, Байкал",
-    "portal": "imoti.bg",
-    "lat": 41.6502164,
-    "lng": 25.3737777,
-    "description": "Предлагат се за продажба два самостоятелни етажа / един над друг/  от къща /150 кв.м/ с дворно място, гараж и лятна кухня, с обща площ от 220 кв.м. Имотът се намира в тих и предпочитан централен квартал, в непосредствена близост до училища, детски градини, търговски обекти, административни институции.\r\n       РАЗПРЕДЕЛЕНИЕ НА КЪЩАТА:  \r\n \tСъстои се от 2 етажа с отделни входове, включващи:  \r\n \t3 спални помещения \r\n \tДневна  с  кухненски бокс\r\n \tХолно помещение\r\n \tДве отделни стаи\r\n \tГараж с асфалтирано дворно място\r\n \tЛятна кухня до гаража, с приятен кът с чешма и асмалък за почивка\r\n \tСанитарни възли с баня 2 бр.\r\n \tВъншен двор пред къщата \r\n \tПросторен двор с красив асмалък, осигуряващ прохлада през лятото.\r\n \r\n• Входът е през двора, откъдето по външно стълбище се стига до терасата и входната врата на :\r\n• 2-ри етаж /85 кв.м /:\r\nРазпределение: коридор, две почти еднакви по големина стаи разделени със свод, обзаведени, баня, тоалетна.\r\nЕдната стая е обособена като дневна и е обзаведена с всичко необходимо. От нея се преминава към кухненски бокс и външна тераса. Другата стая е обзаведена като хол. Двете помещения са свързани чрез елегантен свод, който създава усещане за простор и уют.\r\nОт коридора  се влиза в обзаведена спалня.\r\n• 1-ви етаж /65 кв.м /:\r\nОт друг външен вход  се влиза на  първи етаж, състоящ се от две стаи, обзаведени, баня с тоалетна.\r\n Всички стаи са обзаведени с нови, осъвременени мебели, с бяла алуминиева дограма, с щори, с бледосив ламинат, с климатици в стаите.\r\nДОПЪЛНИТЕЛНА ИНФОРМАЦИЯ:\r\n• Един собственик (без наследствени неуредици)\r\n• Документално къщата е изрядна (няма тежести)\r\n• С място за паркиране директно и пред къщата, както и в гараж.\r\nПри интерес ще бъдат изпратени повече снимки относно имота.",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 1400,
-    "price_history": [
-      {
-        "date": "2026-09-07T20:52:45.326351+00:00",
-        "price_eur": 210000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 22,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1400,
     "pct_vs_area_avg": 0.0,
     "score": 2
   },
@@ -27068,7 +27168,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2071,
@@ -27260,7 +27360,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 13,
+    "days_on_market": 14,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1114,
@@ -27292,7 +27392,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1958,
@@ -27324,7 +27424,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 20,
+    "days_on_market": 21,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 10,
@@ -27652,6 +27752,38 @@
     "score": 2
   },
   {
+    "id": "imotibg_515992",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/пазарджик-област/грвелинград-515992.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abd3b5192133_6abd3c6440a3d.jpeg",
+    "price_eur": 162000,
+    "sqm": 124,
+    "area": "гр.Велинград",
+    "city": "Пазарджик област",
+    "title": "Тристаен апартамент, гр.Велинград",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ПРОДАВА СЕ ЛУКСОЗЕН АПАРТАМЕНТ ВЪВ ВЕЛИНГРАД – GT RESIDENCE\r\n\r\nПредлагаме за продажба просторен апартамент с площ 124 кв.м, разположен на 4-ти етаж от 5-етажна нова сграда с асансьор, на непосредствено разстояние от хотел Arte.\r\n\r\n\r\n\r\nАпартаментът разполага с:\r\n\r\n\r\n\r\n* Просторна дневна зона с кухня и трапезария\r\n\r\n\r\n\r\n* Две спални\r\n\r\n\r\n\r\n* Баня\r\n\r\n\r\n\r\n* Прекрасен панорамен изглед към връх Острец\r\n\r\n\r\n\r\n* Ново строителство и съвременна архитектура\r\n\r\n\r\n\r\nВ цената са включени довършителни работи и материали на стойност 23 500 €:\r\n\r\n\r\n\r\n✔️ Поръчана кухня\r\n\r\n\r\n\r\n✔️ Напълно готова баня\r\n\r\n\r\n\r\n✔️ Облицовка/зидария с естествен камък от Гърмен\r\n\r\n\r\n\r\n✔️ Шпакловка\r\n\r\n\r\n\r\n✔️ Окачени тавани\r\n\r\n\r\n\r\n✔️ LED осветление\r\n\r\n\r\n\r\n✔️ Изготвен проект за интериорен дизайн\r\n\r\n\r\n\r\nИмотът е отлична възможност както за лично ползване и ваканционен имот, така и за инвестиция в един от най-предпочитаните балнео и СПА курорти в България.\r\n\r\n\r\n\r\n???? Велинград – GT Residence, до хотел Arte\r\n\r\n\r\n\r\n???? 124 кв.м\r\n\r\n\r\n\r\n???? 4-ти етаж / 5\r\n\r\n\r\n\r\n???? Асансьор\r\n\r\n\r\n\r\n????️ Ново строителство\r\n\r\n\r\n\r\n????️ Панорамен изглед към връх Острец\r\n\r\n\r\n\r\nЦена: 162 000€  + 15 000€ за гараж 20кв.м.\r\n\r\n\r\n\r\nЗа повече информация и оглед – свържете се с нас.  ☎️  +359 89 2492090",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1306,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 162000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1382,
+    "pct_vs_area_avg": -5.5,
+    "score": 2
+  },
+  {
     "id": "imotibg_515912",
     "url": "https://imoti.bg/продажби/къща/видин-област/свойница-515912.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aabdc884e780_6aabddae0c9db.jpeg",
@@ -27868,7 +28000,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 42,
@@ -28444,7 +28576,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 42,
@@ -28508,7 +28640,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2147,
@@ -28892,7 +29024,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 409,
@@ -28961,6 +29093,42 @@
     "removed_at": "2026-08-28T04:41:50.772578+00:00",
     "area_avg_price_per_sqm": 2120,
     "pct_vs_area_avg": 5.3,
+    "score": 1
+  },
+  {
+    "id": "imotibg_515956",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/кючук-париж-515956.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6ab6ba884778b_6ab6bb771a897.jpg",
+    "price_eur": 240000,
+    "sqm": 97,
+    "area": "Кючук Париж",
+    "city": "Пловдив",
+    "title": "Тристаен апартамент, Кючук Париж",
+    "portal": "imoti.bg",
+    "lat": 42.1266712,
+    "lng": 24.7476431,
+    "description": "Тристаен напълно обзаведен [97.03 кв.м. с общи части] до ключ с луксозни мебели, чисто нов монолотен апартамент с 2 спални,хол,трапезария,баня и 2 тоалетни в една от най-привлекателните части на града с включена изба[3.15 кв.м.]и паркомясто[11.25 кв.м.]се продава директно ОТ СОБСТВЕНИК!Цената включва и паркомясто!",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2474,
+    "price_history": [
+      {
+        "date": "2026-09-25T21:07:05.094716+00:00",
+        "price_eur": 235000
+      },
+      {
+        "date": "2026-09-26T23:11:05.733632+00:00",
+        "price_eur": 240000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": -2.1,
+    "days_on_market": 5,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1595,
+    "pct_vs_area_avg": 55.1,
     "score": 1
   },
   {
@@ -29793,42 +29961,6 @@
     "score": 0
   },
   {
-    "id": "imotibg_515956",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/кючук-париж-515956.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6ab6ba884778b_6ab6bb771a897.jpg",
-    "price_eur": 240000,
-    "sqm": 97,
-    "area": "Кючук Париж",
-    "city": "Пловдив",
-    "title": "Тристаен апартамент, Кючук Париж",
-    "portal": "imoti.bg",
-    "lat": 42.1266712,
-    "lng": 24.7476431,
-    "description": "Тристаен напълно обзаведен [97.03 кв.м. с общи части] до ключ с луксозни мебели, чисто нов монолотен апартамент с 2 спални,хол,трапезария,баня и 2 тоалетни в една от най-привлекателните части на града с включена изба[3.15 кв.м.]и паркомясто[11.25 кв.м.]се продава директно ОТ СОБСТВЕНИК!Цената включва и паркомясто!",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2474,
-    "price_history": [
-      {
-        "date": "2026-09-25T21:07:05.094716+00:00",
-        "price_eur": 235000
-      },
-      {
-        "date": "2026-09-26T23:11:05.733632+00:00",
-        "price_eur": 240000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": -2.1,
-    "days_on_market": 4,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1595,
-    "pct_vs_area_avg": 55.1,
-    "score": 0
-  },
-  {
     "id": "imotibg_513116",
     "url": "https://imoti.bg/продажби/къща/варна-област/с-ново-оряхово-513116.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68b6fab26316c_68b6fb90b9a7e.jpg",
@@ -30173,7 +30305,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2186,
@@ -30333,7 +30465,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": null,
@@ -30365,7 +30497,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 728,
@@ -30402,6 +30534,70 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 2129,
     "pct_vs_area_avg": -0.8,
+    "score": 0
+  },
+  {
+    "id": "imotibg_515991",
+    "url": "https://imoti.bg/продажби/парцел/варна-област/с-михалич-515991.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 11000,
+    "sqm": 2200,
+    "area": "с. Михалич",
+    "city": "Варна област",
+    "title": "Парцел, с. Михалич",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Prodavam parcel v zemlisteto na selo mihalich 2200m2",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 5,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 11000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 5,
+    "pct_vs_area_avg": 0.0,
+    "score": 0
+  },
+  {
+    "id": "imotibg_515989",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/хасково/младежки-хълм-515989.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abd2e220e7c5_6abd2f8e9afd0.jpg",
+    "price_eur": 93600,
+    "sqm": 80,
+    "area": "Младежки хълм",
+    "city": "Хасково",
+    "title": "Тристаен апартамент, Младежки хълм",
+    "portal": "imoti.bg",
+    "lat": 41.9266539,
+    "lng": 25.5497624,
+    "description": "ЛУКСОЗНИ ЖИЛИЩА - ново строителство, в най-предпочитания район на гр. Хасково -",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1170,
+    "price_history": [
+      {
+        "date": "2026-09-30T20:01:51.490934+00:00",
+        "price_eur": 93600
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1170,
+    "pct_vs_area_avg": 0.0,
     "score": 0
   }
 ]
