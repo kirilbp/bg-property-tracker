@@ -35,9 +35,9 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": -20.9,
-    "score": 38
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": -24.5,
+    "score": 39
   },
   {
     "id": "imotibg_515376",
@@ -110,6 +110,42 @@
     "area_avg_price_per_sqm": 15,
     "pct_vs_area_avg": 0.0,
     "score": 31
+  },
+  {
+    "id": "imotibg_514980",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/пловдив/широк-център-514980.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a0d9f5b78336_6abe3d4610aad.jpg",
+    "price_eur": 109000,
+    "sqm": 98,
+    "area": "Широк център",
+    "city": "Пловдив",
+    "title": "Двустаен апартамент, Широк център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Оферта 69524: БЕЗ КОМИСИОННА ЗА КУПУВАЧА!!! НОВО ПРЕДЛОЖЕНИЕ - САМО ОТ АГЕНЦИЯ",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1112,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 115000
+      },
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 109000
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 5.2,
+    "days_on_market": 37,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": -38.0,
+    "score": 30
   },
   {
     "id": "imotibg_515837",
@@ -764,6 +800,42 @@
     "score": 18
   },
   {
+    "id": "imotibg_515041",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/пловдив/широк-център-515041.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a1d2aa4e1dc3_6abe68cf783c6.jpg",
+    "price_eur": 139000,
+    "sqm": 72,
+    "area": "Широк център",
+    "city": "Пловдив",
+    "title": "Двустаен апартамент, Широк център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Апартаментът е с реална квадратура от 71.72  кв.м - коридор, спалня, хол, кухня, баня-тоалетна, две тераси. Отделно от тази квадратура има избено и таванско помещение. Предстоящо саниране на сградата по програма (одобрен проект и избран изпълнител).",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1931,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 150000
+      },
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 139000
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 7.3,
+    "days_on_market": 37,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 7.7,
+    "score": 18
+  },
+  {
     "id": "imotibg_514960",
     "url": "https://imoti.bg/продажби/етаж-от-къща/пловдив/широк-център-514960.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a0ac246ce235_6aaa9a141901e.jpg",
@@ -795,8 +867,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": -11.0,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": -10.1,
     "score": 18
   },
   {
@@ -864,38 +936,6 @@
     "score": 17
   },
   {
-    "id": "imotibg_514980",
-    "url": "https://imoti.bg/продажби/двустаен-апартамент/пловдив/широк-център-514980.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a0d9f5b78336_6a116d53d3030.jpg",
-    "price_eur": 115000,
-    "sqm": 98,
-    "area": "Широк център",
-    "city": "Пловдив",
-    "title": "Двустаен апартамент, Широк център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Оферта 69524: БЕЗ КОМИСИОННА ЗА КУПУВАЧА!!! НОВО ПРЕДЛОЖЕНИЕ - САМО ОТ АГЕНЦИЯ",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1173,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 115000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": -35.3,
-    "score": 17
-  },
-  {
     "id": "imotibg_514979",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/широк-център-514979.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a0d733733dc5_6a197f55866d6.jpg",
@@ -923,8 +963,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": -35.3,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": -34.6,
     "score": 17
   },
   {
@@ -1788,7 +1828,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 28,
@@ -2027,8 +2067,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": -2.5,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": -1.4,
     "score": 14
   },
   {
@@ -2356,6 +2396,38 @@
     "score": 13
   },
   {
+    "id": "imotibg_268286",
+    "url": "https://imoti.bg/продажби/магазин/варна/център-268286.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69009f2697b37_6900a66a9e811.jpg",
+    "price_eur": 770000,
+    "sqm": 350,
+    "area": "Център",
+    "city": "Варна",
+    "title": "Магазин, Център",
+    "portal": "imoti.bg",
+    "lat": 43.2058818,
+    "lng": 27.9098338,
+    "description": "Помещение в централната градска част на гр.Варна.Локацията е удобна за магазин,офис,стоматологичен център,книжарница,фитнес зала,аптека. Намира се в нова сграда в строеж с отлична локация. Състои се от:голяма зала, санитарен възел, складово помещение. С възможност за преразпределения на помещенията. Местоположението на офиса е на главна улица с човекопоток..Гъвкава схема на разсрочено плащане. Въвеждане в експлоатация на сградата  май 2027 година.Възможност за обединяване със съседно помещение от 690 кв.м. Цената е без ДДС \r\n\r\nБрокер:Стефка Александрова-0888797275",
+    "site_posted_at": null,
+    "category": "shop",
+    "category_confidence": "high",
+    "price_per_sqm": 2200,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 770000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 37,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": -22.9,
+    "score": 13
+  },
+  {
     "id": "imotibg_514161",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/овча-купел-514161.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_697b41fcec82d_697b423862dc9.jpg",
@@ -2609,38 +2681,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 20,
     "pct_vs_area_avg": -22.0,
-    "score": 12
-  },
-  {
-    "id": "imotibg_515237",
-    "url": "https://imoti.bg/продажби/медицински-кабинет/пловдив/широк-център-515237.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a3a86a5d0311_6a3a86ceebbac.jpg",
-    "price_eur": 400000,
-    "sqm": 278,
-    "area": "Широк център",
-    "city": "Пловдив",
-    "title": "Медицински кабинет, Широк център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Оферта 64743: \r\n ЪГЛОВ МЕДИЦИНСКИ ЦЕНТЪР НА БУЛЕВАРД!\r\n\r\nИзползваема площ на имота 227 кв.м.- едно голямо помещение, излаз на две тераси и два санитарни възела. Възможност за вътрешно разпределение спрямо извършваната дейност. Стъклена витрина към булевард и оживена улица с възможност за поставяне на реклама.\r\n\r\nЛокация: Имаме удоволствието да Ви представим новият ни обект разположен в Широкия Център на оживен булевард.\r\n\r\nИзпълнение: *Стъклена окачена фасада най-висок клас- Алумил с висока енергийна ефективност, повишено ниво на звукоизолация, статичност и функционалност при екстремни природни явления. * Тухли- с високо качество; Асансьори- три броя високоскоростни асансьора, като единия от тях ще бъде товарен.\r\n\r\n  Озеленяване около сградата с добре изградена и поддържана инфраструктура, покривни тераси с кътове за отдих с общ достъп за обитателите на сградата.\r\n\r\nУдобен надземен и подземен паркинг с топла връзка, с опция за закупуване на гараж!\r\n\r\n       ЕКСКЛУЗИВНА НОВА СГРАДА, САМО ОТ АГЕНЦИЯ",
-    "site_posted_at": null,
-    "category": "garage",
-    "category_confidence": "low",
-    "price_per_sqm": 1439,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 400000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": -20.6,
     "score": 12
   },
   {
@@ -3096,6 +3136,38 @@
     "score": 11
   },
   {
+    "id": "imotibg_515237",
+    "url": "https://imoti.bg/продажби/медицински-кабинет/пловдив/широк-център-515237.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a3a86a5d0311_6a3a86ceebbac.jpg",
+    "price_eur": 400000,
+    "sqm": 278,
+    "area": "Широк център",
+    "city": "Пловдив",
+    "title": "Медицински кабинет, Широк център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Оферта 64743: \r\n ЪГЛОВ МЕДИЦИНСКИ ЦЕНТЪР НА БУЛЕВАРД!\r\n\r\nИзползваема площ на имота 227 кв.м.- едно голямо помещение, излаз на две тераси и два санитарни възела. Възможност за вътрешно разпределение спрямо извършваната дейност. Стъклена витрина към булевард и оживена улица с възможност за поставяне на реклама.\r\n\r\nЛокация: Имаме удоволствието да Ви представим новият ни обект разположен в Широкия Център на оживен булевард.\r\n\r\nИзпълнение: *Стъклена окачена фасада най-висок клас- Алумил с висока енергийна ефективност, повишено ниво на звукоизолация, статичност и функционалност при екстремни природни явления. * Тухли- с високо качество; Асансьори- три броя високоскоростни асансьора, като единия от тях ще бъде товарен.\r\n\r\n  Озеленяване около сградата с добре изградена и поддържана инфраструктура, покривни тераси с кътове за отдих с общ достъп за обитателите на сградата.\r\n\r\nУдобен надземен и подземен паркинг с топла връзка, с опция за закупуване на гараж!\r\n\r\n       ЕКСКЛУЗИВНА НОВА СГРАДА, САМО ОТ АГЕНЦИЯ",
+    "site_posted_at": null,
+    "category": "garage",
+    "category_confidence": "low",
+    "price_per_sqm": 1439,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 400000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 37,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": -19.7,
+    "score": 11
+  },
+  {
     "id": "imotibg_510522",
     "url": "https://imoti.bg/продажби/нива/благоевград-област/гр-гоце-делчев-510522.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_67332d9d79533_67332ea7a221b.jpg",
@@ -3192,38 +3264,6 @@
     "score": 11
   },
   {
-    "id": "imotibg_268286",
-    "url": "https://imoti.bg/продажби/магазин/варна/център-268286.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69009f2697b37_6900a66a9e811.jpg",
-    "price_eur": 770000,
-    "sqm": 350,
-    "area": "Център",
-    "city": "Варна",
-    "title": "Магазин, Център",
-    "portal": "imoti.bg",
-    "lat": 43.2058818,
-    "lng": 27.9098338,
-    "description": "Помещение в централната градска част на гр.Варна.Локацията е удобна за магазин,офис,стоматологичен център,книжарница,фитнес зала,аптека. Намира се в нова сграда в строеж с отлична локация. Състои се от:голяма зала, санитарен възел, складово помещение. С възможност за преразпределения на помещенията. Местоположението на офиса е на главна улица с човекопоток..Гъвкава схема на разсрочено плащане. Въвеждане в експлоатация на сградата  май 2027 година.Възможност за обединяване със съседно помещение от 690 кв.м. Цената е без ДДС \r\n\r\nБрокер:Стефка Александрова-0888797275",
-    "site_posted_at": null,
-    "category": "shop",
-    "category_confidence": "high",
-    "price_per_sqm": 2200,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 770000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": -19.2,
-    "score": 11
-  },
-  {
     "id": "imotibg_515884",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/софия/банишора-515884.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aa831a2b7c7b_6aa8336ccd750.jpeg",
@@ -3292,9 +3332,41 @@
     "score": 11
   },
   {
+    "id": "imotibg_270273",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/център-270273.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aa2798b23124_6aa2798b385be.jpg",
+    "price_eur": 250000,
+    "sqm": 110,
+    "area": "Център",
+    "city": "Варна",
+    "title": "Тристаен апартамент, Център",
+    "portal": "imoti.bg",
+    "lat": 43.2058818,
+    "lng": 27.9098338,
+    "description": "Обзаведен тристаен апартамент в центъра на Варна!\r\n110кв.м( под 2300 на кв.м, съобразно пазарната цена за района от 2500- 2700 на кв.м.\r\nНа 100% кредитиране от банка!\r\nНа 5 мин. пешеходно разстояние до Катедралата и Операта на града и също на толкова до Морска гара и плажната ивица.\r\nПанорамна гледка!\r\nВъзможност за свободно паркиране на повече от един автомобил!",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2273,
+    "price_history": [
+      {
+        "date": "2026-09-10T14:27:02.166362+00:00",
+        "price_eur": 250000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 21,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": -20.4,
+    "score": 10
+  },
+  {
     "id": "imotibg_513906",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/кършияка-513906.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6940104c0b7a1_6a158dc994e7a.jpg",
+    "photo": "https://imoti.bg/assets/offers/small/r_6940104c0b7a1_6abe4cc2b6844.jpg",
     "price_eur": 134990,
     "sqm": 93,
     "area": "Кършияка",
@@ -3303,7 +3375,7 @@
     "portal": "imoti.bg",
     "lat": 42.1576443,
     "lng": 24.745597,
-    "description": "Оферта 68501 - БЕЗ КОМИСИОННА ОТ КУПУВАЧ!!! \r\nБутиков затворен жилищен комплекс с модерна и устойчива архитектура, потопена в богато озеленени площи, вдъхващи на живущите комфорт и спокойствие. Комплекса предлага просторна спокойна среда с бърз достъп до центъра на града, както и възлови булеварди. Предлагаме ви тристаен апартамент, който се състои от ъглова дневна с трапезария и кухненска част, две самостоятелни спални, баня с тоалетна, склад, входно антре и две тераси. В близост са ситуирани ресторанти, хипермаркети, училища и детски градини. Ще бъдат изградени луксозни общи части с предоставено облагородено дворно място, пейки за отдих и детски площадки за игра. \r\n\r\nАпартаментите ще бъдат издадени на:\r\n\r\nСтени и тавани – гипсова мазилка.\r\n\r\nПод - циментова замазка.\r\n\r\nПод в санитарни помещение – циментова замазка.\r\n\r\nСтени в санитарни помещения – вароциментова мазилка.\r\n\r\nТераси /под/ - мразоустойчив гранитогрес.\r\n\r\nВходни врати на апартаменти – блиндирани.",
+    "description": "Оферта 68501 - Бутиков затворен жилищен комплекс с модерна и устойчива архитектура, потопена в богато озеленени площи, вдъхващи на живущите комфорт и спокойствие. Комплекса предлага просторна спокойна среда с бърз достъп до центъра на града, както и възлови булеварди. Предлагаме ви тристаен апартамент, който се състои от ъглова дневна с трапезария и кухненска част, две самостоятелни спални, баня с тоалетна, склад, входно антре и две тераси. В близост са ситуирани ресторанти, хипермаркети, училища и детски градини. Ще бъдат изградени луксозни общи части с предоставено облагородено дворно място, пейки за отдих и детски площадки за игра. \r\n\r\nАпартаментите ще бъдат издадени на:\r\n\r\nСтени и тавани – гипсова мазилка.\r\n\r\nПод - циментова замазка.\r\n\r\nПод в санитарни помещение – циментова замазка.\r\n\r\nСтени в санитарни помещения – вароциментова мазилка.\r\n\r\nТераси /под/ - мразоустойчив гранитогрес.\r\n\r\nВходни врати на апартаменти – блиндирани.",
     "site_posted_at": null,
     "category": "flat",
     "category_confidence": "high",
@@ -3610,38 +3682,6 @@
     "area_avg_price_per_sqm": 2125,
     "pct_vs_area_avg": -14.1,
     "score": 10
-  },
-  {
-    "id": "imotibg_270273",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/център-270273.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aa2798b23124_6aa2798b385be.jpg",
-    "price_eur": 250000,
-    "sqm": 110,
-    "area": "Център",
-    "city": "Варна",
-    "title": "Тристаен апартамент, Център",
-    "portal": "imoti.bg",
-    "lat": 43.2058818,
-    "lng": 27.9098338,
-    "description": "Обзаведен тристаен апартамент в центъра на Варна!\r\n110кв.м( под 2300 на кв.м, съобразно пазарната цена за района от 2500- 2700 на кв.м.\r\nНа 100% кредитиране от банка!\r\nНа 5 мин. пешеходно разстояние до Катедралата и Операта на града и също на толкова до Морска гара и плажната ивица.\r\nПанорамна гледка!\r\nВъзможност за свободно паркиране на повече от един автомобил!",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2273,
-    "price_history": [
-      {
-        "date": "2026-09-10T14:27:02.166362+00:00",
-        "price_eur": 250000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 21,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": -16.6,
-    "score": 9
   },
   {
     "id": "imotibg_514166",
@@ -4892,6 +4932,38 @@
     "score": 6
   },
   {
+    "id": "imotibg_225710",
+    "url": "https://imoti.bg/продажби/офис/варна/център-225710.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_627a35528fbe0_627a3552929e6.jpg",
+    "price_eur": 2000000,
+    "sqm": 730,
+    "area": "Център",
+    "city": "Варна",
+    "title": "Офис, Център",
+    "portal": "imoti.bg",
+    "lat": 43.2058818,
+    "lng": 27.9098338,
+    "description": "Офис сграда със статут на банков офис и функционирала като такъв. С възможност да бъде използвана и с друго предназначение - търговско или офисно. Сградата  е паметник на културата. На три етажа са разположени  площи с различна квадратура от 237 кв.м до 244 кв м. Към сградата има една втора идеални части от двора, върху който е построена. Оборудвани стаи  с климатици, интеренет, два самостоятелни отделни  входа  и контрол на достъпа. Договаряне Брокер Калина Христова 0887245514.",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 2740,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 2000000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 37,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": -4.0,
+    "score": 6
+  },
+  {
     "id": "imotibg_513256",
     "url": "https://imoti.bg/продажби/къща/пазарджик-област/грвелинград-513256.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_68d1a5c8dee89_68d1a75015021.jpg",
@@ -4921,6 +4993,38 @@
     "removed_at": "2026-09-22T18:16:14.653743+00:00",
     "area_avg_price_per_sqm": 1382,
     "pct_vs_area_avg": -7.3,
+    "score": 6
+  },
+  {
+    "id": "imotibg_515902",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/видин/петко-каравелов-515902.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6aabc8a70f2dc_6aabc93e1c53c.jpg",
+    "price_eur": 105000,
+    "sqm": 100,
+    "area": "Петко Каравелов",
+    "city": "Видин",
+    "title": "Тристаен апартамент, Петко Каравелов",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Имоти Доверие-Консулт продава тристаен тухлен апартамент на пети етаж в изцяло санирана жилищна кооперация, находяща се в ж.к. Петко Каравелов. Имотът е с площ около 100 кв.м и разпределение - дневна с преходна спалня и излаз на открита лоджия-балкон, втора спалня, кухня-трапезария с излаз на друга затворена лоджия-балкон, коридор, сервизни помещения (отделна баня и тоалетна). Имотът е с подменена външна дограма, външна термоизолация и изцяло нов скатен покрив, настилките са естествен дъбов паркет в стаите и теракота/мозайка в сервизните помещения, нов бойлер в банята. Сградата отговаря на всички изисквания за енергийна и противопожарна ефективност, осигурен контрол на достъпа и изцяло подновена инфраструктура около нея. Жилището се продава с прилежащо избено помещение с площ около 10 кв.м, гараж с площ 15 кв.м и канал под площта му, като същият разполага с ток и вода. Огледи се организират в удобно за клиента време.",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1050,
+    "price_history": [
+      {
+        "date": "2026-09-17T14:31:08.036230+00:00",
+        "price_eur": 105000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 14,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1183,
+    "pct_vs_area_avg": -11.2,
     "score": 6
   },
   {
@@ -6787,8 +6891,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": 96.4,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": 87.4,
     "score": 5
   },
   {
@@ -11015,7 +11119,7 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
+    "area_avg_price_per_sqm": 2855,
     "pct_vs_area_avg": -99.9,
     "score": 5
   },
@@ -12423,8 +12527,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 15.6,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 16.9,
     "score": 4
   },
   {
@@ -12872,7 +12976,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 43,
@@ -14924,7 +15028,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1184,
@@ -15631,8 +15735,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": 47.1,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": 40.4,
     "score": 4
   },
   {
@@ -16524,9 +16628,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
+    "days_on_market": 36,
+    "source_status": "removed",
+    "removed_at": "2026-09-30T20:01:51.490934+00:00",
     "area_avg_price_per_sqm": 105,
     "pct_vs_area_avg": 22.7,
     "score": 4
@@ -16977,38 +17081,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1391,
     "pct_vs_area_avg": 0.0,
-    "score": 4
-  },
-  {
-    "id": "imotibg_225710",
-    "url": "https://imoti.bg/продажби/офис/варна/център-225710.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_627a35528fbe0_627a3552929e6.jpg",
-    "price_eur": 2000000,
-    "sqm": 730,
-    "area": "Център",
-    "city": "Варна",
-    "title": "Офис, Център",
-    "portal": "imoti.bg",
-    "lat": 43.2058818,
-    "lng": 27.9098338,
-    "description": "Офис сграда със статут на банков офис и функционирала като такъв. С възможност да бъде използвана и с друго предназначение - търговско или офисно. Сградата  е паметник на културата. На три етажа са разположени  площи с различна квадратура от 237 кв.м до 244 кв м. Към сградата има една втора идеални части от двора, върху който е построена. Оборудвани стаи  с климатици, интеренет, два самостоятелни отделни  входа  и контрол на достъпа. Договаряне Брокер Калина Христова 0887245514.",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 2740,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 2000000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": 0.6,
     "score": 4
   },
   {
@@ -17484,9 +17556,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
+    "days_on_market": 36,
+    "source_status": "removed",
+    "removed_at": "2026-09-30T20:01:51.490934+00:00",
     "area_avg_price_per_sqm": 825,
     "pct_vs_area_avg": 0.0,
     "score": 4
@@ -18843,8 +18915,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 2724,
-    "pct_vs_area_avg": 12.5,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": 7.4,
     "score": 4
   },
   {
@@ -19519,8 +19591,8 @@
     "days_on_market": 37,
     "source_status": "active",
     "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 7.5,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 8.7,
     "score": 4
   },
   {
@@ -21088,9 +21160,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
+    "days_on_market": 36,
+    "source_status": "removed",
+    "removed_at": "2026-09-30T20:01:51.490934+00:00",
     "area_avg_price_per_sqm": 1994,
     "pct_vs_area_avg": 9.5,
     "score": 4
@@ -21728,9 +21800,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
+    "days_on_market": 36,
+    "source_status": "removed",
+    "removed_at": "2026-09-30T20:01:51.490934+00:00",
     "area_avg_price_per_sqm": 245,
     "pct_vs_area_avg": -0.1,
     "score": 4
@@ -21984,11 +22056,11 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 37,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 29.7,
+    "days_on_market": 36,
+    "source_status": "removed",
+    "removed_at": "2026-09-30T20:01:51.490934+00:00",
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 31.1,
     "score": 4
   },
   {
@@ -24419,8 +24491,8 @@
     "days_on_market": 25,
     "source_status": "removed",
     "removed_at": "2026-09-19T17:19:06.893774+00:00",
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 9.8,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 11.0,
     "score": 3
   },
   {
@@ -25347,8 +25419,8 @@
     "days_on_market": 25,
     "source_status": "removed",
     "removed_at": "2026-09-19T17:19:06.893774+00:00",
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 27.0,
+    "area_avg_price_per_sqm": 1792,
+    "pct_vs_area_avg": 28.3,
     "score": 3
   },
   {
@@ -27080,38 +27152,6 @@
     "score": 2
   },
   {
-    "id": "imotibg_515902",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/видин/петко-каравелов-515902.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6aabc8a70f2dc_6aabc93e1c53c.jpg",
-    "price_eur": 105000,
-    "sqm": 100,
-    "area": "Петко Каравелов",
-    "city": "Видин",
-    "title": "Тристаен апартамент, Петко Каравелов",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Имоти Доверие-Консулт продава тристаен тухлен апартамент на пети етаж в изцяло санирана жилищна кооперация, находяща се в ж.к. Петко Каравелов. Имотът е с площ около 100 кв.м и разпределение - дневна с преходна спалня и излаз на открита лоджия-балкон, втора спалня, кухня-трапезария с излаз на друга затворена лоджия-балкон, коридор, сервизни помещения (отделна баня и тоалетна). Имотът е с подменена външна дограма, външна термоизолация и изцяло нов скатен покрив, настилките са естествен дъбов паркет в стаите и теракота/мозайка в сервизните помещения, нов бойлер в банята. Сградата отговаря на всички изисквания за енергийна и противопожарна ефективност, осигурен контрол на достъпа и изцяло подновена инфраструктура около нея. Жилището се продава с прилежащо избено помещение с площ около 10 кв.м, гараж с площ 15 кв.м и канал под площта му, като същият разполага с ток и вода. Огледи се организират в удобно за клиента време.",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 1050,
-    "price_history": [
-      {
-        "date": "2026-09-17T14:31:08.036230+00:00",
-        "price_eur": 105000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 14,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1050,
-    "pct_vs_area_avg": 0.0,
-    "score": 2
-  },
-  {
     "id": "imotibg_504732",
     "url": "https://imoti.bg/продажби/хотел/габрово/център-504732.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_641dc7b313d68_641dc8c9a200e.jpg",
@@ -28096,7 +28136,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 40,
@@ -28320,7 +28360,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 42,
@@ -28384,7 +28424,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 57,
@@ -28640,7 +28680,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 8,
+    "days_on_market": 9,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 28,
@@ -28704,7 +28744,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 42,
@@ -28736,7 +28776,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2147,
@@ -28896,7 +28936,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2129,
@@ -29024,7 +29064,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 9,
+    "days_on_market": 10,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 409,
@@ -29865,38 +29905,6 @@
     "score": 0
   },
   {
-    "id": "imotibg_515041",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/широк-център-515041.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 150000,
-    "sqm": 72,
-    "area": "Широк център",
-    "city": "Пловдив",
-    "title": "Тристаен апартамент, Широк център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Апартаментът е с реална квадратура от 71.72  кв.м - коридор, спалня, хол, кухня, баня-тоалетна, две тераси. Отделно от тази квадратура има избено и таванско помещение. Предстоящо саниране на сградата по програма (одобрен проект и избран изпълнител).",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2083,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 150000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 4,
-    "source_status": "removed",
-    "removed_at": "2026-08-29T14:51:25.196538+00:00",
-    "area_avg_price_per_sqm": 1812,
-    "pct_vs_area_avg": 15.0,
-    "score": 0
-  },
-  {
     "id": "imotibg_515029",
     "url": "https://imoti.bg/продажби/парцел/бургас-област/грнесебър-515029.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a19968b92480_6a1997375fed5.jpg",
@@ -30305,7 +30313,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 3,
+    "days_on_market": 4,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2186,
@@ -30337,7 +30345,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 2,
+    "days_on_market": 3,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 122,
@@ -30598,6 +30606,166 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1170,
     "pct_vs_area_avg": 0.0,
+    "score": 0
+  },
+  {
+    "id": "imotibg_515995",
+    "url": "https://imoti.bg/продажби/парцел/варна-област/с-падина-515995.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 32000,
+    "sqm": 1987,
+    "area": "с. Падина",
+    "city": "Варна област",
+    "title": "Парцел, с. Падина",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": null,
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 16,
+    "price_history": [
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 32000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 16,
+    "pct_vs_area_avg": 0.0,
+    "score": 0
+  },
+  {
+    "id": "imotibg_270514",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/варна/център-270514.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abe21175a4db_6abe21176a9cc.png",
+    "price_eur": 159900,
+    "sqm": 41,
+    "area": "Център",
+    "city": "Варна",
+    "title": "Двустаен апартамент, Център",
+    "portal": "imoti.bg",
+    "lat": 43.2058818,
+    "lng": 27.9098338,
+    "description": "ИМОТИ БЪЛГАРИЯ продава  дизайнерски обзаведен двустаен апартамент в гр. Варна, район Одесос,  в непосредствена близост до Катедралата, Морската градина и централната част на града. Имотът е разположен на 4-ти етаж в сграда с асансьор и е с площ от 41 кв.м. Имотът е напълно готов за експлоатация и представлява отлична инвестиционна възможност с потенциал за висока доходност от краткосрочно отдаване (Airbnb/Booking). Апартаментът е изпълнен по индивидуален дизайнерски проект с модерна визия – съчетание на естествени материали, стилно осветление и функционално разпределение. Дневна с кухненски бокс и остров уютна спалня, модерна баня с вграден душ кът за хранене и релакс ТОП локация – пешеходно разстояние до центъра и морето напълно обзаведен и оборудван готов за незабавно отдаване под наем висок потенциал за доходност подходящ както за краткосрочен, така и за дългосрочен наем Имот, който съчетава стил, функционалност и отлична инвестиционна стойност. Готов продукт, който може да генерира доход от първия ден. Цена: 159900 евро",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 3900,
+    "price_history": [
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 159900
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2855,
+    "pct_vs_area_avg": 36.6,
+    "score": 0
+  },
+  {
+    "id": "imotibg_270512",
+    "url": "https://imoti.bg/продажби/медицински-кабинет/варна/техникуми-270512.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abe227b0088e_6abe26b2e682b.jpg",
+    "price_eur": 396000,
+    "sqm": 151,
+    "area": "Техникуми",
+    "city": "Варна",
+    "title": "Медицински кабинет, Техникуми",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Описание на имота:\r\nТърговско помещение с голямо лице към улица 131,40 кв.м\r\nИмоти България има удоволствието да Ви представи изцяло партерно търговско помещение с отлична видимост и 7 метра лице към улица, разположено на комуникативна и централна локация.\r\nИмотът е с чиста площ от 131,40 кв.м, светъл и функционален, с височина на помещенията 3 метра и отлични възможности за индивидуално вътрешно разпределение.\r\nПодходящ е както за магазин, представителство или аптека, така и за медицински или здравен център, адвокатска кантора, IT компания, архитектурно студио, офис или друга представителна дейност.\r\n\r\nОсновни предимства:\r\n\r\nПартерен имот с 7 метра лице към улица\r\nЧиста площ 131,40 кв.м\r\nОтлична видимост и лесен достъп\r\nПанорамни прозорци и естествена дневна светлина\r\nВисочина на помещенията 3 метра\r\nТрифазно електрозахранване 54 kW\r\nВъзможност за паркиране пред имота и лесно паркиране в района\r\nПросторно помещение с възможност за обособяване на различни работни и търговски зони\r\nПодходящо както за собствен бизнес, така и за инвестиция с цел отдаване под наем\r\n\r\nИмотът предлага отличен баланс между локация, функционалност, представителност и практичност, което го прави подходящ избор за развиване на собствен бизнес или като дългосрочна инвестиция.\r\n\r\nЦената е без ДДС.",
+    "site_posted_at": null,
+    "category": "shop",
+    "category_confidence": "low",
+    "price_per_sqm": 2623,
+    "price_history": [
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 396000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2623,
+    "pct_vs_area_avg": 0.0,
+    "score": 0
+  },
+  {
+    "id": "imotibg_515996",
+    "url": "https://imoti.bg/продажби/четиристаен-апартамент/видин/петко-каравелов-515996.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abe3af6aa5eb_6abe3b506bf9e.jpg",
+    "price_eur": 125000,
+    "sqm": 95,
+    "area": "Петко Каравелов",
+    "city": "Видин",
+    "title": "Четиристаен апартамент, Петко Каравелов",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "БДИН ИМОТИ продава ЧЕТИРИСТАЕН тухлен апартамент с ГАРАЖ в подблоковото пространство. \r\nРайона е парка",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1316,
+    "price_history": [
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 125000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1183,
+    "pct_vs_area_avg": 11.2,
+    "score": 0
+  },
+  {
+    "id": "imotibg_511890",
+    "url": "https://imoti.bg/продажби/нива/софия-област/грдолна-баня-511890.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_67fd441911135_67fd44f2a4697.jpg",
+    "price_eur": 52000,
+    "sqm": 3600,
+    "area": "гр.Долна баня",
+    "city": "София област",
+    "title": "Нива, гр.Долна баня",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Земеделска земя 3,6 дка в землището на гр. Долна баня срещу летището в проекта за голф игрището.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 14,
+    "price_history": [
+      {
+        "date": "2026-10-01T14:51:18.339073+00:00",
+        "price_eur": 52000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
     "score": 0
   }
 ]
