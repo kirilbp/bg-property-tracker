@@ -2967,7 +2967,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -36.0,
     "score": 16
@@ -3224,7 +3224,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -32.3,
     "score": 15
@@ -3504,7 +3504,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -31.0,
     "score": 14
@@ -4800,6 +4800,38 @@
     "score": 11
   },
   {
+    "id": "bcpea_92018",
+    "url": "https://sales.bcpea.org/properties/92018",
+    "photo": "https://sales.bcpea.org/upload/92018/458691/viber_изображение_2026-08-13_10-11-39-301.jpg?w=270&h=270",
+    "price_eur": 175200,
+    "sqm": 109,
+    "area": "София",
+    "title": "Тристаен апартамент, София",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-09-04T13:46:00+00:00",
+    "category": "apartment",
+    "_settlement": "София",
+    "lat": 42.7597095,
+    "lng": 23.2467606,
+    "description": "АПАРТАМЕНТ № 48 /четиридесет и осем/, находящ се в гр. София, ж.к. „Връбница“-I /първа част/ в жилищната сграда-блок № 538 /петстотин  тридесет и осем/, вход „В“, етаж II /втори/, състоящ се от три стаи, дневна, кухня и обслужващи помещения, със застроена площ от 109,31 /сто и девет цяло и тридесет и една стотни/ кв.м., при съседи: от изток-фасада, от запад-фасада, от север-апартамент № 49 /четиридесет и девет/, от юг-апартамент от вход „Б“, отгоре-апартамент № 50 /петдесет/, отдолу-апартамент № 46 /четиридесет и шест/, заедно с прилежащото избено помещение № 3 /три/, с полезна площ от 3,01 кв.м. /три цяло нула една стотни/, при съседи: от изток-коридор, от запад-избени помещения на вход „Г“, от север-избено помещение № 2 /две/, от юг-избено помещение № 4 /четири/.",
+    "detail_checked": true,
+    "price_per_sqm": 1607,
+    "price_history": [
+      {
+        "date": "2026-09-05T21:00:03.113156+00:00",
+        "price_eur": 175200
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 29,
+    "area_avg_price_per_sqm": 1998,
+    "pct_vs_area_avg": -19.6,
+    "score": 11
+  },
+  {
     "id": "bcpea_89911",
     "url": "https://sales.bcpea.org/properties/89911",
     "photo": null,
@@ -5318,38 +5350,6 @@
     "score": 10
   },
   {
-    "id": "bcpea_92018",
-    "url": "https://sales.bcpea.org/properties/92018",
-    "photo": "https://sales.bcpea.org/upload/92018/458691/viber_изображение_2026-08-13_10-11-39-301.jpg?w=270&h=270",
-    "price_eur": 175200,
-    "sqm": 109,
-    "area": "София",
-    "title": "Тристаен апартамент, София",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-09-04T13:46:00+00:00",
-    "category": "apartment",
-    "_settlement": "София",
-    "lat": 42.7597095,
-    "lng": 23.2467606,
-    "description": "АПАРТАМЕНТ № 48 /четиридесет и осем/, находящ се в гр. София, ж.к. „Връбница“-I /първа част/ в жилищната сграда-блок № 538 /петстотин  тридесет и осем/, вход „В“, етаж II /втори/, състоящ се от три стаи, дневна, кухня и обслужващи помещения, със застроена площ от 109,31 /сто и девет цяло и тридесет и една стотни/ кв.м., при съседи: от изток-фасада, от запад-фасада, от север-апартамент № 49 /четиридесет и девет/, от юг-апартамент от вход „Б“, отгоре-апартамент № 50 /петдесет/, отдолу-апартамент № 46 /четиридесет и шест/, заедно с прилежащото избено помещение № 3 /три/, с полезна площ от 3,01 кв.м. /три цяло нула една стотни/, при съседи: от изток-коридор, от запад-избени помещения на вход „Г“, от север-избено помещение № 2 /две/, от юг-избено помещение № 4 /четири/.",
-    "detail_checked": true,
-    "price_per_sqm": 1607,
-    "price_history": [
-      {
-        "date": "2026-09-05T21:00:03.113156+00:00",
-        "price_eur": 175200
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 28,
-    "area_avg_price_per_sqm": 1998,
-    "pct_vs_area_avg": -19.6,
-    "score": 10
-  },
-  {
     "id": "bcpea_92518",
     "url": "https://sales.bcpea.org/properties/92518",
     "photo": null,
@@ -5502,6 +5502,38 @@
     "source_status": "removed",
     "removed_at": "2026-09-14T20:26:44.521956+00:00",
     "days_on_market": 67,
+    "area_avg_price_per_sqm": null,
+    "pct_vs_area_avg": null,
+    "score": 9
+  },
+  {
+    "id": "bcpea_90684",
+    "url": "https://sales.bcpea.org/properties/90684",
+    "photo": "https://sales.bcpea.org/upload/90684/453498/20250206_110818.jpg?w=270&h=270",
+    "price_eur": 53379,
+    "sqm": 997,
+    "area": "Добровница",
+    "title": "Парцел, Добровница",
+    "portal": "sales.bcpea.org",
+    "site_updated_at": "2026-07-29T13:48:00+00:00",
+    "category": "land",
+    "_settlement": "Добровница",
+    "lat": 42.21078,
+    "lng": 24.3798,
+    "description": "ПОЗЕМЛЕН ИМОТ с идентификатор 21556.41.169 ( две, едно, пет, пет, шест, точка, четири, едно, точка, едно, шест, девет ), по кадастралната карта и кадастралните регистри на с . Добровница, общ. Пазарджик, обл. Пазарджик одобрени със Заповед РД- 18-63 / 30 . 06 .20 17 г. на Изпълнителен директор на АГКК , п оследно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот е от 24.10.2019 г., адрес на поземления имот: с. Добровница, местност СИНАН А , площ: 2997 ,00 ка.м. ( две хиляди деветстотин деветдесет и седем квадратни метра), трайно предназначение на територията: Урбанизирана, начин на трайно ползване: За тьрговски обект, комплекс, номер по предходен план: 041169 , парцел: I -169, За автосервиз, тьрговия и услуги, при съсед и : 21556.501.833, 21556.501.834, 21556.41.170, 21556.501.1350, 21556.41.168, 21556.501.831, 21556.501.832 Бел.: При описа в имота е констатирана едноетажна масивна постройка, изградена в груб вид, на приблизителна площ от 165 кв.м., която не е нанесена в действащия кадастрален план. Същата е взета предвид при определяне на оценката като подобрение в имота. Началната цена, от която ще започне наддаването, е в размер на 53 378,87 евро (петдесет и три хиляди триста седемдесет и осем евро и осемдесет и седем цента) / 104 400,00 лв. ( сто и четири хиляди и четиристотин лева), съставляваща 90 % от началната цена по първата публична продан, съгласно чл. 494, във връзка с чл. 485 от ГПК.",
+    "detail_checked": true,
+    "price_per_sqm": 54,
+    "price_history": [
+      {
+        "date": "2026-08-24T16:41:46.755459+00:00",
+        "price_eur": 53379
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "source_status": "active",
+    "removed_at": null,
+    "days_on_market": 66,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 9
@@ -6607,38 +6639,6 @@
     "source_status": "removed",
     "removed_at": "2026-09-17T20:23:38.178797+00:00",
     "days_on_market": 59,
-    "area_avg_price_per_sqm": null,
-    "pct_vs_area_avg": null,
-    "score": 8
-  },
-  {
-    "id": "bcpea_90684",
-    "url": "https://sales.bcpea.org/properties/90684",
-    "photo": "https://sales.bcpea.org/upload/90684/453498/20250206_110818.jpg?w=270&h=270",
-    "price_eur": 53379,
-    "sqm": 997,
-    "area": "Добровница",
-    "title": "Парцел, Добровница",
-    "portal": "sales.bcpea.org",
-    "site_updated_at": "2026-07-29T13:48:00+00:00",
-    "category": "land",
-    "_settlement": "Добровница",
-    "lat": 42.21078,
-    "lng": 24.3798,
-    "description": "ПОЗЕМЛЕН ИМОТ с идентификатор 21556.41.169 ( две, едно, пет, пет, шест, точка, четири, едно, точка, едно, шест, девет ), по кадастралната карта и кадастралните регистри на с . Добровница, общ. Пазарджик, обл. Пазарджик одобрени със Заповед РД- 18-63 / 30 . 06 .20 17 г. на Изпълнителен директор на АГКК , п оследно изменение на кадастралната карта и кадастралните регистри, засягащо поземления имот е от 24.10.2019 г., адрес на поземления имот: с. Добровница, местност СИНАН А , площ: 2997 ,00 ка.м. ( две хиляди деветстотин деветдесет и седем квадратни метра), трайно предназначение на територията: Урбанизирана, начин на трайно ползване: За тьрговски обект, комплекс, номер по предходен план: 041169 , парцел: I -169, За автосервиз, тьрговия и услуги, при съсед и : 21556.501.833, 21556.501.834, 21556.41.170, 21556.501.1350, 21556.41.168, 21556.501.831, 21556.501.832 Бел.: При описа в имота е констатирана едноетажна масивна постройка, изградена в груб вид, на приблизителна площ от 165 кв.м., която не е нанесена в действащия кадастрален план. Същата е взета предвид при определяне на оценката като подобрение в имота. Началната цена, от която ще започне наддаването, е в размер на 53 378,87 евро (петдесет и три хиляди триста седемдесет и осем евро и осемдесет и седем цента) / 104 400,00 лв. ( сто и четири хиляди и четиристотин лева), съставляваща 90 % от началната цена по първата публична продан, съгласно чл. 494, във връзка с чл. 485 от ГПК.",
-    "detail_checked": true,
-    "price_per_sqm": 54,
-    "price_history": [
-      {
-        "date": "2026-08-24T16:41:46.755459+00:00",
-        "price_eur": 53379
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "source_status": "active",
-    "removed_at": null,
-    "days_on_market": 65,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 8
@@ -22057,7 +22057,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -6.2,
     "score": 5
@@ -36771,7 +36771,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -39826,7 +39826,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 32,
+    "days_on_market": 33,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -39888,7 +39888,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 28,
+    "days_on_market": 29,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -43669,7 +43669,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -47027,7 +47027,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 31,
+    "days_on_market": 32,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -53076,7 +53076,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 29,
+    "days_on_market": 30,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 4
@@ -57508,7 +57508,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -58495,7 +58495,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 23,
+    "days_on_market": 24,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -58844,7 +58844,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -59161,7 +59161,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -94.4,
     "score": 3
@@ -60942,7 +60942,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 21,
+    "days_on_market": 22,
     "area_avg_price_per_sqm": 6267,
     "pct_vs_area_avg": -98.3,
     "score": 3
@@ -61038,7 +61038,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 3
@@ -62407,7 +62407,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 22,
+    "days_on_market": 23,
     "area_avg_price_per_sqm": 1963,
     "pct_vs_area_avg": -98.5,
     "score": 3
@@ -64315,7 +64315,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -65081,7 +65081,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -65337,7 +65337,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -65783,7 +65783,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -66004,7 +66004,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -66386,7 +66386,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": 2052,
     "pct_vs_area_avg": -99.6,
     "score": 2
@@ -66578,7 +66578,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": 2052,
     "pct_vs_area_avg": -98.2,
     "score": 2
@@ -67119,7 +67119,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -67471,7 +67471,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 16,
+    "days_on_market": 17,
     "area_avg_price_per_sqm": 2052,
     "pct_vs_area_avg": -99.6,
     "score": 2
@@ -67535,7 +67535,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -67982,7 +67982,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 17,
+    "days_on_market": 18,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -68525,7 +68525,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 15,
+    "days_on_market": 16,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 2
@@ -68760,7 +68760,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 7,
+    "days_on_market": 8,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -73372,7 +73372,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 4,
+    "days_on_market": 5,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 1
@@ -77063,7 +77063,7 @@
     "drop_pct": 0.0,
     "source_status": "active",
     "removed_at": null,
-    "days_on_market": 1,
+    "days_on_market": 2,
     "area_avg_price_per_sqm": null,
     "pct_vs_area_avg": null,
     "score": 0
