@@ -856,7 +856,7 @@
     ],
     "price_drop_count": 1,
     "drop_pct": 10.0,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 61,
@@ -4172,38 +4172,6 @@
     "score": 8
   },
   {
-    "id": "imotibg_268040",
-    "url": "https://imoti.bg/продажби/парцел/варна-област/с-аврен-268040.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
-    "price_eur": 25000,
-    "sqm": 1060,
-    "area": "с. Аврен",
-    "city": "Варна област",
-    "title": "Парцел, с. Аврен",
-    "portal": "imoti.bg",
-    "lat": 43.1044922,
-    "lng": 27.8353604,
-    "description": "Имоти България предлага дворно място 1060 кв.м. в  село Аврен, обл.ВАРНА.\r\nАврен е село в Североизточна България, на 23 км. от гр. Варна.",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 24,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 25000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 39,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 26,
-    "pct_vs_area_avg": -8.6,
-    "score": 8
-  },
-  {
     "id": "imotibg_514659",
     "url": "https://imoti.bg/продажби/двустаен-апартамент/софия/манастирски-ливади-514659.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_69cfd7f886c57_69cfd82d91c73.jpg",
@@ -4588,6 +4556,70 @@
     "score": 7
   },
   {
+    "id": "imotibg_270199",
+    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-270199.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6a9031c66c60c_6a9031c66f823.jpg",
+    "price_eur": 995000,
+    "sqm": 400,
+    "area": "Идеален център",
+    "city": "Варна",
+    "title": "Офис, Идеален център",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Луксозен, обзаведен офис с 35 седящи места, 3 тераси, 2 кухни и 2 тоалетни. Кухните са оборудвани с фурни и микровълнови на Bosch и двойни хладилници на Liebher. Прекрасна локация, опция за закупуване на паркоместа в сградата на етаж -1 и -2 с топла връзка. Отопление и охлаждане с климатични тела висок клас на Mitsubishi, подовата настилка е гранитогрес навсякъде, а бюрата в целия офис са с функция за вдигане за работа изправен.\r\nПродава се във вида който се вижда на снимките с цялото оборудване.\r\n\r\nЧистата квадратура е 356.55 кв.м. 52.11 кв.м. общи части.",
+    "site_posted_at": null,
+    "category": "business",
+    "category_confidence": "high",
+    "price_per_sqm": 2488,
+    "price_history": [
+      {
+        "date": "2026-08-28T04:41:50.772578+00:00",
+        "price_eur": 995000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 36,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 2667,
+    "pct_vs_area_avg": -6.7,
+    "score": 7
+  },
+  {
+    "id": "imotibg_268040",
+    "url": "https://imoti.bg/продажби/парцел/варна-област/с-аврен-268040.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/img/no_pic.jpg",
+    "price_eur": 25000,
+    "sqm": 1060,
+    "area": "с. Аврен",
+    "city": "Варна област",
+    "title": "Парцел, с. Аврен",
+    "portal": "imoti.bg",
+    "lat": 43.1044922,
+    "lng": 27.8353604,
+    "description": "Имоти България предлага дворно място 1060 кв.м. в  село Аврен, обл.ВАРНА.\r\nАврен е село в Североизточна България, на 23 км. от гр. Варна.",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 24,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 25000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 38,
+    "source_status": "removed",
+    "removed_at": "2026-10-02T05:44:07.197023+00:00",
+    "area_avg_price_per_sqm": 26,
+    "pct_vs_area_avg": -8.6,
+    "score": 7
+  },
+  {
     "id": "imotibg_515401",
     "url": "https://imoti.bg/продажби/тристаен-апартамент/пловдив/център-515401.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a54beb2604c0_6a54bf49a6fff.jpg",
@@ -4873,38 +4905,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 3311,
     "pct_vs_area_avg": -2.6,
-    "score": 6
-  },
-  {
-    "id": "imotibg_270199",
-    "url": "https://imoti.bg/продажби/офис/варна/идеален-център-270199.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6a9031c66c60c_6a9031c66f823.jpg",
-    "price_eur": 995000,
-    "sqm": 400,
-    "area": "Идеален център",
-    "city": "Варна",
-    "title": "Офис, Идеален център",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Луксозен, обзаведен офис с 35 седящи места, 3 тераси, 2 кухни и 2 тоалетни. Кухните са оборудвани с фурни и микровълнови на Bosch и двойни хладилници на Liebher. Прекрасна локация, опция за закупуване на паркоместа в сградата на етаж -1 и -2 с топла връзка. Отопление и охлаждане с климатични тела висок клас на Mitsubishi, подовата настилка е гранитогрес навсякъде, а бюрата в целия офис са с функция за вдигане за работа изправен.\r\nПродава се във вида който се вижда на снимките с цялото оборудване.\r\n\r\nЧистата квадратура е 356.55 кв.м. 52.11 кв.м. общи части.",
-    "site_posted_at": null,
-    "category": "business",
-    "category_confidence": "high",
-    "price_per_sqm": 2488,
-    "price_history": [
-      {
-        "date": "2026-08-28T04:41:50.772578+00:00",
-        "price_eur": 995000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 35,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 2667,
-    "pct_vs_area_avg": -6.7,
     "score": 6
   },
   {
@@ -19592,9 +19592,9 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 39,
-    "source_status": "active",
-    "removed_at": null,
+    "days_on_market": 38,
+    "source_status": "removed",
+    "removed_at": "2026-10-02T05:44:07.197023+00:00",
     "area_avg_price_per_sqm": 2594,
     "pct_vs_area_avg": 4.6,
     "score": 4
@@ -23444,7 +23444,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 35,
+    "days_on_market": 36,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2244,
@@ -29728,6 +29728,38 @@
     "score": 1
   },
   {
+    "id": "imotibg_515979",
+    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/кк-златни-пясъци-515979.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6abadfb7a4286_6abae0fedc6a6.jpg",
+    "price_eur": 190000,
+    "sqm": 95,
+    "area": "к.к. Златни пясъци",
+    "city": "Варна",
+    "title": "Тристаен апартамент, к.к. Златни пясъци",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "ПРОДАВАМ просторен тристаен апартамент с фронтална морска панорама в затворен комплекс",
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 2000,
+    "price_history": [
+      {
+        "date": "2026-09-29T01:32:55.773668+00:00",
+        "price_eur": 190000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 4,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1099,
+    "pct_vs_area_avg": 81.9,
+    "score": 1
+  },
+  {
     "id": "imotibg_270479",
     "url": "https://imoti.bg/продажби/къща/варна/левски-270479.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6abb78af80b34_6abb78afa466b.jpg",
@@ -30581,43 +30613,11 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 3,
+    "days_on_market": 4,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1788,
     "pct_vs_area_avg": 30.1,
-    "score": 0
-  },
-  {
-    "id": "imotibg_515979",
-    "url": "https://imoti.bg/продажби/тристаен-апартамент/варна/кк-златни-пясъци-515979.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_6abadfb7a4286_6abae0fedc6a6.jpg",
-    "price_eur": 190000,
-    "sqm": 95,
-    "area": "к.к. Златни пясъци",
-    "city": "Варна",
-    "title": "Тристаен апартамент, к.к. Златни пясъци",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "ПРОДАВАМ просторен тристаен апартамент с фронтална морска панорама в затворен комплекс",
-    "site_posted_at": null,
-    "category": "flat",
-    "category_confidence": "high",
-    "price_per_sqm": 2000,
-    "price_history": [
-      {
-        "date": "2026-09-29T01:32:55.773668+00:00",
-        "price_eur": 190000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 3,
-    "source_status": "active",
-    "removed_at": null,
-    "area_avg_price_per_sqm": 1099,
-    "pct_vs_area_avg": 81.9,
     "score": 0
   },
   {
