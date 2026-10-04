@@ -1424,6 +1424,42 @@
     "score": 17
   },
   {
+    "id": "imotibg_514498",
+    "url": "https://imoti.bg/продажби/къща/силистра-област/скайнарджа-514498.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69b5765e1a3b5_69b5804881306.jpg",
+    "price_eur": 31500,
+    "sqm": 2100,
+    "area": "с.Кайнарджа",
+    "city": "Силистра област",
+    "title": "Къща, с.Кайнарджа",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Google maps: Кайнарджа 7001-24\r\n   Продава се просторен имот от собственик с голям потенциал, разположен в центъра на село Кайнарджа, област Силистра. Имотът е разположен на асфалтов път с отличен целогодишен достъп (главен път 7001).\r\n   >> Ключови характеристики:\r\n      -- Площ на парцела: 2100 кв.м (2 декара) – равен, с изключително плодородна (черноземна) почва, подходящ за земеделие, овощна градина или изграждане на фотоволтаична система;\r\n      -- Жилищни сгради: Две отделни къщи в един двор. Сградите са за основен ремонт;\r\n      -- Стопански постройки: Допълнителни постройки, подходящи за склад, работилница или животновъдство;\r\n      -- Комуникации: Налични партиди за ток и вода;\r\n      -- Локация: В близост до центъра на селото, с бърз достъп до град Силистра и на 6 км. от границата с Румъния (ГКПП Кайнарджа).\r\n   >> Цена: 31 500 EUR, 15 EUR/кв.м.  (Възможен коментар при оглед)\r\n\t\t\r\n\t\tЗа контакти: моб. тел.: [0889-921-499]\r\n\t\t\t\t\t\te-mail: lonelywolf337@gmail.com",
+    "site_posted_at": null,
+    "category": "house",
+    "category_confidence": "high",
+    "price_per_sqm": 15,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 33000
+      },
+      {
+        "date": "2026-10-04T18:53:05.263955+00:00",
+        "price_eur": 31500
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 4.5,
+    "days_on_market": 40,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 15,
+    "pct_vs_area_avg": 0.0,
+    "score": 16
+  },
+  {
     "id": "imotibg_515255",
     "url": "https://imoti.bg/продажби/къща/русе/родина-1-515255.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6a3e3e1a84624_6a3e44321c294.jpg",
@@ -1453,6 +1489,42 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1320,
     "pct_vs_area_avg": -29.9,
+    "score": 16
+  },
+  {
+    "id": "imotibg_514499",
+    "url": "https://imoti.bg/продажби/парцел/силистра-област/скайнарджа-514499.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_69b584f42a9cc_69b58d938bf25.png",
+    "price_eur": 31500,
+    "sqm": 2100,
+    "area": "с.Кайнарджа",
+    "city": "Силистра област",
+    "title": "Парцел, с.Кайнарджа",
+    "portal": "imoti.bg",
+    "lat": null,
+    "lng": null,
+    "description": "Google maps: Кайнарджа 7001-24\r\nПродава се просторен имот от собственик с голям потенциал, разположен в центъра на село Кайнарджа, област Силистра. Имотът е разположен на асфалтов път с отличен целогодишен достъп (главен път 7001).\r\n   >> Ключови характеристики:\r\n   -- Площ на парцела: 2100 кв.м (2 декара) – равен, с изключително плодородна (черноземна) почва, подходящ за земеделие, овощна градина или изграждане на фотоволтаична система;\r\n   -- Комуникации: Налични партиди за ток и вода;\r\n   -- Локация: В близост до центъра на селото, с бърз достъп до град Силистра и на 6 км. от границата с Румъния (ГКПП Кайнарджа).\r\n   >> Цена: 31 500 EUR, 15 EUR/кв.м.  (Възможен коментар при оглед)",
+    "site_posted_at": null,
+    "category": "land",
+    "category_confidence": "high",
+    "price_per_sqm": 15,
+    "price_history": [
+      {
+        "date": "2026-08-24T23:43:33.818106+00:00",
+        "price_eur": 33000
+      },
+      {
+        "date": "2026-10-04T18:53:05.263955+00:00",
+        "price_eur": 31500
+      }
+    ],
+    "price_drop_count": 1,
+    "drop_pct": 4.5,
+    "days_on_market": 40,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 15,
+    "pct_vs_area_avg": 0.0,
     "score": 16
   },
   {
@@ -15932,7 +16004,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1184,
@@ -26556,38 +26628,6 @@
     "score": 2
   },
   {
-    "id": "imotibg_514498",
-    "url": "https://imoti.bg/продажби/къща/силистра-област/скайнарджа-514498.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69b5765e1a3b5_69b57fd961e51.png",
-    "price_eur": 33000,
-    "sqm": 2160,
-    "area": "с.Кайнарджа",
-    "city": "Силистра област",
-    "title": "Къща, с.Кайнарджа",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продава се просторен имот от собственик с голям потенциал, разположен в центъра на село Кайнарджа, област Силистра. Имотът е разположен на асфалтов път с отличен целогодишен достъп (главен път 7001).\r\n>> Ключови характеристики:\r\n    Площ на парцела: 2160 кв.м (2 декара) – равен, с изключително плодородна (черноземна) почва, подходящ за земеделие, овощна градина или изграждане на фотоволтаична система;\r\n    Жилищни сгради: Две отделни къщи в един двор. Сградите са за основен ремонт;\r\n    Стопански постройки: Допълнителни постройки, подходящи за склад, работилница или животновъдство;\r\n    Комуникации: Налични партиди за ток и вода;\r\n    Локация: В близост до центъра на селото, с бърз достъп до град Силистра и на 6 км. от границата с Румъния (ГКПП Кайнарджа).\r\n>> Предимства:\r\nИмотът е идеален за хора, търсещи спокойствието на селото. Наличието на две къщи прави имота подходящ за две семейства или за обособяване на къща за гости. \r\n>> Цена: 33 000 EUR/64 540 BGN, 15 EUR/кв.м.  (Възможен коментар при оглед)",
-    "site_posted_at": null,
-    "category": "house",
-    "category_confidence": "high",
-    "price_per_sqm": 15,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 33000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 16,
-    "source_status": "removed",
-    "removed_at": "2026-09-10T20:18:31.220898+00:00",
-    "area_avg_price_per_sqm": 15,
-    "pct_vs_area_avg": 0.0,
-    "score": 2
-  },
-  {
     "id": "imotibg_515912",
     "url": "https://imoti.bg/продажби/къща/видин-област/свойница-515912.htm/cu:BGN",
     "photo": "https://imoti.bg/assets/offers/small/r_6aabdc884e780_6aabddae0c9db.jpeg",
@@ -26713,38 +26753,6 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 2436,
     "pct_vs_area_avg": -73.2,
-    "score": 2
-  },
-  {
-    "id": "imotibg_514499",
-    "url": "https://imoti.bg/продажби/парцел/силистра-област/скайнарджа-514499.htm/cu:BGN",
-    "photo": "https://imoti.bg/assets/offers/small/r_69b584f42a9cc_69b58d8c76e90.png",
-    "price_eur": 33000,
-    "sqm": 2160,
-    "area": "с.Кайнарджа",
-    "city": "Силистра област",
-    "title": "Парцел, с.Кайнарджа",
-    "portal": "imoti.bg",
-    "lat": null,
-    "lng": null,
-    "description": "Продава се просторен имот от собственик с голям потенциал, разположен в центъра на село Кайнарджа, област Силистра. Имотът е разположен на асфалтов път с отличен целогодишен достъп (главен път 7001).\r\n   >> Ключови характеристики:\r\n    Площ на парцела: 2160 кв.м (2 декара) – равен, с изключително плодородна (черноземна) почва, подходящ за земеделие, овощна градина или изграждане на фотоволтаична система;\r\n    Комуникации: Налични партиди за ток и вода;\r\n    Локация: В близост до центъра на селото, с бърз достъп до град Силистра и на 6 км. от границата с Румъния (ГКПП Кайнарджа).\r\n   >> Цена: 33 000 EUR/64 540 BGN, 15 EUR/кв.м.  (Възможен коментар при оглед)",
-    "site_posted_at": null,
-    "category": "land",
-    "category_confidence": "high",
-    "price_per_sqm": 15,
-    "price_history": [
-      {
-        "date": "2026-08-24T23:43:33.818106+00:00",
-        "price_eur": 33000
-      }
-    ],
-    "price_drop_count": 0,
-    "drop_pct": 0.0,
-    "days_on_market": 16,
-    "source_status": "removed",
-    "removed_at": "2026-09-10T20:18:31.220898+00:00",
-    "area_avg_price_per_sqm": 15,
-    "pct_vs_area_avg": 0.0,
     "score": 2
   },
   {
@@ -27924,7 +27932,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 14,
+    "days_on_market": 15,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2129,
@@ -28724,7 +28732,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 57,
@@ -28948,7 +28956,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 11,
+    "days_on_market": 12,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 28,
@@ -29720,7 +29728,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 6,
+    "days_on_market": 7,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 2186,
@@ -31253,7 +31261,7 @@
     ],
     "price_drop_count": 0,
     "drop_pct": 0.0,
-    "days_on_market": 0,
+    "days_on_market": 1,
     "source_status": "active",
     "removed_at": null,
     "area_avg_price_per_sqm": 1214,
@@ -31290,6 +31298,38 @@
     "removed_at": null,
     "area_avg_price_per_sqm": 1009,
     "pct_vs_area_avg": 43.1,
+    "score": 0
+  },
+  {
+    "id": "imotibg_516012",
+    "url": "https://imoti.bg/продажби/двустаен-апартамент/ловеч/младост-516012.htm/cu:BGN",
+    "photo": "https://imoti.bg/assets/offers/small/r_6ac28ae969975_6ac28b9b9c4c7.jpg",
+    "price_eur": 90000,
+    "sqm": 65,
+    "area": "Младост",
+    "city": "Ловеч",
+    "title": "Двустаен апартамент, Младост",
+    "portal": "imoti.bg",
+    "lat": 43.033067,
+    "lng": 24.0988915,
+    "description": null,
+    "site_posted_at": null,
+    "category": "flat",
+    "category_confidence": "high",
+    "price_per_sqm": 1385,
+    "price_history": [
+      {
+        "date": "2026-10-04T18:53:05.263955+00:00",
+        "price_eur": 90000
+      }
+    ],
+    "price_drop_count": 0,
+    "drop_pct": 0.0,
+    "days_on_market": 0,
+    "source_status": "active",
+    "removed_at": null,
+    "area_avg_price_per_sqm": 1385,
+    "pct_vs_area_avg": 0.0,
     "score": 0
   }
 ]
