@@ -8213,3 +8213,133 @@ a fresh `origin/main` fetch; `git worktree list`/`git status` checked
 first in the shared primary checkout per this repo's `CLAUDE.md`. No live
 GitHub Actions `workflow_dispatch` at any point. Not self-merged - pushed
 for Missy's review.
+
+## 77. `sync_to_supabase.py`'s `upsert()` crashed on a transient Postgres statement timeout (57014) on a WRITE batch, not a read - the write-side sibling of item 76, same signature but a different fix shape - FIXED, PR OPEN FOR MISSY'S REVIEW (2026-10-10)
+
+**Real, confirmed - run 38041416146 / job 114182255312 (2026-10-10):**
+`upsert()` was writing `listing_sources` in batches of 500 and got 98.9%
+of the way through (438,500 of 443,247 rows upserted successfully)
+before the final batch (rows 438500-443247, ~4,747 rows) hit a sustained
+Postgres `57014` through every one of `request_with_retries()`'s own
+retry attempts:
+
+```
+upserted 500 rows into listing_sources (438500/443247)
+request failed (attempt 1/4): 500 {"code":"57014",...} - retrying ***/rest/v1/listing_sources?on_conflict=portal,source_id
+request failed (attempt 2/4): 500 {"code":"57014",...} - retrying
+request timed out (attempt 3/5): HTTPSConnectionPool(...): Read timed out. (read timeout=120) - retrying
+request failed (attempt 4/4): 500 {"code":"57014",...} - retrying
+ERROR upserting into listing_sources (batch starting at 438500): 500 {"code":"57014",...}
+requests.exceptions.HTTPError: 500 Server Error... resp.raise_for_status()
+```
+
+The uncaught `HTTPError` crashed the whole process with exit code 1 -
+same general phenomenon as item 76 (sustained load/contention right at
+the tail end of a large upsert burst), first confirmed occurrence on the
+WRITE path rather than a read.
+
+**Why this needed its own fix, not just a reuse of item 76's
+`StatementTimeoutError`/`_is_statement_timeout()` plumbing:** item 76's
+fix works because skipping a *read-side* verification/cleanup step for
+one run is provably safe - nothing is lost, stale rows just get cleaned
+up next cycle (confirmed by `main()`'s own pre-existing
+`DataLossGuardTripped` message, which says exactly that). A write is
+different: if a batch of rows fails to upsert, that specific data
+genuinely didn't make it into Supabase this run - "safe to skip" isn't
+automatic, it has to be checked.
+
+**Checked whether skipping is actually safe here, by reading the code,
+not assuming:** `main()`'s `load_all_listings()` reads every portal's
+full committed `data/*.json(.gz)` file fresh on every single run (its
+own loop over `PORTAL_FILES`, no cursor/offset/delta state stored
+anywhere) and `build_rows()` derives `listing_source_rows`/`merged_rows`
+from that full set - there is no incremental-delta tracking anywhere in
+this pipeline. Combined with every row upserting via
+`"Prefer: resolution=merge-duplicates"` on a stable conflict key
+(`on_conflict=portal,source_id` / `on_conflict=id`), `upsert()` is fully
+idempotent and self-healing across runs: the very next scheduled sync
+(6h later via `scrape.yml`'s cron, or 24h via `scrape-large.yml`'s)
+re-sends this exact row set, including whatever this run's skipped
+batch(es) contained, along with everything else. A skipped batch just
+leaves those rows stale until then - the same "stale a bit longer,
+self-heals next cycle" safety property item 76 relies on, reasoned
+through independently here since the write case needed its own check
+(and confirmed there's no partial-row risk either: PostgREST wraps each
+batch request in its own transaction, so a 57014-aborted batch commits
+none of its rows).
+
+**Checked the real blast radius of today's crash** (what actually runs
+after `upsert()` in both workflows, per `CLAUDE.md`'s "trace the real
+blast radius before designing a fix" rule): in both `scrape.yml` and
+`scrape-large.yml`, `sync_to_supabase.py` runs `if: always()` (so it
+still ran despite earlier scraper failures) but has no
+`continue-on-error`, so this crash alone turned the whole run red
+(a failure email to the repo owner) and - more importantly, inside the
+script itself - because it crashed on the FIRST `upsert()` call in
+`main()` (`listing_sources`), it never reached the `merged_listings`
+upsert on the very next line, nor `check_portal_counts()`, nor either
+stale-row cleanup, nor `print("Sync complete")`. `check_scrape_
+freshness.py` (the step after `sync_to_supabase.py` in both workflows)
+still ran regardless, since it's also `if: always()`.
+
+**Fix - scoped narrowly to the one confirmed failure shape, mirroring
+item 76's discipline:** `upsert()` now checks `_is_statement_timeout(resp)`
+(the exact helper item 76 added - reused directly, not duplicated) when a
+batch comes back not-ok, after the pre-existing missing-column check and
+before the unconditional `resp.raise_for_status()`. On a confirmed 57014,
+it logs an `::warning::` naming the table and the exact row range that
+batch covered, then advances past it and continues upserting the
+remaining batches - it does NOT stop the whole `upsert()` call, since a
+batch further on failing has no bearing on whether later batches can
+still succeed (confirmed by the real incident itself: every batch before
+the last one succeeded fine). A final summary `::warning::` is printed if
+any batches were skipped, naming the total skipped row/batch counts. A
+genuinely different error at the same call site (auth failure, malformed
+request, a different Postgres error code) still falls through to
+`resp.raise_for_status()` exactly as before and crashes loudly -
+`_is_statement_timeout()`'s own narrow contract (true only for a `500`
+whose body's `code` is literally `"57014"`) is unchanged.
+
+Fixed generically in `upsert()` itself, which both the confirmed
+`listing_sources` call site and the `merged_listings` call site in
+`main()` share - this is not a guess-fix of an unobserved call site, it's
+the literal same code path under the same kind of load, so one fix
+covers both for free. No other `upsert()`-shaped call sites exist in
+this file to consider.
+
+**Tests** (`tests/test_sync_upsert_write_timeout.py`, 6 cases, HTTP layer
+mocked - this sandbox cannot reach live Supabase): reproduces the real
+98.9%-complete shape directly (3 batches, the middle one 57014s on every
+retry, the batch AFTER it must still be attempted and succeed - the part
+a naive "stop on first timeout" fix would get wrong); confirms a
+different `500` body and a `401` auth failure at the same call site still
+raise a plain `HTTPError` (the test that matters most, per item 76's own
+precedent); confirms the final skipped-batch summary warning; confirms
+the pre-existing missing-column (PGRST204) strip-and-retry behavior is
+completely unaffected; and one `main()`-level integration test exercising
+the real `upsert()` function (not a stub) against a 57014-on-every-retry
+`listing_sources` batch, confirming `main()` still proceeds to upsert
+`merged_listings` and reaches `"Sync complete"` instead of crashing.
+Full suite: `python3 -m pytest tests/ -q` - 359 passed, 4 subtests passed
+(no pre-existing import failures in this session's sandbox, unlike item
+76's note about a missing `playwright` package - `playwright` is
+present here).
+
+**Out of scope, deliberately left alone**: the `DELETE` calls in
+`delete_stale_merged_listings()`/`delete_stale_listing_sources()` are
+also writes and could in principle hit the same `57014` under load, but
+that's a different, unconfirmed failure mode from the one real
+occurrence this item fixes (and arguably a different safety question -
+a DELETE failing mid-batch has a different blast radius than an upsert
+failing mid-batch) - not addressed here to keep this change scoped to the
+actual, confirmed bug, same discipline item 76 used for leaving its own
+`DELETE` call sites alone.
+
+Built in an isolated `git worktree` (`fix/sync-write-timeout`) off a
+fresh `origin/main` fetch (which already includes item 76's merged PR);
+`git worktree list`/`git status` checked first in the shared primary
+checkout per this repo's `CLAUDE.md` (`fix/sync-verification-timeout`
+and `fix/imoti-dedup-pagination` noted as stale worktrees from two
+already-merged PRs, not reused). No live GitHub Actions
+`workflow_dispatch` at any point. Not self-merged - pushed for Missy's
+review.
