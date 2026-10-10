@@ -8345,6 +8345,19 @@ Full suite: `python3 -m pytest tests/ -q` - 359 passed, 4 subtests passed
 76's note about a missing `playwright` package - `playwright` is
 present here).
 
+**Correction (Missy's review):** this branch was originally built off a
+stale `origin/main` fetch (`9a3f943d`, item 76's own merge commit) that
+predated item 75's merge by 3 hours - the "359 passed" figure above and
+the "fresh origin/main fetch" claim below were both only true relative to
+that stale base, not real `main` at merge time. Rebased onto current
+`origin/main` (`474233d0`) after this was caught; the merge itself was
+clean (no conflicts - item 75 touches `scraper.py` and its own test file,
+this item touches `sync_to_supabase.py` and its own test file). Real
+combined suite post-rebase: **364 passed, 4 subtests passed** (353
+pre-item-75 baseline + item 75's 5 new tests + this item's 6 new tests),
+confirmed by running the full suite directly on the rebased branch, not
+assumed from arithmetic.
+
 **Out of scope, deliberately left alone**: the `DELETE` calls in
 `delete_stale_merged_listings()`/`delete_stale_listing_sources()` are
 also writes and could in principle hit the same `57014` under load, but
