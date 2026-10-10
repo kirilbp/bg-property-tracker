@@ -1700,6 +1700,60 @@ _MISSING_COLUMN_RE = re.compile(r"Could not find the '([^']+)' column of '([^']+
 
 
 def upsert(base_url, headers, table, rows, on_conflict):
+    # 2026-10-10 fix (run 38041416146/job 114182255312): the FINAL
+    # listing_sources batch of a 443,247-row run (rows 438500-443247,
+    # 98.9% already upserted successfully) hit a sustained Postgres 57014
+    # ("canceling statement due to statement timeout") through every one
+    # of request_with_retries()'s own retry attempts, and the uncaught
+    # HTTPError this used to raise unconditionally crashed the whole
+    # script - losing the merged_listings upsert below (main() never
+    # reached that line) and every cleanup step after it, not just this
+    # one batch's ~4,747 rows. This is the write-side sibling of the
+    # read-side 57014 handling added for check_portal_counts()/
+    # delete_stale_merged_listings() (see StatementTimeoutError's own
+    # comment further down, backlog item 76) - same transient-timeout
+    # signature, same _is_statement_timeout() check, but a different fix
+    # shape because a write is not a read: skipping it does NOT mean
+    # "nothing lost, re-check next cycle", it means specific rows
+    # genuinely did not land in Supabase this run.
+    #
+    # Confirmed safe to skip and move on anyway, by actually reading the
+    # rest of this file, not assumed: main() calls load_all_listings() /
+    # build_rows() fresh from the FULL committed data/*.json(.gz) files on
+    # every single run (see load_all_listings()'s own loop over
+    # PORTAL_FILES - no incremental delta tracking anywhere in this
+    # pipeline), and every row here upserts with
+    # "Prefer: resolution=merge-duplicates" on a stable conflict key
+    # (on_conflict=portal,source_id / on_conflict=id). That makes this
+    # whole function idempotent and self-healing across runs: the very
+    # next scheduled sync (6h later via scrape.yml, or 24h via
+    # scrape-large.yml - see each workflow's own cron) re-sends this exact
+    # row set, including whatever this run's skipped batch(es) contained,
+    # along with everything else. A skipped batch leaves those specific
+    # rows stale until then, not permanently lost and not in any
+    # inconsistent state (PostgREST wraps each batch request in its own
+    # transaction - a 57014-aborted batch commits none of its rows, so
+    # there's no partial-row corruption to worry about either). This is
+    # the exact same "stale a bit longer, self-heals next cycle" safety
+    # property the read-side fix relies on, just reasoned through
+    # independently here because the write case needed its own check.
+    #
+    # Scoped to this one function (used by BOTH the confirmed
+    # listing_sources call site above and the merged_listings call site
+    # right after it in main()) deliberately, not just the observed
+    # table: this isn't guessing that merged_listings has the same bug,
+    # it's the literal same code path under the same kind of load, so
+    # the identical fix covers it for free rather than needing its own
+    # separate confirmed occurrence first.
+    #
+    # Deliberately narrow, like _is_statement_timeout()'s own contract: a
+    # GENUINELY different error at this same call site (auth failure, a
+    # malformed request, a different Postgres error code) must still
+    # fall through to resp.raise_for_status() below and crash loudly -
+    # only this one confirmed, specific, transient signature degrades
+    # gracefully.
+    skipped_batches = 0
+    skipped_rows = 0
     i = 0
     while i < len(rows):
         batch = rows[i : i + BATCH_SIZE]
@@ -1720,10 +1774,27 @@ def upsert(base_url, headers, table, rows, on_conflict):
                 for row in rows:
                     row.pop(missing_col, None)
                 continue  # retry this same batch index, now without the missing column
+            if _is_statement_timeout(resp):
+                batch_end = min(i + len(batch), len(rows))
+                print(f"::warning::{table}: batch {i}-{batch_end} of {len(rows)} hit a sustained Postgres "
+                      f"statement timeout (57014) after every retry attempt - skipping this batch and "
+                      f"continuing with the rest of the upsert. These {len(batch)} row(s) did NOT land in "
+                      f"Supabase this run; they will be re-upserted (along with everything else) on the "
+                      f"next scheduled sync, since this script always rebuilds its full row set from the "
+                      f"committed data files rather than tracking incremental deltas.")
+                skipped_batches += 1
+                skipped_rows += len(batch)
+                i += BATCH_SIZE
+                continue
             print(f"ERROR upserting into {table} (batch starting at {i}): {resp.status_code} {resp.text[:500]}")
             resp.raise_for_status()
         print(f"  upserted {len(batch)} rows into {table} ({min(i + len(batch), len(rows))}/{len(rows)})")
         i += BATCH_SIZE
+    if skipped_batches:
+        print(f"::warning::{table}: {skipped_rows} row(s) across {skipped_batches} batch(es) were skipped "
+              f"this run due to repeated Postgres statement timeouts (57014) - not a code bug, just "
+              f"transient load; the next scheduled sync's full re-upsert will catch them up. See the "
+              f"per-batch warning(s) above for exactly which rows.")
 
 
 # --- Data-loss safety guard --------------------------------------------
