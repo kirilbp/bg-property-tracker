@@ -74,7 +74,7 @@ listing pages over time to fill in site_posted_at/lat,lng.
 import re
 import json
 import time
-from collections import Counter
+from collections import Counter, deque
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -116,6 +116,41 @@ MAX_PAGES = 420
 REQUEST_DELAY_SECONDS = 1.0
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 5
+
+# docs/backlog.md item 57's addendum (2026-10-10): a real production run
+# (job 113770352507, 2026-10-09) showed Burgas paging 199 FULL pages (60
+# raw <a> links/page, never short - PAGE_SIZE=30 listings x 2 anchors
+# each) before the known page-200 403 block, but only 1,019 of the
+# 11,940 raw link encounters were ever genuinely new (duplicate=10,919,
+# no_container=2, no_bgn_match=0) - i.e. once ~34 pages' worth of real
+# content (1,019 / PAGE_SIZE) had been seen, essentially every further
+# page was re-serving listings already in `seen`, for 165 more pages, all
+# the way to the hard block. Nationwide that same run: 6,113/51,966 raw
+# links added (11.8%), duplicate=45,377 - a healthy small city that never
+# needs to page this deep (e.g. that day's Стара Загора: 410/826, 49.6%,
+# duplicate=410 - the expected ~50% split from each card's own thumbnail
+# + title anchor both matching LISTING_LINK_RE) looks nothing like this.
+#
+# Paging a city all the way to MAX_PAGES/the 403 block once its results
+# have become pure re-served duplicates burns real request time (and
+# site load) for, on the evidence above, no plausible further yield -
+# time this run's own fixed per-step budget would rather spend getting
+# through every city at all (a slow/retry-heavy day risks the 300-minute
+# step timeout, which discards the ENTIRE run's freshly-scraped data for
+# every city, not just the slow one - see scrape-large.yml's own comment).
+# DUPLICATE_STOP_WINDOW/DUPLICATE_STOP_MAX_NEW below stop a city's
+# pagination once a long, unbroken run of still-FULL pages has added
+# zero new listings - deliberately strict (a literal 0, not just "few",
+# over 10 consecutive pages = 300 raw link encounters with nothing new)
+# so a real trickle of genuinely new listings interspersed among
+# duplicates - which this sandbox cannot rule out live, see the addendum
+# for the honest caveat on what's actually confirmed about imoti.net's
+# server-side behavior here - keeps the crawl going rather than risk
+# cutting it off early. A healthy city's own ~50% duplicate split (two
+# anchors per real, distinct card) never comes close to 10 pages of zero
+# NEW listings - see tests/test_imoti_net_duplicate_pagination_stop.py.
+DUPLICATE_STOP_WINDOW = 10
+DUPLICATE_STOP_MAX_NEW = 0
 
 LISTING_LINK_RE = re.compile(r"^/en/obiava/prodava[^\"'#]*?/(\d+)/")
 BGN_RE = re.compile(r"([\d\s]{3,12})\s?BGN")
@@ -377,36 +412,63 @@ def fetch_listings():
     for city_slug, city_name in CITY_SLUGS:
         search_url = f"{BASE_URL}/{city_slug}"
         city_start_count = len(seen)
-        last_link_count = 0
         city_raw_links = 0
         city_stats = Counter()
+        # Rolling count of how many NEW listings each of the last
+        # DUPLICATE_STOP_WINDOW full pages added - see that constant's
+        # own comment above for the real evidence this is built from.
+        recent_added = deque(maxlen=DUPLICATE_STOP_WINDOW)
+        stop_reason = None
         for page_num in range(1, MAX_PAGES + 1):
             if page_num > 1:
                 time.sleep(REQUEST_DELAY_SECONDS)
             url = search_url if page_num == 1 else f"{search_url}?page={page_num}"
+            added_before_page = city_stats["added"]
             link_count = fetch_listings_page(url, seen, city_name, skip_stats=city_stats)
             if link_count is None:
                 print(f"DEBUG: {city_name} page {page_num} fetch failed (likely the page-200 "
                       f"block) - stopping this city here, {len(seen) - city_start_count} listings collected")
-                last_link_count = None
+                stop_reason = "fetch_failed"
                 break
             print(f"DEBUG: {city_name} page {page_num} links = {link_count}")
             city_raw_links += link_count
-            last_link_count = link_count
             if not link_count:
+                stop_reason = "exhausted"
                 break
-        if last_link_count is None or last_link_count >= PAGE_SIZE:
+            recent_added.append(city_stats["added"] - added_before_page)
+            if len(recent_added) == DUPLICATE_STOP_WINDOW and sum(recent_added) <= DUPLICATE_STOP_MAX_NEW:
+                print(f"DEBUG: {city_name} page {page_num} stopping early - the last "
+                      f"{DUPLICATE_STOP_WINDOW} full pages added {sum(recent_added)} new listings "
+                      f"between them (duplicate-saturated - see docs/backlog.md item 57's addendum) - "
+                      f"{len(seen) - city_start_count} listings collected")
+                stop_reason = "duplicate_saturated"
+                break
+        else:
+            stop_reason = "max_pages"
+        if stop_reason == "duplicate_saturated":
+            print(f"DEBUG: {city_name} pagination stopped intentionally once content was "
+                  f"duplicate-saturated, not a fetch failure - further pages were overwhelmingly "
+                  f"re-serving listings already collected, so this is NOT treated as truncation "
+                  f"the way a fetch failure or hitting MAX_PAGES still full would be")
+        elif stop_reason in ("fetch_failed", "max_pages"):
             print(f"DEBUG: WARNING - {city_name} may be truncated (last page was still full or "
                   f"a fetch failed) - real total could be higher than the "
                   f"{len(seen) - city_start_count} listings collected")
         # Per-city extraction-yield summary: what fraction of this city's
         # raw <a>-tag matches actually became a saved listing, broken down
-        # by which check rejected the rest. A healthy run's yield should
-        # track roughly 1/(anchors per listing card) - a sustained drop
-        # here with an UNCHANGED raw link count is the signature of an
-        # imoti.net card-markup change breaking smallest_container_with_
-        # price()/BGN_RE/DESC_RE, not of fewer real listings being on the
-        # page (docs/backlog.md item 57).
+        # by which check rejected the rest. A healthy small city's yield
+        # should track roughly 1/(anchors per listing card) - e.g. ~50%,
+        # all in `duplicate` (two matching <a> tags per real card -
+        # thumbnail + title). docs/backlog.md item 57's original 2026-09-
+        # 26 entry guessed a sustained yield drop here (with raw link
+        # count unchanged) would mean an imoti.net card-markup change
+        # breaking smallest_container_with_price()/BGN_RE/DESC_RE - that
+        # guess is CORRECTED by this item's 2026-10-10 addendum: real job
+        # logs show no_container/no_bgn_match near zero even during the
+        # active-ratio collapse this was investigating. The real signature
+        # is `duplicate` dominating (83-99% of rejections) for any city
+        # that needs to page deep - see DUPLICATE_STOP_WINDOW's own
+        # comment above for the real evidence and the fix built from it.
         added = city_stats["added"]
         yield_pct = (added / city_raw_links * 100) if city_raw_links else 0.0
         print(f"DEBUG: {city_name} yield - {added}/{city_raw_links} raw links became listings "
