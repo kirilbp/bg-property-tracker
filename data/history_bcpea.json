@@ -83202,9 +83202,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:31:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93088": {
@@ -83226,9 +83226,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:29:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93086": {
@@ -83242,7 +83242,7 @@
     "latest": {
       "id": "bcpea_93086",
       "url": "https://sales.bcpea.org/properties/93086",
-      "photo": null,
+      "photo": "https://c.tile.openstreetmap.org/18/148485/96431.png",
       "price_eur": 1043,
       "sqm": 66,
       "area": "Чепеларе",
@@ -83250,9 +83250,23 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:25:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true,
+      "photos": [
+        "https://c.tile.openstreetmap.org/18/148485/96431.png",
+        "https://a.tile.openstreetmap.org/18/148486/96431.png",
+        "https://b.tile.openstreetmap.org/18/148485/96430.png",
+        "https://c.tile.openstreetmap.org/18/148486/96430.png",
+        "https://a.tile.openstreetmap.org/18/148485/96432.png",
+        "https://b.tile.openstreetmap.org/18/148486/96432.png",
+        "https://b.tile.openstreetmap.org/18/148484/96431.png",
+        "https://b.tile.openstreetmap.org/18/148487/96431.png",
+        "https://a.tile.openstreetmap.org/18/148484/96430.png",
+        "https://a.tile.openstreetmap.org/18/148487/96430.png",
+        "https://c.tile.openstreetmap.org/18/148484/96432.png",
+        "https://c.tile.openstreetmap.org/18/148487/96432.png"
+      ]
     }
   },
   "bcpea_93084": {
@@ -83274,9 +83288,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:22:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93082": {
@@ -83298,9 +83312,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:18:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93081": {
@@ -83322,9 +83336,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:12:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93076": {
@@ -83346,9 +83360,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:05:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93075": {
@@ -83370,9 +83384,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:02:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93074": {
@@ -83394,9 +83408,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T23:00:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93063": {
@@ -83418,9 +83432,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:32:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93062": {
@@ -83442,9 +83456,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:30:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93061": {
@@ -83466,9 +83480,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:28:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93060": {
@@ -83490,9 +83504,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:27:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93059": {
@@ -83514,9 +83528,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:25:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93058": {
@@ -83538,9 +83552,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:23:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93057": {
@@ -83562,9 +83576,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:20:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93056": {
@@ -83586,9 +83600,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:18:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93055": {
@@ -83610,9 +83624,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:16:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93053": {
@@ -83634,9 +83648,9 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:12:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true
     }
   },
   "bcpea_93050": {
@@ -83658,9 +83672,10 @@
       "portal": "sales.bcpea.org",
       "site_updated_at": "2026-10-09T22:03:00+00:00",
       "category": "apartment",
-      "_settlement": "Чепеларе",
-      "lat": null,
-      "lng": null
+      "lat": 41.7256563,
+      "lng": 24.6853052,
+      "detail_checked": true,
+      "description": "25275/2094548 ( двадесет и пет хиляди двеста седемдесет и пет върху два милиона деветдесет и четири хиляди петстотин четиридесет и осем ) идеални части от Поземлен имот с идентификатор 80371.218.36 по КККР на гр. Чепеларе, общ. Чепеларе, обл. Смолян, одобрени със заповед № РД- 18-57/28.08.2006 г. на ИД на АГКК, последно изменение от 08.07.2021 г, с адрес на имота: гр. Чепеларе, м. Пампорово, с площ от 72 824.00 кв.м.. трайно предназначение на територията - горска, начин на трайно ползване - иглолистна гора, при съседи: 80371.218.1, 80371.244.352, 80371.218.19, 58517.34.4, 58517.34.5, 58517.34.7, 58517.34.6, 58517.207.1, 58517.29.18. 58517.29.19, 58517.29.17. 58517.29.22. 585 1 7.29.20, 58517.29.24. 58517.220.29"
     }
   }
 }
