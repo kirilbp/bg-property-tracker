@@ -1749,6 +1749,53 @@ class DataLossGuardTripped(Exception):
     pass
 
 
+# Two real production incidents, six days apart (run 37198858695/job
+# 111426216987, 2026-10-04; run 38019738767/job 114117861396, 2026-10-10 -
+# see docs/backlog.md for the full writeup), both crashed this entire
+# script with an uncaught requests.exceptions.HTTPError AFTER the real
+# upsert work above had already completed successfully - one on
+# _fetch_stored_source_ids()'s listing_sources read (inside
+# check_portal_counts()), the other on delete_stale_merged_listings()'s own
+# merged_listings read. Both are the exact same shape: a keyset-paginated
+# verification/cleanup GET (order=X&limit=1000&X=gt.<cursor>) whose final
+# retry attempt (request_with_retries() already retries every attempt
+# MAX_HTTP_RETRIES+ times) still comes back as Postgres's own 57014
+# ("canceling statement due to statement timeout"), not any other error.
+# request_with_retries() can't tell this apart from a genuinely broken
+# request on its own - it just returns the last response, ok or not - so
+# each read loop below checks for this one specific signature itself and
+# raises this instead of blindly calling resp.raise_for_status(). main()
+# catches StatementTimeoutError narrowly (see its own comment) to skip just
+# that one cleanup step for this run rather than crash the whole sync -
+# the actual data write already succeeded by the time either of these
+# fires, so losing "Sync complete" over a stale-row cleanup timeout is
+# disproportionate. Deliberately NOT a catch-all for "any 500" or "any
+# HTTPError" at these call sites: a real auth failure (401/403), a
+# genuinely malformed request, or some other Postgres error must still
+# raise_for_status() and crash loudly exactly as before - only this one
+# confirmed, narrow, transient-and-already-twice-recurring failure shape
+# degrades gracefully.
+class StatementTimeoutError(Exception):
+    pass
+
+
+def _is_statement_timeout(resp):
+    """True only for Postgres's own 57014 on a 500 response - never for
+    any other status code or error body, so a different real failure at
+    the same call site (auth, malformed request, a different Postgres
+    error) still falls through to the normal resp.raise_for_status()
+    path below and raises loudly instead of being silently treated as
+    "safe to skip cleanup for"."""
+    if resp.status_code != 500:
+        return False
+    try:
+        return resp.json().get("code") == "57014"
+    except ValueError:
+        # Not JSON (or empty body) - fall back to a plain substring check
+        # of the raw text rather than assuming it can't be this error.
+        return '"code":"57014"' in resp.text
+
+
 def _fetch_stored_source_ids(base_url, headers, portal):
     stored_ids = set()
     cursor = None
@@ -1759,7 +1806,13 @@ def _fetch_stored_source_ids(base_url, headers, portal):
         resp = request_with_retries(
             "GET", f"{base_url}/rest/v1/listing_sources", headers=headers, params=query_params, timeout=REQUEST_TIMEOUT_SECONDS
         )
-        resp.raise_for_status()
+        if not resp.ok:
+            if _is_statement_timeout(resp):
+                raise StatementTimeoutError(
+                    f"listing_sources read for portal={portal!r} timed out (Postgres 57014) "
+                    f"after cursor={cursor!r}"
+                )
+            resp.raise_for_status()
         rows = resp.json()
         stored_ids.update(r["source_id"] for r in rows)
         if len(rows) < 1000:
@@ -1837,7 +1890,15 @@ def delete_stale_merged_listings(base_url, headers, current_ids):
         resp = request_with_retries(
             "GET", f"{base_url}/rest/v1/merged_listings", headers=headers, params=query_params, timeout=REQUEST_TIMEOUT_SECONDS
         )
-        resp.raise_for_status()
+        if not resp.ok:
+            if _is_statement_timeout(resp):
+                # See StatementTimeoutError's own comment above - this is
+                # the exact call site that crashed run 38019738767/job
+                # 114117861396 (2026-10-10).
+                raise StatementTimeoutError(
+                    f"merged_listings read timed out (Postgres 57014) after cursor={cursor!r}"
+                )
+            resp.raise_for_status()
         rows = resp.json()
         stored_ids.update(r["id"] for r in rows)
         if len(rows) < 1000:
@@ -1928,6 +1989,7 @@ def main():
         current_by_portal.setdefault(r["portal"], set()).add(r["source_id"])
 
     print("Checking this run's per-portal counts against what's already live before cleaning up stale rows...")
+    stored_by_portal = None
     try:
         stored_by_portal = check_portal_counts(base_url, headers, current_by_portal)
     except DataLossGuardTripped as e:
@@ -1937,11 +1999,42 @@ def main():
             "only the stale-row cleanup was skipped, so nothing was deleted."
         )
         sys.exit(1)
+    except StatementTimeoutError as e:
+        # See StatementTimeoutError's own comment above
+        # (_fetch_stored_source_ids()) - a transient Postgres read timeout
+        # on this verification query, after this run's real upsert work
+        # above already completed successfully. Degrade gracefully: skip
+        # ALL stale-row cleanup for this run only (stored_by_portal stays
+        # None, so neither delete_stale_merged_listings() nor
+        # delete_stale_listing_sources() below runs - the latter needs
+        # stored_by_portal's per-portal id sets, which this failure means
+        # we never finished collecting) rather than crash the whole sync.
+        # Nothing is deleted; a future run's cleanup will catch up.
+        print(
+            f"::warning::check_portal_counts() timed out reading stored source_ids from Supabase "
+            f"(Postgres statement_timeout, 57014) after this run's real upsert work above already "
+            f"completed successfully: {e}. Skipping all stale-row cleanup for this run only - a "
+            f"future run's cleanup will catch up. Nothing was deleted."
+        )
 
-    print("Cleaning up stale rows left behind by earlier syncs...")
-    current_merged_ids = {r["id"] for r in merged_rows}
-    delete_stale_merged_listings(base_url, headers, current_merged_ids)
-    delete_stale_listing_sources(base_url, headers, current_by_portal, stored_by_portal)
+    if stored_by_portal is not None:
+        print("Cleaning up stale rows left behind by earlier syncs...")
+        current_merged_ids = {r["id"] for r in merged_rows}
+        try:
+            delete_stale_merged_listings(base_url, headers, current_merged_ids)
+        except StatementTimeoutError as e:
+            # Same narrow degrade-gracefully handling as above, but scoped
+            # to just this one table: stored_by_portal is already in hand
+            # (unaffected by this failure), so delete_stale_listing_sources()
+            # below still runs normally - only merged_listings' own cleanup
+            # is skipped for this run.
+            print(
+                f"::warning::delete_stale_merged_listings() timed out reading stored merged_listings "
+                f"ids from Supabase (Postgres statement_timeout, 57014): {e}. Skipping merged_listings "
+                f"cleanup for this run only - a future run's cleanup will catch up. Nothing was deleted "
+                f"from merged_listings."
+            )
+        delete_stale_listing_sources(base_url, headers, current_by_portal, stored_by_portal)
 
     print("Sync complete")
 

@@ -8041,3 +8041,175 @@ fix's version) against the real committed `data/leads_*.json(.gz)` files
 locally, not from dispatching anything. Not self-merged - pushed as an
 update to the same branch, `fix/sqm-desc-extraction-merge-2026-09-29`, for
 Missy's fresh review (not a new PR, per instruction).
+
+## 76. `sync_to_supabase.py` post-upsert verification/cleanup reads crashed the whole script on a transient Postgres statement timeout (57014), AFTER the real upsert work already succeeded - FIXED (narrow, scoped degrade-gracefully handling), PR OPEN FOR MISSY'S REVIEW (2026-10-10)
+
+Real, recurring - confirmed from two separate real `scrape.yml` job logs,
+not re-derived from a guess:
+
+1. **Run 37198858695 / job 111426216987 (2026-10-04):** after
+   `sync_to_supabase.py` successfully upserted all 302,143 rows into
+   `merged_listings`, it crashed during the post-upsert verification step
+   (`check_portal_counts()` -> `_fetch_stored_source_ids()`) with Postgres
+   `57014` ("canceling statement due to statement timeout") on a
+   keyset-paginated `listing_sources` read
+   (`select=source_id&portal=eq.alo.bg&order=source_id&limit=1000&source_id=gt.alo_11117117`),
+   surfacing as an uncaught `requests.exceptions.HTTPError` that crashed
+   the whole process with exit code 1 - failing the entire workflow run
+   even though the actual data write had already completed.
+2. **Run 38019738767 / job 114117861396 (2026-10-10):** same failure
+   family, a different call site - after all 6 scrapers and the real
+   upsert work finished successfully, `delete_stale_merged_listings()`'s
+   own keyset-paginated `merged_listings` read
+   (`select=id&order=id&limit=1000&id=gt.m_42671e79c23ac535`) hit the same
+   `57014` and crashed the script the same way.
+
+Both are genuine, transient Postgres `statement_timeout` errors on a
+read, not a write failure and not a permanently broken query (the exact
+same "bad luck once" shape `request_with_retries()`'s own 2026-09-25
+retry-on-`57014` fix already documents for the *upsert* path) - six days
+apart, two different tables/queries, same root shape: a keyset-paginated
+verification/cleanup `GET` (`order=X&limit=1000&X=gt.<cursor>`) whose
+final retry attempt still comes back `57014` after `request_with_retries()`
+exhausts every attempt.
+
+**What these verification/cleanup steps are actually for, confirmed by
+reading the code, not assumed:** `check_portal_counts()`/
+`_fetch_stored_source_ids()` fetch each portal's currently-live
+`source_id`s so the data-loss guard (`MIN_PORTAL_RATIO`/
+`MIN_PORTAL_ABSOLUTE`) can refuse to delete anything if this run's fresh
+scrape looks broken, and so the later cleanup calls don't have to
+re-fetch the same ids. `delete_stale_merged_listings()`'s own read does
+the equivalent for `merged_listings`, to find rows this run didn't touch
+(old group ids left behind when membership changes - see that function's
+own comment, backlog's prior `57014`-on-the-*frontend* incident) and
+delete them. **Skipping either for one run is safe**, confirmed by
+`main()`'s own pre-existing `DataLossGuardTripped` handling, which
+already prints "This run's upserts above already completed... only the
+stale-row cleanup was skipped, so nothing was deleted." for exactly this
+reason - stale rows sitting around one cycle longer than necessary is
+always the safer failure than either deleting real data or crashing a
+run whose actual write work succeeded. The real upsert work (`upsert()`,
+called before any of this) was already fully complete and live in both
+confirmed occurrences by the time the crash happened.
+
+**Fix - scoped narrowly to the one confirmed failure shape, not a
+catch-all for any 500/`HTTPError` at these call sites:**
+
+1. New `_is_statement_timeout(resp)` helper: true only for a `500`
+   response whose body's `code` field (or, if the body isn't valid JSON,
+   whose raw text) is literally `"57014"`. A different real failure at
+   the same call site - a genuine `401`/`403` auth failure, a different
+   Postgres error code, a malformed request - returns `False` and falls
+   through to the existing `resp.raise_for_status()` exactly as before,
+   still crashing loudly. This is the same "narrow, specific signature,
+   not a blanket catch" discipline `index.html`'s `fetchAllRows()`
+   fallback (shipped earlier this session for the analogous frontend
+   `57014` incident, backlog item 72) already uses for its own version of
+   this exact tradeoff.
+2. New `StatementTimeoutError` exception, raised by
+   `_fetch_stored_source_ids()` and by `delete_stale_merged_listings()`'s
+   own read loop in place of calling `resp.raise_for_status()` when
+   `_is_statement_timeout(resp)` is true - both are the two confirmed
+   crash sites above, and both are the full set of keyset-paginated
+   verification/cleanup `GET` loops in this file (checked: `upsert()`'s
+   own batches are writes, not reads, and `delete_stale_listing_sources()`
+   has no read loop of its own - it reuses `stored_by_portal` already
+   fetched by `check_portal_counts()`).
+3. `main()` now catches `StatementTimeoutError` at both call sites,
+   separately, so a timeout on one doesn't block work that's independent
+   of it:
+   - From `check_portal_counts()`: logs an `::warning::` and skips **all**
+     stale-row cleanup for this run (both `delete_stale_merged_listings()`
+     and `delete_stale_listing_sources()` need its `stored_by_portal`
+     result, which this failure means was never fully collected) -
+     reproduces occurrence 1's exact path.
+   - From `delete_stale_merged_listings()` alone (`check_portal_counts()`
+     succeeded): logs an `::warning::` and skips only the
+     `merged_listings` cleanup for this run -
+     `delete_stale_listing_sources()` still runs normally immediately
+     after, since its own data (`stored_by_portal`) was unaffected -
+     reproduces occurrence 2's exact path.
+   - Either way, `main()` now reaches `print("Sync complete")` instead of
+     letting the exception propagate and crash the process - the upsert
+     work from earlier in the same run is never touched, retried, or
+     undone.
+   - **Unchanged, deliberately**: the pre-existing `DataLossGuardTripped`
+     handling (a genuinely different, intentional stop - a broken scrape,
+     not a transient timeout) still `sys.exit(1)`s exactly as before. This
+     fix does not touch that path or make it more lenient.
+
+**Deeper cause - flagged honestly as unconfirmed, not re-derived from a
+guess:** this repo has hit this exact `57014`/keyset-pagination failure
+shape once before, on the *frontend* (`index.html`'s `fetchAllRows()`,
+backlog items 71/72/decisions.md's 2026-09-28 entries) - there, the root
+cause was `merged_listings` growing to ~244k rows against ~168k actually
+current (orphaned rows from `merged_id` changing across fixes,
+`delete_stale_merged_listings()` itself exists to prevent a repeat of
+that). Checked `supabase/schema.sql` for whether this time it's a missing
+index: it is **not** obviously that - `merged_listings.id` is already
+`text primary key` (so `order=id&limit=1000&id=gt.<cursor>` is exactly the
+PK's own index range-scan shape), and `listing_sources` has a composite
+primary key on `(portal, source_id)` (so `portal=eq.X&order=source_id&
+limit=1000&source_id=gt.<cursor>` constrains the PK's leading column by
+equality and ranges on its second column - also a standard, efficient use
+of that same index). Both queries already appear to be backed by the
+right index, which makes "missing index" a less likely explanation this
+time than it was for the frontend incident. More likely candidates, **none
+confirmed**: residual load/lock contention/autovacuum right after a
+300k+-row, many-batch upsert burst that just finished on the same tables;
+table bloat from the upsert pattern itself; or simply Supabase's own
+plan-tier `statement_timeout` setting (not configured anywhere in this
+repo's `schema.sql` - whatever it is, it's a Supabase project-level
+default this codebase doesn't control or set). **This sandbox has no live
+Supabase dashboard/SQL access to confirm any of this** (re-confirmed this
+session, same egress block noted throughout `docs/decisions.md`) - flagged
+here as an open question for whoever has dashboard access: checking the
+real query plan (`EXPLAIN ANALYZE`) for both queries, current table sizes/
+bloat, and the project's actual `statement_timeout` value would settle
+which of these it actually is, if any.
+
+**Tests** (`tests/test_sync_verification_timeout_fallback.py`, 14 cases,
+HTTP layer mocked - this sandbox cannot reach live Supabase):
+`_is_statement_timeout()`'s own true/false cases (real `57014` body, a
+different `500` body, a `401` with the same body text, a non-JSON body,
+and the raw-text fallback match); `_fetch_stored_source_ids()` and
+`delete_stale_merged_listings()` each raising `StatementTimeoutError` on
+a `57014`-after-exhausted-retries response but still raising a plain
+`HTTPError` for a different `500` or a `401` (the "don't mask a real
+failure" requirement, verified directly, not just asserted);
+`_fetch_stored_source_ids()`'s normal multi-page success path unchanged;
+and three `main()`-level integration tests with every Supabase call
+mocked - a `StatementTimeoutError` from `check_portal_counts()` alone
+(reproduces occurrence 1: all cleanup skipped, "Sync complete" reached,
+no `sys.exit`), a `StatementTimeoutError` from
+`delete_stale_merged_listings()` alone (reproduces occurrence 2:
+`delete_stale_listing_sources()` still runs, "Sync complete" reached),
+and confirmation that `DataLossGuardTripped` is completely unchanged
+(still `sys.exit(1)`). Full suite:
+`PYTHONPATH=/usr/local/lib/python3.13/dist-packages python3 -m pytest
+tests/ -q` (this sandbox's default `python3` is 3.11 and lacks `pytest`/
+`requests` on its own path, hence the explicit `PYTHONPATH` - noted here
+in case a future session hits the same thing) - 287 passed, 4 subtests
+passed, ignoring 6 pre-existing, unrelated test files that fail to import
+in this sandbox for lack of the `playwright` package
+(`test_bcpea_detail_extraction.py`, `test_imot_oblast_grid_crawl.py`,
+`test_olx_detail_extraction.py`, `test_olx_grid_crawl_timeout_fix.py`,
+`test_scraper_bcpea_photo_miss_tripwire.py`, `test_update_history.py` -
+confirmed this import failure pre-exists on `origin/main` untouched by
+this change, not something this fix introduced).
+
+**Out of scope, deliberately left alone**: `delete_stale_listing_sources()`'s
+and `delete_stale_merged_listings()`'s own `DELETE` calls (writes, not
+the read loops this fix targets) could in principle also hit a statement
+timeout, but that's a different, unconfirmed failure mode from the two
+real occurrences this item fixes - not addressed here to keep this change
+scoped to the actual, confirmed bug. `scraper.py`/`check_scrape_freshness.py`
+were not touched (a separate, parallel fix was active there this
+session).
+
+Built in an isolated `git worktree` (`fix/sync-verification-timeout`) off
+a fresh `origin/main` fetch; `git worktree list`/`git status` checked
+first in the shared primary checkout per this repo's `CLAUDE.md`. No live
+GitHub Actions `workflow_dispatch` at any point. Not self-merged - pushed
+for Missy's review.
